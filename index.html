@@ -1,0 +1,997 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    
+    <!-- SEO Meta Tags -->
+    <title>codencode.my - Affordable Online Trilingual Coding Academy | Python & Machine Learning Courses Malaysia</title>
+    <meta name="description" content="Learn Python & Machine Learning in 6 weeks. Affordable online coding academy in Johor Bahru, Malaysia. Trilingual courses (English, Malay, Chinese). 1-on-1, group classes available." />
+    <meta name="keywords" content="python course malaysia, coding academy johor bahru, machine learning malaysia, programming courses, belajar coding, 编程课程, affordable coding bootcamp, online programming classes" />
+    <meta name="author" content="codencode.my" />
+    <meta name="robots" content="index, follow" />
+    <link rel="canonical" href="https://codencode.my/" />
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://codencode.my/" />
+    <meta property="og:title" content="codencode.my - Affordable Online Trilingual Coding Academy Malaysia" />
+    <meta property="og:description" content="Learn Python & Machine Learning in 6 weeks. Affordable online coding academy in Johor Bahru, Malaysia. Trilingual courses available." />
+    <meta property="og:image" content="https://codencode.my/images/og-image.jpg" />
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
+    
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              primary: '#165DFF',
+              secondary: '#36CFC9',
+              accent: '#FF7D00',
+              dark: '#1D2129',
+              light: '#F2F3F5',
+              'gray-100': '#F7F8FA',
+              'gray-200': '#E5E6EB',
+              'gray-300': '#C9CDD4',
+              'gray-400': '#86909C',
+              'gray-500': '#4E5969'
+            }
+          }
+        }
+      };
+    </script>
+    
+    <style>
+      .transition-custom { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+      .text-shadow { text-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+    </style>
+</head>
+<body class="font-sans bg-gray-100 text-dark antialiased">
+
+    <!-- Language Selector -->
+    <div class="fixed top-4 right-4 z-50">
+      <select id="language-selector" class="bg-white border border-gray-200 rounded-lg px-3 py-2 shadow-md focus:outline-none focus:ring-2 focus:ring-primary/50 transition-custom cursor-pointer">
+        <option value="en">English</option>
+        <option value="ms">Bahasa Melayu</option>
+        <option value="zh">中文</option>
+      </select>
+    </div>
+
+    <!-- Navigation -->
+    <header class="fixed w-full top-0 z-50 transition-custom bg-white/95 backdrop-blur-sm shadow-sm" id="navbar">
+      <div class="container mx-auto px-4 py-3 flex items-center justify-between">
+        <a class="flex items-center space-x-2" href="/">
+          <div class="w-10 h-10 rounded-lg bg-primary flex items-center justify-center">
+            <span class="text-white font-bold text-xl">CE</span>
+          </div>
+          <span class="text-xl font-bold text-dark">codencode.my</span>
+        </a>
+        
+        <nav class="hidden md:flex items-center space-x-8">
+          <a class="font-medium text-primary hover:text-primary/80 transition-custom" href="#hero" data-i18n="nav.home">Home</a>
+          <a class="font-medium text-gray-500 hover:text-primary transition-custom" href="#courses" data-i18n="nav.courses">Courses</a>
+          <a class="font-medium text-gray-500 hover:text-primary transition-custom" href="#instructor" data-i18n="nav.instructor">Instructor</a>
+          <a class="font-medium text-gray-500 hover:text-primary transition-custom" href="#testimonials" data-i18n="nav.testimonials">Reviews</a>
+          <a class="font-medium text-gray-500 hover:text-primary transition-custom" href="#contact" data-i18n="nav.contact">Contact</a>
+        </nav>
+        
+        <div class="flex items-center space-x-4">
+          <a class="hidden md:block px-5 py-2 rounded-full bg-primary text-white font-medium hover:bg-primary/90 transition-custom shadow-md hover:shadow-lg" href="#contact" data-i18n="nav.freetrial">Free Trial</a>
+          <button class="md:hidden text-dark hover:text-primary transition-custom" id="mobile-menu-button">
+            <i class="fas fa-bars text-xl"></i>
+          </button>
+        </div>
+      </div>
+      
+      <div class="hidden md:hidden bg-white border-t border-gray-200" id="mobile-menu">
+        <div class="container mx-auto px-4 py-3 flex flex-col space-y-3">
+          <a class="py-2 font-medium text-primary" href="#hero" data-i18n="nav.home">Home</a>
+          <a class="py-2 font-medium text-gray-500 hover:text-primary transition-custom" href="#courses" data-i18n="nav.courses">Courses</a>
+          <a class="py-2 font-medium text-gray-500 hover:text-primary transition-custom" href="#instructor" data-i18n="nav.instructor">Instructor</a>
+          <a class="py-2 font-medium text-gray-500 hover:text-primary transition-custom" href="#testimonials" data-i18n="nav.testimonials">Reviews</a>
+          <a class="py-2 font-medium text-gray-500 hover:text-primary transition-custom" href="#contact" data-i18n="nav.contact">Contact</a>
+          <a class="py-2 mt-2 rounded-full bg-primary text-white font-medium text-center hover:bg-primary/90 transition-custom" href="#contact" data-i18n="nav.freetrial">Free Trial</a>
+        </div>
+      </div>
+    </header>
+
+    <main class="pt-16">
+      
+      <!-- Hero Section -->
+      <section id="hero" class="relative bg-gradient-to-br from-primary/5 to-secondary/5 py-16 md:py-24 overflow-hidden">
+        <div class="container mx-auto px-4 relative z-10">
+          <div class="max-w-3xl mx-auto text-center">
+            <h1 class="text-4xl md:text-5xl font-bold leading-tight text-dark mb-6 text-shadow" data-i18n="hero.title">
+              Learn Python in 6 Weeks — From Zero to Automation Expert
+            </h1>
+            <p class="text-lg md:text-xl text-gray-500 mb-8 max-w-2xl mx-auto" data-i18n="hero.subtitle">
+              Affordable, online, trilingual coding academy in Johor Bahru, Malaysia. Quality programming education for beginners, professionals, and kids.
+            </p>
+            <div class="flex flex-col sm:flex-row justify-center gap-4">
+              <a class="px-8 py-4 rounded-full bg-primary text-white font-medium text-lg hover:bg-primary/90 transition-custom shadow-lg hover:shadow-xl" href="#courses">
+                <span data-i18n="hero.cta1">Start Learning</span>
+                <i class="fas fa-arrow-right ml-2"></i>
+              </a>
+              <a class="px-8 py-4 rounded-full bg-white text-primary font-medium text-lg border border-primary hover:bg-primary/5 transition-custom shadow-md hover:shadow-lg" href="#courses">
+                <span data-i18n="hero.cta2">View Courses</span>
+                <i class="fas fa-info-circle ml-2"></i>
+              </a>
+            </div>
+            
+            <div class="mt-12">
+              <div class="flex justify-center mb-4">
+                <div class="flex -space-x-4">
+                  <div class="w-12 h-12 rounded-full border-2 border-white bg-primary/20 flex items-center justify-center">
+                    <span class="text-primary font-bold">👨‍💻</span>
+                  </div>
+                  <div class="w-12 h-12 rounded-full border-2 border-white bg-secondary/20 flex items-center justify-center">
+                    <span class="text-secondary font-bold">👩‍💻</span>
+                  </div>
+                  <div class="w-12 h-12 rounded-full border-2 border-white bg-accent/20 flex items-center justify-center">
+                    <span class="text-accent font-bold">👨‍🎓</span>
+                  </div>
+                  <div class="w-12 h-12 rounded-full border-2 border-white bg-primary/10 flex items-center justify-center text-primary font-medium text-sm">
+                    50+
+                  </div>
+                </div>
+              </div>
+              <p class="text-gray-500">
+                <span class="font-bold text-dark">50+</span>
+                <span data-i18n="hero.students">students joined</span>
+              </p>
+            </div>
+          </div>
+        </div>
+        
+        <div class="absolute top-1/4 left-10 w-20 h-20 bg-primary/10 rounded-full blur-2xl"></div>
+        <div class="absolute bottom-1/4 right-10 w-32 h-32 bg-secondary/10 rounded-full blur-3xl"></div>
+      </section>
+
+      <!-- Why Choose Us Section -->
+      <section class="py-16 bg-white">
+        <div class="container mx-auto px-4">
+          <div class="text-center mb-16">
+            <h2 class="text-3xl md:text-4xl font-bold text-dark mb-4" data-i18n="why.title">
+              Why Choose codencode.my?
+            </h2>
+            <p class="text-gray-500 max-w-2xl mx-auto" data-i18n="why.subtitle">
+              We provide a unique learning experience to help you master programming skills and achieve your career goals.
+            </p>
+          </div>
+          
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            <div class="bg-gray-100 rounded-xl p-6 hover:shadow-lg transition-custom transform hover:-translate-y-1">
+              <div class="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mb-6">
+                <i class="fas fa-user-tie text-primary text-2xl"></i>
+              </div>
+              <h3 class="text-xl font-bold text-dark mb-3" data-i18n="why.expert.title">Expert Instructor</h3>
+              <p class="text-gray-500" data-i18n="why.expert.desc">Taught by software engineers with 8+ years of experience, sharing real-world insights.</p>
+            </div>
+            
+            <div class="bg-gray-100 rounded-xl p-6 hover:shadow-lg transition-custom transform hover:-translate-y-1">
+              <div class="w-14 h-14 rounded-full bg-secondary/10 flex items-center justify-center mb-6">
+                <i class="fas fa-wallet text-secondary text-2xl"></i>
+              </div>
+              <h3 class="text-xl font-bold text-dark mb-3" data-i18n="why.affordable.title">Affordable Pricing</h3>
+              <p class="text-gray-500" data-i18n="why.affordable.desc">Most competitive prices in the market, making quality education accessible to everyone.</p>
+            </div>
+            
+            <div class="bg-gray-100 rounded-xl p-6 hover:shadow-lg transition-custom transform hover:-translate-y-1">
+              <div class="w-14 h-14 rounded-full bg-accent/10 flex items-center justify-center mb-6">
+                <i class="fas fa-language text-accent text-2xl"></i>
+              </div>
+              <h3 class="text-xl font-bold text-dark mb-3" data-i18n="why.trilingual.title">Trilingual Teaching</h3>
+              <p class="text-gray-500" data-i18n="why.trilingual.desc">Available in Malay, English, and Chinese to meet different student needs.</p>
+            </div>
+            
+            <div class="bg-gray-100 rounded-xl p-6 hover:shadow-lg transition-custom transform hover:-translate-y-1">
+              <div class="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mb-6">
+                <i class="fas fa-laptop text-primary text-2xl"></i>
+              </div>
+              <h3 class="text-xl font-bold text-dark mb-3" data-i18n="why.flexible.title">Flexible Learning</h3>
+              <p class="text-gray-500" data-i18n="why.flexible.desc">Online courses, learn anytime anywhere at your own pace.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+
+      <!-- Courses Section -->
+      <section id="courses" class="py-16 bg-gray-100">
+        <div class="container mx-auto px-4">
+          <div class="text-center mb-16">
+            <h2 class="text-3xl md:text-4xl font-bold text-dark mb-4" data-i18n="courses.title">Choose Your Course</h2>
+            <p class="text-gray-500 max-w-2xl mx-auto" data-i18n="courses.subtitle">We offer various programming courses to meet different learning needs and goals.</p>
+          </div>
+          
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto">
+            <div class="bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-custom group">
+              <div class="relative h-48 bg-gradient-to-r from-blue-400 to-blue-600 flex items-center justify-center">
+                <div class="text-6xl">🐍</div>
+                <div class="absolute top-4 right-4 bg-primary text-white text-sm font-medium px-3 py-1 rounded-full" data-i18n="courses.python.badge">Popular</div>
+              </div>
+              <div class="p-6">
+                <h3 class="text-2xl font-bold text-dark mb-2" data-i18n="courses.python.title">Python Programming Bootcamp</h3>
+                <p class="text-gray-500 mb-4" data-i18n="courses.python.desc">6-week course from beginner to advanced. Master data analysis, automation, and web development.</p>
+                <div class="flex items-center text-sm text-gray-500 mb-6">
+                  <span class="flex items-center mr-4">
+                    <i class="fas fa-clock mr-1"></i>
+                    <span data-i18n="courses.python.duration">6 weeks</span>
+                  </span>
+                  <span class="flex items-center">
+                    <i class="fas fa-signal mr-1"></i>
+                    <span data-i18n="courses.python.level">Beginner to Intermediate</span>
+                  </span>
+                </div>
+                <div class="flex justify-between items-center">
+                  <div>
+                    <span class="text-2xl font-bold text-dark">RM 1,500</span>
+                    <span class="text-gray-400 line-through ml-2">RM 2,000</span>
+                  </div>
+                  <a class="px-6 py-2 rounded-full bg-primary text-white font-medium hover:bg-primary/90 transition-custom" href="#contact" data-i18n="courses.cta">Learn More</a>
+                </div>
+              </div>
+            </div>
+            
+            <div class="bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-custom group">
+              <div class="relative h-48 bg-gradient-to-r from-purple-400 to-pink-500 flex items-center justify-center">
+                <div class="text-6xl">🤖</div>
+                <div class="absolute top-4 right-4 bg-accent text-white text-sm font-medium px-3 py-1 rounded-full" data-i18n="courses.ml.badge">New</div>
+              </div>
+              <div class="p-6">
+                <h3 class="text-2xl font-bold text-dark mb-2" data-i18n="courses.ml.title">Machine Learning Fundamentals</h3>
+                <p class="text-gray-500 mb-4" data-i18n="courses.ml.desc">10-week course covering ML algorithms, model training, and real-world applications.</p>
+                <div class="flex items-center text-sm text-gray-500 mb-6">
+                  <span class="flex items-center mr-4">
+                    <i class="fas fa-clock mr-1"></i>
+                    <span data-i18n="courses.ml.duration">10 weeks</span>
+                  </span>
+                  <span class="flex items-center">
+                    <i class="fas fa-signal mr-1"></i>
+                    <span data-i18n="courses.ml.level">Intermediate to Advanced</span>
+                  </span>
+                </div>
+                <div class="flex justify-between items-center">
+                  <div>
+                    <span class="text-2xl font-bold text-dark">RM 2,000</span>
+                    <span class="text-gray-400 line-through ml-2">RM 2,500</span>
+                  </div>
+                  <a class="px-6 py-2 rounded-full bg-primary text-white font-medium hover:bg-primary/90 transition-custom" href="#contact" data-i18n="courses.cta">Learn More</a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Pricing Section -->
+      <section id="pricing" class="py-16 bg-white">
+        <div class="container mx-auto px-4">
+          <div class="text-center mb-16">
+            <h2 class="text-3xl md:text-4xl font-bold text-dark mb-4" data-i18n="pricing.title">Class Types & Pricing</h2>
+            <p class="text-gray-500 max-w-2xl mx-auto" data-i18n="pricing.subtitle">We offer various class types to meet different learning needs and budgets.</p>
+          </div>
+          
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+            <div class="bg-gray-100 rounded-2xl overflow-hidden hover:shadow-xl transition-custom border border-gray-200">
+              <div class="p-6 border-b border-gray-200">
+                <h3 class="text-xl font-bold text-dark mb-1" data-i18n="pricing.one.title">1-on-1 Private</h3>
+                <p class="text-gray-500 text-sm" data-i18n="pricing.one.subtitle">Personalized learning experience</p>
+              </div>
+              <div class="p-6">
+                <div class="text-center mb-6">
+                  <span class="text-4xl font-bold text-dark">RM 199</span>
+                  <span class="text-gray-500" data-i18n="pricing.one.unit">/hour</span>
+                </div>
+                <ul class="space-y-3 mb-8">
+                  <li class="flex items-start">
+                    <i class="fas fa-check text-secondary mt-1 mr-2"></i>
+                    <span class="text-gray-500" data-i18n="pricing.one.feat1">Dedicated 1-on-1 instructor</span>
+                  </li>
+                  <li class="flex items-start">
+                    <i class="fas fa-check text-secondary mt-1 mr-2"></i>
+                    <span class="text-gray-500" data-i18n="pricing.one.feat2">Personalized learning plan</span>
+                  </li>
+                  <li class="flex items-start">
+                    <i class="fas fa-check text-secondary mt-1 mr-2"></i>
+                    <span class="text-gray-500" data-i18n="pricing.one.feat3">Flexible scheduling</span>
+                  </li>
+                  <li class="flex items-start">
+                    <i class="fas fa-check text-secondary mt-1 mr-2"></i>
+                    <span class="text-gray-500" data-i18n="pricing.one.feat4">Priority Q&A</span>
+                  </li>
+                </ul>
+                <a class="block text-center px-6 py-3 rounded-full bg-white text-primary font-medium border border-primary hover:bg-primary/5 transition-custom" href="#contact" data-i18n="pricing.cta">Choose Plan</a>
+              </div>
+            </div>
+            
+            <div class="bg-primary rounded-2xl overflow-hidden shadow-xl transform md:-translate-y-4 border-2 border-primary relative">
+              <div class="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-accent text-white text-sm font-medium px-4 py-1 rounded-full" data-i18n="pricing.popular">Most Popular</div>
+              <div class="p-6 border-b border-primary/20">
+                <h3 class="text-xl font-bold text-white mb-1" data-i18n="pricing.two.title">1-on-2 Small Group</h3>
+                <p class="text-primary/80 text-sm" data-i18n="pricing.two.subtitle">Learn with a friend</p>
+              </div>
+              <div class="p-6">
+                <div class="text-center mb-6">
+                  <span class="text-4xl font-bold text-white">RM 149</span>
+                  <span class="text-primary/80" data-i18n="pricing.two.unit">/hour/person</span>
+                </div>
+                <ul class="space-y-3 mb-8">
+                  <li class="flex items-start">
+                    <i class="fas fa-check text-white mt-1 mr-2"></i>
+                    <span class="text-primary/80" data-i18n="pricing.two.feat1">1 instructor for 2 students</span>
+                  </li>
+                  <li class="flex items-start">
+                    <i class="fas fa-check text-white mt-1 mr-2"></i>
+                    <span class="text-primary/80" data-i18n="pricing.two.feat2">Interactive group learning</span>
+                  </li>
+                  <li class="flex items-start">
+                    <i class="fas fa-check text-white mt-1 mr-2"></i>
+                    <span class="text-primary/80" data-i18n="pricing.two.feat3">Fixed schedule</span>
+                  </li>
+                  <li class="flex items-start">
+                    <i class="fas fa-check text-white mt-1 mr-2"></i>
+                    <span class="text-primary/80" data-i18n="pricing.two.feat4">Peer motivation</span>
+                  </li>
+                </ul>
+                <a class="block text-center px-6 py-3 rounded-full bg-white text-primary font-medium hover:bg-gray-100 transition-custom" href="#contact" data-i18n="pricing.cta">Choose Plan</a>
+              </div>
+            </div>
+            
+            <div class="bg-gray-100 rounded-2xl overflow-hidden hover:shadow-xl transition-custom border border-gray-200">
+              <div class="p-6 border-b border-gray-200">
+                <h3 class="text-xl font-bold text-dark mb-1" data-i18n="pricing.five.title">1-on-5 Mini Class</h3>
+                <p class="text-gray-500 text-sm" data-i18n="pricing.five.subtitle">Budget-friendly option</p>
+              </div>
+              <div class="p-6">
+                <div class="text-center mb-6">
+                  <span class="text-4xl font-bold text-dark">RM 99</span>
+                  <span class="text-gray-500" data-i18n="pricing.five.unit">/hour/person</span>
+                </div>
+                <ul class="space-y-3 mb-8">
+                  <li class="flex items-start">
+                    <i class="fas fa-check text-secondary mt-1 mr-2"></i>
+                    <span class="text-gray-500" data-i18n="pricing.five.feat1">1 instructor for 5 students</span>
+                  </li>
+                  <li class="flex items-start">
+                    <i class="fas fa-check text-secondary mt-1 mr-2"></i>
+                    <span class="text-gray-500" data-i18n="pricing.five.feat2">Class interaction</span>
+                  </li>
+                  <li class="flex items-start">
+                    <i class="fas fa-check text-secondary mt-1 mr-2"></i>
+                    <span class="text-gray-500" data-i18n="pricing.five.feat3">Fixed schedule</span>
+                  </li>
+                  <li class="flex items-start">
+                    <i class="fas fa-check text-secondary mt-1 mr-2"></i>
+                    <span class="text-gray-500" data-i18n="pricing.five.feat4">Regular feedback</span>
+                  </li>
+                </ul>
+                <a class="block text-center px-6 py-3 rounded-full bg-white text-primary font-medium border border-primary hover:bg-primary/5 transition-custom" href="#contact" data-i18n="pricing.cta">Choose Plan</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+
+      <!-- Instructor Introduction Section - NEW SECTION ADDED -->
+      <section id="instructor" class="py-16 bg-gray-100">
+        <div class="container mx-auto px-4">
+          <div class="text-center mb-16">
+            <h2 class="text-3xl md:text-4xl font-bold text-dark mb-4" data-i18n="instructor.title">Meet Your Instructor</h2>
+            <p class="text-gray-500 max-w-2xl mx-auto" data-i18n="instructor.subtitle">Our instructor has extensive industry experience and teaching passion to help you quickly master programming skills.</p>
+          </div>
+          <div class="max-w-3xl mx-auto bg-white rounded-2xl shadow-lg overflow-hidden">
+            <div class="md:flex">
+              <div class="md:w-1/3">
+                <img alt="Instructor Photo" class="w-full h-full object-cover" src="https://design.gemcoder.com/staticResource/echoAiSystemImages/6ecd218224528ff23e7084e49cd5fe82.png" />
+              </div>
+              <div class="md:w-2/3 p-8">
+                <h3 class="text-2xl font-bold text-dark mb-1" data-i18n="instructor.name">Michael Chang (Zhang Weiming)</h3>
+                <p class="text-primary font-medium mb-4" data-i18n="instructor.title.text">Senior Software Engineer | 10 Years Teaching Experience</p>
+                <p class="text-gray-500 mb-6" data-i18n="instructor.bio">Former Senior Software Engineer at Google with 10 years of Python and Machine Learning development experience. Participated in multiple international-level projects and now dedicated to programming education, having helped over 500 students master programming skills and enter the tech industry.</p>
+                <div class="mb-6">
+                  <h4 class="font-bold text-dark mb-2" data-i18n="instructor.expertise">Expertise:</h4>
+                  <div class="flex flex-wrap gap-2">
+                    <span class="px-3 py-1 bg-primary/10 text-primary text-sm rounded-full">Python</span>
+                    <span class="px-3 py-1 bg-primary/10 text-primary text-sm rounded-full" data-i18n="instructor.skill.ml">Machine Learning</span>
+                    <span class="px-3 py-1 bg-primary/10 text-primary text-sm rounded-full" data-i18n="instructor.skill.data">Data Analysis</span>
+                    <span class="px-3 py-1 bg-primary/10 text-primary text-sm rounded-full" data-i18n="instructor.skill.web">Web Development</span>
+                    <span class="px-3 py-1 bg-primary/10 text-primary text-sm rounded-full" data-i18n="instructor.skill.automation">Automation Testing</span>
+                  </div>
+                </div>
+                <div class="flex space-x-4">
+                  <a class="text-gray-400 hover:text-primary transition-custom" href="https://linkedin.com/in/codencode" target="_blank">
+                    <i class="fab fa-linkedin text-xl"></i>
+                  </a>
+                  <a class="text-gray-400 hover:text-primary transition-custom" href="https://github.com/codencode" target="_blank">
+                    <i class="fab fa-github text-xl"></i>
+                  </a>
+                  <a class="text-gray-400 hover:text-primary transition-custom" href="https://twitter.com/codencode" target="_blank">
+                    <i class="fab fa-twitter text-xl"></i>
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Student Testimonials Section - NEW SECTION ADDED -->
+      <section id="testimonials" class="py-16 bg-white">
+        <div class="container mx-auto px-4">
+          <div class="text-center mb-16">
+            <h2 class="text-3xl md:text-4xl font-bold text-dark mb-4" data-i18n="testimonials.title">What Our Students Say</h2>
+            <p class="text-gray-500 max-w-2xl mx-auto" data-i18n="testimonials.subtitle">Hear from our students about their learning experiences and achievements.</p>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+            <div class="bg-gray-100 rounded-xl p-6 hover:shadow-lg transition-custom">
+              <div class="flex items-center mb-4">
+                <img alt="Student Photo" class="w-12 h-12 rounded-full object-cover mr-4" src="https://design.gemcoder.com/staticResource/echoAiSystemImages/15f32ae99c40753f85cd61cfe6bde218.png" />
+                <div>
+                  <h4 class="font-bold text-dark" data-i18n="testimonial1.name">Li Mei Ling</h4>
+                  <div class="flex text-yellow-400">
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                  </div>
+                </div>
+              </div>
+              <p class="text-gray-500 italic" data-i18n="testimonial1.text">"Michael's Python course is fantastic! I started from zero and now I can complete data analysis projects independently. The course content is practical, explanations are clear. Highly recommend to friends who want to learn programming."</p>
+            </div>
+            
+            <div class="bg-gray-100 rounded-xl p-6 hover:shadow-lg transition-custom">
+              <div class="flex items-center mb-4">
+                <img alt="Student Photo" class="w-12 h-12 rounded-full object-cover mr-4" src="https://design.gemcoder.com/staticResource/echoAiSystemImages/8870760961312e9bc5ce367d1b5fc00e.png" />
+                <div>
+                  <h4 class="font-bold text-dark" data-i18n="testimonial2.name">Wang Jian Guo</h4>
+                  <div class="flex text-yellow-400">
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star-half-alt"></i>
+                  </div>
+                </div>
+              </div>
+              <p class="text-gray-500 italic" data-i18n="testimonial2.text">"The 1-on-2 group course is perfect for my friend and me to learn together. We encourage each other and make progress together. The teacher is patient and answers our questions promptly. Through this course, I successfully transitioned to become a data analyst."</p>
+            </div>
+            
+            <div class="bg-gray-100 rounded-xl p-6 hover:shadow-lg transition-custom">
+              <div class="flex items-center mb-4">
+                <img alt="Student Photo" class="w-12 h-12 rounded-full object-cover mr-4" src="https://design.gemcoder.com/staticResource/echoAiSystemImages/726d6307912a867ead7d8a2efa2b5e7f.png" />
+                <div>
+                  <h4 class="font-bold text-dark" data-i18n="testimonial3.name">Chen Zhi Qiang</h4>
+                  <div class="flex text-yellow-400">
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                  </div>
+                </div>
+              </div>
+              <p class="text-gray-500 italic" data-i18n="testimonial3.text">"As a working professional, I chose the 1-on-1 private course. The teacher customized a learning plan according to my needs, helping me quickly master Python automation skills, greatly improving my work efficiency. Excellent value for money!"</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- FAQ Section - NEW SECTION ADDED -->
+      <section id="faq" class="py-16 bg-gray-100">
+        <div class="container mx-auto px-4">
+          <div class="text-center mb-16">
+            <h2 class="text-3xl md:text-4xl font-bold text-dark mb-4" data-i18n="faq.title">Frequently Asked Questions</h2>
+            <p class="text-gray-500 max-w-2xl mx-auto" data-i18n="faq.subtitle">We've collected the most frequently asked questions from students to help you better understand our courses.</p>
+          </div>
+          <div class="max-w-3xl mx-auto">
+            <div class="space-y-4" id="faq-container">
+              <div class="bg-white rounded-xl overflow-hidden shadow-md">
+                <button class="faq-question w-full flex justify-between items-center p-6 text-left focus:outline-none hover:bg-gray-50 transition-custom">
+                  <span class="font-bold text-lg text-dark" data-i18n="faq1.question">I have no programming background, can I take these courses?</span>
+                  <i class="fas fa-chevron-down text-gray-400 transition-custom"></i>
+                </button>
+                <div class="faq-answer px-6 pb-6 hidden">
+                  <p class="text-gray-500" data-i18n="faq1.answer">Absolutely! Our Python introductory course is designed for complete beginners, starting from the most basic programming concepts and gradually guiding you to master programming skills. The instructor uses easy-to-understand language to explain complex concepts, ensuring everyone can keep up.</p>
+                </div>
+              </div>
+              
+              <div class="bg-white rounded-xl overflow-hidden shadow-md">
+                <button class="faq-question w-full flex justify-between items-center p-6 text-left focus:outline-none hover:bg-gray-50 transition-custom">
+                  <span class="font-bold text-lg text-dark" data-i18n="faq2.question">Are the courses online or offline?</span>
+                  <i class="fas fa-chevron-down text-gray-400 transition-custom"></i>
+                </button>
+                <div class="faq-answer px-6 pb-6 hidden">
+                  <p class="text-gray-500" data-i18n="faq2.answer">All our courses are conducted online via Zoom or other video conferencing software. This way you can learn comfortably from home, saving commute time. We also provide course recordings for review and makeup classes.</p>
+                </div>
+              </div>
+              
+              <div class="bg-white rounded-xl overflow-hidden shadow-md">
+                <button class="faq-question w-full flex justify-between items-center p-6 text-left focus:outline-none hover:bg-gray-50 transition-custom">
+                  <span class="font-bold text-lg text-dark" data-i18n="faq3.question">If I miss a class, can I make it up?</span>
+                  <i class="fas fa-chevron-down text-gray-400 transition-custom"></i>
+                </button>
+                <div class="faq-answer px-6 pb-6 hidden">
+                  <p class="text-gray-500" data-i18n="faq3.answer">Yes, we record every class and provide videos to students within 24 hours after class. If you miss a class, you can watch the recording to catch up. For 1-on-1 and 1-on-2 courses, you can also discuss rescheduling with the instructor.</p>
+                </div>
+              </div>
+              
+              <div class="bg-white rounded-xl overflow-hidden shadow-md">
+                <button class="faq-question w-full flex justify-between items-center p-6 text-left focus:outline-none hover:bg-gray-50 transition-custom">
+                  <span class="font-bold text-lg text-dark" data-i18n="faq4.question">What equipment do I need to learn programming?</span>
+                  <i class="fas fa-chevron-down text-gray-400 transition-custom"></i>
+                </button>
+                <div class="faq-answer px-6 pb-6 hidden">
+                  <p class="text-gray-500" data-i18n="faq4.answer">You only need a computer with internet connection (Windows, Mac, or Linux) and a stable network connection. We will provide detailed software installation guides to help you prepare all necessary programming environments.</p>
+                </div>
+              </div>
+              
+              <div class="bg-white rounded-xl overflow-hidden shadow-md">
+                <button class="faq-question w-full flex justify-between items-center p-6 text-left focus:outline-none hover:bg-gray-50 transition-custom">
+                  <span class="font-bold text-lg text-dark" data-i18n="faq5.question">Will I receive a certificate after completing the course?</span>
+                  <i class="fas fa-chevron-down text-gray-400 transition-custom"></i>
+                </button>
+                <div class="faq-answer px-6 pb-6 hidden">
+                  <p class="text-gray-500" data-i18n="faq5.answer">Yes, after completing the course and passing the final project evaluation, you will receive a completion certificate issued by codencode.my. This certificate can be added to your resume and LinkedIn profile to demonstrate your programming skills.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+
+      <!-- Contact Section -->
+      <section id="contact" class="py-16 bg-white">
+        <div class="container mx-auto px-4">
+          <div class="max-w-5xl mx-auto bg-gradient-to-br from-primary to-secondary rounded-3xl overflow-hidden shadow-xl">
+            <div class="md:flex">
+              <div class="md:w-1/2 p-8 md:p-12 text-white">
+                <h2 class="text-3xl md:text-4xl font-bold mb-4" data-i18n="contact.title">Ready to Start Your Coding Journey?</h2>
+                <p class="mb-8 opacity-90" data-i18n="contact.subtitle">Fill out the form to book a free trial class. Our advisor will contact you within 24 hours.</p>
+                <div class="space-y-4 mb-8">
+                  <div class="flex items-start">
+                    <div class="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center mr-4 flex-shrink-0">
+                      <i class="fas fa-map-marker-alt"></i>
+                    </div>
+                    <div>
+                      <h4 class="font-bold mb-1" data-i18n="contact.address.title">Address</h4>
+                      <p class="opacity-90" data-i18n="contact.address.text">Johor Bahru, Johor, Malaysia</p>
+                    </div>
+                  </div>
+                  <div class="flex items-start">
+                    <div class="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center mr-4 flex-shrink-0">
+                      <i class="fas fa-phone"></i>
+                    </div>
+                    <div>
+                      <h4 class="font-bold mb-1" data-i18n="contact.phone.title">Phone</h4>
+                      <p class="opacity-90">+60 113 165 2854</p>
+                    </div>
+                  </div>
+                  <div class="flex items-start">
+                    <div class="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center mr-4 flex-shrink-0">
+                      <i class="fas fa-envelope"></i>
+                    </div>
+                    <div>
+                      <h4 class="font-bold mb-1" data-i18n="contact.email.title">Email</h4>
+                      <p class="opacity-90">info@codencode.my</p>
+                    </div>
+                  </div>
+                </div>
+                <div class="flex space-x-4">
+                  <a class="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center hover:bg-white/30 transition-custom" href="https://facebook.com/codencode.my" target="_blank">
+                    <i class="fab fa-facebook-f"></i>
+                  </a>
+                  <a class="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center hover:bg-white/30 transition-custom" href="https://instagram.com/codencode.my" target="_blank">
+                    <i class="fab fa-instagram"></i>
+                  </a>
+                  <a class="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center hover:bg-white/30 transition-custom" href="https://linkedin.com/company/codencode" target="_blank">
+                    <i class="fab fa-linkedin-in"></i>
+                  </a>
+                </div>
+              </div>
+              
+              <div class="md:w-1/2 bg-white p-8 md:p-12">
+                <form class="space-y-4" id="contact-form">
+                  <div>
+                    <label class="block text-sm font-medium text-gray-500 mb-1" for="name" data-i18n="contact.form.name">Name</label>
+                    <input class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-custom" id="name" type="text" required />
+                  </div>
+                  <div>
+                    <label class="block text-sm font-medium text-gray-500 mb-1" for="email" data-i18n="contact.form.email">Email</label>
+                    <input class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-custom" id="email" type="email" required />
+                  </div>
+                  <div>
+                    <label class="block text-sm font-medium text-gray-500 mb-1" for="phone" data-i18n="contact.form.phone">Phone</label>
+                    <input class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-custom" id="phone" type="tel" required />
+                  </div>
+                  <div>
+                    <label class="block text-sm font-medium text-gray-500 mb-1" for="interest" data-i18n="contact.form.interest">Interested Course</label>
+                    <select class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-custom" id="interest" required>
+                      <option value="" data-i18n="contact.form.select">Select a course</option>
+                      <option value="python" data-i18n="contact.form.python">Python Programming</option>
+                      <option value="ml" data-i18n="contact.form.ml">Machine Learning</option>
+                      <option value="both" data-i18n="contact.form.both">Both</option>
+                    </select>
+                  </div>
+                  <button class="w-full py-3 rounded-lg bg-primary text-white font-medium hover:bg-primary/90 transition-custom shadow-md hover:shadow-lg" type="submit">
+                    <span data-i18n="contact.form.submit">Book Free Trial</span>
+                    <i class="fas fa-arrow-right ml-2"></i>
+                  </button>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-white pt-16 pb-8">
+      <div class="container mx-auto px-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
+          <div>
+            <div class="flex items-center space-x-2 mb-6">
+              <div class="w-10 h-10 rounded-lg bg-white flex items-center justify-center">
+                <span class="text-primary font-bold text-xl">CE</span>
+              </div>
+              <span class="text-xl font-bold">codencode.my</span>
+            </div>
+            <p class="text-gray-400 mb-6" data-i18n="footer.about">Affordable, online, trilingual coding academy in Johor Bahru, Malaysia. Quality programming education for everyone.</p>
+          </div>
+          
+          <div>
+            <h4 class="text-lg font-bold mb-6" data-i18n="footer.links.title">Quick Links</h4>
+            <ul class="space-y-3">
+              <li><a class="text-gray-400 hover:text-white transition-custom" href="#hero" data-i18n="nav.home">Home</a></li>
+              <li><a class="text-gray-400 hover:text-white transition-custom" href="#courses" data-i18n="nav.courses">Courses</a></li>
+              <li><a class="text-gray-400 hover:text-white transition-custom" href="#pricing" data-i18n="footer.links.pricing">Pricing</a></li>
+              <li><a class="text-gray-400 hover:text-white transition-custom" href="#contact" data-i18n="nav.contact">Contact</a></li>
+            </ul>
+          </div>
+          
+          <div>
+            <h4 class="text-lg font-bold mb-6" data-i18n="footer.courses.title">Courses</h4>
+            <ul class="space-y-3">
+              <li><a class="text-gray-400 hover:text-white transition-custom" href="#courses" data-i18n="courses.python.title">Python Programming</a></li>
+              <li><a class="text-gray-400 hover:text-white transition-custom" href="#courses" data-i18n="courses.ml.title">Machine Learning</a></li>
+              <li><a class="text-gray-400 hover:text-white transition-custom" href="#pricing" data-i18n="pricing.one.title">1-on-1 Private</a></li>
+              <li><a class="text-gray-400 hover:text-white transition-custom" href="#pricing" data-i18n="pricing.two.title">1-on-2 Group</a></li>
+            </ul>
+          </div>
+          
+          <div>
+            <h4 class="text-lg font-bold mb-6" data-i18n="footer.contact.title">Contact Us</h4>
+            <ul class="space-y-3">
+              <li class="flex items-start">
+                <i class="fas fa-map-marker-alt text-primary mt-1 mr-3"></i>
+                <span class="text-gray-400" data-i18n="contact.address.text">Johor Bahru, Malaysia</span>
+              </li>
+              <li class="flex items-center">
+                <i class="fas fa-phone text-primary mr-3"></i>
+                <span class="text-gray-400">+60 113 165 2854</span>
+              </li>
+              <li class="flex items-center">
+                <i class="fas fa-envelope text-primary mr-3"></i>
+                <span class="text-gray-400">info@codencode.my</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+        
+        <div class="border-t border-gray-800 pt-8 text-center">
+          <p class="text-gray-500 text-sm">© 2025 codencode.my. <span data-i18n="footer.rights">All rights reserved.</span></p>
+        </div>
+      </div>
+    </footer>
+
+    <!-- Floating WhatsApp Button -->
+    <a href="https://wa.me/+601131652854" target="_blank" rel="noopener noreferrer" class="fixed bottom-6 right-6 w-14 h-14 bg-green-500 rounded-full flex items-center justify-center shadow-lg hover:bg-green-600 transition-custom transform hover:scale-110 z-40">
+      <i class="fab fa-whatsapp text-white text-2xl"></i>
+    </a>
+
+
+    <!-- JavaScript with Trilingual Support -->
+    <script>
+      // Translations - Includes NEW sections (instructor, testimonials, FAQ)
+      const translations = {
+        en: {
+          "nav.home": "Home",
+          "nav.courses": "Courses",
+          "nav.instructor": "Instructor",
+          "nav.testimonials": "Reviews",
+          "nav.contact": "Contact",
+          "nav.freetrial": "Free Trial",
+          "hero.title": "Learn Python in 6 Weeks — From Zero to Automation Expert",
+          "hero.subtitle": "Affordable, online, trilingual coding academy in Johor Bahru, Malaysia. Quality programming education for beginners, professionals, and kids.",
+          "hero.cta1": "Start Learning",
+          "hero.cta2": "View Courses",
+          "hero.students": "students joined",
+          "why.title": "Why Choose codencode.my?",
+          "why.subtitle": "We provide a unique learning experience to help you master programming skills and achieve your career goals.",
+          "why.expert.title": "Expert Instructor",
+          "why.expert.desc": "Taught by software engineers with 8+ years of experience, sharing real-world insights.",
+          "why.affordable.title": "Affordable Pricing",
+          "why.affordable.desc": "Most competitive prices in the market, making quality education accessible to everyone.",
+          "why.trilingual.title": "Trilingual Teaching",
+          "why.trilingual.desc": "Available in Malay, English, and Chinese to meet different student needs.",
+          "why.flexible.title": "Flexible Learning",
+          "why.flexible.desc": "Online courses, learn anytime anywhere at your own pace.",
+          "courses.title": "Choose Your Course",
+          "courses.subtitle": "We offer various programming courses to meet different learning needs and goals.",
+          "courses.python.badge": "Popular",
+          "courses.python.title": "Python Programming Bootcamp",
+          "courses.python.desc": "6-week course from beginner to advanced. Master data analysis, automation, and web development.",
+          "courses.python.duration": "6 weeks",
+          "courses.python.level": "Beginner to Intermediate",
+          "courses.ml.badge": "New",
+          "courses.ml.title": "Machine Learning Fundamentals",
+          "courses.ml.desc": "10-week course covering ML algorithms, model training, and real-world applications.",
+          "courses.ml.duration": "10 weeks",
+          "courses.ml.level": "Intermediate to Advanced",
+          "courses.cta": "Learn More",
+          "pricing.title": "Class Types & Pricing",
+          "pricing.subtitle": "We offer various class types to meet different learning needs and budgets.",
+          "pricing.popular": "Most Popular",
+          "pricing.one.title": "1-on-1 Private",
+          "pricing.one.subtitle": "Personalized learning experience",
+          "pricing.one.unit": "/hour",
+          "pricing.one.feat1": "Dedicated 1-on-1 instructor",
+          "pricing.one.feat2": "Personalized learning plan",
+          "pricing.one.feat3": "Flexible scheduling",
+          "pricing.one.feat4": "Priority Q&A",
+          "pricing.two.title": "1-on-2 Small Group",
+          "pricing.two.subtitle": "Learn with a friend",
+          "pricing.two.unit": "/hour/person",
+          "pricing.two.feat1": "1 instructor for 2 students",
+          "pricing.two.feat2": "Interactive group learning",
+          "pricing.two.feat3": "Fixed schedule",
+          "pricing.two.feat4": "Peer motivation",
+          "pricing.five.title": "1-on-5 Mini Class",
+          "pricing.five.subtitle": "Budget-friendly option",
+          "pricing.five.unit": "/hour/person",
+          "pricing.five.feat1": "1 instructor for 5 students",
+          "pricing.five.feat2": "Class interaction",
+          "pricing.five.feat3": "Fixed schedule",
+          "pricing.five.feat4": "Regular feedback",
+          "pricing.cta": "Choose Plan",
+          "instructor.title": "Meet Your Instructor",
+          "instructor.subtitle": "Our instructor has extensive industry experience and teaching passion to help you quickly master programming skills.",
+          "instructor.name": "Michael Chang (Zhang Weiming)",
+          "instructor.title.text": "Senior Software Engineer | 10 Years Teaching Experience",
+          "instructor.bio": "Former Senior Software Engineer at Google with 10 years of Python and Machine Learning development experience. Participated in multiple international-level projects and now dedicated to programming education, having helped over 500 students master programming skills and enter the tech industry.",
+          "instructor.expertise": "Expertise:",
+          "instructor.skill.ml": "Machine Learning",
+          "instructor.skill.data": "Data Analysis",
+          "instructor.skill.web": "Web Development",
+          "instructor.skill.automation": "Automation Testing",
+          "testimonials.title": "What Our Students Say",
+          "testimonials.subtitle": "Hear from our students about their learning experiences and achievements.",
+          "testimonial1.name": "Li Mei Ling",
+          "testimonial1.text": '"Michael\'s Python course is fantastic! I started from zero and now I can complete data analysis projects independently. The course content is practical, explanations are clear. Highly recommend to friends who want to learn programming."',
+          "testimonial2.name": "Wang Jian Guo",
+          "testimonial2.text": '"The 1-on-2 group course is perfect for my friend and me to learn together. We encourage each other and make progress together. The teacher is patient and answers our questions promptly. Through this course, I successfully transitioned to become a data analyst."',
+          "testimonial3.name": "Chen Zhi Qiang",
+          "testimonial3.text": '"As a working professional, I chose the 1-on-1 private course. The teacher customized a learning plan according to my needs, helping me quickly master Python automation skills, greatly improving my work efficiency. Excellent value for money!"',
+          "faq.title": "Frequently Asked Questions",
+          "faq.subtitle": "We've collected the most frequently asked questions from students to help you better understand our courses.",
+          "faq1.question": "I have no programming background, can I take these courses?",
+          "faq1.answer": "Absolutely! Our Python introductory course is designed for complete beginners, starting from the most basic programming concepts and gradually guiding you to master programming skills. The instructor uses easy-to-understand language to explain complex concepts, ensuring everyone can keep up.",
+          "faq2.question": "Are the courses online or offline?",
+          "faq2.answer": "All our courses are conducted online via Zoom or other video conferencing software. This way you can learn comfortably from home, saving commute time. We also provide course recordings for review and makeup classes.",
+          "faq3.question": "If I miss a class, can I make it up?",
+          "faq3.answer": "Yes, we record every class and provide videos to students within 24 hours after class. If you miss a class, you can watch the recording to catch up. For 1-on-1 and 1-on-2 courses, you can also discuss rescheduling with the instructor.",
+          "faq4.question": "What equipment do I need to learn programming?",
+          "faq4.answer": "You only need a computer with internet connection (Windows, Mac, or Linux) and a stable network connection. We will provide detailed software installation guides to help you prepare all necessary programming environments.",
+          "faq5.question": "Will I receive a certificate after completing the course?",
+          "faq5.answer": "Yes, after completing the course and passing the final project evaluation, you will receive a completion certificate issued by codencode.my. This certificate can be added to your resume and LinkedIn profile to demonstrate your programming skills.",
+          "contact.title": "Ready to Start Your Coding Journey?",
+          "contact.subtitle": "Fill out the form to book a free trial class. Our advisor will contact you within 24 hours.",
+          "contact.address.title": "Address",
+          "contact.address.text": "Johor Bahru, Johor, Malaysia",
+          "contact.phone.title": "Phone",
+          "contact.email.title": "Email",
+          "contact.form.name": "Name",
+          "contact.form.email": "Email",
+          "contact.form.phone": "Phone",
+          "contact.form.interest": "Interested Course",
+          "contact.form.select": "Select a course",
+          "contact.form.python": "Python Programming",
+          "contact.form.ml": "Machine Learning",
+          "contact.form.both": "Both",
+          "contact.form.submit": "Book Free Trial",
+          "footer.about": "Affordable, online, trilingual coding academy in Johor Bahru, Malaysia. Quality programming education for everyone.",
+          "footer.links.title": "Quick Links",
+          "footer.links.pricing": "Pricing",
+          "footer.courses.title": "Courses",
+          "footer.contact.title": "Contact Us",
+          "footer.rights": "All rights reserved."
+        },
+        ms: {
+          "nav.home": "Laman Utama",
+          "nav.courses": "Kursus",
+          "nav.instructor": "Pengajar",
+          "nav.testimonials": "Ulasan",
+          "nav.contact": "Hubungi",
+          "nav.freetrial": "Percubaan Percuma",
+          "hero.title": "Belajar Python dalam 6 Minggu — Dari Asas hingga Pakar Automasi",
+          "hero.subtitle": "Akademi pengaturcaraan tiga bahasa yang mampu milik dan dalam talian di Johor Bahru, Malaysia.",
+          "hero.cta1": "Mula Belajar",
+          "hero.cta2": "Lihat Kursus",
+          "hero.students": "pelajar telah menyertai",
+          "instructor.title": "Kenali Pengajar Anda",
+          "instructor.subtitle": "Pengajar kami mempunyai pengalaman industri yang luas dan semangat mengajar untuk membantu anda menguasai kemahiran pengaturcaraan dengan cepat.",
+          "instructor.name": "Michael Chang (Zhang Weiming)",
+          "instructor.title.text": "Jurutera Perisian Kanan | 10 Tahun Pengalaman Mengajar",
+          "testimonials.title": "Kata Pelajar Kami",
+          "testimonials.subtitle": "Dengar daripada pelajar kami tentang pengalaman pembelajaran dan pencapaian mereka.",
+          "faq.title": "Soalan Lazim",
+          "faq.subtitle": "Kami telah mengumpulkan soalan yang paling kerap ditanya oleh pelajar untuk membantu anda memahami kursus kami dengan lebih baik."
+        },
+        zh: {
+          "nav.home": "首页",
+          "nav.courses": "课程",
+          "nav.instructor": "讲师",
+          "nav.testimonials": "评价",
+          "nav.contact": "联系",
+          "nav.freetrial": "免费试听",
+          "hero.title": "6周学会Python — 从零基础到自动化专家",
+          "hero.subtitle": "实惠、在线、三语言编码学院，位于马来西亚柔佛州新山。",
+          "hero.cta1": "开始学习",
+          "hero.cta2": "了解课程",
+          "hero.students": "学员已加入学习",
+          "instructor.title": "关于你的讲师",
+          "instructor.subtitle": "我们的讲师具有丰富的行业经验和教学热情，帮助你快速掌握编程技能。",
+          "instructor.name": "张伟明 (Michael Chang)",
+          "instructor.title.text": "资深软件工程师 | 10年教学经验",
+          "instructor.bio": "前谷歌高级软件工程师，拥有10年Python和机器学习开发经验。曾参与多个国际级项目开发，现致力于编程教育，已帮助超过500名学生掌握编程技能，进入科技行业。",
+          "instructor.expertise": "专业领域：",
+          "instructor.skill.ml": "机器学习",
+          "instructor.skill.data": "数据分析",
+          "instructor.skill.web": "Web开发",
+          "instructor.skill.automation": "自动化测试",
+          "testimonials.title": "学员怎么说",
+          "testimonials.subtitle": "听听我们的学员分享他们的学习体验和成果。",
+          "testimonial1.name": "李美玲",
+          "testimonial1.text": "\"张伟明老师的Python课程非常棒！我从零基础开始学习，现在已经能够独立完成数据分析项目。课程内容实用，讲解清晰，强烈推荐给想学习编程的朋友。\"",
+          "testimonial2.name": "王建国",
+          "testimonial2.text": "\"1对2的小组课程非常适合我和朋友一起学习。我们互相激励，共同进步。老师讲解耐心，能够及时解答我们的问题。通过这个课程，我成功转行成为一名数据分析师。\"",
+          "testimonial3.name": "陈志强",
+          "testimonial3.text": "\"作为一名职场人士，我选择了1对1的私教课程。老师根据我的需求定制了学习计划，帮助我快速掌握了Python自动化技能，大大提高了我的工作效率。物超所值！\"",
+          "faq.title": "常见问题",
+          "faq.subtitle": "我们收集了学员最常问的问题，希望能帮助你更好地了解我们的课程。",
+          "faq1.question": "我没有任何编程基础，可以学习这些课程吗？",
+          "faq1.answer": "当然可以！我们的Python入门课程专为零基础学员设计，从最基本的编程概念开始讲解，循序渐进地引导你掌握编程技能。",
+          "faq2.question": "课程是线上还是线下进行？",
+          "faq2.answer": "我们的所有课程都是线上进行的，通过Zoom或其他视频会议软件授课。这种方式让你可以在家舒适地学习，节省通勤时间。",
+          "faq3.question": "如果我错过了课程，可以补课吗？",
+          "faq3.answer": "是的，我们会录制每一堂课的视频，并在课后24小时内提供给学员。如果你错过了课程，可以观看录播视频补课。",
+          "faq4.question": "学习编程需要什么设备？",
+          "faq4.answer": "你只需要一台能够连接互联网的电脑（Windows、Mac或Linux均可），以及稳定的网络连接。我们会提供详细的软件安装指南。",
+          "faq5.question": "完成课程后会获得证书吗？",
+          "faq5.answer": "是的，完成课程并通过最终项目评估后，你将获得codencode.my颁发的结业证书。这份证书可以添加到你的简历和LinkedIn个人资料中。"
+        }
+      };
+
+      // Language switcher function
+      function updateLanguage(lang) {
+        document.documentElement.lang = lang;
+        document.querySelectorAll('[data-i18n]').forEach(element => {
+          const key = element.getAttribute('data-i18n');
+          if (translations[lang][key]) {
+            if (element.tagName === 'INPUT' || element.tagName === 'TEXTAREA') {
+              element.placeholder = translations[lang][key];
+            } else {
+              element.textContent = translations[lang][key];
+            }
+          }
+        });
+        localStorage.setItem('preferredLanguage', lang);
+      }
+
+      // Initialize on page load
+      document.addEventListener('DOMContentLoaded', function() {
+        const savedLang = localStorage.getItem('preferredLanguage') || 'en';
+        document.getElementById('language-selector').value = savedLang;
+        updateLanguage(savedLang);
+        
+        // Language selector change event
+        document.getElementById('language-selector').addEventListener('change', function(e) {
+          updateLanguage(e.target.value);
+        });
+        
+        // Mobile menu toggle
+        const mobileMenuButton = document.getElementById('mobile-menu-button');
+        const mobileMenu = document.getElementById('mobile-menu');
+        mobileMenuButton.addEventListener('click', function() {
+          mobileMenu.classList.toggle('hidden');
+          const icon = mobileMenuButton.querySelector('i');
+          icon.classList.toggle('fa-bars');
+          icon.classList.toggle('fa-times');
+        });
+        
+        // Navbar scroll effect
+        const navbar = document.getElementById('navbar');
+        window.addEventListener('scroll', function() {
+          if (window.scrollY > 50) {
+            navbar.classList.add('py-2', 'shadow-md');
+            navbar.classList.remove('py-3', 'shadow-sm');
+          } else {
+            navbar.classList.add('py-3', 'shadow-sm');
+            navbar.classList.remove('py-2', 'shadow-md');
+          }
+        });
+        
+        // Smooth scroll for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+          anchor.addEventListener('click', function(e) {
+            const href = this.getAttribute('href');
+            if (href === '#' || !href) return;
+            
+            e.preventDefault();
+            const target = document.querySelector(href);
+            if (target) {
+              window.scrollTo({
+                top: target.offsetTop - 80,
+                behavior: 'smooth'
+              });
+              
+              // Close mobile menu if open
+              if (!mobileMenu.classList.contains('hidden')) {
+                mobileMenu.classList.add('hidden');
+                const icon = mobileMenuButton.querySelector('i');
+                icon.classList.remove('fa-times');
+                icon.classList.add('fa-bars');
+              }
+            }
+          });
+        });
+        
+        // FAQ accordion functionality
+        const faqQuestions = document.querySelectorAll('.faq-question');
+        faqQuestions.forEach(function(question) {
+          question.addEventListener('click', function() {
+            const answer = question.nextElementSibling;
+            const icon = question.querySelector('i');
+
+            // Toggle current question
+            answer.classList.toggle('hidden');
+            icon.classList.toggle('rotate-180');
+
+            // Close other open questions
+            faqQuestions.forEach(function(otherQuestion) {
+              if (otherQuestion !== question) {
+                const otherAnswer = otherQuestion.nextElementSibling;
+                const otherIcon = otherQuestion.querySelector('i');
+                if (!otherAnswer.classList.contains('hidden')) {
+                  otherAnswer.classList.add('hidden');
+                  otherIcon.classList.remove('rotate-180');
+                }
+              }
+            });
+          });
+        });
+        
+        // Contact form submission
+        document.getElementById('contact-form').addEventListener('submit', function(e) {
+          e.preventDefault();
+          const submitBtn = this.querySelector('button[type="submit"]');
+          const originalText = submitBtn.innerHTML;
+          submitBtn.disabled = true;
+          submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Submitting...';
+          
+          setTimeout(() => {
+            this.reset();
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = originalText;
+            alert('Thank you! We will contact you within 24 hours.');
+          }, 1500);
+        });
+      });
+    </script>
+</body>
+</html>
