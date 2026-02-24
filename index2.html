@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    
+    <title>codencode.my - Affordable Online Trilingual Coding Academy | Python & Machine Learning Courses Malaysia</title>
+    <meta name="description" content="Learn Python & Machine Learning in 6 weeks. Affordable online coding academy in Johor Bahru, Malaysia. Trilingual courses (English, Malay, Chinese). 1-on-1, group classes available." />
+    <meta name="keywords" content="python course malaysia, coding academy johor bahru, machine learning malaysia, programming courses, belajar coding, 编程课程, affordable coding bootcamp, online programming classes" />
+    <meta name="author" content="codencode.my" />
+    <meta name="robots" content="index, follow" />
+    <link rel="canonical" href="https://codencode.my/" />
+    
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://codencode.my/" />
+    <meta property="og:title" content="codencode.my - Affordable Online Trilingual Coding Academy Malaysia" />
+    <meta property="og:description" content="Learn Python & Machine Learning in 6 weeks. Affordable online coding academy in Johor Bahru, Malaysia. Trilingual courses available." />
+    <meta property="og:image" content="https://codencode.my/images/og-image.jpg" />
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: { sans: ['Inter', 'sans-serif'] },
+            colors: {
+              'canvas': '#FBFBFB', 
+              'surface': '#FFFFFF',
+              'primary': '#111111', 
+              'brand': '#165DFF',
+              'accent': '#FF7D00',
+              'subtle': '#666666'
+            }
+          }
+        }
+      };
+    </script>
+    
+    <style>
+      body { background-color: #FBFBFB; letter-spacing: -0.025em; color: #111111; }
+      .bento-card { @apply bg-white border border-black/[0.04] rounded-[32px] p-8 transition-all duration-500 hover:border-black/[0.1] hover:shadow-[0_20px_40px_rgba(0,0,0,0.02)]; }
+      .glass-nav { @apply bg-canvas/80 backdrop-blur-xl border-b border-black/[0.03]; }
+      .btn-premium { @apply px-8 py-3 rounded-full bg-primary text-white font-semibold transition-all hover:scale-105 active:scale-95; }
+      .text-balance { text-wrap: balance; }
+    </style>
+</head>
+
+<body class="antialiased font-sans">
+
+    <header class="fixed w-full top-0 z-50 glass-nav" id="navbar">
+      <div class="container mx-auto px-6 py-5 flex items-center justify-between">
+        <a class="flex items-center space-x-2" href="/">
+          <span class="text-xl font-extrabold tracking-tighter">codencode<span class="text-brand">.my</span></span>
+        </a>
+        
+        <nav class="hidden md:flex items-center space-x-10 text-[11px] font-bold uppercase tracking-widest text-subtle">
+          <a class="hover:text-primary transition-colors" href="#hero" data-i18n="nav.home">Home</a>
+          <a class="hover:text-primary transition-colors" href="#courses" data-i18n="nav.courses">Courses</a>
+          <a class="hover:text-primary transition-colors" href="#instructor" data-i18n="nav.instructor">Instructor</a>
+          <a class="hover:text-primary transition-colors" href="#testimonials" data-i18n="nav.testimonials">Reviews</a>
+          <a class="hover:text-primary transition-colors" href="#contact" data-i18n="nav.contact">Contact</a>
+        </nav>
+        
+        <div class="flex items-center space-x-4">
+          <select id="language-selector" class="bg-transparent text-[11px] font-bold uppercase outline-none cursor-pointer">
+            <option value="en">EN</option>
+            <option value="ms">MS</option>
+            <option value="zh">ZH</option>
+          </select>
+          <a class="btn-premium text-xs" href="#contact" data-i18n="nav.freetrial">Free Trial</a>
+        </div>
+      </div>
+    </header>
+
+    <main class="pt-32 md:pt-48">
+      
+      <section id="hero" class="container mx-auto px-6 mb-32">
+        <div class="max-w-4xl">
+          <div class="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-black/5 text-subtle text-[10px] font-bold uppercase tracking-widest mb-8">
+            <span class="relative flex h-2 w-2">
+              <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand opacity-75"></span>
+              <span class="relative inline-flex rounded-full h-2 w-2 bg-brand"></span>
+            </span>
+            <span data-i18n="nav.freetrial">Book Your Free Trial</span>
+          </div>
+          
+          <h1 class="text-5xl md:text-[80px] font-extrabold leading-[0.9] tracking-tighter mb-10 text-balance" data-i18n="hero.title">
+            Learn Python in 6 Weeks — From Zero to Automation Expert
+          </h1>
+          
+          <p class="text-lg md:text-xl text-subtle max-w-2xl leading-relaxed mb-12" data-i18n="hero.subtitle">
+            Affordable, online, trilingual coding academy in Johor Bahru, Malaysia. Quality programming education for beginners, professionals, and kids.
+          </p>
+          
+          <div class="flex flex-wrap items-center gap-6">
+            <a href="#courses" class="btn-premium" data-i18n="hero.cta1">Start Learning</a>
+            <div class="flex items-center space-x-3">
+              <div class="flex -space-x-3">
+                <div class="w-10 h-10 rounded-full border-4 border-canvas bg-zinc-200"></div>
+                <div class="w-10 h-10 rounded-full border-4 border-canvas bg-zinc-300"></div>
+                <div class="w-10 h-10 rounded-full border-4 border-canvas bg-zinc-400"></div>
+              </div>
+              <p class="text-sm font-bold text-subtle uppercase tracking-widest">
+                <span class="text-primary">50+</span> <span data-i18n="hero.students">students joined</span>
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="courses" class="container mx-auto px-6 pb-32">
+        <div class="grid grid-cols-1 md:grid-cols-12 gap-6">
+          
+          <div class="md:col-span-4 bento-card group">
+            <div class="w-12 h-12 rounded-2xl bg-brand/10 flex items-center justify-center mb-8 text-brand">
+              <i class="fas fa-user-tie text-xl"></i>
+            </div>
+            <h3 class="text-xl font-bold mb-3" data-i18n="why.expert.title">Expert Instructor</h3>
+            <p class="text-subtle text-sm leading-relaxed" data-i18n="why.expert.desc">Taught by software engineers with 8+ years of experience, sharing real-world insights.</p>
+          </div>
+
+          <div class="md:col-span-4 bento-card">
+            <div class="w-12 h-12 rounded-2xl bg-accent/10 flex items-center justify-center mb-8 text-accent">
+              <i class="fas fa-wallet text-xl"></i>
+            </div>
+            <h3 class="text-xl font-bold mb-3" data-i18n="why.affordable.title">Affordable Pricing</h3>
+            <p class="text-subtle text-sm leading-relaxed" data-i18n="why.affordable.desc">Most competitive prices in the market, making quality education accessible to everyone.</p>
+          </div>
+
+          <div class="md:col-span-4 bento-card">
+            <div class="w-12 h-12 rounded-2xl bg-brand/10 flex items-center justify-center mb-8 text-brand">
+              <i class="fas fa-language text-xl"></i>
+            </div>
+            <h3 class="text-xl font-bold mb-3" data-i18n="why.trilingual.title">Trilingual Teaching</h3>
+            <p class="text-subtle text-sm leading-relaxed" data-i18n="why.trilingual.desc">Available in Malay, English, and Chinese to meet different student needs.</p>
+          </div>
+
+          <div class="md:col-span-8 bento-card flex flex-col justify-between min-h-[440px] relative overflow-hidden group">
+            <div class="relative z-10">
+              <span class="text-[10px] font-black uppercase tracking-[0.3em] text-brand mb-4 block">Bootcamp</span>
+              <h3 class="text-4xl font-bold mb-4" data-i18n="courses.python.title">Python Programming</h3>
+              <p class="text-subtle max-w-sm" data-i18n="courses.python.desc">6-week course from beginner to advanced. Master data analysis, automation, and web development.</p>
+            </div>
+            <div class="relative z-10 flex items-end justify-between">
+              <div>
+                <span class="text-3xl font-black block">RM 1,500</span>
+                <span class="text-sm text-subtle line-through">RM 2,000</span>
+              </div>
+              <a href="#contact" class="btn-premium" data-i18n="courses.cta">Learn More</a>
+            </div>
+            <div class="absolute -right-16 -bottom-16 w-64 h-64 bg-brand/5 rounded-full blur-3xl group-hover:bg-brand/10 transition-colors"></div>
+          </div>
+
+          <div class="md:col-span-4 bento-card bg-primary text-white border-none flex flex-col justify-between">
+            <div>
+              <span class="text-[10px] font-black uppercase tracking-[0.3em] text-white/40 mb-4 block">Advanced</span>
+              <h3 class="text-3xl font-bold mb-4" data-i18n="courses.ml.title">Machine Learning</h3>
+            </div>
+            <div>
+              <p class="text-white/60 text-sm mb-8" data-i18n="courses.ml.desc">10-week course covering ML algorithms and real-world applications.</p>
+              <span class="text-2xl font-bold">RM 2,000</span>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <section id="instructor" class="container mx-auto px-6 pb-32">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+          <div class="relative">
+            <div class="aspect-square rounded-[40px] overflow-hidden bg-zinc-100 grayscale hover:grayscale-0 transition-all duration-700">
+               <img src="https://design.gemcoder.com/staticResource/echoAiSystemImages/6ecd218224528ff23e7084e49cd5fe82.png" class="w-full h-full object-cover" alt="Michael Chang">
+            </div>
+            <div class="absolute -bottom-6 -right-6 bento-card !p-6 !rounded-2xl shadow-xl">
+               <p class="text-xs font-bold uppercase tracking-widest text-brand">Experience</p>
+               <p class="text-xl font-black">10+ Years</p>
+            </div>
+          </div>
+          <div>
+            <h2 class="text-4xl font-black tracking-tighter mb-6" data-i18n="instructor.title">Meet Your Instructor</h2>
+            <h3 class="text-2xl font-bold mb-4" data-i18n="instructor.name">Michael Chang</h3>
+            <p class="text-subtle leading-relaxed mb-8" data-i18n="instructor.bio">Former Senior Software Engineer at Google with 10 years of Python and Machine Learning development experience. Dedicated to programming education, having helped over 500 students.</p>
+            <div class="flex flex-wrap gap-2">
+                <span class="px-4 py-2 bg-black/5 rounded-full text-xs font-bold">Python</span>
+                <span class="px-4 py-2 bg-black/5 rounded-full text-xs font-bold">Machine Learning</span>
+                <span class="px-4 py-2 bg-black/5 rounded-full text-xs font-bold">Data Analysis</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="faq" class="container mx-auto px-6 pb-32">
+        <div class="max-w-3xl mx-auto">
+          <h2 class="text-center text-4xl font-black tracking-tighter mb-16" data-i18n="faq.title">FAQ</h2>
+          <div class="space-y-4">
+            <div class="border-b border-black/[0.05]">
+                <button class="faq-question w-full flex justify-between items-center py-6 text-left group">
+                    <span class="font-bold text-lg group-hover:text-brand transition-colors" data-i18n="faq1.question">No programming background?</span>
+                    <i class="fas fa-chevron-down text-[10px] text-subtle transition-transform"></i>
+                </button>
+                <div class="faq-answer hidden pb-6 text-subtle text-sm leading-relaxed" data-i18n="faq1.answer">
+                    Absolutely! Our course is designed for complete beginners.
+                </div>
+            </div>
+            </div>
+        </div>
+      </section>
+
+      <section id="contact" class="container mx-auto px-6 pb-32">
+        <div class="bento-card bg-zinc-900 border-none p-12 md:p-20 text-white flex flex-col md:flex-row gap-16 overflow-hidden relative">
+            <div class="md:w-1/2 relative z-10">
+                <h2 class="text-5xl font-black tracking-tighter mb-8 leading-[0.85]" data-i18n="contact.title">Ready to Start?</h2>
+                <p class="text-white/40 max-w-sm mb-12" data-i18n="contact.subtitle">Book a free trial class today.</p>
+                <div class="space-y-4 text-[10px] font-bold uppercase tracking-[0.2em]">
+                    <p class="flex items-center"><span class="w-8 h-px bg-brand mr-4"></span> +60 113 165 2854</p>
+                    <p class="flex items-center"><span class="w-8 h-px bg-brand mr-4"></span> info@codencode.my</p>
+                </div>
+            </div>
+            <div class="md:w-1/2 relative z-10">
+                <form id="contact-form" class="grid grid-cols-1 gap-8">
+                    <input type="text" placeholder="NAME" class="bg-transparent border-b border-white/10 py-4 outline-none focus:border-brand transition-colors placeholder:text-white/20 text-xs font-bold tracking-widest uppercase">
+                    <input type="email" placeholder="EMAIL" class="bg-transparent border-b border-white/10 py-4 outline-none focus:border-brand transition-colors placeholder:text-white/20 text-xs font-bold tracking-widest uppercase">
+                    <button class="mt-8 bg-white text-black py-5 rounded-full font-black uppercase tracking-[0.3em] text-[10px] hover:bg-brand hover:text-white transition-all" data-i18n="contact.form.submit">Book Free Trial</button>
+                </form>
+            </div>
+        </div>
+      </section>
+
+    </main>
+
+    <footer class="container mx-auto px-6 py-20 border-t border-black/[0.05] text-[10px] font-bold uppercase tracking-[0.3em] text-subtle flex flex-col md:flex-row justify-between items-center gap-8">
+        <p>© 2025 codencode.my</p>
+        <div class="flex space-x-12">
+            <a href="#" class="hover:text-primary transition-colors">Instagram</a>
+            <a href="#" class="hover:text-primary transition-colors">LinkedIn</a>
+            <a href="#" class="hover:text-primary transition-colors">WhatsApp</a>
+        </div>
+    </footer>
+
+    <script>
+      // Your existing translation object and logic goes here (as provided in your index2.html)
+      // Including the updateLanguage, mobile menu toggle, and scroll effects.
+      // Make sure to add the FAQ toggle logic specifically for the new clean IDs.
+      
+      const faqQuestions = document.querySelectorAll('.faq-question');
+      faqQuestions.forEach(btn => {
+          btn.addEventListener('click', () => {
+              const ans = btn.nextElementSibling;
+              const icon = btn.querySelector('i');
+              ans.classList.toggle('hidden');
+              icon.classList.toggle('rotate-180');
+          });
+      });
+      
+      // Navbar scroll effect
+      window.addEventListener('scroll', () => {
+          const navbar = document.getElementById('navbar');
+          if (window.scrollY > 50) {
+            navbar.classList.add('py-3');
+            navbar.classList.remove('py-5');
+          } else {
+            navbar.classList.add('py-5');
+            navbar.classList.remove('py-3');
+          }
+      });
+    </script>
+</body>
+</html>
