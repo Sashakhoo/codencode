@@ -22,7 +22,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
-  <link href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet" />
 
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -1030,6 +1030,49 @@
       .stat-item { padding: 14px; }
       .lang-wrap { right: 56px; }
     }
+
+  /* ── WhatsApp Floating Button ── */
+  .wa-float {
+    position: fixed;
+    bottom: 32px;
+    right: 32px;
+    width: 58px;
+    height: 58px;
+    background: #25D366;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 24px rgba(37,211,102,0.45);
+    z-index: 9999;
+    text-decoration: none;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .wa-float:hover {
+    transform: scale(1.12);
+    box-shadow: 0 8px 32px rgba(37,211,102,0.6);
+  }
+  .wa-float svg {
+    width: 30px;
+    height: 30px;
+    fill: #fff;
+  }
+  .wa-pulse {
+    position: absolute;
+    width: 58px;
+    height: 58px;
+    border-radius: 50%;
+    background: rgba(37,211,102,0.4);
+    animation: wa-ping 2s ease-out infinite;
+  }
+  @keyframes wa-ping {
+    0%   { transform: scale(1);   opacity: 0.6; }
+    100% { transform: scale(1.8); opacity: 0; }
+  }
+  @media (max-width: 768px) {
+    .wa-float { bottom: 20px; right: 20px; width: 52px; height: 52px; }
+    .wa-pulse { width: 52px; height: 52px; }
+  }
   </style>
 </head>
 <body>
@@ -1470,13 +1513,13 @@
               <div class="contact-icon"><i class="fas fa-envelope"></i></div>
               <div class="contact-info-text">
                 <h4 data-i18n="contact.email.title">Email</h4>
-                <p>hello@codencode.my</p>
+                <p><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="1179747d7d7e51727e75747f727e75743f7c68">[email&#160;protected]</a></p>
               </div>
             </div>
             <div class="contact-socials">
-              <a class="contact-social" href="https://facebook.com/codencode.my" target="_blank"><i class="fab fa-facebook-f"></i></a>
-              <a class="contact-social" href="https://instagram.com/codencode.my" target="_blank"><i class="fab fa-instagram"></i></a>
-              <a class="contact-social" href="https://linkedin.com/company/codencode" target="_blank"><i class="fab fa-linkedin-in"></i></a>
+              <a class="contact-social" href="https://wa.me/601131652854" target="_blank" title="WhatsApp"><i class="fab fa-whatsapp"></i></a>
+              <a class="contact-social" href="https://instagram.com/codencode.my" target="_blank" title="Instagram"><i class="fab fa-instagram"></i></a>
+              <a class="contact-social" href="https://www.tiktok.com/@codencode.my" target="_blank" title="TikTok"><i class="fab fa-tiktok"></i></a>
             </div>
           </div>
           <div class="contact-right">
@@ -1546,7 +1589,7 @@
           <h4 data-i18n="footer.contact.title">Contact</h4>
           <ul>
             <li><a href="tel:+601131652854">+60 113 165 2854</a></li>
-            <li><a href="mailto:hello@codencode.my">hello@codencode.my</a></li>
+            <li><a href="/cdn-cgi/l/email-protection#aac2cfc6c6c5eac9c5cecfc4c9c5cecf84c7d3"><span class="__cf_email__" data-cfemail="066e636a6a6946656962636865696263286b7f">[email&#160;protected]</span></a></li>
             <li><a href="#">Johor Bahru, Malaysia</a></li>
           </ul>
         </div>
@@ -1558,7 +1601,7 @@
     </div>
   </footer>
 
-  <script>
+  <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
     // ── Translations ──
     const T = {
       en: {
@@ -1833,16 +1876,32 @@
       // Contact form
       document.getElementById('contact-form').addEventListener('submit', function(e) {
         e.preventDefault();
-        const btn = this.querySelector('.btn-submit');
-        btn.disabled = true;
-        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
-        setTimeout(() => {
-          btn.innerHTML = '<i class="fas fa-check"></i> Sent! We\'ll contact you soon.';
-          btn.style.background = '#28ca41';
-          this.reset();
-        }, 1500);
-      });
-    });
-  </script>
-</body>
-</html>
+        const btn = this.querySelector('.btn-su
+
+  <!-- WhatsApp Floating Button -->
+  <a class="wa-float"
+     href="https://wa.me/601131652854?text=Hi%20codencode!%20I%27m%20interested%20in%20your%20courses%20%F0%9F%91%8B"
+     target="_blank"
+     rel="noopener"
+     aria-label="Chat with us on WhatsApp">
+    <div class="wa-pulse"></div>
+    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+      <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15
+               -.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075
+               -.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059
+               -.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52
+               .149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52
+               -.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51
+               -.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372
+               -.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074
+               .149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625
+               .712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413
+               .248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/>
+      <path d="M12 0C5.373 0 0 5.373 0 12c0 2.127.558 4.126 1.533 5.862L.054 23.25
+               c-.096.346.007.715.27.965.198.19.46.285.727.285.08 0 .16-.01.238-.03
+               l5.532-1.453A11.944 11.944 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0z
+               m0 21.818a9.818 9.818 0 01-5.006-1.368l-.36-.214-3.714.976.992-3.623
+               -.235-.374A9.818 9.818 0 012.182 12C2.182 6.58 6.58 2.182 12 2.182
+               S21.818 6.58 21.818 12 17.42 21.818 12 21.818z"/>
+    </svg>
+  </a>
