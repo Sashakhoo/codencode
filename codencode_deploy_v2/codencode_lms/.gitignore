@@ -1,0 +1,7 @@
+*.db
+*.pyc
+__pycache__/
+uploads/videos/
+uploads/submissions/
+.env
+venv/

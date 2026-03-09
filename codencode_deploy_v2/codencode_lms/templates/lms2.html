@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>codencode.my — Learning Portal</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet" crossorigin="anonymous"/>
+<style>
+:root{
+  --bg:#080c10;--surface:#0f1419;--surface2:#161d26;
+  --border:rgba(255,255,255,0.07);--border2:rgba(0,220,180,0.25);
+  --cyan:#00dcb4;--cyan-dim:rgba(0,220,180,0.07);--cyan-glow:rgba(0,220,180,0.14);
+  --white:#f0f4f8;--muted:#6b7c93;--muted2:#3d4f63;
+  --gold:#f5c842;--silver:#a8b8c8;--bronze:#cd7f32;
+  --danger:#ff4757;--success:#2ed573;--xp:#a78bfa;
+  --sidebar-w:240px;--header-h:60px;
+  --font-d:'Syne',sans-serif;--font-m:'Space Mono',monospace;--font-b:'DM Sans',sans-serif;
+  --r:10px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--white);font-family:var(--font-b);min-height:100vh;overflow-x:hidden}
+a{color:inherit;text-decoration:none}
+button{cursor:pointer;border:none;background:none;font-family:inherit}
+input,textarea,select{font-family:inherit}
+::-webkit-scrollbar{width:5px}
+::-webkit-scrollbar-track{background:var(--surface)}
+::-webkit-scrollbar-thumb{background:var(--muted2);border-radius:4px}
+
+.app{display:flex;min-height:100vh}
+
+/* ── SIDEBAR ── */
+.sidebar{
+  width:var(--sidebar-w);background:var(--surface);border-right:1px solid var(--border);
+  display:flex;flex-direction:column;position:fixed;top:0;left:0;bottom:0;z-index:100;transition:transform .3s;
+}
+.sb-logo{padding:16px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
+.logo-mark{width:32px;height:32px;border:1.5px solid var(--cyan);display:grid;place-items:center;font-family:var(--font-m);font-size:9px;color:var(--cyan);position:relative;flex-shrink:0}
+.logo-mark::before{content:'';position:absolute;inset:3px;background:var(--cyan-dim)}
+.logo-name{font-family:var(--font-d);font-size:13px;font-weight:800}
+.logo-name span{color:var(--cyan)}
+
+.sb-user{padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
+.sb-avatar{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,var(--cyan),#0099ff);display:grid;place-items:center;font-family:var(--font-m);font-size:13px;font-weight:700;color:#080c10;flex-shrink:0;position:relative}
+.sb-level{position:absolute;bottom:-4px;right:-4px;background:var(--gold);color:#080c10;font-size:8px;font-weight:700;width:16px;height:16px;border-radius:50%;display:grid;place-items:center;border:2px solid var(--surface);font-family:var(--font-m)}
+.sb-uinfo{flex:1;min-width:0}
+.sb-uname{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sb-uxp{font-family:var(--font-m);font-size:10px;color:var(--xp);margin-top:1px}
+
+.xp-wrap{padding:10px 16px 12px;border-bottom:1px solid var(--border)}
+.xp-labels{display:flex;justify-content:space-between;font-size:9px;font-family:var(--font-m);color:var(--muted2);margin-bottom:5px}
+.xp-track{height:5px;background:var(--surface2);border-radius:3px;overflow:hidden}
+.xp-fill{height:100%;background:linear-gradient(90deg,var(--cyan),var(--xp));border-radius:3px;transition:width .6s ease}
+
+.sb-nav{flex:1;padding:8px 0;overflow-y:auto}
+.nav-sec{padding:12px 16px 4px;font-size:9px;font-family:var(--font-m);color:var(--muted2);letter-spacing:.1em;text-transform:uppercase}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 16px;font-size:13px;color:var(--muted);transition:all .15s;cursor:pointer;border-left:2px solid transparent}
+.nav-item:hover{color:var(--white);background:var(--cyan-dim)}
+.nav-item.active{color:var(--cyan);border-left-color:var(--cyan);background:var(--cyan-dim)}
+.nav-item i{width:16px;text-align:center;font-size:13px}
+
+.sb-streak{padding:12px 16px;border-top:1px solid var(--border);display:flex;align-items:center;gap:10px}
+.st-fire{font-size:22px}
+.st-info{flex:1}
+.st-num{font-family:var(--font-m);font-size:18px;font-weight:700;color:var(--gold);line-height:1}
+.st-label{font-size:10px;color:var(--muted);margin-top:1px}
+.st-days{display:flex;gap:4px;margin-top:7px}
+.st-day{width:22px;height:22px;border-radius:50%;background:var(--surface2);border:1px solid var(--border);display:grid;place-items:center;font-size:8px;font-family:var(--font-m);color:var(--muted2)}
+.st-day.done{background:var(--gold);border-color:var(--gold);color:#080c10;font-weight:700}
+.st-day.today{border-color:var(--cyan);color:var(--cyan)}
+
+/* ── MAIN ── */
+.main{margin-left:var(--sidebar-w);flex:1;display:flex;flex-direction:column;min-height:100vh}
+.topbar{height:var(--header-h);background:rgba(8,12,16,.92);backdrop-filter:blur(14px);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:50;display:flex;align-items:center;padding:0 24px;gap:14px}
+.topbar-title{font-family:var(--font-d);font-size:16px;font-weight:700;flex:1}
+.tb-actions{display:flex;align-items:center;gap:10px}
+.tb-btn{width:36px;height:36px;border-radius:8px;border:1px solid var(--border);background:var(--surface);display:grid;place-items:center;color:var(--muted);font-size:13px;transition:all .2s}
+.tb-btn:hover{color:var(--cyan);border-color:var(--border2)}
+.course-sel{background:var(--surface);border:1px solid var(--border);color:var(--white);font-family:var(--font-m);font-size:11px;padding:6px 10px;border-radius:6px;cursor:pointer;outline:none}
+.course-sel:focus{border-color:var(--border2)}
+
+.page{padding:24px 28px;flex:1;display:none}
+.page.active{display:block}
+
+/* cards */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:20px}
+.card-title{font-family:var(--font-d);font-size:14px;font-weight:700;margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.card-title i{color:var(--cyan)}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.g2{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
+
+/* stat cards */
+.stat{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:18px;transition:border-color .2s}
+.stat:hover{border-color:var(--border2)}
+.stat-lbl{font-size:10px;font-family:var(--font-m);color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+.stat-val{font-family:var(--font-d);font-size:30px;font-weight:800;line-height:1;margin-top:4px}
+.stat-val.cyan{color:var(--cyan)} .stat-val.gold{color:var(--gold)} .stat-val.xp{color:var(--xp)} .stat-val.green{color:var(--success)}
+.stat-sub{font-size:11px;color:var(--muted);margin-top:4px}
+
+/* continue banner */
+.continue-banner{background:linear-gradient(135deg,rgba(0,220,180,.07),rgba(0,153,255,.04));border:1px solid var(--border2);border-radius:var(--r);padding:20px;display:flex;align-items:center;gap:18px;margin-bottom:20px}
+.cb-emoji{font-size:36px}
+.cb-info{flex:1}
+.cb-eyebrow{font-size:10px;font-family:var(--font-m);color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+.cb-title{font-family:var(--font-d);font-size:16px;font-weight:700;margin:3px 0}
+.cb-meta{font-size:12px;color:var(--muted)}
+.btn-cont{background:var(--cyan);color:#080c10;font-family:var(--font-m);font-size:11px;font-weight:700;padding:11px 22px;border-radius:6px;letter-spacing:.05em;text-transform:uppercase;transition:opacity .2s;white-space:nowrap}
+.btn-cont:hover{opacity:.85}
+
+/* league mini */
+.league-mini{background:linear-gradient(135deg,rgba(245,200,66,.08),transparent);border:1px solid rgba(245,200,66,.3);border-radius:var(--r);padding:18px}
+.lm-badge{font-size:32px;margin-bottom:6px}
+.lm-name{font-family:var(--font-d);font-size:15px;font-weight:700;color:var(--gold)}
+.lm-rank{font-size:11px;color:var(--muted);margin-top:3px}
+.lm-rank span{color:var(--cyan);font-weight:600}
+.lm-bar-wrap{margin-top:10px}
+.lm-bar-labels{display:flex;justify-content:space-between;font-size:10px;color:var(--muted);margin-bottom:4px;font-family:var(--font-m)}
+.lm-bar{height:6px;background:var(--surface2);border-radius:3px;overflow:hidden}
+.lm-bar-fill{height:100%;background:linear-gradient(90deg,var(--gold),#e67e22);border-radius:3px}
+
+/* activity */
+.act-item{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border)}
+.act-item:last-child{border-bottom:none}
+.act-icon{width:32px;height:32px;border-radius:8px;display:grid;place-items:center;font-size:13px;flex-shrink:0}
+.act-icon.watch{background:rgba(0,220,180,.1);color:var(--cyan)} .act-icon.submit{background:rgba(167,139,250,.1);color:var(--xp)}
+.act-icon.grade{background:rgba(245,200,66,.1);color:var(--gold)} .act-icon.xp-ic{background:rgba(167,139,250,.15);color:var(--xp)}
+.act-txt{flex:1;font-size:12px;color:var(--muted);line-height:1.5}
+.act-txt strong{color:var(--white)}
+.act-time{font-size:10px;font-family:var(--font-m);color:var(--muted2)}
+
+/* progress page */
+.prog-course{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:22px;margin-bottom:16px}
+.pc-head{display:flex;align-items:center;gap:14px;margin-bottom:14px}
+.pc-emoji{font-size:30px}
+.pc-title{font-family:var(--font-d);font-size:16px;font-weight:700}
+.pc-meta{font-size:11px;color:var(--muted);margin-top:2px}
+.pc-pct{font-family:var(--font-m);font-size:24px;font-weight:700;color:var(--cyan);margin-left:auto}
+.prog-bar{height:8px;background:var(--surface2);border-radius:4px;overflow:hidden;margin-bottom:18px}
+.prog-bar-fill{height:100%;background:linear-gradient(90deg,var(--cyan),#0099ff);border-radius:4px;transition:width .6s ease}
+.week-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:8px}
+.wk{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px 6px;text-align:center;transition:all .2s}
+.wk.done{border-color:rgba(0,220,180,.35);background:rgba(0,220,180,.05)}
+.wk.cur{border-color:var(--cyan);background:var(--cyan-glow)}
+.wk-num{font-family:var(--font-m);font-size:9px;color:var(--muted2);text-transform:uppercase}
+.wk-st{font-size:16px;margin-top:2px}
+
+/* certs */
+.cert-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:20px}
+.cert-card{border-radius:var(--r);padding:28px;text-align:center;position:relative;overflow:hidden}
+.cert-card.earned{background:linear-gradient(135deg,rgba(245,200,66,.1),rgba(8,12,16,0));border:1px solid rgba(245,200,66,.4)}
+.cert-card.locked{background:var(--surface);border:1px solid var(--border);opacity:.65;filter:grayscale(.5)}
+.cert-deco{position:absolute;top:-24px;right:-24px;width:90px;height:90px;border-radius:50%;background:rgba(245,200,66,.04);border:1px solid rgba(245,200,66,.12)}
+.cert-icon{font-size:48px;margin-bottom:12px}
+.cert-title{font-family:var(--font-d);font-size:17px;font-weight:700;margin-bottom:6px}
+.cert-date{font-size:11px;font-family:var(--font-m);color:var(--muted);margin-bottom:16px}
+.cert-note{font-size:12px;color:var(--muted);margin-bottom:8px}
+.cert-bar{height:4px;background:var(--surface2);border-radius:2px;overflow:hidden;margin-top:10px}
+.cert-bar-fill{height:100%;background:linear-gradient(90deg,var(--gold),#e67e22);border-radius:2px}
+.btn-dl-cert{display:inline-flex;align-items:center;gap:7px;background:var(--gold);color:#080c10;font-family:var(--font-m);font-size:10px;font-weight:700;padding:9px 18px;border-radius:6px;text-transform:uppercase;transition:opacity .2s}
+.btn-dl-cert:hover{opacity:.85}
+
+/* leagues */
+.league-hero{background:linear-gradient(135deg,rgba(245,200,66,.1),rgba(8,12,16,0));border:1px solid rgba(245,200,66,.3);border-radius:var(--r);padding:28px;display:flex;align-items:center;gap:24px;margin-bottom:24px}
+.lh-trophy{font-size:64px}
+.lh-info{flex:1}
+.lh-name{font-family:var(--font-d);font-size:32px;font-weight:800;color:var(--gold);line-height:1}
+.lh-desc{font-size:13px;color:var(--muted);margin-top:6px}
+.lh-timer{font-family:var(--font-m);font-size:12px;color:var(--muted);margin-top:8px}
+.lh-timer span{color:var(--gold)}
+.lh-rank-box{background:var(--surface);border:1px solid rgba(245,200,66,.3);border-radius:10px;padding:16px 24px;text-align:center;flex-shrink:0}
+.lh-rank-num{font-family:var(--font-d);font-size:40px;font-weight:800;color:var(--gold);line-height:1}
+.lh-rank-lbl{font-size:11px;font-family:var(--font-m);color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+
+.leaderboard{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);overflow:hidden}
+.lb-hdr{padding:12px 20px;border-bottom:1px solid var(--border);display:grid;grid-template-columns:52px 1fr 90px 80px;gap:8px;font-size:10px;font-family:var(--font-m);color:var(--muted2);text-transform:uppercase;letter-spacing:.08em}
+.lb-row{padding:13px 20px;border-bottom:1px solid var(--border);display:grid;grid-template-columns:52px 1fr 90px 80px;gap:8px;align-items:center;transition:background .15s}
+.lb-row:last-child{border-bottom:none}
+.lb-row:hover{background:var(--surface2)}
+.lb-row.me{background:var(--cyan-dim);border-left:2px solid var(--cyan)}
+.lb-rank{font-family:var(--font-m);font-size:14px;font-weight:700;text-align:center}
+.lb-rank.gold{color:var(--gold)} .lb-rank.silver{color:var(--silver)} .lb-rank.bronze{color:var(--bronze)}
+.lb-user{display:flex;align-items:center;gap:10px}
+.lb-av{width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,var(--cyan),#0099ff);display:grid;place-items:center;font-family:var(--font-m);font-size:10px;font-weight:700;color:#080c10;flex-shrink:0}
+.lb-nm{font-size:13px;font-weight:500}
+.lb-xp{font-family:var(--font-m);font-size:12px;color:var(--xp);text-align:right}
+.lb-st{font-family:var(--font-m);font-size:12px;color:var(--gold);text-align:right}
+
+/* bookmarks */
+.bm-list{display:flex;flex-direction:column;gap:10px}
+.bm-item{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:14px 18px;display:flex;align-items:center;gap:14px;transition:all .2s}
+.bm-item:hover{border-color:var(--border2)}
+.bm-ico{width:36px;height:36px;border-radius:8px;display:grid;place-items:center;font-size:14px;flex-shrink:0}
+.bm-ico.video{background:rgba(0,220,180,.1);color:var(--cyan)} .bm-ico.material{background:rgba(167,139,250,.1);color:var(--xp)}
+.bm-info{flex:1}
+.bm-title{font-size:13px;font-weight:600;margin-bottom:2px}
+.bm-sub{font-size:11px;color:var(--muted)}
+.bm-rm{color:var(--muted2);font-size:13px;padding:4px;transition:color .2s}
+.bm-rm:hover{color:var(--danger)}
+
+/* profile */
+.prof-hero{background:linear-gradient(135deg,var(--surface),rgba(0,220,180,.03));border:1px solid var(--border);border-radius:var(--r);padding:30px;display:flex;align-items:center;gap:24px;margin-bottom:20px}
+.prof-av{width:76px;height:76px;border-radius:50%;background:linear-gradient(135deg,var(--cyan),#0099ff);display:grid;place-items:center;font-family:var(--font-d);font-size:30px;font-weight:800;color:#080c10;flex-shrink:0;border:3px solid var(--cyan)}
+.prof-name{font-family:var(--font-d);font-size:24px;font-weight:800}
+.prof-email{font-size:13px;color:var(--muted);margin-top:3px}
+.prof-since{font-family:var(--font-m);font-size:11px;color:var(--muted2);margin-top:6px}
+.prof-badges{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+.pbadge{padding:4px 11px;border-radius:20px;font-size:10px;font-family:var(--font-m);font-weight:700;text-transform:uppercase;letter-spacing:.04em}
+.pbadge.s{background:rgba(0,220,180,.1);color:var(--cyan);border:1px solid var(--border2)}
+.pbadge.st{background:rgba(245,200,66,.1);color:var(--gold);border:1px solid rgba(245,200,66,.3)}
+.pbadge.lg{background:rgba(167,139,250,.1);color:var(--xp);border:1px solid rgba(167,139,250,.3)}
+
+.prof-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px}
+.pstat{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:16px;text-align:center}
+.pstat-val{font-family:var(--font-d);font-size:26px;font-weight:800;line-height:1}
+.pstat-lbl{font-size:10px;font-family:var(--font-m);color:var(--muted);margin-top:4px;text-transform:uppercase;letter-spacing:.06em}
+
+.ach-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.ach{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:16px;text-align:center;transition:all .2s}
+.ach.earned{border-color:rgba(245,200,66,.35);background:rgba(245,200,66,.04)}
+.ach.locked{opacity:.4;filter:grayscale(1)}
+.ach-ico{font-size:28px;margin-bottom:7px}
+.ach-name{font-size:12px;font-weight:600}
+.ach-desc{font-size:10px;color:var(--muted);margin-top:3px}
+
+/* teacher */
+.t-banner{background:linear-gradient(135deg,rgba(167,139,250,.08),rgba(0,220,180,.04));border:1px solid rgba(167,139,250,.25);border-radius:var(--r);padding:14px 18px;display:flex;align-items:center;gap:10px;margin-bottom:20px;font-size:13px}
+.t-banner i{color:var(--xp);font-size:16px}
+.gtable{width:100%;border-collapse:collapse}
+.gtable th{padding:10px 14px;text-align:left;font-size:10px;font-family:var(--font-m);color:var(--muted);text-transform:uppercase;letter-spacing:.08em;border-bottom:1px solid var(--border)}
+.gtable td{padding:12px 14px;font-size:12px;border-bottom:1px solid var(--border)}
+.gtable tr:last-child td{border-bottom:none}
+.gtable tr:hover td{background:var(--surface2)}
+.btn-grade{background:rgba(0,220,180,.08);color:var(--cyan);border:1px solid var(--border2);font-family:var(--font-m);font-size:10px;padding:5px 10px;border-radius:4px;transition:all .2s;cursor:pointer}
+.btn-grade:hover{background:var(--cyan);color:#080c10}
+
+.tabs{display:flex;gap:2px;border-bottom:1px solid var(--border);margin-bottom:20px}
+.tab-btn{padding:10px 18px;font-size:12px;font-family:var(--font-m);color:var(--muted);border-bottom:2px solid transparent;transition:all .2s;cursor:pointer;text-transform:uppercase;letter-spacing:.05em}
+.tab-btn.active{color:var(--cyan);border-bottom-color:var(--cyan)}
+.tab-btn:hover{color:var(--white)}
+.tab-pane{display:none} .tab-pane.active{display:block}
+
+.up-zone{border:2px dashed var(--border);border-radius:var(--r);padding:28px;text-align:center;cursor:pointer;transition:all .2s;margin-bottom:14px}
+.up-zone:hover{border-color:var(--border2);background:var(--cyan-dim)}
+.up-zone i{font-size:26px;color:var(--muted);margin-bottom:8px;display:block}
+.up-zone p{font-size:13px;color:var(--muted)} .up-zone small{font-size:11px;color:var(--muted2);font-family:var(--font-m)}
+.frow{margin-bottom:14px}
+.flbl{font-size:11px;font-family:var(--font-m);color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px;display:block}
+.finput{width:100%;background:var(--surface2);border:1px solid var(--border);color:var(--white);padding:10px 14px;border-radius:6px;font-size:13px;transition:border-color .2s;outline:none}
+.finput:focus{border-color:var(--border2)}
+.fsel{width:100%;background:var(--surface2);border:1px solid var(--border);color:var(--white);padding:10px 14px;border-radius:6px;font-size:13px;outline:none}
+.btn-pri{background:var(--cyan);color:#080c10;font-family:var(--font-m);font-size:11px;font-weight:700;padding:10px 20px;border-radius:6px;text-transform:uppercase;transition:opacity .2s;cursor:pointer}
+.btn-pri:hover{opacity:.85}
+
+/* misc */
+.sec-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+.sec-title{font-family:var(--font-d);font-size:18px;font-weight:700}
+.empty{text-align:center;padding:48px;color:var(--muted)}
+.empty i{font-size:36px;margin-bottom:12px;display:block}
+.empty p{font-size:13px}
+
+.toast{position:fixed;bottom:24px;right:24px;z-index:999;background:var(--surface);border:1px solid var(--border2);border-radius:8px;padding:12px 18px;font-size:13px;color:var(--white);display:flex;align-items:center;gap:10px;transform:translateY(80px);opacity:0;transition:all .3s;pointer-events:none}
+.toast.show{transform:translateY(0);opacity:1}
+.toast i{color:var(--cyan)} .toast.xp-t i{color:var(--xp)}
+
+.mob-tog{display:none}
+@media(max-width:900px){
+  .sidebar{transform:translateX(-100%)} .sidebar.open{transform:translateX(0)}
+  .main{margin-left:0} .mob-tog{display:grid;place-items:center}
+  .g4,.prof-stats{grid-template-columns:repeat(2,1fr)}
+  .cert-grid,.ach-grid{grid-template-columns:1fr}
+  .week-grid{grid-template-columns:repeat(3,1fr)}
+  .lb-hdr,.lb-row{grid-template-columns:44px 1fr 70px 64px}
+}
+</style>
+</head>
+<body>
+<div class="app">
+
+<aside class="sidebar" id="sidebar">
+  <div class="sb-logo">
+    <div class="logo-mark">CE</div>
+    <span class="logo-name">code<span>ncode</span>.my</span>
+  </div>
+  <div class="sb-user">
+    <div class="sb-avatar" id="sb-av">S<div class="sb-level" id="sb-lv">1</div></div>
+    <div class="sb-uinfo">
+      <div class="sb-uname" id="sb-nm">Loading…</div>
+      <div class="sb-uxp" id="sb-xp">0 XP</div>
+    </div>
+  </div>
+  <div class="xp-wrap">
+    <div class="xp-labels"><span id="xp-cur">0 XP</span><span id="xp-next">Lv 2 · 500 XP</span></div>
+    <div class="xp-track"><div class="xp-fill" id="xp-bar" style="width:0%"></div></div>
+  </div>
+  <nav class="sb-nav">
+    <div class="nav-sec">Learn</div>
+    <div class="nav-item active" data-page="dashboard" onclick="goTo('dashboard')"><i class="fas fa-th-large"></i> Dashboard</div>
+    <div class="nav-item" data-page="progress" onclick="goTo('progress')"><i class="fas fa-chart-line"></i> My Progress</div>
+    <div class="nav-sec">Achievements</div>
+    <div class="nav-item" data-page="certificates" onclick="goTo('certificates')"><i class="fas fa-certificate"></i> Certificates</div>
+    <div class="nav-item" data-page="leagues" onclick="goTo('leagues')"><i class="fas fa-trophy"></i> Leagues</div>
+    <div class="nav-item" data-page="bookmarks" onclick="goTo('bookmarks')"><i class="fas fa-bookmark"></i> Bookmarks</div>
+    <div class="nav-sec">Account</div>
+    <div class="nav-item" data-page="profile" onclick="goTo('profile')"><i class="fas fa-user-circle"></i> Profile</div>
+    <div class="nav-sec teacher-only" style="display:none">Teacher</div>
+    <div class="nav-item teacher-only" data-page="t-grade" onclick="goTo('t-grade')" style="display:none"><i class="fas fa-star"></i> Grading</div>
+    <div class="nav-item teacher-only" data-page="t-upload" onclick="goTo('t-upload')" style="display:none"><i class="fas fa-cloud-upload-alt"></i> Upload Content</div>
+    <div class="nav-item teacher-only" data-page="t-students" onclick="goTo('t-students')" style="display:none"><i class="fas fa-users"></i> Students</div>
+  </nav>
+  <div class="sb-streak">
+    <div class="st-fire">🔥</div>
+    <div class="st-info">
+      <div class="st-num" id="st-num">1</div>
+      <div class="st-label">day streak</div>
+      <div class="st-days" id="st-days"></div>
+    </div>
+  </div>
+</aside>
+
+<div class="main">
+  <header class="topbar">
+    <button class="tb-btn mob-tog" onclick="document.getElementById('sidebar').classList.toggle('open')"><i class="fas fa-bars"></i></button>
+    <div class="topbar-title" id="topbar-title">Dashboard</div>
+    <div class="tb-actions">
+      <select class="course-sel" id="course-sel" onchange="switchCourse(this.value)"><option value="">Select course…</option></select>
+      <button class="tb-btn" title="Bookmarks" onclick="goTo('bookmarks')"><i class="fas fa-bookmark"></i></button>
+      <button class="tb-btn" title="Sign out" onclick="doLogout()"><i class="fas fa-sign-out-alt"></i></button>
+    </div>
+  </header>
+
+  <!-- DASHBOARD -->
+  <div class="page active" id="page-dashboard">
+    <div class="continue-banner">
+      <div class="cb-emoji" id="cb-emoji">🐍</div>
+      <div class="cb-info">
+        <div class="cb-eyebrow" id="cb-course">Python for Beginners</div>
+        <div class="cb-title" id="cb-title">Week 3 — OOP Classes &amp; Objects</div>
+        <div class="cb-meta">Session 2 · 45 min · +25 XP on watch</div>
+      </div>
+      <button class="btn-cont" onclick="goTo('progress')">Continue →</button>
+    </div>
+    <div class="g4" style="margin-bottom:20px">
+      <div class="stat"><div class="stat-lbl">Total XP</div><div class="stat-val xp" id="d-xp">280</div><div class="stat-sub">+150 XP this week</div></div>
+      <div class="stat"><div class="stat-lbl">Streak</div><div class="stat-val gold" id="d-streak">1</div><div class="stat-sub">days in a row 🔥</div></div>
+      <div class="stat"><div class="stat-lbl">Assignments</div><div class="stat-val cyan" id="d-assign">—</div><div class="stat-sub">submitted</div></div>
+      <div class="stat"><div class="stat-lbl">Avg Grade</div><div class="stat-val green" id="d-grade">—</div><div class="stat-sub">across all courses</div></div>
+    </div>
+    <div class="g2">
+      <div class="league-mini">
+        <div class="lm-badge">🏆</div>
+        <div class="lm-name">Wood League</div>
+        <div class="lm-rank">Ranked <span>#7</span> · 7 days left</div>
+        <div class="lm-bar-wrap">
+          <div class="lm-bar-labels"><span>280 XP</span><span>Top 5 → Bronze</span></div>
+          <div class="lm-bar"><div class="lm-bar-fill" style="width:56%"></div></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title"><i class="fas fa-bolt"></i> Recent Activity</div>
+        <div class="act-item"><div class="act-icon watch"><i class="fas fa-play"></i></div><div class="act-txt"><strong>Watched</strong> W3 S1 — Classes &amp; Objects</div><div class="act-time">2h ago</div></div>
+        <div class="act-item"><div class="act-icon xp-ic"><i class="fas fa-star"></i></div><div class="act-txt"><strong>+25 XP</strong> earned for watching video</div><div class="act-time">2h ago</div></div>
+        <div class="act-item"><div class="act-icon grade"><i class="fas fa-check-circle"></i></div><div class="act-txt"><strong>Graded</strong> 88/100 — Assignment 1</div><div class="act-time">2d ago</div></div>
+        <div class="act-item"><div class="act-icon submit"><i class="fas fa-upload"></i></div><div class="act-txt"><strong>Submitted</strong> Assignment 1</div><div class="act-time">3d ago</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MY PROGRESS -->
+  <div class="page" id="page-progress">
+    <div class="sec-hdr"><div class="sec-title">My Progress</div></div>
+    <div id="prog-container"></div>
+  </div>
+
+  <!-- CERTIFICATES -->
+  <div class="page" id="page-certificates">
+    <div class="sec-hdr"><div class="sec-title">Certificates</div></div>
+    <div class="cert-grid" id="cert-grid"></div>
+  </div>
+
+  <!-- LEAGUES -->
+  <div class="page" id="page-leagues">
+    <div class="league-hero">
+      <div class="lh-trophy">🏆</div>
+      <div class="lh-info">
+        <div class="lh-name">Wood League</div>
+        <div class="lh-desc">Top 5 students each week promote to Bronze League</div>
+        <div class="lh-timer">Season resets in <span id="league-timer">7 days 0h 0m</span></div>
+      </div>
+      <div class="lh-rank-box">
+        <div class="lh-rank-num" id="your-rank">#7</div>
+        <div class="lh-rank-lbl">Your Rank</div>
+      </div>
+    </div>
+    <div class="leaderboard">
+      <div class="lb-hdr"><div>Rank</div><div>Student</div><div>XP</div><div>Streak</div></div>
+      <div id="lb-rows"></div>
+    </div>
+  </div>
+
+  <!-- BOOKMARKS -->
+  <div class="page" id="page-bookmarks">
+    <div class="sec-hdr">
+      <div class="sec-title">Bookmarks</div>
+      <div style="font-size:11px;font-family:var(--font-m);color:var(--muted)" id="bm-count">0 saved</div>
+    </div>
+    <div class="bm-list" id="bm-list"></div>
+  </div>
+
+  <!-- PROFILE -->
+  <div class="page" id="page-profile">
+    <div class="prof-hero">
+      <div class="prof-av" id="prof-av">S</div>
+      <div>
+        <div class="prof-name" id="prof-name">Student</div>
+        <div class="prof-email" id="prof-email">—</div>
+        <div class="prof-since">Member since March 2026</div>
+        <div class="prof-badges">
+          <span class="pbadge s">Student</span>
+          <span class="pbadge st" id="prof-streak-badge">🔥 1 Day Streak</span>
+          <span class="pbadge lg">Wood League #7</span>
+        </div>
+      </div>
+    </div>
+    <div class="prof-stats">
+      <div class="pstat"><div class="pstat-val" style="color:var(--xp)" id="ps-xp">280</div><div class="pstat-lbl">Total XP</div></div>
+      <div class="pstat"><div class="pstat-val" style="color:var(--gold)" id="ps-streak">1</div><div class="pstat-lbl">Day Streak</div></div>
+      <div class="pstat"><div class="pstat-val" style="color:var(--cyan)" id="ps-assigns">—</div><div class="pstat-lbl">Assignments</div></div>
+      <div class="pstat"><div class="pstat-val" style="color:var(--xp)" id="ps-level">3</div><div class="pstat-lbl">Level</div></div>
+    </div>
+    <div class="sec-hdr"><div class="sec-title">Achievements</div></div>
+    <div class="ach-grid" id="ach-grid"></div>
+  </div>
+
+  <!-- TEACHER: GRADING -->
+  <div class="page" id="page-t-grade">
+    <div class="t-banner"><i class="fas fa-star"></i> Grade student submissions</div>
+    <div id="grade-container"></div>
+  </div>
+
+  <!-- TEACHER: UPLOAD -->
+  <div class="page" id="page-t-upload">
+    <div class="t-banner"><i class="fas fa-cloud-upload-alt"></i> Upload course content</div>
+    <div class="tabs">
+      <div class="tab-btn active" onclick="switchTab(this,'tab-rec')">📹 Recordings</div>
+      <div class="tab-btn" onclick="switchTab(this,'tab-mat')">📄 Materials</div>
+      <div class="tab-btn" onclick="switchTab(this,'tab-assign')">📝 Assignments</div>
+    </div>
+    <div class="tab-pane active" id="tab-rec">
+      <div class="up-zone" onclick="document.getElementById('f-rec').click()"><i class="fas fa-video"></i><p>Click to upload recording (MP4, MOV)</p><small>Or paste a Zoom / YouTube link below</small></div>
+      <input type="file" id="f-rec" accept="video/*" style="display:none" onchange="fileSel(this,'📹')"/>
+      <div class="frow"><label class="flbl">Video Title</label><input class="finput" placeholder="e.g. Week 3 Session 1 — Classes &amp; Objects"/></div>
+      <div class="g2">
+        <div class="frow"><label class="flbl">Course</label><select class="fsel" id="up-course"></select></div>
+        <div class="frow"><label class="flbl">Week</label><select class="fsel"><option>Week 1</option><option>Week 2</option><option>Week 3</option><option>Week 4</option><option>Week 5</option><option>Week 6</option></select></div>
+      </div>
+      <button class="btn-pri" onclick="showToast('📹 Recording uploaded!')">Upload Recording</button>
+    </div>
+    <div class="tab-pane" id="tab-mat">
+      <div class="up-zone" onclick="document.getElementById('f-mat').click()"><i class="fas fa-file-code"></i><p>Click to upload material (.py, .pdf, .zip)</p><small>Max 50 MB</small></div>
+      <input type="file" id="f-mat" style="display:none" onchange="fileSel(this,'📄')"/>
+      <div class="frow"><label class="flbl">Title</label><input class="finput" placeholder="e.g. Week 3 Exercise Files"/></div>
+      <div class="g2">
+        <div class="frow"><label class="flbl">Course</label><select class="fsel"></select></div>
+        <div class="frow"><label class="flbl">Week</label><select class="fsel"><option>Week 1</option><option>Week 2</option><option>Week 3</option><option>Week 4</option><option>Week 5</option><option>Week 6</option></select></div>
+      </div>
+      <button class="btn-pri" onclick="showToast('📄 Material uploaded!')">Upload Material</button>
+    </div>
+    <div class="tab-pane" id="tab-assign">
+      <div class="frow"><label class="flbl">Title</label><input class="finput" placeholder="e.g. Assignment 3 — Data Analysis Project"/></div>
+      <div class="frow"><label class="flbl">Description</label><textarea class="finput" rows="3" placeholder="What students need to do…"></textarea></div>
+      <div class="g2">
+        <div class="frow"><label class="flbl">Course</label><select class="fsel"></select></div>
+        <div class="frow"><label class="flbl">Due Date</label><input class="finput" type="date"/></div>
+      </div>
+      <button class="btn-pri" onclick="showToast('📝 Assignment created!')">Create Assignment</button>
+    </div>
+  </div>
+
+  <!-- TEACHER: STUDENTS -->
+  <div class="page" id="page-t-students">
+    <div class="t-banner"><i class="fas fa-users"></i> All enrolled students</div>
+    <div class="card">
+      <table class="gtable">
+        <thead><tr><th>Student</th><th>Email</th><th>Progress</th><th>XP</th></tr></thead>
+        <tbody id="t-stud-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+</div>
+
+<div class="toast" id="toast"><i class="fas fa-check-circle"></i><span id="toast-msg">Done!</span></div>
+
+<script>
+const BASE = window.location.pathname.startsWith('/lms') ? '/lms' : '';
+const S = {
+  user:null, courses:[], activeCourse:null, submissions:[],
+  xp:280, streak:1,
+  bookmarks: JSON.parse(localStorage.getItem('cc_bm')||'[]'),
+  currentPage:'dashboard',
+};
+
+const XP_LV = [0,100,250,500,900,1400,2000,2700,3500,4500];
+function getLevel(xp){ for(let i=XP_LV.length-1;i>=0;i--) if(xp>=XP_LV[i]) return i+1; return 1; }
+function lvProg(xp){ const lv=getLevel(xp),c=XP_LV[lv-1]||0,n=XP_LV[lv]||XP_LV[XP_LV.length-1]+500; return {pct:Math.round((xp-c)/(n-c)*100),nextXP:n,lv}; }
+
+async function init(){
+  try{ const r=await fetch(BASE+'/api/me'); if(!r.ok){window.location.href=BASE+'/';return;} S.user=await r.json(); }
+  catch(e){ window.location.href=BASE+'/'; return; }
+
+  const cr=await fetch(BASE+'/api/courses'); S.courses=await cr.json();
+  const sel=document.getElementById('course-sel');
+  S.courses.forEach(c=>{ const o=document.createElement('option'); o.value=c.id; o.textContent=c.title; sel.appendChild(o); });
+  if(S.courses.length){ S.activeCourse=S.courses[0]; sel.value=S.activeCourse.id; }
+
+  try{ const sr=await fetch(BASE+'/api/my-submissions'); S.submissions=sr.ok?await sr.json():[]; }catch(e){ S.submissions=[]; }
+
+  if(S.user.role==='teacher') document.querySelectorAll('.teacher-only').forEach(el=>el.style.display='');
+
+  renderSB(); renderXP(); renderStreak();
+  renderDash(); renderProgress(); renderCerts(); renderLeagues(); renderBookmarks(); renderProfile();
+  if(S.user.role==='teacher'){ renderGrading(); renderStudents(); }
+}
+
+const PAGE_TITLES={dashboard:'Dashboard',progress:'My Progress',certificates:'Certificates',leagues:'Leagues',bookmarks:'Bookmarks',profile:'Profile','t-grade':'Grading','t-upload':'Upload Content','t-students':'Students'};
+function goTo(p){
+  document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(x=>x.classList.remove('active'));
+  document.getElementById('page-'+p).classList.add('active');
+  document.querySelector(`[data-page="${p}"]`)?.classList.add('active');
+  document.getElementById('topbar-title').textContent=PAGE_TITLES[p]||p;
+  S.currentPage=p;
+  document.getElementById('sidebar').classList.remove('open');
+  if(p==='bookmarks') renderBookmarks();
+}
+
+function switchCourse(id){
+  if(!id) return;
+  S.activeCourse=S.courses.find(c=>c.id==id)||S.courses[0];
+  renderDash(); renderProgress(); renderCerts();
+}
+
+function renderSB(){
+  if(!S.user) return;
+  const ini=S.user.name.split(' ').map(n=>n[0]).join('').slice(0,2).toUpperCase();
+  document.getElementById('sb-av').childNodes[0].textContent=ini;
+  document.getElementById('sb-nm').textContent=S.user.name;
+  document.getElementById('prof-av').textContent=ini;
+  document.getElementById('prof-name').textContent=S.user.name;
+  document.getElementById('prof-email').textContent=S.user.email;
+}
+
+function renderXP(){
+  const p=lvProg(S.xp);
+  document.getElementById('xp-bar').style.width=p.pct+'%';
+  document.getElementById('xp-cur').textContent=S.xp+' XP';
+  document.getElementById('xp-next').textContent=`Lv ${p.lv+1} · ${p.nextXP} XP`;
+  document.getElementById('sb-lv').textContent=p.lv;
+  document.getElementById('sb-xp').textContent=S.xp+' XP';
+  ['d-xp','ps-xp'].forEach(id=>{ const el=document.getElementById(id); if(el) el.textContent=S.xp; });
+  document.getElementById('ps-level').textContent=p.lv;
+}
+
+function awardXP(amt,reason){ S.xp+=amt; renderXP(); showToast(`+${amt} XP — ${reason}`,true); }
+
+function renderStreak(){
+  const days=['M','T','W','T','F','S','S'];
+  const ti=(new Date().getDay()+6)%7;
+  document.getElementById('st-days').innerHTML=days.map((d,i)=>`<div class="st-day ${i<ti?'done':i===ti?'today':''}">${d}</div>`).join('');
+  ['st-num','d-streak','ps-streak'].forEach(id=>{ const el=document.getElementById(id); if(el) el.textContent=S.streak; });
+  document.getElementById('prof-streak-badge').textContent=`🔥 ${S.streak} Day Streak`;
+}
+
+function renderDash(){
+  const graded=S.submissions.filter(s=>s.score!=null);
+  const avg=graded.length?Math.round(graded.reduce((a,s)=>a+s.score,0)/graded.length):null;
+  document.getElementById('d-assign').textContent=`${S.submissions.length}/${S.courses.length*2}`;
+  document.getElementById('d-grade').textContent=avg?avg+'%':'—';
+  if(S.activeCourse){ document.getElementById('cb-course').textContent=S.activeCourse.title; document.getElementById('cb-emoji').textContent=S.activeCourse.id==1?'🐍':'🤖'; }
+}
+
+function renderProgress(){
+  const c=document.getElementById('prog-container');
+  if(!S.courses.length){ c.innerHTML='<div class="empty"><i class="fas fa-chart-line"></i><p>No courses enrolled yet</p></div>'; return; }
+  c.innerHTML=S.courses.map(course=>{
+    const pct=course.id==1?42:28, weeks=course.weeks||6;
+    const chips=Array.from({length:weeks},(_,i)=>{
+      const w=i+1,done=w<3,cur=w===3;
+      return `<div class="wk ${done?'done':cur?'cur':''}"><div class="wk-num">W${w}</div><div class="wk-st">${done?'✅':cur?'▶️':'🔒'}</div></div>`;
+    }).join('');
+    return `<div class="prog-course">
+      <div class="pc-head"><div class="pc-emoji">${course.id==1?'🐍':'🤖'}</div>
+        <div><div class="pc-title">${course.title}</div><div class="pc-meta">${weeks} weeks · 16 recordings</div></div>
+        <div class="pc-pct">${pct}%</div></div>
+      <div class="prog-bar"><div class="prog-bar-fill" style="width:${pct}%"></div></div>
+      <div class="week-grid">${chips}</div>
+    </div>`;
+  }).join('');
+}
+
+function renderCerts(){
+  const g=document.getElementById('cert-grid');
+  if(!S.courses.length){ g.innerHTML='<div class="empty"><i class="fas fa-certificate"></i><p>Complete a course to earn your certificate</p></div>'; return; }
+  g.innerHTML=S.courses.map(c=>{
+    const pct=c.id==1?42:28, earned=pct>=100;
+    return `<div class="cert-card ${earned?'earned':'locked'}">
+      <div class="cert-deco"></div>
+      <div class="cert-icon">${earned?'🏅':'🔓'}</div>
+      <div class="cert-title">${c.title}</div>
+      ${earned?`<div class="cert-date">Issued March 2026</div><button class="btn-dl-cert" onclick="dlCert('${c.title}')"><i class="fas fa-download"></i> Download PDF</button>`
+        :`<div class="cert-note">Complete all assignments &amp; pass the final exam</div>
+          <div style="font-family:var(--font-m);font-size:13px;color:var(--muted)">${pct}% complete</div>
+          <div class="cert-bar"><div class="cert-bar-fill" style="width:${pct}%"></div></div>`}
+    </div>`;
+  }).join('');
+}
+function dlCert(t){ showToast('📜 Certificate downloading…'); }
+
+function renderLeagues(){
+  const board=[
+    {name:'Aisha Binti Kamal',xp:520,streak:12},{name:'Wei Jian Loh',xp:490,streak:7},
+    {name:'Priya Sharma',xp:445,streak:9},{name:'Haziq Firdaus',xp:410,streak:5},
+    {name:'Li Ming Chen',xp:380,streak:11},{name:'Nurul Ain',xp:350,streak:3},
+    {name:S.user?.name||'You',xp:S.xp,streak:S.streak,me:true},
+    {name:'Ahmad Danial',xp:240,streak:2},{name:'Siti Hajar',xp:200,streak:1},{name:'Ryan Tan',xp:180,streak:4},
+  ].sort((a,b)=>b.xp-a.xp);
+  const myR=board.findIndex(u=>u.me)+1;
+  document.getElementById('your-rank').textContent='#'+myR;
+  const ri=['🥇','🥈','🥉'], rc=['gold','silver','bronze'];
+  document.getElementById('lb-rows').innerHTML=board.map((u,i)=>`
+    <div class="lb-row ${u.me?'me':''}">
+      <div class="lb-rank ${rc[i]||''}">${ri[i]||('#'+(i+1))}</div>
+      <div class="lb-user"><div class="lb-av">${u.name.split(' ').map(n=>n[0]).join('').slice(0,2).toUpperCase()}</div><div class="lb-nm">${u.name}${u.me?' (you)':''}</div></div>
+      <div class="lb-xp">${u.xp} XP</div>
+      <div class="lb-st">🔥 ${u.streak}</div>
+    </div>`).join('');
+  let secs=7*24*3600; clearInterval(window._lt);
+  window._lt=setInterval(()=>{ secs--; const d=Math.floor(secs/86400),h=Math.floor((secs%86400)/3600),m=Math.floor((secs%3600)/60); const el=document.getElementById('league-timer'); if(el) el.textContent=`${d} days ${h}h ${m}m`; },1000);
+}
+
+function toggleBM(type,id,title){
+  const key=`${type}-${id}`, idx=S.bookmarks.findIndex(b=>b.key===key);
+  if(idx>=0){ S.bookmarks.splice(idx,1); showToast('Bookmark removed'); }
+  else{ S.bookmarks.push({key,type,id,title,added:new Date().toISOString()}); showToast('🔖 Bookmarked!'); }
+  localStorage.setItem('cc_bm',JSON.stringify(S.bookmarks));
+  if(S.currentPage==='bookmarks') renderBookmarks();
+}
+
+function renderBookmarks(){
+  const list=document.getElementById('bm-list');
+  document.getElementById('bm-count').textContent=S.bookmarks.length+' saved';
+  if(!S.bookmarks.length){ list.innerHTML='<div class="empty"><i class="fas fa-bookmark"></i><p>No bookmarks yet.<br>Add them from the recordings &amp; materials pages.</p></div>'; return; }
+  const ti={video:'<i class="fas fa-play"></i>',material:'<i class="fas fa-file-code"></i>'};
+  list.innerHTML=S.bookmarks.map(b=>`
+    <div class="bm-item">
+      <div class="bm-ico ${b.type}">${ti[b.type]||'📄'}</div>
+      <div class="bm-info"><div class="bm-title">${b.title}</div><div class="bm-sub">${b.type} · saved ${new Date(b.added).toLocaleDateString()}</div></div>
+      <button class="bm-rm" onclick="toggleBM('${b.type}',${b.id},'${b.title.replace(/'/g,"\\'")}')"><i class="fas fa-times"></i></button>
+    </div>`).join('');
+}
+
+const ACHS=[
+  {ico:'🌟',name:'Welcome!',desc:'First login',e:true},{ico:'🎬',name:'First Watch',desc:'Watched first recording',e:true},
+  {ico:'📤',name:'Submitter',desc:'Submitted first assignment',e:true},{ico:'🔥',name:'Week Warrior',desc:'7-day streak',e:false},
+  {ico:'💯',name:'Perfectionist',desc:'Score 100% on an assignment',e:false},{ico:'🏅',name:'Graduate',desc:'Earn a certificate',e:false},
+  {ico:'🏆',name:'League Climber',desc:'Reach Bronze League',e:false},{ico:'🔖',name:'Bookworm',desc:'Save 10 bookmarks',e:S.bookmarks.length>=10},
+];
+function renderProfile(){
+  document.getElementById('ps-assigns').textContent=S.submissions.length||'—';
+  document.getElementById('ach-grid').innerHTML=ACHS.map(a=>`
+    <div class="ach ${a.e?'earned':'locked'}"><div class="ach-ico">${a.ico}</div><div class="ach-name">${a.name}</div><div class="ach-desc">${a.desc}</div></div>`).join('');
+}
+
+async function renderStudents(){
+  try{
+    const r=await fetch(BASE+'/api/students'); if(!r.ok) return;
+    const students=await r.json();
+    document.getElementById('t-stud-tbody').innerHTML=students.map(s=>`<tr>
+      <td>${s.name}</td><td style="color:var(--muted);font-size:12px">${s.email}</td>
+      <td><div style="height:4px;width:80px;background:var(--surface2);border-radius:2px;overflow:hidden"><div style="height:100%;width:${Math.round(Math.random()*70+20)}%;background:var(--cyan);border-radius:2px"></div></div></td>
+      <td style="color:var(--xp);font-family:var(--font-m);font-size:12px">${Math.round(Math.random()*400+100)} XP</td>
+    </tr>`).join('');
+  }catch(e){}
+}
+
+function renderGrading(){
+  const items=[
+    {s:'Wei Jian Loh',a:'Assignment 2 — Contact Book',c:'Python'},
+    {s:'Aisha Binti Kamal',a:'Assignment 2 — Contact Book',c:'Python'},
+    {s:'Priya Sharma',a:'ML Assignment 1',c:'Machine Learning'},
+    {s:'Haziq Firdaus',a:'ML Assignment 1',c:'Machine Learning'},
+  ];
+  document.getElementById('grade-container').innerHTML=`<div class="card">
+    <div class="card-title"><i class="fas fa-inbox"></i> Pending (${items.length})</div>
+    <table class="gtable"><thead><tr><th>Student</th><th>Assignment</th><th>Course</th><th>Action</th></tr></thead>
+    <tbody>${items.map(u=>`<tr><td>${u.s}</td><td>${u.a}</td><td style="color:var(--muted)">${u.c}</td>
+      <td><button class="btn-grade" onclick="doGrade('${u.s}','${u.a}')">Grade</button></td></tr>`).join('')}</tbody></table>
+  </div>`;
+}
+function doGrade(s,a){
+  const sc=prompt(`Grade for ${s}\n${a}\n\nEnter score (0–100):`); if(sc===null) return;
+  const n=parseInt(sc); if(isNaN(n)||n<0||n>100){ showToast('Invalid score'); return; }
+  showToast(`✅ Graded ${s}: ${n}/100`); awardXP(10,'Graded a submission'); renderGrading();
+}
+
+function switchTab(btn,id){
+  btn.closest('.page').querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  btn.closest('.page').querySelectorAll('.tab-pane').forEach(p=>p.classList.remove('active'));
+  btn.classList.add('active'); document.getElementById(id).classList.add('active');
+}
+
+let _tt;
+function showToast(msg,isXP=false){
+  const t=document.getElementById('toast'); document.getElementById('toast-msg').textContent=msg;
+  t.className='toast show'+(isXP?' xp-t':''); clearTimeout(_tt); _tt=setTimeout(()=>t.className='toast',3200);
+}
+
+function fileSel(i,e){ if(i.files[0]) showToast(`${e} Selected: ${i.files[0].name}`); }
+async function doLogout(){ await fetch(BASE+'/api/logout',{method:'POST'}); window.location.href=BASE+'/'; }
+
+document.addEventListener('DOMContentLoaded',init);
+</script>
+</body>
+</html>

@@ -30,9 +30,21 @@ from flask import (Flask, request, jsonify, session,
                    send_from_directory, send_file)
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
+from werkzeug.middleware.dispatcher import DispatcherMiddleware
+from werkzeug.wrappers import Response
 
 app = Flask(__name__, static_folder='static', template_folder='templates')
 app.secret_key = os.environ.get('SECRET_KEY', 'dev-secret-change-me')
+
+# ── /lms path prefix for Railway ─────────────────────────
+# Set APP_PREFIX=/lms in Railway environment variables
+# Leave blank for local dev
+PREFIX = os.environ.get('APP_PREFIX', '')
+if PREFIX:
+    app.wsgi_app = DispatcherMiddleware(
+        Response('Not Found', status=404),
+        {PREFIX: app.wsgi_app}
+    )
 
 UPLOAD_FOLDER = os.path.join(os.path.dirname(__file__), 'uploads')
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
@@ -221,7 +233,39 @@ def save_file(file, subfolder):
 
 @app.route('/')
 def index():
-    return send_from_directory('templates', 'lms.html')
+    return send_from_directory('templates', 'lms2.html')
+
+# ── Aliases needed by new gamified frontend ───
+@app.route('/api/me')
+def api_me():
+    u = current_user()
+    if not u:
+        return jsonify({'error': 'Not logged in'}), 401
+    return jsonify({'id': u['id'], 'name': u['name'],
+                    'email': u['email'], 'role': u['role']})
+
+@app.route('/api/logout', methods=['POST'])
+def api_logout():
+    session.clear()
+    return jsonify({'ok': True})
+
+@app.route('/api/my-submissions')
+@login_required
+def my_submissions():
+    u = current_user()
+    subs = query("""SELECT s.*, a.title as assignment_title, a.course_id
+                    FROM submissions s JOIN assignments a ON a.id=s.assignment_id
+                    WHERE s.student_id=?""", [u['id']])
+    return jsonify(subs)
+
+@app.route('/api/students')
+@login_required
+def students_list():
+    u = current_user()
+    if u['role'] != 'teacher':
+        return jsonify({'error': 'Forbidden'}), 403
+    students = query("SELECT id, name, email FROM users WHERE role='student'")
+    return jsonify(students)
 
 # ─────────────────────────────────────────────
 # AUTH routes
@@ -556,106 +600,304 @@ def seed():
     if query("SELECT 1 FROM users LIMIT 1"):
         return
 
-    # Users
+    UPLOADS = os.path.join(os.path.dirname(__file__), 'uploads')
+
+    def mat_size(fname, sub):
+        path = os.path.join(UPLOADS, sub, fname)
+        if not os.path.exists(path): return '—'
+        b = os.path.getsize(path)
+        return f"{b/1024:.0f} KB" if b < 1024*1024 else f"{b/1024/1024:.1f} MB"
+
+    # ── Users ────────────────────────────────────────────
     users = [
         ('Michael Chang', 'teacher@codencode.my', 'teacher'),
-        ('Alex Tan',       'student@codencode.my', 'student'),
-        ('Jamie Lim',      'jamie@codencode.my',   'student'),
-        ('Rahim Nor',      'rahim@codencode.my',   'student'),
-        ('Wei Ling',       'weiling@codencode.my', 'student'),
-        ('Zara Hassan',    'zara@codencode.my',    'student'),
-        ('Kai Chen',       'kai@codencode.my',     'student'),
+        ('Alex Tan',      'student@codencode.my', 'student'),
+        ('Jamie Lim',     'jamie@codencode.my',   'student'),
+        ('Rahim Nor',     'rahim@codencode.my',   'student'),
+        ('Wei Ling',      'weiling@codencode.my', 'student'),
+        ('Zara Hassan',   'zara@codencode.my',    'student'),
+        ('Kai Chen',      'kai@codencode.my',     'student'),
     ]
     for name, email, role in users:
         execute("INSERT INTO users (name,email,password_hash,role) VALUES (?,?,?,?)",
                 [name, email, generate_password_hash('demo1234'), role])
 
-    # Courses
-    python_id = execute("INSERT INTO courses (title,description,weeks) VALUES (?,?,?)",
-                        ['Python Programming Bootcamp','6-week course from beginner to advanced.',6])
+    # ── Courses ──────────────────────────────────────────
+    py_id = execute("INSERT INTO courses (title,description,weeks) VALUES (?,?,?)",
+                    ['Python for Beginners',
+                     'Go from zero to writing real Python programs in 6 weeks. No experience needed!', 6])
     ml_id = execute("INSERT INTO courses (title,description,weeks) VALUES (?,?,?)",
-                    ['Machine Learning Fundamentals','10-week ML course.',10])
+                    ['Machine Learning Fundamentals',
+                     'Learn how machines learn. Build models that predict, classify, and understand data.', 8])
 
-    # Enroll students (id 2-7) in both courses
     for sid in range(2, 8):
-        execute("INSERT OR IGNORE INTO enrollments (student_id,course_id) VALUES (?,?)", [sid, python_id])
+        execute("INSERT OR IGNORE INTO enrollments (student_id,course_id) VALUES (?,?)", [sid, py_id])
         execute("INSERT OR IGNORE INTO enrollments (student_id,course_id) VALUES (?,?)", [sid, ml_id])
 
-    # Recordings
-    for wk, sn, title, dur in [
-        (1,1,'Intro to Python & Environment Setup','45:12'),
-        (1,2,'Variables, Data Types & Operators','38:44'),
-        (1,3,'Control Flow: If, Loops, Break & Continue','52:01'),
-        (1,4,'Lists, Tuples, Dictionaries','41:30'),
-        (2,1,'Functions Deep Dive — Args, Kwargs, Scope','58:20'),
-        (2,2,'Reading & Writing Files — CSV, JSON, TXT','44:50'),
-        (3,1,'OOP Part 1 — Classes & Objects','55:40'),
-        (3,2,'OOP Part 2 — Inheritance & Polymorphism','49:30'),
-        (4,1,'Pandas: DataFrames, Series, Indexing','62:05'),
-        (4,2,'Data Cleaning — Nulls, Duplicates, Dtypes','55:18'),
-    ]:
-        execute("INSERT INTO recordings (course_id,week,session_num,title,duration,filename) VALUES (?,?,?,?,?,?)",
-                [python_id, wk, sn, title, dur, 'demo_placeholder.mp4'])
+    # ══════════════════════════════════════════════════════
+    #  PYTHON FOR BEGINNERS
+    # ══════════════════════════════════════════════════════
 
-    # Materials
-    for wk, title, ftype, fsize in [
-        (1,'Week 1 — Python Basics Slides.pdf','pdf','2.4 MB'),
-        (1,'week1_exercises.py','py','18 KB'),
-        (4,'Pandas Cheat Sheet.pdf','pdf','890 KB'),
-        (4,'datasets_week4.zip','zip','3.1 MB'),
-        (0,'Course Outline & Schedule.pdf','pdf','145 KB'),
-    ]:
-        execute("INSERT INTO materials (course_id,week,title,filename,orig_name,file_type,file_size) VALUES (?,?,?,?,?,?,?)",
-                [python_id, wk, title, f'demo_{title}', title, ftype, fsize])
-
-    # Assignments
-    asgn_ids = []
-    for wk, title, desc, due in [
-        (1,'Python Basics — Loops & Lists','Write a script that processes a list of numbers.','2025-01-19'),
-        (2,'Functions & Recursion','Build utility functions including recursive algorithms.','2025-01-28'),
-        (3,'File Handling & Data Processing','Read a CSV, process data, output a summary report.','2025-02-05'),
-        (4,'Web Scraping with BeautifulSoup','Scrape product listings from a given site.','2025-02-28'),
-        (5,'Pandas Data Analysis Report','Analyse the provided sales dataset using Pandas.','2025-03-07'),
-    ]:
-        aid = execute("INSERT INTO assignments (course_id,week,title,description,due_date) VALUES (?,?,?,?,?)",
-                      [python_id, wk, title, desc, due])
-        asgn_ids.append(aid)
-
-    # Grades for assignments 1-3
-    grade_data = [
-        (2, [80, 92, 88]),
-        (3, [95, 90, 93]),
-        (4, [60, 65, None]),
-        (5, [75, 80, 78]),
-        (6, [88, 85, 90]),
-        (7, [92, 98, 91]),
+    # ── Recordings ───────────────────────────────────────
+    py_sessions = [
+        (1,1,"Welcome! Setting Up Python & VS Code",          "32:10",
+         "Install Python, VS Code, run your first print('hello world'). We do it together."),
+        (1,2,"Variables & Data Types — Storing Information",  "41:25",
+         "int, float, string, bool. Learn how Python stores data in memory."),
+        (1,3,"Making Decisions — If, Elif, Else",             "38:50",
+         "Your code thinks! Write programs that react to different inputs."),
+        (1,4,"Loops — For & While (Stop Repeating Yourself)", "45:05",
+         "Automate repetitive tasks. Loop over lists, use range(), break and continue."),
+        (2,1,"Lists — Your First Collection",                 "39:20",
+         "Store multiple values. Append, remove, slice, sort. The most-used data structure."),
+        (2,2,"Dictionaries — Key-Value Power",                "44:15",
+         "Think of it as a contacts list. Perfect for structured data."),
+        (2,3,"Functions — Write Once, Use Anywhere",          "52:30",
+         "def, return, arguments, defaults. Stop copy-pasting code."),
+        (2,4,"Scope, *args & **kwargs",                       "38:45",
+         "Advanced function tricks. Pass any number of arguments."),
+        (3,1,"OOP Part 1 — Classes & Objects",                "55:10",
+         "Bundle data and behaviour together. Build a Student class from scratch."),
+        (3,2,"OOP Part 2 — Inheritance",                      "49:35",
+         "Teacher inherits from Person. Reuse code, don't repeat it."),
+        (4,1,"Files — Reading & Writing Data",                "42:00",
+         "Read txt, write CSV, load JSON. Your programs now remember things."),
+        (4,2,"Error Handling — Try, Except, Finally",         "36:20",
+         "Stop your program from crashing. Handle errors like a pro."),
+        (5,1,"Modules & pip — Using Other People's Code",     "33:40",
+         "Import math, random, datetime. Install packages with pip."),
+        (5,2,"List Comprehensions & Lambdas",                 "40:55",
+         "One-liner magic. Write cleaner, more Pythonic code."),
+        (6,1,"Mini Project — Build a Contact Book",           "61:20",
+         "We build Assignment 2 together, step by step. Watch this before submitting!"),
+        (6,2,"Wrap Up — What's Next?",                        "28:05",
+         "You did it! What to learn next: web, data science, automation."),
     ]
-    for sid, scores in grade_data:
+    for wk, sn, title, dur, desc in py_sessions:
+        execute("INSERT INTO recordings (course_id,week,session_num,title,description,duration,filename) VALUES (?,?,?,?,?,?,?)",
+                [py_id, wk, sn, title, desc, dur, 'demo_placeholder.mp4'])
+
+    # ── Materials ─────────────────────────────────────────
+    py_materials = [
+        # (week, title, stored_filename, orig_name, file_type, subfolder)
+        (0, '🗒️ Python Cheat Sheet — Everything in One File',
+             'py_cheatsheet.py',       'py_cheatsheet.py',              'py',  'materials'),
+        (1, '📝 Week 1 Exercises — Variables, Loops & Lists',
+             'py_week1_exercises.py',  'week1_exercises.py',            'py',  'materials'),
+        (2, '📝 Week 2 Exercises — Functions',
+             'py_week2_exercises.py',  'week2_exercises.py',            'py',  'materials'),
+        (3, '📝 Week 3 Exercises — OOP Classes & Objects',
+             'py_week3_exercises.py',  'week3_exercises.py',            'py',  'materials'),
+        (4, '📝 Week 4 Exercises — Files & Error Handling',
+             'py_week4_exercises.py',  'week4_exercises.py',            'py',  'materials'),
+        (5, '📝 Week 5 Exercises — Modules, pip & Pythonic Code',
+             'py_week5_exercises.py',  'week5_exercises.py',            'py',  'materials'),
+        (6, '📝 Week 6 Exercises — Building Real Projects',
+             'py_week6_exercises.py',  'week6_exercises.py',            'py',  'materials'),
+    ]
+    for wk, title, fname, orig, ftype, sub in py_materials:
+        size = mat_size(fname, sub)
+        execute("INSERT INTO materials (course_id,week,title,filename,orig_name,file_type,file_size) VALUES (?,?,?,?,?,?,?)",
+                [py_id, wk, title, fname, orig, ftype, size])
+
+    # ── Assignments ──────────────────────────────────────
+    py_asgn = []
+    for wk, title, desc, due, brief in [
+        (2,
+         '🎯 Assignment 1 — My Digital Life in Python',
+         'Build your first real Python program! Introduce yourself, make a grade calculator, '
+         'and build a number guessing game. Use variables, loops, functions, and lists. '
+         'Starter file is attached — fill in the TODOs and submit.',
+         '2026-03-14',
+         'py_assignment1_starter.py'),
+        (5,
+         '🎯 Assignment 2 — Build a Mini Contact Book',
+         'Build a terminal app that lets users add, view, search, and delete contacts. '
+         'Uses functions, dictionaries, loops, and file handling (JSON). '
+         'Starter file attached — complete all tasks. Bonus: save/load from file.',
+         '2026-04-04',
+         'py_assignment2_starter.py'),
+    ]:
+        brief_path = os.path.join(UPLOADS, 'briefs', brief)
+        brief_stored = brief if os.path.exists(brief_path) else None
+        aid = execute("INSERT INTO assignments (course_id,week,title,description,due_date,max_points,brief_file) VALUES (?,?,?,?,?,?,?)",
+                      [py_id, wk, title, desc, due, 100, brief_stored])
+        py_asgn.append(aid)
+
+    # ── Demo grades for Python assignments ───────────────
+    py_grades = [
+        (2, [85, None]),   # Alex:  A1 graded, A2 pending
+        (3, [95, None]),   # Jamie
+        (4, [60, None]),   # Rahim
+        (5, [78, None]),   # Wei Ling
+        (6, [88, None]),   # Zara
+        (7, [92, None]),   # Kai
+    ]
+    py_feedback = {
+        95: "Excellent work! Really creative guessing game 🏆",
+        92: "Clean code and great comments. Well done!",
+        88: "Good effort! Small bug in Task 3 but overall solid.",
+        85: "Nice work. Try to add more comments next time.",
+        78: "Completed all tasks. Grade calculator needs a small fix.",
+        60: "Tasks 1 & 2 done but guessing game is incomplete. See me after class.",
+    }
+    for sid, scores in py_grades:
         for i, score in enumerate(scores):
-            if score is None: continue
-            execute("""INSERT INTO submissions (assignment_id,student_id,filename,orig_name,submitted_at,score,feedback,graded_at)
-                       VALUES (?,?,?,?,datetime('now'),?,?,datetime('now'))""",
-                    [asgn_ids[i], sid, 'demo.py', 'demo.py', score,
-                     'Good work!' if score >= 80 else 'Needs improvement.'])
+            if score is None:
+                # Ungraded submission for assignment 2
+                execute("INSERT OR IGNORE INTO submissions (assignment_id,student_id,filename,orig_name,submitted_at) VALUES (?,?,?,?,datetime('now'))",
+                        [py_asgn[1], sid, 'py_assignment2_starter.py', 'my_contact_book.py'])
+            else:
+                fb = py_feedback.get(score, 'Good work!')
+                execute("""INSERT INTO submissions
+                           (assignment_id,student_id,filename,orig_name,submitted_at,score,feedback,graded_at)
+                           VALUES (?,?,?,?,datetime('now'),?,?,datetime('now'))""",
+                        [py_asgn[0], sid, 'py_assignment1_starter.py', 'assignment1.py', score, fb])
 
-    # Ungraded submissions for assignment 4
-    for sid in [2, 3, 4, 5]:
-        execute("INSERT OR IGNORE INTO submissions (assignment_id,student_id,filename,orig_name) VALUES (?,?,?,?)",
-                [asgn_ids[3], sid, 'demo.py', 'submission.py'])
-
-    # Watch logs
-    rec_ids = [r['id'] for r in query("SELECT id FROM recordings WHERE course_id=? ORDER BY id", [python_id])]
-    for sid, count in [(2,8),(3,10),(4,5),(5,7),(6,9),(7,10)]:
-        for rid in rec_ids[:count]:
+    # ── Watch logs ───────────────────────────────────────
+    py_rec_ids = [r['id'] for r in query("SELECT id FROM recordings WHERE course_id=? ORDER BY id", [py_id])]
+    for sid, count in [(2,10),(3,16),(4,7),(5,12),(6,14),(7,16)]:
+        for rid in py_rec_ids[:min(count, len(py_rec_ids))]:
             execute("INSERT OR IGNORE INTO watch_logs (student_id,recording_id) VALUES (?,?)", [sid, rid])
 
-    print('✓ Demo data seeded')
+    # ══════════════════════════════════════════════════════
+    #  MACHINE LEARNING FUNDAMENTALS
+    # ══════════════════════════════════════════════════════
+
+    # ── Recordings ───────────────────────────────────────
+    ml_sessions = [
+        (1,1,"What IS Machine Learning? (No Maths Yet)",      "35:40",
+         "Intuition first. What can ML do? What can't it? Real examples from your daily life."),
+        (1,2,"Python for ML — NumPy Crash Course",            "52:15",
+         "Arrays, math, broadcasting. The foundation everything else is built on."),
+        (2,1,"Pandas — Wrangling Messy Real Data",            "58:30",
+         "Load CSVs, clean nulls, filter rows, groupby. The skill you'll use every single day."),
+        (2,2,"Data Visualisation — Matplotlib & Seaborn",     "44:10",
+         "See your data before modelling. Histograms, scatter plots, heatmaps."),
+        (3,1,"Supervised Learning — The Big Picture",         "40:25",
+         "Features vs labels. Training vs testing. The core ML workflow explained simply."),
+        (3,2,"Linear Regression — Predicting Numbers",        "55:50",
+         "Predict house prices, salaries, temperatures. Gradient descent without the pain."),
+        (4,1,"Logistic Regression — Predicting Yes/No",       "48:35",
+         "Spam or not spam? Pass or fail? Classification fundamentals."),
+        (4,2,"Decision Trees — ML You Can Actually Explain",  "51:20",
+         "Build a tree, visualise it, understand every decision. Great for beginners."),
+        (5,1,"Random Forest — When One Tree Isn't Enough",    "46:05",
+         "Ensemble learning: 100 trees vote. Usually beats a single tree easily."),
+        (5,2,"Model Evaluation — Are You Actually Good?",     "42:55",
+         "Accuracy, precision, recall, F1, confusion matrix. Don't fool yourself."),
+        (6,1,"Overfitting — The Enemy of Good Models",        "38:40",
+         "When your model memorises instead of learning. Train/val/test splits."),
+        (6,2,"Feature Engineering — Better Data = Better Model","50:10",
+         "The secret skill of ML practitioners. Create features that matter."),
+        (7,1,"K-Nearest Neighbours & Naive Bayes",            "44:30",
+         "Simple but surprisingly powerful algorithms explained visually."),
+        (7,2,"Support Vector Machines (Intuition Only)",      "39:15",
+         "Hyperplanes and margins — what SVM does without the heavy maths."),
+        (8,1,"Intro to Neural Networks",                      "62:40",
+         "Neurons, layers, activation functions. The building blocks of deep learning."),
+        (8,2,"Wrap Up — Career Paths in ML & What's Next",    "31:20",
+         "Data scientist? ML engineer? AI researcher? Your roadmap from here."),
+    ]
+    for wk, sn, title, dur, desc in ml_sessions:
+        execute("INSERT INTO recordings (course_id,week,session_num,title,description,duration,filename) VALUES (?,?,?,?,?,?,?)",
+                [ml_id, wk, sn, title, desc, dur, 'demo_placeholder.mp4'])
+
+    # ── Materials ─────────────────────────────────────────
+    ml_materials = [
+        (0, '🗒️ ML Cheat Sheet — Concepts & Code Reference',
+             'ml_cheatsheet.py',      'ml_cheatsheet.py',              'py',  'materials'),
+        (1, '📝 Week 1 Exercises — NumPy Fundamentals',
+             'ml_week1_exercises.py', 'week1_numpy_exercises.py',      'py',  'materials'),
+        (2, '📝 Week 2 Exercises — Pandas Data Wrangling',
+             'ml_week2_exercises.py', 'week2_pandas_exercises.py',     'py',  'materials'),
+        (3, '📝 Week 3 Exercises — Your First ML Model',
+             'ml_week3_exercises.py', 'week3_first_model.py',          'py',  'materials'),
+        (4, '📝 Week 4 Exercises — Classification',
+             'ml_week4_exercises.py', 'week4_classification.py',       'py',  'materials'),
+        (5, '📝 Week 5 Exercises — Random Forest & Evaluation',
+             'ml_week5_exercises.py', 'week5_random_forest.py',        'py',  'materials'),
+        (6, '📝 Week 6 Exercises — Feature Engineering',
+             'ml_week6_exercises.py', 'week6_feature_engineering.py',  'py',  'materials'),
+    ]
+    for wk, title, fname, orig, ftype, sub in ml_materials:
+        size = mat_size(fname, sub)
+        execute("INSERT INTO materials (course_id,week,title,filename,orig_name,file_type,file_size) VALUES (?,?,?,?,?,?,?)",
+                [ml_id, wk, title, fname, orig, ftype, size])
+
+    # ── Assignments ──────────────────────────────────────
+    ml_asgn = []
+    for wk, title, desc, due, brief in [
+        (4,
+         '🎯 Assignment 1 — Predict Who Passes the Course',
+         'Build a classifier that predicts whether a student will pass or fail '
+         'based on study hours, attendance, and assignment scores. '
+         'You will explore the data, train Logistic Regression and Decision Tree models, '
+         'compare them, and make a prediction for a new student. Starter file attached.',
+         '2026-03-21',
+         'ml_assignment1_starter.py'),
+        (7,
+         '🎯 Assignment 2 — JB House Price Predictor',
+         'Regression challenge: predict monthly rental prices for JB properties. '
+         'Dataset includes rooms, size, location, and amenities. '
+         'Build Linear Regression and Random Forest models, compare them, '
+         'and predict the rent for your dream apartment. Starter file attached.',
+         '2026-04-11',
+         'ml_assignment2_starter.py'),
+    ]:
+        brief_path = os.path.join(UPLOADS, 'briefs', brief)
+        brief_stored = brief if os.path.exists(brief_path) else None
+        aid = execute("INSERT INTO assignments (course_id,week,title,description,due_date,max_points,brief_file) VALUES (?,?,?,?,?,?,?)",
+                      [ml_id, wk, title, desc, due, 100, brief_stored])
+        ml_asgn.append(aid)
+
+    # ── Demo grades for ML assignments ───────────────────
+    ml_grades = [
+        (2, [88, None]),
+        (3, [96, None]),
+        (4, [55, None]),
+        (5, [82, None]),
+        (6, [91, None]),
+        (7, [79, None]),
+    ]
+    ml_feedback = {
+        96: "Incredible work! Your feature analysis was really insightful 🏆",
+        91: "Great model comparison. Really clean code.",
+        88: "Solid all round. Try tuning the hyperparameters for bonus marks.",
+        82: "Good effort! Reflection section was honest and thoughtful.",
+        79: "Completed all tasks. R² could be better — try scaling your features.",
+        55: "Tasks 1 & 2 done but model training is incomplete. Let's chat.",
+    }
+    for sid, scores in ml_grades:
+        for i, score in enumerate(scores):
+            if score is None:
+                execute("INSERT OR IGNORE INTO submissions (assignment_id,student_id,filename,orig_name,submitted_at) VALUES (?,?,?,?,datetime('now'))",
+                        [ml_asgn[1], sid, 'ml_assignment2_starter.py', 'house_price_predictor.py'])
+            else:
+                fb = ml_feedback.get(score, 'Good work!')
+                execute("""INSERT INTO submissions
+                           (assignment_id,student_id,filename,orig_name,submitted_at,score,feedback,graded_at)
+                           VALUES (?,?,?,?,datetime('now'),?,?,datetime('now'))""",
+                        [ml_asgn[0], sid, 'ml_assignment1_starter.py', 'pass_fail_predictor.py', score, fb])
+
+    # ── Watch logs ───────────────────────────────────────
+    ml_rec_ids = [r['id'] for r in query("SELECT id FROM recordings WHERE course_id=? ORDER BY id", [ml_id])]
+    for sid, count in [(2,8),(3,14),(4,5),(5,10),(6,12),(7,14)]:
+        for rid in ml_rec_ids[:min(count, len(ml_rec_ids))]:
+            execute("INSERT OR IGNORE INTO watch_logs (student_id,recording_id) VALUES (?,?)", [sid, rid])
+
+    print('✓ Full course content seeded — Python for Beginners + ML Fundamentals')
 
 # ─────────────────────────────────────────────
-# Start
+# Init on startup (runs when gunicorn imports this file)
 # ─────────────────────────────────────────────
+
+init_db()
+seed()
 
 if __name__ == '__main__':
     init_db()
     seed()
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    port = int(os.environ.get('PORT', 5001))
+    debug = os.environ.get('FLASK_ENV') != 'production'
+    app.run(debug=debug, host='0.0.0.0', port=port)
