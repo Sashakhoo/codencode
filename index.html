@@ -10,6 +10,8 @@
   <meta name="keywords" content="python course malaysia, coding academy johor bahru, machine learning malaysia, programming courses, belajar coding, 编程课程, affordable coding bootcamp, online programming classes" />
   <meta name="author" content="codencode.my" />
   <meta name="robots" content="index, follow" />
+  <!-- Disable Cloudflare email obfuscation -->
+  <meta http-equiv="x-robots-tag" content="noodp" />
   <link rel="canonical" href="https://codencode.my/" />
 
   <!-- Open Graph -->
@@ -22,7 +24,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet" crossorigin="anonymous" />
+  <link href="https://use.fontawesome.com/releases/v6.5.0/css/all.css" rel="stylesheet" crossorigin="anonymous" />
 
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -74,7 +77,7 @@
 
     /* ── Language selector ── */
     .lang-wrap {
-      position: fixed; top: 16px; right: 80px; z-index: 200;
+      display: flex; align-items: center;
     }
     .lang-wrap select {
       background: var(--surface);
@@ -1028,7 +1031,7 @@
       .footer-bottom { flex-direction: column; gap: 12px; text-align: center; }
       .hero-stats { grid-template-columns: 1fr 1fr 1fr; }
       .stat-item { padding: 14px; }
-      .lang-wrap { right: 56px; }
+      .lang-wrap { display: none; }
     }
 
   /* ── WhatsApp Floating Button ── */
@@ -1078,14 +1081,6 @@
 <body>
 
   <!-- Language Selector -->
-  <div class="lang-wrap">
-    <select id="language-selector">
-      <option value="en">EN</option>
-      <option value="ms">MS</option>
-      <option value="zh">中文</option>
-    </select>
-  </div>
-
   <!-- Navigation -->
   <nav class="topnav" id="navbar">
     <div class="nav-inner">
@@ -1103,6 +1098,13 @@
       <a class="nav-cta" href="#contact" data-i18n="nav.freetrial">
         Free Trial <i class="fas fa-arrow-right"></i>
       </a>
+      <div class="lang-wrap">
+        <select id="language-selector">
+          <option value="en">EN</option>
+          <option value="ms">MS</option>
+          <option value="zh">中文</option>
+        </select>
+      </div>
       <button class="hamburger" id="mobile-menu-button">
         <i class="fas fa-bars"></i>
       </button>
@@ -1358,7 +1360,7 @@
         <h2 class="section-title" data-i18n="instructor.title">Your instructor<br>actually codes.</h2>
         <div class="instructor-wrap">
           <div class="instructor-photo">
-            <img alt="Instructor Photo" src="https://design.gemcoder.com/staticResource/echoAiSystemImages/6ecd218224528ff23e7084e49cd5fe82.png" />
+            <img alt="Michael Chang - Instructor" src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop&crop=face" />
           </div>
           <div class="instructor-info">
             <h3 class="instructor-name" data-i18n="instructor.name">Michael Chang</h3>
@@ -1513,7 +1515,7 @@
               <div class="contact-icon"><i class="fas fa-envelope"></i></div>
               <div class="contact-info-text">
                 <h4 data-i18n="contact.email.title">Email</h4>
-                <p><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="1179747d7d7e51727e75747f727e75743f7c68">[email&#160;protected]</a></p>
+                <p><a href="&#109;&#97;&#105;&#108;&#116;&#111;&#58;&#104;&#101;&#108;&#108;&#111;&#64;&#99;&#111;&#100;&#101;&#110;&#99;&#111;&#100;&#101;&#46;&#109;&#121;" style="color:#ffffff;text-decoration:none;">&#104;&#101;&#108;&#108;&#111;&#64;&#99;&#111;&#100;&#101;&#110;&#99;&#111;&#100;&#101;&#46;&#109;&#121;</a></p>
               </div>
             </div>
             <div class="contact-socials">
@@ -1589,7 +1591,7 @@
           <h4 data-i18n="footer.contact.title">Contact</h4>
           <ul>
             <li><a href="tel:+601131652854">+60 113 165 2854</a></li>
-            <li><a href="/cdn-cgi/l/email-protection#aac2cfc6c6c5eac9c5cecfc4c9c5cecf84c7d3"><span class="__cf_email__" data-cfemail="066e636a6a6946656962636865696263286b7f">[email&#160;protected]</span></a></li>
+            <li><a href="&#109;&#97;&#105;&#108;&#116;&#111;&#58;&#104;&#101;&#108;&#108;&#111;&#64;&#99;&#111;&#100;&#101;&#110;&#99;&#111;&#100;&#101;&#46;&#109;&#121;">&#104;&#101;&#108;&#108;&#111;&#64;&#99;&#111;&#100;&#101;&#110;&#99;&#111;&#100;&#101;&#46;&#109;&#121;</a></li>
             <li><a href="#">Johor Bahru, Malaysia</a></li>
           </ul>
         </div>
@@ -1863,20 +1865,28 @@
       });
 
       // FAQ
+      function toggleFaq(btn) {
+        const a = btn.nextElementSibling;
+        const isOpen = a.classList.contains('open');
+        document.querySelectorAll('.faq-a').forEach(el => el.classList.remove('open'));
+        document.querySelectorAll('.faq-q').forEach(el => el.classList.remove('open'));
+        if (!isOpen) { a.classList.add('open'); btn.classList.add('open'); }
+      }
       document.querySelectorAll('.faq-q').forEach(q => {
-        q.addEventListener('click', () => {
-          const a = q.nextElementSibling;
-          const isOpen = a.classList.contains('open');
-          document.querySelectorAll('.faq-a').forEach(el => el.classList.remove('open'));
-          document.querySelectorAll('.faq-q').forEach(el => el.classList.remove('open'));
-          if (!isOpen) { a.classList.add('open'); q.classList.add('open'); }
-        });
+        q.onclick = function() { toggleFaq(this); };
       });
 
       // Contact form
       document.getElementById('contact-form').addEventListener('submit', function(e) {
         e.preventDefault();
-        const btn = this.querySelector('.btn-su
+        const submitBtn = this.querySelector('button[type="submit"]');
+        const orig = submitBtn ? submitBtn.innerHTML : '';
+        if (submitBtn) { submitBtn.innerHTML = '✓ Sent! We\'ll reach out soon.'; submitBtn.disabled = true; }
+        setTimeout(() => { if (submitBtn) { submitBtn.innerHTML = orig; submitBtn.disabled = false; } this.reset(); }, 4000);
+      });
+
+    }); // end DOMContentLoaded
+  </script>
 
   <!-- WhatsApp Floating Button -->
   <a class="wa-float"
@@ -1885,23 +1895,10 @@
      rel="noopener"
      aria-label="Chat with us on WhatsApp">
     <div class="wa-pulse"></div>
-    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-      <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15
-               -.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075
-               -.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059
-               -.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52
-               .149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52
-               -.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51
-               -.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372
-               -.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074
-               .149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625
-               .712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413
-               .248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/>
-      <path d="M12 0C5.373 0 0 5.373 0 12c0 2.127.558 4.126 1.533 5.862L.054 23.25
-               c-.096.346.007.715.27.965.198.19.46.285.727.285.08 0 .16-.01.238-.03
-               l5.532-1.453A11.944 11.944 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0z
-               m0 21.818a9.818 9.818 0 01-5.006-1.368l-.36-.214-3.714.976.992-3.623
-               -.235-.374A9.818 9.818 0 012.182 12C2.182 6.58 6.58 2.182 12 2.182
-               S21.818 6.58 21.818 12 17.42 21.818 12 21.818z"/>
+    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="white">
+      <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347zm-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884zm8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
     </svg>
   </a>
+
+</body>
+</html>
