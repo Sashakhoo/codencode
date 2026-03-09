@@ -1,0 +1,2452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>codencode.my — LMS</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #080c10;
+      --surface: #0d1117;
+      --surface2: #111820;
+      --surface3: #141c24;
+      --border: rgba(255,255,255,0.07);
+      --border-strong: rgba(0,220,180,0.25);
+      --cyan: #00dcb4;
+      --cyan-dim: rgba(0,220,180,0.10);
+      --cyan-glow: rgba(0,220,180,0.05);
+      --electric: #3de0ff;
+      --orange: #ff6b35;
+      --red: #ff4757;
+      --green: #28ca41;
+      --yellow: #f9c74f;
+      --purple: #a855f7;
+      --white: #e8edf3;
+      --muted: #5a6a7a;
+      --muted2: #3a4a5a;
+      --sidebar-w: 240px;
+      --topbar-h: 56px;
+      --font-d: 'Syne', sans-serif;
+      --font-m: 'Space Mono', monospace;
+    }
+
+    html, body { height: 100%; overflow: hidden; }
+
+    body {
+      font-family: var(--font-d);
+      background: var(--bg);
+      color: var(--white);
+    }
+
+    /* ── Grid bg ── */
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background-image:
+        linear-gradient(var(--border) 1px, transparent 1px),
+        linear-gradient(90deg, var(--border) 1px, transparent 1px);
+      background-size: 60px 60px;
+      pointer-events: none; z-index: 0;
+    }
+
+    /* ── Scrollbar ── */
+    ::-webkit-scrollbar { width: 3px; height: 3px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--cyan); }
+
+    /* ═══════════════════════════════════
+       LOGIN SCREEN
+    ═══════════════════════════════════ */
+    #login-screen {
+      position: fixed; inset: 0; z-index: 1000;
+      display: flex; align-items: center; justify-content: center;
+      background: var(--bg);
+    }
+    .login-wrap {
+      width: 440px;
+      border: 1px solid var(--border-strong);
+      background: var(--surface);
+      position: relative;
+      overflow: hidden;
+    }
+    .login-wrap::before {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0; height: 2px;
+      background: linear-gradient(90deg, transparent, var(--cyan), transparent);
+    }
+    .login-header {
+      padding: 32px 36px 24px;
+      border-bottom: 1px solid var(--border);
+    }
+    .login-logo { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; }
+    .logo-mark {
+      width: 36px; height: 36px;
+      border: 1.5px solid var(--cyan);
+      display: grid; place-items: center;
+      font-family: var(--font-m);
+      font-size: 10px; color: var(--cyan);
+      position: relative;
+    }
+    .logo-mark::before {
+      content: '';
+      position: absolute; top: 3px; left: 3px; right: 3px; bottom: 3px;
+      background: var(--cyan-dim);
+    }
+    .logo-text { font-family: var(--font-d); font-weight: 800; font-size: 15px; }
+    .logo-text span { color: var(--cyan); }
+    .login-title { font-size: 22px; font-weight: 800; letter-spacing: -0.02em; }
+    .login-sub { font-family: var(--font-m); font-size: 11px; color: var(--muted); margin-top: 4px; }
+    .login-body { padding: 28px 36px 36px; }
+    .role-tabs {
+      display: grid; grid-template-columns: 1fr 1fr;
+      border: 1px solid var(--border); margin-bottom: 24px;
+    }
+    .role-tab {
+      padding: 10px; text-align: center; cursor: pointer;
+      font-family: var(--font-m); font-size: 11px;
+      letter-spacing: 0.08em; text-transform: uppercase;
+      color: var(--muted); transition: all 0.2s;
+      border: none; background: none;
+    }
+    .role-tab.active { background: var(--cyan-dim); color: var(--cyan); }
+    .form-group { margin-bottom: 16px; }
+    .form-label {
+      display: block; font-family: var(--font-m); font-size: 10px;
+      letter-spacing: 0.12em; text-transform: uppercase;
+      color: var(--muted); margin-bottom: 6px;
+    }
+    .form-input {
+      width: 100%; background: var(--bg);
+      border: 1px solid var(--border);
+      color: var(--white); font-family: var(--font-m);
+      font-size: 13px; padding: 10px 14px; outline: none;
+      transition: border-color 0.2s;
+    }
+    .form-input:focus { border-color: var(--cyan); }
+    .btn-login {
+      width: 100%; background: var(--cyan); color: #080c10;
+      font-family: var(--font-m); font-size: 12px; font-weight: 700;
+      letter-spacing: 0.08em; text-transform: uppercase;
+      border: none; padding: 14px; cursor: pointer;
+      transition: background 0.2s; margin-top: 8px;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+    }
+    .btn-login:hover { background: var(--electric); }
+    .demo-hint {
+      font-family: var(--font-m); font-size: 10px; color: var(--muted2);
+      text-align: center; margin-top: 16px; line-height: 1.6;
+    }
+    .demo-hint span { color: var(--cyan); cursor: pointer; }
+
+    /* ═══════════════════════════════════
+       APP SHELL
+    ═══════════════════════════════════ */
+    #app { display: none; height: 100vh; flex-direction: column; position: relative; z-index: 1; }
+    #app.visible { display: flex; }
+
+    /* Top Bar */
+    .topbar {
+      height: var(--topbar-h); min-height: var(--topbar-h);
+      background: rgba(8,12,16,0.95);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 20px; z-index: 50; position: relative;
+    }
+    .topbar-left { display: flex; align-items: center; gap: 16px; }
+    .sidebar-toggle {
+      width: 32px; height: 32px; background: none; border: 1px solid var(--border);
+      color: var(--muted); cursor: pointer; display: grid; place-items: center;
+      transition: all 0.2s;
+    }
+    .sidebar-toggle:hover { border-color: var(--cyan); color: var(--cyan); }
+    .topbar-title { font-family: var(--font-m); font-size: 11px; letter-spacing: 0.1em; color: var(--muted); text-transform: uppercase; }
+    .topbar-right { display: flex; align-items: center; gap: 12px; }
+    .topbar-badge {
+      font-family: var(--font-m); font-size: 10px;
+      padding: 4px 10px; border: 1px solid;
+      letter-spacing: 0.08em; text-transform: uppercase;
+    }
+    .badge-teacher { border-color: var(--orange); color: var(--orange); }
+    .badge-student { border-color: var(--cyan); color: var(--cyan); }
+    .notif-btn {
+      width: 32px; height: 32px; background: none; border: 1px solid var(--border);
+      color: var(--muted); cursor: pointer; display: grid; place-items: center;
+      font-size: 13px; position: relative; transition: all 0.2s;
+    }
+    .notif-btn:hover { border-color: var(--cyan); color: var(--cyan); }
+    .notif-dot {
+      position: absolute; top: 6px; right: 6px;
+      width: 6px; height: 6px; background: var(--orange); border-radius: 50%;
+    }
+    .user-chip {
+      display: flex; align-items: center; gap: 8px;
+      font-family: var(--font-m); font-size: 11px; color: var(--muted);
+      cursor: pointer;
+    }
+    .user-avatar {
+      width: 28px; height: 28px; background: var(--cyan-dim);
+      border: 1px solid var(--border-strong);
+      display: grid; place-items: center;
+      font-size: 10px; color: var(--cyan);
+    }
+    .logout-btn {
+      background: none; border: 1px solid var(--border); color: var(--muted);
+      font-family: var(--font-m); font-size: 10px; letter-spacing: 0.08em;
+      text-transform: uppercase; padding: 6px 12px; cursor: pointer;
+      transition: all 0.2s;
+    }
+    .logout-btn:hover { border-color: var(--red); color: var(--red); }
+
+    /* Main layout */
+    .app-body { display: flex; flex: 1; overflow: hidden; position: relative; }
+
+    /* Sidebar */
+    .sidebar {
+      width: var(--sidebar-w); min-width: var(--sidebar-w);
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      display: flex; flex-direction: column;
+      transition: width 0.2s, min-width 0.2s;
+      overflow: hidden; z-index: 40;
+    }
+    .sidebar.collapsed { width: 56px; min-width: 56px; }
+    .sidebar-section { padding: 16px 0; border-bottom: 1px solid var(--border); }
+    .sidebar-label {
+      font-family: var(--font-m); font-size: 9px; letter-spacing: 0.15em;
+      text-transform: uppercase; color: var(--muted2);
+      padding: 0 16px 8px; white-space: nowrap; overflow: hidden;
+    }
+    .sidebar.collapsed .sidebar-label { display: none; }
+    .nav-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 9px 16px; cursor: pointer;
+      font-family: var(--font-m); font-size: 11px;
+      color: var(--muted); letter-spacing: 0.05em;
+      transition: all 0.15s; white-space: nowrap;
+      border: none; background: none; width: 100%; text-align: left;
+      position: relative;
+    }
+    .nav-item:hover { color: var(--white); background: var(--cyan-glow); }
+    .nav-item.active { color: var(--cyan); background: var(--cyan-dim); }
+    .nav-item.active::before {
+      content: '';
+      position: absolute; left: 0; top: 0; bottom: 0; width: 2px;
+      background: var(--cyan);
+    }
+    .nav-item i { width: 16px; text-align: center; font-size: 13px; flex-shrink: 0; }
+    .nav-item span { overflow: hidden; }
+    .sidebar.collapsed .nav-item span { display: none; }
+    .nav-badge {
+      margin-left: auto; background: var(--orange);
+      color: white; font-size: 9px; padding: 2px 6px;
+      border-radius: 10px; flex-shrink: 0;
+    }
+    .sidebar.collapsed .nav-badge { display: none; }
+    .sidebar-course-selector {
+      padding: 12px 16px; border-bottom: 1px solid var(--border);
+    }
+    .sidebar.collapsed .sidebar-course-selector { display: none; }
+    .course-select-label {
+      font-family: var(--font-m); font-size: 9px; letter-spacing: 0.15em;
+      text-transform: uppercase; color: var(--muted2); margin-bottom: 6px;
+    }
+    .course-select {
+      width: 100%; background: var(--bg); border: 1px solid var(--border);
+      color: var(--white); font-family: var(--font-m); font-size: 11px;
+      padding: 7px 10px; outline: none; cursor: pointer;
+    }
+    .course-select:focus { border-color: var(--cyan); }
+
+    /* Main content */
+    .main-content {
+      flex: 1; overflow-y: auto; padding: 28px;
+      display: flex; flex-direction: column; gap: 24px;
+    }
+
+    /* ═══════════════════════════════════
+       VIEWS (pages)
+    ═══════════════════════════════════ */
+    .view { display: none; }
+    .view.active { display: block; }
+
+    /* Page header */
+    .page-header { margin-bottom: 24px; }
+    .page-label {
+      font-family: var(--font-m); font-size: 10px; letter-spacing: 0.15em;
+      text-transform: uppercase; color: var(--cyan); margin-bottom: 8px;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .page-label::before { content: ''; width: 24px; height: 1px; background: var(--cyan); }
+    .page-title { font-size: 26px; font-weight: 800; letter-spacing: -0.02em; }
+    .page-sub { font-family: var(--font-m); font-size: 12px; color: var(--muted); margin-top: 4px; }
+
+    /* Stats row */
+    .stats-row {
+      display: grid; grid-template-columns: repeat(4, 1fr);
+      border: 1px solid var(--border); background: var(--surface);
+    }
+    .stat-cell {
+      padding: 20px 22px; border-right: 1px solid var(--border);
+      position: relative;
+    }
+    .stat-cell:last-child { border-right: none; }
+    .stat-cell::before {
+      content: attr(data-icon);
+      position: absolute; top: 14px; right: 16px;
+      font-size: 18px; opacity: 0.3;
+    }
+    .stat-val { font-size: 28px; font-weight: 800; color: var(--cyan); line-height: 1; }
+    .stat-lbl { font-family: var(--font-m); font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin-top: 4px; }
+    .stat-cell.orange .stat-val { color: var(--orange); }
+    .stat-cell.green .stat-val { color: var(--green); }
+    .stat-cell.purple .stat-val { color: var(--purple); }
+
+    /* Section card */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      position: relative;
+    }
+    .card-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 16px 20px; border-bottom: 1px solid var(--border);
+    }
+    .card-title {
+      font-family: var(--font-m); font-size: 11px; letter-spacing: 0.1em;
+      text-transform: uppercase; color: var(--muted);
+      display: flex; align-items: center; gap: 8px;
+    }
+    .card-title i { color: var(--cyan); }
+    .card-body { padding: 20px; }
+
+    /* Grid layouts */
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+
+    /* ── Video Grid ── */
+    .video-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; }
+    .video-card {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      overflow: hidden; cursor: pointer;
+      transition: border-color 0.2s;
+    }
+    .video-card:hover { border-color: var(--border-strong); }
+    .video-thumb {
+      height: 160px;
+      background: linear-gradient(135deg, #0a1628 0%, #080c10 100%);
+      display: flex; align-items: center; justify-content: center;
+      position: relative; overflow: hidden;
+    }
+    .video-thumb-grid {
+      position: absolute; inset: 0;
+      background-image:
+        linear-gradient(rgba(0,220,180,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,220,180,0.04) 1px, transparent 1px);
+      background-size: 24px 24px;
+    }
+    .video-play-btn {
+      width: 48px; height: 48px;
+      border: 1.5px solid var(--cyan);
+      display: grid; place-items: center;
+      color: var(--cyan); font-size: 16px;
+      z-index: 2; position: relative;
+      transition: all 0.2s;
+    }
+    .video-card:hover .video-play-btn { background: var(--cyan); color: #080c10; }
+    .video-duration {
+      position: absolute; bottom: 8px; right: 8px;
+      font-family: var(--font-m); font-size: 10px;
+      background: rgba(8,12,16,0.85); color: var(--white);
+      padding: 2px 6px; z-index: 2;
+    }
+    .video-week-tag {
+      position: absolute; top: 8px; left: 8px;
+      font-family: var(--font-m); font-size: 9px; letter-spacing: 0.1em;
+      text-transform: uppercase; background: var(--cyan-dim);
+      color: var(--cyan); border: 1px solid var(--border-strong);
+      padding: 2px 8px; z-index: 2;
+    }
+    .video-info { padding: 14px 16px; }
+    .video-title { font-size: 14px; font-weight: 700; margin-bottom: 6px; letter-spacing: -0.01em; line-height: 1.3; }
+    .video-meta {
+      display: flex; gap: 12px; align-items: center;
+      font-family: var(--font-m); font-size: 10px; color: var(--muted);
+    }
+    .video-meta i { color: var(--cyan); font-size: 9px; }
+    .watched-badge {
+      margin-left: auto; background: var(--green);
+      color: #080c10; font-size: 9px; padding: 2px 6px;
+      font-family: var(--font-m); letter-spacing: 0.05em;
+    }
+
+    /* ── Materials / Files ── */
+    .file-list { display: flex; flex-direction: column; gap: 0; }
+    .file-row {
+      display: flex; align-items: center; gap: 14px;
+      padding: 14px 18px; border-bottom: 1px solid var(--border);
+      transition: background 0.15s;
+    }
+    .file-row:last-child { border-bottom: none; }
+    .file-row:hover { background: var(--cyan-glow); }
+    .file-icon {
+      width: 36px; height: 36px; border: 1px solid var(--border);
+      display: grid; place-items: center; font-size: 14px;
+      flex-shrink: 0;
+    }
+    .file-icon.pdf { border-color: rgba(255,71,87,0.3); color: var(--red); }
+    .file-icon.zip { border-color: rgba(248,196,113,0.3); color: var(--yellow); }
+    .file-icon.py { border-color: rgba(0,220,180,0.3); color: var(--cyan); }
+    .file-icon.mp4 { border-color: rgba(168,85,247,0.3); color: var(--purple); }
+    .file-name { font-size: 13px; font-weight: 600; flex: 1; }
+    .file-sub { font-family: var(--font-m); font-size: 10px; color: var(--muted); margin-top: 2px; }
+    .file-size { font-family: var(--font-m); font-size: 10px; color: var(--muted2); margin-right: 12px; }
+    .btn-dl {
+      display: inline-flex; align-items: center; gap: 6px;
+      border: 1px solid var(--border-strong); color: var(--cyan);
+      font-family: var(--font-m); font-size: 10px; letter-spacing: 0.06em;
+      text-transform: uppercase; padding: 7px 12px;
+      cursor: pointer; background: none; transition: all 0.2s; white-space: nowrap;
+    }
+    .btn-dl:hover { background: var(--cyan-dim); }
+
+    /* ── Assignments ── */
+    .assignment-list { display: flex; flex-direction: column; gap: 12px; }
+    .assignment-card {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      transition: border-color 0.2s;
+    }
+    .assignment-card:hover { border-color: var(--border-strong); }
+    .assignment-card-top {
+      display: flex; align-items: flex-start; gap: 16px;
+      padding: 18px 20px; border-bottom: 1px solid var(--border);
+    }
+    .asgn-num {
+      font-family: var(--font-m); font-size: 11px; color: var(--cyan);
+      border: 1px solid var(--border-strong); padding: 4px 8px;
+      flex-shrink: 0; margin-top: 2px;
+    }
+    .asgn-title { font-size: 15px; font-weight: 700; letter-spacing: -0.01em; margin-bottom: 4px; }
+    .asgn-desc { font-family: var(--font-m); font-size: 11px; color: var(--muted); line-height: 1.6; }
+    .asgn-meta {
+      display: flex; gap: 16px; align-items: center;
+      padding: 12px 20px;
+      font-family: var(--font-m); font-size: 10px; color: var(--muted);
+    }
+    .asgn-meta i { margin-right: 4px; }
+    .status-badge {
+      font-family: var(--font-m); font-size: 10px; letter-spacing: 0.08em;
+      text-transform: uppercase; padding: 3px 10px; border: 1px solid;
+    }
+    .status-pending { border-color: rgba(249,199,79,0.4); color: var(--yellow); }
+    .status-submitted { border-color: rgba(0,220,180,0.4); color: var(--cyan); }
+    .status-graded { border-color: rgba(40,202,65,0.4); color: var(--green); }
+    .status-late { border-color: rgba(255,71,87,0.4); color: var(--red); }
+    .status-open { border-color: rgba(0,220,180,0.3); color: var(--cyan); }
+    .btn-action {
+      margin-left: auto; display: inline-flex; align-items: center; gap: 6px;
+      background: var(--cyan); color: #080c10;
+      font-family: var(--font-m); font-size: 10px; font-weight: 700;
+      letter-spacing: 0.06em; text-transform: uppercase;
+      padding: 7px 14px; border: none; cursor: pointer; transition: background 0.2s;
+    }
+    .btn-action:hover { background: var(--electric); }
+    .btn-action.ghost {
+      background: none; border: 1px solid var(--border-strong); color: var(--cyan);
+    }
+    .btn-action.ghost:hover { background: var(--cyan-dim); }
+    .btn-action.orange { background: var(--orange); color: white; }
+    .btn-action.orange:hover { background: #ff8555; }
+    .btn-action.red { background: none; border: 1px solid rgba(255,71,87,0.4); color: var(--red); }
+    .btn-action.red:hover { background: rgba(255,71,87,0.1); }
+
+    /* ── Upload zone ── */
+    .upload-zone {
+      border: 1px dashed var(--border-strong);
+      padding: 32px; text-align: center;
+      cursor: pointer; transition: all 0.2s;
+      background: var(--bg);
+    }
+    .upload-zone:hover { border-color: var(--cyan); background: var(--cyan-glow); }
+    .upload-icon { font-size: 28px; color: var(--cyan); opacity: 0.6; margin-bottom: 10px; }
+    .upload-text { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+    .upload-sub { font-family: var(--font-m); font-size: 11px; color: var(--muted); }
+    .upload-sub span { color: var(--cyan); cursor: pointer; }
+    .upload-input { display: none; }
+
+    /* ── Grading table ── */
+    .grade-table { width: 100%; border-collapse: collapse; }
+    .grade-table th {
+      font-family: var(--font-m); font-size: 10px; letter-spacing: 0.1em;
+      text-transform: uppercase; color: var(--muted);
+      padding: 10px 16px; border-bottom: 1px solid var(--border);
+      text-align: left; background: var(--surface);
+    }
+    .grade-table td {
+      padding: 12px 16px; border-bottom: 1px solid var(--border);
+      font-family: var(--font-m); font-size: 12px;
+    }
+    .grade-table tr:last-child td { border-bottom: none; }
+    .grade-table tr:hover td { background: var(--cyan-glow); }
+    .grade-input {
+      width: 64px; background: var(--bg); border: 1px solid var(--border);
+      color: var(--white); font-family: var(--font-m); font-size: 12px;
+      padding: 5px 8px; outline: none; text-align: center;
+    }
+    .grade-input:focus { border-color: var(--cyan); }
+    .student-chip {
+      display: inline-flex; align-items: center; gap: 8px;
+    }
+    .student-dot {
+      width: 26px; height: 26px; background: var(--cyan-dim);
+      border: 1px solid var(--border-strong);
+      display: grid; place-items: center;
+      font-size: 9px; color: var(--cyan);
+      flex-shrink: 0;
+    }
+
+    /* ── Progress bar ── */
+    .progress-bar {
+      height: 3px; background: var(--border); border-radius: 2px; overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%; background: var(--cyan);
+      transition: width 0.4s ease;
+    }
+    .progress-fill.orange { background: var(--orange); }
+    .progress-fill.green { background: var(--green); }
+
+    /* ── Activity feed ── */
+    .activity-feed { display: flex; flex-direction: column; }
+    .activity-item {
+      display: flex; gap: 12px; padding: 12px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .activity-item:last-child { border-bottom: none; }
+    .activity-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      margin-top: 5px; flex-shrink: 0;
+    }
+    .dot-cyan { background: var(--cyan); }
+    .dot-orange { background: var(--orange); }
+    .dot-green { background: var(--green); }
+    .dot-purple { background: var(--purple); }
+    .activity-text { font-family: var(--font-m); font-size: 11px; color: var(--muted); line-height: 1.6; }
+    .activity-text strong { color: var(--white); }
+    .activity-time { font-family: var(--font-m); font-size: 10px; color: var(--muted2); margin-top: 2px; }
+
+    /* ── Week accordion ── */
+    .week-item { border: 1px solid var(--border); margin-bottom: 8px; }
+    .week-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 14px 18px; cursor: pointer; transition: background 0.15s;
+      background: none; border: none; width: 100%; color: var(--white);
+    }
+    .week-header:hover { background: var(--cyan-glow); }
+    .week-header.open { background: var(--cyan-dim); }
+    .week-label { font-family: var(--font-m); font-size: 12px; font-weight: 700; display: flex; align-items: center; gap: 10px; }
+    .week-label i { color: var(--cyan); }
+    .week-count { font-family: var(--font-m); font-size: 10px; color: var(--muted); }
+    .week-chevron { color: var(--muted); transition: transform 0.2s; }
+    .week-header.open .week-chevron { transform: rotate(180deg); }
+    .week-body { display: none; border-top: 1px solid var(--border); }
+    .week-body.open { display: block; }
+
+    /* ── Video modal ── */
+    .modal-overlay {
+      position: fixed; inset: 0; background: rgba(8,12,16,0.92);
+      z-index: 500; display: none; align-items: center; justify-content: center;
+      backdrop-filter: blur(8px);
+    }
+    .modal-overlay.open { display: flex; }
+    .modal-box {
+      background: var(--surface); border: 1px solid var(--border-strong);
+      width: 90%; max-width: 860px; position: relative;
+    }
+    .modal-box::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+      background: linear-gradient(90deg, transparent, var(--cyan), transparent);
+    }
+    .modal-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 14px 20px; border-bottom: 1px solid var(--border);
+    }
+    .modal-title { font-size: 15px; font-weight: 700; }
+    .modal-close {
+      width: 28px; height: 28px; background: none; border: 1px solid var(--border);
+      color: var(--muted); cursor: pointer; display: grid; place-items: center;
+      font-size: 12px; transition: all 0.2s;
+    }
+    .modal-close:hover { border-color: var(--red); color: var(--red); }
+    .video-player {
+      background: #000; aspect-ratio: 16/9;
+      display: flex; align-items: center; justify-content: center;
+      position: relative;
+    }
+    .video-player-placeholder {
+      text-align: center; color: var(--muted);
+      font-family: var(--font-m); font-size: 12px;
+    }
+    .video-player-placeholder i { font-size: 40px; color: var(--cyan); display: block; margin-bottom: 12px; opacity: 0.5; }
+    .modal-footer { padding: 16px 20px; border-top: 1px solid var(--border); display: flex; gap: 10px; align-items: center; }
+
+    /* ── Upload modal ── */
+    .upload-modal .modal-box { max-width: 560px; }
+
+    /* ── Submission modal ── */
+    .submission-detail { padding: 20px; }
+    .sub-info-row {
+      display: flex; gap: 12px; align-items: center;
+      padding: 10px 0; border-bottom: 1px solid var(--border);
+      font-family: var(--font-m); font-size: 12px;
+    }
+    .sub-info-row:last-child { border-bottom: none; }
+    .sub-info-lbl { color: var(--muted); width: 100px; flex-shrink: 0; }
+    .grade-form { padding: 20px; border-top: 1px solid var(--border); }
+    .grade-form-row { display: flex; gap: 12px; align-items: flex-end; }
+    .grade-form .form-group { flex: 1; }
+    .feedback-input {
+      width: 100%; background: var(--bg); border: 1px solid var(--border);
+      color: var(--white); font-family: var(--font-m); font-size: 12px;
+      padding: 10px 14px; outline: none; resize: vertical; min-height: 80px;
+    }
+    .feedback-input:focus { border-color: var(--cyan); }
+
+    /* ── Teacher upload form ── */
+    .upload-form { display: flex; flex-direction: column; gap: 16px; }
+
+    /* ── Course progress panel (student) ── */
+    .course-progress-card {
+      background: var(--surface); border: 1px solid var(--border);
+      padding: 20px; display: flex; flex-direction: column; gap: 14px;
+    }
+    .cp-title { font-size: 14px; font-weight: 700; margin-bottom: 4px; }
+    .cp-week { font-family: var(--font-m); font-size: 10px; color: var(--cyan); margin-bottom: 8px; }
+    .cp-bar-label {
+      display: flex; justify-content: space-between;
+      font-family: var(--font-m); font-size: 10px; color: var(--muted); margin-bottom: 4px;
+    }
+
+    /* ── Toast ── */
+    .toast {
+      position: fixed; bottom: 24px; right: 24px; z-index: 900;
+      background: var(--surface); border: 1px solid var(--border-strong);
+      padding: 14px 20px; display: none; align-items: center; gap: 12px;
+      font-family: var(--font-m); font-size: 12px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+      animation: slideUp 0.3s ease;
+    }
+    .toast.show { display: flex; }
+    .toast i { color: var(--cyan); }
+    @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+    /* ── Announcements ── */
+    .announcement-card {
+      background: var(--surface2); border: 1px solid var(--border);
+      border-left: 3px solid var(--cyan); padding: 16px 20px; margin-bottom: 10px;
+    }
+    .ann-title { font-size: 14px; font-weight: 700; margin-bottom: 4px; }
+    .ann-body { font-family: var(--font-m); font-size: 12px; color: var(--muted); line-height: 1.7; }
+    .ann-footer { display: flex; justify-content: space-between; margin-top: 10px; }
+    .ann-author { font-family: var(--font-m); font-size: 10px; color: var(--muted2); }
+
+    /* ── Responsive ── */
+    @media (max-width: 768px) {
+      .sidebar { position: absolute; left: 0; top: 0; bottom: 0; z-index: 40; transform: translateX(-100%); transition: transform 0.2s; }
+      .sidebar.mobile-open { transform: translateX(0); }
+      .stats-row { grid-template-columns: 1fr 1fr; }
+      .stat-cell:nth-child(2) { border-right: none; }
+      .grid-2 { grid-template-columns: 1fr; }
+      .grid-3 { grid-template-columns: 1fr; }
+      .video-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════
+     LOGIN SCREEN
+═══════════════════════════════════════ -->
+<div id="login-screen">
+  <div class="login-wrap">
+    <div class="login-header">
+      <div class="login-logo">
+        <div class="logo-mark">CE</div>
+        <span class="logo-text">code<span>ncode</span>.my</span>
+      </div>
+      <div class="login-title">Learning Portal</div>
+      <div class="login-sub">// sign in to access your classroom</div>
+    </div>
+    <div class="login-body">
+      <div class="role-tabs">
+        <button class="role-tab active" data-role="student" onclick="selectRole('student')">
+          <i class="fas fa-user-graduate" style="margin-right:6px"></i> Student
+        </button>
+        <button class="role-tab" data-role="teacher" onclick="selectRole('teacher')">
+          <i class="fas fa-chalkboard-teacher" style="margin-right:6px"></i> Teacher
+        </button>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Email</label>
+        <input class="form-input" type="email" id="login-email" placeholder="you@codencode.my" value="student@codencode.my" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Password</label>
+        <input class="form-input" type="password" id="login-pass" placeholder="••••••••" value="demo1234" />
+      </div>
+      <button class="btn-login" onclick="doLogin()">
+        <i class="fas fa-sign-in-alt"></i> Access Portal
+      </button>
+      <div class="demo-hint">
+        Demo: <span onclick="quickLogin('student')"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="a6d5d2d3c2c3c8d2e6c5c9c2c3c8c5c9c2c388cbdf">[email&#160;protected]</a></span> or <span onclick="quickLogin('teacher')"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="2e5a4b4f4d464b5c6e4d414a4b404d414a4b004357">[email&#160;protected]</a></span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     APP SHELL
+═══════════════════════════════════════ -->
+<div id="app">
+  <!-- Top bar -->
+  <div class="topbar">
+    <div class="topbar-left">
+      <button class="sidebar-toggle" id="sidebar-toggle-btn" onclick="toggleSidebar()">
+        <i class="fas fa-bars"></i>
+      </button>
+      <div class="login-logo" style="gap:8px">
+        <div class="logo-mark" style="width:28px;height:28px;font-size:9px">CE</div>
+        <span class="logo-text" style="font-size:13px">code<span>ncode</span>.my</span>
+      </div>
+      <span class="topbar-title" id="topbar-course-name">Python Bootcamp</span>
+    </div>
+    <div class="topbar-right">
+      <span class="topbar-badge" id="role-badge">Student</span>
+      <button class="notif-btn" title="Notifications">
+        <i class="fas fa-bell"></i>
+        <span class="notif-dot"></span>
+      </button>
+      <div class="user-chip">
+        <div class="user-avatar" id="user-avatar-initials">ST</div>
+        <span id="user-display-name">Alex T.</span>
+      </div>
+      <button class="logout-btn" onclick="doLogout()">
+        <i class="fas fa-sign-out-alt"></i> Out
+      </button>
+    </div>
+  </div>
+
+  <div class="app-body">
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+      <div class="sidebar-course-selector">
+        <div class="course-select-label">Current Course</div>
+        <select class="course-select" id="course-selector" onchange="setCourse(this.value)">
+          <option value="python">Python Bootcamp</option>
+          <option value="ml">Machine Learning Fundamentals</option>
+        </select>
+      </div>
+      <div id="student-nav" class="sidebar-section">
+        <div class="sidebar-label">Learning</div>
+        <button class="nav-item active" onclick="switchView('dashboard')">
+          <i class="fas fa-th-large"></i><span>Dashboard</span>
+        </button>
+        <button class="nav-item" onclick="switchView('videos')">
+          <i class="fas fa-play-circle"></i><span>Recordings</span>
+        </button>
+        <button class="nav-item" onclick="switchView('materials')">
+          <i class="fas fa-folder-open"></i><span>Materials</span>
+        </button>
+        <button class="nav-item" onclick="switchView('assignments')">
+          <i class="fas fa-tasks"></i><span>Assignments</span>
+          <span class="nav-badge" id="pending-badge">2</span>
+        </button>
+        <button class="nav-item" onclick="switchView('grades')">
+          <i class="fas fa-chart-bar"></i><span>My Grades</span>
+        </button>
+      </div>
+      <div id="teacher-nav" class="sidebar-section" style="display:none">
+        <div class="sidebar-label">Teaching</div>
+        <button class="nav-item active" onclick="switchView('t-dashboard')">
+          <i class="fas fa-th-large"></i><span>Overview</span>
+        </button>
+        <button class="nav-item" onclick="switchView('t-videos')">
+          <i class="fas fa-video"></i><span>Recordings</span>
+        </button>
+        <button class="nav-item" onclick="switchView('t-materials')">
+          <i class="fas fa-upload"></i><span>Materials</span>
+        </button>
+        <button class="nav-item" onclick="switchView('t-assignments')">
+          <i class="fas fa-edit"></i><span>Assignments</span>
+        </button>
+        <button class="nav-item" onclick="switchView('t-grading')">
+          <i class="fas fa-check-double"></i><span>Grading</span>
+          <span class="nav-badge" id="ungraded-badge">5</span>
+        </button>
+        <button class="nav-item" onclick="switchView('t-students')">
+          <i class="fas fa-users"></i><span>Students</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Main content area -->
+    <div class="main-content" id="main-content">
+
+      <!-- ══════════════════════════════
+           STUDENT: DASHBOARD
+      ══════════════════════════════ -->
+      <div class="view active" id="view-dashboard">
+        <div class="page-header">
+          <div class="page-label">Student Dashboard</div>
+          <div class="page-title">Good to see you, Alex. 👋</div>
+          <div class="page-sub">// Python Bootcamp · Week 4 of 6</div>
+        </div>
+        <div class="stats-row" id="student-stats-row">
+          <div class="stat-cell" data-icon="🎬">
+            <div class="stat-val">18</div>
+            <div class="stat-lbl">Videos Watched</div>
+            <div class="progress-bar" style="margin-top:8px"><div class="progress-fill" style="width:75%"></div></div>
+          </div>
+          <div class="stat-cell orange" data-icon="📝">
+            <div class="stat-val">2</div>
+            <div class="stat-lbl">Assignments Due</div>
+          </div>
+          <div class="stat-cell green" data-icon="✅">
+            <div class="stat-val">86%</div>
+            <div class="stat-lbl">Avg Grade</div>
+          </div>
+          <div class="stat-cell purple" data-icon="🏆">
+            <div class="stat-val">4/6</div>
+            <div class="stat-lbl">Weeks Complete</div>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <!-- Course progress -->
+          <div class="card">
+            <div class="card-header">
+              <span class="card-title"><i class="fas fa-route"></i> Course Progress</span>
+            </div>
+            <div class="card-body" style="display:flex;flex-direction:column;gap:14px" id="dash-progress">
+              <div>
+                <div class="cp-bar-label"><span>Videos</span><span style="color:var(--cyan)">18 / 24</span></div>
+                <div class="progress-bar"><div class="progress-fill" style="width:75%"></div></div>
+              </div>
+              <div>
+                <div class="cp-bar-label"><span>Assignments</span><span style="color:var(--orange)">4 / 6</span></div>
+                <div class="progress-bar"><div class="progress-fill orange" style="width:67%"></div></div>
+              </div>
+              <div>
+                <div class="cp-bar-label"><span>Materials Downloaded</span><span style="color:var(--green)">12 / 15</span></div>
+                <div class="progress-bar"><div class="progress-fill green" style="width:80%"></div></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Recent activity -->
+          <div class="card">
+            <div class="card-header">
+              <span class="card-title"><i class="fas fa-history"></i> Recent Activity</span>
+            </div>
+            <div class="card-body" style="padding:0 20px">
+              <div class="activity-feed">
+                <div class="activity-item">
+                  <div class="activity-dot dot-cyan"></div>
+                  <div>
+                    <div class="activity-text"><strong>Week 4: Functions & Modules</strong> — video uploaded</div>
+                    <div class="activity-time">2 hours ago</div>
+                  </div>
+                </div>
+                <div class="activity-item">
+                  <div class="activity-dot dot-green"></div>
+                  <div>
+                    <div class="activity-text"><strong>Assignment 3</strong> graded — 88/100</div>
+                    <div class="activity-time">Yesterday</div>
+                  </div>
+                </div>
+                <div class="activity-item">
+                  <div class="activity-dot dot-orange"></div>
+                  <div>
+                    <div class="activity-text"><strong>Assignment 4: Web Scraping</strong> — due in 3 days</div>
+                    <div class="activity-time">3 days ago</div>
+                  </div>
+                </div>
+                <div class="activity-item">
+                  <div class="activity-dot dot-purple"></div>
+                  <div>
+                    <div class="activity-text">New material: <strong>Pandas Cheat Sheet.pdf</strong> added</div>
+                    <div class="activity-time">4 days ago</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Announcements -->
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title"><i class="fas fa-bullhorn"></i> Announcements</span>
+          </div>
+          <div class="card-body">
+            <div class="announcement-card">
+              <div class="ann-title">Week 5 starts Monday — bring your questions!</div>
+              <div class="ann-body">We're moving into pandas and data visualisation next week. Make sure you've completed Assignment 4 before the session. Recording will be posted within 24hrs as usual.</div>
+              <div class="ann-footer">
+                <span class="ann-author">Michael Chang · 2 days ago</span>
+                <span class="status-badge status-open">New</span>
+              </div>
+            </div>
+            <div class="announcement-card" style="border-left-color:var(--orange)">
+              <div class="ann-title">Assignment 4 deadline extended by 2 days</div>
+              <div class="ann-body">Given the public holiday, the deadline for Assignment 4: Web Scraping has been extended to this Friday, 28 Feb at 11:59PM.</div>
+              <div class="ann-footer">
+                <span class="ann-author">Michael Chang · 5 days ago</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══════════════════════════════
+           STUDENT: VIDEOS
+      ══════════════════════════════ -->
+      <div class="view" id="view-videos">
+        <div class="page-header">
+          <div class="page-label">Recordings</div>
+          <div class="page-title">Class Recordings</div>
+          <div class="page-sub">// click to watch</div>
+        </div>
+        <div id="recordings-container"><div style="color:var(--muted);font-family:var(--font-m);font-size:12px;padding:32px;text-align:center">Loading...</div></div>
+        <!-- week items rendered by loadVideos() -->
+      </div>
+
+      <div class="view" id="view-materials">
+        <div class="page-header">
+          <div class="page-label">Course Materials</div>
+          <div class="page-title">Downloads</div>
+          <div class="page-sub">// click to download</div>
+        </div>
+        <div id="materials-container"><div style="color:var(--muted);font-family:var(--font-m);font-size:12px;padding:32px;text-align:center">Loading...</div></div>
+      </div>
+
+      <div class="view" id="view-assignments">
+        <div class="page-header">
+          <div class="page-label">Assignments</div>
+          <div class="page-title">Your Assignments</div>
+          <div class="page-sub">// submit your work here</div>
+        </div>
+        <div id="assignments-container"><div style="color:var(--muted);font-family:var(--font-m);font-size:12px;padding:32px;text-align:center">Loading...</div></div>
+      </div>
+
+      <div class="view" id="view-grades">
+        <div class="page-header">
+          <div class="page-label">My Grades</div>
+          <div class="page-title">Grade Overview</div>
+          <div class="page-sub">// Current average: 86.5 / 100</div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title"><i class="fas fa-chart-bar"></i> Assignment Grades</span>
+            <span style="font-family:var(--font-m);font-size:11px;color:var(--cyan)" id="grades-avg">Avg: —</span>
+          </div>
+          <table class="grade-table">
+            <thead>
+              <tr>
+                <th>#</th><th>Assignment</th><th>Submitted</th><th>Score</th><th>Feedback</th>
+              </tr>
+            </thead>
+            <tbody id="grades-tbody">
+              <tr>
+                <td style="color:var(--muted)">01</td>
+                <td>Python Basics — Loops & Lists</td>
+                <td style="color:var(--green)"><i class="fas fa-check"></i> Jan 19</td>
+                <td><span style="color:var(--green);font-weight:700">80 / 100</span></td>
+                <td style="color:var(--muted)">Good start, watch off-by-one errors</td>
+              </tr>
+              <tr>
+                <td style="color:var(--muted)">02</td>
+                <td>Functions & Recursion</td>
+                <td style="color:var(--green)"><i class="fas fa-check"></i> Jan 28</td>
+                <td><span style="color:var(--green);font-weight:700">92 / 100</span></td>
+                <td style="color:var(--muted)">Excellent recursion. Clean code.</td>
+              </tr>
+              <tr>
+                <td style="color:var(--muted)">03</td>
+                <td>File Handling & Data Processing</td>
+                <td style="color:var(--green)"><i class="fas fa-check"></i> Feb 5</td>
+                <td><span style="color:var(--cyan);font-weight:700">88 / 100</span></td>
+                <td style="color:var(--muted)">Good error handling! Watch variable naming.</td>
+              </tr>
+              <tr>
+                <td style="color:var(--muted)">04</td>
+                <td>Web Scraping with BeautifulSoup</td>
+                <td style="color:var(--muted)">—</td>
+                <td><span style="color:var(--orange)">Pending</span></td>
+                <td style="color:var(--muted)">—</td>
+              </tr>
+              <tr>
+                <td style="color:var(--muted)">05</td>
+                <td>Pandas Data Analysis Report</td>
+                <td style="color:var(--muted)">—</td>
+                <td><span style="color:var(--orange)">Pending</span></td>
+                <td style="color:var(--muted)">—</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ══════════════════════════════
+           TEACHER: DASHBOARD
+      ══════════════════════════════ -->
+      <div class="view" id="view-t-dashboard">
+        <div class="page-header">
+          <div class="page-label">Teacher Dashboard</div>
+          <div class="page-title">Welcome back, Michael. 🎓</div>
+          <div class="page-sub">// Python Bootcamp · Feb 25, 2025</div>
+        </div>
+        <div class="stats-row" id="teacher-stats-row">
+          <div class="stat-cell" data-icon="👨‍🎓">
+            <div class="stat-val">14</div>
+            <div class="stat-lbl">Active Students</div>
+          </div>
+          <div class="stat-cell orange" data-icon="📬">
+            <div class="stat-val">5</div>
+            <div class="stat-lbl">Submissions to Grade</div>
+          </div>
+          <div class="stat-cell green" data-icon="📹">
+            <div class="stat-val">22</div>
+            <div class="stat-lbl">Videos Uploaded</div>
+          </div>
+          <div class="stat-cell purple" data-icon="📁">
+            <div class="stat-val">18</div>
+            <div class="stat-lbl">Materials Posted</div>
+          </div>
+        </div>
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-header">
+              <span class="card-title"><i class="fas fa-inbox"></i> Pending Submissions</span>
+              <button class="btn-action" onclick="switchView('t-grading')">Grade All</button>
+            </div>
+            <div class="file-list" id="t-ungraded-list">
+              <div class="file-row">
+                <div class="student-dot">AT</div>
+                <div style="flex:1">
+                  <div class="file-name" style="font-size:12px">Alex Tan — Assignment 3</div>
+                  <div class="file-sub">Submitted Feb 22 · .py file</div>
+                </div>
+                <button class="btn-action" onclick="openGradeModal('Alex Tan','Assignment 3')">Grade</button>
+              </div>
+              <div class="file-row">
+                <div class="student-dot">JL</div>
+                <div style="flex:1">
+                  <div class="file-name" style="font-size:12px">Jamie Lim — Assignment 3</div>
+                  <div class="file-sub">Submitted Feb 23 · .ipynb file</div>
+                </div>
+                <button class="btn-action" onclick="openGradeModal('Jamie Lim','Assignment 3')">Grade</button>
+              </div>
+              <div class="file-row">
+                <div class="student-dot">RN</div>
+                <div style="flex:1">
+                  <div class="file-name" style="font-size:12px">Rahim Nor — Assignment 3</div>
+                  <div class="file-sub">Submitted Feb 24 · .py file</div>
+                </div>
+                <button class="btn-action" onclick="openGradeModal('Rahim Nor','Assignment 3')">Grade</button>
+              </div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header">
+              <span class="card-title"><i class="fas fa-users"></i> Student Progress</span>
+            </div>
+            <div style="padding:16px 20px;display:flex;flex-direction:column;gap:14px" id="t-student-progress">
+              <div>
+                <div class="cp-bar-label" style="margin-bottom:6px"><span style="font-size:13px;font-weight:600">Alex Tan</span><span style="color:var(--cyan)">86%</span></div>
+                <div class="progress-bar"><div class="progress-fill" style="width:86%"></div></div>
+              </div>
+              <div>
+                <div class="cp-bar-label" style="margin-bottom:6px"><span style="font-size:13px;font-weight:600">Jamie Lim</span><span style="color:var(--green)">91%</span></div>
+                <div class="progress-bar"><div class="progress-fill green" style="width:91%"></div></div>
+              </div>
+              <div>
+                <div class="cp-bar-label" style="margin-bottom:6px"><span style="font-size:13px;font-weight:600">Rahim Nor</span><span style="color:var(--orange)">62%</span></div>
+                <div class="progress-bar"><div class="progress-fill orange" style="width:62%"></div></div>
+              </div>
+              <div>
+                <div class="cp-bar-label" style="margin-bottom:6px"><span style="font-size:13px;font-weight:600">Wei Ling</span><span style="color:var(--cyan)">78%</span></div>
+                <div class="progress-bar"><div class="progress-fill" style="width:78%"></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══════════════════════════════
+           TEACHER: UPLOAD VIDEOS
+      ══════════════════════════════ -->
+      <div class="view" id="view-t-videos">
+        <div class="page-header">
+          <div class="page-label">Recordings</div>
+          <div class="page-title">Manage Recordings</div>
+          <div class="page-sub">// Upload class recordings for students to review</div>
+        </div>
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-header">
+              <span class="card-title"><i class="fas fa-cloud-upload-alt"></i> Upload New Recording</span>
+            </div>
+            <div class="card-body">
+              <div class="upload-form">
+                <div class="form-group">
+                  <label class="form-label">Session Title</label>
+                  <input class="form-input" type="text" placeholder="e.g. Week 4 Session 3 — GroupBy & Pivot Tables" id="vid-title" />
+                </div>
+                <div class="grid-2" style="gap:12px">
+                  <div class="form-group">
+                    <label class="form-label">Week</label>
+                    <select class="form-input" name="week">
+                      <option value="1">Week 1</option><option value="2">Week 2</option><option value="3">Week 3</option>
+                      <option value="4" selected>Week 4</option><option value="5">Week 5</option><option value="6">Week 6</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Session #</label>
+                    <select class="form-input" name="session_num">
+                      <option value="1">Session 1</option><option value="2">Session 2</option>
+                      <option value="3" selected>Session 3</option><option value="4">Session 4</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Video File</label>
+                  <div class="upload-zone" onclick="document.getElementById('vid-file').click()">
+                    <div class="upload-icon"><i class="fas fa-film"></i></div>
+                    <div class="upload-text">Drop video here or click to browse</div>
+                    <div class="upload-sub">MP4, MOV, MKV — max 2GB</div>
+                  </div>
+                  <input type="file" id="vid-file" name="file" class="upload-input" accept="video/*" onchange="handleFileSelect(this)" />
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Description (Optional)</label>
+                  <textarea class="feedback-input" name="description" placeholder="Topics covered in this session..." style="min-height:60px"></textarea>
+                </div>
+                <button id="upload-rec-btn" class="btn-action" style="width:100%;justify-content:center;padding:14px" onclick="uploadRecording()">
+                  <i class="fas fa-upload"></i> Upload Recording
+                </button>
+              </div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header">
+              <span class="card-title"><i class="fas fa-list"></i> Uploaded Recordings</span>
+            </div>
+            <div class="file-list" id="t-recordings-list">
+              <div class="file-row">
+                <div class="file-icon mp4"><i class="fas fa-film"></i></div>
+                <div style="flex:1">
+                  <div class="file-name" style="font-size:12px">W4S2 — Data Cleaning</div>
+                  <div class="file-sub">Uploaded Feb 22 · 55:18 · 1.2 GB</div>
+                </div>
+                <button class="btn-action red" onclick="showToast('Recording deleted')"><i class="fas fa-trash"></i></button>
+              </div>
+              <div class="file-row">
+                <div class="file-icon mp4"><i class="fas fa-film"></i></div>
+                <div style="flex:1">
+                  <div class="file-name" style="font-size:12px">W4S1 — Pandas Intro</div>
+                  <div class="file-sub">Uploaded Feb 19 · 62:05 · 1.4 GB</div>
+                </div>
+                <button class="btn-action red" onclick="showToast('Recording deleted')"><i class="fas fa-trash"></i></button>
+              </div>
+              <div class="file-row">
+                <div class="file-icon mp4"><i class="fas fa-film"></i></div>
+                <div style="flex:1">
+                  <div class="file-name" style="font-size:12px">W3S4 — OOP Part 2</div>
+                  <div class="file-sub">Uploaded Feb 14 · 49:30 · 1.1 GB</div>
+                </div>
+                <button class="btn-action red" onclick="showToast('Recording deleted')"><i class="fas fa-trash"></i></button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══════════════════════════════
+           TEACHER: MATERIALS
+      ══════════════════════════════ -->
+      <div class="view" id="view-t-materials">
+        <div class="page-header">
+          <div class="page-label">Materials</div>
+          <div class="page-title">Upload Materials</div>
+          <div class="page-sub">// Slides, code, datasets — all in one place</div>
+        </div>
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-header">
+              <span class="card-title"><i class="fas fa-cloud-upload-alt"></i> Upload Material</span>
+            </div>
+            <div class="card-body">
+              <div class="upload-form">
+                <div class="form-group">
+                  <label class="form-label">File Name / Title</label>
+                  <input class="form-input" type="text" name="title" placeholder="e.g. Pandas Cheat Sheet" />
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Category</label>
+                  <select class="form-input" name="category">
+                    <option>Slides / PDF</option>
+                    <option>Code / Notebook</option>
+                    <option>Dataset</option>
+                    <option>Assignment Brief</option>
+                    <option>General Resource</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Week</label>
+                  <select class="form-input" name="week">
+                    <option value="0">General (All Weeks)</option>
+                    <option value="1">Week 1</option><option value="2">Week 2</option><option value="3">Week 3</option>
+                    <option value="4" selected>Week 4</option><option value="5">Week 5</option><option value="6">Week 6</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">File</label>
+                  <div class="upload-zone" onclick="document.getElementById('mat-file').click()">
+                    <div class="upload-icon"><i class="fas fa-paperclip"></i></div>
+                    <div class="upload-text">Drop file or click to browse</div>
+                    <div class="upload-sub">PDF, PY, IPYNB, ZIP, CSV — max 100MB</div>
+                  </div>
+                  <input type="file" id="mat-file" name="file" class="upload-input" onchange="handleFileSelect(this)" />
+                </div>
+                <button class="btn-action" style="width:100%;justify-content:center;padding:14px" id="upload-mat-btn" onclick="uploadMaterial()">
+                  <i class="fas fa-upload"></i> Publish Material
+                </button>
+              </div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header">
+              <span class="card-title"><i class="fas fa-folder-open"></i> Published Materials</span>
+            </div>
+            <div class="file-list" id="t-materials-list">
+              <div class="file-row">
+                <div class="file-icon pdf"><i class="fas fa-file-pdf"></i></div>
+                <div style="flex:1">
+                  <div class="file-name" style="font-size:12px">Pandas Cheat Sheet.pdf</div>
+                  <div class="file-sub">Week 4 · 14 downloads</div>
+                </div>
+                <button class="btn-action red"><i class="fas fa-trash"></i></button>
+              </div>
+              <div class="file-row">
+                <div class="file-icon py"><i class="fas fa-file-code"></i></div>
+                <div style="flex:1">
+                  <div class="file-name" style="font-size:12px">pandas_demo_notebook.ipynb</div>
+                  <div class="file-sub">Week 4 · 12 downloads</div>
+                </div>
+                <button class="btn-action red"><i class="fas fa-trash"></i></button>
+              </div>
+              <div class="file-row">
+                <div class="file-icon zip"><i class="fas fa-file-archive"></i></div>
+                <div style="flex:1">
+                  <div class="file-name" style="font-size:12px">datasets_week4.zip</div>
+                  <div class="file-sub">Week 4 · 11 downloads</div>
+                </div>
+                <button class="btn-action red"><i class="fas fa-trash"></i></button>
+              </div>
+              <div class="file-row">
+                <div class="file-icon pdf"><i class="fas fa-file-pdf"></i></div>
+                <div style="flex:1">
+                  <div class="file-name" style="font-size:12px">Python Style Guide — PEP8.pdf</div>
+                  <div class="file-sub">General · 18 downloads</div>
+                </div>
+                <button class="btn-action red"><i class="fas fa-trash"></i></button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══════════════════════════════
+           TEACHER: ASSIGNMENTS
+      ══════════════════════════════ -->
+      <div class="view" id="view-t-assignments">
+        <div class="page-header">
+          <div class="page-label">Assignments</div>
+          <div class="page-title">Manage Assignments</div>
+          <div class="page-sub">// Create and track student submissions</div>
+        </div>
+        <div class="card" style="margin-bottom:20px">
+          <div class="card-header">
+            <span class="card-title"><i class="fas fa-plus-circle"></i> Create New Assignment</span>
+          </div>
+          <div class="card-body">
+            <div class="upload-form">
+              <div class="form-group">
+                <label class="form-label">Assignment Title</label>
+                <input class="form-input" type="text" name="title" placeholder="e.g. Pandas Data Analysis Report" />
+              </div>
+              <div class="form-group">
+                <label class="form-label">Description / Instructions</label>
+                <textarea class="feedback-input" name="description" placeholder="Describe what students need to do..." style="min-height:100px"></textarea>
+              </div>
+              <div class="grid-3">
+                <div class="form-group">
+                  <label class="form-label">Week</label>
+                  <select class="form-input" name="week">
+                    <option value="1">Week 1</option><option value="2">Week 2</option><option value="3">Week 3</option>
+                    <option value="4">Week 4</option><option value="5" selected>Week 5</option><option value="6">Week 6</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Due Date</label>
+                  <input class="form-input" type="datetime-local" name="due_date" />
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Total Points</label>
+                  <input class="form-input" type="number" name="max_points" value="100" />
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Attach Files (Optional)</label>
+                <div class="upload-zone" onclick="document.getElementById('asgn-file').click()" style="padding:20px">
+                  <div class="upload-sub"><span>Browse</span> or drag starter code / brief PDF</div>
+                </div>
+                <input type="file" id="asgn-file" name="file" class="upload-input" />
+              </div>
+              <button class="btn-action" style="width:100%;justify-content:center;padding:14px" id="create-asgn-btn" onclick="createAssignment()">
+                <i class="fas fa-paper-plane"></i> Publish Assignment
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Existing assignments -->
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title"><i class="fas fa-list-alt"></i> Published Assignments</span>
+          </div>
+          <div class="assignment-list" style="padding:16px 20px" id="t-assignments-list">
+            <div class="assignment-card">
+              <div class="assignment-card-top">
+                <span class="asgn-num">05</span>
+                <div style="flex:1">
+                  <div class="asgn-title">Pandas Data Analysis Report</div>
+                  <div class="asgn-desc">Due Mar 7 · 100 pts</div>
+                </div>
+                <span class="status-badge" style="border-color:rgba(0,220,180,0.3);color:var(--cyan)">3/14 submitted</span>
+              </div>
+              <div class="asgn-meta">
+                <button class="btn-action ghost" onclick="switchView('t-grading')"><i class="fas fa-check-double"></i> Grade Submissions</button>
+                <button class="btn-action red" onclick="showToast('Assignment deleted')"><i class="fas fa-trash"></i> Delete</button>
+              </div>
+            </div>
+            <div class="assignment-card">
+              <div class="assignment-card-top">
+                <span class="asgn-num">04</span>
+                <div style="flex:1">
+                  <div class="asgn-title">Web Scraping with BeautifulSoup</div>
+                  <div class="asgn-desc">Due Feb 28 · 100 pts</div>
+                </div>
+                <span class="status-badge" style="border-color:rgba(249,199,79,0.4);color:var(--yellow)">8/14 submitted</span>
+              </div>
+              <div class="asgn-meta">
+                <button class="btn-action ghost" onclick="switchView('t-grading')"><i class="fas fa-check-double"></i> Grade Submissions</button>
+                <button class="btn-action red" onclick="showToast('Assignment deleted')"><i class="fas fa-trash"></i> Delete</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══════════════════════════════
+           TEACHER: GRADING
+      ══════════════════════════════ -->
+      <div class="view" id="view-t-grading">
+        <div class="page-header">
+          <div class="page-label">Grading</div>
+          <div class="page-title">Grade Submissions</div>
+          <div class="page-sub">// click Save on each row, or Save All at once</div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title" id="grading-title"><i class="fas fa-inbox"></i> Submissions</span>
+            <span style="font-family:var(--font-m);font-size:11px;color:var(--orange)" id="grading-ungraded"></span>
+          </div>
+          <div id="grading-container"><div style="color:var(--muted);font-family:var(--font-m);font-size:12px;padding:32px;text-align:center">Loading...</div></div>
+        </div>
+      </div>
+
+      <div class="view" id="view-t-students">
+        <div class="page-header">
+          <div class="page-label">Students</div>
+          <div class="page-title">Class Roster</div>
+          <div class="page-sub">// 14 enrolled · Python Bootcamp</div>
+        </div>
+        <div class="card">
+          <table class="grade-table">
+            <thead>
+              <tr>
+                <th>Student</th><th>Email</th><th>Videos Watched</th><th>Assignments</th><th>Avg Grade</th><th>Progress</th>
+              </tr>
+            </thead>
+            <tbody id="students-tbody">
+              <tr>
+                <td><div class="student-chip"><div class="student-dot">AT</div> Alex Tan</div></td>
+                <td style="color:var(--muted)"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="543538312c143339353d387a373b39">[email&#160;protected]</a></td>
+                <td>18 / 24</td>
+                <td><span style="color:var(--green)">4 / 6 submitted</span></td>
+                <td><span style="color:var(--cyan);font-weight:700">86.5</span></td>
+                <td style="min-width:100px"><div class="progress-bar"><div class="progress-fill" style="width:75%"></div></div></td>
+              </tr>
+              <tr>
+                <td><div class="student-chip"><div class="student-dot">JL</div> Jamie Lim</div></td>
+                <td style="color:var(--muted)"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="711b101c181431161c10181d5f121e1c">[email&#160;protected]</a></td>
+                <td>22 / 24</td>
+                <td><span style="color:var(--green)">5 / 6 submitted</span></td>
+                <td><span style="color:var(--green);font-weight:700">91.2</span></td>
+                <td><div class="progress-bar"><div class="progress-fill green" style="width:92%"></div></div></td>
+              </tr>
+              <tr>
+                <td><div class="student-chip"><div class="student-dot">RN</div> Rahim Nor</div></td>
+                <td style="color:var(--muted)"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="fd8f9c959490bd9a909c9491d39e9290">[email&#160;protected]</a></td>
+                <td>11 / 24</td>
+                <td><span style="color:var(--orange)">3 / 6 submitted</span></td>
+                <td><span style="color:var(--orange);font-weight:700">62.0</span></td>
+                <td><div class="progress-bar"><div class="progress-fill orange" style="width:46%"></div></div></td>
+              </tr>
+              <tr>
+                <td><div class="student-chip"><div class="student-dot">WL</div> Wei Ling</div></td>
+                <td style="color:var(--muted)"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="a4d3c1cdc8cdcac3e4c3c9c5cdc88ac7cbc9">[email&#160;protected]</a></td>
+                <td>16 / 24</td>
+                <td><span style="color:var(--cyan)">4 / 6 submitted</span></td>
+                <td><span style="color:var(--cyan);font-weight:700">78.3</span></td>
+                <td><div class="progress-bar"><div class="progress-fill" style="width:67%"></div></div></td>
+              </tr>
+              <tr>
+                <td><div class="student-chip"><div class="student-dot">ZH</div> Zara Hassan</div></td>
+                <td style="color:var(--muted)"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="720813001332151f131b1e5c111d1f">[email&#160;protected]</a></td>
+                <td>20 / 24</td>
+                <td><span style="color:var(--green)">5 / 6 submitted</span></td>
+                <td><span style="color:var(--green);font-weight:700">88.6</span></td>
+                <td><div class="progress-bar"><div class="progress-fill green" style="width:83%"></div></div></td>
+              </tr>
+              <tr>
+                <td><div class="student-chip"><div class="student-dot">KC</div> Kai Chen</div></td>
+                <td style="color:var(--muted)"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="dfb4beb69fb8b2beb6b3f1bcb0b2">[email&#160;protected]</a></td>
+                <td>24 / 24</td>
+                <td><span style="color:var(--green)">6 / 6 submitted</span></td>
+                <td><span style="color:var(--green);font-weight:700">94.0</span></td>
+                <td><div class="progress-bar"><div class="progress-fill green" style="width:100%"></div></div></td>
+              </tr>
+            </tbody>
+          </table>
+          <div style="padding:14px 20px;border-top:1px solid var(--border)">
+            <button class="btn-action ghost" onclick="showToast('Student report exported')"><i class="fas fa-file-export"></i> Export Report</button>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- end main-content -->
+  </div><!-- end app-body -->
+</div><!-- end app -->
+
+<!-- ══════════════════════════════
+     VIDEO MODAL
+══════════════════════════════ -->
+<div class="modal-overlay" id="video-modal">
+  <div class="modal-box">
+    <div class="modal-header">
+      <span class="modal-title" id="video-modal-title">Session Recording</span>
+      <button class="modal-close" onclick="closeModal('video-modal')"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="video-player" id="video-modal-player">
+      <div class="video-player-placeholder">
+        <i class="fas fa-play-circle"></i>
+        <div style="margin-top:8px;font-size:11px">Select a video to play</div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <span id="video-modal-duration" style="font-family:var(--font-m);font-size:11px;color:var(--muted)">45:12</span>
+      <button class="btn-action ghost" id="video-dl-btn"><i class="fas fa-download"></i> Download</button>
+      <button class="btn-action" onclick="markWatched()"><i class="fas fa-check"></i> Mark Watched</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════
+     SUBMIT ASSIGNMENT MODAL
+══════════════════════════════ -->
+<div class="modal-overlay" id="submit-modal">
+  <div class="modal-box" style="max-width:520px">
+    <div class="modal-header">
+      <span class="modal-title" id="submit-modal-title">Submit Assignment</span>
+      <button class="modal-close" onclick="closeModal('submit-modal')"><i class="fas fa-times"></i></button>
+    </div>
+    <div style="padding:24px">
+      <div class="form-group">
+        <label class="form-label">Your File</label>
+        <div class="upload-zone" onclick="document.getElementById('sub-file').click()">
+          <div class="upload-icon"><i class="fas fa-file-upload"></i></div>
+          <div class="upload-text" id="sub-file-name">Drop your file or click to browse</div>
+          <div class="upload-sub">.py, .ipynb, .zip — max 50MB</div>
+        </div>
+        <input type="file" id="sub-file" name="file" class="upload-input" onchange="handleSubFile(this)" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Notes to Instructor (Optional)</label>
+        <textarea class="feedback-input" id="sub-notes" placeholder="Any context about your submission..."></textarea>
+      </div>
+      <button class="btn-action" style="width:100%;justify-content:center;padding:14px" id="submit-btn" onclick="submitAssignment()">
+        <i class="fas fa-paper-plane"></i> Submit Assignment
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════
+     GRADE SUBMISSION MODAL
+══════════════════════════════ -->
+<div class="modal-overlay" id="grade-modal">
+  <div class="modal-box" style="max-width:560px">
+    <div class="modal-header">
+      <span class="modal-title" id="grade-modal-title">Grade Submission</span>
+      <button class="modal-close" onclick="closeModal('grade-modal')"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="submission-detail">
+      <div class="sub-info-row"><span class="sub-info-lbl">Student</span> <span id="grade-modal-student" style="font-weight:700">—</span></div>
+      <div class="sub-info-row"><span class="sub-info-lbl">Assignment</span> <span id="grade-modal-asgn">—</span></div>
+      <div class="sub-info-row"><span class="sub-info-lbl">File</span> <span style="color:var(--cyan)"><i class="fas fa-file-code"></i> submission.py</span></div>
+      <div class="sub-info-row"><span class="sub-info-lbl">Submitted</span> <span>Feb 22, 2025 · 10:34 PM</span></div>
+    </div>
+    <div class="grade-form">
+      <div class="grade-form-row">
+        <div class="form-group">
+          <label class="form-label">Score (/100)</label>
+          <input class="form-input" id="quick-grade-score" type="number" min="0" max="100" placeholder="85" style="font-size:20px;padding:12px" />
+        </div>
+        <div class="form-group" style="flex:3">
+          <label class="form-label">Feedback</label>
+          <input class="form-input" id="quick-grade-feedback" type="text" placeholder="e.g. Great work! Watch your variable naming." />
+        </div>
+      </div>
+      <button class="btn-action" style="width:100%;justify-content:center;padding:14px;margin-top:8px" onclick="showToast('Grade saved & student notified!');closeModal('grade-modal')">
+        <i class="fas fa-check-double"></i> Save & Notify Student
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast">
+  <i class="fas fa-check-circle"></i>
+  <span id="toast-msg">Done!</span>
+</div>
+
+
+<script>
+// ═══════════════════════════════════════════════════════
+//  codencode.my LMS — API client
+//  All state lives here. Views are rendered by these fns.
+// ═══════════════════════════════════════════════════════
+
+let STATE = {
+  user: null,
+  courseId: null,
+  courses: [],
+  sidebarOpen: true,
+  // cached data per course
+  dashboard: null,
+  recordings: null,
+  materials: null,
+  assignments: null,
+  // for grading modal
+  activeSubmissionId: null,
+};
+
+// ── Simple fetch wrappers ──────────────────────────────
+
+async function api(method, url, body = null) {
+  const opts = {
+    method,
+    headers: {},
+    credentials: 'same-origin'
+  };
+  if (body instanceof FormData) {
+    opts.body = body;
+  } else if (body) {
+    opts.headers['Content-Type'] = 'application/json';
+    opts.body = JSON.stringify(body);
+  }
+  const res = await fetch(url, opts);
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
+  return data;
+}
+
+// Auto-detect base path — works for both localhost:5001 and codencode.my/lms
+const BASE   = window.location.pathname.startsWith('/lms') ? '/lms' : '';
+const GET    = url        => api('GET',    BASE + url);
+const POST   = (url, b)  => api('POST',   BASE + url, b);
+const DELETE = url        => api('DELETE', BASE + url);
+
+// ── Boot ──────────────────────────────────────────────
+
+window.addEventListener('DOMContentLoaded', async () => {
+  // Check if already logged in
+  try {
+    const u = await GET('/api/auth/me');
+    STATE.user = u;
+    await bootApp();
+  } catch {
+    showLoginScreen();
+  }
+
+  // Upload zone drag-over styling
+  document.querySelectorAll('.upload-zone').forEach(zone => {
+    zone.addEventListener('dragover', e => {
+      e.preventDefault();
+      zone.style.borderColor = 'var(--cyan)';
+      zone.style.background  = 'var(--cyan-glow)';
+    });
+    zone.addEventListener('dragleave', () => {
+      zone.style.borderColor = '';
+      zone.style.background  = '';
+    });
+    zone.addEventListener('drop', e => {
+      e.preventDefault();
+      zone.style.borderColor = '';
+      zone.style.background  = '';
+      const f = e.dataTransfer.files[0];
+      if (f) showToast('File dropped: ' + f.name);
+    });
+  });
+
+  // Modal overlay click-to-close
+  document.querySelectorAll('.modal-overlay').forEach(overlay => {
+    overlay.addEventListener('click', e => {
+      if (e.target === overlay) overlay.classList.remove('open');
+    });
+  });
+});
+
+function showLoginScreen() {
+  document.getElementById('login-screen').style.display  = 'flex';
+  document.getElementById('login-screen').style.opacity  = '1';
+  document.getElementById('app').classList.remove('visible');
+}
+
+async function bootApp() {
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('app').classList.add('visible');
+
+  // Load courses
+  STATE.courses = await GET('/api/courses');
+  renderCourseSelector();
+
+  if (STATE.courses.length > 0) {
+    STATE.courseId = STATE.courses[0].id;
+    document.getElementById('course-selector').value = STATE.courseId;
+    document.getElementById('topbar-course-name').textContent = STATE.courses[0].title;
+  }
+
+  // Setup role UI
+  const isTeacher = STATE.user.role === 'teacher';
+  document.getElementById('student-nav').style.display = isTeacher ? 'none' : 'block';
+  document.getElementById('teacher-nav').style.display = isTeacher ? 'block' : 'none';
+  document.getElementById('role-badge').textContent    = isTeacher ? 'Teacher' : 'Student';
+  document.getElementById('role-badge').className      = 'topbar-badge ' + (isTeacher ? 'badge-teacher' : 'badge-student');
+  document.getElementById('user-display-name').textContent = STATE.user.name.split(' ')[0] + ' ' + (STATE.user.name.split(' ')[1]?.[0] || '') + '.';
+  const initials = STATE.user.name.split(' ').map(p=>p[0]).join('').toUpperCase().slice(0,2);
+  document.getElementById('user-avatar-initials').textContent = initials;
+
+  switchView(isTeacher ? 't-dashboard' : 'dashboard');
+}
+
+function renderCourseSelector() {
+  const sel = document.getElementById('course-selector');
+  sel.innerHTML = STATE.courses.map(c =>
+    `<option value="${c.id}">${c.title}</option>`
+  ).join('');
+}
+
+// ── Auth ──────────────────────────────────────────────
+
+function selectRole(role) {
+  document.querySelectorAll('.role-tab').forEach(t => t.classList.remove('active'));
+  document.querySelector(`[data-role="${role}"]`).classList.add('active');
+  document.getElementById('login-email').value =
+    role === 'student' ? 'student@codencode.my' : 'teacher@codencode.my';
+}
+
+function quickLogin(role) {
+  selectRole(role);
+  doLogin();
+}
+
+async function doLogin() {
+  const email = document.getElementById('login-email').value.trim();
+  const pass  = document.getElementById('login-pass').value;
+  const btn   = document.querySelector('.btn-login');
+  btn.textContent = 'Signing in...';
+  try {
+    STATE.user = await POST('/api/auth/login', { email, password: pass });
+    await bootApp();
+  } catch (e) {
+    showError('login-error', e.message);
+    btn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Access Portal';
+  }
+}
+
+async function doLogout() {
+  await POST('/api/auth/logout').catch(() => {});
+  STATE.user = null;
+  STATE.courseId = null;
+  showLoginScreen();
+}
+
+function showError(id, msg) {
+  let el = document.getElementById(id);
+  if (!el) {
+    el = document.createElement('div');
+    el.id = id;
+    el.style.cssText = 'color:var(--red);font-family:var(--font-m);font-size:11px;margin-top:8px;text-align:center';
+    document.querySelector('.btn-login').after(el);
+  }
+  el.textContent = '⚠ ' + msg;
+}
+
+// ── Navigation ────────────────────────────────────────
+
+const VIEW_TITLES = {
+  'dashboard':'Dashboard','videos':'Recordings','materials':'Materials',
+  'assignments':'Assignments','grades':'My Grades',
+  't-dashboard':'Overview','t-videos':'Recordings','t-materials':'Materials',
+  't-assignments':'Assignments','t-grading':'Grading','t-students':'Students'
+};
+
+// Map view → loader function
+const VIEW_LOADERS = {
+  'dashboard':    loadStudentDashboard,
+  'videos':       loadVideos,
+  'materials':    loadMaterials,
+  'assignments':  loadAssignments,
+  'grades':       loadGrades,
+  't-dashboard':  loadTeacherDashboard,
+  't-videos':     loadTeacherVideos,
+  't-materials':  loadTeacherMaterials,
+  't-assignments':loadTeacherAssignments,
+  't-grading':    loadTeacherGrading,
+  't-students':   loadStudents,
+};
+
+async function switchView(id) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  const view = document.getElementById('view-' + id);
+  if (view) view.classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(btn => {
+    if ((btn.getAttribute('onclick')||'').includes("'" + id + "'")) btn.classList.add('active');
+  });
+  document.querySelector('.topbar-title').textContent = VIEW_TITLES[id] || '';
+  document.getElementById('main-content').scrollTop = 0;
+
+  if (VIEW_LOADERS[id] && STATE.courseId) {
+    try { await VIEW_LOADERS[id](); }
+    catch(e) { showToast('Error loading: ' + e.message, true); }
+  }
+}
+
+async function setCourse(val) {
+  STATE.courseId = parseInt(val);
+  // Reset cache
+  STATE.dashboard = STATE.recordings = STATE.materials = STATE.assignments = null;
+  const course = STATE.courses.find(c => c.id === STATE.courseId);
+  document.getElementById('topbar-course-name').textContent = course?.title || '';
+  showToast('Switched to ' + (course?.title || ''));
+  // Reload current view
+  const activeView = document.querySelector('.view.active');
+  if (activeView) {
+    const id = activeView.id.replace('view-', '');
+    if (VIEW_LOADERS[id]) await VIEW_LOADERS[id]();
+  }
+}
+
+// ── Sidebar ───────────────────────────────────────────
+
+function toggleSidebar() {
+  const sidebar = document.getElementById('sidebar');
+  if (window.innerWidth <= 768) {
+    sidebar.classList.toggle('mobile-open');
+  } else {
+    STATE.sidebarOpen = !STATE.sidebarOpen;
+    sidebar.classList.toggle('collapsed', !STATE.sidebarOpen);
+  }
+}
+
+function toggleWeek(btn) {
+  btn.classList.toggle('open');
+  btn.nextElementSibling.classList.toggle('open');
+}
+
+// ── Render helpers ────────────────────────────────────
+
+function statusBadge(sub, maxPoints) {
+  if (!sub) return `<span class="status-badge status-pending">Pending</span>`;
+  if (sub.score !== null && sub.score !== undefined)
+    return `<span class="status-badge status-graded">Graded · ${sub.score}/${maxPoints}</span>`;
+  return `<span class="status-badge status-submitted">Submitted</span>`;
+}
+
+function fileIcon(type) {
+  const map = { pdf:'pdf', py:'py', ipynb:'py', zip:'zip', csv:'zip', mp4:'mp4', mov:'mp4' };
+  const cls = map[type] || 'zip';
+  const icons = { pdf:'fa-file-pdf', py:'fa-file-code', zip:'fa-file-archive', mp4:'fa-film' };
+  return `<div class="file-icon ${cls}"><i class="fas ${icons[cls]||'fa-file'}"></i></div>`;
+}
+
+function progressBar(pct, color='') {
+  return `<div class="progress-bar"><div class="progress-fill ${color}" style="width:${pct}%"></div></div>`;
+}
+
+// ══════════════════════════════════════════════════════
+//  STUDENT VIEWS
+// ══════════════════════════════════════════════════════
+
+async function loadStudentDashboard() {
+  const d = await GET(`/api/courses/${STATE.courseId}/dashboard`);
+  STATE.dashboard = d;
+
+  const watchPct  = d.total_recordings ? Math.round(d.videos_watched / d.total_recordings * 100) : 0;
+  const asgnPct   = d.total_assignments ? Math.round(d.assignments_submitted / d.total_assignments * 100) : 0;
+
+  // Stats row
+  document.querySelector('#view-dashboard .stats-row').innerHTML = `
+    <div class="stat-cell" data-icon="🎬">
+      <div class="stat-val">${d.videos_watched}</div>
+      <div class="stat-lbl">Videos Watched</div>
+      ${progressBar(watchPct)}
+    </div>
+    <div class="stat-cell orange" data-icon="📝">
+      <div class="stat-val">${d.assignments_pending ?? (d.total_assignments - d.assignments_submitted)}</div>
+      <div class="stat-lbl">Assignments Due</div>
+    </div>
+    <div class="stat-cell green" data-icon="✅">
+      <div class="stat-val">${d.avg_grade !== null ? d.avg_grade + '%' : '—'}</div>
+      <div class="stat-lbl">Avg Grade</div>
+    </div>
+    <div class="stat-cell purple" data-icon="🎓">
+      <div class="stat-val">${d.assignments_submitted}/${d.total_assignments}</div>
+      <div class="stat-lbl">Submitted</div>
+    </div>`;
+
+  // Progress card
+  document.getElementById('dash-progress').innerHTML = `
+    <div>
+      <div class="cp-bar-label"><span>Videos</span><span style="color:var(--cyan)">${d.videos_watched} / ${d.total_recordings}</span></div>
+      ${progressBar(watchPct)}
+    </div>
+    <div style="margin-top:14px">
+      <div class="cp-bar-label"><span>Assignments Submitted</span><span style="color:var(--orange)">${d.assignments_submitted} / ${d.total_assignments}</span></div>
+      ${progressBar(asgnPct, 'orange')}
+    </div>`;
+
+  // Badge count
+  const pending = d.assignments_pending ?? (d.total_assignments - d.assignments_submitted);
+  const badge = document.getElementById('pending-badge');
+  if (badge) { badge.textContent = pending; badge.style.display = pending > 0 ? '' : 'none'; }
+}
+
+async function loadVideos() {
+  const weeks = await GET(`/api/courses/${STATE.courseId}/recordings`);
+  STATE.recordings = weeks;
+  const container = document.getElementById('recordings-container');
+  if (!container) return;
+
+  const weekNums = Object.keys(weeks).sort((a,b) => a-b);
+  if (weekNums.length === 0) {
+    container.innerHTML = `<div style="color:var(--muted);font-family:var(--font-m);font-size:12px;padding:32px;text-align:center">No recordings uploaded yet.</div>`;
+    return;
+  }
+
+  container.innerHTML = weekNums.map(wk => {
+    const recs = weeks[wk];
+    const cards = recs.map(r => `
+      <div class="video-card" onclick="openVideoModal(${r.id},'${r.title.replace(/'/g,"\\'")}','${r.duration||''}')">
+        <div class="video-thumb">
+          <div class="video-thumb-grid"></div>
+          <div class="video-play-btn"><i class="fas fa-play"></i></div>
+          ${r.duration ? `<span class="video-duration">${r.duration}</span>` : ''}
+          <span class="video-week-tag">W${r.week} · S${r.session_num}</span>
+        </div>
+        <div class="video-info">
+          <div class="video-title">${r.title}</div>
+          <div class="video-meta">
+            <span><i class="fas fa-calendar"></i> ${r.uploaded_at||''}</span>
+            ${r.watched ? `<span class="watched-badge">✓ Watched</span>` : `<span style="color:var(--orange);font-size:10px;font-family:var(--font-m)">Not watched</span>`}
+          </div>
+        </div>
+      </div>`).join('');
+
+    return `
+      <div class="week-item">
+        <button class="week-header open" onclick="toggleWeek(this)">
+          <span class="week-label"><i class="fas fa-layer-group"></i> Week ${wk}</span>
+          <span style="display:flex;align-items:center;gap:12px">
+            <span class="week-count">${recs.length} session${recs.length!==1?'s':''}</span>
+            <i class="fas fa-chevron-down week-chevron"></i>
+          </span>
+        </button>
+        <div class="week-body open">
+          <div class="video-grid" style="padding:16px">${cards}</div>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+async function loadMaterials() {
+  const mats = await GET(`/api/courses/${STATE.courseId}/materials`);
+  STATE.materials = mats;
+  const container = document.getElementById('materials-container');
+  if (!container) return;
+
+  if (mats.length === 0) {
+    container.innerHTML = `<div style="color:var(--muted);font-family:var(--font-m);font-size:12px;padding:32px;text-align:center">No materials posted yet.</div>`;
+    return;
+  }
+
+  // Group by week
+  const groups = {};
+  mats.forEach(m => {
+    const label = m.week === 0 ? 'General Resources' : `Week ${m.week}`;
+    (groups[label] = groups[label]||[]).push(m);
+  });
+
+  container.innerHTML = Object.entries(groups).map(([label, items]) => `
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title"><i class="fas fa-folder"></i> ${label}</span>
+      </div>
+      <div class="file-list">
+        ${items.map(m => `
+          <div class="file-row">
+            ${fileIcon(m.file_type)}
+            <div style="flex:1">
+              <div class="file-name">${m.orig_name || m.title}</div>
+              <div class="file-sub">${m.description || m.title}</div>
+            </div>
+            <span class="file-size">${m.file_size || ''}</span>
+            <a class="btn-dl" href="${BASE}/uploads/materials/${m.filename}" download="${m.orig_name||m.title}">
+              <i class="fas fa-download"></i> Download
+            </a>
+          </div>`).join('')}
+      </div>
+    </div>`).join('');
+}
+
+async function loadAssignments() {
+  const asgns = await GET(`/api/courses/${STATE.courseId}/assignments`);
+  STATE.assignments = asgns;
+  const container = document.getElementById('assignments-container');
+  if (!container) return;
+
+  if (asgns.length === 0) {
+    container.innerHTML = `<div style="color:var(--muted);font-family:var(--font-m);font-size:12px;padding:32px;text-align:center">No assignments yet.</div>`;
+    return;
+  }
+
+  container.innerHTML = asgns.map(a => `
+    <div class="assignment-card">
+      <div class="assignment-card-top">
+        <span class="asgn-num">${String(a.week).padStart(2,'0')}</span>
+        <div style="flex:1">
+          <div class="asgn-title">${a.title}</div>
+          <div class="asgn-desc">${a.description || ''}</div>
+        </div>
+        ${statusBadge(a.submission, a.max_points)}
+      </div>
+      <div class="asgn-meta">
+        ${a.due_date ? `<span><i class="fas fa-clock"></i> Due: ${a.due_date}</span>` : ''}
+        <span><i class="fas fa-star"></i> ${a.max_points} pts</span>
+        ${a.submission?.feedback ? `<span style="color:var(--muted)"><i class="fas fa-comment"></i> "${a.submission.feedback}"</span>` : ''}
+        ${(!a.submission || a.submission.score === null)
+          ? `<button class="btn-action" onclick="openSubmitModal(${a.id},'${a.title.replace(/'/g,"\\'")}')">
+               <i class="fas fa-upload"></i> ${a.submission ? 'Resubmit' : 'Submit'}
+             </button>`
+          : ''}
+      </div>
+    </div>`).join('');
+}
+
+async function loadGrades() {
+  const asgns = await GET(`/api/courses/${STATE.courseId}/assignments`);
+  const tbody = document.getElementById('grades-tbody');
+  if (!tbody) return;
+
+  const graded = asgns.filter(a => a.submission?.score !== null && a.submission?.score !== undefined);
+  const avg = graded.length ? (graded.reduce((s,a) => s + a.submission.score, 0) / graded.length).toFixed(1) : '—';
+  document.getElementById('grades-avg').textContent = `Avg: ${avg}`;
+
+  tbody.innerHTML = asgns.map((a,i) => {
+    const sub = a.submission;
+    const scoreColor = !sub || sub.score === null ? '' :
+      sub.score >= 80 ? 'var(--green)' : sub.score >= 60 ? 'var(--cyan)' : 'var(--orange)';
+    return `<tr>
+      <td style="color:var(--muted)">${String(i+1).padStart(2,'0')}</td>
+      <td>${a.title}</td>
+      <td style="color:${sub ? 'var(--green)' : 'var(--muted)'}">
+        ${sub ? `<i class="fas fa-check"></i> ${sub.submitted_at||'Submitted'}` : '—'}
+      </td>
+      <td><span style="color:${scoreColor};font-weight:700">
+        ${sub?.score !== null && sub?.score !== undefined ? sub.score + ' / ' + a.max_points : '<span style="color:var(--orange)">Pending</span>'}
+      </span></td>
+      <td style="color:var(--muted)">${sub?.feedback || '—'}</td>
+    </tr>`;
+  }).join('');
+}
+
+// ══════════════════════════════════════════════════════
+//  TEACHER VIEWS
+// ══════════════════════════════════════════════════════
+
+async function loadTeacherDashboard() {
+  const d = await GET(`/api/courses/${STATE.courseId}/dashboard`);
+  STATE.dashboard = d;
+
+  document.querySelector('#view-t-dashboard .stats-row').innerHTML = `
+    <div class="stat-cell" data-icon="👨‍🎓">
+      <div class="stat-val">${d.enrolled_students}</div>
+      <div class="stat-lbl">Students</div>
+    </div>
+    <div class="stat-cell orange" data-icon="📬">
+      <div class="stat-val">${d.ungraded_submissions}</div>
+      <div class="stat-lbl">To Grade</div>
+    </div>
+    <div class="stat-cell green" data-icon="📹">
+      <div class="stat-val">${d.total_recordings}</div>
+      <div class="stat-lbl">Recordings</div>
+    </div>
+    <div class="stat-cell purple" data-icon="📁">
+      <div class="stat-val">${d.total_materials}</div>
+      <div class="stat-lbl">Materials</div>
+    </div>`;
+
+  // Ungraded submissions queue
+  document.getElementById('t-ungraded-list').innerHTML = d.recent_ungraded.length === 0
+    ? `<div style="padding:16px 20px;color:var(--muted);font-family:var(--font-m);font-size:11px">Nothing to grade 🎉</div>`
+    : d.recent_ungraded.map(s => `
+        <div class="file-row">
+          <div class="student-dot">${(s.student_name||'').split(' ').map(p=>p[0]).join('').slice(0,2).toUpperCase()}</div>
+          <div style="flex:1">
+            <div class="file-name" style="font-size:12px">${s.student_name} — ${s.assignment_title}</div>
+            <div class="file-sub">Submitted ${s.submitted_at||''} · ${s.orig_name||s.filename}</div>
+          </div>
+          <button class="btn-action" onclick="openGradeModal(${s.id},'${(s.student_name||'').replace(/'/g,"\\'")}','${(s.assignment_title||'').replace(/'/g,"\\'")}')">Grade</button>
+        </div>`).join('');
+
+  // Student progress bars
+  document.getElementById('t-student-progress').innerHTML = d.student_progress.slice(0,6).map(s => `
+    <div style="margin-bottom:14px">
+      <div class="cp-bar-label" style="margin-bottom:6px">
+        <span style="font-size:13px;font-weight:600">${s.name}</span>
+        <span style="color:${s.progress_pct>=80?'var(--green)':s.progress_pct>=50?'var(--cyan)':'var(--orange)'}">${s.progress_pct}%</span>
+      </div>
+      ${progressBar(s.progress_pct, s.progress_pct>=80?'green':s.progress_pct>=50?'':'orange')}
+    </div>`).join('');
+
+  // Badge
+  const badge = document.getElementById('ungraded-badge');
+  if (badge) { badge.textContent = d.ungraded_submissions; badge.style.display = d.ungraded_submissions > 0 ? '' : 'none'; }
+}
+
+async function loadTeacherVideos() {
+  const weeks = await GET(`/api/courses/${STATE.courseId}/recordings`);
+  const list = document.getElementById('t-recordings-list');
+  if (!list) return;
+  const all = Object.values(weeks).flat();
+  list.innerHTML = all.length === 0
+    ? `<div style="padding:16px 20px;color:var(--muted);font-family:var(--font-m);font-size:11px">No recordings yet.</div>`
+    : all.map(r => `
+        <div class="file-row" id="rec-row-${r.id}">
+          <div class="file-icon mp4"><i class="fas fa-film"></i></div>
+          <div style="flex:1">
+            <div class="file-name" style="font-size:12px">W${r.week}S${r.session_num} — ${r.title}</div>
+            <div class="file-sub">Uploaded ${r.uploaded_at||''} · ${r.duration||''}</div>
+          </div>
+          <button class="btn-action red" onclick="deleteRecording(${r.id})"><i class="fas fa-trash"></i></button>
+        </div>`).join('');
+}
+
+async function loadTeacherMaterials() {
+  const mats = await GET(`/api/courses/${STATE.courseId}/materials`);
+  const list = document.getElementById('t-materials-list');
+  if (!list) return;
+  list.innerHTML = mats.length === 0
+    ? `<div style="padding:16px 20px;color:var(--muted);font-family:var(--font-m);font-size:11px">No materials yet.</div>`
+    : mats.map(m => `
+        <div class="file-row" id="mat-row-${m.id}">
+          ${fileIcon(m.file_type)}
+          <div style="flex:1">
+            <div class="file-name" style="font-size:12px">${m.orig_name||m.title}</div>
+            <div class="file-sub">${m.week===0?'General':'Week '+m.week} · ${m.file_size||''}</div>
+          </div>
+          <button class="btn-action red" onclick="deleteMaterial(${m.id})"><i class="fas fa-trash"></i></button>
+        </div>`).join('');
+}
+
+async function loadTeacherAssignments() {
+  const asgns = await GET(`/api/courses/${STATE.courseId}/assignments`);
+  const list = document.getElementById('t-assignments-list');
+  if (!list) return;
+  list.innerHTML = asgns.length === 0
+    ? `<div style="padding:16px 20px;color:var(--muted);font-family:var(--font-m);font-size:11px">No assignments yet.</div>`
+    : asgns.map(a => `
+        <div class="assignment-card" id="asgn-row-${a.id}">
+          <div class="assignment-card-top">
+            <span class="asgn-num">${String(a.week).padStart(2,'0')}</span>
+            <div style="flex:1">
+              <div class="asgn-title">${a.title}</div>
+              <div class="asgn-desc">Due ${a.due_date||'—'} · ${a.max_points} pts</div>
+            </div>
+            <span class="status-badge" style="border-color:rgba(0,220,180,0.3);color:var(--cyan)">${a.submission_count||0} submitted</span>
+          </div>
+          <div class="asgn-meta">
+            <button class="btn-action ghost" onclick="loadGradingForAssignment(${a.id},'${a.title.replace(/'/g,"\\'")}')">
+              <i class="fas fa-check-double"></i> Grade
+            </button>
+            <button class="btn-action red" onclick="deleteAssignment(${a.id})"><i class="fas fa-trash"></i></button>
+          </div>
+        </div>`).join('');
+}
+
+async function loadTeacherGrading() {
+  // Load all assignments, then load subs for first ungraded one
+  const asgns = await GET(`/api/courses/${STATE.courseId}/assignments`);
+  if (!asgns.length) {
+    document.getElementById('grading-container').innerHTML =
+      `<div style="color:var(--muted);font-family:var(--font-m);font-size:12px;padding:32px;text-align:center">No assignments yet.</div>`;
+    return;
+  }
+  // Pick first assignment that has submissions
+  const a = asgns.find(x => (x.submission_count||0) > 0) || asgns[0];
+  await renderGradingTable(a.id, a.title, a.max_points);
+}
+
+async function loadGradingForAssignment(aid, title) {
+  const asgn = await GET(`/api/courses/${STATE.courseId}/assignments`);
+  const a = asgn.find(x => x.id === aid);
+  switchView('t-grading');
+  await renderGradingTable(aid, title, a?.max_points || 100);
+}
+
+async function renderGradingTable(aid, title, maxPoints) {
+  const subs = await GET(`/api/assignments/${aid}/submissions`);
+  const container = document.getElementById('grading-container');
+  if (!container) return;
+
+  const ungraded = subs.filter(s => s.score === null || s.score === undefined).length;
+  document.getElementById('grading-title').textContent = `${title} · ${subs.length} submissions`;
+  document.getElementById('grading-ungraded').textContent = ungraded + ' ungraded';
+
+  if (subs.length === 0) {
+    container.innerHTML = `<div style="color:var(--muted);font-family:var(--font-m);font-size:12px;padding:32px;text-align:center">No submissions yet.</div>`;
+    return;
+  }
+
+  container.innerHTML = `
+    <table class="grade-table">
+      <thead>
+        <tr><th>Student</th><th>Submitted</th><th>File</th><th>Score (/${maxPoints})</th><th>Feedback</th><th></th></tr>
+      </thead>
+      <tbody>
+        ${subs.map(s => `
+          <tr id="sub-row-${s.id}">
+            <td>
+              <div class="student-chip">
+                <div class="student-dot">${(s.student_name||'').split(' ').map(p=>p[0]).join('').slice(0,2).toUpperCase()}</div>
+                ${s.student_name}
+              </div>
+            </td>
+            <td style="font-family:var(--font-m);font-size:11px">${s.submitted_at||''}</td>
+            <td>
+              <a href="${BASE}/uploads/submissions/${s.filename}" download="${s.orig_name||s.filename}"
+                 style="color:var(--cyan);font-family:var(--font-m);font-size:11px">
+                <i class="fas fa-file-code"></i> ${s.orig_name||s.filename}
+              </a>
+            </td>
+            <td>
+              <input class="grade-input" type="number" min="0" max="${maxPoints}"
+                     id="score-${s.id}" value="${s.score ?? ''}" placeholder="—" />
+            </td>
+            <td>
+              <input class="grade-input" type="text" style="width:140px"
+                     id="fb-${s.id}" value="${s.feedback||''}" placeholder="Feedback..." />
+            </td>
+            <td>
+              ${s.score !== null && s.score !== undefined
+                ? `<span class="status-badge status-graded" id="grade-status-${s.id}">Graded</span>`
+                : `<button class="btn-action" onclick="saveGrade(${s.id},${maxPoints})">Save</button>`}
+            </td>
+          </tr>`).join('')}
+      </tbody>
+    </table>
+    <div style="padding:16px 20px;border-top:1px solid var(--border);display:flex;gap:12px">
+      <button class="btn-action" onclick="saveAllGrades(${aid},${maxPoints})">
+        <i class="fas fa-paper-plane"></i> Save All Grades
+      </button>
+      <button class="btn-action ghost" onclick="exportGrades(${aid})">
+        <i class="fas fa-file-csv"></i> Export CSV
+      </button>
+    </div>`;
+}
+
+async function loadStudents() {
+  const d = await GET(`/api/courses/${STATE.courseId}/dashboard`);
+  const tbody = document.getElementById('students-tbody');
+  if (!tbody) return;
+  tbody.innerHTML = d.student_progress.map(s => `
+    <tr>
+      <td><div class="student-chip">
+        <div class="student-dot">${s.initials||'??'}</div> ${s.name}
+      </div></td>
+      <td style="color:var(--muted);font-family:var(--font-m);font-size:11px">${s.email}</td>
+      <td style="font-family:var(--font-m);font-size:11px">${s.videos_watched} / ${s.total_recordings}</td>
+      <td style="font-family:var(--font-m);font-size:11px;color:${s.submissions===s.total_assignments?'var(--green)':'var(--orange)'}">
+        ${s.submissions} / ${s.total_assignments} submitted
+      </td>
+      <td><span style="color:${s.avg_grade>=80?'var(--green)':s.avg_grade>=60?'var(--cyan)':'var(--orange)'};font-weight:700">
+        ${s.avg_grade ?? '—'}
+      </span></td>
+      <td style="min-width:100px">${progressBar(s.progress_pct, s.progress_pct>=80?'green':s.progress_pct>=50?'':'orange')}</td>
+    </tr>`).join('');
+}
+
+// ══════════════════════════════════════════════════════
+//  ACTIONS — uploads, grading, deletes
+// ══════════════════════════════════════════════════════
+
+// ── Upload recording ──
+async function uploadRecording() {
+  const form = document.getElementById('upload-recording-form');
+  const fd   = new FormData(form);
+  const btn  = document.getElementById('upload-rec-btn');
+  btn.textContent = 'Uploading...';
+  try {
+    await POST(`/api/courses/${STATE.courseId}/recordings`, fd);
+    showToast('Recording uploaded!');
+    form.reset();
+    await loadTeacherVideos();
+  } catch(e) { showToast('Error: ' + e.message, true); }
+  btn.innerHTML = '<i class="fas fa-upload"></i> Upload Recording';
+}
+
+async function deleteRecording(rid) {
+  if (!confirm('Delete this recording?')) return;
+  try {
+    await DELETE(`/api/recordings/${rid}`);
+    document.getElementById(`rec-row-${rid}`)?.remove();
+    showToast('Recording deleted');
+  } catch(e) { showToast('Error: ' + e.message, true); }
+}
+
+// ── Upload material ──
+async function uploadMaterial() {
+  const form = document.getElementById('upload-material-form');
+  const fd   = new FormData(form);
+  const btn  = document.getElementById('upload-mat-btn');
+  btn.textContent = 'Uploading...';
+  try {
+    await POST(`/api/courses/${STATE.courseId}/materials`, fd);
+    showToast('Material published!');
+    form.reset();
+    await loadTeacherMaterials();
+  } catch(e) { showToast('Error: ' + e.message, true); }
+  btn.innerHTML = '<i class="fas fa-upload"></i> Publish Material';
+}
+
+async function deleteMaterial(mid) {
+  if (!confirm('Delete this material?')) return;
+  try {
+    await DELETE(`/api/materials/${mid}`);
+    document.getElementById(`mat-row-${mid}`)?.remove();
+    showToast('Material deleted');
+  } catch(e) { showToast('Error: ' + e.message, true); }
+}
+
+// ── Create assignment ──
+async function createAssignment() {
+  const form = document.getElementById('create-assignment-form');
+  const fd   = new FormData(form);
+  const btn  = document.getElementById('create-asgn-btn');
+  btn.textContent = 'Publishing...';
+  try {
+    await POST(`/api/courses/${STATE.courseId}/assignments`, fd);
+    showToast('Assignment published to students!');
+    form.reset();
+    await loadTeacherAssignments();
+  } catch(e) { showToast('Error: ' + e.message, true); }
+  btn.innerHTML = '<i class="fas fa-paper-plane"></i> Publish Assignment';
+}
+
+async function deleteAssignment(aid) {
+  if (!confirm('Delete this assignment?')) return;
+  try {
+    await DELETE(`/api/assignments/${aid}`);
+    document.getElementById(`asgn-row-${aid}`)?.remove();
+    showToast('Assignment deleted');
+  } catch(e) { showToast('Error: ' + e.message, true); }
+}
+
+// ── Submit assignment (student) ──
+async function submitAssignment() {
+  const aid  = parseInt(document.getElementById('submit-modal').dataset.assignmentId);
+  const file = document.getElementById('sub-file').files[0];
+  const notes = document.getElementById('sub-notes').value;
+  if (!file) { showToast('Please attach a file first', true); return; }
+  const fd = new FormData();
+  fd.append('file', file);
+  fd.append('notes', notes);
+  const btn = document.getElementById('submit-btn');
+  btn.textContent = 'Submitting...';
+  try {
+    await POST(`/api/assignments/${aid}/submit`, fd);
+    showToast('Assignment submitted! 🎉');
+    closeModal('submit-modal');
+    await loadAssignments();
+  } catch(e) { showToast('Error: ' + e.message, true); }
+  btn.innerHTML = '<i class="fas fa-paper-plane"></i> Submit Assignment';
+}
+
+// ── Grading ──
+async function saveGrade(sid, maxPoints) {
+  const score = document.getElementById(`score-${sid}`).value;
+  const fb    = document.getElementById(`fb-${sid}`).value;
+  if (score === '' || isNaN(score)) { showToast('Enter a score first', true); return; }
+  try {
+    await POST(`/api/submissions/${sid}/grade`, { score: parseInt(score), feedback: fb });
+    const cell = document.getElementById(`grade-status-${sid}`)?.parentElement
+               || document.querySelector(`#sub-row-${sid} td:last-child`);
+    if (cell) cell.innerHTML = `<span class="status-badge status-graded">Graded</span>`;
+    showToast('Grade saved!');
+  } catch(e) { showToast('Error: ' + e.message, true); }
+}
+
+async function saveAllGrades(aid, maxPoints) {
+  const rows = document.querySelectorAll('[id^="score-"]');
+  let saved = 0;
+  for (const input of rows) {
+    const sid = parseInt(input.id.replace('score-', ''));
+    const score = input.value;
+    const fb = document.getElementById(`fb-${sid}`)?.value || '';
+    if (score === '' || isNaN(score)) continue;
+    try {
+      await POST(`/api/submissions/${sid}/grade`, { score: parseInt(score), feedback: fb });
+      saved++;
+    } catch {}
+  }
+  showToast(`${saved} grade${saved!==1?'s':''} saved!`);
+}
+
+function exportGrades(aid) {
+  window.open(`/api/assignments/${aid}/submissions?format=csv`, '_blank');
+}
+
+// ── Grade modal (quick grade from dashboard) ──
+function openGradeModal(sid, studentName, asgnTitle) {
+  STATE.activeSubmissionId = sid;
+  document.getElementById('grade-modal-title').textContent = 'Grade: ' + studentName;
+  document.getElementById('grade-modal-student').textContent = studentName;
+  document.getElementById('grade-modal-asgn').textContent   = asgnTitle;
+  document.getElementById('quick-grade-score').value    = '';
+  document.getElementById('quick-grade-feedback').value = '';
+  document.getElementById('grade-modal').classList.add('open');
+}
+
+async function saveQuickGrade() {
+  const sid   = STATE.activeSubmissionId;
+  const score = parseInt(document.getElementById('quick-grade-score').value);
+  const fb    = document.getElementById('quick-grade-feedback').value;
+  if (isNaN(score)) { showToast('Enter a score', true); return; }
+  try {
+    await POST(`/api/submissions/${sid}/grade`, { score, feedback: fb });
+    showToast('Grade saved & student notified!');
+    closeModal('grade-modal');
+    await loadTeacherDashboard();
+  } catch(e) { showToast('Error: ' + e.message, true); }
+}
+
+// ── Video modal ──
+function openVideoModal(rid, title, duration) {
+  document.getElementById('video-modal-title').textContent    = title;
+  document.getElementById('video-modal-duration').textContent = duration || '';
+  document.getElementById('video-modal').dataset.recordingId  = rid;
+  // Set video src if real file
+  const src = `/uploads/videos/${STATE.recordings
+    ? Object.values(STATE.recordings).flat().find(r=>r.id===rid)?.filename : ''}`;
+  document.getElementById('video-modal-player').innerHTML = `
+    <video controls style="width:100%;display:block" preload="metadata">
+      <source src="${src}" type="video/mp4">
+      <div class="video-player-placeholder">
+        <i class="fas fa-play-circle"></i>
+        <div style="margin-top:8px;font-size:11px">Video player — file served from /uploads/videos/</div>
+      </div>
+    </video>`;
+  document.getElementById('video-modal').classList.add('open');
+}
+
+async function markWatched() {
+  const rid = parseInt(document.getElementById('video-modal').dataset.recordingId);
+  if (!rid) return;
+  try {
+    await POST(`/api/recordings/${rid}/watch`);
+    showToast('Marked as watched!');
+    closeModal('video-modal');
+    await loadVideos();
+  } catch(e) { showToast('Error: ' + e.message, true); }
+}
+
+// ── Submit modal ──
+function openSubmitModal(aid, title) {
+  document.getElementById('submit-modal-title').textContent = 'Submit: ' + title;
+  document.getElementById('submit-modal').dataset.assignmentId = aid;
+  document.getElementById('sub-file-name').textContent = 'Drop your file or click to browse';
+  document.getElementById('sub-file').value = '';
+  document.getElementById('sub-notes').value = '';
+  document.getElementById('submit-modal').classList.add('open');
+}
+
+function handleSubFile(input) {
+  if (input.files[0])
+    document.getElementById('sub-file-name').textContent = input.files[0].name;
+}
+
+// ── Shared ────────────────────────────────────────────
+
+function closeModal(id) {
+  document.getElementById(id).classList.remove('open');
+}
+
+let _toastTimer;
+function showToast(msg, isError = false) {
+  const t = document.getElementById('toast');
+  const m = document.getElementById('toast-msg');
+  const i = t.querySelector('i');
+  m.textContent = msg;
+  i.className   = isError ? 'fas fa-exclamation-circle' : 'fas fa-check-circle';
+  i.style.color = isError ? 'var(--red)' : 'var(--cyan)';
+  t.classList.add('show');
+  clearTimeout(_toastTimer);
+  _toastTimer = setTimeout(() => t.classList.remove('show'), 3000);
+}
+</script>
+</body>
+</html>
