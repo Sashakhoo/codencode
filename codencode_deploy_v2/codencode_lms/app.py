@@ -609,77 +609,135 @@ def seed_demo():
         db.session.add(Recording(
             course_id=python_course.id, week=wk, session_num=sn,
             title=title, duration=dur, filename='demo_placeholder.mp4'))
+
+    ml_sessions_data = [
+        (1,1,'Introduction to ML & the Data Science Workflow','48:30'),
+        (1,2,'NumPy Arrays & Vectorised Operations','42:15'),
+        (2,1,'Pandas: DataFrames, Series & Indexing','55:10'),
+        (2,2,'Data Cleaning — Nulls, Duplicates & Dtypes','50:05'),
+        (3,1,'Your First Model: Linear Regression','60:20'),
+        (3,2,'Model Evaluation: MSE, R², Cross-Validation','44:45'),
+        (4,1,'Classification: Logistic Regression','53:00'),
+        (4,2,'Decision Trees & Overfitting','47:30'),
+        (5,1,'Random Forests & Ensemble Methods','58:15'),
+        (5,2,'Evaluation Metrics: Precision, Recall, AUC','41:50'),
+        (6,1,'Feature Engineering & Selection','56:40'),
+        (6,2,'Capstone Project Kickoff & Q&A','38:00'),
+    ]
+    for wk, sn, title, dur in ml_sessions_data:
+        db.session.add(Recording(
+            course_id=ml_course.id, week=wk, session_num=sn,
+            title=title, duration=dur, filename='demo_placeholder.mp4'))
     db.session.flush()
 
-    # Materials
-    materials_data = [
-        (1,'Week 1 — Python Basics Slides.pdf','pdf','2.4 MB'),
-        (1,'week1_exercises.py','py','18 KB'),
-        (1,'week1_project_starter.zip','zip','156 KB'),
-        (4,'Pandas Cheat Sheet.pdf','pdf','890 KB'),
-        (4,'pandas_demo_notebook.ipynb','ipynb','44 KB'),
-        (4,'datasets_week4.zip','zip','3.1 MB'),
-        (0,'Python Style Guide — PEP8.pdf','pdf','320 KB'),
-        (0,'Course Outline & Schedule.pdf','pdf','145 KB'),
+    # Materials — Python for Beginners
+    py_materials_data = [
+        # (week, display_title, stored_filename, file_type, file_size)
+        (0, 'Lecture Slides — All 15 Sessions', 'py_slides.zip', 'zip', '2.9 MB'),
+        (0, 'Python Cheat Sheet', 'py_cheat_sheet.py', 'py', '5.4 KB'),
+        (1, 'Week 1 — Variables, Loops & Lists', 'py_week1_exercises.py', 'py', '3.0 KB'),
+        (2, 'Week 2 — Functions', 'py_week2_exercises.py', 'py', '3.6 KB'),
+        (3, 'Week 3 — OOP: Classes & Objects', 'py_week3_exercises.py', 'py', '4.8 KB'),
+        (4, 'Week 4 — Files & Error Handling', 'py_week4_exercises.py', 'py', '3.9 KB'),
+        (5, 'Week 5 — Modules & Pythonic Code', 'py_week5_exercises.py', 'py', '5.3 KB'),
+        (6, 'Week 6 — Building Real Projects', 'py_week6_exercises.py', 'py', '8.8 KB'),
+        (6, 'Week 6 — Mini Project Starter', 'py_week6_project_starter.py', 'py', '6.9 KB'),
     ]
-    for wk, title, ftype, fsize in materials_data:
+    for wk, title, fname, ftype, fsize in py_materials_data:
         db.session.add(Material(
             course_id=python_course.id, week=wk, title=title,
-            filename=f'demo_{title.replace(" ","_")}',
-            file_type=ftype, file_size=fsize))
+            filename=fname, file_type=ftype, file_size=fsize))
     db.session.flush()
 
-    # Assignments
+    # Materials — Machine Learning
+    ml_materials_data = [
+        (0, 'Lecture Slides — All 15 Sessions', 'ml_slides.zip', 'zip', '4.7 MB'),
+        (0, 'ML Cheat Sheet', 'ml_cheat_sheet.py', 'py', '4.6 KB'),
+        (1, 'Week 1 — NumPy Fundamentals', 'ml_week1_exercises.py', 'py', '4.3 KB'),
+        (2, 'Week 2 — Pandas Data Wrangling', 'ml_week2_exercises.py', 'py', '4.7 KB'),
+        (3, 'Week 3 — Your First ML Model', 'ml_week3_exercises.py', 'py', '4.7 KB'),
+        (4, 'Week 4 — Classification', 'ml_week4_exercises.py', 'py', '4.5 KB'),
+        (5, 'Week 5 — Random Forest & Evaluation', 'ml_week5_exercises.py', 'py', '4.9 KB'),
+        (6, 'Week 6 — Feature Engineering', 'ml_week6_feature_engineering.py', 'py', '6.3 KB'),
+        (6, 'Week 6 — Capstone Project Starter', 'ml_week6_capstone.py', 'py', '7.6 KB'),
+    ]
+    for wk, title, fname, ftype, fsize in ml_materials_data:
+        db.session.add(Material(
+            course_id=ml_course.id, week=wk, title=title,
+            filename=fname, file_type=ftype, file_size=fsize))
+    db.session.flush()
+
+    # Assignments — Python for Beginners
     from datetime import timedelta
     now = datetime.utcnow()
-    assignments_data = [
-        (1,'Python Basics — Loops & Lists','Write a script that processes a list of numbers.',now+timedelta(days=-30)),
-        (2,'Functions & Recursion','Build utility functions including recursive algorithms.',now+timedelta(days=-20)),
-        (3,'File Handling & Data Processing','Read a CSV, process data, output a summary report.',now+timedelta(days=-10)),
-        (4,'Web Scraping with BeautifulSoup','Scrape product listings from a given e-commerce site.',now+timedelta(days=3)),
-        (5,'Pandas Data Analysis Report','Analyse the provided sales dataset using Pandas.',now+timedelta(days=10)),
+    py_assignments_data = [
+        (2, 'Assignment 1 — My Digital Life in Python',
+         'Build a Python script that captures and displays your digital life stats.',
+         'py_assignment1.py', now+timedelta(days=-20)),
+        (4, 'Assignment 2 — Build a Mini Contact Book',
+         'Create a command-line contact book with add, search, update and delete.',
+         'py_assignment2.py', now+timedelta(days=10)),
     ]
     asgn_objs = []
-    for wk, title, desc, due in assignments_data:
+    for wk, title, desc, brief, due in py_assignments_data:
         a = Assignment(course_id=python_course.id, week=wk, title=title,
-                       description=desc, due_date=due, max_points=100)
+                       description=desc, brief_file=brief, due_date=due, max_points=100)
         db.session.add(a)
         asgn_objs.append(a)
     db.session.flush()
 
-    # Submissions & grades for first 3 assignments
-    grade_data = {
-        # student_index: [score_a1, score_a2, score_a3]
-        0: [80, 92, 88],   # Alex
-        1: [95, 90, 93],   # Jamie
-        2: [60, 65, None], # Rahim — a3 not submitted
-        3: [75, 80, 78],   # Wei Ling
-        4: [88, 85, 90],   # Zara
-        5: [92, 98, 91],   # Kai
-    }
-    for si, scores in grade_data.items():
-        for ai, score in enumerate(scores):
-            if score is None:
-                continue
-            sub = Submission(
-                assignment_id=asgn_objs[ai].id,
-                student_id=students[si].id,
-                filename='demo_submission.py',
-                notes='',
-                submitted_at=now + timedelta(days=(-30+ai*10+si)),
-                score=score,
-                feedback='Good work!' if score >= 80 else 'Needs improvement.',
-                graded_at=now + timedelta(days=(-28+ai*10))
-            )
-            db.session.add(sub)
+    # Assignments — Machine Learning
+    ml_assignments_data = [
+        (3, 'Assignment 1 — Predict Who Passes the Course',
+         'Use a classification model to predict student pass/fail outcomes.',
+         'ml_assignment1.py', now+timedelta(days=-10)),
+        (6, 'Assignment 2 — JB House Price Predictor',
+         'Build a regression model to predict house prices in Johor Bahru.',
+         'ml_assignment2.py', now+timedelta(days=14)),
+    ]
+    ml_asgn_objs = []
+    for wk, title, desc, brief, due in ml_assignments_data:
+        a = Assignment(course_id=ml_course.id, week=wk, title=title,
+                       description=desc, brief_file=brief, due_date=due, max_points=100)
+        db.session.add(a)
+        ml_asgn_objs.append(a)
+    db.session.flush()
 
-    # Add a few ungraded submissions for assignment 4
+    # Submissions & grades — Python Assignment 1 (graded for all students)
+    py_a1_grades = {0: 80, 1: 95, 2: 60, 3: 75, 4: 88, 5: 92}
+    for si, score in py_a1_grades.items():
+        db.session.add(Submission(
+            assignment_id=asgn_objs[0].id,
+            student_id=students[si].id,
+            filename='assignment1_submission.py',
+            notes='',
+            submitted_at=now + timedelta(days=-18+si),
+            score=score,
+            feedback='Good work!' if score >= 80 else 'Needs improvement.',
+            graded_at=now + timedelta(days=-15)
+        ))
+
+    # Python Assignment 2 — some submitted, not yet graded
     for si in range(4):
         db.session.add(Submission(
-            assignment_id=asgn_objs[3].id,
+            assignment_id=asgn_objs[1].id,
             student_id=students[si].id,
-            filename='demo_submission.py',
-            submitted_at=now + timedelta(days=-2+si)
+            filename='assignment2_submission.py',
+            submitted_at=now + timedelta(days=-3+si)
+        ))
+
+    # ML Assignment 1 — graded
+    ml_a1_grades = {0: 78, 1: 90, 2: 55, 3: 82, 4: 91, 5: 96}
+    for si, score in ml_a1_grades.items():
+        db.session.add(Submission(
+            assignment_id=ml_asgn_objs[0].id,
+            student_id=students[si].id,
+            filename='ml_assignment1_submission.py',
+            notes='',
+            submitted_at=now + timedelta(days=-8+si),
+            score=score,
+            feedback='Good work!' if score >= 80 else 'Needs improvement.',
+            graded_at=now + timedelta(days=-6)
         ))
 
     # Watch logs — Alex watched first 18, others vary
@@ -701,4 +759,5 @@ with app.app_context():
     seed_demo()
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    port = int(os.environ.get('PORT', 5000))
+    app.run(debug=True, host='0.0.0.0', port=port)
