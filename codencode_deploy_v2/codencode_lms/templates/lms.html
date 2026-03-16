@@ -694,6 +694,9 @@
         <button class="role-tab" data-role="teacher" onclick="selectRole('teacher')">
           <i class="fas fa-chalkboard-teacher" style="margin-right:6px"></i> Teacher
         </button>
+        <button class="role-tab" data-role="admin" onclick="selectRole('admin')">
+          <i class="fas fa-shield-alt" style="margin-right:6px"></i> Admin
+        </button>
       </div>
       <div class="form-group">
         <label class="form-label">Email</label>
@@ -707,7 +710,9 @@
         <i class="fas fa-sign-in-alt"></i> Access Portal
       </button>
       <div class="demo-hint">
-        Demo: <span onclick="quickLogin('student')"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="a6d5d2d3c2c3c8d2e6c5c9c2c3c8c5c9c2c388cbdf">[email&#160;protected]</a></span> or <span onclick="quickLogin('teacher')"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="2e5a4b4f4d464b5c6e4d414a4b404d414a4b004357">[email&#160;protected]</a></span>
+        Demo: <span onclick="quickLogin('student')">student@codencode.my</span> or
+        <span onclick="quickLogin('teacher')">teacher@codencode.my</span> or
+        <span onclick="quickLogin('admin')">admin@codencode.my</span>
       </div>
     </div>
   </div>
@@ -1684,12 +1689,14 @@ function renderCourseSelector() {
 function selectRole(role) {
   document.querySelectorAll('.role-tab').forEach(t => t.classList.remove('active'));
   document.querySelector(`[data-role="${role}"]`).classList.add('active');
-  document.getElementById('login-email').value =
-    role === 'student' ? 'student@codencode.my' : 'teacher@codencode.my';
+  const emails = { student: 'student@codencode.my', teacher: 'teacher@codencode.my', admin: 'admin@codencode.my' };
+  document.getElementById('login-email').value = emails[role] || '';
 }
 
 function quickLogin(role) {
   selectRole(role);
+  const passwords = { student: 'demo1234', teacher: 'demo1234', admin: 'admin1234' };
+  document.getElementById('login-pass').value = passwords[role] || 'demo1234';
   doLogin();
 }
 
@@ -1699,7 +1706,12 @@ async function doLogin() {
   const btn   = document.querySelector('.btn-login');
   btn.textContent = 'Signing in...';
   try {
-    STATE.user = await POST('/api/auth/login', { email, password: pass });
+    const res = await POST('/api/auth/login', { email, password: pass });
+    STATE.user = res.user || res;
+    if (STATE.user.role === 'admin') {
+      window.location.href = '/admin';
+      return;
+    }
     await bootApp();
   } catch (e) {
     showError('login-error', e.message);

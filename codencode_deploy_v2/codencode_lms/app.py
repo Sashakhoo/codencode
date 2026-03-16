@@ -1,12 +1,12 @@
 """
 codencode.my LMS — Flask Backend
 =================================
-Kept deliberately simple:
   - Single app.py  (no blueprints needed at this scale)
   - SQLAlchemy ORM + PostgreSQL (falls back to SQLite for local dev)
   - Flask-Login for session auth
   - All file uploads go to /uploads on disk
   - JSON API consumed by the frontend
+  - Roles: student | teacher | admin
 """
 
 import os
@@ -21,7 +21,7 @@ from flask_login import (LoginManager, login_user, logout_user,
 from werkzeug.utils import secure_filename
 
 from models import (db, User, Course, Enrollment, Recording,
-                    WatchLog, Material, Assignment, Submission)
+                    WatchLog, Material, Assignment, Submission, Attendance)
 
 # ─────────────────────────────────────────────
 # App setup
@@ -30,19 +30,10 @@ app = Flask(__name__, static_folder='static', template_folder='templates')
 
 app.config.update(
     SECRET_KEY=os.environ.get('SECRET_KEY', 'dev-secret-change-in-production'),
-
-    # PostgreSQL:  postgresql://user:pass@localhost:5432/codencode_lms
-    # SQLite fallback for local dev without Postgres:
-    SQLALCHEMY_DATABASE_URI=os.environ.get(
-        'DATABASE_URL',
-        'sqlite:///codencode_lms.db'
-    ),
+    SQLALCHEMY_DATABASE_URI=os.environ.get('DATABASE_URL', 'sqlite:///codencode_lms.db'),
     SQLALCHEMY_TRACK_MODIFICATIONS=False,
-
     UPLOAD_FOLDER=os.path.join(os.path.dirname(__file__), 'uploads'),
-    MAX_CONTENT_LENGTH=2 * 1024 * 1024 * 1024,   # 2 GB (for videos)
-
-    # Allowed extensions per category
+    MAX_CONTENT_LENGTH=2 * 1024 * 1024 * 1024,
     ALLOWED_VIDEO={'mp4', 'mov', 'mkv', 'webm'},
     ALLOWED_MATERIAL={'pdf', 'py', 'ipynb', 'zip', 'csv', 'txt', 'docx'},
     ALLOWED_SUBMISSION={'py', 'ipynb', 'zip', 'pdf', 'txt'},
@@ -69,7 +60,6 @@ def allowed(filename, allowed_set):
 
 
 def save_upload(file, subfolder, allowed_set):
-    """Save an uploaded file, return stored filename or raise ValueError."""
     if not file or file.filename == '':
         raise ValueError('No file provided')
     if not allowed(file.filename, allowed_set):
@@ -79,7 +69,7 @@ def save_upload(file, subfolder, allowed_set):
     dest = os.path.join(app.config['UPLOAD_FOLDER'], subfolder)
     os.makedirs(dest, exist_ok=True)
     file.save(os.path.join(dest, stored_name))
-    return stored_name, file.filename   # (stored, original)
+    return stored_name, file.filename
 
 
 def human_size(path):
@@ -98,7 +88,7 @@ def teacher_required(f):
     @wraps(f)
     @login_required
     def wrapper(*args, **kwargs):
-        if current_user.role != 'teacher':
+        if current_user.role not in ('teacher', 'admin'):
             return jsonify({'error': 'Teachers only'}), 403
         return f(*args, **kwargs)
     return wrapper
@@ -114,21 +104,43 @@ def student_required(f):
     return wrapper
 
 
-def enrolled_or_teacher(course_id):
-    """Return True if current user is teacher or enrolled in course."""
-    if current_user.role == 'teacher':
+def admin_required(f):
+    @wraps(f)
+    @login_required
+    def wrapper(*args, **kwargs):
+        if current_user.role != 'admin':
+            return jsonify({'error': 'Admins only'}), 403
+        return f(*args, **kwargs)
+    return wrapper
+
+
+def enrolled_or_staff(course_id):
+    """Return True if current user is teacher, admin, or enrolled student."""
+    if current_user.role in ('teacher', 'admin'):
         return True
     return Enrollment.query.filter_by(
         student_id=current_user.id, course_id=course_id).first() is not None
 
 
+# Keep old name as alias for backwards compat
+enrolled_or_teacher = enrolled_or_staff
+
+
 # ─────────────────────────────────────────────
-# Serve the frontend (single HTML file)
+# Serve frontends
 # ─────────────────────────────────────────────
 @app.route('/')
 @app.route('/lms')
 def serve_frontend():
     return send_from_directory('templates', 'lms.html')
+
+
+@app.route('/admin')
+@login_required
+def serve_admin():
+    if current_user.role != 'admin':
+        return send_from_directory('templates', 'lms.html')
+    return send_from_directory('templates', 'admin.html')
 
 
 # ─────────────────────────────────────────────
@@ -167,7 +179,7 @@ def api_me():
 @app.route('/api/courses')
 @login_required
 def api_courses():
-    if current_user.role == 'teacher':
+    if current_user.role in ('teacher', 'admin'):
         courses = Course.query.all()
     else:
         courses = [e.course for e in current_user.enrollments]
@@ -180,25 +192,27 @@ def api_courses():
 @app.route('/api/courses/<int:cid>/recordings')
 @login_required
 def api_recordings(cid):
-    if not enrolled_or_teacher(cid):
+    if not enrolled_or_staff(cid):
         return jsonify({'error': 'Not enrolled'}), 403
 
+    course = Course.query.get_or_404(cid)
     recs = Recording.query.filter_by(course_id=cid).order_by(
         Recording.week, Recording.session_num).all()
 
+    # Gate by current_week for students
     if current_user.role == 'student':
+        recs = [r for r in recs if r.week <= course.current_week]
         watched_ids = {w.recording_id for w in
                        WatchLog.query.filter_by(student_id=current_user.id).all()}
         data = [r.to_dict(watched=r.id in watched_ids) for r in recs]
     else:
         data = [r.to_dict() for r in recs]
 
-    # Group by week
     weeks = {}
     for r in data:
         w = r['week']
         weeks.setdefault(w, []).append(r)
-    return jsonify({'weeks': weeks})
+    return jsonify({'weeks': weeks, 'current_week': course.current_week})
 
 
 @app.route('/api/courses/<int:cid>/recordings', methods=['POST'])
@@ -229,7 +243,6 @@ def api_upload_recording(cid):
 @teacher_required
 def api_delete_recording(rid):
     rec = Recording.query.get_or_404(rid)
-    # Remove file from disk
     fpath = os.path.join(app.config['UPLOAD_FOLDER'], 'videos', rec.filename)
     if os.path.exists(fpath):
         os.remove(fpath)
@@ -262,10 +275,17 @@ def serve_video(filename):
 @app.route('/api/courses/<int:cid>/materials')
 @login_required
 def api_materials(cid):
-    if not enrolled_or_teacher(cid):
+    if not enrolled_or_staff(cid):
         return jsonify({'error': 'Not enrolled'}), 403
+
+    course = Course.query.get_or_404(cid)
     mats = Material.query.filter_by(course_id=cid).order_by(
         Material.week, Material.uploaded_at).all()
+
+    # Gate by current_week for students: week 0 (general) always visible
+    if current_user.role == 'student':
+        mats = [m for m in mats if m.week == 0 or m.week <= course.current_week]
+
     return jsonify([m.to_dict() for m in mats])
 
 
@@ -316,19 +336,30 @@ def serve_material(filename):
         filename, as_attachment=True)
 
 
+@app.route('/uploads/briefs/<path:filename>')
+@login_required
+def serve_brief(filename):
+    return send_from_directory(
+        os.path.join(app.config['UPLOAD_FOLDER'], 'briefs'),
+        filename, as_attachment=True)
+
+
 # ─────────────────────────────────────────────
 # ASSIGNMENTS
 # ─────────────────────────────────────────────
 @app.route('/api/courses/<int:cid>/assignments')
 @login_required
 def api_assignments(cid):
-    if not enrolled_or_teacher(cid):
+    if not enrolled_or_staff(cid):
         return jsonify({'error': 'Not enrolled'}), 403
 
+    course = Course.query.get_or_404(cid)
     assignments = Assignment.query.filter_by(course_id=cid).order_by(
         Assignment.week).all()
 
+    # Gate by current_week for students
     if current_user.role == 'student':
+        assignments = [a for a in assignments if a.week <= course.current_week]
         result = []
         for a in assignments:
             sub = Submission.query.filter_by(
@@ -343,7 +374,6 @@ def api_assignments(cid):
 @app.route('/api/courses/<int:cid>/assignments', methods=['POST'])
 @teacher_required
 def api_create_assignment(cid):
-    # optional brief file
     brief_file = None
     if 'file' in request.files and request.files['file'].filename:
         try:
@@ -356,13 +386,12 @@ def api_create_assignment(cid):
     due_str = request.form.get('due_date')
     due_date = None
     if due_str:
-        try:
-            due_date = datetime.strptime(due_str, '%Y-%m-%dT%H:%M')
-        except ValueError:
+        for fmt in ('%Y-%m-%dT%H:%M', '%Y-%m-%d'):
             try:
-                due_date = datetime.strptime(due_str, '%Y-%m-%d')
+                due_date = datetime.strptime(due_str, fmt)
+                break
             except ValueError:
-                pass
+                continue
 
     a = Assignment(
         course_id   = cid,
@@ -393,9 +422,6 @@ def api_delete_assignment(aid):
 @app.route('/api/assignments/<int:aid>/submit', methods=['POST'])
 @student_required
 def api_submit(aid):
-    a = Assignment.query.get_or_404(aid)
-
-    # One submission per student per assignment — allow resubmit
     existing = Submission.query.filter_by(
         assignment_id=aid, student_id=current_user.id).first()
 
@@ -407,14 +433,13 @@ def api_submit(aid):
         return jsonify({'error': str(e)}), 400
 
     if existing:
-        # Replace old file
         old = os.path.join(app.config['UPLOAD_FOLDER'], 'submissions', existing.filename)
         if os.path.exists(old):
             os.remove(old)
         existing.filename     = stored
         existing.notes        = request.form.get('notes', '')
         existing.submitted_at = datetime.utcnow()
-        existing.score        = None   # reset grade on resubmit
+        existing.score        = None
         existing.feedback     = None
         existing.graded_at    = None
         db.session.commit()
@@ -457,7 +482,6 @@ def api_grade(sid):
 @app.route('/uploads/submissions/<path:filename>')
 @login_required
 def serve_submission(filename):
-    # Students can only download their own; teachers can download any
     if current_user.role == 'student':
         sub = Submission.query.filter_by(
             filename=filename, student_id=current_user.id).first()
@@ -474,11 +498,11 @@ def serve_submission(filename):
 @app.route('/api/courses/<int:cid>/dashboard')
 @login_required
 def api_dashboard(cid):
-    if not enrolled_or_teacher(cid):
+    if not enrolled_or_staff(cid):
         return jsonify({'error': 'Not enrolled'}), 403
 
-    total_recordings = Recording.query.filter_by(course_id=cid).count()
-    total_materials  = Material.query.filter_by(course_id=cid).count()
+    total_recordings  = Recording.query.filter_by(course_id=cid).count()
+    total_materials   = Material.query.filter_by(course_id=cid).count()
     total_assignments = Assignment.query.filter_by(course_id=cid).count()
 
     if current_user.role == 'student':
@@ -488,9 +512,9 @@ def api_dashboard(cid):
         subs = Submission.query.join(Assignment).filter(
             Assignment.course_id == cid,
             Submission.student_id == current_user.id).all()
-        graded   = [s for s in subs if s.score is not None]
-        avg      = round(sum(s.score for s in graded) / len(graded), 1) if graded else None
-        pending  = total_assignments - len(subs)
+        graded  = [s for s in subs if s.score is not None]
+        avg     = round(sum(s.score for s in graded) / len(graded), 1) if graded else None
+        pending = total_assignments - len(subs)
         return jsonify({
             'videos_watched': watched,
             'total_recordings': total_recordings,
@@ -500,13 +524,11 @@ def api_dashboard(cid):
             'submissions_graded': len(graded)
         })
     else:
-        # Teacher view
         enrolled_count = Enrollment.query.filter_by(course_id=cid).count()
         ungraded = Submission.query.join(Assignment).filter(
             Assignment.course_id == cid,
             Submission.score == None).count()
 
-        # Per-student progress
         enrollments = Enrollment.query.filter_by(course_id=cid).all()
         student_progress = []
         for e in enrollments:
@@ -514,12 +536,12 @@ def api_dashboard(cid):
             watched = WatchLog.query.join(Recording).filter(
                 Recording.course_id == cid,
                 WatchLog.student_id == s.id).count()
-            subs = Submission.query.join(Assignment).filter(
+            subs   = Submission.query.join(Assignment).filter(
                 Assignment.course_id == cid,
                 Submission.student_id == s.id).all()
             graded = [x for x in subs if x.score is not None]
-            avg = round(sum(x.score for x in graded) / len(graded), 1) if graded else None
-            pct = round((watched / total_recordings * 100)) if total_recordings else 0
+            avg    = round(sum(x.score for x in graded) / len(graded), 1) if graded else None
+            pct    = round((watched / total_recordings * 100)) if total_recordings else 0
             student_progress.append({
                 'id': s.id, 'name': s.name, 'email': s.email,
                 'initials': s.initials(),
@@ -528,7 +550,6 @@ def api_dashboard(cid):
                 'avg_grade': avg, 'progress_pct': pct
             })
 
-        # Recent ungraded submissions
         recent_subs = (Submission.query
             .join(Assignment).filter(Assignment.course_id == cid)
             .filter(Submission.score == None)
@@ -545,53 +566,373 @@ def api_dashboard(cid):
         })
 
 
+# ═════════════════════════════════════════════
+# ADMIN API
+# ═════════════════════════════════════════════
+
+# ── Students ──────────────────────────────────
+@app.route('/api/admin/students', methods=['GET'])
+@admin_required
+def admin_list_students():
+    students = User.query.filter_by(role='student').order_by(User.name).all()
+    result = []
+    for s in students:
+        d = s.to_dict()
+        d['enrollments'] = [e.to_dict() for e in s.enrollments]
+        result.append(d)
+    return jsonify(result)
+
+
+@app.route('/api/admin/students', methods=['POST'])
+@admin_required
+def admin_create_student():
+    data = request.get_json()
+    email = data.get('email', '').strip().lower()
+    if not email or not data.get('name'):
+        return jsonify({'error': 'name and email are required'}), 400
+    if User.query.filter_by(email=email).first():
+        return jsonify({'error': 'Email already exists'}), 409
+
+    u = User(
+        name      = data['name'].strip(),
+        email     = email,
+        role      = 'student',
+        phone     = data.get('phone', '').strip(),
+        ic_number = data.get('ic_number', '').strip()
+    )
+    u.set_password(data.get('password', 'codencode123'))
+    db.session.add(u)
+    db.session.commit()
+    return jsonify({'student': u.to_dict()}), 201
+
+
+@app.route('/api/admin/students/<int:uid>', methods=['GET'])
+@admin_required
+def admin_get_student(uid):
+    s = User.query.get_or_404(uid)
+    d = s.to_dict()
+    d['enrollments'] = [e.to_dict() for e in s.enrollments]
+    return jsonify(d)
+
+
+@app.route('/api/admin/students/<int:uid>', methods=['PUT'])
+@admin_required
+def admin_update_student(uid):
+    s = User.query.get_or_404(uid)
+    data = request.get_json()
+    if 'name'      in data: s.name      = data['name'].strip()
+    if 'phone'     in data: s.phone     = data['phone'].strip()
+    if 'ic_number' in data: s.ic_number = data['ic_number'].strip()
+    if 'email'     in data:
+        new_email = data['email'].strip().lower()
+        existing  = User.query.filter_by(email=new_email).first()
+        if existing and existing.id != uid:
+            return jsonify({'error': 'Email already in use'}), 409
+        s.email = new_email
+    if 'password'  in data and data['password']:
+        s.set_password(data['password'])
+    db.session.commit()
+    return jsonify({'student': s.to_dict()})
+
+
+# ── Enrollments ───────────────────────────────
+@app.route('/api/admin/students/<int:uid>/enroll', methods=['POST'])
+@admin_required
+def admin_enroll_student(uid):
+    data      = request.get_json()
+    course_id = data.get('course_id')
+    if not course_id:
+        return jsonify({'error': 'course_id required'}), 400
+
+    existing = Enrollment.query.filter_by(student_id=uid, course_id=course_id).first()
+    if existing:
+        return jsonify({'error': 'Already enrolled'}), 409
+
+    e = Enrollment(
+        student_id      = uid,
+        course_id       = course_id,
+        payment_status  = data.get('payment_status', 'pending'),
+        payment_remarks = data.get('payment_remarks', '')
+    )
+    db.session.add(e)
+    db.session.commit()
+    return jsonify({'enrollment': e.to_dict()}), 201
+
+
+@app.route('/api/admin/enrollments/<int:eid>', methods=['DELETE'])
+@admin_required
+def admin_unenroll(eid):
+    e = Enrollment.query.get_or_404(eid)
+    db.session.delete(e)
+    db.session.commit()
+    return jsonify({'ok': True})
+
+
+@app.route('/api/admin/enrollments/<int:eid>/payment', methods=['PUT'])
+@admin_required
+def admin_update_payment(eid):
+    e    = Enrollment.query.get_or_404(eid)
+    data = request.get_json()
+    if 'payment_status'  in data: e.payment_status  = data['payment_status']
+    if 'payment_remarks' in data: e.payment_remarks = data['payment_remarks']
+    db.session.commit()
+    return jsonify({'enrollment': e.to_dict()})
+
+
+# ── Courses ───────────────────────────────────
+@app.route('/api/admin/courses', methods=['GET'])
+@admin_required
+def admin_list_courses():
+    courses = Course.query.order_by(Course.title).all()
+    result  = []
+    for c in courses:
+        d = c.to_dict()
+        d['enrolled_count'] = Enrollment.query.filter_by(course_id=c.id).count()
+        result.append(d)
+    return jsonify(result)
+
+
+@app.route('/api/admin/courses', methods=['POST'])
+@admin_required
+def admin_create_course():
+    data = request.get_json()
+    if not data.get('title'):
+        return jsonify({'error': 'title is required'}), 400
+    c = Course(
+        title        = data['title'].strip(),
+        description  = data.get('description', ''),
+        weeks        = int(data.get('weeks', 6)),
+        current_week = 1
+    )
+    db.session.add(c)
+    db.session.commit()
+    return jsonify({'course': c.to_dict()}), 201
+
+
+@app.route('/api/admin/courses/<int:cid>/week', methods=['PUT'])
+@admin_required
+def admin_set_week(cid):
+    c    = Course.query.get_or_404(cid)
+    data = request.get_json()
+    week = int(data.get('current_week', c.current_week))
+    week = max(1, min(week, c.weeks))
+    c.current_week = week
+    db.session.commit()
+    return jsonify({'course': c.to_dict()})
+
+
+@app.route('/api/admin/courses/<int:cid>/students', methods=['GET'])
+@admin_required
+def admin_course_students(cid):
+    enrollments = Enrollment.query.filter_by(course_id=cid).all()
+    return jsonify([e.to_dict() for e in enrollments])
+
+
+# ── Materials upload (admin) ───────────────────
+@app.route('/api/admin/courses/<int:cid>/materials', methods=['POST'])
+@admin_required
+def admin_upload_material(cid):
+    try:
+        stored, original = save_upload(
+            request.files.get('file'), 'materials',
+            app.config['ALLOWED_MATERIAL'])
+    except ValueError as e:
+        return jsonify({'error': str(e)}), 400
+
+    ext   = original.rsplit('.', 1)[1].lower() if '.' in original else ''
+    fpath = os.path.join(app.config['UPLOAD_FOLDER'], 'materials', stored)
+
+    mat = Material(
+        course_id   = cid,
+        week        = int(request.form.get('week', 0)),
+        title       = request.form.get('title', original),
+        description = request.form.get('description', ''),
+        filename    = stored,
+        file_type   = ext,
+        file_size   = human_size(fpath)
+    )
+    db.session.add(mat)
+    db.session.commit()
+    return jsonify({'material': mat.to_dict()}), 201
+
+
+@app.route('/api/admin/materials/<int:mid>', methods=['DELETE'])
+@admin_required
+def admin_delete_material(mid):
+    mat   = Material.query.get_or_404(mid)
+    fpath = os.path.join(app.config['UPLOAD_FOLDER'], 'materials', mat.filename)
+    if os.path.exists(fpath):
+        os.remove(fpath)
+    db.session.delete(mat)
+    db.session.commit()
+    return jsonify({'ok': True})
+
+
+# ── Attendance ────────────────────────────────
+@app.route('/api/admin/courses/<int:cid>/attendance', methods=['GET'])
+@admin_required
+def admin_get_attendance(cid):
+    course      = Course.query.get_or_404(cid)
+    enrollments = Enrollment.query.filter_by(course_id=cid).all()
+    records     = Attendance.query.filter_by(course_id=cid).all()
+
+    # Index by (student_id, week)
+    att_map = {(a.student_id, a.week): a for a in records}
+
+    students_data = []
+    for e in enrollments:
+        s = e.student
+        weeks_data = {}
+        for w in range(1, course.current_week + 1):
+            att = att_map.get((s.id, w))
+            weeks_data[str(w)] = att.status if att else 'absent'
+        students_data.append({
+            'student_id':   s.id,
+            'student_name': s.name,
+            'weeks':        weeks_data
+        })
+
+    return jsonify({
+        'course_id':    cid,
+        'current_week': course.current_week,
+        'students':     students_data
+    })
+
+
+@app.route('/api/admin/courses/<int:cid>/attendance', methods=['POST'])
+@admin_required
+def admin_set_attendance(cid):
+    data       = request.get_json()
+    student_id = data.get('student_id')
+    week       = data.get('week')
+    status     = data.get('status', 'present')
+    notes      = data.get('notes', '')
+
+    if not student_id or not week:
+        return jsonify({'error': 'student_id and week required'}), 400
+    if status not in ('present', 'absent', 'late'):
+        return jsonify({'error': 'status must be present/absent/late'}), 400
+
+    att = Attendance.query.filter_by(
+        student_id=student_id, course_id=cid, week=week).first()
+    if att:
+        att.status      = status
+        att.notes       = notes
+        att.recorded_at = datetime.utcnow()
+    else:
+        att = Attendance(student_id=student_id, course_id=cid,
+                         week=week, status=status, notes=notes)
+        db.session.add(att)
+    db.session.commit()
+    return jsonify({'attendance': att.to_dict()})
+
+
+# ── Bulk attendance (whole week at once) ──────
+@app.route('/api/admin/courses/<int:cid>/attendance/bulk', methods=['POST'])
+@admin_required
+def admin_bulk_attendance(cid):
+    """Expects { week: int, records: [{student_id, status, notes}] }"""
+    data    = request.get_json()
+    week    = data.get('week')
+    records = data.get('records', [])
+    if not week:
+        return jsonify({'error': 'week required'}), 400
+
+    for r in records:
+        sid    = r.get('student_id')
+        status = r.get('status', 'absent')
+        notes  = r.get('notes', '')
+        att    = Attendance.query.filter_by(
+            student_id=sid, course_id=cid, week=week).first()
+        if att:
+            att.status      = status
+            att.notes       = notes
+            att.recorded_at = datetime.utcnow()
+        else:
+            att = Attendance(student_id=sid, course_id=cid,
+                             week=week, status=status, notes=notes)
+            db.session.add(att)
+    db.session.commit()
+    return jsonify({'ok': True, 'updated': len(records)})
+
+
+# ── Payment overview ──────────────────────────
+@app.route('/api/admin/payments', methods=['GET'])
+@admin_required
+def admin_payments():
+    enrollments = Enrollment.query.all()
+    return jsonify([e.to_dict() for e in enrollments])
+
+
 # ─────────────────────────────────────────────
-# SEED — create demo data (run once)
+# SEED
 # ─────────────────────────────────────────────
 def seed_demo():
     if User.query.first():
-        return  # already seeded
+        return
 
-    # Users
-    teacher = User(name='Michael Chang', email='teacher@codencode.my', role='teacher')
+    from datetime import timedelta
+    now = datetime.utcnow()
+
+    # ── Users ──────────────────────────────────
+    admin = User(name='Admin', email='admin@codencode.my', role='admin',
+                 phone='010-0000000', ic_number='')
+    admin.set_password('admin1234')
+
+    teacher = User(name='Michael Chang', email='teacher@codencode.my', role='teacher',
+                   phone='011-2345678', ic_number='')
     teacher.set_password('demo1234')
 
-    students = []
     demo_students = [
-        ('Alex Tan',    'student@codencode.my'),
-        ('Jamie Lim',   'jamie@codencode.my'),
-        ('Rahim Nor',   'rahim@codencode.my'),
-        ('Wei Ling',    'weiling@codencode.my'),
-        ('Zara Hassan', 'zara@codencode.my'),
-        ('Kai Chen',    'kai@codencode.my'),
+        ('Alex Tan',    'student@codencode.my', '012-3456789', '900101-14-1234'),
+        ('Jamie Lim',   'jamie@codencode.my',   '013-4567890', '950215-10-5678'),
+        ('Rahim Nor',   'rahim@codencode.my',   '014-5678901', '980320-08-9012'),
+        ('Wei Ling',    'weiling@codencode.my', '016-6789012', '910712-04-3456'),
+        ('Zara Hassan', 'zara@codencode.my',    '017-7890123', '970825-12-7890'),
+        ('Kai Chen',    'kai@codencode.my',     '018-8901234', '930930-02-2345'),
     ]
-    for name, email in demo_students:
-        u = User(name=name, email=email, role='student')
+    students = []
+    for name, email, phone, ic in demo_students:
+        u = User(name=name, email=email, role='student', phone=phone, ic_number=ic)
         u.set_password('demo1234')
         students.append(u)
 
-    db.session.add(teacher)
-    db.session.add_all(students)
+    db.session.add_all([admin, teacher] + students)
     db.session.flush()
 
-    # Courses
+    # ── Courses ────────────────────────────────
     python_course = Course(
         title='Python Programming Bootcamp',
-        description='6-week course from beginner to advanced.', weeks=6)
+        description='6-week hands-on Python course from beginner to advanced.',
+        weeks=6, current_week=3)
     ml_course = Course(
         title='Machine Learning Fundamentals',
-        description='10-week ML course.', weeks=10)
+        description='Practical ML: NumPy, Pandas, scikit-learn, and real projects.',
+        weeks=6, current_week=2)
     db.session.add_all([python_course, ml_course])
     db.session.flush()
 
-    # Enroll all students in both courses
-    for s in students:
-        db.session.add(Enrollment(student_id=s.id, course_id=python_course.id))
-        db.session.add(Enrollment(student_id=s.id, course_id=ml_course.id))
+    # ── Enrollments with payment status ────────
+    payment_data = {
+        # student_index: (py_status, py_remarks, ml_status, ml_remarks)
+        0: ('paid',    'Full payment received',        'paid',    'Full payment received'),
+        1: ('paid',    'Paid via bank transfer',        'pending', 'Awaiting payment'),
+        2: ('overdue', 'Payment overdue — follow up',  'overdue', 'Reminder sent 3x'),
+        3: ('paid',    'Installment plan completed',   'paid',    'Paid in full'),
+        4: ('pending', 'Partial payment RM200 received','pending', 'Pending balance RM300'),
+        5: ('paid',    'Scholarship — full waiver',    'paid',    'Scholarship student'),
+    }
+    for si, (py_st, py_rm, ml_st, ml_rm) in payment_data.items():
+        db.session.add(Enrollment(
+            student_id=students[si].id, course_id=python_course.id,
+            payment_status=py_st, payment_remarks=py_rm))
+        db.session.add(Enrollment(
+            student_id=students[si].id, course_id=ml_course.id,
+            payment_status=ml_st, payment_remarks=ml_rm))
     db.session.flush()
 
-    # Recordings (demo — no actual files)
-    sessions_data = [
+    # ── Recordings ─────────────────────────────
+    py_sessions = [
         (1,1,'Intro to Python & Environment Setup','45:12'),
         (1,2,'Variables, Data Types & Operators','38:44'),
         (1,3,'Control Flow: If, Loops, Break & Continue','52:01'),
@@ -605,12 +946,12 @@ def seed_demo():
         (4,1,'Pandas: DataFrames, Series, Indexing','62:05'),
         (4,2,'Data Cleaning — Nulls, Duplicates, Dtypes','55:18'),
     ]
-    for wk, sn, title, dur in sessions_data:
+    for wk, sn, title, dur in py_sessions:
         db.session.add(Recording(
             course_id=python_course.id, week=wk, session_num=sn,
             title=title, duration=dur, filename='demo_placeholder.mp4'))
 
-    ml_sessions_data = [
+    ml_sessions = [
         (1,1,'Introduction to ML & the Data Science Workflow','48:30'),
         (1,2,'NumPy Arrays & Vectorised Operations','42:15'),
         (2,1,'Pandas: DataFrames, Series & Indexing','55:10'),
@@ -624,128 +965,138 @@ def seed_demo():
         (6,1,'Feature Engineering & Selection','56:40'),
         (6,2,'Capstone Project Kickoff & Q&A','38:00'),
     ]
-    for wk, sn, title, dur in ml_sessions_data:
+    for wk, sn, title, dur in ml_sessions:
         db.session.add(Recording(
             course_id=ml_course.id, week=wk, session_num=sn,
             title=title, duration=dur, filename='demo_placeholder.mp4'))
     db.session.flush()
 
-    # Materials — Python for Beginners
-    py_materials_data = [
-        # (week, display_title, stored_filename, file_type, file_size)
-        (0, 'Lecture Slides — All 15 Sessions', 'py_slides.zip', 'zip', '2.9 MB'),
-        (0, 'Python Cheat Sheet', 'py_cheat_sheet.py', 'py', '5.4 KB'),
-        (1, 'Week 1 — Variables, Loops & Lists', 'py_week1_exercises.py', 'py', '3.0 KB'),
-        (2, 'Week 2 — Functions', 'py_week2_exercises.py', 'py', '3.6 KB'),
-        (3, 'Week 3 — OOP: Classes & Objects', 'py_week3_exercises.py', 'py', '4.8 KB'),
-        (4, 'Week 4 — Files & Error Handling', 'py_week4_exercises.py', 'py', '3.9 KB'),
-        (5, 'Week 5 — Modules & Pythonic Code', 'py_week5_exercises.py', 'py', '5.3 KB'),
-        (6, 'Week 6 — Building Real Projects', 'py_week6_exercises.py', 'py', '8.8 KB'),
-        (6, 'Week 6 — Mini Project Starter', 'py_week6_project_starter.py', 'py', '6.9 KB'),
+    # ── Materials ──────────────────────────────
+    py_materials = [
+        (0, 'Lecture Slides — All Sessions', 'py_slides.zip',            'zip', '2.9 MB'),
+        (0, 'Python Cheat Sheet',            'py_cheat_sheet.py',        'py',  '5.4 KB'),
+        (1, 'Week 1 — Variables, Loops & Lists', 'py_week1_exercises.py','py',  '3.0 KB'),
+        (2, 'Week 2 — Functions',            'py_week2_exercises.py',    'py',  '3.6 KB'),
+        (3, 'Week 3 — OOP: Classes & Objects','py_week3_exercises.py',   'py',  '4.8 KB'),
+        (4, 'Week 4 — Files & Error Handling','py_week4_exercises.py',   'py',  '3.9 KB'),
+        (5, 'Week 5 — Modules & Pythonic Code','py_week5_exercises.py',  'py',  '5.3 KB'),
+        (6, 'Week 6 — Building Real Projects','py_week6_exercises.py',   'py',  '8.8 KB'),
+        (6, 'Week 6 — Mini Project Starter', 'py_week6_project_starter.py','py','6.9 KB'),
     ]
-    for wk, title, fname, ftype, fsize in py_materials_data:
-        db.session.add(Material(
-            course_id=python_course.id, week=wk, title=title,
-            filename=fname, file_type=ftype, file_size=fsize))
+    for wk, title, fname, ftype, fsize in py_materials:
+        db.session.add(Material(course_id=python_course.id, week=wk,
+            title=title, filename=fname, file_type=ftype, file_size=fsize))
+
+    ml_materials = [
+        (0, 'Lecture Slides — All Sessions',   'ml_slides.zip',                 'zip', '4.7 MB'),
+        (0, 'ML Cheat Sheet',                  'ml_cheat_sheet.py',             'py',  '4.6 KB'),
+        (1, 'Week 1 — NumPy Fundamentals',     'ml_week1_exercises.py',         'py',  '4.3 KB'),
+        (2, 'Week 2 — Pandas Data Wrangling',  'ml_week2_exercises.py',         'py',  '4.7 KB'),
+        (3, 'Week 3 — Your First ML Model',    'ml_week3_exercises.py',         'py',  '4.7 KB'),
+        (4, 'Week 4 — Classification',         'ml_week4_exercises.py',         'py',  '4.5 KB'),
+        (5, 'Week 5 — Random Forest & Eval',   'ml_week5_exercises.py',         'py',  '4.9 KB'),
+        (6, 'Week 6 — Feature Engineering',    'ml_week6_feature_engineering.py','py', '6.3 KB'),
+        (6, 'Week 6 — Capstone Starter',       'ml_week6_capstone.py',          'py',  '7.6 KB'),
+    ]
+    for wk, title, fname, ftype, fsize in ml_materials:
+        db.session.add(Material(course_id=ml_course.id, week=wk,
+            title=title, filename=fname, file_type=ftype, file_size=fsize))
     db.session.flush()
 
-    # Materials — Machine Learning
-    ml_materials_data = [
-        (0, 'Lecture Slides — All 15 Sessions', 'ml_slides.zip', 'zip', '4.7 MB'),
-        (0, 'ML Cheat Sheet', 'ml_cheat_sheet.py', 'py', '4.6 KB'),
-        (1, 'Week 1 — NumPy Fundamentals', 'ml_week1_exercises.py', 'py', '4.3 KB'),
-        (2, 'Week 2 — Pandas Data Wrangling', 'ml_week2_exercises.py', 'py', '4.7 KB'),
-        (3, 'Week 3 — Your First ML Model', 'ml_week3_exercises.py', 'py', '4.7 KB'),
-        (4, 'Week 4 — Classification', 'ml_week4_exercises.py', 'py', '4.5 KB'),
-        (5, 'Week 5 — Random Forest & Evaluation', 'ml_week5_exercises.py', 'py', '4.9 KB'),
-        (6, 'Week 6 — Feature Engineering', 'ml_week6_feature_engineering.py', 'py', '6.3 KB'),
-        (6, 'Week 6 — Capstone Project Starter', 'ml_week6_capstone.py', 'py', '7.6 KB'),
-    ]
-    for wk, title, fname, ftype, fsize in ml_materials_data:
-        db.session.add(Material(
-            course_id=ml_course.id, week=wk, title=title,
-            filename=fname, file_type=ftype, file_size=fsize))
-    db.session.flush()
-
-    # Assignments — Python for Beginners
-    from datetime import timedelta
-    now = datetime.utcnow()
-    py_assignments_data = [
+    # ── Assignments ────────────────────────────
+    py_assignments = [
         (2, 'Assignment 1 — My Digital Life in Python',
          'Build a Python script that captures and displays your digital life stats.',
-         'py_assignment1.py', now+timedelta(days=-20)),
+         'py_assignment1.py', now + timedelta(days=-20)),
         (4, 'Assignment 2 — Build a Mini Contact Book',
          'Create a command-line contact book with add, search, update and delete.',
-         'py_assignment2.py', now+timedelta(days=10)),
+         'py_assignment2.py', now + timedelta(days=10)),
     ]
     asgn_objs = []
-    for wk, title, desc, brief, due in py_assignments_data:
+    for wk, title, desc, brief, due in py_assignments:
         a = Assignment(course_id=python_course.id, week=wk, title=title,
                        description=desc, brief_file=brief, due_date=due, max_points=100)
         db.session.add(a)
         asgn_objs.append(a)
-    db.session.flush()
 
-    # Assignments — Machine Learning
-    ml_assignments_data = [
+    ml_assignments = [
         (3, 'Assignment 1 — Predict Who Passes the Course',
          'Use a classification model to predict student pass/fail outcomes.',
-         'ml_assignment1.py', now+timedelta(days=-10)),
+         'ml_assignment1.py', now + timedelta(days=-10)),
         (6, 'Assignment 2 — JB House Price Predictor',
          'Build a regression model to predict house prices in Johor Bahru.',
-         'ml_assignment2.py', now+timedelta(days=14)),
+         'ml_assignment2.py', now + timedelta(days=14)),
     ]
     ml_asgn_objs = []
-    for wk, title, desc, brief, due in ml_assignments_data:
+    for wk, title, desc, brief, due in ml_assignments:
         a = Assignment(course_id=ml_course.id, week=wk, title=title,
                        description=desc, brief_file=brief, due_date=due, max_points=100)
         db.session.add(a)
         ml_asgn_objs.append(a)
     db.session.flush()
 
-    # Submissions & grades — Python Assignment 1 (graded for all students)
-    py_a1_grades = {0: 80, 1: 95, 2: 60, 3: 75, 4: 88, 5: 92}
+    # ── Submissions & Grades ───────────────────
+    py_a1_grades = {0:80, 1:95, 2:60, 3:75, 4:88, 5:92}
     for si, score in py_a1_grades.items():
         db.session.add(Submission(
-            assignment_id=asgn_objs[0].id,
-            student_id=students[si].id,
-            filename='assignment1_submission.py',
-            notes='',
+            assignment_id=asgn_objs[0].id, student_id=students[si].id,
+            filename='assignment1_submission.py', notes='',
             submitted_at=now + timedelta(days=-18+si),
             score=score,
             feedback='Good work!' if score >= 80 else 'Needs improvement.',
-            graded_at=now + timedelta(days=-15)
-        ))
+            graded_at=now + timedelta(days=-15)))
 
-    # Python Assignment 2 — some submitted, not yet graded
     for si in range(4):
         db.session.add(Submission(
-            assignment_id=asgn_objs[1].id,
-            student_id=students[si].id,
+            assignment_id=asgn_objs[1].id, student_id=students[si].id,
             filename='assignment2_submission.py',
-            submitted_at=now + timedelta(days=-3+si)
-        ))
+            submitted_at=now + timedelta(days=-3+si)))
 
-    # ML Assignment 1 — graded
-    ml_a1_grades = {0: 78, 1: 90, 2: 55, 3: 82, 4: 91, 5: 96}
+    ml_a1_grades = {0:78, 1:90, 2:55, 3:82, 4:91, 5:96}
     for si, score in ml_a1_grades.items():
         db.session.add(Submission(
-            assignment_id=ml_asgn_objs[0].id,
-            student_id=students[si].id,
-            filename='ml_assignment1_submission.py',
-            notes='',
+            assignment_id=ml_asgn_objs[0].id, student_id=students[si].id,
+            filename='ml_assignment1_submission.py', notes='',
             submitted_at=now + timedelta(days=-8+si),
             score=score,
             feedback='Good work!' if score >= 80 else 'Needs improvement.',
-            graded_at=now + timedelta(days=-6)
-        ))
+            graded_at=now + timedelta(days=-6)))
 
-    # Watch logs — Alex watched first 18, others vary
+    # ── Watch logs ─────────────────────────────
     recs = Recording.query.filter_by(course_id=python_course.id).all()
-    watch_map = {0:18, 1:22, 2:11, 3:16, 4:20, 5:24}
+    watch_map = {0:8, 1:10, 2:5, 3:7, 4:9, 5:10}
     for si, count in watch_map.items():
         for rec in recs[:min(count, len(recs))]:
             db.session.add(WatchLog(student_id=students[si].id, recording_id=rec.id))
+
+    # ── Attendance ─────────────────────────────
+    # Python course: weeks 1–3; ML course: weeks 1–2
+    py_att = [
+        # (student_index, week, status)
+        (0,1,'present'),(0,2,'present'),(0,3,'present'),
+        (1,1,'present'),(1,2,'present'),(1,3,'late'),
+        (2,1,'absent'), (2,2,'present'),(2,3,'absent'),
+        (3,1,'present'),(3,2,'late'),   (3,3,'present'),
+        (4,1,'present'),(4,2,'present'),(4,3,'present'),
+        (5,1,'present'),(5,2,'present'),(5,3,'present'),
+    ]
+    for si, wk, status in py_att:
+        db.session.add(Attendance(
+            student_id=students[si].id, course_id=python_course.id,
+            week=wk, status=status))
+
+    ml_att = [
+        (0,1,'present'),(0,2,'present'),
+        (1,1,'present'),(1,2,'present'),
+        (2,1,'late'),   (2,2,'absent'),
+        (3,1,'present'),(3,2,'present'),
+        (4,1,'present'),(4,2,'late'),
+        (5,1,'present'),(5,2,'present'),
+    ]
+    for si, wk, status in ml_att:
+        db.session.add(Attendance(
+            student_id=students[si].id, course_id=ml_course.id,
+            week=wk, status=status))
 
     db.session.commit()
     print('✓ Demo data seeded')
