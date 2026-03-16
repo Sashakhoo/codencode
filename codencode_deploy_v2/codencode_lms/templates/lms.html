@@ -1610,7 +1610,8 @@ window.addEventListener('DOMContentLoaded', async () => {
   // Check if already logged in
   try {
     const u = await GET('/api/auth/me');
-    STATE.user = u;
+    STATE.user = u.user || u;
+    if (STATE.user.role === 'admin') { window.location.href = '/admin'; return; }
     await bootApp();
   } catch {
     showLoginScreen();

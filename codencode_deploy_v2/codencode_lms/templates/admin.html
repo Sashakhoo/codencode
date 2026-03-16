@@ -912,7 +912,8 @@ const POSTFD = (url, fd)   => api('POST',   url, null, fd);
 // ═══════════════════════════════════════════════════════
 document.addEventListener('DOMContentLoaded', async () => {
   try {
-    const me = await GET('/api/auth/me');
+    const meRes = await GET('/api/auth/me');
+    const me = meRes.user || meRes;
     if (me.role !== 'admin') { window.location.href = '/'; return; }
     S.user = me;
     document.getElementById('admin-name').textContent  = S.user.name;
