@@ -857,13 +857,19 @@
         <option value="overdue">Overdue</option>
       </select>
     </div>
-    <div class="form-group">
+    <div class="form-group" style="margin-bottom:14px">
       <label class="form-label">Remarks</label>
       <textarea class="form-textarea" id="pay-remarks" placeholder="Notes about payment..."></textarea>
     </div>
+    <div class="form-group" style="margin-bottom:14px">
+      <label class="form-label">Receipt (PDF / Image) — optional</label>
+      <input type="file" id="pay-receipt-file" accept=".pdf,.jpg,.jpeg,.png,.heic"
+        style="display:block;width:100%;padding:8px;background:var(--surface2);border:1px solid var(--border2);border-radius:var(--radius);color:var(--text);font-family:inherit;font-size:12px;" />
+      <div id="pay-existing-receipt" style="margin-top:6px;font-size:11px;color:var(--cyan)"></div>
+    </div>
     <div class="modal-footer">
       <button class="btn btn-secondary" onclick="closeModal('modal-payment')">Cancel</button>
-      <button class="btn btn-primary" onclick="savePayment()">
+      <button class="btn btn-primary" id="pay-save-btn" onclick="savePayment()">
         <i class="fas fa-save"></i> Save
       </button>
     </div>
@@ -1067,6 +1073,8 @@ function selectStudent(uid) {
 function renderStudentDetail(s) {
   const enrolledCourseIds = new Set(s.enrollments.map(e => e.course_id));
   const availableCourses  = S.courses.filter(c => !enrolledCourseIds.has(c.id));
+  // Store enrollment data in map so buttons can safely reference by ID
+  s.enrollments.forEach(e => { S.enrollMap = S.enrollMap || {}; S.enrollMap[e.id] = e; });
 
   document.getElementById('student-detail').innerHTML = `
     <div class="card">
@@ -1106,8 +1114,11 @@ function renderStudentDetail(s) {
               <small>Enrolled ${e.enrolled_at}</small>
             </div>
             <span class="badge badge-${e.payment_status}">${e.payment_status}</span>
-            <button class="btn btn-secondary btn-sm" onclick="openPaymentModal(${e.id},'${e.payment_status}',${JSON.stringify(e.payment_remarks||'')})">
+            <button class="btn btn-secondary btn-sm" onclick="openPaymentModal(${e.id})" title="Edit payment">
               <i class="fas fa-edit"></i>
+            </button>
+            <button class="btn btn-secondary btn-sm" onclick="window.open('/api/admin/enrollments/${e.id}/invoice','_blank')" title="View invoice" style="color:var(--cyan)">
+              <i class="fas fa-file-invoice"></i>
             </button>
             <button class="btn btn-danger btn-sm btn-icon" onclick="unenroll(${e.id},${s.id})" title="Unenroll">
               <i class="fas fa-times"></i>
@@ -1518,7 +1529,11 @@ async function renderPayments() {
 function filterPayments() {
   const filter = document.getElementById('pay-filter')?.value || 'all';
   const rows   = filter === 'all' ? S.allPayments : S.allPayments.filter(e => e.payment_status === filter);
-  document.getElementById('payments-tbody').innerHTML = rows.map(e => `
+  document.getElementById('payments-tbody').innerHTML = rows.map(e => {
+    // Store in map for safe modal access
+    S.enrollMap = S.enrollMap || {};
+    S.enrollMap[e.id] = e;
+    return `
     <tr>
       <td>
         <div style="font-size:13px">${e.student_name}</div>
@@ -1528,35 +1543,88 @@ function filterPayments() {
       <td><span class="badge badge-${e.payment_status}">${e.payment_status}</span></td>
       <td style="max-width:200px;font-size:12px;color:var(--text-muted)">${e.payment_remarks || '—'}</td>
       <td>
-        <button class="btn btn-secondary btn-sm" onclick="openPaymentModal(${e.id},'${e.payment_status}',${JSON.stringify(e.payment_remarks||'')})">
-          <i class="fas fa-edit"></i> Edit
-        </button>
+        <div style="display:flex;gap:5px;align-items:center">
+          <button class="btn btn-secondary btn-sm" onclick="openPaymentModal(${e.id})" title="Edit payment">
+            <i class="fas fa-edit"></i> Edit
+          </button>
+          <button class="btn btn-secondary btn-sm" onclick="window.open('/api/admin/enrollments/${e.id}/invoice','_blank')" style="color:var(--cyan)" title="Download invoice">
+            <i class="fas fa-file-invoice"></i>
+          </button>
+        </div>
       </td>
     </tr>
-  `).join('');
+  `;
+  }).join('');
 }
 
-function openPaymentModal(eid, status, remarks) {
+function openPaymentModal(eid) {
+  const e = (S.enrollMap || {})[eid];
+  if (!e) { toast('Enrollment data not found', true); return; }
   document.getElementById('pay-enrollment-id').value = eid;
-  document.getElementById('pay-status-select').value = status;
-  document.getElementById('pay-remarks').value       = remarks;
+  document.getElementById('pay-status-select').value = e.payment_status || 'pending';
+  document.getElementById('pay-remarks').value       = e.payment_remarks || '';
+  document.getElementById('pay-receipt-file').value  = '';
+  // Show existing receipt link
+  const existingDiv = document.getElementById('pay-existing-receipt');
+  if (e.receipt_file) {
+    existingDiv.innerHTML = `<i class="fas fa-paperclip"></i> Receipt on file — <a href="/uploads/receipts/${e.receipt_file}" target="_blank" style="color:var(--cyan)">view</a> (uploading a new file will replace it)`;
+  } else {
+    existingDiv.innerHTML = '';
+  }
   openModal('modal-payment');
 }
 
 async function savePayment() {
-  const eid  = document.getElementById('pay-enrollment-id').value;
-  const data = {
-    payment_status:  document.getElementById('pay-status-select').value,
-    payment_remarks: document.getElementById('pay-remarks').value,
-  };
+  const eid     = document.getElementById('pay-enrollment-id').value;
+  const btn     = document.getElementById('pay-save-btn');
+  btn.disabled  = true;
+  btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving…';
+
+  // Remember which student + tab is active so we can restore after re-render
+  const selectedItem = document.querySelector('.student-item.selected');
+  const selectedUid  = selectedItem ? parseInt(selectedItem.id.replace('si-', '')) : null;
+  const activeTab    = document.querySelector('.detail-tab.active');
+  const activeTabText = activeTab ? activeTab.textContent.trim() : null;
+
   try {
-    await PUT(`/api/admin/enrollments/${eid}/payment`, data);
+    // 1) Update status + remarks
+    await PUT(`/api/admin/enrollments/${eid}/payment`, {
+      payment_status:  document.getElementById('pay-status-select').value,
+      payment_remarks: document.getElementById('pay-remarks').value,
+    });
+    // 2) Upload receipt file if selected
+    const fileInput = document.getElementById('pay-receipt-file');
+    if (fileInput.files && fileInput.files[0]) {
+      const fd = new FormData();
+      fd.append('file', fileInput.files[0]);
+      const res = await fetch(`/api/admin/enrollments/${eid}/receipt`, { method:'POST', body: fd });
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.error || 'Receipt upload failed');
+      }
+    }
     toast('Payment updated');
     closeModal('modal-payment');
+    // Reload data and re-render
     await loadStudents();
+    renderStudentList();
+    if (selectedUid) {
+      selectStudent(selectedUid);
+      // Restore previously active tab
+      if (activeTabText) {
+        const tabs = document.querySelectorAll('.detail-tab');
+        const target = Array.from(tabs).find(t => t.textContent.trim() === activeTabText);
+        if (target) target.click();
+      }
+    }
     await loadPaymentsData();
     filterPayments();
-  } catch(e) { toast(e.message, true); }
+  } catch(e) {
+    toast(e.message, true);
+  } finally {
+    btn.disabled  = false;
+    btn.innerHTML = '<i class="fas fa-save"></i> Save';
+  }
 }
 
 // ═══════════════════════════════════════════════════════
