@@ -69,6 +69,7 @@ class Enrollment(db.Model):
     enrolled_at      = db.Column(db.DateTime, default=datetime.utcnow)
     payment_status   = db.Column(db.String(20), default='pending')  # pending | paid | overdue
     payment_remarks  = db.Column(db.Text)
+    receipt_file     = db.Column(db.String(300))   # stored filename of uploaded receipt
 
     student = db.relationship('User', back_populates='enrollments', foreign_keys=[student_id])
     course  = db.relationship('Course', back_populates='enrollments')
@@ -84,7 +85,8 @@ class Enrollment(db.Model):
             'course_title': self.course.title,
             'enrolled_at': self.enrolled_at.strftime('%b %d, %Y'),
             'payment_status': self.payment_status or 'pending',
-            'payment_remarks': self.payment_remarks or ''
+            'payment_remarks': self.payment_remarks or '',
+            'receipt_file': self.receipt_file or ''
         }
 
 

@@ -37,6 +37,7 @@ app.config.update(
     ALLOWED_VIDEO={'mp4', 'mov', 'mkv', 'webm'},
     ALLOWED_MATERIAL={'pdf', 'py', 'ipynb', 'zip', 'csv', 'txt', 'docx'},
     ALLOWED_SUBMISSION={'py', 'ipynb', 'zip', 'pdf', 'txt'},
+    ALLOWED_RECEIPT={'pdf', 'jpg', 'jpeg', 'png', 'heic'},
 )
 
 db.init_app(app)
@@ -45,6 +46,7 @@ login_manager = LoginManager(app)
 login_manager.login_view = 'serve_frontend'
 
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+os.makedirs(os.path.join(app.config['UPLOAD_FOLDER'], 'receipts'), exist_ok=True)
 
 
 @login_manager.user_loader
@@ -679,6 +681,136 @@ def admin_update_payment(eid):
     return jsonify({'enrollment': e.to_dict()})
 
 
+@app.route('/api/admin/enrollments/<int:eid>/receipt', methods=['POST'])
+@admin_required
+def admin_upload_receipt(eid):
+    e = Enrollment.query.get_or_404(eid)
+    try:
+        stored, _ = save_upload(
+            request.files.get('file'), 'receipts',
+            app.config['ALLOWED_RECEIPT'])
+    except ValueError as ex:
+        return jsonify({'error': str(ex)}), 400
+    # Delete old receipt if one exists
+    if e.receipt_file:
+        old = os.path.join(app.config['UPLOAD_FOLDER'], 'receipts', e.receipt_file)
+        if os.path.exists(old):
+            os.remove(old)
+    e.receipt_file = stored
+    db.session.commit()
+    return jsonify({'enrollment': e.to_dict()})
+
+
+@app.route('/uploads/receipts/<path:filename>')
+@login_required
+def serve_receipt(filename):
+    if current_user.role not in ('admin', 'teacher'):
+        return jsonify({'error': 'Forbidden'}), 403
+    return send_from_directory(
+        os.path.join(app.config['UPLOAD_FOLDER'], 'receipts'),
+        filename, as_attachment=True)
+
+
+@app.route('/api/admin/enrollments/<int:eid>/invoice')
+@admin_required
+def admin_invoice(eid):
+    """Return a printable HTML invoice page."""
+    e = Enrollment.query.get_or_404(eid)
+    s = e.student
+    c = e.course
+    inv_num = f'INV-{e.id:05d}'
+    issued  = datetime.utcnow().strftime('%d %B %Y')
+    enr_date = e.enrolled_at.strftime('%d %B %Y')
+
+    status_colour = {'paid': '#28ca41', 'pending': '#e3b341', 'overdue': '#f85149'}.get(
+        e.payment_status, '#7d8590')
+
+    receipt_html = ''
+    if e.receipt_file:
+        receipt_html = f'<p><strong>Receipt File:</strong> <a href="/uploads/receipts/{e.receipt_file}" target="_blank">View Receipt</a></p>'
+
+    html = f"""<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <title>{inv_num} — codencode.my</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=Space+Mono:wght@400;700&display=swap');
+    * {{ box-sizing:border-box; margin:0; padding:0; }}
+    body {{ font-family:'Space Mono',monospace; background:#fff; color:#111; font-size:13px; padding:40px; max-width:720px; margin:auto; }}
+    .header {{ display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:40px; border-bottom:3px solid #00dcb4; padding-bottom:24px; }}
+    .brand {{ font-family:'Syne',sans-serif; font-size:28px; font-weight:800; color:#080c10; letter-spacing:-1px; }}
+    .brand span {{ color:#00dcb4; }}
+    .inv-meta {{ text-align:right; }}
+    .inv-num {{ font-size:18px; font-weight:700; color:#080c10; }}
+    .inv-date {{ color:#555; margin-top:4px; }}
+    .section {{ margin-bottom:28px; }}
+    .section-title {{ font-size:11px; text-transform:uppercase; letter-spacing:1px; color:#888; margin-bottom:10px; border-bottom:1px solid #eee; padding-bottom:6px; }}
+    .grid-2 {{ display:grid; grid-template-columns:1fr 1fr; gap:20px; }}
+    p {{ margin:5px 0; line-height:1.6; }}
+    strong {{ color:#080c10; }}
+    .status-badge {{ display:inline-block; padding:4px 14px; border-radius:999px; font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:.5px; color:#fff; background:{status_colour}; }}
+    .footer {{ margin-top:48px; padding-top:20px; border-top:1px solid #eee; font-size:11px; color:#888; text-align:center; }}
+    @media print {{
+      body {{ padding:20px; }}
+      .no-print {{ display:none !important; }}
+    }}
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div>
+      <div class="brand">code<span>ncode</span>.my</div>
+      <div style="color:#555;margin-top:4px;font-size:12px">Learning Management System</div>
+    </div>
+    <div class="inv-meta">
+      <div class="inv-num">{inv_num}</div>
+      <div class="inv-date">Issued: {issued}</div>
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <div class="section">
+      <div class="section-title">Bill To</div>
+      <p><strong>{s.name}</strong></p>
+      <p>{s.email}</p>
+      {'<p>' + s.phone + '</p>' if s.phone else ''}
+      {'<p>IC/Passport: ' + s.ic_number + '</p>' if s.ic_number else ''}
+    </div>
+    <div class="section">
+      <div class="section-title">Course</div>
+      <p><strong>{c.title}</strong></p>
+      <p>Duration: {c.weeks} weeks</p>
+      <p>Enrolled: {enr_date}</p>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Payment Details</div>
+    <p><strong>Status:</strong> <span class="status-badge">{e.payment_status.upper()}</span></p>
+    {'<p><strong>Remarks:</strong> ' + (e.payment_remarks or '—') + '</p>'}
+    {receipt_html}
+  </div>
+
+  <div class="footer">
+    <p>codencode.my · {inv_num} · Generated {issued}</p>
+    <p style="margin-top:4px">Thank you for learning with us!</p>
+  </div>
+
+  <div class="no-print" style="margin-top:32px;text-align:center">
+    <button onclick="window.print()" style="background:#00dcb4;color:#080c10;border:none;padding:10px 28px;border-radius:6px;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;">
+      🖨 Print / Save as PDF
+    </button>
+    <button onclick="window.close()" style="background:#eee;color:#333;border:none;padding:10px 24px;border-radius:6px;font-family:inherit;font-size:13px;cursor:pointer;margin-left:8px;">
+      Close
+    </button>
+  </div>
+</body>
+</html>"""
+    from flask import Response
+    return Response(html, mimetype='text/html')
+
+
 # ── Courses ───────────────────────────────────
 @app.route('/api/admin/courses', methods=['GET'])
 @admin_required
@@ -1107,6 +1239,17 @@ def seed_demo():
 # ─────────────────────────────────────────────
 with app.app_context():
     db.create_all()
+    # Safe column migrations (SQLite doesn't support ALTER TABLE ADD IF NOT EXISTS)
+    from sqlalchemy import text, inspect as sa_inspect
+    try:
+        insp = sa_inspect(db.engine)
+        existing = {c['name'] for c in insp.get_columns('enrollments')}
+        with db.engine.connect() as conn:
+            if 'receipt_file' not in existing:
+                conn.execute(text('ALTER TABLE enrollments ADD COLUMN receipt_file VARCHAR(300)'))
+                conn.commit()
+    except Exception:
+        pass
     seed_demo()
 
 if __name__ == '__main__':
