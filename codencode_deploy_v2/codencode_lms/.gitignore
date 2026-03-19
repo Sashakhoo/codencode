@@ -3,5 +3,6 @@
 __pycache__/
 uploads/videos/
 uploads/submissions/
+uploads/receipts/
 .env
 venv/
