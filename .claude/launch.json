@@ -1,0 +1,12 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "codencode-lms",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": ["codencode_deploy_v2/codencode_lms/app.py"],
+      "port": 5000,
+      "autoPort": true
+    }
+  ]
+}
