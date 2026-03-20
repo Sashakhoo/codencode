@@ -21,16 +21,22 @@ from flask_login import (LoginManager, login_user, logout_user,
 from werkzeug.utils import secure_filename
 
 from models import (db, User, Course, Enrollment, Recording,
-                    WatchLog, Material, Assignment, Submission, Attendance)
+                    WatchLog, Material, Assignment, Submission, Attendance,
+                    TimetableSession)
 
 # ─────────────────────────────────────────────
 # App setup
 # ─────────────────────────────────────────────
 app = Flask(__name__, static_folder='static', template_folder='templates')
 
+# Railway supplies DATABASE_URL as "postgres://…" but SQLAlchemy 2.x requires "postgresql://…"
+_db_url = os.environ.get('DATABASE_URL', 'sqlite:///codencode_lms.db')
+if _db_url.startswith('postgres://'):
+    _db_url = _db_url.replace('postgres://', 'postgresql://', 1)
+
 app.config.update(
-    SECRET_KEY=os.environ.get('SECRET_KEY', 'dev-secret-change-in-production'),
-    SQLALCHEMY_DATABASE_URI=os.environ.get('DATABASE_URL', 'sqlite:///codencode_lms.db'),
+    SECRET_KEY=os.environ.get('SECRET_KEY', 'db9564268b5109bb02c25a568feaaeb8f'),
+    SQLALCHEMY_DATABASE_URI=_db_url,
     SQLALCHEMY_TRACK_MODIFICATIONS=False,
     UPLOAD_FOLDER=os.path.join(os.path.dirname(__file__), 'uploads'),
     MAX_CONTENT_LENGTH=2 * 1024 * 1024 * 1024,
@@ -517,13 +523,34 @@ def api_dashboard(cid):
         graded  = [s for s in subs if s.score is not None]
         avg     = round(sum(s.score for s in graded) / len(graded), 1) if graded else None
         pending = total_assignments - len(subs)
+
+        # Build recent activity feed
+        activity = []
+        recent_recordings = (Recording.query.filter_by(course_id=cid)
+            .order_by(Recording.uploaded_at.desc()).limit(3).all())
+        for r in recent_recordings:
+            activity.append({'type': 'cyan', 'text': f'<strong>{r.title}</strong> — video uploaded',
+                             'time': r.uploaded_at.strftime('%b %d, %Y')})
+        recent_materials = (Material.query.filter_by(course_id=cid)
+            .order_by(Material.uploaded_at.desc()).limit(2).all())
+        for m in recent_materials:
+            activity.append({'type': 'purple', 'text': f'New material: <strong>{m.title}</strong> added',
+                             'time': m.uploaded_at.strftime('%b %d, %Y')})
+        for s in sorted(graded, key=lambda x: x.graded_at or x.submitted_at, reverse=True)[:3]:
+            activity.append({'type': 'green',
+                             'text': f'<strong>{s.assignment.title}</strong> graded — {s.score}/{s.assignment.max_points}',
+                             'time': (s.graded_at or s.submitted_at).strftime('%b %d, %Y')})
+        activity.sort(key=lambda x: x['time'], reverse=True)
+
         return jsonify({
             'videos_watched': watched,
             'total_recordings': total_recordings,
             'assignments_pending': max(pending, 0),
             'total_assignments': total_assignments,
+            'assignments_submitted': len(subs),
             'avg_grade': avg,
-            'submissions_graded': len(graded)
+            'submissions_graded': len(graded),
+            'recent_activity': activity[:5]
         })
     else:
         enrolled_count = Enrollment.query.filter_by(course_id=cid).count()
@@ -834,7 +861,9 @@ def admin_create_course():
         title        = data['title'].strip(),
         description  = data.get('description', ''),
         weeks        = int(data.get('weeks', 6)),
-        current_week = 1
+        current_week = 1,
+        start_date   = datetime.strptime(data['start_date'], '%Y-%m-%d').date() if data.get('start_date') else None,
+        programme    = data.get('programme', '').strip(),
     )
     db.session.add(c)
     db.session.commit()
@@ -851,6 +880,25 @@ def admin_set_week(cid):
     c.current_week = week
     db.session.commit()
     return jsonify({'course': c.to_dict()})
+
+
+@app.route('/api/admin/courses/<int:cid>', methods=['PUT'])
+@admin_required
+def admin_update_course(cid):
+    c    = Course.query.get_or_404(cid)
+    data = request.get_json()
+    if 'title'       in data: c.title       = data['title'].strip()
+    if 'description' in data: c.description = data['description'].strip()
+    if 'weeks'       in data: c.weeks       = int(data['weeks'])
+    if 'programme'   in data: c.programme   = data['programme'].strip()
+    if 'start_date'  in data and data['start_date']:
+        c.start_date = datetime.strptime(data['start_date'], '%Y-%m-%d').date()
+    elif 'start_date' in data and not data['start_date']:
+        c.start_date = None
+    db.session.commit()
+    d = c.to_dict()
+    d['enrolled_count'] = Enrollment.query.filter_by(course_id=c.id).count()
+    return jsonify({'course': d})
 
 
 @app.route('/api/admin/courses/<int:cid>/students', methods=['GET'])
@@ -1036,11 +1084,12 @@ def seed_demo():
     python_course = Course(
         title='Python Programming Bootcamp',
         description='6-week hands-on Python course from beginner to advanced.',
-        weeks=6, current_week=3)
+        weeks=6, current_week=3, programme='Python Bootcamp')
+    python_course.start_date = datetime(2026, 5, 8).date()
     ml_course = Course(
         title='Machine Learning Fundamentals',
         description='Practical ML: NumPy, Pandas, scikit-learn, and real projects.',
-        weeks=6, current_week=2)
+        weeks=6, current_week=2, programme='Machine Learning')
     db.session.add_all([python_course, ml_course])
     db.session.flush()
 
@@ -1235,6 +1284,89 @@ def seed_demo():
 
 
 # ─────────────────────────────────────────────
+# TIMETABLE
+# ─────────────────────────────────────────────
+@app.route('/api/courses/<int:cid>/timetable')
+@login_required
+def api_get_timetable(cid):
+    if not enrolled_or_staff(cid):
+        return jsonify({'error': 'Not enrolled'}), 403
+    from datetime import timedelta, date as date_type
+    course = Course.query.get_or_404(cid)
+    sessions_db = {(s.week, s.session_num): s
+                   for s in TimetableSession.query.filter_by(course_id=cid).all()}
+    # Fixed weekly schedule
+    SCHEDULE = [
+        (1, 'Friday',   '8:00 PM',  '10:00 PM', 0),
+        (2, 'Saturday', '9:00 AM',  '11:00 AM', 1),
+        (3, 'Sunday',   '9:00 AM',  '11:00 AM', 2),
+    ]
+    today = date_type.today()
+    weeks = []
+    for w in range(1, course.weeks + 1):
+        sessions = []
+        for snum, day_name, t_start, t_end, day_offset in SCHEDULE:
+            if course.start_date:
+                sd = course.start_date + timedelta(weeks=w - 1, days=day_offset)
+                date_str  = sd.strftime('%d %b %Y')
+                is_past   = sd < today
+                is_today  = sd == today
+            else:
+                date_str  = None
+                is_past   = False
+                is_today  = False
+            db_s = sessions_db.get((w, snum))
+            sessions.append({
+                'session_num': snum,
+                'day':        day_name,
+                'date':       date_str,
+                'time_start': t_start,
+                'time_end':   t_end,
+                'topic':      db_s.topic if db_s else None,
+                'notes':      db_s.notes if db_s else None,
+                'is_past':    is_past,
+                'is_today':   is_today,
+            })
+        weeks.append({'week': w, 'sessions': sessions})
+    return jsonify({'weeks': weeks, 'current_week': course.current_week,
+                    'start_date': course.start_date.strftime('%Y-%m-%d') if course.start_date else None})
+
+
+@app.route('/api/courses/<int:cid>/timetable', methods=['PUT'])
+@login_required
+def api_save_timetable_session(cid):
+    if current_user.role not in ('teacher', 'admin'):
+        return jsonify({'error': 'Teachers only'}), 403
+    data    = request.get_json()
+    week    = data.get('week')
+    snum    = data.get('session_num')
+    topic   = (data.get('topic')   or '').strip()
+    notes   = (data.get('notes')   or '').strip()
+    s = TimetableSession.query.filter_by(course_id=cid, week=week, session_num=snum).first()
+    if s:
+        s.topic = topic; s.notes = notes
+    else:
+        s = TimetableSession(course_id=cid, week=week, session_num=snum, topic=topic, notes=notes)
+        db.session.add(s)
+    db.session.commit()
+    return jsonify({'ok': True})
+
+
+@app.route('/api/courses/<int:cid>/start_date', methods=['PUT'])
+@login_required
+def api_set_start_date(cid):
+    if current_user.role not in ('teacher', 'admin'):
+        return jsonify({'error': 'Teachers only'}), 403
+    data     = request.get_json()
+    date_str = data.get('start_date', '')
+    course   = Course.query.get_or_404(cid)
+    if date_str:
+        course.start_date = datetime.strptime(date_str, '%Y-%m-%d').date()
+        db.session.commit()
+    return jsonify({'ok': True, 'start_date': date_str})
+
+
+# ─────────────────────────────────────────────
 # Init DB & run
 # ─────────────────────────────────────────────
 with app.app_context():
@@ -1247,6 +1379,24 @@ with app.app_context():
         with db.engine.connect() as conn:
             if 'receipt_file' not in existing:
                 conn.execute(text('ALTER TABLE enrollments ADD COLUMN receipt_file VARCHAR(300)'))
+                conn.commit()
+    except Exception:
+        pass
+    try:
+        insp2 = sa_inspect(db.engine)
+        course_cols = {c['name'] for c in insp2.get_columns('courses')}
+        with db.engine.connect() as conn:
+            if 'start_date' not in course_cols:
+                conn.execute(text('ALTER TABLE courses ADD COLUMN start_date DATE'))
+                conn.commit()
+    except Exception:
+        pass
+    try:
+        insp3 = sa_inspect(db.engine)
+        course_cols2 = {c['name'] for c in insp3.get_columns('courses')}
+        with db.engine.connect() as conn:
+            if 'programme' not in course_cols2:
+                conn.execute(text('ALTER TABLE courses ADD COLUMN programme VARCHAR(100)'))
                 conn.commit()
     except Exception:
         pass

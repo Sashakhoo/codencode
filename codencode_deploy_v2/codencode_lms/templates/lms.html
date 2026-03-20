@@ -162,11 +162,11 @@
     }
     .topbar-left { display: flex; align-items: center; gap: 16px; }
     .sidebar-toggle {
-      width: 32px; height: 32px; background: none; border: 1px solid var(--border);
-      color: var(--muted); cursor: pointer; display: grid; place-items: center;
-      transition: all 0.2s;
+      width: 32px; height: 32px; background: var(--surface2); border: 1px solid rgba(255,255,255,0.18);
+      color: var(--white); cursor: pointer; display: grid; place-items: center;
+      transition: all 0.2s; border-radius: 4px;
     }
-    .sidebar-toggle:hover { border-color: var(--cyan); color: var(--cyan); }
+    .sidebar-toggle:hover { border-color: var(--cyan); color: var(--cyan); background: var(--cyan-dim); }
     .topbar-title { font-family: var(--font-m); font-size: 11px; letter-spacing: 0.1em; color: var(--muted); text-transform: uppercase; }
     .topbar-right { display: flex; align-items: center; gap: 12px; }
     .topbar-badge {
@@ -669,6 +669,51 @@
       .grid-3 { grid-template-columns: 1fr; }
       .video-grid { grid-template-columns: 1fr; }
     }
+    /* ── Timetable ─────────────────────────────── */
+    .timetable-week { margin-bottom: 18px; }
+    .tt-week-header {
+      display: flex; align-items: center; gap: 12px;
+      padding: 10px 20px; background: var(--surface2);
+      border-radius: 6px 6px 0 0; border: 1px solid var(--border);
+      border-bottom: none;
+    }
+    .tt-week-num {
+      font-family: var(--font-m); font-size: 11px; font-weight: 700;
+      color: var(--cyan); letter-spacing: 1px; text-transform: uppercase;
+    }
+    .tt-week-label { font-size: 13px; font-weight: 600; color: var(--white); }
+    .tt-week-badge {
+      margin-left: auto; font-family: var(--font-m); font-size: 10px;
+      padding: 2px 8px; border-radius: 10px;
+      border: 1px solid var(--cyan); color: var(--cyan);
+    }
+    .tt-session {
+      display: grid; grid-template-columns: 130px 160px 1fr;
+      align-items: center; gap: 16px;
+      padding: 13px 20px; border: 1px solid var(--border);
+      border-top: none; background: var(--surface);
+      transition: background .15s;
+    }
+    .tt-session:last-child { border-radius: 0 0 6px 6px; }
+    .tt-session.past { opacity: .45; }
+    .tt-session.today { background: rgba(0,220,180,.05); border-left: 2px solid var(--cyan); }
+    .tt-day-name { font-size: 12px; font-weight: 600; color: var(--white); }
+    .tt-day-date { font-family: var(--font-m); font-size: 10px; color: var(--muted); margin-top: 2px; }
+    .tt-time {
+      font-family: var(--font-m); font-size: 11px; color: var(--cyan);
+      background: var(--cyan-dim); padding: 3px 8px; border-radius: 4px;
+      white-space: nowrap; display: inline-block;
+    }
+    .tt-topic { font-size: 12px; color: var(--fg); }
+    .tt-topic.tba { color: var(--muted); font-style: italic; }
+    .tt-topic-input {
+      background: var(--surface2); border: 1px solid var(--border);
+      color: var(--fg); font-family: var(--font-m); font-size: 11px;
+      padding: 5px 10px; border-radius: 4px; width: 100%;
+      outline: none; transition: border-color .2s;
+    }
+    .tt-topic-input:focus { border-color: var(--cyan); }
+    .tt-notes { font-family: var(--font-m); font-size: 10px; color: var(--muted); margin-top: 3px; }
   </style>
 </head>
 <body>
@@ -778,6 +823,9 @@
         <button class="nav-item" onclick="switchView('grades')">
           <i class="fas fa-chart-bar"></i><span>My Grades</span>
         </button>
+        <button class="nav-item" onclick="switchView('timetable')">
+          <i class="fas fa-calendar-alt"></i><span>Timetable</span>
+        </button>
       </div>
       <div id="teacher-nav" class="sidebar-section" style="display:none">
         <div class="sidebar-label">Teaching</div>
@@ -800,6 +848,9 @@
         <button class="nav-item" onclick="switchView('t-students')">
           <i class="fas fa-users"></i><span>Students</span>
         </button>
+        <button class="nav-item" onclick="switchView('t-timetable')">
+          <i class="fas fa-calendar-alt"></i><span>Timetable</span>
+        </button>
       </div>
     </div>
 
@@ -812,26 +863,26 @@
       <div class="view active" id="view-dashboard">
         <div class="page-header">
           <div class="page-label">Student Dashboard</div>
-          <div class="page-title">Good to see you, Alex. 👋</div>
+          <div class="page-title" id="student-greeting">Good to see you, Alex. 👋</div>
           <div class="page-sub">// Python Bootcamp · Week 4 of 6</div>
         </div>
         <div class="stats-row" id="student-stats-row">
           <div class="stat-cell" data-icon="🎬">
-            <div class="stat-val">18</div>
+            <div class="stat-val">—</div>
             <div class="stat-lbl">Videos Watched</div>
-            <div class="progress-bar" style="margin-top:8px"><div class="progress-fill" style="width:75%"></div></div>
+            <div class="progress-bar" style="margin-top:8px"><div class="progress-fill" style="width:0%"></div></div>
           </div>
           <div class="stat-cell orange" data-icon="📝">
-            <div class="stat-val">2</div>
+            <div class="stat-val">—</div>
             <div class="stat-lbl">Assignments Due</div>
           </div>
           <div class="stat-cell green" data-icon="✅">
-            <div class="stat-val">86%</div>
+            <div class="stat-val">—</div>
             <div class="stat-lbl">Avg Grade</div>
           </div>
           <div class="stat-cell purple" data-icon="🏆">
-            <div class="stat-val">4/6</div>
-            <div class="stat-lbl">Weeks Complete</div>
+            <div class="stat-val">—</div>
+            <div class="stat-lbl">Submitted</div>
           </div>
         </div>
 
@@ -842,18 +893,7 @@
               <span class="card-title"><i class="fas fa-route"></i> Course Progress</span>
             </div>
             <div class="card-body" style="display:flex;flex-direction:column;gap:14px" id="dash-progress">
-              <div>
-                <div class="cp-bar-label"><span>Videos</span><span style="color:var(--cyan)">18 / 24</span></div>
-                <div class="progress-bar"><div class="progress-fill" style="width:75%"></div></div>
-              </div>
-              <div>
-                <div class="cp-bar-label"><span>Assignments</span><span style="color:var(--orange)">4 / 6</span></div>
-                <div class="progress-bar"><div class="progress-fill orange" style="width:67%"></div></div>
-              </div>
-              <div>
-                <div class="cp-bar-label"><span>Materials Downloaded</span><span style="color:var(--green)">12 / 15</span></div>
-                <div class="progress-bar"><div class="progress-fill green" style="width:80%"></div></div>
-              </div>
+              <div style="color:var(--muted);font-family:var(--font-m);font-size:12px">No progress yet.</div>
             </div>
           </div>
 
@@ -863,35 +903,8 @@
               <span class="card-title"><i class="fas fa-history"></i> Recent Activity</span>
             </div>
             <div class="card-body" style="padding:0 20px">
-              <div class="activity-feed">
-                <div class="activity-item">
-                  <div class="activity-dot dot-cyan"></div>
-                  <div>
-                    <div class="activity-text"><strong>Week 4: Functions & Modules</strong> — video uploaded</div>
-                    <div class="activity-time">2 hours ago</div>
-                  </div>
-                </div>
-                <div class="activity-item">
-                  <div class="activity-dot dot-green"></div>
-                  <div>
-                    <div class="activity-text"><strong>Assignment 3</strong> graded — 88/100</div>
-                    <div class="activity-time">Yesterday</div>
-                  </div>
-                </div>
-                <div class="activity-item">
-                  <div class="activity-dot dot-orange"></div>
-                  <div>
-                    <div class="activity-text"><strong>Assignment 4: Web Scraping</strong> — due in 3 days</div>
-                    <div class="activity-time">3 days ago</div>
-                  </div>
-                </div>
-                <div class="activity-item">
-                  <div class="activity-dot dot-purple"></div>
-                  <div>
-                    <div class="activity-text">New material: <strong>Pandas Cheat Sheet.pdf</strong> added</div>
-                    <div class="activity-time">4 days ago</div>
-                  </div>
-                </div>
+              <div class="activity-feed" id="dash-activity">
+                <div style="color:var(--muted);font-family:var(--font-m);font-size:12px;padding:16px 0">No progress yet.</div>
               </div>
             </div>
           </div>
@@ -931,7 +944,7 @@
           <div class="page-title">Class Recordings</div>
           <div class="page-sub">// click to watch</div>
         </div>
-        <div id="recordings-container"><div style="color:var(--muted);font-family:var(--font-m);font-size:12px;padding:32px;text-align:center">Loading...</div></div>
+        <div id="recordings-container"><div style="color:var(--muted);font-family:var(--font-m);font-size:12px;padding:32px;text-align:center">No progress yet.</div></div>
         <!-- week items rendered by loadVideos() -->
       </div>
 
@@ -941,7 +954,7 @@
           <div class="page-title">Downloads</div>
           <div class="page-sub">// click to download</div>
         </div>
-        <div id="materials-container"><div style="color:var(--muted);font-family:var(--font-m);font-size:12px;padding:32px;text-align:center">Loading...</div></div>
+        <div id="materials-container"><div style="color:var(--muted);font-family:var(--font-m);font-size:12px;padding:32px;text-align:center">No progress yet.</div></div>
       </div>
 
       <div class="view" id="view-assignments">
@@ -950,14 +963,14 @@
           <div class="page-title">Your Assignments</div>
           <div class="page-sub">// submit your work here</div>
         </div>
-        <div id="assignments-container"><div style="color:var(--muted);font-family:var(--font-m);font-size:12px;padding:32px;text-align:center">Loading...</div></div>
+        <div id="assignments-container"><div style="color:var(--muted);font-family:var(--font-m);font-size:12px;padding:32px;text-align:center">No progress yet.</div></div>
       </div>
 
       <div class="view" id="view-grades">
         <div class="page-header">
           <div class="page-label">My Grades</div>
           <div class="page-title">Grade Overview</div>
-          <div class="page-sub">// Current average: 86.5 / 100</div>
+          <div class="page-sub" id="grades-sub">// Current average: —</div>
         </div>
         <div class="card">
           <div class="card-header">
@@ -971,43 +984,20 @@
               </tr>
             </thead>
             <tbody id="grades-tbody">
-              <tr>
-                <td style="color:var(--muted)">01</td>
-                <td>Python Basics — Loops & Lists</td>
-                <td style="color:var(--green)"><i class="fas fa-check"></i> Jan 19</td>
-                <td><span style="color:var(--green);font-weight:700">80 / 100</span></td>
-                <td style="color:var(--muted)">Good start, watch off-by-one errors</td>
-              </tr>
-              <tr>
-                <td style="color:var(--muted)">02</td>
-                <td>Functions & Recursion</td>
-                <td style="color:var(--green)"><i class="fas fa-check"></i> Jan 28</td>
-                <td><span style="color:var(--green);font-weight:700">92 / 100</span></td>
-                <td style="color:var(--muted)">Excellent recursion. Clean code.</td>
-              </tr>
-              <tr>
-                <td style="color:var(--muted)">03</td>
-                <td>File Handling & Data Processing</td>
-                <td style="color:var(--green)"><i class="fas fa-check"></i> Feb 5</td>
-                <td><span style="color:var(--cyan);font-weight:700">88 / 100</span></td>
-                <td style="color:var(--muted)">Good error handling! Watch variable naming.</td>
-              </tr>
-              <tr>
-                <td style="color:var(--muted)">04</td>
-                <td>Web Scraping with BeautifulSoup</td>
-                <td style="color:var(--muted)">—</td>
-                <td><span style="color:var(--orange)">Pending</span></td>
-                <td style="color:var(--muted)">—</td>
-              </tr>
-              <tr>
-                <td style="color:var(--muted)">05</td>
-                <td>Pandas Data Analysis Report</td>
-                <td style="color:var(--muted)">—</td>
-                <td><span style="color:var(--orange)">Pending</span></td>
-                <td style="color:var(--muted)">—</td>
-              </tr>
+              <tr><td colspan="5" style="color:var(--muted);font-family:var(--font-m);font-size:12px;padding:24px;text-align:center">No progress yet.</td></tr>
             </tbody>
           </table>
+        </div>
+      </div>
+
+      <div class="view" id="view-timetable">
+        <div class="page-header">
+          <div class="page-label">Schedule</div>
+          <div class="page-title">Class Timetable</div>
+          <div class="page-sub">// Fri 8–10pm &nbsp;·&nbsp; Sat 9–11am &nbsp;·&nbsp; Sun 9–11am</div>
+        </div>
+        <div id="timetable-container">
+          <div style="color:var(--muted);font-family:var(--font-m);font-size:12px;padding:32px;text-align:center">No progress yet.</div>
         </div>
       </div>
 
@@ -1045,30 +1035,7 @@
               <button class="btn-action" onclick="switchView('t-grading')">Grade All</button>
             </div>
             <div class="file-list" id="t-ungraded-list">
-              <div class="file-row">
-                <div class="student-dot">AT</div>
-                <div style="flex:1">
-                  <div class="file-name" style="font-size:12px">Alex Tan — Assignment 3</div>
-                  <div class="file-sub">Submitted Feb 22 · .py file</div>
-                </div>
-                <button class="btn-action" onclick="openGradeModal('Alex Tan','Assignment 3')">Grade</button>
-              </div>
-              <div class="file-row">
-                <div class="student-dot">JL</div>
-                <div style="flex:1">
-                  <div class="file-name" style="font-size:12px">Jamie Lim — Assignment 3</div>
-                  <div class="file-sub">Submitted Feb 23 · .ipynb file</div>
-                </div>
-                <button class="btn-action" onclick="openGradeModal('Jamie Lim','Assignment 3')">Grade</button>
-              </div>
-              <div class="file-row">
-                <div class="student-dot">RN</div>
-                <div style="flex:1">
-                  <div class="file-name" style="font-size:12px">Rahim Nor — Assignment 3</div>
-                  <div class="file-sub">Submitted Feb 24 · .py file</div>
-                </div>
-                <button class="btn-action" onclick="openGradeModal('Rahim Nor','Assignment 3')">Grade</button>
-              </div>
+              <div style="padding:16px 20px;color:var(--muted);font-family:var(--font-m);font-size:12px">No progress yet.</div>
             </div>
           </div>
           <div class="card">
@@ -1076,22 +1043,7 @@
               <span class="card-title"><i class="fas fa-users"></i> Student Progress</span>
             </div>
             <div style="padding:16px 20px;display:flex;flex-direction:column;gap:14px" id="t-student-progress">
-              <div>
-                <div class="cp-bar-label" style="margin-bottom:6px"><span style="font-size:13px;font-weight:600">Alex Tan</span><span style="color:var(--cyan)">86%</span></div>
-                <div class="progress-bar"><div class="progress-fill" style="width:86%"></div></div>
-              </div>
-              <div>
-                <div class="cp-bar-label" style="margin-bottom:6px"><span style="font-size:13px;font-weight:600">Jamie Lim</span><span style="color:var(--green)">91%</span></div>
-                <div class="progress-bar"><div class="progress-fill green" style="width:91%"></div></div>
-              </div>
-              <div>
-                <div class="cp-bar-label" style="margin-bottom:6px"><span style="font-size:13px;font-weight:600">Rahim Nor</span><span style="color:var(--orange)">62%</span></div>
-                <div class="progress-bar"><div class="progress-fill orange" style="width:62%"></div></div>
-              </div>
-              <div>
-                <div class="cp-bar-label" style="margin-bottom:6px"><span style="font-size:13px;font-weight:600">Wei Ling</span><span style="color:var(--cyan)">78%</span></div>
-                <div class="progress-bar"><div class="progress-fill" style="width:78%"></div></div>
-              </div>
+              <div style="color:var(--muted);font-family:var(--font-m);font-size:12px">No progress yet.</div>
             </div>
           </div>
         </div>
@@ -1157,30 +1109,7 @@
               <span class="card-title"><i class="fas fa-list"></i> Uploaded Recordings</span>
             </div>
             <div class="file-list" id="t-recordings-list">
-              <div class="file-row">
-                <div class="file-icon mp4"><i class="fas fa-film"></i></div>
-                <div style="flex:1">
-                  <div class="file-name" style="font-size:12px">W4S2 — Data Cleaning</div>
-                  <div class="file-sub">Uploaded Feb 22 · 55:18 · 1.2 GB</div>
-                </div>
-                <button class="btn-action red" onclick="showToast('Recording deleted')"><i class="fas fa-trash"></i></button>
-              </div>
-              <div class="file-row">
-                <div class="file-icon mp4"><i class="fas fa-film"></i></div>
-                <div style="flex:1">
-                  <div class="file-name" style="font-size:12px">W4S1 — Pandas Intro</div>
-                  <div class="file-sub">Uploaded Feb 19 · 62:05 · 1.4 GB</div>
-                </div>
-                <button class="btn-action red" onclick="showToast('Recording deleted')"><i class="fas fa-trash"></i></button>
-              </div>
-              <div class="file-row">
-                <div class="file-icon mp4"><i class="fas fa-film"></i></div>
-                <div style="flex:1">
-                  <div class="file-name" style="font-size:12px">W3S4 — OOP Part 2</div>
-                  <div class="file-sub">Uploaded Feb 14 · 49:30 · 1.1 GB</div>
-                </div>
-                <button class="btn-action red" onclick="showToast('Recording deleted')"><i class="fas fa-trash"></i></button>
-              </div>
+              <div style="padding:16px 20px;color:var(--muted);font-family:var(--font-m);font-size:12px">No progress yet.</div>
             </div>
           </div>
         </div>
@@ -1341,34 +1270,7 @@
             <span class="card-title"><i class="fas fa-list-alt"></i> Published Assignments</span>
           </div>
           <div class="assignment-list" style="padding:16px 20px" id="t-assignments-list">
-            <div class="assignment-card">
-              <div class="assignment-card-top">
-                <span class="asgn-num">05</span>
-                <div style="flex:1">
-                  <div class="asgn-title">Pandas Data Analysis Report</div>
-                  <div class="asgn-desc">Due Mar 7 · 100 pts</div>
-                </div>
-                <span class="status-badge" style="border-color:rgba(0,220,180,0.3);color:var(--cyan)">3/14 submitted</span>
-              </div>
-              <div class="asgn-meta">
-                <button class="btn-action ghost" onclick="switchView('t-grading')"><i class="fas fa-check-double"></i> Grade Submissions</button>
-                <button class="btn-action red" onclick="showToast('Assignment deleted')"><i class="fas fa-trash"></i> Delete</button>
-              </div>
-            </div>
-            <div class="assignment-card">
-              <div class="assignment-card-top">
-                <span class="asgn-num">04</span>
-                <div style="flex:1">
-                  <div class="asgn-title">Web Scraping with BeautifulSoup</div>
-                  <div class="asgn-desc">Due Feb 28 · 100 pts</div>
-                </div>
-                <span class="status-badge" style="border-color:rgba(249,199,79,0.4);color:var(--yellow)">8/14 submitted</span>
-              </div>
-              <div class="asgn-meta">
-                <button class="btn-action ghost" onclick="switchView('t-grading')"><i class="fas fa-check-double"></i> Grade Submissions</button>
-                <button class="btn-action red" onclick="showToast('Assignment deleted')"><i class="fas fa-trash"></i> Delete</button>
-              </div>
-            </div>
+            <div style="color:var(--muted);font-family:var(--font-m);font-size:12px">No progress yet.</div>
           </div>
         </div>
       </div>
@@ -1387,7 +1289,7 @@
             <span class="card-title" id="grading-title"><i class="fas fa-inbox"></i> Submissions</span>
             <span style="font-family:var(--font-m);font-size:11px;color:var(--orange)" id="grading-ungraded"></span>
           </div>
-          <div id="grading-container"><div style="color:var(--muted);font-family:var(--font-m);font-size:12px;padding:32px;text-align:center">Loading...</div></div>
+          <div id="grading-container"><div style="color:var(--muted);font-family:var(--font-m);font-size:12px;padding:32px;text-align:center">No progress yet.</div></div>
         </div>
       </div>
 
@@ -1395,7 +1297,7 @@
         <div class="page-header">
           <div class="page-label">Students</div>
           <div class="page-title">Class Roster</div>
-          <div class="page-sub">// 14 enrolled · Python Bootcamp</div>
+          <div class="page-sub" id="students-sub">// No students enrolled yet.</div>
         </div>
         <div class="card">
           <table class="grade-table">
@@ -1405,59 +1307,36 @@
               </tr>
             </thead>
             <tbody id="students-tbody">
-              <tr>
-                <td><div class="student-chip"><div class="student-dot">AT</div> Alex Tan</div></td>
-                <td style="color:var(--muted)"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="543538312c143339353d387a373b39">[email&#160;protected]</a></td>
-                <td>18 / 24</td>
-                <td><span style="color:var(--green)">4 / 6 submitted</span></td>
-                <td><span style="color:var(--cyan);font-weight:700">86.5</span></td>
-                <td style="min-width:100px"><div class="progress-bar"><div class="progress-fill" style="width:75%"></div></div></td>
-              </tr>
-              <tr>
-                <td><div class="student-chip"><div class="student-dot">JL</div> Jamie Lim</div></td>
-                <td style="color:var(--muted)"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="711b101c181431161c10181d5f121e1c">[email&#160;protected]</a></td>
-                <td>22 / 24</td>
-                <td><span style="color:var(--green)">5 / 6 submitted</span></td>
-                <td><span style="color:var(--green);font-weight:700">91.2</span></td>
-                <td><div class="progress-bar"><div class="progress-fill green" style="width:92%"></div></div></td>
-              </tr>
-              <tr>
-                <td><div class="student-chip"><div class="student-dot">RN</div> Rahim Nor</div></td>
-                <td style="color:var(--muted)"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="fd8f9c959490bd9a909c9491d39e9290">[email&#160;protected]</a></td>
-                <td>11 / 24</td>
-                <td><span style="color:var(--orange)">3 / 6 submitted</span></td>
-                <td><span style="color:var(--orange);font-weight:700">62.0</span></td>
-                <td><div class="progress-bar"><div class="progress-fill orange" style="width:46%"></div></div></td>
-              </tr>
-              <tr>
-                <td><div class="student-chip"><div class="student-dot">WL</div> Wei Ling</div></td>
-                <td style="color:var(--muted)"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="a4d3c1cdc8cdcac3e4c3c9c5cdc88ac7cbc9">[email&#160;protected]</a></td>
-                <td>16 / 24</td>
-                <td><span style="color:var(--cyan)">4 / 6 submitted</span></td>
-                <td><span style="color:var(--cyan);font-weight:700">78.3</span></td>
-                <td><div class="progress-bar"><div class="progress-fill" style="width:67%"></div></div></td>
-              </tr>
-              <tr>
-                <td><div class="student-chip"><div class="student-dot">ZH</div> Zara Hassan</div></td>
-                <td style="color:var(--muted)"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="720813001332151f131b1e5c111d1f">[email&#160;protected]</a></td>
-                <td>20 / 24</td>
-                <td><span style="color:var(--green)">5 / 6 submitted</span></td>
-                <td><span style="color:var(--green);font-weight:700">88.6</span></td>
-                <td><div class="progress-bar"><div class="progress-fill green" style="width:83%"></div></div></td>
-              </tr>
-              <tr>
-                <td><div class="student-chip"><div class="student-dot">KC</div> Kai Chen</div></td>
-                <td style="color:var(--muted)"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="dfb4beb69fb8b2beb6b3f1bcb0b2">[email&#160;protected]</a></td>
-                <td>24 / 24</td>
-                <td><span style="color:var(--green)">6 / 6 submitted</span></td>
-                <td><span style="color:var(--green);font-weight:700">94.0</span></td>
-                <td><div class="progress-bar"><div class="progress-fill green" style="width:100%"></div></div></td>
-              </tr>
+              <tr><td colspan="6" style="color:var(--muted);font-family:var(--font-m);font-size:12px;padding:24px;text-align:center">No progress yet.</td></tr>
             </tbody>
           </table>
           <div style="padding:14px 20px;border-top:1px solid var(--border)">
             <button class="btn-action ghost" onclick="showToast('Student report exported')"><i class="fas fa-file-export"></i> Export Report</button>
           </div>
+        </div>
+      </div>
+
+      <div class="view" id="view-t-timetable">
+        <div class="page-header">
+          <div class="page-label">Manage</div>
+          <div class="page-title">Timetable</div>
+          <div class="page-sub">// Set topics for each session</div>
+        </div>
+        <div class="card" style="margin-bottom:18px">
+          <div class="card-header">
+            <span class="card-title"><i class="fas fa-calendar-day"></i> Course Start Date</span>
+          </div>
+          <div style="padding:16px 20px;display:flex;align-items:center;gap:12px">
+            <input type="date" id="tt-start-date-input" class="form-input" style="max-width:180px" />
+            <button class="btn-action" onclick="saveStartDate()"><i class="fas fa-save"></i> Save</button>
+            <span style="font-family:var(--font-m);font-size:11px;color:var(--muted)">Sets Week 1 Friday — all other dates auto-calculate.</span>
+          </div>
+        </div>
+        <div id="t-timetable-container">
+          <div style="color:var(--muted);font-family:var(--font-m);font-size:12px;padding:32px;text-align:center">No progress yet.</div>
+        </div>
+        <div style="padding:20px 0">
+          <button class="btn-action" onclick="saveAllTopics()"><i class="fas fa-paper-plane"></i> Save All Topics</button>
         </div>
       </div>
 
@@ -1530,8 +1409,8 @@
     <div class="submission-detail">
       <div class="sub-info-row"><span class="sub-info-lbl">Student</span> <span id="grade-modal-student" style="font-weight:700">—</span></div>
       <div class="sub-info-row"><span class="sub-info-lbl">Assignment</span> <span id="grade-modal-asgn">—</span></div>
-      <div class="sub-info-row"><span class="sub-info-lbl">File</span> <span style="color:var(--cyan)"><i class="fas fa-file-code"></i> submission.py</span></div>
-      <div class="sub-info-row"><span class="sub-info-lbl">Submitted</span> <span>Feb 22, 2025 · 10:34 PM</span></div>
+      <div class="sub-info-row"><span class="sub-info-lbl">File</span> <span style="color:var(--cyan)" id="grade-modal-file"><i class="fas fa-file-code"></i> —</span></div>
+      <div class="sub-info-row"><span class="sub-info-lbl">Submitted</span> <span id="grade-modal-submitted">—</span></div>
     </div>
     <div class="grade-form">
       <div class="grade-form-row">
@@ -1603,6 +1482,7 @@ const BASE   = window.location.pathname.startsWith('/lms') ? '/lms' : '';
 const GET    = url        => api('GET',    BASE + url);
 const POST   = (url, b)  => api('POST',   BASE + url, b);
 const DELETE = url        => api('DELETE', BASE + url);
+const PUT    = (url, b)  => api('PUT',    BASE + url, b);
 
 // ── Boot ──────────────────────────────────────────────
 
@@ -1672,6 +1552,7 @@ async function bootApp() {
   document.getElementById('role-badge').textContent    = isTeacher ? 'Teacher' : 'Student';
   document.getElementById('role-badge').className      = 'topbar-badge ' + (isTeacher ? 'badge-teacher' : 'badge-student');
   document.getElementById('user-display-name').textContent = STATE.user.name.split(' ')[0] + ' ' + (STATE.user.name.split(' ')[1]?.[0] || '') + '.';
+  document.getElementById('student-greeting').textContent = 'Good to see you, ' + STATE.user.name.split(' ')[0] + '. 👋';
   const initials = STATE.user.name.split(' ').map(p=>p[0]).join('').toUpperCase().slice(0,2);
   document.getElementById('user-avatar-initials').textContent = initials;
 
@@ -1744,7 +1625,8 @@ const VIEW_TITLES = {
   'dashboard':'Dashboard','videos':'Recordings','materials':'Materials',
   'assignments':'Assignments','grades':'My Grades',
   't-dashboard':'Overview','t-videos':'Recordings','t-materials':'Materials',
-  't-assignments':'Assignments','t-grading':'Grading','t-students':'Students'
+  't-assignments':'Assignments','t-grading':'Grading','t-students':'Students','t-timetable':'Timetable',
+  'timetable':'Timetable'
 };
 
 // Map view → loader function
@@ -1760,6 +1642,8 @@ const VIEW_LOADERS = {
   't-assignments':loadTeacherAssignments,
   't-grading':    loadTeacherGrading,
   't-students':   loadStudents,
+  'timetable':    loadTimetable,
+  't-timetable':  loadTeacherTimetable,
 };
 
 async function switchView(id) {
@@ -1872,6 +1756,21 @@ async function loadStudentDashboard() {
       <div class="cp-bar-label"><span>Assignments Submitted</span><span style="color:var(--orange)">${d.assignments_submitted} / ${d.total_assignments}</span></div>
       ${progressBar(asgnPct, 'orange')}
     </div>`;
+
+  // Activity feed
+  const actEl = document.getElementById('dash-activity');
+  if (actEl) {
+    actEl.innerHTML = d.recent_activity && d.recent_activity.length
+      ? d.recent_activity.map(a => `
+        <div class="activity-item">
+          <div class="activity-dot dot-${a.type}"></div>
+          <div>
+            <div class="activity-text">${a.text}</div>
+            <div class="activity-time">${a.time}</div>
+          </div>
+        </div>`).join('')
+      : `<div style="color:var(--muted);font-family:var(--font-m);font-size:12px;padding:16px 0">No recent activity.</div>`;
+  }
 
   // Badge count
   const pending = d.assignments_pending ?? (d.total_assignments - d.assignments_submitted);
@@ -2008,6 +1907,8 @@ async function loadGrades() {
   const graded = asgns.filter(a => a.submission?.score !== null && a.submission?.score !== undefined);
   const avg = graded.length ? (graded.reduce((s,a) => s + a.submission.score, 0) / graded.length).toFixed(1) : '—';
   document.getElementById('grades-avg').textContent = `Avg: ${avg}`;
+  const gradesSub = document.getElementById('grades-sub');
+  if (gradesSub) gradesSub.textContent = avg === '—' ? '// No grades yet' : `// Current average: ${avg} / 100`;
 
   tbody.innerHTML = asgns.map((a,i) => {
     const sub = a.submission;
@@ -2240,7 +2141,9 @@ async function loadStudents() {
         ${s.avg_grade ?? '—'}
       </span></td>
       <td style="min-width:100px">${progressBar(s.progress_pct, s.progress_pct>=80?'green':s.progress_pct>=50?'':'orange')}</td>
-    </tr>`).join('');
+    </tr>`).join('') || `<tr><td colspan="6" style="color:var(--muted);font-family:var(--font-m);font-size:12px;padding:24px;text-align:center">No students enrolled yet.</td></tr>`;
+  const sub = document.getElementById('students-sub');
+  if (sub) sub.textContent = `// ${d.enrolled_students} enrolled`;
 }
 
 // ══════════════════════════════════════════════════════
@@ -2459,6 +2362,117 @@ function showToast(msg, isError = false) {
   t.classList.add('show');
   clearTimeout(_toastTimer);
   _toastTimer = setTimeout(() => t.classList.remove('show'), 3000);
+}
+// ══════════════════════════════════════════════════════
+//  TIMETABLE
+// ══════════════════════════════════════════════════════
+
+async function loadTimetable() {
+  const data = await GET(`/api/courses/${STATE.courseId}/timetable`);
+  const container = document.getElementById('timetable-container');
+  if (!container) return;
+
+  if (!data.weeks || !data.weeks.length) {
+    container.innerHTML = `<div style="color:var(--muted);font-family:var(--font-m);font-size:12px;padding:32px;text-align:center">No timetable set yet.</div>`;
+    return;
+  }
+
+  container.innerHTML = data.weeks.map(w => {
+    const sessionsHtml = w.sessions.map(s => {
+      const cls  = s.is_today ? 'today' : s.is_past ? 'past' : '';
+      const topicHtml = s.topic
+        ? `<div class="tt-topic">${s.topic}${s.notes ? `<div class="tt-notes">${s.notes}</div>` : ''}</div>`
+        : `<div class="tt-topic tba">Topic to be announced</div>`;
+      return `<div class="tt-session ${cls}">
+        <div>
+          <div class="tt-day-name">${s.day}</div>
+          <div class="tt-day-date">${s.date || '—'}</div>
+        </div>
+        <div><span class="tt-time">${s.time_start} – ${s.time_end}</span></div>
+        ${topicHtml}
+      </div>`;
+    }).join('');
+
+    const isCurrent = w.week === data.current_week;
+    const badge     = isCurrent ? `<span class="tt-week-badge">Current Week</span>` : '';
+    return `<div class="timetable-week">
+      <div class="tt-week-header">
+        <span class="tt-week-num">Week ${w.week}</span>
+        <span class="tt-week-label"></span>${badge}
+      </div>
+      ${sessionsHtml}
+    </div>`;
+  }).join('');
+}
+
+async function loadTeacherTimetable() {
+  const data = await GET(`/api/courses/${STATE.courseId}/timetable`);
+  const container = document.getElementById('t-timetable-container');
+  if (!container) return;
+
+  // Set start date input
+  const sdInput = document.getElementById('tt-start-date-input');
+  if (sdInput && data.start_date) sdInput.value = data.start_date;
+
+  if (!data.weeks || !data.weeks.length) {
+    container.innerHTML = `<div style="color:var(--muted);font-family:var(--font-m);font-size:12px;padding:32px;text-align:center">No weeks configured.</div>`;
+    return;
+  }
+
+  container.innerHTML = data.weeks.map(w => {
+    const sessionsHtml = w.sessions.map(s => {
+      const topicVal = (s.topic || '').replace(/"/g, '&quot;');
+      const notesVal = (s.notes || '').replace(/"/g, '&quot;');
+      return `<div class="tt-session">
+        <div>
+          <div class="tt-day-name">${s.day}</div>
+          <div class="tt-day-date">${s.date || '—'}</div>
+        </div>
+        <div><span class="tt-time">${s.time_start} – ${s.time_end}</span></div>
+        <div>
+          <input class="tt-topic-input" type="text"
+            placeholder="e.g. Python Basics &amp; Setup"
+            value="${topicVal}"
+            data-week="${w.week}" data-snum="${s.session_num}"
+            data-notes="${notesVal}" />
+        </div>
+      </div>`;
+    }).join('');
+
+    const isCurrent = w.week === data.current_week;
+    const badge     = isCurrent ? `<span class="tt-week-badge">Current Week</span>` : '';
+    return `<div class="timetable-week">
+      <div class="tt-week-header">
+        <span class="tt-week-num">Week ${w.week}</span>
+        <span class="tt-week-label"></span>${badge}
+      </div>
+      ${sessionsHtml}
+    </div>`;
+  }).join('');
+}
+
+async function saveAllTopics() {
+  const inputs = document.querySelectorAll('.tt-topic-input');
+  let saved = 0;
+  for (const inp of inputs) {
+    const week    = parseInt(inp.dataset.week);
+    const snum    = parseInt(inp.dataset.snum);
+    const topic   = inp.value.trim();
+    const notes   = inp.dataset.notes || '';
+    try {
+      await PUT(`/api/courses/${STATE.courseId}/timetable`, { week, session_num: snum, topic, notes });
+      saved++;
+    } catch(e) {}
+  }
+  showToast(`${saved} sessions saved!`);
+}
+
+async function saveStartDate() {
+  const val = document.getElementById('tt-start-date-input')?.value;
+  if (!val) { showToast('Pick a date first', true); return; }
+  await PUT(`/api/courses/${STATE.courseId}/start_date`, { start_date: val });
+  showToast('Start date saved!');
+  await loadTeacherTimetable();
 }
 </script>
 </body>

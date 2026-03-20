@@ -558,6 +558,24 @@
     @media (max-width: 800px) {
       .two-pane { grid-template-columns: 1fr; }
     }
+    /* ── Timetable (admin) ─────────────────── */
+    .tt-week-card { margin-bottom: 14px; border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+    .tt-week-head { display:flex; align-items:center; gap:12px; padding:10px 16px; background:var(--surface2); border-bottom:1px solid var(--border); }
+    .tt-wk-num  { font-size:10px; font-weight:700; color:var(--cyan); letter-spacing:1px; font-family:'Space Mono',monospace; }
+    .tt-wk-curr { margin-left:auto; font-size:10px; color:var(--cyan); border:1px solid var(--cyan); padding:1px 8px; border-radius:10px; }
+    .tt-row     { display:grid; grid-template-columns:110px 150px 1fr; gap:12px; align-items:center; padding:10px 16px; border-bottom:1px solid var(--border); background:var(--surface); }
+    .tt-row:last-child { border-bottom:none; }
+    .tt-row.past { opacity:.45; }
+    .tt-row.today { background:rgba(0,220,180,.05); border-left:2px solid var(--cyan); }
+    .tt-day  { font-size:12px; font-weight:600; }
+    .tt-date { font-size:10px; color:var(--text-muted); margin-top:2px; }
+    .tt-time-badge { font-size:10px; color:var(--cyan); background:var(--cyan-dim); padding:2px 8px; border-radius:4px; white-space:nowrap; }
+    .tt-input { background:var(--surface2); border:1px solid var(--border); color:var(--text); font-family:'Space Mono',monospace; font-size:11px; padding:5px 10px; border-radius:4px; width:100%; outline:none; transition:border-color .2s; }
+    .tt-input:focus { border-color:var(--cyan); }
+    /* ── Programme badge ───────────────────── */
+    .prog-badge { display:inline-block; font-size:10px; padding:1px 8px; border-radius:10px; background:var(--cyan-dim); color:var(--cyan); margin-bottom:6px; font-family:'Space Mono',monospace; }
+    /* ── Course card actions ───────────────── */
+    .course-actions { display:flex; gap:8px; flex-wrap:wrap; margin-top:12px; }
   </style>
 </head>
 <body>
@@ -597,6 +615,9 @@
       </div>
       <div class="nav-item" onclick="showView('materials')">
         <i class="fas fa-file-upload"></i> Upload Materials
+      </div>
+      <div class="nav-item" onclick="showView('timetable')">
+        <i class="fas fa-calendar-alt"></i> Timetable
       </div>
     </div>
 
@@ -675,11 +696,14 @@
 
       <!-- ── COURSES ─────────────────────────── -->
       <div id="view-courses" class="view">
-        <div class="section-header">
-          <div class="section-title">Courses</div>
+        <div class="section-header" style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+          <div class="section-title">Courses &amp; Programmes</div>
+          <button class="btn btn-primary btn-sm" onclick="openAddCourse()">
+            <i class="fas fa-plus"></i> New Course
+          </button>
         </div>
-        <div id="courses-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:16px">
-          <div style="color:var(--text-muted)">Loading...</div>
+        <div id="courses-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:16px">
+          <div style="color:var(--text-muted)">No progress yet.</div>
         </div>
       </div>
 
@@ -769,6 +793,33 @@
               <tbody id="payments-tbody"></tbody>
             </table>
           </div>
+        </div>
+      </div>
+
+      <!-- ── TIMETABLE ────────────────────────── -->
+      <div id="view-timetable" class="view">
+        <div class="filter-bar" style="margin-bottom:20px">
+          <label>Course</label>
+          <select class="form-select" id="tt-course-select" onchange="loadAdminTimetable()" style="width:300px">
+            <option value="">Select course...</option>
+          </select>
+        </div>
+        <div id="tt-start-date-bar" style="display:none;margin-bottom:20px">
+          <div class="card" style="padding:16px 20px;display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+            <span style="font-size:12px;color:var(--text-muted)"><i class="fas fa-calendar-day" style="color:var(--cyan);margin-right:6px"></i>Week 1 Start Date (Friday)</span>
+            <input type="date" id="tt-admin-start-date" class="form-input" style="max-width:180px" />
+            <button class="btn btn-primary btn-sm" onclick="saveAdminStartDate()"><i class="fas fa-save"></i> Save Date</button>
+            <span style="font-size:10px;color:var(--text-muted)">All session dates auto-calculate from this.</span>
+          </div>
+        </div>
+        <div id="tt-admin-container">
+          <div class="empty-state">
+            <i class="fas fa-calendar-alt"></i>
+            <p>Select a course to manage its timetable</p>
+          </div>
+        </div>
+        <div id="tt-save-bar" style="display:none;margin-top:16px">
+          <button class="btn btn-primary" onclick="saveAdminAllTopics()"><i class="fas fa-paper-plane"></i> Save All Topics</button>
         </div>
       </div>
 
@@ -876,6 +927,42 @@
   </div>
 </div>
 
+<!-- Create / Edit Course -->
+<div class="modal-overlay" id="modal-course" onclick="if(event.target===this)closeModal('modal-course')">
+  <div class="modal-box">
+    <div class="modal-title" id="course-modal-title">New Course</div>
+    <input type="hidden" id="edit-course-id" value="" />
+    <div class="form-grid">
+      <div class="form-group">
+        <label class="form-label">Course Title *</label>
+        <input class="form-input" id="c-title" placeholder="Python Bootcamp — Cohort 1" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Programme</label>
+        <input class="form-input" id="c-programme" placeholder="Python Bootcamp" />
+      </div>
+      <div class="form-group" style="grid-column:1/-1">
+        <label class="form-label">Description</label>
+        <textarea class="form-textarea" id="c-description" placeholder="Short description of this cohort..."></textarea>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Number of Weeks</label>
+        <input class="form-input" type="number" id="c-weeks" min="1" max="52" value="6" style="width:100px" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Week 1 Start Date (Friday)</label>
+        <input class="form-input" type="date" id="c-start-date" />
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('modal-course')">Cancel</button>
+      <button class="btn btn-primary" id="course-save-btn" onclick="saveCourse()">
+        <i class="fas fa-save"></i> Save
+      </button>
+    </div>
+  </div>
+</div>
+
 <!-- Toast container -->
 <div id="toast-container"></div>
 
@@ -949,6 +1036,7 @@ const VIEW_TITLES = {
   attendance: ['Attendance',       'Mark & review attendance'],
   materials:  ['Upload Materials', 'Add materials per week'],
   payments:   ['Payment Tracker',  'Monitor payment status'],
+  timetable:  ['Timetable',        'Set topics & schedule per course'],
 };
 
 function showView(name) {
@@ -964,6 +1052,7 @@ function showView(name) {
   if (name === 'students')   renderStudentList();
   if (name === 'courses')    renderCourses();
   if (name === 'payments')   renderPayments();
+  if (name === 'timetable')  populateTimetableCourseSelect();
 }
 
 // ═══════════════════════════════════════════════════════
@@ -1279,28 +1368,41 @@ async function unenroll(eid, uid) {
 // COURSES
 // ═══════════════════════════════════════════════════════
 function renderCourses() {
+  if (!S.courses.length) {
+    document.getElementById('courses-grid').innerHTML = '<div style="color:var(--text-muted)">No courses yet. Click <strong>New Course</strong> to create one.</div>';
+    return;
+  }
   document.getElementById('courses-grid').innerHTML = S.courses.map(c => `
     <div class="card" style="margin-bottom:0">
-      <div class="card-title" style="margin-bottom:10px">${c.title}</div>
-      <div style="font-size:12px;color:var(--text-muted);margin-bottom:16px">${c.description || ''}</div>
+      ${c.programme ? `<div class="prog-badge">${c.programme}</div>` : ''}
+      <div class="card-title" style="margin-bottom:6px">${c.title}</div>
+      <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px">${c.description || ''}</div>
+      <div style="font-size:11px;color:var(--text-muted);margin-bottom:16px">
+        ${c.start_date ? '<i class="fas fa-calendar" style="color:var(--cyan);margin-right:4px"></i>' + formatDate(c.start_date) + ' start &nbsp;·&nbsp; ' : ''}
+        ${c.enrolled_count} students enrolled
+      </div>
       <div style="margin-bottom:16px">
-        <div style="font-size:11px;color:var(--text-muted);margin-bottom:6px">CURRENT WEEK</div>
+        <div style="font-size:11px;color:var(--text-muted);margin-bottom:6px">PROGRESS</div>
         <div class="week-dots">
           ${Array.from({length:c.weeks},(_,i)=>`
             <div class="week-dot${i<c.current_week?' done':''}" title="Week ${i+1}"></div>`).join('')}
         </div>
         <div style="margin-top:8px;font-size:12px;color:var(--text-muted)">
           Week <span style="color:var(--cyan);font-weight:700">${c.current_week}</span> of ${c.weeks}
-          &nbsp;·&nbsp; ${c.enrolled_count} students
         </div>
       </div>
-      <div style="display:flex;gap:8px;align-items:center">
+      <div class="course-actions">
         <button class="btn btn-secondary btn-sm" onclick="advanceWeek(${c.id},-1)" ${c.current_week<=1?'disabled':''}>
           <i class="fas fa-chevron-left"></i>
         </button>
-        <span style="font-size:11px;color:var(--text-muted)">Set Week</span>
         <button class="btn btn-primary btn-sm" onclick="advanceWeek(${c.id},1)" ${c.current_week>=c.weeks?'disabled':''}>
           <i class="fas fa-chevron-right"></i> Next Week
+        </button>
+        <button class="btn btn-secondary btn-sm" onclick="openEditCourse(${c.id})" style="margin-left:auto">
+          <i class="fas fa-edit"></i>
+        </button>
+        <button class="btn btn-secondary btn-sm" onclick="goToTimetable(${c.id})" title="Manage Timetable" style="color:var(--cyan)">
+          <i class="fas fa-calendar-alt"></i>
         </button>
       </div>
     </div>
@@ -1328,6 +1430,7 @@ function populateCourseSelects() {
     const el = document.getElementById(id);
     if (el) el.innerHTML = '<option value="">Select course...</option>' + opts;
   });
+  populateTimetableCourseSelect();
 }
 
 async function loadAttendance() {
@@ -1644,6 +1747,178 @@ function toast(msg, isError=false) {
 function fileIcon(ft) {
   const map = { py:'🐍', pdf:'📄', zip:'📦', ipynb:'📓', csv:'📊', txt:'📝', docx:'📝' };
   return map[ft] || '📎';
+}
+
+// ═══════════════════════════════════════════════════════
+// COURSES — Create / Edit
+// ═══════════════════════════════════════════════════════
+function openAddCourse() {
+  document.getElementById('course-modal-title').textContent = 'New Course';
+  document.getElementById('edit-course-id').value = '';
+  document.getElementById('c-title').value       = '';
+  document.getElementById('c-programme').value   = '';
+  document.getElementById('c-description').value = '';
+  document.getElementById('c-weeks').value       = '6';
+  document.getElementById('c-start-date').value  = '';
+  openModal('modal-course');
+}
+
+function openEditCourse(cid) {
+  const c = S.courses.find(x => x.id === cid);
+  if (!c) return;
+  document.getElementById('course-modal-title').textContent = 'Edit Course';
+  document.getElementById('edit-course-id').value = cid;
+  document.getElementById('c-title').value       = c.title;
+  document.getElementById('c-programme').value   = c.programme || '';
+  document.getElementById('c-description').value = c.description || '';
+  document.getElementById('c-weeks').value       = c.weeks;
+  document.getElementById('c-start-date').value  = c.start_date || '';
+  openModal('modal-course');
+}
+
+async function saveCourse() {
+  const cid  = document.getElementById('edit-course-id').value;
+  const data = {
+    title:       document.getElementById('c-title').value.trim(),
+    programme:   document.getElementById('c-programme').value.trim(),
+    description: document.getElementById('c-description').value.trim(),
+    weeks:       parseInt(document.getElementById('c-weeks').value) || 6,
+    start_date:  document.getElementById('c-start-date').value || null,
+  };
+  if (!data.title) { toast('Course title is required', true); return; }
+  const btn = document.getElementById('course-save-btn');
+  btn.disabled = true;
+  try {
+    if (cid) {
+      const res = await PUT(`/api/admin/courses/${cid}`, data);
+      const idx = S.courses.findIndex(x => x.id === parseInt(cid));
+      if (idx >= 0) S.courses[idx] = res.course;
+      toast('Course updated');
+    } else {
+      const res = await POST('/api/admin/courses', data);
+      S.courses.push(res.course);
+      toast('Course created');
+    }
+    closeModal('modal-course');
+    renderCourses();
+    populateCourseSelects();
+  } catch(e) { toast(e.message, true); }
+  btn.disabled = false;
+}
+
+// ═══════════════════════════════════════════════════════
+// TIMETABLE (Admin)
+// ═══════════════════════════════════════════════════════
+function populateTimetableCourseSelect() {
+  const sel = document.getElementById('tt-course-select');
+  if (!sel) return;
+  sel.innerHTML = '<option value="">Select course...</option>' +
+    S.courses.map(c => `<option value="${c.id}">${c.title}${c.programme ? ' · '+c.programme : ''}</option>`).join('');
+}
+
+async function loadAdminTimetable() {
+  const cid = document.getElementById('tt-course-select').value;
+  const container  = document.getElementById('tt-admin-container');
+  const saveBar    = document.getElementById('tt-save-bar');
+  const startBar   = document.getElementById('tt-start-date-bar');
+  if (!cid) {
+    container.innerHTML = '<div class="empty-state"><i class="fas fa-calendar-alt"></i><p>Select a course to manage its timetable</p></div>';
+    saveBar.style.display  = 'none';
+    startBar.style.display = 'none';
+    return;
+  }
+  container.innerHTML = '<div style="color:var(--text-muted);padding:20px;text-align:center">Loading timetable...</div>';
+  try {
+    const data = await GET(`/api/courses/${cid}/timetable`);
+    // Set start date input
+    const sdInput = document.getElementById('tt-admin-start-date');
+    if (sdInput) sdInput.value = data.start_date || '';
+    startBar.style.display = 'block';
+
+    if (!data.weeks || !data.weeks.length) {
+      container.innerHTML = '<div class="empty-state"><i class="fas fa-calendar-alt"></i><p>No weeks configured for this course.</p></div>';
+      saveBar.style.display = 'none';
+      return;
+    }
+
+    const today = new Date().toISOString().split('T')[0];
+    container.innerHTML = data.weeks.map(w => {
+      const isCurrent = w.week === data.current_week;
+      const rows = w.sessions.map(s => {
+        const cls  = s.is_today ? 'today' : s.is_past ? 'past' : '';
+        const tv   = (s.topic || '').replace(/"/g,'&quot;');
+        return `<div class="tt-row ${cls}">
+          <div>
+            <div class="tt-day">${s.day}</div>
+            <div class="tt-date">${s.date || '—'}</div>
+          </div>
+          <div><span class="tt-time-badge">${s.time_start} – ${s.time_end}</span></div>
+          <input class="tt-input" type="text"
+            placeholder="e.g. Python Basics &amp; Setup"
+            value="${tv}"
+            data-week="${w.week}" data-snum="${s.session_num}" />
+        </div>`;
+      }).join('');
+      return `<div class="tt-week-card">
+        <div class="tt-week-head">
+          <span class="tt-wk-num">WEEK ${w.week}</span>
+          ${isCurrent ? '<span class="tt-wk-curr">Current Week</span>' : ''}
+        </div>
+        ${rows}
+      </div>`;
+    }).join('');
+
+    saveBar.style.display = 'block';
+  } catch(e) {
+    container.innerHTML = `<div style="color:var(--red);padding:20px">${e.message}</div>`;
+    saveBar.style.display = 'none';
+  }
+}
+
+async function saveAdminStartDate() {
+  const cid = document.getElementById('tt-course-select').value;
+  const val = document.getElementById('tt-admin-start-date').value;
+  if (!cid) { toast('Select a course first', true); return; }
+  if (!val) { toast('Pick a date first', true); return; }
+  try {
+    await PUT(`/api/courses/${cid}/start_date`, { start_date: val });
+    // Update local courses data
+    const c = S.courses.find(x => x.id === parseInt(cid));
+    if (c) c.start_date = val;
+    toast('Start date saved!');
+    await loadAdminTimetable();
+  } catch(e) { toast(e.message, true); }
+}
+
+async function saveAdminAllTopics() {
+  const cid    = document.getElementById('tt-course-select').value;
+  const inputs = document.querySelectorAll('#tt-admin-container .tt-input');
+  if (!cid) { toast('Select a course first', true); return; }
+  let saved = 0;
+  for (const inp of inputs) {
+    try {
+      await PUT(`/api/courses/${cid}/timetable`, {
+        week:        parseInt(inp.dataset.week),
+        session_num: parseInt(inp.dataset.snum),
+        topic:       inp.value.trim(),
+        notes:       ''
+      });
+      saved++;
+    } catch(e) {}
+  }
+  toast(`${saved} sessions saved!`);
+}
+
+function goToTimetable(cid) {
+  showView('timetable');
+  const sel = document.getElementById('tt-course-select');
+  if (sel) { sel.value = cid; loadAdminTimetable(); }
+}
+
+function formatDate(dateStr) {
+  if (!dateStr) return '';
+  const d = new Date(dateStr + 'T00:00:00');
+  return d.toLocaleDateString('en-GB', { day:'numeric', month:'short', year:'numeric' });
 }
 </script>
 </body>
