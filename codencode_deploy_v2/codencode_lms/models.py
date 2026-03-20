@@ -46,6 +46,8 @@ class Course(db.Model):
     description  = db.Column(db.Text)
     weeks        = db.Column(db.Integer, default=6)
     current_week = db.Column(db.Integer, default=1)   # controls student visibility
+    start_date   = db.Column(db.Date)
+    programme    = db.Column(db.String(100))   # e.g. "Python Bootcamp", "Machine Learning"
     created_at   = db.Column(db.DateTime, default=datetime.utcnow)
 
     enrollments  = db.relationship('Enrollment', back_populates='course')
@@ -53,11 +55,14 @@ class Course(db.Model):
     materials    = db.relationship('Material', back_populates='course', order_by='Material.week')
     assignments  = db.relationship('Assignment', back_populates='course', order_by='Assignment.week')
     attendances  = db.relationship('Attendance', back_populates='course')
+    timetable_sessions = db.relationship('TimetableSession', back_populates='course', cascade='all, delete-orphan')
 
     def to_dict(self):
         return {
             'id': self.id, 'title': self.title, 'description': self.description,
-            'weeks': self.weeks, 'current_week': self.current_week
+            'weeks': self.weeks, 'current_week': self.current_week,
+            'start_date': self.start_date.strftime('%Y-%m-%d') if self.start_date else None,
+            'programme': self.programme or ''
         }
 
 
@@ -242,3 +247,16 @@ class Attendance(db.Model):
             'notes': self.notes or '',
             'recorded_at': self.recorded_at.strftime('%b %d, %Y')
         }
+
+
+class TimetableSession(db.Model):
+    __tablename__ = 'timetable_sessions'
+    id          = db.Column(db.Integer, primary_key=True)
+    course_id   = db.Column(db.Integer, db.ForeignKey('courses.id'), nullable=False)
+    week        = db.Column(db.Integer, nullable=False)
+    session_num = db.Column(db.Integer, nullable=False)  # 1=Fri  2=Sat  3=Sun
+    topic       = db.Column(db.String(300))
+    notes       = db.Column(db.Text)
+
+    course = db.relationship('Course', back_populates='timetable_sessions')
+    __table_args__ = (db.UniqueConstraint('course_id', 'week', 'session_num'),)
