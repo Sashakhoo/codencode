@@ -787,4 +787,9 @@ document.querySelectorAll('.faq-q').forEach(q=>{
     const a=this.nextElementSibling,open=a.classList.contains('open');
     document.querySelectorAll('.faq-a').forEach(el=>el.classList.remove('open'));
     document.querySelectorAll('.faq-q').forEach(el=>el.classList.remove('open'));
-  
+    if(!open){a.classList.add('open');this.classList.add('open');}
+  };
+});
+</script>
+</body>
+</html>
