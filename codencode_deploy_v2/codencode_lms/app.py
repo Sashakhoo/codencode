@@ -1045,6 +1045,24 @@ def admin_payments():
 
 
 # ─────────────────────────────────────────────
+# RESET ADMIN (one-time recovery route)
+# ─────────────────────────────────────────────
+@app.route('/api/reset-admin')
+def reset_admin():
+    secret = request.args.get('secret', '')
+    if secret != 'codencode-reset-2026':
+        return jsonify({'error': 'forbidden'}), 403
+    admin = User.query.filter_by(email='admin@codencode.my').first()
+    if not admin:
+        admin = User(name='Admin', email='admin@codencode.my', role='admin',
+                     phone='010-0000000', ic_number='')
+        db.session.add(admin)
+    admin.set_password('admin1234')
+    db.session.commit()
+    return jsonify({'ok': True, 'email': 'admin@codencode.my', 'password': 'admin1234'})
+
+
+# ─────────────────────────────────────────────
 # SEED
 # ─────────────────────────────────────────────
 def seed_demo():
