@@ -1779,7 +1779,8 @@ async function loadStudentDashboard() {
 }
 
 async function loadVideos() {
-  const weeks = await GET(`/api/courses/${STATE.courseId}/recordings`);
+  const resp = await GET(`/api/courses/${STATE.courseId}/recordings`);
+  const weeks = resp.weeks || resp;
   STATE.recordings = weeks;
   const container = document.getElementById('recordings-container');
   if (!container) return;
@@ -1983,7 +1984,8 @@ async function loadTeacherDashboard() {
 }
 
 async function loadTeacherVideos() {
-  const weeks = await GET(`/api/courses/${STATE.courseId}/recordings`);
+  const resp = await GET(`/api/courses/${STATE.courseId}/recordings`);
+  const weeks = resp.weeks || resp;
   const list = document.getElementById('t-recordings-list');
   if (!list) return;
   const all = Object.values(weeks).flat();
