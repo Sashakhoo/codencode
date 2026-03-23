@@ -22,7 +22,8 @@ from werkzeug.utils import secure_filename
 
 from models import (db, User, Course, Enrollment, Recording,
                     WatchLog, Material, Assignment, Submission, Attendance,
-                    TimetableSession)
+                    TimetableSession, Session, SessionParticipant,
+                    Notification, Announcement)
 
 # ─────────────────────────────────────────────
 # App setup
@@ -164,7 +165,9 @@ def api_login():
     if not user or not user.check_password(pw):
         return jsonify({'error': 'Invalid email or password'}), 401
 
-    login_user(user, remember=True)
+    login_user(user, remember=False)   # session expires when browser closes
+    user.last_login = datetime.utcnow()
+    db.session.commit()
     return jsonify({'user': user.to_dict()})
 
 
@@ -1302,6 +1305,216 @@ def seed_demo():
 
 
 # ─────────────────────────────────────────────
+# SESSIONS (live class scheduling)
+# ─────────────────────────────────────────────
+
+@app.route('/api/sessions', methods=['GET'])
+@login_required
+def api_list_sessions():
+    """Teacher sees sessions they created; student sees their timetable sessions."""
+    if current_user.role in ('teacher', 'admin'):
+        sessions = Session.query.filter_by(created_by=current_user.id).order_by(Session.start_datetime).all()
+        return jsonify([s.to_dict() for s in sessions])
+    # student: cohort sessions for enrolled courses + group/private where participant
+    enrolled_course_ids = {e.course_id for e in current_user.enrollments}
+    participant_session_ids = {p.session_id for p in SessionParticipant.query.filter_by(student_id=current_user.id).all()}
+
+    sessions = Session.query.all()
+    visible = []
+    for s in sessions:
+        if s.session_type == 'cohort' and s.course_id in enrolled_course_ids:
+            visible.append(s)
+        elif s.session_type in ('group', 'private') and s.id in participant_session_ids:
+            visible.append(s)
+    visible.sort(key=lambda x: x.start_datetime)
+    return jsonify([s.to_dict() for s in visible])
+
+
+@app.route('/api/sessions/timetable', methods=['GET'])
+@login_required
+def api_student_timetable():
+    """Student's personal timetable split into upcoming / past."""
+    now = datetime.utcnow()
+    if current_user.role in ('teacher', 'admin'):
+        sessions = Session.query.order_by(Session.start_datetime).all()
+    else:
+        enrolled_course_ids = {e.course_id for e in current_user.enrollments}
+        participant_session_ids = {p.session_id for p in SessionParticipant.query.filter_by(student_id=current_user.id).all()}
+        sessions = []
+        for s in Session.query.order_by(Session.start_datetime).all():
+            if s.session_type == 'cohort' and s.course_id in enrolled_course_ids:
+                sessions.append(s)
+            elif s.session_type in ('group', 'private') and s.id in participant_session_ids:
+                sessions.append(s)
+
+    upcoming = [s.to_dict() for s in sessions if s.start_datetime >= now]
+    past     = [s.to_dict() for s in sessions if s.start_datetime < now]
+    return jsonify({'upcoming': upcoming, 'past': past})
+
+
+@app.route('/api/sessions', methods=['POST'])
+@teacher_required
+def api_create_session():
+    data = request.get_json()
+    title        = data.get('title', '').strip()
+    session_type = data.get('session_type', 'cohort')
+    course_id    = data.get('course_id')
+    start_str    = data.get('start_datetime', '')
+    duration     = int(data.get('duration_minutes', 60))
+    zoom_link    = data.get('zoom_link', '').strip()
+    participant_ids = data.get('participant_ids', [])
+
+    if not title or not start_str:
+        return jsonify({'error': 'title and start_datetime are required'}), 400
+
+    try:
+        start_dt = datetime.strptime(start_str, '%Y-%m-%dT%H:%M')
+    except ValueError:
+        return jsonify({'error': 'start_datetime must be YYYY-MM-DDTHH:MM'}), 400
+
+    s = Session(
+        title=title, session_type=session_type, course_id=course_id or None,
+        start_datetime=start_dt, duration_minutes=duration,
+        zoom_link=zoom_link, created_by=current_user.id
+    )
+    db.session.add(s)
+    db.session.flush()  # get s.id
+
+    for sid in participant_ids:
+        db.session.add(SessionParticipant(session_id=s.id, student_id=int(sid)))
+
+    db.session.commit()
+    return jsonify({'session': s.to_dict()}), 201
+
+
+@app.route('/api/sessions/<int:sid>', methods=['PUT'])
+@teacher_required
+def api_update_session(sid):
+    s    = Session.query.get_or_404(sid)
+    data = request.get_json()
+    if 'title'            in data: s.title            = data['title'].strip()
+    if 'session_type'     in data: s.session_type     = data['session_type']
+    if 'course_id'        in data: s.course_id        = data['course_id'] or None
+    if 'duration_minutes' in data: s.duration_minutes = int(data['duration_minutes'])
+    if 'zoom_link'        in data: s.zoom_link        = data['zoom_link'].strip()
+    if 'start_datetime'   in data:
+        try:
+            s.start_datetime = datetime.strptime(data['start_datetime'], '%Y-%m-%dT%H:%M')
+        except ValueError:
+            pass
+    if 'participant_ids' in data:
+        SessionParticipant.query.filter_by(session_id=sid).delete()
+        for pid in data['participant_ids']:
+            db.session.add(SessionParticipant(session_id=sid, student_id=int(pid)))
+    db.session.commit()
+    return jsonify({'session': s.to_dict()})
+
+
+@app.route('/api/sessions/<int:sid>', methods=['DELETE'])
+@teacher_required
+def api_delete_session(sid):
+    s = Session.query.get_or_404(sid)
+    db.session.delete(s)
+    db.session.commit()
+    return jsonify({'ok': True})
+
+
+@app.route('/api/sessions/<int:sid>/recording', methods=['PUT'])
+@teacher_required
+def api_session_recording(sid):
+    s    = Session.query.get_or_404(sid)
+    data = request.get_json()
+    s.recording_url = data.get('recording_url', '').strip()
+    db.session.commit()
+    return jsonify({'session': s.to_dict()})
+
+
+@app.route('/api/admin/sessions', methods=['GET'])
+@admin_required
+def admin_list_sessions():
+    sessions = Session.query.order_by(Session.start_datetime.desc()).all()
+    return jsonify([s.to_dict() for s in sessions])
+
+
+# ─────────────────────────────────────────────
+# NOTIFICATIONS
+# ─────────────────────────────────────────────
+
+@app.route('/api/notifications', methods=['GET'])
+@login_required
+def api_notifications():
+    notifs = Notification.query.filter_by(user_id=current_user.id)\
+        .order_by(Notification.created_at.desc()).limit(50).all()
+    return jsonify([n.to_dict() for n in notifs])
+
+
+@app.route('/api/notifications/<int:nid>/read', methods=['PUT'])
+@login_required
+def api_mark_notification_read(nid):
+    n = Notification.query.get_or_404(nid)
+    if n.user_id != current_user.id:
+        return jsonify({'error': 'Forbidden'}), 403
+    n.read_at = datetime.utcnow()
+    db.session.commit()
+    return jsonify({'ok': True})
+
+
+@app.route('/api/notifications/read-all', methods=['PUT'])
+@login_required
+def api_mark_all_notifications_read():
+    Notification.query.filter_by(user_id=current_user.id, read_at=None)\
+        .update({'read_at': datetime.utcnow()})
+    db.session.commit()
+    return jsonify({'ok': True})
+
+
+# ─────────────────────────────────────────────
+# ANNOUNCEMENTS
+# ─────────────────────────────────────────────
+
+@app.route('/api/announcements', methods=['GET'])
+@login_required
+def api_announcements():
+    if current_user.role in ('teacher', 'admin'):
+        anns = Announcement.query.order_by(Announcement.created_at.desc()).all()
+    else:
+        enrolled_course_ids = {e.course_id for e in current_user.enrollments}
+        anns = Announcement.query.filter(
+            (Announcement.course_id == None) |
+            (Announcement.course_id.in_(enrolled_course_ids))
+        ).order_by(Announcement.created_at.desc()).all()
+    return jsonify([a.to_dict() for a in anns])
+
+
+@app.route('/api/announcements', methods=['POST'])
+@teacher_required
+def api_create_announcement():
+    data      = request.get_json()
+    title     = data.get('title', '').strip()
+    content   = data.get('content', '').strip()
+    course_id = data.get('course_id')  # None = global
+    if not title or not content:
+        return jsonify({'error': 'title and content required'}), 400
+    ann = Announcement(
+        title=title, content=content,
+        course_id=course_id or None,
+        created_by=current_user.id
+    )
+    db.session.add(ann)
+    db.session.commit()
+    return jsonify({'announcement': ann.to_dict()}), 201
+
+
+@app.route('/api/announcements/<int:aid>', methods=['DELETE'])
+@teacher_required
+def api_delete_announcement(aid):
+    ann = Announcement.query.get_or_404(aid)
+    db.session.delete(ann)
+    db.session.commit()
+    return jsonify({'ok': True})
+
+
+# ─────────────────────────────────────────────
 # TIMETABLE
 # ─────────────────────────────────────────────
 @app.route('/api/courses/<int:cid>/timetable')
@@ -1415,6 +1628,22 @@ with app.app_context():
         with db.engine.connect() as conn:
             if 'programme' not in course_cols2:
                 conn.execute(text('ALTER TABLE courses ADD COLUMN programme VARCHAR(100)'))
+                conn.commit()
+    except Exception:
+        pass
+    # Safe migrations for new user columns
+    try:
+        insp4 = sa_inspect(db.engine)
+        user_cols = {c['name'] for c in insp4.get_columns('users')}
+        with db.engine.connect() as conn:
+            if 'language_pref' not in user_cols:
+                conn.execute(text("ALTER TABLE users ADD COLUMN language_pref VARCHAR(5) DEFAULT 'en'"))
+                conn.commit()
+            if 'is_active' not in user_cols:
+                conn.execute(text('ALTER TABLE users ADD COLUMN is_active BOOLEAN DEFAULT 1'))
+                conn.commit()
+            if 'last_login' not in user_cols:
+                conn.execute(text('ALTER TABLE users ADD COLUMN last_login DATETIME'))
                 conn.commit()
     except Exception:
         pass
