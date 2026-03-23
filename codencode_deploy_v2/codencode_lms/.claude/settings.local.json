@@ -1,10 +1,16 @@
 {
+  "disableAllHooks": true,
   "permissions": {
     "allow": [
       "mcp__Claude_Preview__preview_start",
       "Bash(pip install:*)",
       "Bash(claude config:*)",
-      "Bash(dir C:UsersNATASYA.claude)"
+      "Bash(dir C:UsersNATASYA.claude)",
+      "Bash(python -c \"import ast; ast.parse\\(open\\(''models.py''\\).read\\(\\)\\); print\\(''models.py: OK''\\)\")",
+      "Bash(python -c \"import ast; ast.parse\\(open\\(''app.py''\\).read\\(\\)\\); print\\(''app.py: OK''\\)\")",
+      "Bash(python -c \"import ast; ast.parse\\(open\\(''app.py'', encoding=''utf-8''\\).read\\(\\)\\); print\\(''app.py: OK''\\)\")",
+      "Skill(update-config)",
+      "Skill(update-config:*)"
     ]
   }
 }
