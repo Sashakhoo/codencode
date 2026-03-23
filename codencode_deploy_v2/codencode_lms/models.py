@@ -16,12 +16,16 @@ class User(UserMixin, db.Model):
     phone         = db.Column(db.String(30))
     ic_number     = db.Column(db.String(50))                   # IC or passport
     created_at    = db.Column(db.DateTime, default=datetime.utcnow)
+    language_pref = db.Column(db.String(5), default='en')
+    is_active     = db.Column(db.Boolean, default=True)
+    last_login    = db.Column(db.DateTime)
 
     # relationships
     enrollments   = db.relationship('Enrollment', back_populates='student', foreign_keys='Enrollment.student_id')
     submissions   = db.relationship('Submission', back_populates='student')
     watch_logs    = db.relationship('WatchLog', back_populates='student')
     attendances   = db.relationship('Attendance', back_populates='student')
+    notifications = db.relationship('Notification', back_populates='user', cascade='all, delete-orphan')
 
     def set_password(self, pw):  self.password_hash = generate_password_hash(pw)
     def check_password(self, pw): return check_password_hash(self.password_hash, pw)
@@ -56,6 +60,8 @@ class Course(db.Model):
     assignments  = db.relationship('Assignment', back_populates='course', order_by='Assignment.week')
     attendances  = db.relationship('Attendance', back_populates='course')
     timetable_sessions = db.relationship('TimetableSession', back_populates='course', cascade='all, delete-orphan')
+    sessions     = db.relationship('Session', back_populates='course', cascade='all, delete-orphan')
+    announcements = db.relationship('Announcement', back_populates='course', cascade='all, delete-orphan')
 
     def to_dict(self):
         return {
@@ -260,3 +266,106 @@ class TimetableSession(db.Model):
 
     course = db.relationship('Course', back_populates='timetable_sessions')
     __table_args__ = (db.UniqueConstraint('course_id', 'week', 'session_num'),)
+
+
+class Session(db.Model):
+    """Live class / group / private tutoring slot."""
+    __tablename__ = 'sessions'
+    id               = db.Column(db.Integer, primary_key=True)
+    title            = db.Column(db.String(200), nullable=False)
+    session_type     = db.Column(db.String(20), nullable=False)  # 'cohort' | 'group' | 'private'
+    course_id        = db.Column(db.Integer, db.ForeignKey('courses.id'))
+    start_datetime   = db.Column(db.DateTime, nullable=False)
+    duration_minutes = db.Column(db.Integer, default=60)
+    zoom_link        = db.Column(db.String(500))
+    recording_url    = db.Column(db.String(500))
+    created_by       = db.Column(db.Integer, db.ForeignKey('users.id'))
+    created_at       = db.Column(db.DateTime, default=datetime.utcnow)
+
+    participants = db.relationship('SessionParticipant', back_populates='session', cascade='all, delete-orphan')
+    course       = db.relationship('Course', back_populates='sessions')
+    creator      = db.relationship('User', foreign_keys=[created_by])
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'title': self.title,
+            'session_type': self.session_type,
+            'course_id': self.course_id,
+            'course_title': self.course.title if self.course else None,
+            'start_datetime': self.start_datetime.strftime('%Y-%m-%dT%H:%M'),
+            'start_display': self.start_datetime.strftime('%a, %d %b %Y · %I:%M %p'),
+            'duration_minutes': self.duration_minutes,
+            'zoom_link': self.zoom_link or '',
+            'recording_url': self.recording_url or '',
+            'created_by': self.created_by,
+            'created_at': self.created_at.strftime('%b %d, %Y'),
+            'participant_ids': [p.student_id for p in self.participants],
+        }
+
+
+class SessionParticipant(db.Model):
+    __tablename__ = 'session_participants'
+    id         = db.Column(db.Integer, primary_key=True)
+    session_id = db.Column(db.Integer, db.ForeignKey('sessions.id'), nullable=False)
+    student_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+
+    session = db.relationship('Session', back_populates='participants')
+    student = db.relationship('User')
+    __table_args__ = (db.UniqueConstraint('session_id', 'student_id'),)
+
+
+class Notification(db.Model):
+    __tablename__ = 'notifications'
+    id         = db.Column(db.Integer, primary_key=True)
+    user_id    = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    message    = db.Column(db.String(500), nullable=False)
+    link       = db.Column(db.String(300))
+    read_at    = db.Column(db.DateTime)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    user = db.relationship('User', back_populates='notifications')
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'user_id': self.user_id,
+            'message': self.message,
+            'link': self.link or '',
+            'read_at': self.read_at.strftime('%b %d, %Y · %I:%M %p') if self.read_at else None,
+            'created_at': self.created_at.strftime('%b %d, %Y · %I:%M %p'),
+        }
+
+
+class Announcement(db.Model):
+    __tablename__ = 'announcements'
+    id         = db.Column(db.Integer, primary_key=True)
+    course_id  = db.Column(db.Integer, db.ForeignKey('courses.id'))  # NULL = global
+    title      = db.Column(db.String(300), nullable=False)
+    content    = db.Column(db.Text, nullable=False)
+    created_by = db.Column(db.Integer, db.ForeignKey('users.id'))
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    course  = db.relationship('Course', back_populates='announcements')
+    creator = db.relationship('User', foreign_keys=[created_by])
+
+    def to_dict(self):
+        import math
+        delta_secs = (datetime.utcnow() - self.created_at).total_seconds()
+        if delta_secs < 3600:
+            ago = f"{int(delta_secs//60)} min ago"
+        elif delta_secs < 86400:
+            ago = f"{int(delta_secs//3600)} hr ago"
+        else:
+            ago = f"{int(delta_secs//86400)} days ago"
+        return {
+            'id': self.id,
+            'course_id': self.course_id,
+            'course_title': self.course.title if self.course else 'All Courses',
+            'title': self.title,
+            'content': self.content,
+            'created_by': self.created_by,
+            'creator_name': self.creator.name if self.creator else 'System',
+            'created_at': self.created_at.strftime('%b %d, %Y'),
+            'ago': ago,
+        }

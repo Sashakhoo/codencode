@@ -622,6 +622,16 @@
     </div>
 
     <div class="sidebar-section">
+      <div class="sidebar-section-label">Comms</div>
+      <div class="nav-item" onclick="showView('announcements')">
+        <i class="fas fa-bullhorn"></i> Announcements
+      </div>
+      <div class="nav-item" onclick="showView('sessions')">
+        <i class="fas fa-calendar-check"></i> Sessions
+      </div>
+    </div>
+
+    <div class="sidebar-section">
       <div class="sidebar-section-label">Finance</div>
       <div class="nav-item" onclick="showView('payments')">
         <i class="fas fa-credit-card"></i> Payment Tracker
@@ -823,6 +833,46 @@
         </div>
       </div>
 
+      <!-- ── ANNOUNCEMENTS ───────────────────── -->
+      <div id="view-announcements" class="view">
+        <div class="section-header" style="margin-bottom:20px">
+          <div class="section-title">Announcements</div>
+          <button class="btn btn-primary btn-sm" onclick="openAnnouncementModal()">
+            <i class="fas fa-plus"></i> New Announcement
+          </button>
+        </div>
+        <div id="ann-list" style="display:flex;flex-direction:column;gap:12px">
+          <div style="color:var(--text-muted);text-align:center;padding:40px">Loading...</div>
+        </div>
+      </div>
+
+      <!-- ── SESSIONS ─────────────────────────── -->
+      <div id="view-sessions" class="view">
+        <div class="section-header" style="margin-bottom:20px">
+          <div class="section-title">All Sessions</div>
+          <span style="font-size:11px;color:var(--text-muted)">View sessions scheduled by teachers</span>
+        </div>
+        <div class="card">
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Title</th>
+                  <th>Type</th>
+                  <th>Course</th>
+                  <th>Date &amp; Time</th>
+                  <th>Duration</th>
+                  <th>Recording</th>
+                </tr>
+              </thead>
+              <tbody id="sessions-tbody">
+                <tr><td colspan="6" style="color:var(--text-muted);text-align:center;padding:24px">Loading...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
     </div><!-- /content -->
   </div><!-- /main -->
 </div><!-- /app -->
@@ -963,6 +1013,33 @@
   </div>
 </div>
 
+<!-- Announcement Modal -->
+<div class="modal-overlay" id="modal-announcement" onclick="if(event.target===this)closeModal('modal-announcement')">
+  <div class="modal-box">
+    <div class="modal-title">New Announcement</div>
+    <div class="form-group" style="margin-bottom:14px">
+      <label class="form-label">Title *</label>
+      <input class="form-input" id="ann-title" placeholder="e.g. Week 5 starts Monday" />
+    </div>
+    <div class="form-group" style="margin-bottom:14px">
+      <label class="form-label">Content *</label>
+      <textarea class="form-textarea" id="ann-content" placeholder="Announcement details..." style="min-height:100px"></textarea>
+    </div>
+    <div class="form-group" style="margin-bottom:14px">
+      <label class="form-label">Course (leave blank for all courses)</label>
+      <select class="form-select" id="ann-course-select">
+        <option value="">All Courses (Global)</option>
+      </select>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('modal-announcement')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveAnnouncement()">
+        <i class="fas fa-paper-plane"></i> Publish
+      </button>
+    </div>
+  </div>
+</div>
+
 <!-- Toast container -->
 <div id="toast-container"></div>
 
@@ -1030,29 +1107,34 @@ async function doLogout() {
 // VIEW SWITCHING
 // ═══════════════════════════════════════════════════════
 const VIEW_TITLES = {
-  dashboard:  ['Dashboard',        'Overview & quick stats'],
-  students:   ['Students',         'Manage student profiles'],
-  courses:    ['Courses',          'Manage courses & current week'],
-  attendance: ['Attendance',       'Mark & review attendance'],
-  materials:  ['Upload Materials', 'Add materials per week'],
-  payments:   ['Payment Tracker',  'Monitor payment status'],
-  timetable:  ['Timetable',        'Set topics & schedule per course'],
+  dashboard:     ['Dashboard',        'Overview & quick stats'],
+  students:      ['Students',         'Manage student profiles'],
+  courses:       ['Courses',          'Manage courses & current week'],
+  attendance:    ['Attendance',       'Mark & review attendance'],
+  materials:     ['Upload Materials', 'Add materials per week'],
+  payments:      ['Payment Tracker',  'Monitor payment status'],
+  timetable:     ['Timetable',        'Set topics & schedule per course'],
+  announcements: ['Announcements',    'Send announcements to students'],
+  sessions:      ['Sessions',         'View all scheduled sessions'],
 };
 
 function showView(name) {
   document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-  document.getElementById(`view-${name}`).classList.add('active');
+  const el = document.getElementById(`view-${name}`);
+  if (el) el.classList.add('active');
   document.querySelector(`[onclick="showView('${name}')"]`)?.classList.add('active');
   const [title, sub] = VIEW_TITLES[name] || [name, ''];
   document.getElementById('topbar-title').textContent    = title;
   document.getElementById('topbar-subtitle').textContent = sub;
   S.currentView = name;
 
-  if (name === 'students')   renderStudentList();
-  if (name === 'courses')    renderCourses();
-  if (name === 'payments')   renderPayments();
-  if (name === 'timetable')  populateTimetableCourseSelect();
+  if (name === 'students')      renderStudentList();
+  if (name === 'courses')       renderCourses();
+  if (name === 'payments')      renderPayments();
+  if (name === 'timetable')     populateTimetableCourseSelect();
+  if (name === 'announcements') loadAdminAnnouncements();
+  if (name === 'sessions')      loadAdminSessions();
 }
 
 // ═══════════════════════════════════════════════════════
@@ -1919,6 +2001,108 @@ function formatDate(dateStr) {
   if (!dateStr) return '';
   const d = new Date(dateStr + 'T00:00:00');
   return d.toLocaleDateString('en-GB', { day:'numeric', month:'short', year:'numeric' });
+}
+
+// ═══════════════════════════════════════════════════════
+// ANNOUNCEMENTS
+// ═══════════════════════════════════════════════════════
+
+async function loadAdminAnnouncements() {
+  // Populate course select in modal
+  const sel = document.getElementById('ann-course-select');
+  if (sel) {
+    sel.innerHTML = `<option value="">All Courses (Global)</option>` +
+      S.courses.map(c => `<option value="${c.id}">${c.title}</option>`).join('');
+  }
+  try {
+    const anns = await GET('/api/announcements');
+    const arr  = Array.isArray(anns) ? anns : [];
+    const list = document.getElementById('ann-list');
+    if (!list) return;
+    if (arr.length === 0) {
+      list.innerHTML = `<div style="color:var(--text-muted);text-align:center;padding:40px">No announcements yet. Click "New Announcement" to create one.</div>`;
+      return;
+    }
+    list.innerHTML = arr.map(a => `
+      <div style="background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--cyan);border-radius:var(--radius);padding:16px 20px">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px">
+          <div style="flex:1">
+            <div style="font-family:'Syne',sans-serif;font-size:15px;font-weight:700;margin-bottom:4px">${a.title}</div>
+            <div style="font-size:12px;color:var(--text-muted);margin-bottom:8px">${a.content}</div>
+            <div style="font-size:11px;color:var(--text-muted)">${a.creator_name} · ${a.ago} · ${a.course_title}</div>
+          </div>
+          <button class="btn btn-danger btn-sm" onclick="deleteAnnouncement(${a.id})">
+            <i class="fas fa-trash"></i>
+          </button>
+        </div>
+      </div>`).join('');
+  } catch(e) { toast('Error loading announcements: ' + e.message, true); }
+}
+
+function openAnnouncementModal() {
+  document.getElementById('ann-title').value   = '';
+  document.getElementById('ann-content').value = '';
+  const sel = document.getElementById('ann-course-select');
+  if (sel) sel.value = '';
+  openModal('modal-announcement');
+}
+
+async function saveAnnouncement() {
+  const title    = document.getElementById('ann-title')?.value.trim();
+  const content  = document.getElementById('ann-content')?.value.trim();
+  const courseId = document.getElementById('ann-course-select')?.value;
+  if (!title || !content) { toast('Title and content are required', true); return; }
+  try {
+    await POST('/api/announcements', {
+      title, content,
+      course_id: courseId ? parseInt(courseId) : null
+    });
+    toast('Announcement published!');
+    closeModal('modal-announcement');
+    loadAdminAnnouncements();
+  } catch(e) { toast('Error: ' + e.message, true); }
+}
+
+async function deleteAnnouncement(aid) {
+  if (!confirm('Delete this announcement?')) return;
+  try {
+    await DELETE(`/api/announcements/${aid}`);
+    toast('Announcement deleted');
+    loadAdminAnnouncements();
+  } catch(e) { toast('Error: ' + e.message, true); }
+}
+
+// ═══════════════════════════════════════════════════════
+// SESSIONS (admin view)
+// ═══════════════════════════════════════════════════════
+
+const SESSION_TYPE_COLORS_ADMIN = { cohort: '#3b82f6', group: '#0d9488', private: '#a855f7' };
+
+async function loadAdminSessions() {
+  try {
+    const sessions = await GET('/api/admin/sessions');
+    const arr = Array.isArray(sessions) ? sessions : [];
+    const tbody = document.getElementById('sessions-tbody');
+    if (!tbody) return;
+    if (arr.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="6" style="color:var(--text-muted);text-align:center;padding:24px">No sessions scheduled yet.</td></tr>`;
+      return;
+    }
+    tbody.innerHTML = arr.map(s => {
+      const color = SESSION_TYPE_COLORS_ADMIN[s.session_type] || 'var(--cyan)';
+      const recCell = s.recording_url
+        ? `<a href="${s.recording_url}" target="_blank" style="color:var(--cyan);font-size:11px"><i class="fas fa-link"></i> View</a>`
+        : `<span style="color:var(--text-muted)">—</span>`;
+      return `<tr>
+        <td style="font-weight:600">${s.title}</td>
+        <td><span style="display:inline-block;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700;background:${color}22;color:${color};border:1px solid ${color};text-transform:uppercase">${s.session_type}</span></td>
+        <td style="color:var(--text-muted)">${s.course_title || '—'}</td>
+        <td style="font-size:11px">${s.start_display}</td>
+        <td style="font-size:11px">${s.duration_minutes} min</td>
+        <td>${recCell}</td>
+      </tr>`;
+    }).join('');
+  } catch(e) { toast('Error loading sessions: ' + e.message, true); }
 }
 </script>
 </body>

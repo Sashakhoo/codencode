@@ -781,10 +781,21 @@
     </div>
     <div class="topbar-right">
       <span class="topbar-badge" id="role-badge">Student</span>
-      <button class="notif-btn" title="Notifications">
+      <button class="notif-btn" id="notif-btn" title="Notifications" onclick="toggleNotifDropdown()">
         <i class="fas fa-bell"></i>
-        <span class="notif-dot"></span>
+        <span class="notif-dot" id="notif-dot" style="display:none"></span>
+        <span id="notif-count-badge" style="display:none;position:absolute;top:2px;right:2px;background:var(--orange);color:#fff;font-size:9px;padding:1px 4px;border-radius:8px;font-family:var(--font-m)"></span>
       </button>
+      <!-- Notification dropdown -->
+      <div id="notif-dropdown" style="display:none;position:absolute;top:52px;right:60px;width:320px;background:var(--surface);border:1px solid var(--border-strong);z-index:200;box-shadow:0 8px 32px rgba(0,0,0,0.5)">
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid var(--border)">
+          <span style="font-family:var(--font-m);font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted)">Notifications</span>
+          <button onclick="markAllNotificationsRead()" style="background:none;border:none;color:var(--cyan);font-family:var(--font-m);font-size:10px;cursor:pointer">Mark all read</button>
+        </div>
+        <div id="notif-list" style="max-height:300px;overflow-y:auto">
+          <div style="padding:20px;text-align:center;color:var(--muted);font-family:var(--font-m);font-size:11px">No notifications</div>
+        </div>
+      </div>
       <div class="user-chip">
         <div class="user-avatar" id="user-avatar-initials">ST</div>
         <span id="user-display-name">Alex T.</span>
@@ -915,22 +926,8 @@
           <div class="card-header">
             <span class="card-title"><i class="fas fa-bullhorn"></i> Announcements</span>
           </div>
-          <div class="card-body">
-            <div class="announcement-card">
-              <div class="ann-title">Week 5 starts Monday — bring your questions!</div>
-              <div class="ann-body">We're moving into pandas and data visualisation next week. Make sure you've completed Assignment 4 before the session. Recording will be posted within 24hrs as usual.</div>
-              <div class="ann-footer">
-                <span class="ann-author">Michael Chang · 2 days ago</span>
-                <span class="status-badge status-open">New</span>
-              </div>
-            </div>
-            <div class="announcement-card" style="border-left-color:var(--orange)">
-              <div class="ann-title">Assignment 4 deadline extended by 2 days</div>
-              <div class="ann-body">Given the public holiday, the deadline for Assignment 4: Web Scraping has been extended to this Friday, 28 Feb at 11:59PM.</div>
-              <div class="ann-footer">
-                <span class="ann-author">Michael Chang · 5 days ago</span>
-              </div>
-            </div>
+          <div class="card-body" id="announcements-container">
+            <div style="color:var(--muted);font-family:var(--font-m);font-size:12px">Loading announcements...</div>
           </div>
         </div>
       </div>
@@ -993,12 +990,22 @@
       <div class="view" id="view-timetable">
         <div class="page-header">
           <div class="page-label">Schedule</div>
-          <div class="page-title">Class Timetable</div>
-          <div class="page-sub">// Fri 8–10pm &nbsp;·&nbsp; Sat 9–11am &nbsp;·&nbsp; Sun 9–11am</div>
+          <div class="page-title">My Timetable</div>
+          <div class="page-sub">// Upcoming and past sessions</div>
         </div>
-        <div id="timetable-container">
-          <div style="color:var(--muted);font-family:var(--font-m);font-size:12px;padding:32px;text-align:center">No progress yet.</div>
+        <!-- Legend -->
+        <div style="display:flex;gap:16px;margin-bottom:16px;font-family:var(--font-m);font-size:10px">
+          <span style="display:flex;align-items:center;gap:6px"><span style="width:10px;height:10px;background:#3b82f6;border-radius:50%;display:inline-block"></span> Cohort</span>
+          <span style="display:flex;align-items:center;gap:6px"><span style="width:10px;height:10px;background:#0d9488;border-radius:50%;display:inline-block"></span> Group</span>
+          <span style="display:flex;align-items:center;gap:6px"><span style="width:10px;height:10px;background:#a855f7;border-radius:50%;display:inline-block"></span> Private</span>
         </div>
+        <!-- Tabs -->
+        <div style="display:flex;gap:0;border-bottom:1px solid var(--border);margin-bottom:16px">
+          <button id="tt-tab-upcoming" onclick="switchTTTab('upcoming')" style="padding:9px 20px;background:var(--cyan-dim);border:none;color:var(--cyan);font-family:var(--font-m);font-size:11px;cursor:pointer;border-bottom:2px solid var(--cyan)">Upcoming</button>
+          <button id="tt-tab-past" onclick="switchTTTab('past')" style="padding:9px 20px;background:none;border:none;color:var(--muted);font-family:var(--font-m);font-size:11px;cursor:pointer;border-bottom:2px solid transparent">Past</button>
+        </div>
+        <div id="timetable-upcoming"></div>
+        <div id="timetable-past" style="display:none"></div>
       </div>
 
       <!-- ══════════════════════════════
@@ -1318,25 +1325,71 @@
 
       <div class="view" id="view-t-timetable">
         <div class="page-header">
-          <div class="page-label">Manage</div>
-          <div class="page-title">Timetable</div>
-          <div class="page-sub">// Set topics for each session</div>
+          <div class="page-label">Sessions</div>
+          <div class="page-title">Session Scheduler</div>
+          <div class="page-sub">// Schedule cohort, group and private sessions</div>
         </div>
-        <div class="card" style="margin-bottom:18px">
-          <div class="card-header">
-            <span class="card-title"><i class="fas fa-calendar-day"></i> Course Start Date</span>
+        <div class="grid-2" style="margin-bottom:20px">
+          <!-- New session form -->
+          <div class="card">
+            <div class="card-header">
+              <span class="card-title"><i class="fas fa-plus-circle"></i> New Session</span>
+            </div>
+            <div class="card-body">
+              <div class="upload-form" id="new-session-form">
+                <div class="form-group">
+                  <label class="form-label">Title</label>
+                  <input class="form-input" type="text" id="sess-title" placeholder="e.g. Week 4 Live Class" />
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Type</label>
+                  <select class="form-input" id="sess-type" onchange="onSessTypeChange()">
+                    <option value="cohort">Cohort (all enrolled students)</option>
+                    <option value="group">Group (selected students)</option>
+                    <option value="private">Private (one student)</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Course</label>
+                  <select class="form-input" id="sess-course">
+                    <option value="">— select course —</option>
+                  </select>
+                </div>
+                <div class="grid-2" style="gap:12px">
+                  <div class="form-group">
+                    <label class="form-label">Date &amp; Time</label>
+                    <input class="form-input" type="datetime-local" id="sess-start" />
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Duration (min)</label>
+                    <input class="form-input" type="number" id="sess-duration" value="120" min="15" />
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Zoom Link</label>
+                  <input class="form-input" type="url" id="sess-zoom" placeholder="https://zoom.us/j/..." />
+                </div>
+                <div class="form-group" id="sess-participants-group" style="display:none">
+                  <label class="form-label">Participants</label>
+                  <div id="sess-participants-list" style="display:flex;flex-direction:column;gap:6px;max-height:160px;overflow-y:auto;border:1px solid var(--border);padding:8px">
+                    <span style="color:var(--muted);font-family:var(--font-m);font-size:11px">Select a course first</span>
+                  </div>
+                </div>
+                <button class="btn-action" style="width:100%;justify-content:center;padding:14px" onclick="createSession()">
+                  <i class="fas fa-calendar-plus"></i> Schedule Session
+                </button>
+              </div>
+            </div>
           </div>
-          <div style="padding:16px 20px;display:flex;align-items:center;gap:12px">
-            <input type="date" id="tt-start-date-input" class="form-input" style="max-width:180px" />
-            <button class="btn-action" onclick="saveStartDate()"><i class="fas fa-save"></i> Save</button>
-            <span style="font-family:var(--font-m);font-size:11px;color:var(--muted)">Sets Week 1 Friday — all other dates auto-calculate.</span>
+          <!-- Session list -->
+          <div class="card">
+            <div class="card-header">
+              <span class="card-title"><i class="fas fa-list"></i> Scheduled Sessions</span>
+            </div>
+            <div id="t-sessions-list" style="max-height:480px;overflow-y:auto">
+              <div style="padding:16px 20px;color:var(--muted);font-family:var(--font-m);font-size:11px">No sessions yet.</div>
+            </div>
           </div>
-        </div>
-        <div id="t-timetable-container">
-          <div style="color:var(--muted);font-family:var(--font-m);font-size:12px;padding:32px;text-align:center">No progress yet.</div>
-        </div>
-        <div style="padding:20px 0">
-          <button class="btn-action" onclick="saveAllTopics()"><i class="fas fa-paper-plane"></i> Save All Topics</button>
         </div>
       </div>
 
@@ -1425,6 +1478,25 @@
       </div>
       <button class="btn-action" style="width:100%;justify-content:center;padding:14px;margin-top:8px" onclick="showToast('Grade saved & student notified!');closeModal('grade-modal')">
         <i class="fas fa-check-double"></i> Save & Notify Student
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Add Recording URL Modal -->
+<div class="modal-overlay" id="recording-url-modal">
+  <div class="modal-box" style="max-width:480px">
+    <div class="modal-header">
+      <span class="modal-title">Add Recording URL</span>
+      <button class="modal-close" onclick="closeModal('recording-url-modal')"><i class="fas fa-times"></i></button>
+    </div>
+    <div style="padding:24px">
+      <div class="form-group">
+        <label class="form-label">Recording URL (Google Drive, YouTube, etc.)</label>
+        <input class="form-input" type="url" id="rec-url-input" placeholder="https://..." />
+      </div>
+      <button class="btn-action" style="width:100%;justify-content:center;padding:14px;margin-top:8px" onclick="saveRecordingUrl()">
+        <i class="fas fa-link"></i> Save Recording Link
       </button>
     </div>
   </div>
@@ -1557,6 +1629,8 @@ async function bootApp() {
   document.getElementById('user-avatar-initials').textContent = initials;
 
   switchView(isTeacher ? 't-dashboard' : 'dashboard');
+  // Load notifications in background
+  loadNotifications().catch(() => {});
 }
 
 function renderCourseSelector() {
@@ -1643,7 +1717,7 @@ const VIEW_LOADERS = {
   't-grading':    loadTeacherGrading,
   't-students':   loadStudents,
   'timetable':    loadTimetable,
-  't-timetable':  loadTeacherTimetable,
+  't-timetable':  loadTeacherSessions,
 };
 
 async function switchView(id) {
@@ -1776,16 +1850,40 @@ async function loadStudentDashboard() {
   const pending = d.assignments_pending ?? (d.total_assignments - d.assignments_submitted);
   const badge = document.getElementById('pending-badge');
   if (badge) { badge.textContent = pending; badge.style.display = pending > 0 ? '' : 'none'; }
+
+  // Load announcements
+  loadAnnouncements();
+}
+
+async function loadAnnouncements() {
+  try {
+    const anns = await GET('/api/announcements');
+    const arr  = Array.isArray(anns) ? anns : [];
+    const container = document.getElementById('announcements-container');
+    if (!container) return;
+    if (arr.length === 0) {
+      container.innerHTML = `<div style="color:var(--muted);font-family:var(--font-m);font-size:12px">No announcements yet.</div>`;
+      return;
+    }
+    container.innerHTML = arr.slice(0, 5).map(a => `
+      <div class="announcement-card" style="margin-bottom:10px">
+        <div class="ann-title">${a.title}</div>
+        <div class="ann-body">${a.content}</div>
+        <div class="ann-footer">
+          <span class="ann-author">${a.creator_name} · ${a.ago}${a.course_title !== 'All Courses' ? ' · ' + a.course_title : ''}</span>
+        </div>
+      </div>`).join('');
+  } catch(e) { /* silent */ }
 }
 
 async function loadVideos() {
   const resp = await GET(`/api/courses/${STATE.courseId}/recordings`);
-  const weeks = resp.weeks || resp;
+  const weeks = (resp && resp.weeks) ? resp.weeks : (typeof resp === 'object' && !Array.isArray(resp) ? resp : {});
   STATE.recordings = weeks;
   const container = document.getElementById('recordings-container');
   if (!container) return;
 
-  const weekNums = Object.keys(weeks).sort((a,b) => a-b);
+  const weekNums = Object.keys(weeks || {}).sort((a,b) => a-b);
   if (weekNums.length === 0) {
     container.innerHTML = `<div style="color:var(--muted);font-family:var(--font-m);font-size:12px;padding:32px;text-align:center">No recordings uploaded yet.</div>`;
     return;
@@ -1985,7 +2083,7 @@ async function loadTeacherDashboard() {
 
 async function loadTeacherVideos() {
   const resp = await GET(`/api/courses/${STATE.courseId}/recordings`);
-  const weeks = resp.weeks || resp;
+  const weeks = (resp && resp.weeks) ? resp.weeks : (typeof resp === 'object' && !Array.isArray(resp) ? resp : {});
   const list = document.getElementById('t-recordings-list');
   if (!list) return;
   const all = Object.values(weeks).flat();
@@ -2154,14 +2252,21 @@ async function loadStudents() {
 
 // ── Upload recording ──
 async function uploadRecording() {
-  const form = document.getElementById('upload-recording-form');
-  const fd   = new FormData(form);
   const btn  = document.getElementById('upload-rec-btn');
   btn.textContent = 'Uploading...';
   try {
+    const fd = new FormData();
+    const fileInput = document.getElementById('vid-file');
+    if (!fileInput?.files[0]) { showToast('Please select a video file first', true); btn.innerHTML = '<i class="fas fa-upload"></i> Upload Recording'; return; }
+    fd.append('file', fileInput.files[0]);
+    fd.append('title', document.getElementById('vid-title')?.value || '');
+    fd.append('week',  document.querySelector('[name="week"]')?.value || 1);
+    fd.append('session_num', document.querySelector('[name="session_num"]')?.value || 1);
+    fd.append('description', document.querySelector('[name="description"]')?.value || '');
     await POST(`/api/courses/${STATE.courseId}/recordings`, fd);
     showToast('Recording uploaded!');
-    form.reset();
+    document.getElementById('vid-title').value = '';
+    fileInput.value = '';
     await loadTeacherVideos();
   } catch(e) { showToast('Error: ' + e.message, true); }
   btn.innerHTML = '<i class="fas fa-upload"></i> Upload Recording';
@@ -2178,14 +2283,21 @@ async function deleteRecording(rid) {
 
 // ── Upload material ──
 async function uploadMaterial() {
-  const form = document.getElementById('upload-material-form');
-  const fd   = new FormData(form);
   const btn  = document.getElementById('upload-mat-btn');
   btn.textContent = 'Uploading...';
   try {
+    const fd = new FormData();
+    const fileInput = document.getElementById('mat-file');
+    if (!fileInput?.files[0]) { showToast('Please select a file first', true); btn.innerHTML = '<i class="fas fa-upload"></i> Publish Material'; return; }
+    fd.append('file', fileInput.files[0]);
+    const titleEl = document.querySelector('#view-t-materials [name="title"]');
+    const weekEl  = document.querySelector('#view-t-materials [name="week"]');
+    fd.append('title', titleEl?.value || fileInput.files[0].name);
+    fd.append('week',  weekEl?.value || 0);
     await POST(`/api/courses/${STATE.courseId}/materials`, fd);
     showToast('Material published!');
-    form.reset();
+    if (titleEl) titleEl.value = '';
+    fileInput.value = '';
     await loadTeacherMaterials();
   } catch(e) { showToast('Error: ' + e.message, true); }
   btn.innerHTML = '<i class="fas fa-upload"></i> Publish Material';
@@ -2202,14 +2314,26 @@ async function deleteMaterial(mid) {
 
 // ── Create assignment ──
 async function createAssignment() {
-  const form = document.getElementById('create-assignment-form');
-  const fd   = new FormData(form);
   const btn  = document.getElementById('create-asgn-btn');
   btn.textContent = 'Publishing...';
   try {
+    const fd = new FormData();
+    const titleEl = document.querySelector('#view-t-assignments [name="title"]');
+    const descEl  = document.querySelector('#view-t-assignments [name="description"]');
+    const weekEl  = document.querySelector('#view-t-assignments [name="week"]');
+    const dueEl   = document.querySelector('#view-t-assignments [name="due_date"]');
+    const maxEl   = document.querySelector('#view-t-assignments [name="max_points"]');
+    const fileInput = document.getElementById('asgn-file');
+    fd.append('title',       titleEl?.value || 'Untitled');
+    fd.append('description', descEl?.value  || '');
+    fd.append('week',        weekEl?.value  || 1);
+    fd.append('due_date',    dueEl?.value   || '');
+    fd.append('max_points',  maxEl?.value   || 100);
+    if (fileInput?.files[0]) fd.append('file', fileInput.files[0]);
     await POST(`/api/courses/${STATE.courseId}/assignments`, fd);
     showToast('Assignment published to students!');
-    form.reset();
+    if (titleEl) titleEl.value = '';
+    if (descEl)  descEl.value  = '';
     await loadTeacherAssignments();
   } catch(e) { showToast('Error: ' + e.message, true); }
   btn.innerHTML = '<i class="fas fa-paper-plane"></i> Publish Assignment';
@@ -2347,6 +2471,15 @@ function handleSubFile(input) {
     document.getElementById('sub-file-name').textContent = input.files[0].name;
 }
 
+function handleFileSelect(input) {
+  if (input?.files?.[0]) {
+    const zone = input.closest('.upload-zone') || input.previousElementSibling;
+    const textEl = zone?.querySelector('.upload-text');
+    if (textEl) textEl.textContent = input.files[0].name;
+    showToast('File selected: ' + input.files[0].name);
+  }
+}
+
 // ── Shared ────────────────────────────────────────────
 
 function closeModal(id) {
@@ -2366,101 +2499,293 @@ function showToast(msg, isError = false) {
   _toastTimer = setTimeout(() => t.classList.remove('show'), 3000);
 }
 // ══════════════════════════════════════════════════════
-//  TIMETABLE
+//  NOTIFICATIONS
 // ══════════════════════════════════════════════════════
 
+let _notifDropdownOpen = false;
+const SESSION_TYPE_COLORS = { cohort: '#3b82f6', group: '#0d9488', private: '#a855f7' };
+
+async function loadNotifications() {
+  try {
+    const notifs = await GET('/api/notifications');
+    const arr = Array.isArray(notifs) ? notifs : [];
+    const unread = arr.filter(n => !n.read_at);
+    const dot = document.getElementById('notif-dot');
+    const badge = document.getElementById('notif-count-badge');
+    if (dot)   dot.style.display   = unread.length > 0 ? 'block' : 'none';
+    if (badge) {
+      badge.textContent   = unread.length > 9 ? '9+' : unread.length;
+      badge.style.display = unread.length > 0 ? 'block' : 'none';
+    }
+    const list = document.getElementById('notif-list');
+    if (list) {
+      list.innerHTML = arr.length === 0
+        ? `<div style="padding:20px;text-align:center;color:var(--muted);font-family:var(--font-m);font-size:11px">No notifications</div>`
+        : arr.map(n => `
+          <div style="padding:12px 16px;border-bottom:1px solid var(--border);background:${n.read_at ? 'transparent' : 'rgba(0,220,180,0.04)'}">
+            <div style="font-family:var(--font-m);font-size:11px;color:var(--white);margin-bottom:3px">${n.message}</div>
+            <div style="font-family:var(--font-m);font-size:10px;color:var(--muted)">${n.created_at}</div>
+          </div>`).join('');
+    }
+  } catch(e) { /* silent — don't break app */ }
+}
+
+function toggleNotifDropdown() {
+  const dd = document.getElementById('notif-dropdown');
+  if (!dd) return;
+  _notifDropdownOpen = !_notifDropdownOpen;
+  dd.style.display = _notifDropdownOpen ? 'block' : 'none';
+  if (_notifDropdownOpen) loadNotifications();
+}
+
+async function markAllNotificationsRead() {
+  try {
+    await PUT('/api/notifications/read-all', {});
+    await loadNotifications();
+    showToast('All notifications marked read');
+  } catch(e) {}
+}
+
+// Close notif dropdown on outside click
+document.addEventListener('click', e => {
+  const btn = document.getElementById('notif-btn');
+  const dd  = document.getElementById('notif-dropdown');
+  if (dd && _notifDropdownOpen && !btn?.contains(e.target) && !dd.contains(e.target)) {
+    dd.style.display = 'none';
+    _notifDropdownOpen = false;
+  }
+});
+
+// ══════════════════════════════════════════════════════
+//  STUDENT TIMETABLE (sessions API)
+// ══════════════════════════════════════════════════════
+
+let _ttData = { upcoming: [], past: [] };
+let _ttActiveTab = 'upcoming';
+
 async function loadTimetable() {
-  const data = await GET(`/api/courses/${STATE.courseId}/timetable`);
-  const container = document.getElementById('timetable-container');
+  try {
+    _ttData = await GET('/api/sessions/timetable');
+  } catch(e) {
+    _ttData = { upcoming: [], past: [] };
+  }
+  _ttData.upcoming = Array.isArray(_ttData.upcoming) ? _ttData.upcoming : [];
+  _ttData.past     = Array.isArray(_ttData.past)     ? _ttData.past     : [];
+  renderTTTab(_ttActiveTab);
+}
+
+function switchTTTab(tab) {
+  _ttActiveTab = tab;
+  const upBtn  = document.getElementById('tt-tab-upcoming');
+  const pastBtn = document.getElementById('tt-tab-past');
+  const upEl   = document.getElementById('timetable-upcoming');
+  const pastEl = document.getElementById('timetable-past');
+  if (tab === 'upcoming') {
+    upBtn.style.cssText  = 'padding:9px 20px;background:var(--cyan-dim);border:none;color:var(--cyan);font-family:var(--font-m);font-size:11px;cursor:pointer;border-bottom:2px solid var(--cyan)';
+    pastBtn.style.cssText = 'padding:9px 20px;background:none;border:none;color:var(--muted);font-family:var(--font-m);font-size:11px;cursor:pointer;border-bottom:2px solid transparent';
+    upEl.style.display  = '';
+    pastEl.style.display = 'none';
+  } else {
+    upBtn.style.cssText  = 'padding:9px 20px;background:none;border:none;color:var(--muted);font-family:var(--font-m);font-size:11px;cursor:pointer;border-bottom:2px solid transparent';
+    pastBtn.style.cssText = 'padding:9px 20px;background:var(--cyan-dim);border:none;color:var(--cyan);font-family:var(--font-m);font-size:11px;cursor:pointer;border-bottom:2px solid var(--cyan)';
+    upEl.style.display  = 'none';
+    pastEl.style.display = '';
+  }
+  renderTTTab(tab);
+}
+
+function renderTTTab(tab) {
+  const sessions = _ttData[tab] || [];
+  const elId = tab === 'upcoming' ? 'timetable-upcoming' : 'timetable-past';
+  const container = document.getElementById(elId);
   if (!container) return;
 
-  if (!data.weeks || !data.weeks.length) {
-    container.innerHTML = `<div style="color:var(--muted);font-family:var(--font-m);font-size:12px;padding:32px;text-align:center">No timetable set yet.</div>`;
+  if (sessions.length === 0) {
+    container.innerHTML = `<div style="color:var(--muted);font-family:var(--font-m);font-size:12px;padding:32px;text-align:center">
+      ${tab === 'upcoming' ? 'No upcoming sessions scheduled.' : 'No past sessions yet.'}
+    </div>`;
     return;
   }
 
-  container.innerHTML = data.weeks.map(w => {
-    const sessionsHtml = w.sessions.map(s => {
-      const cls  = s.is_today ? 'today' : s.is_past ? 'past' : '';
-      const topicHtml = s.topic
-        ? `<div class="tt-topic">${s.topic}${s.notes ? `<div class="tt-notes">${s.notes}</div>` : ''}</div>`
-        : `<div class="tt-topic tba">Topic to be announced</div>`;
-      return `<div class="tt-session ${cls}">
-        <div>
-          <div class="tt-day-name">${s.day}</div>
-          <div class="tt-day-date">${s.date || '—'}</div>
+  container.innerHTML = sessions.map(s => {
+    const color = SESSION_TYPE_COLORS[s.session_type] || 'var(--cyan)';
+    const recLink = s.recording_url
+      ? `<a href="${s.recording_url}" target="_blank" style="color:var(--cyan);font-family:var(--font-m);font-size:10px;text-decoration:none"><i class="fas fa-video"></i> Watch Recording</a>`
+      : '';
+    const zoomLink = s.zoom_link && tab === 'upcoming'
+      ? `<a href="${s.zoom_link}" target="_blank" style="display:inline-flex;align-items:center;gap:6px;background:${color};color:#fff;font-family:var(--font-m);font-size:10px;padding:6px 12px;text-decoration:none"><i class="fas fa-video"></i> Join Zoom</a>`
+      : '';
+    return `<div style="border:1px solid var(--border);border-left:3px solid ${color};background:var(--surface);padding:16px 20px;margin-bottom:10px;display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap">
+      <div>
+        <div style="font-size:14px;font-weight:700;margin-bottom:4px">${s.title}</div>
+        <div style="font-family:var(--font-m);font-size:10px;color:var(--muted);margin-bottom:8px">
+          <i class="fas fa-clock" style="color:${color}"></i> ${s.start_display}
+          &nbsp;·&nbsp; ${s.duration_minutes} min
+          &nbsp;·&nbsp; <span style="color:${color};text-transform:uppercase;letter-spacing:0.08em">${s.session_type}</span>
+          ${s.course_title ? `&nbsp;·&nbsp; ${s.course_title}` : ''}
         </div>
-        <div><span class="tt-time">${s.time_start} – ${s.time_end}</span></div>
-        ${topicHtml}
-      </div>`;
-    }).join('');
-
-    const isCurrent = w.week === data.current_week;
-    const badge     = isCurrent ? `<span class="tt-week-badge">Current Week</span>` : '';
-    return `<div class="timetable-week">
-      <div class="tt-week-header">
-        <span class="tt-week-num">Week ${w.week}</span>
-        <span class="tt-week-label"></span>${badge}
+        ${recLink}
       </div>
-      ${sessionsHtml}
+      <div>${zoomLink}</div>
     </div>`;
   }).join('');
 }
 
-async function loadTeacherTimetable() {
-  const data = await GET(`/api/courses/${STATE.courseId}/timetable`);
-  const container = document.getElementById('t-timetable-container');
-  if (!container) return;
+// ══════════════════════════════════════════════════════
+//  TEACHER SESSION SCHEDULER
+// ══════════════════════════════════════════════════════
 
-  // Set start date input
-  const sdInput = document.getElementById('tt-start-date-input');
-  if (sdInput && data.start_date) sdInput.value = data.start_date;
+let _editingSessionId = null;
 
-  if (!data.weeks || !data.weeks.length) {
-    container.innerHTML = `<div style="color:var(--muted);font-family:var(--font-m);font-size:12px;padding:32px;text-align:center">No weeks configured.</div>`;
-    return;
+async function loadTeacherSessions() {
+  // Populate course selector
+  const sel = document.getElementById('sess-course');
+  if (sel) {
+    sel.innerHTML = `<option value="">— select course —</option>` +
+      STATE.courses.map(c => `<option value="${c.id}">${c.title}</option>`).join('');
   }
-
-  container.innerHTML = data.weeks.map(w => {
-    const sessionsHtml = w.sessions.map(s => {
-      const topicVal = (s.topic || '').replace(/"/g, '&quot;');
-      const notesVal = (s.notes || '').replace(/"/g, '&quot;');
-      return `<div class="tt-session">
-        <div>
-          <div class="tt-day-name">${s.day}</div>
-          <div class="tt-day-date">${s.date || '—'}</div>
-        </div>
-        <div><span class="tt-time">${s.time_start} – ${s.time_end}</span></div>
-        <div>
-          <input class="tt-topic-input" type="text"
-            placeholder="e.g. Python Basics &amp; Setup"
-            value="${topicVal}"
-            data-week="${w.week}" data-snum="${s.session_num}"
-            data-notes="${notesVal}" />
-        </div>
-      </div>`;
-    }).join('');
-
-    const isCurrent = w.week === data.current_week;
-    const badge     = isCurrent ? `<span class="tt-week-badge">Current Week</span>` : '';
-    return `<div class="timetable-week">
-      <div class="tt-week-header">
-        <span class="tt-week-num">Week ${w.week}</span>
-        <span class="tt-week-label"></span>${badge}
-      </div>
-      ${sessionsHtml}
-    </div>`;
-  }).join('');
+  // Load session list
+  await refreshSessionList();
 }
 
+async function refreshSessionList() {
+  try {
+    const sessions = await GET('/api/sessions');
+    const arr = Array.isArray(sessions) ? sessions : [];
+    const list = document.getElementById('t-sessions-list');
+    if (!list) return;
+    const now = new Date();
+    list.innerHTML = arr.length === 0
+      ? `<div style="padding:16px 20px;color:var(--muted);font-family:var(--font-m);font-size:11px">No sessions yet.</div>`
+      : arr.map(s => {
+          const isPast = new Date(s.start_datetime) < now;
+          const color  = SESSION_TYPE_COLORS[s.session_type] || 'var(--cyan)';
+          return `<div class="file-row" id="sess-row-${s.id}" style="border-left:3px solid ${color};opacity:${isPast?0.6:1}">
+            <div style="flex:1">
+              <div class="file-name" style="font-size:12px">${s.title}</div>
+              <div class="file-sub" style="margin-top:2px">
+                <span style="color:${color};text-transform:uppercase;font-size:9px;letter-spacing:0.08em">${s.session_type}</span>
+                &nbsp;·&nbsp; ${s.start_display}
+                ${s.course_title ? `&nbsp;·&nbsp; ${s.course_title}` : ''}
+              </div>
+              ${s.zoom_link ? `<div style="font-family:var(--font-m);font-size:10px;margin-top:2px"><i class="fas fa-link" style="color:var(--cyan)"></i> <a href="${s.zoom_link}" target="_blank" style="color:var(--cyan)">${s.zoom_link.slice(0,40)}…</a></div>` : ''}
+              ${s.recording_url ? `<div style="font-family:var(--font-m);font-size:10px;margin-top:2px"><i class="fas fa-video" style="color:var(--green)"></i> Recording linked</div>` : ''}
+            </div>
+            <button class="btn-action ghost" style="font-size:10px;padding:5px 10px;margin-right:4px" onclick="openAddRecordingModal(${s.id})">
+              <i class="fas fa-link"></i> Rec
+            </button>
+            <button class="btn-action red" onclick="deleteSession(${s.id})"><i class="fas fa-trash"></i></button>
+          </div>`;
+        }).join('');
+  } catch(e) { showToast('Could not load sessions: ' + e.message, true); }
+}
+
+function onSessTypeChange() {
+  const type = document.getElementById('sess-type')?.value;
+  const group = document.getElementById('sess-participants-group');
+  if (group) group.style.display = (type === 'group' || type === 'private') ? '' : 'none';
+  // Also update participant list based on selected course
+  updateParticipantList();
+}
+
+async function updateParticipantList() {
+  const courseId = document.getElementById('sess-course')?.value;
+  const container = document.getElementById('sess-participants-list');
+  if (!container) return;
+  if (!courseId) {
+    container.innerHTML = `<span style="color:var(--muted);font-family:var(--font-m);font-size:11px">Select a course first</span>`;
+    return;
+  }
+  try {
+    const students = await GET(`/api/admin/courses/${courseId}/students`);
+    const arr = Array.isArray(students) ? students : [];
+    if (arr.length === 0) {
+      container.innerHTML = `<span style="color:var(--muted);font-family:var(--font-m);font-size:11px">No students enrolled</span>`;
+      return;
+    }
+    container.innerHTML = arr.map(e => `
+      <label style="display:flex;align-items:center;gap:8px;font-family:var(--font-m);font-size:11px;cursor:pointer">
+        <input type="checkbox" name="participant" value="${e.student_id}" style="accent-color:var(--cyan)" />
+        ${e.student_name}
+      </label>`).join('');
+  } catch(e) {
+    container.innerHTML = `<span style="color:var(--muted);font-family:var(--font-m);font-size:11px">Could not load students</span>`;
+  }
+}
+
+// Attach course change handler
+document.addEventListener('DOMContentLoaded', () => {
+  const sel = document.getElementById('sess-course');
+  if (sel) sel.addEventListener('change', updateParticipantList);
+});
+
+async function createSession() {
+  const title    = document.getElementById('sess-title')?.value.trim();
+  const type     = document.getElementById('sess-type')?.value;
+  const courseId = document.getElementById('sess-course')?.value;
+  const start    = document.getElementById('sess-start')?.value;
+  const dur      = document.getElementById('sess-duration')?.value;
+  const zoom     = document.getElementById('sess-zoom')?.value.trim();
+
+  if (!title) { showToast('Title is required', true); return; }
+  if (!start) { showToast('Start date/time is required', true); return; }
+
+  const participantIds = Array.from(
+    document.querySelectorAll('#sess-participants-list input[name="participant"]:checked')
+  ).map(cb => parseInt(cb.value));
+
+  try {
+    await POST('/api/sessions', {
+      title, session_type: type,
+      course_id: courseId ? parseInt(courseId) : null,
+      start_datetime: start,
+      duration_minutes: parseInt(dur) || 120,
+      zoom_link: zoom,
+      participant_ids: participantIds
+    });
+    showToast('Session scheduled!');
+    // Reset form
+    ['sess-title','sess-zoom'].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
+    await refreshSessionList();
+  } catch(e) { showToast('Error: ' + e.message, true); }
+}
+
+async function deleteSession(sid) {
+  if (!confirm('Delete this session?')) return;
+  try {
+    await DELETE(`/api/sessions/${sid}`);
+    document.getElementById(`sess-row-${sid}`)?.remove();
+    showToast('Session deleted');
+  } catch(e) { showToast('Error: ' + e.message, true); }
+}
+
+let _recordingSessionId = null;
+function openAddRecordingModal(sid) {
+  _recordingSessionId = sid;
+  document.getElementById('rec-url-input').value = '';
+  document.getElementById('recording-url-modal').classList.add('open');
+}
+
+async function saveRecordingUrl() {
+  const url = document.getElementById('rec-url-input')?.value.trim();
+  if (!url) { showToast('Enter a URL', true); return; }
+  try {
+    await PUT(`/api/sessions/${_recordingSessionId}/recording`, { recording_url: url });
+    showToast('Recording URL saved!');
+    closeModal('recording-url-modal');
+    await refreshSessionList();
+  } catch(e) { showToast('Error: ' + e.message, true); }
+}
+
+// Legacy timetable functions (still used by old API if needed)
 async function saveAllTopics() {
   const inputs = document.querySelectorAll('.tt-topic-input');
   let saved = 0;
   for (const inp of inputs) {
-    const week    = parseInt(inp.dataset.week);
-    const snum    = parseInt(inp.dataset.snum);
-    const topic   = inp.value.trim();
-    const notes   = inp.dataset.notes || '';
+    const week  = parseInt(inp.dataset.week);
+    const snum  = parseInt(inp.dataset.snum);
+    const topic = inp.value.trim();
+    const notes = inp.dataset.notes || '';
     try {
       await PUT(`/api/courses/${STATE.courseId}/timetable`, { week, session_num: snum, topic, notes });
       saved++;
@@ -2474,7 +2799,6 @@ async function saveStartDate() {
   if (!val) { showToast('Pick a date first', true); return; }
   await PUT(`/api/courses/${STATE.courseId}/start_date`, { start_date: val });
   showToast('Start date saved!');
-  await loadTeacherTimetable();
 }
 </script>
 </body>
