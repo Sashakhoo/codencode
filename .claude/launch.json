@@ -2,11 +2,17 @@
   "version": "0.0.1",
   "configurations": [
     {
-      "name": "codencode-lms",
+      "name": "Flask Dev Server (app.py)",
       "runtimeExecutable": "python3",
       "runtimeArgs": ["codencode_deploy_v2/codencode_lms/app.py"],
       "port": 5000,
       "autoPort": true
+    },
+    {
+      "name": "Waitress Production",
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["-m", "waitress", "--host=0.0.0.0", "--port=8000", "app:app"],
+      "port": 8000
     }
   ]
 }
