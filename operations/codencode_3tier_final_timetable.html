@@ -1,0 +1,657 @@
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Outfit:wght@500;600;700&family=Lato:wght@400;700&display=swap');
+*{box-sizing:border-box;margin:0;padding:0}
+.w{font-family:'Lato',sans-serif;color:var(--color-text-primary);padding:.5rem 0 2rem}
+.tabs{display:flex;gap:8px;margin-bottom:1.25rem;flex-wrap:wrap}
+.tab{padding:6px 16px;border-radius:20px;font-size:11px;font-weight:700;cursor:pointer;border:1.5px solid var(--color-border-tertiary);background:var(--color-background-secondary);color:var(--color-text-secondary);transition:all .15s;font-family:'JetBrains Mono',monospace}
+.tab:hover{color:var(--color-text-primary);border-color:var(--color-border-secondary)}
+.tab.on{background:#0a0d0c;color:#00e5a0;border-color:#00c485}
+.pane{display:none}.pane.on{display:block}
+.sec-h{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--color-text-tertiary);margin-bottom:.85rem;padding-bottom:.35rem;border-bottom:1px solid var(--color-border-tertiary)}
+
+:root{
+  --ml:#a78bfa;--ml-d:#1a0f2e;--ml-b:#5b3fa8;
+  --py:#00e5a0;--py-d:#0a2e1f;--py-b:#006640;
+  --da:#38bdf8;--da-d:#0a1e2e;--da-b:#0369a1;
+  --wd:#4ade80;--wd-d:#0a2e18;--wd-b:#166534;
+  --vc:#f5c842;--vc-d:#2e2508;--vc-b:#8a6a10;
+  --nc:#fb923c;--nc-d:#2e1508;--nc-b:#9a3412;
+}
+
+/* ── TIER DISPLAY ── */
+.tier-section{margin-bottom:1.5rem}
+.tier-header{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.tier-badge{font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;padding:3px 10px;border-radius:3px}
+.tb-anchor{background:#1a0f2e;color:#a78bfa;border:1px solid #5b3fa8}
+.tb-medium{background:#0a2e1f;color:#00e5a0;border:1px solid #006640}
+.tb-short{background:#2e2508;color:#f5c842;border:1px solid #8a6a10}
+.tier-desc{font-size:12px;color:var(--color-text-secondary)}
+
+.track-cards{display:grid;gap:10px}
+.tc-1{grid-template-columns:1fr}
+.tc-3{grid-template-columns:repeat(3,1fr)}
+.tc-2{grid-template-columns:repeat(2,1fr)}
+
+.tc{border-radius:11px;padding:14px;border:1px solid;display:flex;flex-direction:column;gap:6px}
+.t-ml{background:var(--ml-d);border-color:var(--ml-b)}
+.t-py{background:var(--py-d);border-color:var(--py-b)}
+.t-da{background:var(--da-d);border-color:var(--da-b)}
+.t-wd{background:var(--wd-d);border-color:var(--wd-b)}
+.t-vc{background:var(--vc-d);border-color:var(--vc-b)}
+.t-nc{background:var(--nc-d);border-color:var(--nc-b)}
+
+.tc-name{font-family:'Outfit',sans-serif;font-size:14px;font-weight:700}
+.t-ml .tc-name{color:var(--ml)}.t-py .tc-name{color:var(--py)}
+.t-da .tc-name{color:var(--da)}.t-wd .tc-name{color:var(--wd)}
+.t-vc .tc-name{color:var(--vc)}.t-nc .tc-name{color:var(--nc)}
+.tc-desc{font-size:11px;color:var(--color-text-secondary);line-height:1.55}
+.tc-foot{display:flex;justify-content:space-between;align-items:center;margin-top:4px}
+.tc-price{font-family:'Outfit',sans-serif;font-size:16px;font-weight:700;color:var(--color-text-primary)}
+.mpill{font-family:'JetBrains Mono',monospace;font-size:9px;padding:2px 8px;border-radius:20px;border:1px solid;font-weight:700}
+
+/* ── DURATION VISUAL ── */
+.dur-wrap{background:var(--color-background-secondary);border:1px solid var(--color-border-tertiary);border-radius:12px;padding:16px;margin-bottom:1.5rem}
+.dur-row{display:flex;align-items:center;gap:10px;margin-bottom:7px}
+.dur-lbl{font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;width:160px;flex-shrink:0}
+.dur-track{flex:1;height:20px;background:rgba(255,255,255,.04);border-radius:3px;position:relative}
+.dur-seg{position:absolute;height:100%;border-radius:3px;display:flex;align-items:center;padding:0 8px;font-family:'JetBrains Mono',monospace;font-size:8px;font-weight:700}
+.dur-note{font-size:10px;color:var(--color-text-tertiary);width:70px;text-align:right;flex-shrink:0}
+
+/* ── SAT SCHEDULE ── */
+.sat-day{background:var(--color-background-secondary);border:1px solid var(--color-border-tertiary);border-radius:12px;overflow:hidden;margin-bottom:1.5rem}
+.sat-head{padding:10px 16px;border-bottom:1px solid var(--color-border-tertiary);display:flex;justify-content:space-between;align-items:center}
+.sat-title{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--color-text-secondary)}
+.sat-total{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--color-text-tertiary)}
+.sat-block-head{padding:6px 16px;font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:.1em;text-transform:uppercase;color:var(--color-text-tertiary);border-bottom:1px solid var(--color-border-tertiary)}
+.sat-slot{display:flex;align-items:center;gap:12px;padding:9px 16px;border-bottom:1px solid var(--color-border-tertiary)}
+.sat-slot:last-child{border-bottom:none}
+.s-time{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--color-text-secondary);min-width:110px;flex-shrink:0}
+.s-name{font-size:12px;font-weight:700;flex:1}
+.s-wks{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--color-text-tertiary);white-space:nowrap}
+.s-dur{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--color-text-tertiary);min-width:35px;text-align:right;flex-shrink:0}
+.sat-break{padding:6px 16px;background:rgba(255,255,255,.02);border-bottom:1px solid var(--color-border-tertiary);font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--color-text-tertiary);text-align:center}
+
+/* ── COHORT BLOCKS ── */
+.cb{border-radius:12px;border:1px solid;padding:16px;margin-bottom:12px}
+.cb1{background:#0a1e18;border-color:#00c485}
+.cb2{background:#1a1408;border-color:#d4a82a}
+.cb3{background:#0f0d20;border-color:#5b3fa8}
+.cb-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px;flex-wrap:wrap;gap:8px}
+.cb-title{font-family:'Outfit',sans-serif;font-size:17px;font-weight:700}
+.cb1 .cb-title{color:#00e5a0}.cb2 .cb-title{color:#f5c842}.cb3 .cb-title{color:#a78bfa}
+.cb-dates{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--color-text-secondary);margin-top:2px}
+.cb-right{text-align:right;font-size:11px;color:var(--color-text-secondary)}
+.grad-timeline{display:flex;flex-direction:column;gap:8px}
+.grad-row{display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:6px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06)}
+.grad-date{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--color-text-secondary);min-width:65px;flex-shrink:0}
+.grad-tracks{display:flex;flex-wrap:wrap;gap:5px;flex:1}
+.gtag{font-family:'JetBrains Mono',monospace;font-size:8px;font-weight:700;padding:2px 7px;border-radius:3px}
+.gt-ml{background:var(--ml-d);color:var(--ml);border:1px solid var(--ml-b)}
+.gt-py{background:var(--py-d);color:var(--py);border:1px solid var(--py-b)}
+.gt-da{background:var(--da-d);color:var(--da);border:1px solid var(--da-b)}
+.gt-wd{background:var(--wd-d);color:var(--wd);border:1px solid var(--wd-b)}
+.gt-vc{background:var(--vc-d);color:var(--vc);border:1px solid var(--vc-b)}
+.gt-nc{background:var(--nc-d);color:var(--nc);border:1px solid var(--nc-b)}
+.grad-label{font-size:10px;color:var(--color-text-tertiary);white-space:nowrap}
+
+/* ── GANTT ── */
+.gantt-outer{overflow-x:auto;background:var(--color-background-secondary);border:1px solid var(--color-border-tertiary);border-radius:12px;margin-bottom:1.5rem}
+.gantt{min-width:700px;padding:14px}
+.g-months{display:flex;padding-left:130px;margin-bottom:8px}
+.g-mon{flex:1;text-align:center;font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--color-text-tertiary);text-transform:uppercase}
+.g-row{display:flex;align-items:center;margin-bottom:4px;min-height:22px}
+.g-lbl{width:130px;flex-shrink:0;padding-right:8px}
+.g-lbl-n{font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700}
+.g-lbl-s{font-family:'JetBrains Mono',monospace;font-size:7px;color:var(--color-text-tertiary)}
+.g-bar{flex:1;height:20px;position:relative;background:rgba(255,255,255,.03);border-radius:3px}
+.g-seg{position:absolute;height:100%;border-radius:3px;display:flex;align-items:center;padding:0 5px;font-family:'JetBrains Mono',monospace;font-size:7px;font-weight:700;overflow:hidden;white-space:nowrap}
+.s-ml{background:var(--ml-d);color:var(--ml);border:1px solid var(--ml-b)}
+.s-py{background:var(--py-d);color:var(--py);border:1px solid var(--py-b)}
+.s-da{background:var(--da-d);color:var(--da);border:1px solid var(--da-b)}
+.s-wd{background:var(--wd-d);color:var(--wd);border:1px solid var(--wd-b)}
+.s-vc{background:var(--vc-d);color:var(--vc);border:1px solid var(--vc-b)}
+.s-nc{background:var(--nc-d);color:var(--nc);border:1px solid var(--nc-b)}
+.s-sh{background:#2d1f0a;color:#ffb07e;border:1px solid #6a4010}
+.s-gap{background:rgba(255,255,255,.04);color:var(--color-text-tertiary);border:1px dashed rgba(255,255,255,.1)}
+.g-ph{position:absolute;width:2px;height:100%;background:#ff4444;opacity:.7;z-index:3;border-radius:1px}
+.g-div{height:1px;background:var(--color-border-tertiary);margin:7px 0}
+.g-sec{font-family:'JetBrains Mono',monospace;font-size:7px;letter-spacing:.1em;text-transform:uppercase;color:var(--color-text-tertiary);padding-left:130px;margin-bottom:4px}
+
+/* ── WEEK TABLE ── */
+.wt{width:100%;border-collapse:collapse;font-size:11px}
+.wt th{text-align:left;padding:7px 8px;font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:.09em;text-transform:uppercase;color:var(--color-text-secondary);background:var(--color-background-secondary);border-bottom:1px solid var(--color-border-tertiary)}
+.wt td{padding:7px 8px;border-bottom:1px solid var(--color-border-tertiary);vertical-align:top;line-height:1.5;font-size:11px}
+.wt tr:last-child td{border-bottom:none}
+.wt tr:hover td{background:var(--color-background-secondary)}
+.r-sh td{background:#1a1208!important}
+.r-gap td{background:rgba(255,255,255,.012)!important}
+.r-grad td{background:#0d1f0d!important}
+.badge{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:8px;font-weight:700;padding:2px 6px;border-radius:3px;white-space:nowrap}
+.bc1{background:#0a1e18;color:#00e5a0;border:1px solid #00c485}
+.bc2{background:#1a1408;color:#f5c842;border:1px solid #d4a82a}
+.bc3{background:#0f0d20;color:#a78bfa;border:1px solid #5b3fa8}
+.bml{background:var(--ml-d);color:var(--ml);border:1px solid var(--ml-b)}
+.bpy{background:var(--py-d);color:var(--py);border:1px solid var(--py-b)}
+.bda{background:var(--da-d);color:var(--da);border:1px solid var(--da-b)}
+.bwd{background:var(--wd-d);color:var(--wd);border:1px solid var(--wd-b)}
+.bvc{background:var(--vc-d);color:var(--vc);border:1px solid var(--vc-b)}
+.bnc{background:var(--nc-d);color:var(--nc);border:1px solid var(--nc-b)}
+.bsh{background:#2d1f0a;color:#ffb07e;border:1px solid #6a4010}
+.bgap{background:rgba(255,255,255,.06);color:var(--color-text-tertiary);border:1px solid var(--color-border-tertiary)}
+.topic{color:var(--color-text-secondary);font-size:11px}
+.ncell{font-size:10px;color:var(--color-text-tertiary);line-height:1.4}
+.fbtns{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap}
+.fbtn{padding:4px 12px;border-radius:20px;border:1.5px solid var(--color-border-tertiary);background:var(--color-background-secondary);color:var(--color-text-secondary);font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;cursor:pointer}
+</style>
+
+<div class="w">
+<div class="tabs">
+  <div class="tab on" onclick="sw('tracks',this)">6 tracks</div>
+  <div class="tab" onclick="sw('cohorts',this)">Cohort plan</div>
+  <div class="tab" onclick="sw('gantt',this)">Gantt</div>
+  <div class="tab" onclick="sw('sat',this)">Saturday</div>
+  <div class="tab" onclick="sw('sched',this)">Week schedule</div>
+</div>
+
+<!-- ═══ TRACKS ═══ -->
+<div class="pane on" id="p-tracks">
+  <div class="sec-h">Final track structure — 3 clean tiers</div>
+
+  <!-- Duration visual -->
+  <div class="dur-wrap">
+    <div class="sec-h" style="margin-bottom:.75rem">Duration at a glance — 10 weeks cohort window</div>
+    <div class="dur-row">
+      <div class="dur-lbl" style="color:var(--ml)">ML Fundamentals</div>
+      <div class="dur-track"><div class="dur-seg s-ml" style="left:0;width:100%">10 weeks — full cohort</div></div>
+      <div class="dur-note">RM 1,500</div>
+    </div>
+    <div style="height:6px"></div>
+    <div class="dur-row">
+      <div class="dur-lbl" style="color:var(--py)">Python Fundamentals</div>
+      <div class="dur-track"><div class="dur-seg s-py" style="left:0;width:60%">6 weeks</div></div>
+      <div class="dur-note">RM 1,200</div>
+    </div>
+    <div class="dur-row">
+      <div class="dur-lbl" style="color:var(--da)">Data Analytics</div>
+      <div class="dur-track"><div class="dur-seg s-da" style="left:0;width:60%">6 weeks</div></div>
+      <div class="dur-note">RM 1,200</div>
+    </div>
+    <div class="dur-row">
+      <div class="dur-lbl" style="color:var(--wd)">Web Dev + Portfolio</div>
+      <div class="dur-track"><div class="dur-seg s-wd" style="left:0;width:60%">6 weeks</div></div>
+      <div class="dur-note">RM 1,200</div>
+    </div>
+    <div style="height:6px"></div>
+    <div class="dur-row">
+      <div class="dur-lbl" style="color:var(--vc)">Vibe Coding</div>
+      <div class="dur-track"><div class="dur-seg s-vc" style="left:0;width:40%">4 weeks</div></div>
+      <div class="dur-note">RM 800</div>
+    </div>
+    <div class="dur-row">
+      <div class="dur-lbl" style="color:var(--nc)">No-code AI & Automation</div>
+      <div class="dur-track"><div class="dur-seg s-nc" style="left:0;width:40%">4 weeks</div></div>
+      <div class="dur-note">RM 800</div>
+    </div>
+    <div style="margin-top:10px;font-size:11px;color:var(--color-text-tertiary);line-height:1.6">Graduation wave 1 (Wk 4): Vibe Coding + No-code AI · Graduation wave 2 (Wk 6): Python + Data Analytics + Web Dev · Graduation wave 3 (Wk 10): ML Fundamentals</div>
+  </div>
+
+  <!-- Tier 1 -->
+  <div class="tier-section">
+    <div class="tier-header">
+      <span class="tier-badge tb-anchor">Anchor — 10 weeks</span>
+      <span class="tier-desc">Runs the full cohort. The backbone every cohort is built around.</span>
+    </div>
+    <div class="track-cards tc-1">
+      <div class="tc t-ml">
+        <div class="tc-name">ML Fundamentals</div>
+        <div class="tc-desc">NumPy → Pandas → supervised & unsupervised learning → model evaluation → deployment. The deepest and most comprehensive track. Pairs with Python for best results.</div>
+        <div class="tc-foot">
+          <div class="tc-meta"><div class="mpill" style="background:var(--ml-d);color:var(--ml);border-color:var(--ml-b)">10 weeks</div><div class="mpill" style="background:var(--ml-d);color:#7c3aed;border-color:var(--ml-b)">Intermediate</div><div class="mpill" style="background:var(--ml-d);color:#a78bfa;border-color:var(--ml-b)">Sat 4:00 PM</div></div>
+          <div class="tc-price" style="color:var(--ml)">RM 1,500</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tier 2 -->
+  <div class="tier-section">
+    <div class="tier-header">
+      <span class="tier-badge tb-medium">Medium — 6 weeks each</span>
+      <span class="tier-desc">Starts Week 1, graduates mid-cohort (Week 6). All 3 graduate on the same day.</span>
+    </div>
+    <div class="track-cards tc-3">
+      <div class="tc t-py">
+        <div class="tc-name">Python Fundamentals</div>
+        <div class="tc-desc">Variables → OOP → Pandas → capstone project. The entry point for all coding tracks.</div>
+        <div class="tc-foot">
+          <div class="tc-meta"><div class="mpill" style="background:var(--py-d);color:var(--py);border-color:var(--py-b)">6 weeks</div><div class="mpill" style="background:var(--py-d);color:#009965;border-color:var(--py-b)">Beginner</div><div class="mpill" style="background:var(--py-d);color:var(--py);border-color:var(--py-b)">Sat 2:00 PM</div></div>
+          <div class="tc-price" style="color:var(--py)">RM 1,200</div>
+        </div>
+      </div>
+      <div class="tc t-da">
+        <div class="tc-name">Data Analytics</div>
+        <div class="tc-desc">Python + Pandas + Power BI dashboards. For HR, finance & ops professionals who want data skills without going full dev.</div>
+        <div class="tc-foot">
+          <div class="tc-meta"><div class="mpill" style="background:var(--da-d);color:var(--da);border-color:var(--da-b)">6 weeks</div><div class="mpill" style="background:var(--da-d);color:#0ea5e9;border-color:var(--da-b)">Beginner-Inter.</div><div class="mpill" style="background:var(--da-d);color:var(--da);border-color:var(--da-b)">Sat 11:00 AM</div></div>
+          <div class="tc-price" style="color:var(--da)">RM 1,200</div>
+        </div>
+      </div>
+      <div class="tc t-wd">
+        <div class="tc-name">Web Dev + Portfolio</div>
+        <div class="tc-desc">HTML, CSS & JavaScript from scratch. Build and deploy a real portfolio site with a live URL. Perfect first course if you've never coded before.</div>
+        <div class="tc-foot">
+          <div class="tc-meta"><div class="mpill" style="background:var(--wd-d);color:var(--wd);border-color:var(--wd-b)">6 weeks</div><div class="mpill" style="background:var(--wd-d);color:#22c55e;border-color:var(--wd-b)">Beginner</div><div class="mpill" style="background:var(--wd-d);color:var(--wd);border-color:var(--wd-b)">Sat 9:00 AM</div></div>
+          <div class="tc-price" style="color:var(--wd)">RM 1,200</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tier 3 -->
+  <div class="tier-section">
+    <div class="tier-header">
+      <span class="tier-badge tb-short">Short — 4 weeks each</span>
+      <span class="tier-desc">Starts Week 1, graduates Week 4. Fastest ROI. Both graduate on the same day.</span>
+    </div>
+    <div class="track-cards tc-2">
+      <div class="tc t-vc">
+        <div class="tc-name">Vibe Coding</div>
+        <div class="tc-desc">Cursor AI + GitHub Copilot + deploy. Build and ship a real app using AI tools in 4 weeks. No deep theory — just build.</div>
+        <div class="tc-foot">
+          <div class="tc-meta"><div class="mpill" style="background:var(--vc-d);color:var(--vc);border-color:var(--vc-b)">4 weeks</div><div class="mpill" style="background:var(--vc-d);color:#d4a82a;border-color:var(--vc-b)">Any level</div><div class="mpill" style="background:var(--vc-d);color:var(--vc);border-color:var(--vc-b)">Sat 8:00 AM</div></div>
+          <div class="tc-price" style="color:var(--vc)">RM 800</div>
+        </div>
+      </div>
+      <div class="tc t-nc">
+        <div class="tc-name">No-code AI & Automation</div>
+        <div class="tc-desc">Make, n8n, Zapier + AI integrations. Automate entire workflows without a single line of code. Fastest ROI course in the catalogue.</div>
+        <div class="tc-foot">
+          <div class="tc-meta"><div class="mpill" style="background:var(--nc-d);color:var(--nc);border-color:var(--nc-b)">4 weeks</div><div class="mpill" style="background:var(--nc-d);color:#f97316;border-color:var(--nc-b)">Beginner</div><div class="mpill" style="background:var(--nc-d);color:var(--nc);border-color:var(--nc-b)">Sat 10:00 AM</div></div>
+          <div class="tc-price" style="color:var(--nc)">RM 800</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ COHORTS ═══ -->
+<div class="pane" id="p-cohorts">
+  <div class="sec-h">3 cohorts · sequential · 3 graduation waves per cohort</div>
+
+  <div class="cb cb1">
+    <div class="cb-head">
+      <div><div class="cb-title">Cohort 1 — Jan–Mar 2026</div><div class="cb-dates">12 Jan → 21 Mar · 10 weeks · enrolment closes 5 Jan</div></div>
+      <div class="cb-right">Gap after: 6 wks (Raya + prep)<br>Next cohort starts 4 May</div>
+    </div>
+    <div class="grad-timeline">
+      <div class="grad-row">
+        <div class="grad-date">Wk 4 · 7 Feb</div>
+        <div class="grad-tracks"><span class="gtag gt-vc">Vibe Coding</span><span class="gtag gt-nc">No-code AI</span></div>
+        <div class="grad-label">Wave 1 graduation</div>
+      </div>
+      <div class="grad-row">
+        <div class="grad-date">Wk 6 · 21 Feb</div>
+        <div class="grad-tracks"><span class="gtag gt-py">Python</span><span class="gtag gt-da">Data Analytics</span><span class="gtag gt-wd">Web Dev</span></div>
+        <div class="grad-label">Wave 2 graduation · CNY break was Wk 5 self-paced</div>
+      </div>
+      <div class="grad-row">
+        <div class="grad-date">Wk 10 · 21 Mar</div>
+        <div class="grad-tracks"><span class="gtag gt-ml">ML Fundamentals</span></div>
+        <div class="grad-label">Wave 3 graduation · Full cohort close</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="cb cb2">
+    <div class="cb-head">
+      <div><div class="cb-title">Cohort 2 — May–Jul 2026</div><div class="cb-dates">4 May → 18 Jul · 11 weeks (mid-yr break adds 1 wk) · enrolment closes 27 Apr</div></div>
+      <div class="cb-right">Gap after: 7 wks (Merdeka + rest)<br>Next cohort starts 7 Sep</div>
+    </div>
+    <div class="grad-timeline">
+      <div class="grad-row">
+        <div class="grad-date">Wk 4 · 1 Jun</div>
+        <div class="grad-tracks"><span class="gtag gt-vc">Vibe Coding</span><span class="gtag gt-nc">No-code AI</span></div>
+        <div class="grad-label">Wave 1 · just before school break</div>
+      </div>
+      <div class="grad-row">
+        <div class="grad-date">Wk 6 · 15 Jun</div>
+        <div class="grad-tracks"><span class="gtag gt-py">Python</span><span class="gtag gt-da">Data Analytics</span><span class="gtag gt-wd">Web Dev</span></div>
+        <div class="grad-label">Wave 2 · mid-year break was Wk 4 self-paced</div>
+      </div>
+      <div class="grad-row">
+        <div class="grad-date">Wk 11 · 18 Jul</div>
+        <div class="grad-tracks"><span class="gtag gt-ml">ML Fundamentals</span></div>
+        <div class="grad-label">Wave 3 graduation · Full cohort close</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="cb cb3">
+    <div class="cb-head">
+      <div><div class="cb-title">Cohort 3 — Sep–Nov 2026</div><div class="cb-dates">7 Sep → 21 Nov · 10 weeks + Deepavali makeup · enrolment closes 31 Aug</div></div>
+      <div class="cb-right">Year-end: 6 wks rest<br>Dec school hols · planning 2027</div>
+    </div>
+    <div class="grad-timeline">
+      <div class="grad-row">
+        <div class="grad-date">Wk 4 · 5 Oct</div>
+        <div class="grad-tracks"><span class="gtag gt-vc">Vibe Coding</span><span class="gtag gt-nc">No-code AI</span></div>
+        <div class="grad-label">Wave 1 graduation</div>
+      </div>
+      <div class="grad-row">
+        <div class="grad-date">Wk 6 · 19 Oct</div>
+        <div class="grad-tracks"><span class="gtag gt-py">Python</span><span class="gtag gt-da">Data Analytics</span><span class="gtag gt-wd">Web Dev</span></div>
+        <div class="grad-label">Wave 2 graduation · all 3 same day</div>
+      </div>
+      <div class="grad-row">
+        <div class="grad-date">Wk 10 · 21 Nov</div>
+        <div class="grad-tracks"><span class="gtag gt-ml">ML Fundamentals</span></div>
+        <div class="grad-label">Wave 3 · Deepavali makeup week added</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ GANTT ═══ -->
+<div class="pane" id="p-gantt">
+  <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:1rem">
+    <div style="display:flex;align-items:center;gap:4px;font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--color-text-secondary)"><div style="width:10px;height:8px;background:var(--ml-d);border:1px solid var(--ml-b);border-radius:2px"></div>ML (10 wks)</div>
+    <div style="display:flex;align-items:center;gap:4px;font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--color-text-secondary)"><div style="width:10px;height:8px;background:var(--py-d);border:1px solid var(--py-b);border-radius:2px"></div>Python (6 wks)</div>
+    <div style="display:flex;align-items:center;gap:4px;font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--color-text-secondary)"><div style="width:10px;height:8px;background:var(--da-d);border:1px solid var(--da-b);border-radius:2px"></div>Data Analytics (6 wks)</div>
+    <div style="display:flex;align-items:center;gap:4px;font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--color-text-secondary)"><div style="width:10px;height:8px;background:var(--wd-d);border:1px solid var(--wd-b);border-radius:2px"></div>Web Dev (6 wks)</div>
+    <div style="display:flex;align-items:center;gap:4px;font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--color-text-secondary)"><div style="width:10px;height:8px;background:var(--vc-d);border:1px solid var(--vc-b);border-radius:2px"></div>Vibe (4 wks)</div>
+    <div style="display:flex;align-items:center;gap:4px;font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--color-text-secondary)"><div style="width:10px;height:8px;background:var(--nc-d);border:1px solid var(--nc-b);border-radius:2px"></div>No-code (4 wks)</div>
+    <div style="display:flex;align-items:center;gap:4px;font-family:'JetBrains Mono',monospace;font-size:9px;color:#ff7878"><div style="width:3px;height:10px;background:#ff4444;border-radius:1px"></div>Public holiday</div>
+  </div>
+  <div class="gantt-outer">
+    <div class="gantt">
+      <div class="g-months">
+        <div class="g-mon">Jan</div><div class="g-mon">Feb</div><div class="g-mon">Mar</div>
+        <div class="g-mon">Apr</div><div class="g-mon">May</div><div class="g-mon">Jun</div>
+        <div class="g-mon">Jul</div><div class="g-mon">Aug</div><div class="g-mon">Sep</div>
+        <div class="g-mon">Oct</div><div class="g-mon">Nov</div><div class="g-mon">Dec</div>
+      </div>
+      <!-- C1 -->
+      <div class="g-sec">Cohort 1 — 12 Jan → 21 Mar</div>
+      <div class="g-row"><div class="g-lbl"><div class="g-lbl-n" style="color:var(--ml)">ML</div><div class="g-lbl-s">anchor · 10 wks</div></div><div class="g-bar" id="g1ml"></div></div>
+      <div class="g-row"><div class="g-lbl"><div class="g-lbl-n" style="color:var(--py)">Python</div><div class="g-lbl-s">medium · 6 wks · grad 21 Feb</div></div><div class="g-bar" id="g1py"></div></div>
+      <div class="g-row"><div class="g-lbl"><div class="g-lbl-n" style="color:var(--da)">Data Analytics</div><div class="g-lbl-s">medium · 6 wks · grad 21 Feb</div></div><div class="g-bar" id="g1da"></div></div>
+      <div class="g-row"><div class="g-lbl"><div class="g-lbl-n" style="color:var(--wd)">Web Dev</div><div class="g-lbl-s">medium · 6 wks · grad 21 Feb</div></div><div class="g-bar" id="g1wd"></div></div>
+      <div class="g-row"><div class="g-lbl"><div class="g-lbl-n" style="color:var(--vc)">Vibe Coding</div><div class="g-lbl-s">short · 4 wks · grad 7 Feb</div></div><div class="g-bar" id="g1vc"></div></div>
+      <div class="g-row"><div class="g-lbl"><div class="g-lbl-n" style="color:var(--nc)">No-code AI</div><div class="g-lbl-s">short · 4 wks · grad 7 Feb</div></div><div class="g-bar" id="g1nc"></div></div>
+      <div class="g-div"></div>
+      <!-- C2 -->
+      <div class="g-sec">Cohort 2 — 4 May → 18 Jul</div>
+      <div class="g-row"><div class="g-lbl"><div class="g-lbl-n" style="color:var(--ml)">ML</div><div class="g-lbl-s">anchor · 11 wks</div></div><div class="g-bar" id="g2ml"></div></div>
+      <div class="g-row"><div class="g-lbl"><div class="g-lbl-n" style="color:var(--py)">Python</div><div class="g-lbl-s">medium · 6 wks · grad 15 Jun</div></div><div class="g-bar" id="g2py"></div></div>
+      <div class="g-row"><div class="g-lbl"><div class="g-lbl-n" style="color:var(--da)">Data Analytics</div><div class="g-lbl-s">medium · 6 wks · grad 15 Jun</div></div><div class="g-bar" id="g2da"></div></div>
+      <div class="g-row"><div class="g-lbl"><div class="g-lbl-n" style="color:var(--wd)">Web Dev</div><div class="g-lbl-s">medium · 6 wks · grad 15 Jun</div></div><div class="g-bar" id="g2wd"></div></div>
+      <div class="g-row"><div class="g-lbl"><div class="g-lbl-n" style="color:var(--vc)">Vibe Coding</div><div class="g-lbl-s">short · 4 wks · grad 1 Jun</div></div><div class="g-bar" id="g2vc"></div></div>
+      <div class="g-row"><div class="g-lbl"><div class="g-lbl-n" style="color:var(--nc)">No-code AI</div><div class="g-lbl-s">short · 4 wks · grad 1 Jun</div></div><div class="g-bar" id="g2nc"></div></div>
+      <div class="g-div"></div>
+      <!-- C3 -->
+      <div class="g-sec">Cohort 3 — 7 Sep → 21 Nov</div>
+      <div class="g-row"><div class="g-lbl"><div class="g-lbl-n" style="color:var(--ml)">ML</div><div class="g-lbl-s">anchor · 10 wks + makeup</div></div><div class="g-bar" id="g3ml"></div></div>
+      <div class="g-row"><div class="g-lbl"><div class="g-lbl-n" style="color:var(--py)">Python</div><div class="g-lbl-s">medium · 6 wks · grad 19 Oct</div></div><div class="g-bar" id="g3py"></div></div>
+      <div class="g-row"><div class="g-lbl"><div class="g-lbl-n" style="color:var(--da)">Data Analytics</div><div class="g-lbl-s">medium · 6 wks · grad 19 Oct</div></div><div class="g-bar" id="g3da"></div></div>
+      <div class="g-row"><div class="g-lbl"><div class="g-lbl-n" style="color:var(--wd)">Web Dev</div><div class="g-lbl-s">medium · 6 wks · grad 19 Oct</div></div><div class="g-bar" id="g3wd"></div></div>
+      <div class="g-row"><div class="g-lbl"><div class="g-lbl-n" style="color:var(--vc)">Vibe Coding</div><div class="g-lbl-s">short · 4 wks · grad 5 Oct</div></div><div class="g-bar" id="g3vc"></div></div>
+      <div class="g-row"><div class="g-lbl"><div class="g-lbl-n" style="color:var(--nc)">No-code AI</div><div class="g-lbl-s">short · 4 wks · grad 5 Oct</div></div><div class="g-bar" id="g3nc"></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ SATURDAY ═══ -->
+<div class="pane" id="p-sat">
+  <div class="sat-day">
+    <div class="sat-head">
+      <div class="sat-title">Saturday — full day structure (active cohort weeks)</div>
+      <div class="sat-total">Total: 6.5 hrs teaching · 8:00 AM – 5:30 PM</div>
+    </div>
+    <div class="sat-block-head">Short tracks — Weeks 1–4 only · both graduate Week 4</div>
+    <div class="sat-slot">
+      <div class="s-time">8:00 – 9:00 AM</div>
+      <div class="s-name" style="color:var(--vc)">Vibe Coding</div>
+      <div class="s-wks">Weeks 1–4</div>
+      <div class="s-dur">1 hr</div>
+    </div>
+    <div class="sat-slot">
+      <div class="s-time">9:15 – 10:15 AM</div>
+      <div class="s-name" style="color:var(--nc)">No-code AI & Automation</div>
+      <div class="s-wks">Weeks 1–4</div>
+      <div class="s-dur">1 hr</div>
+    </div>
+    <div class="sat-block-head">Medium tracks — Weeks 1–6 · all three graduate Week 6</div>
+    <div class="sat-slot">
+      <div class="s-time">10:30 – 11:30 AM</div>
+      <div class="s-name" style="color:var(--wd)">Web Dev + Portfolio Builder</div>
+      <div class="s-wks">Weeks 1–6</div>
+      <div class="s-dur">1 hr</div>
+    </div>
+    <div class="sat-slot">
+      <div class="s-time">11:45 AM – 12:45 PM</div>
+      <div class="s-name" style="color:var(--da)">Data Analytics</div>
+      <div class="s-wks">Weeks 1–6</div>
+      <div class="s-dur">1 hr</div>
+    </div>
+    <div class="sat-slot">
+      <div class="s-time">1:00 – 2:00 PM</div>
+      <div class="s-name" style="color:var(--py)">Python Fundamentals</div>
+      <div class="s-wks">Weeks 1–6</div>
+      <div class="s-dur">1 hr</div>
+    </div>
+    <div class="sat-break">Lunch break · 2:00 – 3:00 PM</div>
+    <div class="sat-block-head">Anchor track — Weeks 1–10 · graduates Week 10</div>
+    <div class="sat-slot">
+      <div class="s-time">3:00 – 4:30 PM</div>
+      <div class="s-name" style="color:var(--ml)">ML Fundamentals</div>
+      <div class="s-wks">Weeks 1–10</div>
+      <div class="s-dur">1.5 hrs</div>
+    </div>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px">
+    <div style="background:var(--color-background-secondary);border:1px solid var(--color-border-tertiary);border-radius:10px;padding:12px 14px">
+      <div style="font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:.1em;text-transform:uppercase;color:var(--color-text-tertiary);margin-bottom:6px">Weeks 1–4 (6 tracks)</div>
+      <div style="font-family:'Outfit',sans-serif;font-size:20px;font-weight:700;color:var(--color-text-primary);margin-bottom:2px">6.5 hrs</div>
+      <div style="font-size:11px;color:var(--color-text-secondary)">All 6 tracks running. Busiest Saturdays. Morning + afternoon.</div>
+    </div>
+    <div style="background:var(--color-background-secondary);border:1px solid var(--color-border-tertiary);border-radius:10px;padding:12px 14px">
+      <div style="font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:.1em;text-transform:uppercase;color:var(--color-text-tertiary);margin-bottom:6px">Weeks 5–6 (4 tracks)</div>
+      <div style="font-family:'Outfit',sans-serif;font-size:20px;font-weight:700;color:var(--color-text-primary);margin-bottom:2px">4.5 hrs</div>
+      <div style="font-size:11px;color:var(--color-text-secondary)">Short tracks done. Web Dev, Data, Python + ML only. Mornings free.</div>
+    </div>
+    <div style="background:var(--color-background-secondary);border:1px solid var(--color-border-tertiary);border-radius:10px;padding:12px 14px">
+      <div style="font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:.1em;text-transform:uppercase;color:var(--color-text-tertiary);margin-bottom:6px">Weeks 7–10 (1 track)</div>
+      <div style="font-family:'Outfit',sans-serif;font-size:20px;font-weight:700;color:var(--color-text-primary);margin-bottom:2px">1.5 hrs</div>
+      <div style="font-size:11px;color:var(--color-text-secondary)">Only ML remaining. Lightest weeks. Afternoons only.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ WEEK SCHEDULE ═══ -->
+<div class="pane" id="p-sched">
+  <div class="fbtns">
+    <button class="fbtn" id="fb-all" onclick="filt('all')">All cohorts</button>
+    <button class="fbtn" id="fb-c1"  onclick="filt('c1')">Cohort 1</button>
+    <button class="fbtn" id="fb-c2"  onclick="filt('c2')">Cohort 2</button>
+    <button class="fbtn" id="fb-c3"  onclick="filt('c3')">Cohort 3</button>
+  </div>
+  <div style="overflow-x:auto">
+  <table class="wt">
+    <thead>
+      <tr>
+        <th style="width:45px">Wk</th>
+        <th style="width:90px">Dates</th>
+        <th style="width:50px">Cohort</th>
+        <th>ML (anchor)</th>
+        <th>Python · Web Dev · Data Analytics</th>
+        <th>Vibe Coding · No-code AI</th>
+        <th style="width:100px">Sat notes</th>
+      </tr>
+    </thead>
+    <tbody id="sched-body"></tbody>
+  </table>
+  </div>
+</div>
+</div>
+
+<script>
+function sw(id,el){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));
+  document.querySelectorAll('.pane').forEach(p=>p.classList.remove('on'));
+  el.classList.add('on');
+  document.getElementById('p-'+id).classList.add('on');
+}
+
+/* GANTT */
+const YS=new Date(2026,0,1),DAYS=365;
+function lp(m,d){return((new Date(2026,m-1,d)-YS)/86400000/DAYS*100).toFixed(2)}
+function wp(ms,ds,me,de){return((new Date(2026,me-1,de)-new Date(2026,ms-1,ds))/86400000/DAYS*100).toFixed(2)}
+function seg(id,l,w,cls,txt){
+  const t=document.getElementById(id);if(!t)return;
+  const s=document.createElement('div');
+  s.className='g-seg '+cls;s.style.left=l+'%';s.style.width=Math.max(parseFloat(w),0.5)+'%';
+  s.textContent=txt;t.appendChild(s);
+}
+function addph(id,m,d){
+  const t=document.getElementById(id);if(!t)return;
+  const s=document.createElement('div');s.className='g-ph';s.style.left=lp(m,d)+'%';t.appendChild(s);
+}
+const PH=[[2,17],[2,18],[3,21],[5,27],[6,1],[6,17],[9,16],[11,9]];
+
+// C1: 12 Jan–21 Mar | ML full, Python/DA/WD 6wks→21 Feb, VC/NC 4wks→7 Feb, CNY break 16-20 Feb
+seg('g1ml',lp(1,12),wp(1,12,2,15),'s-ml','W1–4');
+seg('g1ml',lp(2,16),wp(2,16,2,20),'s-sh','CNY');
+seg('g1ml',lp(2,23),wp(2,23,3,21),'s-ml','W6–10');
+['g1py','g1da','g1wd'].forEach(id=>{
+  seg(id,lp(1,12),wp(1,12,2,15),'s-'+id.slice(2),'W1–4');
+  seg(id,lp(2,16),wp(2,16,2,20),'s-sh','CNY');
+  seg(id,lp(2,23),wp(2,23,2,21),'s-'+id.slice(2),'W6');
+  seg(id,lp(2,21),wp(2,21,3,21),'s-gap','done');
+});
+['g1vc','g1nc'].forEach(id=>{
+  seg(id,lp(1,12),wp(1,12,2,7),'s-'+id.slice(2),'4 wks');
+  seg(id,lp(2,7),wp(2,7,3,21),'s-gap','done');
+});
+['g1ml','g1py','g1da','g1wd','g1vc','g1nc'].forEach(id=>PH.filter(p=>p[0]<=3).forEach(p=>addph(id,p[0],p[1])));
+
+// C2: 4 May–18 Jul | mid-yr break 23 May–7 Jun
+seg('g2ml',lp(5,4),wp(5,4,5,22),'s-ml','W1–3');
+seg('g2ml',lp(5,23),wp(5,23,6,7),'s-sh','Break');
+seg('g2ml',lp(6,8),wp(6,8,7,18),'s-ml','W5–11');
+['g2py','g2da','g2wd'].forEach(id=>{
+  seg(id,lp(5,4),wp(5,4,5,22),'s-'+id.slice(2),'W1–3');
+  seg(id,lp(5,23),wp(5,23,6,7),'s-sh','Break');
+  seg(id,lp(6,8),wp(6,8,6,15),'s-'+id.slice(2),'W5–6');
+  seg(id,lp(6,15),wp(6,15,7,18),'s-gap','done');
+});
+['g2vc','g2nc'].forEach(id=>{
+  seg(id,lp(5,4),wp(5,4,6,1),'s-'+id.slice(2),'4 wks');
+  seg(id,lp(6,1),wp(6,1,7,18),'s-gap','done');
+});
+['g2ml','g2py','g2da','g2wd','g2vc','g2nc'].forEach(id=>PH.filter(p=>p[0]>=5&&p[0]<=7).forEach(p=>addph(id,p[0],p[1])));
+
+// C3: 7 Sep–21 Nov | Deepavali 9 Nov makeup 21 Nov
+seg('g3ml',lp(9,7),wp(9,7,11,7),'s-ml','W1–9');
+seg('g3ml',lp(11,9),wp(11,9,11,14),'s-sh','Deepavali');
+seg('g3ml',lp(11,14),wp(11,14,11,21),'s-ml','W10');
+['g3py','g3da','g3wd'].forEach(id=>{
+  seg(id,lp(9,7),wp(9,7,10,19),'s-'+id.slice(2),'6 wks');
+  seg(id,lp(10,19),wp(10,19,11,21),'s-gap','done');
+});
+['g3vc','g3nc'].forEach(id=>{
+  seg(id,lp(9,7),wp(9,7,10,5),'s-'+id.slice(2),'4 wks');
+  seg(id,lp(10,5),wp(10,5,11,21),'s-gap','done');
+});
+['g3ml','g3py','g3da','g3wd','g3vc','g3nc'].forEach(id=>PH.filter(p=>p[0]>=9).forEach(p=>addph(id,p[0],p[1])));
+
+/* WEEK SCHEDULE DATA */
+const ROWS=[
+// C1
+{wk:'W1',dt:'12–17 Jan',c:'c1',ml:'What is ML? Supervised vs unsupervised',med:'Py: Variables, data types, strings | WD: HTML structure & semantics | DA: Python setup + pandas basics',short:'Vibe W1: Cursor AI setup + first app | No-code W1: Make.com intro',sat:'All 6 tracks · 8AM–4:30PM'},
+{wk:'W2',dt:'19–24 Jan',c:'c1',ml:'NumPy — arrays, operations, slicing',med:'Py: Lists, dicts, loops | WD: CSS layout + flexbox | DA: DataFrames & indexing',short:'Vibe W2: GitHub Copilot + prompt patterns | No-code W2: Zapier workflows',sat:'All 6 tracks'},
+{wk:'W3',dt:'26–31 Jan',c:'c1',ml:'Pandas — DataFrames, cleaning, EDA',med:'Py: Functions, scope, lambda | WD: JavaScript basics + DOM | DA: Data cleaning & EDA',short:'Vibe W3: Build full-stack app with AI | No-code W3: n8n + AI integrations',sat:'All 6 tracks'},
+{wk:'W4',dt:'2–7 Feb',c:'c1',ml:'EDA — visualise, explore, prepare',med:'Py: OOP intro — classes + methods | WD: JS interactivity + events | DA: Matplotlib + seaborn charts',short:'Vibe W4: Deploy app + capstone | No-code W4: Capstone automation project',sat:'All 6 · LAST for Vibe + No-code'},
+{wk:'GRAD',dt:'7 Feb',c:'c1',ml:'—',med:'—',short:'Vibe Coding + No-code AI graduate · Wave 1 certificates issued',sat:'Wave 1 graduation',type:'grad'},
+{wk:'W5',dt:'9–14 Feb',c:'c1',ml:'Linear regression — theory + code',med:'Py: OOP — inheritance, encapsulation | WD: Responsive design + media queries | DA: Power BI intro',short:'Short tracks done. Morning free from 8AM.',sat:'4 tracks · WD/DA/Py 10:30AM + ML 3PM'},
+{wk:'—',dt:'16–20 Feb',c:'sh',ml:'Self-paced: linear reg exercises',med:'Self-paced: OOP practice | WD: portfolio styling | DA: Power BI practice',short:'—',sat:'No live — CNY school break',type:'sh'},
+{wk:'W6',dt:'23–28 Feb',c:'c1',ml:'Classification — logistic reg, KNN',med:'Py: Pandas deep dive + capstone | WD: Deploy to Netlify + live URL | DA: Power BI dashboards + capstone',short:'—',sat:'4 tracks · LAST for Python/WD/DA + ML'},
+{wk:'GRAD',dt:'28 Feb',c:'c1',ml:'—',med:'Python + Web Dev + Data Analytics graduate · Wave 2 certificates issued',short:'—',sat:'Wave 2 graduation',type:'grad'},
+{wk:'W7',dt:'2–7 Mar',c:'c1',ml:'Decision trees + random forest',med:'—',short:'—',sat:'ML only · 3PM'},
+{wk:'W8',dt:'9–14 Mar',c:'c1',ml:'Model evaluation: F1, ROC, confusion',med:'—',short:'—',sat:'ML only · 3PM'},
+{wk:'W9',dt:'16–20 Mar',c:'c1',ml:'Unsupervised: k-means, PCA',med:'—',short:'—',sat:'Fri 20 Mar (Raya eve) — final ML'},
+{wk:'W10',dt:'21 Mar',c:'c1',ml:'ML capstone presentations',med:'—',short:'—',sat:'Sat 21 Mar — ML graduation'},
+{wk:'GRAD',dt:'21 Mar',c:'c1',ml:'ML Fundamentals graduates · Wave 3 · Full cohort close',med:'—',short:'—',sat:'Wave 3 graduation',type:'grad'},
+// GAP
+{wk:'GAP',dt:'22 Mar–3 May',c:'gap',ml:'Hari Raya + teacher prep',med:'Curriculum review for all tracks',short:'Content updates',sat:'No sessions · 6 weeks rest',type:'gap'},
+// C2
+{wk:'W1',dt:'4–9 May',c:'c2',ml:'ML overview + Python for ML setup',med:'Py: Variables → strings → lists | WD: HTML foundations | DA: Pandas setup',short:'Vibe W1: Cursor + first app | No-code W1: Make intro',sat:'All 6 tracks · 8AM–4:30PM'},
+{wk:'W2',dt:'11–16 May',c:'c2',ml:'NumPy + Pandas fundamentals',med:'Py: Loops, dicts, comprehensions | WD: CSS layout | DA: DataFrames + EDA',short:'Vibe W2: Copilot deep dive | No-code W2: Zapier',sat:'All 6 tracks'},
+{wk:'W3',dt:'18–23 May',c:'c2',ml:'Data visualisation + EDA',med:'Py: Functions + OOP intro | WD: JavaScript | DA: Data cleaning + charts',short:'Vibe W3: Full-stack app | No-code W3: n8n + AI',sat:'Sat 23 May · last before break'},
+{wk:'—',dt:'23 May–7 Jun',c:'sh',ml:'Self-paced: EDA real dataset',med:'Self-paced for all medium tracks',short:'Vibe W4 + No-code W4: self-paced capstone',sat:'No live · mid-year school break + Raya Haji 27 May',type:'sh'},
+{wk:'GRAD',dt:'1 Jun',c:'c2',ml:'—',med:'—',short:'Vibe Coding + No-code AI graduate · Wave 1',sat:'Wave 1 graduation (online)',type:'grad'},
+{wk:'W4',dt:'8–13 Jun',c:'c2',ml:'Supervised: regression + classification',med:'Py: OOP — inheritance, polymorphism | WD: JS interactivity | DA: Power BI intro',short:'Short tracks done.',sat:'4 tracks · WD/DA/Py + ML'},
+{wk:'W5',dt:'15–20 Jun',c:'c2',ml:'Model evaluation + tuning',med:'Py: Pandas deep dive + capstone | WD: Responsive + media queries | DA: Power BI dashboards',short:'—',sat:'4 tracks · WD/DA/Py + ML'},
+{wk:'W6',dt:'22–27 Jun',c:'c2',ml:'Unsupervised: k-means, PCA',med:'Py: Capstone presentations | WD: Deploy to Netlify | DA: Dashboard capstone',short:'—',sat:'LAST for Python/WD/DA + ML'},
+{wk:'GRAD',dt:'27 Jun',c:'c2',ml:'—',med:'Python + Web Dev + Data Analytics graduate · Wave 2',short:'—',sat:'Wave 2 graduation',type:'grad'},
+{wk:'W7',dt:'29 Jun–4 Jul',c:'c2',ml:'Neural networks — MLP intro',med:'—',short:'—',sat:'ML only · 3PM'},
+{wk:'W8',dt:'6–11 Jul',c:'c2',ml:'TensorFlow / Keras basics',med:'—',short:'—',sat:'ML only · 3PM'},
+{wk:'W9',dt:'13–18 Jul',c:'c2',ml:'ML capstone presentations',med:'—',short:'—',sat:'Sat 18 Jul — ML graduation'},
+{wk:'GRAD',dt:'18 Jul',c:'c2',ml:'ML Fundamentals graduates · Wave 3 · Full cohort close',med:'—',short:'—',sat:'Wave 3 graduation',type:'grad'},
+// GAP
+{wk:'GAP',dt:'19 Jul–6 Sep',c:'gap',ml:'School hols + Merdeka + rest',med:'C3 content prep',short:'New tools review',sat:'No sessions · 7 weeks rest',type:'gap'},
+// C3
+{wk:'W1',dt:'7–12 Sep',c:'c3',ml:'Advanced feature engineering',med:'Py: Advanced Python patterns | WD: HTML + CSS foundations | DA: Pandas basics',short:'Vibe W1: Cursor setup | No-code W1: Make',sat:'All 6 tracks · 8AM–4:30PM'},
+{wk:'W2',dt:'14–19 Sep',c:'c3',ml:'Scikit-learn pipelines + GridSearch',med:'Py: Decorators, generators | WD: JavaScript | DA: DataFrames + EDA',short:'Vibe W2: Copilot | No-code W2: Zapier',sat:'Malaysia Day 16 Sep (Wed) — Sat ok'},
+{wk:'W3',dt:'21–26 Sep',c:'c3',ml:'Neural networks — MLP',med:'Py: Testing + APIs | WD: JS interactivity | DA: Charts + cleaning',short:'Vibe W3: Full-stack app | No-code W3: n8n',sat:'All 6 tracks'},
+{wk:'W4',dt:'28 Sep–3 Oct',c:'c3',ml:'TensorFlow / Keras basics',med:'Py: Docker + deployment | WD: Responsive design | DA: Power BI intro',short:'Vibe W4: Deploy capstone | No-code W4: Capstone',sat:'All 6 · LAST for Vibe + No-code'},
+{wk:'GRAD',dt:'5 Oct',c:'c3',ml:'—',med:'—',short:'Vibe Coding + No-code AI graduate · Wave 1',sat:'Wave 1 graduation',type:'grad'},
+{wk:'W5',dt:'5–10 Oct',c:'c3',ml:'CNN — image classification',med:'Py: Capstone build | WD: Deploy to Netlify + live URL | DA: Power BI dashboards',short:'Short tracks done.',sat:'4 tracks · WD/DA/Py + ML'},
+{wk:'W6',dt:'12–17 Oct',c:'c3',ml:'NLP — text classification',med:'Py: Final presentations | WD: Portfolio final polish | DA: Dashboard capstone',short:'—',sat:'LAST for Python/WD/DA + ML'},
+{wk:'GRAD',dt:'19 Oct',c:'c3',ml:'—',med:'Python + Web Dev + Data Analytics graduate · Wave 2',short:'—',sat:'Wave 2 graduation',type:'grad'},
+{wk:'W7',dt:'19–24 Oct',c:'c3',ml:'Model deploy — FastAPI + Docker',med:'—',short:'—',sat:'ML only · 3PM'},
+{wk:'W8',dt:'26–31 Oct',c:'c3',ml:'Capstone — train + evaluate + deploy',med:'—',short:'—',sat:'ML only · 3PM'},
+{wk:'W9',dt:'2–7 Nov',c:'c3',ml:'Peer model review + tuning',med:'—',short:'—',sat:'Sat 7 Nov · before Deepavali'},
+{wk:'—',dt:'9 Nov',c:'sh',ml:'Self-paced: final model polish',med:'—',short:'—',sat:'No live · Deepavali. Makeup Sat 21 Nov',type:'sh'},
+{wk:'W10',dt:'14–21 Nov',c:'c3',ml:'ML final presentations',med:'—',short:'—',sat:'Sat 21 Nov — graduation day'},
+{wk:'GRAD',dt:'21 Nov',c:'c3',ml:'ML Fundamentals graduates · Wave 3 · Year ends',med:'—',short:'—',sat:'Wave 3 graduation · 2026 complete',type:'grad'},
+];
+
+const tbody=document.getElementById('sched-body');
+function cbadge(c){
+  if(c==='c1')return'<span class="badge bc1">C1</span>';
+  if(c==='c2')return'<span class="badge bc2">C2</span>';
+  if(c==='c3')return'<span class="badge bc3">C3</span>';
+  if(c==='sh')return'<span class="badge bsh">Break</span>';
+  return'<span class="badge bgap">Gap</span>';
+}
+ROWS.forEach(r=>{
+  const tr=document.createElement('tr');
+  tr.dataset.c=r.c;
+  if(r.type==='sh')tr.className='r-sh';
+  else if(r.type==='gap')tr.className='r-gap';
+  else if(r.type==='grad')tr.className='r-grad';
+  const mlC=r.type==='grad'?`<span class="badge bml" style="font-size:10px">Grad</span>`:`<span class="topic">${r.ml}</span>`;
+  const medC=r.type==='grad'&&r.med!=='—'?`<span class="badge bpy" style="font-size:10px">Wave 2 Grad</span>`:`<span class="topic">${r.med}</span>`;
+  tr.innerHTML=`
+    <td style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--color-text-tertiary)">${r.wk}</td>
+    <td style="font-family:'JetBrains Mono',monospace;font-size:9px;white-space:nowrap">${r.dt}</td>
+    <td>${cbadge(r.c)}</td>
+    <td>${mlC}</td>
+    <td><span class="topic">${r.med}</span></td>
+    <td><span class="topic">${r.short}</span></td>
+    <td><div class="ncell">${r.sat}</div></td>`;
+  tbody.appendChild(tr);
+});
+
+function filt(f){
+  document.querySelectorAll('.fbtn').forEach(b=>{b.style.background='var(--color-background-secondary)';b.style.color='var(--color-text-secondary)';b.style.borderColor='var(--color-border-tertiary)';});
+  const a={all:['#0a2e1f','#00e5a0','#00c485'],c1:['#0a1e18','#00e5a0','#00c485'],c2:['#1a1408','#f5c842','#d4a82a'],c3:['#0f0d20','#a78bfa','#5b3fa8']}[f];
+  const btn=document.getElementById('fb-'+f);
+  btn.style.background=a[0];btn.style.color=a[1];btn.style.borderColor=a[2];
+  document.querySelectorAll('#sched-body tr').forEach(tr=>{
+    tr.style.display=f==='all'||(tr.dataset.c===f||tr.dataset.c==='gap')?'':'none';
+  });
+}
+filt('all');
+</script>
