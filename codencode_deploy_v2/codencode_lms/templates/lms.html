@@ -90,8 +90,8 @@
       --muted:        #4f6862;
       --muted2:       #324740;
       --radius:       10px;
-      --sidebar-w:    240px;
-      --topbar-h:     56px;
+      --sidebar-w:    222px;
+      --topbar-h:     52px;
       --font-d:       'Outfit', sans-serif;
       --font-m:       'Lato', sans-serif;
       --font-c:       'JetBrains Mono', monospace;
@@ -275,15 +275,21 @@
     /* Top Bar */
     .topbar {
       height: var(--topbar-h); min-height: var(--topbar-h);
-      background: var(--glass-bg);
-      backdrop-filter: var(--glass-blur);
-      -webkit-backdrop-filter: var(--glass-blur);
-      border-bottom: var(--glass-border);
-      box-shadow: var(--glass-shadow);
+      background: var(--bg-base);
+      border-bottom: 1px solid var(--border);
       display: flex; align-items: center; justify-content: space-between;
       padding: 0 20px; z-index: 50; position: relative;
     }
     .topbar-left { display: flex; align-items: center; gap: 16px; }
+    .top-nav { display: flex; align-items: center; gap: 2px; margin-left: 8px; }
+    .top-nav-item {
+      background: none; border: none; color: var(--text-muted);
+      font-family: 'Lato', sans-serif; font-size: 12px; font-weight: 600;
+      padding: 6px 12px; cursor: pointer; border-radius: 6px;
+      transition: all 0.15s; letter-spacing: 0.02em;
+    }
+    .top-nav-item:hover { color: var(--text); background: var(--bg-hover); }
+    .top-nav-item.active { color: var(--accent); background: var(--accent-glow); }
     .sidebar-toggle {
       width: 32px; height: 32px; background: var(--surface2); border: 1px solid var(--border-strong);
       color: var(--white); cursor: pointer; display: grid; place-items: center;
@@ -338,11 +344,8 @@
     /* Sidebar */
     .sidebar {
       width: var(--sidebar-w); min-width: var(--sidebar-w);
-      background: var(--glass-bg);
-      backdrop-filter: var(--glass-blur);
-      -webkit-backdrop-filter: var(--glass-blur);
-      border-right: var(--glass-border);
-      box-shadow: var(--glass-shadow);
+      background: var(--bg-base);
+      border-right: 1px solid var(--border);
       display: flex; flex-direction: column;
       transition: width 0.2s, min-width 0.2s;
       overflow-y: auto; overflow-x: hidden; z-index: 40;
@@ -389,11 +392,10 @@
       text-transform: uppercase; color: var(--muted2); margin-bottom: 6px;
     }
     .course-select {
-      width: 100%; background: var(--surface2); border: 1px solid var(--border);
+      width: 100%; background: var(--bg-raised); border: 1px solid var(--border);
       border-radius: var(--radius);
       color: var(--text); font-family: 'Lato', sans-serif; font-size: 11px;
       padding: 7px 10px; outline: none; cursor: pointer;
-      backdrop-filter: blur(8px);
     }
     .course-select:focus { border-color: var(--accent); }
 
@@ -423,37 +425,30 @@
     /* Stats row */
     .stats-row {
       display: grid; grid-template-columns: repeat(4, 1fr);
-      border: var(--glass-border);
-      border-radius: var(--radius);
-      background: var(--glass-bg);
-      backdrop-filter: var(--glass-blur);
-      -webkit-backdrop-filter: var(--glass-blur);
-      box-shadow: var(--glass-shadow);
-      overflow: hidden;
+      gap: 16px;
     }
     .stat-cell {
-      padding: 20px 22px; border-right: 1px solid var(--border);
+      background: var(--bg-base);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px 20px;
       position: relative;
     }
-    .stat-cell:last-child { border-right: none; }
     .stat-cell::before {
       content: attr(data-icon);
       position: absolute; top: 14px; right: 16px;
       font-size: 18px; opacity: 0.3;
     }
-    .stat-val { font-family: 'Outfit', sans-serif; font-size: 28px; font-weight: 800; color: var(--cyan); line-height: 1; }
-    .stat-lbl { font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin-top: 4px; }
+    .stat-val { font-family: 'Outfit', sans-serif; font-size: 32px; font-weight: 800; color: var(--cyan); line-height: 1; }
+    .stat-lbl { font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin-top: 6px; }
     .stat-cell.orange .stat-val { color: var(--orange); }
     .stat-cell.green .stat-val { color: var(--green); }
     .stat-cell.purple .stat-val { color: var(--purple); }
 
     /* Section card */
     .card {
-      background: var(--glass-bg);
-      backdrop-filter: var(--glass-blur);
-      -webkit-backdrop-filter: var(--glass-blur);
-      border: var(--glass-border);
-      box-shadow: var(--glass-shadow);
+      background: var(--bg-base);
+      border: 1px solid var(--border);
       border-radius: var(--radius);
       overflow: hidden;
       position: relative;
@@ -477,14 +472,11 @@
     /* ── Video Grid ── */
     .video-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; }
     .video-card {
-      background: var(--glass-bg);
-      backdrop-filter: var(--glass-blur);
-      -webkit-backdrop-filter: var(--glass-blur);
-      border: var(--glass-border);
-      box-shadow: var(--glass-shadow);
+      background: var(--bg-base);
+      border: 1px solid var(--border);
       border-radius: var(--radius);
       overflow: hidden;
-      overflow: hidden; cursor: pointer;
+      cursor: pointer;
       transition: border-color 0.2s;
     }
     .video-card:hover { border-color: var(--border-strong); }
@@ -569,11 +561,8 @@
     /* ── Assignments ── */
     .assignment-list { display: flex; flex-direction: column; gap: 12px; }
     .assignment-card {
-      background: var(--glass-bg);
-      backdrop-filter: var(--glass-blur);
-      -webkit-backdrop-filter: var(--glass-blur);
-      border: var(--glass-border);
-      box-shadow: var(--glass-shadow);
+      background: var(--bg-base);
+      border: 1px solid var(--border);
       border-radius: var(--radius);
       overflow: hidden;
       transition: border-color 0.2s;
@@ -723,11 +712,8 @@
     }
     .modal-overlay.open { display: flex; }
     .modal-box {
-      background: var(--glass-bg);
-      backdrop-filter: var(--glass-blur);
-      -webkit-backdrop-filter: var(--glass-blur);
-      border: var(--glass-border);
-      box-shadow: var(--glass-shadow);
+      background: var(--bg-raised);
+      border: 1px solid var(--border);
       border-radius: var(--radius);
       overflow: hidden;
       width: 90%; max-width: 860px; position: relative;
@@ -787,11 +773,9 @@
 
     /* ── Course progress panel (student) ── */
     .course-progress-card {
-      background: var(--glass-bg);
-      backdrop-filter: var(--glass-blur);
-      -webkit-backdrop-filter: var(--glass-blur);
-      border: var(--glass-border);
-      box-shadow: var(--glass-shadow);
+      background: var(--bg-base);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
       padding: 20px; display: flex; flex-direction: column; gap: 14px;
     }
     .cp-title { font-family: 'Outfit', sans-serif; font-size: 14px; font-weight: 700; margin-bottom: 4px; }
@@ -804,13 +788,12 @@
     /* ── Toast ── */
     .toast {
       position: fixed; bottom: 24px; right: 24px; z-index: 900;
-      background: var(--glass-bg);
-      backdrop-filter: var(--glass-blur);
-      -webkit-backdrop-filter: var(--glass-blur);
-      border: var(--glass-border);
+      background: var(--bg-raised);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
       padding: 14px 20px; display: none; align-items: center; gap: 12px;
       font-family: 'Lato', sans-serif; font-size: 12px;
-      box-shadow: var(--glass-shadow);
+      box-shadow: 0 4px 16px rgba(0,0,0,0.4);
       animation: slideUp 0.3s ease;
     }
     .toast.show { display: flex; }
@@ -819,12 +802,10 @@
 
     /* ── Announcements ── */
     .announcement-card {
-      background: var(--glass-bg);
-      backdrop-filter: var(--glass-blur);
-      -webkit-backdrop-filter: var(--glass-blur);
-      border: var(--glass-border);
+      background: var(--bg-base);
+      border: 1px solid var(--border);
       border-left: 3px solid var(--cyan);
-      box-shadow: var(--glass-shadow);
+      border-radius: var(--radius);
       padding: 16px 20px; margin-bottom: 10px;
     }
     .ann-title { font-family: 'Outfit', sans-serif; font-size: 14px; font-weight: 700; margin-bottom: 4px; }
@@ -837,7 +818,7 @@
       .sidebar { position: absolute; left: 0; top: 0; bottom: 0; z-index: 40; transform: translateX(-100%); transition: transform 0.2s; }
       .sidebar.mobile-open { transform: translateX(0); }
       .stats-row { grid-template-columns: 1fr 1fr; }
-      .stat-cell:nth-child(2) { border-right: none; }
+      .top-nav { display: none; }
       .grid-2 { grid-template-columns: 1fr; }
       .grid-3 { grid-template-columns: 1fr; }
       .video-grid { grid-template-columns: 1fr; }
@@ -847,10 +828,8 @@
     .tt-week-header {
       display: flex; align-items: center; gap: 12px;
       padding: 10px 20px;
-      background: var(--glass-bg);
-      backdrop-filter: var(--glass-blur);
-      -webkit-backdrop-filter: var(--glass-blur);
-      border-radius: 6px 6px 0 0; border: var(--glass-border);
+      background: var(--bg-raised);
+      border-radius: 6px 6px 0 0; border: 1px solid var(--border);
       border-bottom: none;
     }
     .tt-week-num {
@@ -867,10 +846,8 @@
     .tt-session {
       display: grid; grid-template-columns: 130px 160px 1fr;
       align-items: center; gap: 16px;
-      padding: 13px 20px; border: var(--glass-border);
-      border-top: none; background: var(--glass-bg);
-      backdrop-filter: var(--glass-blur);
-      -webkit-backdrop-filter: var(--glass-blur);
+      padding: 13px 20px; border: 1px solid var(--border);
+      border-top: none; background: var(--bg-base);
       transition: background .15s;
     }
     .tt-session:last-child { border-radius: 0 0 6px 6px; }
@@ -957,7 +934,12 @@
         <div class="logo-mark" style="width:28px;height:28px;font-size:9px">CE</div>
         <span class="logo-text" style="font-size:13px">code<span>ncode</span>.my</span>
       </div>
-      <span class="topbar-title" id="topbar-course-name">Python Bootcamp</span>
+      <!-- Top nav -->
+      <nav class="top-nav" id="top-nav">
+        <button class="top-nav-item active" onclick="switchView('dashboard')" data-view="dashboard">Dashboard</button>
+        <button class="top-nav-item" onclick="switchView('videos')" data-view="videos">Recordings</button>
+        <button class="top-nav-item" onclick="switchView('timetable')" data-view="timetable" id="topnav-timetable">Timetable</button>
+      </nav>
     </div>
     <div class="topbar-right">
       <!-- SY6: Search -->
@@ -966,7 +948,7 @@
           style="background:var(--surface2);border:1px solid var(--border);color:var(--text);font-family:var(--font-m);font-size:11px;padding:6px 32px 6px 10px;outline:none;width:160px;transition:width 0.2s,border-color 0.2s"
           oninput="debounceSearch(this.value)" onkeydown="if(event.key==='Escape'){document.getElementById('search-results').style.display='none';this.value=''}" onfocus="this.style.width='200px';this.style.borderColor='var(--cyan)'" onblur="this.style.width='160px';this.style.borderColor='var(--border)'" />
         <i class="fas fa-search" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:11px;pointer-events:none"></i>
-        <div id="search-results" style="display:none;position:absolute;top:34px;right:0;width:280px;background:var(--glass-bg);backdrop-filter:var(--glass-blur);-webkit-backdrop-filter:var(--glass-blur);border:var(--glass-border);box-shadow:var(--glass-shadow);z-index:300;max-height:320px;overflow-y:auto"></div>
+        <div id="search-results" style="display:none;position:absolute;top:34px;right:0;width:280px;background:var(--bg-raised);border:1px solid var(--border);border-radius:var(--radius);z-index:300;max-height:320px;overflow-y:auto"></div>
       </div>
       <!-- SY3: Language switcher -->
       <div style="display:flex;gap:2px;font-family:var(--font-c);font-size:9px" id="lang-switcher">
@@ -984,7 +966,7 @@
         <span id="notif-count-badge" style="display:none;position:absolute;top:2px;right:2px;background:var(--orange);color:#fff;font-size:9px;padding:1px 4px;border-radius:8px;font-family:var(--font-m)"></span>
       </button>
       <!-- Notification dropdown -->
-      <div id="notif-dropdown" style="display:none;position:absolute;top:52px;right:60px;width:320px;background:var(--glass-bg);backdrop-filter:var(--glass-blur);-webkit-backdrop-filter:var(--glass-blur);border:var(--glass-border);z-index:200;box-shadow:var(--glass-shadow)">
+      <div id="notif-dropdown" style="display:none;position:absolute;top:52px;right:60px;width:320px;background:var(--bg-raised);border:1px solid var(--border);border-radius:var(--radius);z-index:200">
         <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid var(--border)">
           <span style="font-family:var(--font-m);font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted)">Notifications</span>
           <button onclick="markAllNotificationsRead()" style="background:none;border:none;color:var(--cyan);font-family:var(--font-m);font-size:10px;cursor:pointer">Mark all read</button>
@@ -2157,12 +2139,17 @@ const VIEW_LOADERS = {
 async function switchView(id) {
   document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.querySelectorAll('.top-nav-item').forEach(n => n.classList.remove('active'));
   const view = document.getElementById('view-' + id);
   if (view) view.classList.add('active');
   document.querySelectorAll('.nav-item').forEach(btn => {
     if ((btn.getAttribute('onclick')||'').includes("'" + id + "'")) btn.classList.add('active');
   });
-  document.querySelector('.topbar-title').textContent = VIEW_TITLES[id] || '';
+  document.querySelectorAll('.top-nav-item').forEach(btn => {
+    if ((btn.dataset.view === id) || (btn.getAttribute('onclick')||'').includes("'" + id + "'")) btn.classList.add('active');
+  });
+  const titleEl = document.querySelector('.topbar-title');
+  if (titleEl) titleEl.textContent = VIEW_TITLES[id] || '';
   document.getElementById('main-content').scrollTop = 0;
 
   if (VIEW_LOADERS[id] && STATE.courseId) {
