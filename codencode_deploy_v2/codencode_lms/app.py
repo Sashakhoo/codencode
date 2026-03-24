@@ -36,7 +36,7 @@ from models import (db, User, Course, Enrollment, Recording,
                     LoginLog, Certificate,
                     Quiz, QuizQuestion, QuizChoice, QuizAttempt, QuizAnswer,
                     DiscussionPost, DiscussionReply, PostUpvote,
-                    LastLesson)
+                    LastLesson, Cohort)
 
 # ─────────────────────────────────────────────
 # App setup
@@ -2611,6 +2611,15 @@ with app.app_context():
             if 'receipt_file' not in existing:
                 conn.execute(text('ALTER TABLE enrollments ADD COLUMN receipt_file VARCHAR(300)'))
                 conn.commit()
+            if 'class_timing' not in existing:
+                conn.execute(text('ALTER TABLE enrollments ADD COLUMN class_timing VARCHAR(100)'))
+                conn.commit()
+            if 'class_format' not in existing:
+                conn.execute(text('ALTER TABLE enrollments ADD COLUMN class_format VARCHAR(20)'))
+                conn.commit()
+            if 'cohort_id' not in existing:
+                conn.execute(text('ALTER TABLE enrollments ADD COLUMN cohort_id INTEGER'))
+                conn.commit()
     except Exception:
         pass
     try:
@@ -2674,6 +2683,23 @@ with app.app_context():
                 conn.commit()
             if 'order_index' not in mat_cols:
                 conn.execute(text('ALTER TABLE materials ADD COLUMN order_index INTEGER DEFAULT 0'))
+                conn.commit()
+    except Exception:
+        pass
+
+    # Cohort: schedule, notes, end_date columns
+    try:
+        insp_coh = sa_inspect(db.engine)
+        coh_cols = {c['name'] for c in insp_coh.get_columns('cohorts')}
+        with db.engine.connect() as conn:
+            if 'schedule' not in coh_cols:
+                conn.execute(text('ALTER TABLE cohorts ADD COLUMN schedule TEXT'))
+                conn.commit()
+            if 'notes' not in coh_cols:
+                conn.execute(text('ALTER TABLE cohorts ADD COLUMN notes TEXT'))
+                conn.commit()
+            if 'end_date' not in coh_cols:
+                conn.execute(text('ALTER TABLE cohorts ADD COLUMN end_date DATE'))
                 conn.commit()
     except Exception:
         pass
