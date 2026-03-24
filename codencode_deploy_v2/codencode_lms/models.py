@@ -59,6 +59,7 @@ class Course(db.Model):
     created_at   = db.Column(db.DateTime, default=datetime.utcnow)
 
     enrollments  = db.relationship('Enrollment', back_populates='course')
+    cohorts      = db.relationship('Cohort', back_populates='course', cascade='all, delete-orphan', order_by='Cohort.start_date')
     recordings   = db.relationship('Recording', back_populates='course', order_by='Recording.week, Recording.session_num')
     materials    = db.relationship('Material', back_populates='course', order_by='Material.week')
     assignments  = db.relationship('Assignment', back_populates='course', order_by='Assignment.week')
@@ -78,6 +79,31 @@ class Course(db.Model):
         }
 
 
+class Cohort(db.Model):
+    """A specific intake/run of a course (e.g. Jan 2026, May 2026, Sep 2026)."""
+    __tablename__ = 'cohorts'
+    id           = db.Column(db.Integer, primary_key=True)
+    course_id    = db.Column(db.Integer, db.ForeignKey('courses.id'), nullable=False)
+    name         = db.Column(db.String(100), nullable=False)   # e.g. "Jan 2026", "Cohort 2"
+    start_date   = db.Column(db.Date)
+    current_week = db.Column(db.Integer, default=1)
+    created_at   = db.Column(db.DateTime, default=datetime.utcnow)
+
+    course      = db.relationship('Course', back_populates='cohorts')
+    enrollments = db.relationship('Enrollment', back_populates='cohort')
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'course_id': self.course_id,
+            'name': self.name,
+            'start_date': self.start_date.strftime('%Y-%m-%d') if self.start_date else None,
+            'current_week': self.current_week,
+            'created_at': self.created_at.strftime('%b %d, %Y'),
+            'enrollment_count': len(self.enrollments)
+        }
+
+
 class Enrollment(db.Model):
     __tablename__ = 'enrollments'
     id               = db.Column(db.Integer, primary_key=True)
@@ -89,9 +115,11 @@ class Enrollment(db.Model):
     receipt_file     = db.Column(db.String(300))   # stored filename of uploaded receipt
     class_timing     = db.Column(db.String(100))   # e.g. "Fri 8-10pm, Sat 9-11am"
     class_format     = db.Column(db.String(20))    # e.g. "1v1", "2v1", "5v1", "cohort"
+    cohort_id        = db.Column(db.Integer, db.ForeignKey('cohorts.id'), nullable=True)
 
     student = db.relationship('User', back_populates='enrollments', foreign_keys=[student_id])
     course  = db.relationship('Course', back_populates='enrollments')
+    cohort  = db.relationship('Cohort', back_populates='enrollments')
     __table_args__ = (db.UniqueConstraint('student_id', 'course_id'),)
 
     def to_dict(self):
@@ -107,7 +135,9 @@ class Enrollment(db.Model):
             'payment_remarks': self.payment_remarks or '',
             'receipt_file': self.receipt_file or '',
             'class_timing': self.class_timing or '',
-            'class_format': self.class_format or ''
+            'class_format': self.class_format or '',
+            'cohort_id':    self.cohort_id,
+            'cohort_name':  self.cohort.name if self.cohort else None
         }
 
 

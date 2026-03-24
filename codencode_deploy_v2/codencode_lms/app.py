@@ -358,9 +358,10 @@ def api_recordings(cid):
     recs = Recording.query.filter_by(course_id=cid).order_by(
         Recording.week, Recording.session_num).all()
 
-    # Gate by current_week for students
+    # Gate by cohort week (or course week as fallback) for students
     if current_user.role == 'student':
-        recs = [r for r in recs if r.week <= course.current_week]
+        visible_week = _student_week(cid)
+        recs = [r for r in recs if r.week <= visible_week]
         watched_ids = {w.recording_id for w in
                        WatchLog.query.filter_by(student_id=current_user.id).all()}
         data = [r.to_dict(watched=r.id in watched_ids) for r in recs]
@@ -443,9 +444,10 @@ def api_materials(cid):
         Material.week, Material.order_index, Material.uploaded_at).all()
 
     if current_user.role == 'student':
-        # Gate by current_week and publish state
+        # Gate by cohort week (or course week as fallback) and publish state
+        visible_week = _student_week(cid)
         mats = [m for m in mats
-                if (m.week == 0 or m.week <= course.current_week)
+                if (m.week == 0 or m.week <= visible_week)
                 and (m.is_published if m.is_published is not None else True)
                 and (m.publish_at is None or m.publish_at <= now)]
     # teachers/admins see all materials including unpublished
@@ -520,9 +522,10 @@ def api_assignments(cid):
     assignments = Assignment.query.filter_by(course_id=cid).order_by(
         Assignment.week).all()
 
-    # Gate by current_week for students
+    # Gate by cohort week (or course week as fallback) for students
     if current_user.role == 'student':
-        assignments = [a for a in assignments if a.week <= course.current_week]
+        visible_week = _student_week(cid)
+        assignments = [a for a in assignments if a.week <= visible_week]
         result = []
         for a in assignments:
             sub = Submission.query.filter_by(
@@ -846,7 +849,8 @@ def admin_enroll_student(uid):
         payment_status  = data.get('payment_status', 'pending'),
         payment_remarks = data.get('payment_remarks', ''),
         class_timing    = data.get('class_timing', ''),
-        class_format    = data.get('class_format', '')
+        class_format    = data.get('class_format', ''),
+        cohort_id       = data.get('cohort_id') or None
     )
     db.session.add(e)
     db.session.commit()
@@ -1038,6 +1042,61 @@ def admin_create_course():
     db.session.add(c)
     db.session.commit()
     return jsonify({'course': c.to_dict()}), 201
+
+
+# ── Cohort routes ─────────────────────────────────────────────
+@app.route('/api/courses/<int:cid>/cohorts', methods=['GET'])
+@login_required
+def api_get_cohorts(cid):
+    cohorts = Cohort.query.filter_by(course_id=cid).order_by(Cohort.start_date).all()
+    return jsonify([c.to_dict() for c in cohorts])
+
+@app.route('/api/courses/<int:cid>/cohorts', methods=['POST'])
+@admin_required
+def api_create_cohort(cid):
+    Course.query.get_or_404(cid)
+    data = request.get_json()
+    name = (data.get('name') or '').strip()
+    if not name:
+        return jsonify({'error': 'name required'}), 400
+    sd = None
+    if data.get('start_date'):
+        from datetime import date as date_type
+        sd = datetime.strptime(data['start_date'], '%Y-%m-%d').date()
+    c = Cohort(course_id=cid, name=name, start_date=sd, current_week=1)
+    db.session.add(c)
+    db.session.commit()
+    return jsonify({'cohort': c.to_dict()}), 201
+
+@app.route('/api/admin/cohorts/<int:cohort_id>/week', methods=['PUT'])
+@admin_required
+def admin_set_cohort_week(cohort_id):
+    cohort  = Cohort.query.get_or_404(cohort_id)
+    course  = cohort.course
+    data    = request.get_json()
+    week    = int(data.get('current_week', cohort.current_week))
+    week    = max(1, min(week, course.weeks))
+    cohort.current_week = week
+    db.session.commit()
+    return jsonify({'cohort': cohort.to_dict()})
+
+@app.route('/api/admin/cohorts/<int:cohort_id>', methods=['DELETE'])
+@admin_required
+def admin_delete_cohort(cohort_id):
+    cohort = Cohort.query.get_or_404(cohort_id)
+    db.session.delete(cohort)
+    db.session.commit()
+    return jsonify({'ok': True})
+
+
+def _student_week(course_id):
+    """Return the current_week applicable to the logged-in student for this course.
+    Uses the student's cohort week if assigned, otherwise falls back to course week."""
+    enrollment = Enrollment.query.filter_by(
+        course_id=course_id, student_id=current_user.id).first()
+    if enrollment and enrollment.cohort:
+        return enrollment.cohort.current_week
+    return Course.query.get(course_id).current_week
 
 
 @app.route('/api/admin/courses/<int:cid>/week', methods=['PUT'])
