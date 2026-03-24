@@ -185,6 +185,7 @@
     .login-wrap {
       width: 440px;
       border: var(--glass-border);
+      border-radius: var(--radius);
       background: var(--glass-bg);
       backdrop-filter: var(--glass-blur);
       -webkit-backdrop-filter: var(--glass-blur);
@@ -222,7 +223,8 @@
     .login-body { padding: 28px 36px 36px; }
     .role-tabs {
       display: grid; grid-template-columns: 1fr 1fr;
-      border: 1px solid var(--border); margin-bottom: 24px;
+      border: 1px solid var(--border); border-radius: var(--radius);
+      margin-bottom: 24px; overflow: hidden;
     }
     .role-tab {
       padding: 10px; text-align: center; cursor: pointer;
@@ -241,6 +243,7 @@
     .form-input {
       width: 100%; background: var(--surface2);
       border: 1px solid var(--border);
+      border-radius: var(--radius);
       color: var(--text); font-family: 'Lato', sans-serif;
       font-size: 13px; padding: 10px 14px; outline: none;
       transition: border-color 0.2s;
@@ -249,6 +252,7 @@
     .form-input:focus { border-color: var(--accent); }
     .btn-login {
       width: 100%; background: var(--cyan); color: var(--bg);
+      border-radius: var(--radius);
       font-family: 'Lato', sans-serif; font-size: 12px; font-weight: 700;
       letter-spacing: 0.08em; text-transform: uppercase;
       border: none; padding: 14px; cursor: pointer;
@@ -291,12 +295,14 @@
     .topbar-badge {
       font-family: 'JetBrains Mono', monospace; font-size: 10px;
       padding: 4px 10px; border: 1px solid;
+      border-radius: var(--radius);
       letter-spacing: 0.08em; text-transform: uppercase;
     }
     .badge-teacher { border-color: var(--orange); color: var(--orange); }
     .badge-student { border-color: var(--cyan); color: var(--cyan); }
     .notif-btn {
       width: 32px; height: 32px; background: none; border: 1px solid var(--border);
+      border-radius: var(--radius);
       color: var(--muted); cursor: pointer; display: grid; place-items: center;
       font-size: 13px; position: relative; transition: all 0.2s;
     }
@@ -313,11 +319,13 @@
     .user-avatar {
       width: 28px; height: 28px; background: var(--cyan-dim);
       border: 1px solid var(--border-strong);
+      border-radius: 50%;
       display: grid; place-items: center;
       font-size: 10px; color: var(--cyan);
     }
     .logout-btn {
       background: none; border: 1px solid var(--border); color: var(--muted);
+      border-radius: var(--radius);
       font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 0.08em;
       text-transform: uppercase; padding: 6px 12px; cursor: pointer;
       transition: all 0.2s;
@@ -337,7 +345,7 @@
       box-shadow: var(--glass-shadow);
       display: flex; flex-direction: column;
       transition: width 0.2s, min-width 0.2s;
-      overflow: hidden; z-index: 40;
+      overflow-y: auto; overflow-x: hidden; z-index: 40;
     }
     .sidebar.collapsed { width: 56px; min-width: 56px; }
     .sidebar-section { padding: 16px 0; border-bottom: 1px solid var(--border); }
@@ -382,6 +390,7 @@
     }
     .course-select {
       width: 100%; background: var(--surface2); border: 1px solid var(--border);
+      border-radius: var(--radius);
       color: var(--text); font-family: 'Lato', sans-serif; font-size: 11px;
       padding: 7px 10px; outline: none; cursor: pointer;
       backdrop-filter: blur(8px);
@@ -415,10 +424,12 @@
     .stats-row {
       display: grid; grid-template-columns: repeat(4, 1fr);
       border: var(--glass-border);
+      border-radius: var(--radius);
       background: var(--glass-bg);
       backdrop-filter: var(--glass-blur);
       -webkit-backdrop-filter: var(--glass-blur);
       box-shadow: var(--glass-shadow);
+      overflow: hidden;
     }
     .stat-cell {
       padding: 20px 22px; border-right: 1px solid var(--border);
@@ -443,6 +454,8 @@
       -webkit-backdrop-filter: var(--glass-blur);
       border: var(--glass-border);
       box-shadow: var(--glass-shadow);
+      border-radius: var(--radius);
+      overflow: hidden;
       position: relative;
     }
     .card-header {
@@ -469,6 +482,8 @@
       -webkit-backdrop-filter: var(--glass-blur);
       border: var(--glass-border);
       box-shadow: var(--glass-shadow);
+      border-radius: var(--radius);
+      overflow: hidden;
       overflow: hidden; cursor: pointer;
       transition: border-color 0.2s;
     }
@@ -559,6 +574,8 @@
       -webkit-backdrop-filter: var(--glass-blur);
       border: var(--glass-border);
       box-shadow: var(--glass-shadow);
+      border-radius: var(--radius);
+      overflow: hidden;
       transition: border-color 0.2s;
     }
     .assignment-card:hover { border-color: var(--border-strong); }
@@ -711,6 +728,8 @@
       -webkit-backdrop-filter: var(--glass-blur);
       border: var(--glass-border);
       box-shadow: var(--glass-shadow);
+      border-radius: var(--radius);
+      overflow: hidden;
       width: 90%; max-width: 860px; position: relative;
     }
     .modal-box::before {
