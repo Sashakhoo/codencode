@@ -1245,14 +1245,71 @@
       <label class="form-label">Cohort Name *</label>
       <input class="form-input" id="add-cohort-name" placeholder="e.g. Jan 2026, Cohort 2, May Intake" />
     </div>
-    <div class="form-group" style="margin-bottom:14px">
-      <label class="form-label">Start Date <span style="color:var(--text-dim);font-size:10px">(sets Week 1)</span></label>
-      <input class="form-input" type="date" id="add-cohort-start" />
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px">
+      <div class="form-group">
+        <label class="form-label">Start Date <span style="color:var(--text-dim);font-size:10px">(Week 1)</span></label>
+        <input class="form-input" type="date" id="add-cohort-start" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">End Date</label>
+        <input class="form-input" type="date" id="add-cohort-end" />
+      </div>
     </div>
     <div class="modal-footer">
       <button class="btn btn-secondary" onclick="closeModal('modal-add-cohort')">Cancel</button>
       <button class="btn btn-primary" onclick="saveNewCohort()">
         <i class="fas fa-plus"></i> Create Cohort
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Edit Cohort Modal -->
+<div class="modal-overlay" id="modal-edit-cohort" onclick="if(event.target===this)closeModal('modal-edit-cohort')">
+  <div class="modal-box" style="max-width:560px">
+    <div class="modal-title">Edit Cohort</div>
+    <input type="hidden" id="edit-cohort-id" value="" />
+    <input type="hidden" id="edit-cohort-course-id" value="" />
+
+    <div class="form-group" style="margin-bottom:14px">
+      <label class="form-label">Cohort Name *</label>
+      <input class="form-input" id="edit-cohort-name" placeholder="e.g. Jan 2026, Cohort 2" />
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:14px">
+      <div class="form-group">
+        <label class="form-label">Start Date</label>
+        <input class="form-input" type="date" id="edit-cohort-start" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">End Date</label>
+        <input class="form-input" type="date" id="edit-cohort-end" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Current Week</label>
+        <input class="form-input" type="number" id="edit-cohort-week" min="1" max="20" value="1" />
+      </div>
+    </div>
+
+    <div class="form-group" style="margin-bottom:14px">
+      <label class="form-label" style="display:flex;align-items:center;justify-content:space-between">
+        Class Schedule
+        <button class="btn btn-secondary btn-sm" onclick="addScheduleSlot()" style="font-size:10px;padding:3px 8px">
+          <i class="fas fa-plus"></i> Add slot
+        </button>
+      </label>
+      <div id="edit-cohort-schedule" style="display:flex;flex-direction:column;gap:8px;margin-top:6px"></div>
+    </div>
+
+    <div class="form-group" style="margin-bottom:14px">
+      <label class="form-label">Notes <span style="color:var(--text-dim);font-size:10px">(breaks, makeup sessions, etc.)</span></label>
+      <textarea class="form-textarea" id="edit-cohort-notes" placeholder="e.g. CNY break Week 5, makeup session Mar 28" style="min-height:60px"></textarea>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('modal-edit-cohort')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveCohortEdit()">
+        <i class="fas fa-save"></i> Save Changes
       </button>
     </div>
   </div>
@@ -1885,26 +1942,42 @@ async function loadCohortsForCourse(cid) {
       container.innerHTML = `<div style="font-size:11px;color:var(--text-dim);padding:4px 0">No cohorts yet — click <strong>Add Cohort</strong> to create the first intake.</div>`;
       return;
     }
-    container.innerHTML = cohorts.map(h => `
-      <div style="display:flex;align-items:center;gap:8px;padding:6px 10px;background:var(--bg-hover);border-radius:6px;margin-bottom:6px">
-        <div style="flex:1;min-width:0">
-          <div style="font-size:12px;font-weight:700;color:var(--gold)">${h.name}</div>
-          <div style="font-size:10px;color:var(--text-muted)">
-            ${h.start_date ? 'Starts ' + h.start_date + ' · ' : ''}
-            Week <span style="color:var(--cyan);font-weight:700">${h.current_week}</span> of ${course?.weeks||6}
-            · ${h.enrollment_count} student${h.enrollment_count!==1?'s':''}
+    container.innerHTML = cohorts.map(h => {
+      const scheduleStr = h.schedule && h.schedule.length
+        ? h.schedule.map(s => `${s.day} ${s.start}–${s.end}`).join(' · ')
+        : '<span style="color:var(--text-dim)">No schedule set</span>';
+      return `
+      <div style="background:var(--bg-hover);border-radius:6px;margin-bottom:6px;overflow:hidden">
+        <div style="display:flex;align-items:center;gap:8px;padding:8px 10px">
+          <div style="flex:1;min-width:0">
+            <div style="font-size:12px;font-weight:700;color:var(--gold)">${h.name}</div>
+            <div style="font-size:10px;color:var(--text-muted);margin-top:1px">
+              ${h.start_date ? h.start_date : ''}${h.end_date ? ' → ' + h.end_date : ''}
+              ${(h.start_date||h.end_date) ? ' · ' : ''}
+              Week <span style="color:var(--cyan);font-weight:700">${h.current_week}</span> of ${course?.weeks||6}
+              · ${h.enrollment_count} student${h.enrollment_count!==1?'s':''}
+            </div>
+            <div style="font-size:10px;color:var(--text-dim);margin-top:2px">
+              <i class="fas fa-clock" style="margin-right:3px"></i>${scheduleStr}
+            </div>
+            ${h.notes ? `<div style="font-size:10px;color:var(--text-dim);margin-top:2px"><i class="fas fa-sticky-note" style="margin-right:3px"></i>${h.notes}</div>` : ''}
           </div>
+          <button class="btn btn-secondary btn-sm" onclick="advanceCohortWeek(${h.id},-1,${cid})" ${h.current_week<=1?'disabled':''} title="Previous week" style="padding:3px 7px">
+            <i class="fas fa-chevron-left"></i>
+          </button>
+          <span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--cyan);min-width:24px;text-align:center">W${h.current_week}</span>
+          <button class="btn btn-primary btn-sm" onclick="advanceCohortWeek(${h.id},1,${cid})" ${h.current_week>=(course?.weeks||6)?'disabled':''} title="Next week" style="padding:3px 7px">
+            <i class="fas fa-chevron-right"></i>
+          </button>
+          <button class="btn btn-secondary btn-sm" onclick="openEditCohortModal(${h.id},${cid})" title="Edit cohort" style="padding:3px 7px">
+            <i class="fas fa-edit"></i>
+          </button>
+          <button class="btn btn-danger btn-sm" onclick="deleteCohort(${h.id},${cid})" title="Delete cohort" style="padding:3px 7px">
+            <i class="fas fa-trash"></i>
+          </button>
         </div>
-        <button class="btn btn-secondary btn-sm" onclick="advanceCohortWeek(${h.id},-1,${cid})" ${h.current_week<=1?'disabled':''} title="Previous week" style="padding:3px 7px">
-          <i class="fas fa-chevron-left"></i>
-        </button>
-        <button class="btn btn-primary btn-sm" onclick="advanceCohortWeek(${h.id},1,${cid})" ${h.current_week>=(course?.weeks||6)?'disabled':''} title="Next week" style="padding:3px 7px">
-          <i class="fas fa-chevron-right"></i>
-        </button>
-        <button class="btn btn-danger btn-sm" onclick="deleteCohort(${h.id},${cid})" title="Delete cohort" style="padding:3px 7px">
-          <i class="fas fa-trash"></i>
-        </button>
-      </div>`).join('');
+      </div>`;
+    }).join('');
   } catch(e) {
     if (container) container.innerHTML = `<div style="font-size:11px;color:var(--text-dim)">Could not load cohorts.</div>`;
   }
@@ -1943,12 +2016,79 @@ async function saveNewCohort() {
   const cid   = document.getElementById('add-cohort-course-id').value;
   const name  = document.getElementById('add-cohort-name').value.trim();
   const start = document.getElementById('add-cohort-start').value;
+  const end   = document.getElementById('add-cohort-end').value;
   if (!name) { toast('Cohort name is required', true); return; }
   try {
-    await POST(`/api/courses/${cid}/cohorts`, { name, start_date: start || null });
+    await POST(`/api/courses/${cid}/cohorts`, { name, start_date: start || null, end_date: end || null });
     toast('Cohort created');
     closeModal('modal-add-cohort');
     loadCohortsForCourse(parseInt(cid));
+  } catch(e) { toast(e.message, true); }
+}
+
+function openEditCohortModal(cohortId, cid) {
+  GET(`/api/courses/${cid}/cohorts`).then(cohorts => {
+    const h = cohorts.find(x => x.id === cohortId);
+    if (!h) return;
+    document.getElementById('edit-cohort-id').value       = cohortId;
+    document.getElementById('edit-cohort-course-id').value = cid;
+    document.getElementById('edit-cohort-name').value     = h.name;
+    document.getElementById('edit-cohort-start').value    = h.start_date || '';
+    document.getElementById('edit-cohort-end').value      = h.end_date   || '';
+    document.getElementById('edit-cohort-week').value     = h.current_week;
+    document.getElementById('edit-cohort-notes').value    = h.notes || '';
+    // Render schedule slots
+    const sched = document.getElementById('edit-cohort-schedule');
+    sched.innerHTML = '';
+    const slots = h.schedule || [];
+    if (slots.length === 0) addScheduleSlot();
+    else slots.forEach(s => addScheduleSlot(s.day, s.start, s.end));
+    openModal('modal-edit-cohort');
+  }).catch(e => toast(e.message, true));
+}
+
+function addScheduleSlot(day='', start='', end='') {
+  const container = document.getElementById('edit-cohort-schedule');
+  const days = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+  const div = document.createElement('div');
+  div.style.cssText = 'display:flex;align-items:center;gap:8px';
+  div.innerHTML = `
+    <select class="form-select slot-day" style="flex:2;font-size:12px;padding:6px 8px">
+      ${days.map(d => `<option value="${d}" ${d===day?'selected':''}>${d}</option>`).join('')}
+    </select>
+    <input class="form-input slot-start" type="time" value="${start}" style="flex:1;font-size:12px;padding:6px 8px" />
+    <span style="color:var(--text-muted);font-size:11px;flex-shrink:0">to</span>
+    <input class="form-input slot-end" type="time" value="${end}" style="flex:1;font-size:12px;padding:6px 8px" />
+    <button onclick="this.parentElement.remove()" style="background:none;border:none;color:var(--red);cursor:pointer;font-size:13px;padding:4px" title="Remove">
+      <i class="fas fa-times"></i>
+    </button>`;
+  container.appendChild(div);
+}
+
+async function saveCohortEdit() {
+  const cohortId = parseInt(document.getElementById('edit-cohort-id').value);
+  const cid      = parseInt(document.getElementById('edit-cohort-course-id').value);
+  const name     = document.getElementById('edit-cohort-name').value.trim();
+  if (!name) { toast('Cohort name is required', true); return; }
+  // Collect schedule slots
+  const slots = [...document.querySelectorAll('#edit-cohort-schedule > div')].map(div => ({
+    day:   div.querySelector('.slot-day').value,
+    start: div.querySelector('.slot-start').value,
+    end:   div.querySelector('.slot-end').value,
+  })).filter(s => s.start && s.end);
+  const payload = {
+    name,
+    start_date:   document.getElementById('edit-cohort-start').value || null,
+    end_date:     document.getElementById('edit-cohort-end').value   || null,
+    current_week: parseInt(document.getElementById('edit-cohort-week').value) || 1,
+    schedule: slots,
+    notes: document.getElementById('edit-cohort-notes').value,
+  };
+  try {
+    await PUT(`/api/admin/cohorts/${cohortId}`, payload);
+    toast('Cohort updated');
+    closeModal('modal-edit-cohort');
+    loadCohortsForCourse(cid);
   } catch(e) { toast(e.message, true); }
 }
 
@@ -2091,6 +2231,9 @@ function renderMatList(cid, mats) {
             <div style="font-size:13px">${m.title}</div>
             <div style="font-size:11px;color:var(--text-muted)">${m.file_size} · ${m.uploaded_at}</div>
           </div>
+          <button class="btn btn-secondary btn-sm" onclick="editMaterialWeek(${m.id},'${cid}',${m.week})" title="Change week" style="font-size:10px;padding:3px 8px">
+            <i class="fas fa-calendar-alt"></i> Wk ${m.week===0?'—':m.week}
+          </button>
           <button class="btn btn-danger btn-sm btn-icon" onclick="deleteMaterial(${m.id},'${cid}')">
             <i class="fas fa-trash"></i>
           </button>
@@ -2154,6 +2297,21 @@ async function deleteMaterial(mid, cid) {
   try {
     await DELETE(`/api/admin/materials/${mid}`);
     toast('Material deleted');
+    loadMaterialsList();
+  } catch(e) { toast(e.message, true); }
+}
+
+async function editMaterialWeek(mid, cid, currentWeek) {
+  const input = prompt(
+    `Change week for this material.\n0 = Always visible (General Resources)\n1–20 = Visible from that week onwards\n\nCurrent week: ${currentWeek}`,
+    currentWeek
+  );
+  if (input === null) return;
+  const week = parseInt(input);
+  if (isNaN(week) || week < 0) { toast('Enter a valid week number (0 or above)', true); return; }
+  try {
+    await PUT(`/api/admin/materials/${mid}`, { week });
+    toast(`Material moved to ${week === 0 ? 'General Resources' : 'Week ' + week}`);
     loadMaterialsList();
   } catch(e) { toast(e.message, true); }
 }

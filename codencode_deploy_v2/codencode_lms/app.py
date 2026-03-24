@@ -1080,6 +1080,28 @@ def admin_set_cohort_week(cohort_id):
     db.session.commit()
     return jsonify({'cohort': cohort.to_dict()})
 
+@app.route('/api/admin/cohorts/<int:cohort_id>', methods=['PUT'])
+@admin_required
+def admin_update_cohort(cohort_id):
+    import json as _json
+    cohort = Cohort.query.get_or_404(cohort_id)
+    data   = request.get_json()
+    if data.get('name'):
+        cohort.name = data['name'].strip()
+    if 'start_date' in data:
+        cohort.start_date = datetime.strptime(data['start_date'], '%Y-%m-%d').date() if data['start_date'] else None
+    if 'end_date' in data:
+        cohort.end_date = datetime.strptime(data['end_date'], '%Y-%m-%d').date() if data['end_date'] else None
+    if 'current_week' in data:
+        cohort.current_week = max(1, min(cohort.course.weeks, int(data['current_week'])))
+    if 'schedule' in data:
+        cohort.schedule = _json.dumps(data['schedule']) if data['schedule'] else None
+    if 'notes' in data:
+        cohort.notes = data['notes']
+    db.session.commit()
+    return jsonify({'cohort': cohort.to_dict()})
+
+
 @app.route('/api/admin/cohorts/<int:cohort_id>', methods=['DELETE'])
 @admin_required
 def admin_delete_cohort(cohort_id):
@@ -1166,6 +1188,19 @@ def admin_upload_material(cid):
     db.session.add(mat)
     db.session.commit()
     return jsonify({'material': mat.to_dict()}), 201
+
+
+@app.route('/api/admin/materials/<int:mid>', methods=['PUT'])
+@admin_required
+def admin_update_material(mid):
+    mat  = Material.query.get_or_404(mid)
+    data = request.get_json()
+    if 'week' in data:
+        mat.week = max(0, int(data['week']))
+    if data.get('title'):
+        mat.title = data['title'].strip()
+    db.session.commit()
+    return jsonify({'material': mat.to_dict()})
 
 
 @app.route('/api/admin/materials/<int:mid>', methods=['DELETE'])
@@ -1724,11 +1759,16 @@ def api_announcements():
     if current_user.role in ('teacher', 'admin'):
         anns = Announcement.query.order_by(Announcement.created_at.desc()).all()
     else:
-        enrolled_course_ids = {e.course_id for e in current_user.enrollments}
-        anns = Announcement.query.filter(
-            (Announcement.course_id == None) |
-            (Announcement.course_id.in_(enrolled_course_ids))
-        ).order_by(Announcement.created_at.desc()).all()
+        enrolled_course_ids = list({e.course_id for e in current_user.enrollments})
+        if enrolled_course_ids:
+            anns = Announcement.query.filter(
+                (Announcement.course_id == None) |
+                (Announcement.course_id.in_(enrolled_course_ids))
+            ).order_by(Announcement.created_at.desc()).all()
+        else:
+            anns = Announcement.query.filter(
+                Announcement.course_id == None
+            ).order_by(Announcement.created_at.desc()).all()
     return jsonify([a.to_dict() for a in anns])
 
 

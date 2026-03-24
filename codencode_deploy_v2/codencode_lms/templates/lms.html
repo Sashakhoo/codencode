@@ -2214,6 +2214,9 @@ function progressBar(pct, color='') {
 // ══════════════════════════════════════════════════════
 
 async function loadStudentDashboard() {
+  // Always load announcements regardless of dashboard fetch result
+  loadAnnouncements().catch(() => {});
+
   const d = await GET(`/api/courses/${STATE.courseId}/dashboard`);
   STATE.dashboard = d;
 
@@ -2270,9 +2273,6 @@ async function loadStudentDashboard() {
   const pending = d.assignments_pending ?? (d.total_assignments - d.assignments_submitted);
   const badge = document.getElementById('pending-badge');
   if (badge) { badge.textContent = pending; badge.style.display = pending > 0 ? '' : 'none'; }
-
-  // Load announcements
-  loadAnnouncements();
 }
 
 async function loadAnnouncements() {
@@ -2293,7 +2293,10 @@ async function loadAnnouncements() {
           <span class="ann-author">${a.creator_name} · ${a.ago}${a.course_title !== 'All Courses' ? ' · ' + a.course_title : ''}</span>
         </div>
       </div>`).join('');
-  } catch(e) { /* silent */ }
+  } catch(e) {
+    const container = document.getElementById('announcements-container');
+    if (container) container.innerHTML = `<div style="color:var(--muted);font-family:var(--font-m);font-size:12px">Could not load announcements.</div>`;
+  }
 }
 
 async function loadVideos() {
