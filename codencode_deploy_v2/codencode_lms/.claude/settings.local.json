@@ -1,5 +1,4 @@
 {
-  "disableAllHooks": true,
   "permissions": {
     "allow": [
       "mcp__Claude_Preview__preview_start",
@@ -10,7 +9,22 @@
       "Bash(python -c \"import ast; ast.parse\\(open\\(''app.py''\\).read\\(\\)\\); print\\(''app.py: OK''\\)\")",
       "Bash(python -c \"import ast; ast.parse\\(open\\(''app.py'', encoding=''utf-8''\\).read\\(\\)\\); print\\(''app.py: OK''\\)\")",
       "Skill(update-config)",
-      "Skill(update-config:*)"
+      "Skill(update-config:*)",
+      "Bash(curl -s http://localhost:5000/api/admin/courses)",
+      "Bash(curl -s -c /tmp/lms_cookies.txt -b /tmp/lms_cookies.txt -X POST http://localhost:5000/lms -d \"email=admin@codencode.com&password=admin1234\" -L -w \"\\\\nHTTP_STATUS:%{http_code}\")",
+      "Bash(curl -s -c /tmp/lms_cookies.txt -b /tmp/lms_cookies.txt -X POST http://localhost:5000/api/auth/login -H \"Content-Type: application/json\" -d '{\"\"email\"\":\"\"admin@codencode.com\"\",\"\"password\"\":\"\"admin1234\"\"}' -w \"\\\\nHTTP_STATUS:%{http_code}\")",
+      "Bash(python -c \":*)",
+      "Bash(curl -s -c /tmp/lms_cookies.txt -b /tmp/lms_cookies.txt -X POST http://localhost:5000/api/auth/login -H \"Content-Type: application/json\" -d '{\"\"email\"\":\"\"admin@codencode.my\"\",\"\"password\"\":\"\"admin1234\"\"}' -w \"\\\\nHTTP_STATUS:%{http_code}\")",
+      "Bash(curl -s -c /tmp/lms_cookies.txt -b /tmp/lms_cookies.txt http://localhost:5000/api/admin/courses -w \"\\\\nHTTP_STATUS:%{http_code}\")",
+      "Bash(curl -s -c /tmp/lms_cookies.txt -b /tmp/lms_cookies.txt http://localhost:5000/api/admin/students -w \"\\\\nHTTP_STATUS:%{http_code}\")",
+      "Bash(curl -s -c /tmp/lms_cookies.txt -b /tmp/lms_cookies.txt http://localhost:5000/api/admin/courses)",
+      "Bash(python -m json.tool)",
+      "Bash(curl -s -c /tmp/lms_cookies.txt -b /tmp/lms_cookies.txt \"http://localhost:5000/api/admin/courses/1/cohorts\")",
+      "Bash(curl -s -c /tmp/lms_cookies.txt -b /tmp/lms_cookies.txt \"http://localhost:5000/api/admin/courses/1/cohorts\" -w \"\\\\nHTTP_STATUS:%{http_code}\")",
+      "Bash(curl -s -c /tmp/lms_cookies.txt -b /tmp/lms_cookies.txt \"http://localhost:5000/api/courses/1/cohorts\" -w \"\\\\nHTTP_STATUS:%{http_code}\")",
+      "Bash(curl -s -c /tmp/lms_cookies.txt -b /tmp/lms_cookies.txt \"http://localhost:5000/api/admin/courses\" -w \"\\\\nHTTP_STATUS:%{http_code}\")",
+      "Bash(curl -s -c /tmp/lms_cookies.txt -b /tmp/lms_cookies.txt \"http://localhost:5000/api/admin/students\" -w \"\\\\nHTTP_STATUS:%{http_code}\")"
     ]
-  }
+  },
+  "disableAllHooks": true
 }
