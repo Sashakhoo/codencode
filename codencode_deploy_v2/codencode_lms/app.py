@@ -11,8 +11,15 @@ codencode.my LMS — Flask Backend
 
 import os
 import uuid
+import smtplib
+import ssl
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
 from datetime import datetime
 from functools import wraps
+
+from dotenv import load_dotenv
+load_dotenv()
 
 from flask import (Flask, request, jsonify, send_from_directory,
                    session, g)
@@ -65,6 +72,135 @@ os.makedirs(os.path.join(app.config['UPLOAD_FOLDER'], 'receipts'), exist_ok=True
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
+
+
+# ─────────────────────────────────────────────
+# Email utility
+# ─────────────────────────────────────────────
+_SMTP_HOST = os.environ.get('EMAIL_SMTP_SERVER', 'smtp.gmail.com')
+_SMTP_PORT = 465
+_EMAIL_FROM = os.environ.get('EMAIL_FROM', 'codencode@gmail.com')
+_EMAIL_USER = os.environ.get('EMAIL_USER', '')
+_EMAIL_PASS = os.environ.get('EMAIL_PASS', '')
+
+
+def send_email(to: str, subject: str, html_body: str):
+    """Send a single HTML email. Returns True on success, False on failure."""
+    if not _EMAIL_USER or not _EMAIL_PASS:
+        app.logger.warning('Email not configured — skipping send to %s', to)
+        return False
+    try:
+        msg = MIMEMultipart('alternative')
+        msg['Subject'] = subject
+        msg['From']    = f'codencode.my <{_EMAIL_FROM}>'
+        msg['To']      = to
+        msg.attach(MIMEText(html_body, 'html', 'utf-8'))
+
+        ctx = ssl.create_default_context()
+        with smtplib.SMTP_SSL(_SMTP_HOST, _SMTP_PORT, context=ctx) as server:
+            server.login(_EMAIL_USER, _EMAIL_PASS)
+            server.sendmail(_EMAIL_FROM, to, msg.as_string())
+        return True
+    except Exception as exc:
+        app.logger.error('Email send failed to %s: %s', to, exc)
+        return False
+
+
+def send_email_bulk(recipients: list[str], subject: str, html_body: str):
+    """Send the same email to a list of addresses."""
+    results = {r: send_email(r, subject, html_body) for r in recipients}
+    return results
+
+
+# ── Email templates ───────────────────────────────────────────────────────────
+
+def _email_wrapper(title: str, body_html: str) -> str:
+    return f"""<!DOCTYPE html>
+<html><head><meta charset="utf-8">
+<style>
+  body{{font-family:'Lato',Arial,sans-serif;background:#0D2625;margin:0;padding:24px}}
+  .card{{background:#1e3530;border:1px solid rgba(198,206,197,.18);border-radius:12px;
+         max-width:560px;margin:0 auto;padding:36px 40px}}
+  .logo{{font-size:20px;font-weight:700;color:#C6CEC5;letter-spacing:-.02em;margin-bottom:24px}}
+  .logo span{{color:#7ec8a0}}
+  h2{{color:#E8F0E9;margin:0 0 16px;font-size:22px}}
+  p{{color:#A4B4A4;line-height:1.6;margin:0 0 14px}}
+  .btn{{display:inline-block;background:#30463D;color:#C6CEC5;border:1px solid rgba(198,206,197,.3);
+        border-radius:8px;padding:12px 24px;text-decoration:none;font-weight:700;margin-top:8px}}
+  .footer{{color:#627160;font-size:11px;margin-top:24px;border-top:1px solid rgba(198,206,197,.1);
+           padding-top:16px}}
+  .badge{{display:inline-block;background:rgba(126,200,160,.15);color:#7ec8a0;
+          border:1px solid rgba(126,200,160,.3);border-radius:4px;
+          padding:2px 10px;font-size:12px;font-weight:700}}
+</style></head>
+<body><div class="card">
+  <div class="logo">codencode<span>.my</span></div>
+  <h2>{title}</h2>
+  {body_html}
+  <div class="footer">learn.codencode.my &nbsp;·&nbsp; This is an automated message, please do not reply.</div>
+</div></body></html>"""
+
+
+def email_welcome(student_name: str, email: str, course_title: str):
+    body = f"""
+    <p>Hi <strong>{student_name}</strong>,</p>
+    <p>Welcome to <strong>{course_title}</strong> on codencode.my! Your account is ready.</p>
+    <p>Log in now to access your course materials, timetable, and assignments.</p>
+    <a class="btn" href="https://learn.codencode.my">Start Learning →</a>
+    """
+    return send_email(email, f'Welcome to {course_title} — codencode.my', _email_wrapper('Welcome aboard! 🎉', body))
+
+
+def email_assignment_graded(student_name: str, email: str, assignment_title: str, score, feedback: str):
+    body = f"""
+    <p>Hi <strong>{student_name}</strong>,</p>
+    <p>Your assignment <strong>{assignment_title}</strong> has been graded.</p>
+    <p><span class="badge">Score: {score} / 100</span></p>
+    {'<p><em>' + feedback + '</em></p>' if feedback else ''}
+    <a class="btn" href="https://learn.codencode.my">View Feedback →</a>
+    """
+    return send_email(email, f'Assignment graded: {assignment_title}', _email_wrapper('Assignment Result', body))
+
+
+def email_certificate_issued(student_name: str, email: str, course_title: str, cert_number: str, cert_id: int):
+    body = f"""
+    <p>Hi <strong>{student_name}</strong>,</p>
+    <p>Congratulations! You have successfully completed <strong>{course_title}</strong>.</p>
+    <p><span class="badge">{cert_number}</span></p>
+    <p>Your certificate is ready to download and share on LinkedIn.</p>
+    <a class="btn" href="https://learn.codencode.my/api/certificates/{cert_id}/download">Download Certificate →</a>
+    """
+    return send_email(email, f'Your Certificate for {course_title} is Ready!', _email_wrapper('Certificate Issued 🎓', body))
+
+
+def email_new_material(student_name: str, email: str, course_title: str, material_title: str, week: int):
+    body = f"""
+    <p>Hi <strong>{student_name}</strong>,</p>
+    <p>New content is available in <strong>{course_title}</strong>:</p>
+    <p><strong>Week {week} — {material_title}</strong></p>
+    <a class="btn" href="https://learn.codencode.my">View Material →</a>
+    """
+    return send_email(email, f'New material: {material_title} — codencode.my', _email_wrapper('New Content Available', body))
+
+
+def email_session_reminder(student_name: str, email: str, session_title: str, session_dt: str, zoom_link: str):
+    zoom_btn = f'<a class="btn" href="{zoom_link}">Join Session →</a>' if zoom_link else ''
+    body = f"""
+    <p>Hi <strong>{student_name}</strong>,</p>
+    <p>Reminder: your session is starting soon.</p>
+    <p><strong>{session_title}</strong><br><span class="badge">{session_dt}</span></p>
+    {zoom_btn}
+    """
+    return send_email(email, f'Session reminder: {session_title}', _email_wrapper('Upcoming Session ⏰', body))
+
+
+def email_announcement(student_name: str, email: str, announcement_title: str, announcement_body: str):
+    body = f"""
+    <p>Hi <strong>{student_name}</strong>,</p>
+    <p>{announcement_body}</p>
+    <a class="btn" href="https://learn.codencode.my">View on Portal →</a>
+    """
+    return send_email(email, announcement_title, _email_wrapper(announcement_title, body))
 
 
 # ─────────────────────────────────────────────
@@ -503,6 +639,14 @@ def api_grade(sid):
     sub.feedback  = data.get('feedback', '')
     sub.graded_at = datetime.utcnow()
     db.session.commit()
+    # notify student by email
+    student = sub.student
+    if student and student.email:
+        email_assignment_graded(
+            student.name, student.email,
+            sub.assignment.title if sub.assignment else 'Assignment',
+            sub.score, sub.feedback
+        )
     return jsonify({'submission': sub.to_dict()})
 
 
@@ -1070,6 +1214,23 @@ def admin_payments():
 
 
 # ─────────────────────────────────────────────
+# Email test route (admin only)
+# ─────────────────────────────────────────────
+@app.route('/api/admin/test-email')
+@login_required
+def test_email():
+    if current_user.role != 'admin':
+        return jsonify({'error': 'Forbidden'}), 403
+    ok = send_email(
+        current_user.email,
+        'codencode.my — Email test',
+        _email_wrapper('Email is working!',
+            '<p>This is a test email from your codencode.my LMS. SMTP is configured correctly.</p>')
+    )
+    return jsonify({'sent': ok, 'to': current_user.email})
+
+
+# ─────────────────────────────────────────────
 # RESET ADMIN (one-time recovery route)
 # ─────────────────────────────────────────────
 @app.route('/api/reset-admin')
@@ -1524,6 +1685,14 @@ def api_create_announcement():
     )
     db.session.add(ann)
     db.session.commit()
+    # email all relevant students
+    if course_id:
+        students = [e.student for e in Enrollment.query.filter_by(course_id=course_id).all() if e.student]
+    else:
+        students = User.query.filter_by(role='student', is_active=True).all()
+    for s in students:
+        if s.email:
+            email_announcement(s.name, s.email, title, content)
     return jsonify({'announcement': ann.to_dict()}), 201
 
 
@@ -1772,6 +1941,14 @@ def admin_issue_certificate():
     )
     db.session.add(cert)
     db.session.commit()
+    # email student
+    student = User.query.get(student_id)
+    course  = Course.query.get(course_id)
+    if student and student.email and course:
+        email_certificate_issued(
+            student.name, student.email,
+            course.title, cert_number, cert.id
+        )
     return jsonify({'certificate': cert.to_dict()}), 201
 
 
