@@ -269,127 +269,62 @@
     /* ═══════════════════════════════════
        APP SHELL
     ═══════════════════════════════════ */
-    #app { display: none; height: 100vh; flex-direction: column; position: relative; z-index: 1; }
+    #app { display: none; height: 100vh; flex-direction: row; position: relative; z-index: 1; }
     #app.visible { display: flex; }
 
-    /* Top Bar */
-    .topbar {
-      height: var(--topbar-h); min-height: var(--topbar-h);
-      background: var(--bg-base);
-      border-bottom: 1px solid var(--border);
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 0 20px; z-index: 50; position: relative;
-    }
-    .topbar-left { display: flex; align-items: center; gap: 16px; }
-    .top-nav { display: flex; align-items: center; gap: 2px; margin-left: 8px; }
-    .top-nav-item {
-      background: none; border: none; color: var(--text-muted);
-      font-family: 'Lato', sans-serif; font-size: 12px; font-weight: 600;
-      padding: 6px 12px; cursor: pointer; border-radius: 6px;
-      transition: all 0.15s; letter-spacing: 0.02em;
-    }
-    .top-nav-item:hover { color: var(--text); background: var(--bg-hover); }
-    .top-nav-item.active { color: var(--accent); background: var(--accent-glow); }
-    .sidebar-toggle {
-      width: 32px; height: 32px; background: var(--surface2); border: 1px solid var(--border-strong);
-      color: var(--white); cursor: pointer; display: grid; place-items: center;
-      transition: all 0.2s; border-radius: 4px;
-    }
-    .sidebar-toggle:hover { border-color: var(--cyan); color: var(--cyan); background: var(--cyan-dim); }
-    .topbar-title { font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.1em; color: var(--muted); text-transform: uppercase; }
-    .topbar-right { display: flex; align-items: center; gap: 12px; }
-    .topbar-badge {
-      font-family: 'JetBrains Mono', monospace; font-size: 10px;
-      padding: 4px 10px; border: 1px solid;
-      border-radius: var(--radius);
-      letter-spacing: 0.08em; text-transform: uppercase;
-    }
-    .badge-teacher { border-color: var(--orange); color: var(--orange); }
-    .badge-student { border-color: var(--cyan); color: var(--cyan); }
-    .notif-btn {
-      width: 32px; height: 32px; background: none; border: 1px solid var(--border);
-      border-radius: var(--radius);
-      color: var(--muted); cursor: pointer; display: grid; place-items: center;
-      font-size: 13px; position: relative; transition: all 0.2s;
-    }
-    .notif-btn:hover { border-color: var(--cyan); color: var(--cyan); }
-    .notif-dot {
-      position: absolute; top: 6px; right: 6px;
-      width: 6px; height: 6px; background: var(--orange); border-radius: 50%;
-    }
-    .user-chip {
-      display: flex; align-items: center; gap: 8px;
-      font-family: 'Lato', sans-serif; font-size: 11px; color: var(--muted);
-      cursor: pointer;
-    }
-    .user-avatar {
-      width: 28px; height: 28px; background: var(--cyan-dim);
-      border: 1px solid var(--border-strong);
-      border-radius: 50%;
-      display: grid; place-items: center;
-      font-size: 10px; color: var(--cyan);
-    }
-    .logout-btn {
-      background: none; border: 1px solid var(--border); color: var(--muted);
-      border-radius: var(--radius);
-      font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 0.08em;
-      text-transform: uppercase; padding: 6px 12px; cursor: pointer;
-      transition: all 0.2s;
-    }
-    .logout-btn:hover { border-color: var(--red); color: var(--red); }
-
-    /* Main layout */
-    .app-body { display: flex; flex: 1; overflow: hidden; position: relative; }
-
-    /* Sidebar */
+    /* ── Sidebar ── */
     .sidebar {
       width: var(--sidebar-w); min-width: var(--sidebar-w);
       background: var(--bg-base);
       border-right: 1px solid var(--border);
       display: flex; flex-direction: column;
-      transition: width 0.2s, min-width 0.2s;
-      overflow-y: auto; overflow-x: hidden; z-index: 40;
+      overflow-y: auto; overflow-x: hidden; z-index: 40; flex-shrink: 0;
     }
-    .sidebar.collapsed { width: 56px; min-width: 56px; }
-    .sidebar-section { padding: 16px 0; border-bottom: 1px solid var(--border); }
+    .sidebar-logo {
+      padding: 20px 18px 16px;
+      border-bottom: 1px solid var(--border);
+    }
+    .sidebar-logo .brand {
+      font-family: 'Outfit', sans-serif; font-size: 16px; font-weight: 700; letter-spacing: -0.3px;
+    }
+    .sidebar-logo .brand span { color: var(--cyan); }
+    .role-badge-sidebar {
+      display: inline-block; margin-top: 4px;
+      background: var(--cyan-dim); color: var(--cyan);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px; padding: 2px 8px; border-radius: 20px;
+      border: 1px solid var(--cyan); letter-spacing: 1px;
+    }
+    .role-badge-sidebar.teacher { background: var(--orange-dim); color: var(--orange); border-color: var(--orange); }
+    .sidebar-section { padding: 12px 0 4px; }
     .sidebar-label {
-      font-family: 'JetBrains Mono', monospace; font-size: 9px; letter-spacing: 0.15em;
-      text-transform: uppercase; color: var(--muted2);
-      padding: 0 16px 8px; white-space: nowrap; overflow: hidden;
+      padding: 0 18px 6px;
+      font-family: 'JetBrains Mono', monospace; font-size: 10px;
+      letter-spacing: 1.5px; color: var(--text-muted); text-transform: uppercase;
     }
-    .sidebar.collapsed .sidebar-label { display: none; }
     .nav-item {
       display: flex; align-items: center; gap: 10px;
-      padding: 9px 16px; cursor: pointer;
-      font-family: 'Lato', sans-serif; font-size: 11px;
-      color: var(--muted); letter-spacing: 0.05em;
-      transition: all 0.15s; white-space: nowrap;
+      padding: 9px 18px; cursor: pointer;
+      color: var(--text-muted); transition: all 0.15s;
+      border-left: 2px solid transparent;
+      font-family: 'Lato', sans-serif; font-size: 12px;
       border: none; background: none; width: 100%; text-align: left;
-      position: relative;
     }
-    .nav-item:hover { color: var(--white); background: var(--cyan-glow); }
-    .nav-item.active { color: var(--cyan); background: var(--cyan-dim); }
-    .nav-item.active::before {
-      content: '';
-      position: absolute; left: 0; top: 0; bottom: 0; width: 2px;
-      background: var(--cyan);
-    }
+    .nav-item:hover { background: var(--bg-hover); color: var(--text); }
+    .nav-item.active { color: var(--cyan); border-left-color: var(--cyan); background: var(--cyan-dim); }
     .nav-item i { width: 16px; text-align: center; font-size: 13px; flex-shrink: 0; }
-    .nav-item span { overflow: hidden; }
-    .sidebar.collapsed .nav-item span { display: none; }
+    .nav-item span { flex: 1; }
     .nav-badge {
-      margin-left: auto; background: var(--orange);
-      color: white; font-size: 9px; padding: 2px 6px;
-      border-radius: 10px; flex-shrink: 0;
+      background: var(--orange); color: #fff;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9px; padding: 2px 6px; border-radius: 10px; flex-shrink: 0;
     }
-    .sidebar.collapsed .nav-badge { display: none; }
     .sidebar-course-selector {
       padding: 12px 16px; border-bottom: 1px solid var(--border);
     }
-    .sidebar.collapsed .sidebar-course-selector { display: none; }
     .course-select-label {
-      font-family: 'JetBrains Mono', monospace; font-size: 9px; letter-spacing: 0.15em;
-      text-transform: uppercase; color: var(--muted2); margin-bottom: 6px;
+      font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 1.5px;
+      text-transform: uppercase; color: var(--text-muted); margin-bottom: 6px;
     }
     .course-select {
       width: 100%; background: var(--bg-raised); border: 1px solid var(--border);
@@ -398,10 +333,59 @@
       padding: 7px 10px; outline: none; cursor: pointer;
     }
     .course-select:focus { border-color: var(--accent); }
+    .sidebar-footer {
+      margin-top: auto; padding: 14px 18px;
+      border-top: 1px solid var(--border);
+      display: flex; align-items: center; gap: 10px;
+    }
+    .user-avatar {
+      width: 32px; height: 32px; background: var(--cyan-dim);
+      border: 1px solid var(--cyan); border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px; font-weight: 700; color: var(--cyan); flex-shrink: 0;
+    }
+    .footer-name { font-family: 'Lato', sans-serif; font-size: 12px; color: var(--text); font-weight: 700; }
+    .footer-role { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--text-muted); }
+    .logout-btn {
+      margin-left: auto; background: none; border: none;
+      color: var(--text-muted); cursor: pointer; font-size: 14px; padding: 4px;
+      transition: color 0.2s;
+    }
+    .logout-btn:hover { color: var(--red); }
 
-    /* Main content */
+    /* ── Main area ── */
+    .main-area {
+      flex: 1; overflow-y: auto; display: flex; flex-direction: column;
+    }
+
+    /* ── Topbar ── */
+    .topbar {
+      background: var(--bg-base);
+      border-bottom: 1px solid var(--border);
+      padding: 14px 28px;
+      display: flex; align-items: center; justify-content: space-between;
+      position: sticky; top: 0; z-index: 10;
+    }
+    .topbar-title {
+      font-family: 'Outfit', sans-serif; font-size: 18px; font-weight: 700; line-height: 1;
+    }
+    .topbar-subtitle { font-family: 'Lato', sans-serif; color: var(--text-muted); font-size: 12px; margin-top: 3px; }
+    .topbar-actions { display: flex; align-items: center; gap: 8px; }
+    .notif-btn {
+      width: 32px; height: 32px; background: none; border: 1px solid var(--border);
+      border-radius: var(--radius);
+      color: var(--muted); cursor: pointer; display: grid; place-items: center;
+      font-size: 13px; transition: all 0.2s;
+    }
+    .notif-btn:hover { border-color: var(--cyan); color: var(--cyan); }
+    .notif-dot {
+      position: absolute; top: 6px; right: 6px;
+      width: 6px; height: 6px; background: var(--orange); border-radius: 50%;
+    }
+
+    /* ── Main content ── */
     .main-content {
-      flex: 1; overflow-y: auto; padding: 28px;
+      flex: 1; padding: 28px;
       display: flex; flex-direction: column; gap: 24px;
     }
 
@@ -818,7 +802,6 @@
       .sidebar { position: absolute; left: 0; top: 0; bottom: 0; z-index: 40; transform: translateX(-100%); transition: transform 0.2s; }
       .sidebar.mobile-open { transform: translateX(0); }
       .stats-row { grid-template-columns: 1fr 1fr; }
-      .top-nav { display: none; }
       .grid-2 { grid-template-columns: 1fr; }
       .grid-3 { grid-template-columns: 1fr; }
       .video-grid { grid-template-columns: 1fr; }
@@ -924,78 +907,26 @@
      APP SHELL
 ═══════════════════════════════════════ -->
 <div id="app">
-  <!-- Top bar -->
-  <div class="topbar">
-    <div class="topbar-left">
-      <button class="sidebar-toggle" id="sidebar-toggle-btn" onclick="toggleSidebar()">
-        <i class="fas fa-bars"></i>
-      </button>
-      <div class="login-logo" style="gap:8px">
-        <div class="logo-mark" style="width:28px;height:28px;font-size:9px">CE</div>
-        <span class="logo-text" style="font-size:13px">code<span>ncode</span>.my</span>
-      </div>
-      <!-- Top nav -->
-      <nav class="top-nav" id="top-nav">
-        <button class="top-nav-item active" onclick="switchView('dashboard')" data-view="dashboard">Dashboard</button>
-        <button class="top-nav-item" onclick="switchView('videos')" data-view="videos">Recordings</button>
-        <button class="top-nav-item" onclick="switchView('timetable')" data-view="timetable" id="topnav-timetable">Timetable</button>
-      </nav>
-    </div>
-    <div class="topbar-right">
-      <!-- SY6: Search -->
-      <div style="position:relative" id="search-wrapper">
-        <input type="text" id="search-input" placeholder="Search..." autocomplete="off"
-          style="background:var(--surface2);border:1px solid var(--border);color:var(--text);font-family:var(--font-m);font-size:11px;padding:6px 32px 6px 10px;outline:none;width:160px;transition:width 0.2s,border-color 0.2s"
-          oninput="debounceSearch(this.value)" onkeydown="if(event.key==='Escape'){document.getElementById('search-results').style.display='none';this.value=''}" onfocus="this.style.width='200px';this.style.borderColor='var(--cyan)'" onblur="this.style.width='160px';this.style.borderColor='var(--border)'" />
-        <i class="fas fa-search" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:11px;pointer-events:none"></i>
-        <div id="search-results" style="display:none;position:absolute;top:34px;right:0;width:280px;background:var(--bg-raised);border:1px solid var(--border);border-radius:var(--radius);z-index:300;max-height:320px;overflow-y:auto"></div>
-      </div>
-      <!-- SY3: Language switcher -->
-      <div style="display:flex;gap:2px;font-family:var(--font-c);font-size:9px" id="lang-switcher">
-        <button onclick="setLanguage('en')" id="lang-en" style="padding:4px 7px;background:var(--cyan-dim);color:var(--cyan);border:1px solid var(--cyan);cursor:pointer;letter-spacing:0.05em">EN</button>
-        <button onclick="setLanguage('zh')" id="lang-zh" style="padding:4px 7px;background:none;color:var(--muted);border:1px solid var(--border);cursor:pointer;letter-spacing:0.05em">中文</button>
-        <button onclick="setLanguage('bm')" id="lang-bm" style="padding:4px 7px;background:none;color:var(--muted);border:1px solid var(--border);cursor:pointer;letter-spacing:0.05em">BM</button>
-      </div>
-      <button class="notif-btn" onclick="toggleTheme()" id="theme-toggle" title="Toggle theme">
-        <i class="fas fa-sun" id="theme-icon"></i>
-      </button>
-      <span class="topbar-badge" id="role-badge">Student</span>
-      <button class="notif-btn" id="notif-btn" title="Notifications" onclick="toggleNotifDropdown()">
-        <i class="fas fa-bell"></i>
-        <span class="notif-dot" id="notif-dot" style="display:none"></span>
-        <span id="notif-count-badge" style="display:none;position:absolute;top:2px;right:2px;background:var(--orange);color:#fff;font-size:9px;padding:1px 4px;border-radius:8px;font-family:var(--font-m)"></span>
-      </button>
-      <!-- Notification dropdown -->
-      <div id="notif-dropdown" style="display:none;position:absolute;top:52px;right:60px;width:320px;background:var(--bg-raised);border:1px solid var(--border);border-radius:var(--radius);z-index:200">
-        <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid var(--border)">
-          <span style="font-family:var(--font-m);font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted)">Notifications</span>
-          <button onclick="markAllNotificationsRead()" style="background:none;border:none;color:var(--cyan);font-family:var(--font-m);font-size:10px;cursor:pointer">Mark all read</button>
-        </div>
-        <div id="notif-list" style="max-height:300px;overflow-y:auto">
-          <div style="padding:20px;text-align:center;color:var(--muted);font-family:var(--font-m);font-size:11px">No notifications</div>
-        </div>
-      </div>
-      <div class="user-chip">
-        <div class="user-avatar" id="user-avatar-initials">ST</div>
-        <span id="user-display-name">Alex T.</span>
-      </div>
-      <button class="logout-btn" onclick="doLogout()">
-        <i class="fas fa-sign-out-alt"></i> Out
-      </button>
-    </div>
-  </div>
 
-  <div class="app-body">
-    <!-- Sidebar -->
-    <div class="sidebar" id="sidebar">
-      <div class="sidebar-course-selector">
-        <div class="course-select-label">Current Course</div>
-        <select class="course-select" id="course-selector" onchange="setCourse(this.value)">
-          <option value="python">Python Bootcamp</option>
-          <option value="ml">Machine Learning Fundamentals</option>
-        </select>
-      </div>
-      <div id="student-nav" class="sidebar-section">
+  <!-- ═══ SIDEBAR ═══ -->
+  <aside class="sidebar" id="sidebar">
+    <!-- Brand -->
+    <div class="sidebar-logo">
+      <div class="brand">code<span>ncode</span>.my</div>
+      <span class="role-badge-sidebar" id="role-badge">STUDENT</span>
+    </div>
+
+    <!-- Course selector -->
+    <div class="sidebar-course-selector">
+      <div class="course-select-label">Current Course</div>
+      <select class="course-select" id="course-selector" onchange="setCourse(this.value)">
+        <option value="">— select course —</option>
+      </select>
+    </div>
+
+    <!-- Student nav -->
+    <div id="student-nav">
+      <div class="sidebar-section">
         <div class="sidebar-label">Learning</div>
         <button class="nav-item active" onclick="switchView('dashboard')">
           <i class="fas fa-th-large"></i><span data-i18n="dashboard">Dashboard</span>
@@ -1008,7 +939,7 @@
         </button>
         <button class="nav-item" onclick="switchView('assignments')">
           <i class="fas fa-tasks"></i><span data-i18n="assignments">Assignments</span>
-          <span class="nav-badge" id="pending-badge">2</span>
+          <span class="nav-badge" id="pending-badge" style="display:none">0</span>
         </button>
         <button class="nav-item" onclick="switchView('grades')">
           <i class="fas fa-chart-bar"></i><span data-i18n="grades">My Grades</span>
@@ -1026,7 +957,11 @@
           <i class="fas fa-certificate"></i><span data-i18n="certificates">Certificates</span>
         </button>
       </div>
-      <div id="teacher-nav" class="sidebar-section" style="display:none">
+    </div>
+
+    <!-- Teacher nav -->
+    <div id="teacher-nav" style="display:none">
+      <div class="sidebar-section">
         <div class="sidebar-label">Teaching</div>
         <button class="nav-item active" onclick="switchView('t-dashboard')">
           <i class="fas fa-th-large"></i><span>Overview</span>
@@ -1042,7 +977,7 @@
         </button>
         <button class="nav-item" onclick="switchView('t-grading')">
           <i class="fas fa-check-double"></i><span>Grading</span>
-          <span class="nav-badge" id="ungraded-badge">5</span>
+          <span class="nav-badge" id="ungraded-badge" style="display:none">0</span>
         </button>
         <button class="nav-item" onclick="switchView('t-students')">
           <i class="fas fa-users"></i><span>Students</span>
@@ -1059,7 +994,66 @@
       </div>
     </div>
 
-    <!-- Main content area -->
+    <!-- Sidebar footer: user info + logout -->
+    <div class="sidebar-footer">
+      <div class="user-avatar" id="user-avatar-initials">ST</div>
+      <div style="flex:1;min-width:0">
+        <div class="footer-name" id="user-display-name">Student</div>
+        <div class="footer-role" id="footer-role-label">Student</div>
+      </div>
+      <button class="logout-btn" onclick="doLogout()" title="Logout">
+        <i class="fas fa-sign-out-alt"></i>
+      </button>
+    </div>
+  </aside>
+
+  <!-- ═══ MAIN ═══ -->
+  <div class="main-area" id="main-area">
+
+    <!-- Topbar -->
+    <div class="topbar" id="topbar">
+      <div>
+        <div class="topbar-title" id="topbar-title">Dashboard</div>
+        <div class="topbar-subtitle" id="topbar-subtitle">Your learning progress</div>
+      </div>
+      <div class="topbar-actions">
+        <!-- Search -->
+        <div style="position:relative" id="search-wrapper">
+          <input type="text" id="search-input" placeholder="Search..." autocomplete="off"
+            style="background:var(--bg-raised);border:1px solid var(--border);border-radius:6px;color:var(--text);font-family:var(--font-m);font-size:11px;padding:6px 32px 6px 10px;outline:none;width:150px;transition:width 0.2s,border-color 0.2s"
+            oninput="debounceSearch(this.value)" onkeydown="if(event.key==='Escape'){document.getElementById('search-results').style.display='none';this.value=''}" onfocus="this.style.width='190px';this.style.borderColor='var(--cyan)'" onblur="this.style.width='150px';this.style.borderColor='var(--border)'" />
+          <i class="fas fa-search" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:11px;pointer-events:none"></i>
+          <div id="search-results" style="display:none;position:absolute;top:34px;right:0;width:280px;background:var(--bg-raised);border:1px solid var(--border);border-radius:var(--radius);z-index:300;max-height:320px;overflow-y:auto"></div>
+        </div>
+        <!-- Language switcher -->
+        <div style="display:flex;gap:2px;font-family:var(--font-c);font-size:9px" id="lang-switcher">
+          <button onclick="setLanguage('en')" id="lang-en" style="padding:4px 7px;background:var(--cyan-dim);color:var(--cyan);border:1px solid var(--cyan);border-radius:4px;cursor:pointer;letter-spacing:0.05em">EN</button>
+          <button onclick="setLanguage('zh')" id="lang-zh" style="padding:4px 7px;background:none;color:var(--muted);border:1px solid var(--border);border-radius:4px;cursor:pointer;letter-spacing:0.05em">中文</button>
+          <button onclick="setLanguage('bm')" id="lang-bm" style="padding:4px 7px;background:none;color:var(--muted);border:1px solid var(--border);border-radius:4px;cursor:pointer;letter-spacing:0.05em">BM</button>
+        </div>
+        <!-- Theme toggle -->
+        <button class="notif-btn" onclick="toggleTheme()" id="theme-toggle" title="Toggle theme">
+          <i class="fas fa-sun" id="theme-icon"></i>
+        </button>
+        <!-- Notifications -->
+        <button class="notif-btn" id="notif-btn" title="Notifications" onclick="toggleNotifDropdown()" style="position:relative">
+          <i class="fas fa-bell"></i>
+          <span class="notif-dot" id="notif-dot" style="display:none"></span>
+          <span id="notif-count-badge" style="display:none;position:absolute;top:2px;right:2px;background:var(--orange);color:#fff;font-size:9px;padding:1px 4px;border-radius:8px;font-family:var(--font-m)"></span>
+        </button>
+        <div id="notif-dropdown" style="display:none;position:absolute;top:52px;right:20px;width:320px;background:var(--bg-raised);border:1px solid var(--border);border-radius:var(--radius);z-index:200">
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid var(--border)">
+            <span style="font-family:var(--font-m);font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted)">Notifications</span>
+            <button onclick="markAllNotificationsRead()" style="background:none;border:none;color:var(--cyan);font-family:var(--font-m);font-size:10px;cursor:pointer">Mark all read</button>
+          </div>
+          <div id="notif-list" style="max-height:300px;overflow-y:auto">
+            <div style="padding:20px;text-align:center;color:var(--muted);font-family:var(--font-m);font-size:11px">No notifications</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Content area -->
     <div class="main-content" id="main-content">
 
       <!-- ══════════════════════════════
@@ -1764,7 +1758,7 @@
       </div>
 
     </div><!-- end main-content -->
-  </div><!-- end app-body -->
+  </div><!-- end main-area -->
 </div><!-- end app -->
 
 <!-- ══════════════════════════════
@@ -2030,16 +2024,17 @@ async function bootApp() {
   if (STATE.courses.length > 0) {
     STATE.courseId = STATE.courses[0].id;
     document.getElementById('course-selector').value = STATE.courseId;
-    document.getElementById('topbar-course-name').textContent = STATE.courses[0].title;
+    document.getElementById('topbar-subtitle').textContent = STATE.courses[0].title;
   }
 
   // Setup role UI
   const isTeacher = STATE.user.role === 'teacher';
   document.getElementById('student-nav').style.display = isTeacher ? 'none' : 'block';
   document.getElementById('teacher-nav').style.display = isTeacher ? 'block' : 'none';
-  document.getElementById('role-badge').textContent    = isTeacher ? 'Teacher' : 'Student';
-  document.getElementById('role-badge').className      = 'topbar-badge ' + (isTeacher ? 'badge-teacher' : 'badge-student');
-  document.getElementById('user-display-name').textContent = STATE.user.name.split(' ')[0] + ' ' + (STATE.user.name.split(' ')[1]?.[0] || '') + '.';
+  document.getElementById('role-badge').textContent    = isTeacher ? 'TEACHER' : 'STUDENT';
+  document.getElementById('role-badge').className      = 'role-badge-sidebar' + (isTeacher ? ' teacher' : '');
+  document.getElementById('user-display-name').textContent = STATE.user.name;
+  document.getElementById('footer-role-label').textContent = isTeacher ? 'Teacher' : 'Student';
   document.getElementById('student-greeting').textContent = 'Good to see you, ' + STATE.user.name.split(' ')[0] + '. 👋';
   const initials = STATE.user.name.split(' ').map(p=>p[0]).join('').toUpperCase().slice(0,2);
   document.getElementById('user-avatar-initials').textContent = initials;
@@ -2139,16 +2134,12 @@ const VIEW_LOADERS = {
 async function switchView(id) {
   document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-  document.querySelectorAll('.top-nav-item').forEach(n => n.classList.remove('active'));
   const view = document.getElementById('view-' + id);
   if (view) view.classList.add('active');
   document.querySelectorAll('.nav-item').forEach(btn => {
     if ((btn.getAttribute('onclick')||'').includes("'" + id + "'")) btn.classList.add('active');
   });
-  document.querySelectorAll('.top-nav-item').forEach(btn => {
-    if ((btn.dataset.view === id) || (btn.getAttribute('onclick')||'').includes("'" + id + "'")) btn.classList.add('active');
-  });
-  const titleEl = document.querySelector('.topbar-title');
+  const titleEl = document.getElementById('topbar-title');
   if (titleEl) titleEl.textContent = VIEW_TITLES[id] || '';
   document.getElementById('main-content').scrollTop = 0;
 
@@ -2163,7 +2154,7 @@ async function setCourse(val) {
   // Reset cache
   STATE.dashboard = STATE.recordings = STATE.materials = STATE.assignments = null;
   const course = STATE.courses.find(c => c.id === STATE.courseId);
-  document.getElementById('topbar-course-name').textContent = course?.title || '';
+  document.getElementById('topbar-subtitle').textContent = course?.title || '';
   showToast('Switched to ' + (course?.title || ''));
   // Reload current view
   const activeView = document.querySelector('.view.active');
@@ -2177,12 +2168,7 @@ async function setCourse(val) {
 
 function toggleSidebar() {
   const sidebar = document.getElementById('sidebar');
-  if (window.innerWidth <= 768) {
-    sidebar.classList.toggle('mobile-open');
-  } else {
-    STATE.sidebarOpen = !STATE.sidebarOpen;
-    sidebar.classList.toggle('collapsed', !STATE.sidebarOpen);
-  }
+  sidebar.classList.toggle('mobile-open');
 }
 
 function toggleWeek(btn) {
