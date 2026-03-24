@@ -5,3 +5,4 @@ psycopg2-binary>=2.9
 werkzeug>=3.0
 gunicorn>=21.0
 sqlalchemy>=2.0
+python-dotenv>=1.0
