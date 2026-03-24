@@ -1150,6 +1150,16 @@
       <select class="form-select" id="enroll-course-select"></select>
     </div>
     <div class="form-group" style="margin-bottom:14px">
+      <label class="form-label">Class Format</label>
+      <select class="form-select" id="enroll-class-format">
+        <option value="">— select format —</option>
+        <option value="1v1">1 vs 1 &nbsp;(Private — student : teacher)</option>
+        <option value="2v1">2 vs 1 &nbsp;(Pair — 2 students : 1 teacher)</option>
+        <option value="5v1">5 vs 1 &nbsp;(Small group — 5 students : 1 teacher)</option>
+        <option value="cohort">Cohort &nbsp;(Full class)</option>
+      </select>
+    </div>
+    <div class="form-group" style="margin-bottom:14px">
       <label class="form-label">Class Timing</label>
       <div style="display:flex;flex-direction:column;gap:8px;margin-top:4px">
         <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:12px;color:var(--text)">
@@ -1581,7 +1591,10 @@ function renderStudentDetail(s) {
         ${s.enrollments.length ? s.enrollments.map(e => `
           <div class="enroll-row">
             <div class="enroll-course">
-              <div>${e.course_title}</div>
+              <div style="display:flex;align-items:center;gap:6px">
+                ${e.course_title}
+                ${e.class_format ? `<span style="background:var(--purple-dim);color:var(--purple);border:1px solid var(--purple);font-family:'JetBrains Mono',monospace;font-size:9px;padding:1px 7px;border-radius:20px;letter-spacing:.5px">${e.class_format.toUpperCase()}</span>` : ''}
+              </div>
               <small>Enrolled ${e.enrolled_at}</small>
               ${e.class_timing ? `<small style="color:var(--cyan)"><i class="fas fa-clock" style="margin-right:3px"></i>${e.class_timing}</small>` : ''}
             </div>
@@ -1717,6 +1730,7 @@ function openEnrollModal(uid) {
     available.map(c => `<option value="${c.id}">${c.title}</option>`).join('');
   document.getElementById('enroll-payment-status').value = 'pending';
   document.getElementById('enroll-remarks').value = '';
+  document.getElementById('enroll-class-format').value = '';
   document.getElementById('timing-fri').checked = false;
   document.getElementById('timing-sat').checked = false;
   document.getElementById('timing-sun').checked = false;
@@ -1733,6 +1747,7 @@ async function enrollStudent() {
     course_id:       cid,
     payment_status:  document.getElementById('enroll-payment-status').value,
     payment_remarks: document.getElementById('enroll-remarks').value,
+    class_format:    document.getElementById('enroll-class-format').value,
     class_timing:    timings.join(', '),
   };
   try {

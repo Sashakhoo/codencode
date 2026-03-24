@@ -845,7 +845,8 @@ def admin_enroll_student(uid):
         course_id       = course_id,
         payment_status  = data.get('payment_status', 'pending'),
         payment_remarks = data.get('payment_remarks', ''),
-        class_timing    = data.get('class_timing', '')
+        class_timing    = data.get('class_timing', ''),
+        class_format    = data.get('class_format', '')
     )
     db.session.add(e)
     db.session.commit()
@@ -869,6 +870,7 @@ def admin_update_payment(eid):
     if 'payment_status'  in data: e.payment_status  = data['payment_status']
     if 'payment_remarks' in data: e.payment_remarks = data['payment_remarks']
     if 'class_timing'    in data: e.class_timing    = data['class_timing']
+    if 'class_format'    in data: e.class_format    = data['class_format']
     db.session.commit()
     return jsonify({'enrollment': e.to_dict()})
 
