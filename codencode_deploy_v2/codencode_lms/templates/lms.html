@@ -306,9 +306,9 @@
       display: flex; align-items: center; gap: 10px;
       padding: 9px 18px; cursor: pointer;
       color: var(--text-muted); transition: all 0.15s;
-      border-left: 2px solid transparent;
+      border: none; border-left: 2px solid transparent;
+      background: none; width: 100%; text-align: left;
       font-family: 'Lato', sans-serif; font-size: 12px;
-      border: none; background: none; width: 100%; text-align: left;
     }
     .nav-item:hover { background: var(--bg-hover); color: var(--text); }
     .nav-item.active { color: var(--cyan); border-left-color: var(--cyan); background: var(--cyan-dim); }
@@ -339,11 +339,12 @@
       display: flex; align-items: center; gap: 10px;
     }
     .user-avatar {
-      width: 32px; height: 32px; background: var(--cyan-dim);
-      border: 1px solid var(--cyan); border-radius: 50%;
+      width: 32px; height: 32px; background: var(--orange-dim);
+      border: 1px solid var(--orange); border-radius: 50%;
       display: flex; align-items: center; justify-content: center;
-      font-size: 11px; font-weight: 700; color: var(--cyan); flex-shrink: 0;
+      font-size: 11px; font-weight: 700; color: var(--orange); flex-shrink: 0;
     }
+    .user-avatar.student { background: var(--cyan-dim); border-color: var(--cyan); color: var(--cyan); }
     .footer-name { font-family: 'Lato', sans-serif; font-size: 12px; color: var(--text); font-weight: 700; }
     .footer-role { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--text-muted); }
     .logout-btn {
@@ -2038,7 +2039,9 @@ async function bootApp() {
   document.getElementById('footer-role-label').textContent = isTeacher ? 'Teacher' : 'Student';
   document.getElementById('student-greeting').textContent = 'Good to see you, ' + STATE.user.name.split(' ')[0] + '. 👋';
   const initials = STATE.user.name.split(' ').map(p=>p[0]).join('').toUpperCase().slice(0,2);
-  document.getElementById('user-avatar-initials').textContent = initials;
+  const avatarEl = document.getElementById('user-avatar-initials');
+  avatarEl.textContent = initials;
+  if (!isTeacher) avatarEl.classList.add('student');
 
   switchView(isTeacher ? 't-dashboard' : 'dashboard');
   // Load notifications in background
