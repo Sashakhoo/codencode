@@ -1073,7 +1073,7 @@ def admin_update_course(cid):
 
 
 @app.route('/api/admin/courses/<int:cid>/students', methods=['GET'])
-@admin_required
+@teacher_required
 def admin_course_students(cid):
     enrollments = Enrollment.query.filter_by(course_id=cid).all()
     return jsonify([e.to_dict() for e in enrollments])
