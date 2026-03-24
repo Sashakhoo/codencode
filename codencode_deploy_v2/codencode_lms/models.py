@@ -88,6 +88,7 @@ class Enrollment(db.Model):
     payment_remarks  = db.Column(db.Text)
     receipt_file     = db.Column(db.String(300))   # stored filename of uploaded receipt
     class_timing     = db.Column(db.String(100))   # e.g. "Fri 8-10pm, Sat 9-11am"
+    class_format     = db.Column(db.String(20))    # e.g. "1v1", "2v1", "5v1", "cohort"
 
     student = db.relationship('User', back_populates='enrollments', foreign_keys=[student_id])
     course  = db.relationship('Course', back_populates='enrollments')
@@ -105,7 +106,8 @@ class Enrollment(db.Model):
             'payment_status': self.payment_status or 'pending',
             'payment_remarks': self.payment_remarks or '',
             'receipt_file': self.receipt_file or '',
-            'class_timing': self.class_timing or ''
+            'class_timing': self.class_timing or '',
+            'class_format': self.class_format or ''
         }
 
 
