@@ -86,19 +86,27 @@ class Cohort(db.Model):
     course_id    = db.Column(db.Integer, db.ForeignKey('courses.id'), nullable=False)
     name         = db.Column(db.String(100), nullable=False)   # e.g. "Jan 2026", "Cohort 2"
     start_date   = db.Column(db.Date)
+    end_date     = db.Column(db.Date)
     current_week = db.Column(db.Integer, default=1)
+    # JSON array: [{"day":"Friday","start":"20:00","end":"22:00"}, ...]
+    schedule     = db.Column(db.Text)
+    notes        = db.Column(db.Text)   # free-form notes (e.g. "CNY break week 5")
     created_at   = db.Column(db.DateTime, default=datetime.utcnow)
 
     course      = db.relationship('Course', back_populates='cohorts')
     enrollments = db.relationship('Enrollment', back_populates='cohort')
 
     def to_dict(self):
+        import json as _json
         return {
             'id': self.id,
             'course_id': self.course_id,
             'name': self.name,
             'start_date': self.start_date.strftime('%Y-%m-%d') if self.start_date else None,
+            'end_date': self.end_date.strftime('%Y-%m-%d') if self.end_date else None,
             'current_week': self.current_week,
+            'schedule': _json.loads(self.schedule) if self.schedule else [],
+            'notes': self.notes or '',
             'created_at': self.created_at.strftime('%b %d, %Y'),
             'enrollment_count': len(self.enrollments)
         }
@@ -126,8 +134,8 @@ class Enrollment(db.Model):
         return {
             'id': self.id,
             'student_id': self.student_id,
-            'student_name': self.student.name,
-            'student_email': self.student.email,
+            'student_name': self.student.name if self.student else '(deleted)',
+            'student_email': self.student.email if self.student else '',
             'course_id': self.course_id,
             'course_title': self.course.title,
             'enrolled_at': self.enrolled_at.strftime('%b %d, %Y'),
