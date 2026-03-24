@@ -1959,8 +1959,8 @@ async function api(method, url, body = null) {
   return data;
 }
 
-// Auto-detect base path — works for both localhost:5001 and codencode.my/lms
-const BASE   = window.location.pathname.startsWith('/lms') ? '/lms' : '';
+// API routes are always at root regardless of page path
+const BASE   = '';
 const GET    = url        => api('GET',    BASE + url);
 const POST   = (url, b)  => api('POST',   BASE + url, b);
 const DELETE = url        => api('DELETE', BASE + url);
