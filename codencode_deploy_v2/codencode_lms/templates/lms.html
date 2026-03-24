@@ -941,6 +941,20 @@
       <span class="topbar-title" id="topbar-course-name">Python Bootcamp</span>
     </div>
     <div class="topbar-right">
+      <!-- SY6: Search -->
+      <div style="position:relative" id="search-wrapper">
+        <input type="text" id="search-input" placeholder="Search..." autocomplete="off"
+          style="background:var(--surface2);border:1px solid var(--border);color:var(--text);font-family:var(--font-m);font-size:11px;padding:6px 32px 6px 10px;outline:none;width:160px;transition:width 0.2s,border-color 0.2s"
+          oninput="debounceSearch(this.value)" onkeydown="if(event.key==='Escape'){document.getElementById('search-results').style.display='none';this.value=''}" onfocus="this.style.width='200px';this.style.borderColor='var(--cyan)'" onblur="this.style.width='160px';this.style.borderColor='var(--border)'" />
+        <i class="fas fa-search" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:11px;pointer-events:none"></i>
+        <div id="search-results" style="display:none;position:absolute;top:34px;right:0;width:280px;background:var(--glass-bg);backdrop-filter:var(--glass-blur);-webkit-backdrop-filter:var(--glass-blur);border:var(--glass-border);box-shadow:var(--glass-shadow);z-index:300;max-height:320px;overflow-y:auto"></div>
+      </div>
+      <!-- SY3: Language switcher -->
+      <div style="display:flex;gap:2px;font-family:var(--font-c);font-size:9px" id="lang-switcher">
+        <button onclick="setLanguage('en')" id="lang-en" style="padding:4px 7px;background:var(--cyan-dim);color:var(--cyan);border:1px solid var(--cyan);cursor:pointer;letter-spacing:0.05em">EN</button>
+        <button onclick="setLanguage('zh')" id="lang-zh" style="padding:4px 7px;background:none;color:var(--muted);border:1px solid var(--border);cursor:pointer;letter-spacing:0.05em">中文</button>
+        <button onclick="setLanguage('bm')" id="lang-bm" style="padding:4px 7px;background:none;color:var(--muted);border:1px solid var(--border);cursor:pointer;letter-spacing:0.05em">BM</button>
+      </div>
       <button class="notif-btn" onclick="toggleTheme()" id="theme-toggle" title="Toggle theme">
         <i class="fas fa-sun" id="theme-icon"></i>
       </button>
@@ -983,23 +997,32 @@
       <div id="student-nav" class="sidebar-section">
         <div class="sidebar-label">Learning</div>
         <button class="nav-item active" onclick="switchView('dashboard')">
-          <i class="fas fa-th-large"></i><span>Dashboard</span>
+          <i class="fas fa-th-large"></i><span data-i18n="dashboard">Dashboard</span>
         </button>
         <button class="nav-item" onclick="switchView('videos')">
-          <i class="fas fa-play-circle"></i><span>Recordings</span>
+          <i class="fas fa-play-circle"></i><span data-i18n="recordings">Recordings</span>
         </button>
         <button class="nav-item" onclick="switchView('materials')">
-          <i class="fas fa-folder-open"></i><span>Materials</span>
+          <i class="fas fa-folder-open"></i><span data-i18n="materials">Materials</span>
         </button>
         <button class="nav-item" onclick="switchView('assignments')">
-          <i class="fas fa-tasks"></i><span>Assignments</span>
+          <i class="fas fa-tasks"></i><span data-i18n="assignments">Assignments</span>
           <span class="nav-badge" id="pending-badge">2</span>
         </button>
         <button class="nav-item" onclick="switchView('grades')">
-          <i class="fas fa-chart-bar"></i><span>My Grades</span>
+          <i class="fas fa-chart-bar"></i><span data-i18n="grades">My Grades</span>
         </button>
         <button class="nav-item" onclick="switchView('timetable')">
-          <i class="fas fa-calendar-alt"></i><span>Timetable</span>
+          <i class="fas fa-calendar-alt"></i><span data-i18n="timetable">Timetable</span>
+        </button>
+        <button class="nav-item" onclick="switchView('quizzes')">
+          <i class="fas fa-question-circle"></i><span data-i18n="quizzes">Quizzes</span>
+        </button>
+        <button class="nav-item" onclick="switchView('discussion')">
+          <i class="fas fa-comments"></i><span data-i18n="discussion">Discussion</span>
+        </button>
+        <button class="nav-item" onclick="switchView('certificates')">
+          <i class="fas fa-certificate"></i><span data-i18n="certificates">Certificates</span>
         </button>
       </div>
       <div id="teacher-nav" class="sidebar-section" style="display:none">
@@ -1008,13 +1031,13 @@
           <i class="fas fa-th-large"></i><span>Overview</span>
         </button>
         <button class="nav-item" onclick="switchView('t-videos')">
-          <i class="fas fa-video"></i><span>Recordings</span>
+          <i class="fas fa-video"></i><span data-i18n="recordings">Recordings</span>
         </button>
         <button class="nav-item" onclick="switchView('t-materials')">
-          <i class="fas fa-upload"></i><span>Materials</span>
+          <i class="fas fa-upload"></i><span data-i18n="materials">Materials</span>
         </button>
         <button class="nav-item" onclick="switchView('t-assignments')">
-          <i class="fas fa-edit"></i><span>Assignments</span>
+          <i class="fas fa-edit"></i><span data-i18n="assignments">Assignments</span>
         </button>
         <button class="nav-item" onclick="switchView('t-grading')">
           <i class="fas fa-check-double"></i><span>Grading</span>
@@ -1024,7 +1047,13 @@
           <i class="fas fa-users"></i><span>Students</span>
         </button>
         <button class="nav-item" onclick="switchView('t-timetable')">
-          <i class="fas fa-calendar-alt"></i><span>Timetable</span>
+          <i class="fas fa-calendar-alt"></i><span data-i18n="timetable">Timetable</span>
+        </button>
+        <button class="nav-item" onclick="switchView('t-quizzes')">
+          <i class="fas fa-question-circle"></i><span data-i18n="quizzes">Quizzes</span>
+        </button>
+        <button class="nav-item" onclick="switchView('t-discussion')">
+          <i class="fas fa-comments"></i><span data-i18n="discussion">Discussion</span>
         </button>
       </div>
     </div>
@@ -1170,6 +1199,53 @@
         </div>
         <div id="timetable-upcoming"></div>
         <div id="timetable-past" style="display:none"></div>
+      </div>
+
+      <!-- ══════════════════════════════
+           STUDENT: QUIZZES
+      ══════════════════════════════ -->
+      <div class="view" id="view-quizzes">
+        <div class="page-header">
+          <div class="page-label">Quizzes</div>
+          <div class="page-title" data-i18n="quizzes">Quizzes</div>
+          <div class="page-sub">// Test your knowledge</div>
+        </div>
+        <div id="quiz-list-container">
+          <div style="color:var(--muted);font-family:var(--font-m);font-size:12px;padding:32px;text-align:center">Loading quizzes...</div>
+        </div>
+        <!-- Quiz attempt view (shown when taking a quiz) -->
+        <div id="quiz-attempt-view" style="display:none"></div>
+      </div>
+
+      <!-- ══════════════════════════════
+           STUDENT: DISCUSSION
+      ══════════════════════════════ -->
+      <div class="view" id="view-discussion">
+        <div class="page-header">
+          <div class="page-label">Discussion</div>
+          <div class="page-title" data-i18n="discussion">Discussion</div>
+          <div class="page-sub">// Ask questions, share insights</div>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:10px">
+          <div id="disc-week-tabs" style="display:flex;gap:0;flex-wrap:wrap"></div>
+          <button class="btn-action" onclick="openNewPostModal()"><i class="fas fa-plus"></i> New Post</button>
+        </div>
+        <div id="discussion-list"></div>
+        <div id="discussion-post-view" style="display:none"></div>
+      </div>
+
+      <!-- ══════════════════════════════
+           STUDENT: CERTIFICATES
+      ══════════════════════════════ -->
+      <div class="view" id="view-certificates">
+        <div class="page-header">
+          <div class="page-label">Certificates</div>
+          <div class="page-title" data-i18n="certificates">My Certificates</div>
+          <div class="page-sub">// Download your completion certificates</div>
+        </div>
+        <div id="certificates-container">
+          <div style="color:var(--muted);font-family:var(--font-m);font-size:12px;padding:32px;text-align:center">Loading...</div>
+        </div>
       </div>
 
       <!-- ══════════════════════════════
@@ -1557,6 +1633,135 @@
         </div>
       </div>
 
+      <!-- ══════════════════════════════
+           TEACHER: QUIZZES
+      ══════════════════════════════ -->
+      <div class="view" id="view-t-quizzes">
+        <div class="page-header">
+          <div class="page-label">Quizzes</div>
+          <div class="page-title">Quiz Builder</div>
+          <div class="page-sub">// Create and manage MCQ quizzes</div>
+        </div>
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-header">
+              <span class="card-title"><i class="fas fa-plus-circle"></i> New Quiz</span>
+            </div>
+            <div class="card-body">
+              <div class="upload-form">
+                <div class="form-group">
+                  <label class="form-label">Title</label>
+                  <input class="form-input" type="text" id="quiz-title-input" placeholder="e.g. Week 2 Python Quiz" />
+                </div>
+                <div class="grid-2" style="gap:12px">
+                  <div class="form-group">
+                    <label class="form-label">Week</label>
+                    <input class="form-input" type="number" id="quiz-week-input" placeholder="1" min="1" />
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Pass Score (%)</label>
+                    <input class="form-input" type="number" id="quiz-pass-score-input" value="70" min="0" max="100" />
+                  </div>
+                </div>
+                <div class="grid-2" style="gap:12px">
+                  <div class="form-group">
+                    <label class="form-label">Max Attempts</label>
+                    <input class="form-input" type="number" id="quiz-max-attempts-input" value="2" min="1" />
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Time Limit (min, opt)</label>
+                    <input class="form-input" type="number" id="quiz-time-limit-input" placeholder="No limit" min="1" />
+                  </div>
+                </div>
+                <button class="btn-action" style="width:100%;justify-content:center;padding:14px" onclick="createQuiz()">
+                  <i class="fas fa-plus"></i> Create Quiz
+                </button>
+              </div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header">
+              <span class="card-title"><i class="fas fa-list"></i> Your Quizzes</span>
+            </div>
+            <div id="t-quiz-list">
+              <div style="padding:16px 20px;color:var(--muted);font-family:var(--font-m);font-size:11px">No quizzes yet.</div>
+            </div>
+          </div>
+        </div>
+        <!-- Question Editor (shown after creating/selecting a quiz) -->
+        <div id="t-quiz-editor" style="display:none">
+          <div class="card" style="margin-top:20px">
+            <div class="card-header">
+              <span class="card-title" id="t-quiz-editor-title"><i class="fas fa-edit"></i> Edit Questions</span>
+              <button class="btn-action" onclick="openAddQuestionForm()"><i class="fas fa-plus"></i> Add Question</button>
+            </div>
+            <div id="t-question-list" style="padding:16px 20px"></div>
+            <div id="t-add-question-form" style="display:none;padding:16px 20px;border-top:1px solid var(--border)">
+              <div class="form-group">
+                <label class="form-label">Question Text</label>
+                <textarea class="feedback-input" id="aq-text" rows="2" placeholder="Enter your question..."></textarea>
+              </div>
+              <div class="grid-2" style="gap:12px">
+                <div class="form-group">
+                  <label class="form-label">Type</label>
+                  <select class="form-input" id="aq-type">
+                    <option value="mcq">Multiple Choice (MCQ)</option>
+                    <option value="short">Short Answer</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Points</label>
+                  <input class="form-input" type="number" id="aq-points" value="1" min="1" />
+                </div>
+              </div>
+              <div id="aq-choices-group">
+                <label class="form-label" style="margin-bottom:8px;display:block">Choices (mark correct one)</label>
+                <div id="aq-choices-list">
+                  <div style="display:flex;gap:8px;margin-bottom:6px">
+                    <input type="radio" name="aq-correct" value="0" style="margin-top:8px;accent-color:var(--cyan)" />
+                    <input class="form-input" type="text" placeholder="Choice A" style="flex:1" />
+                  </div>
+                  <div style="display:flex;gap:8px;margin-bottom:6px">
+                    <input type="radio" name="aq-correct" value="1" style="margin-top:8px;accent-color:var(--cyan)" />
+                    <input class="form-input" type="text" placeholder="Choice B" style="flex:1" />
+                  </div>
+                  <div style="display:flex;gap:8px;margin-bottom:6px">
+                    <input type="radio" name="aq-correct" value="2" style="margin-top:8px;accent-color:var(--cyan)" />
+                    <input class="form-input" type="text" placeholder="Choice C" style="flex:1" />
+                  </div>
+                  <div style="display:flex;gap:8px;margin-bottom:6px">
+                    <input type="radio" name="aq-correct" value="3" style="margin-top:8px;accent-color:var(--cyan)" />
+                    <input class="form-input" type="text" placeholder="Choice D" style="flex:1" />
+                  </div>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Explanation (shown after submission)</label>
+                <input class="form-input" type="text" id="aq-explanation" placeholder="Why is this the correct answer?" />
+              </div>
+              <div style="display:flex;gap:8px">
+                <button class="btn-action" onclick="submitAddQuestion()"><i class="fas fa-check"></i> Add Question</button>
+                <button class="btn-action red" onclick="document.getElementById('t-add-question-form').style.display='none'">Cancel</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══════════════════════════════
+           TEACHER: DISCUSSION
+      ══════════════════════════════ -->
+      <div class="view" id="view-t-discussion">
+        <div class="page-header">
+          <div class="page-label">Discussion</div>
+          <div class="page-title">Student Discussions</div>
+          <div class="page-sub">// Moderate and reply to student posts</div>
+        </div>
+        <div style="display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap" id="t-disc-week-tabs"></div>
+        <div id="t-discussion-list"></div>
+        <div id="t-discussion-post-view" style="display:none"></div>
+      </div>
+
     </div><!-- end main-content -->
   </div><!-- end app-body -->
 </div><!-- end app -->
@@ -1661,6 +1866,35 @@
       </div>
       <button class="btn-action" style="width:100%;justify-content:center;padding:14px;margin-top:8px" onclick="saveRecordingUrl()">
         <i class="fas fa-link"></i> Save Recording Link
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- New Discussion Post Modal -->
+<div class="modal-overlay" id="new-post-modal">
+  <div class="modal-box" style="max-width:560px">
+    <div class="modal-header">
+      <span class="modal-title">New Discussion Post</span>
+      <button class="modal-close" onclick="closeModal('new-post-modal')"><i class="fas fa-times"></i></button>
+    </div>
+    <div style="padding:24px;display:flex;flex-direction:column;gap:14px">
+      <div class="form-group">
+        <label class="form-label">Title (optional)</label>
+        <input class="form-input" type="text" id="new-post-title" placeholder="Summarize your question..." />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Week (optional)</label>
+        <select class="form-input" id="new-post-week">
+          <option value="">All Weeks</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Your Post</label>
+        <textarea class="feedback-input" id="new-post-body" rows="4" placeholder="Ask your question or share something..."></textarea>
+      </div>
+      <button class="btn-action" style="width:100%;justify-content:center;padding:14px" onclick="submitNewPost()">
+        <i class="fas fa-paper-plane"></i> Post
       </button>
     </div>
   </div>
@@ -2795,8 +3029,8 @@ function renderTTTab(tab) {
 
   container.innerHTML = sessions.map(s => {
     const color = SESSION_TYPE_COLORS[s.session_type] || 'var(--cyan)';
-    const recLink = s.recording_url
-      ? `<a href="${s.recording_url}" target="_blank" style="color:var(--cyan);font-family:var(--font-m);font-size:10px;text-decoration:none"><i class="fas fa-video"></i> Watch Recording</a>`
+    const recBtn = s.has_recording
+      ? `<button class="btn-action ghost" style="font-size:10px;padding:5px 10px" onclick="watchRecording(${s.id})"><i class="fas fa-video"></i> Watch Recording</button>`
       : '';
     const zoomLink = s.zoom_link && tab === 'upcoming'
       ? `<a href="${s.zoom_link}" target="_blank" style="display:inline-flex;align-items:center;gap:6px;background:${color};color:#fff;font-family:var(--font-m);font-size:10px;padding:6px 12px;text-decoration:none"><i class="fas fa-video"></i> Join Zoom</a>`
@@ -2810,7 +3044,7 @@ function renderTTTab(tab) {
           &nbsp;·&nbsp; <span style="color:${color};text-transform:uppercase;letter-spacing:0.08em">${s.session_type}</span>
           ${s.course_title ? `&nbsp;·&nbsp; ${s.course_title}` : ''}
         </div>
-        ${recLink}
+        ${recBtn}
       </div>
       <div>${zoomLink}</div>
     </div>`;
@@ -2986,6 +3220,677 @@ async function saveStartDate() {
   await PUT(`/api/courses/${STATE.courseId}/start_date`, { start_date: val });
   showToast('Start date saved!');
 }
+
+// ══════════════════════════════════════════════════════
+//  R1/R2/R3 — Recording Access Control
+// ══════════════════════════════════════════════════════
+
+async function watchRecording(sid) {
+  try {
+    const data = await GET(`/api/sessions/${sid}/recording/access`);
+    if (data.url) {
+      window.open(data.url, '_blank');
+    } else {
+      showToast('No recording URL available', true);
+    }
+  } catch(e) {
+    if (e.message.includes('403') || e.message.toLowerCase().includes('denied')) {
+      showToast("You don't have access to this recording", true);
+    } else {
+      showToast('Error: ' + e.message, true);
+    }
+  }
+}
+
+// ══════════════════════════════════════════════════════
+//  SY3 — Language Preference
+// ══════════════════════════════════════════════════════
+
+const I18N = {
+  en: { dashboard: 'Dashboard', recordings: 'Recordings', materials: 'Materials', assignments: 'Assignments', grades: 'My Grades', timetable: 'Timetable', discussion: 'Discussion', quizzes: 'Quizzes', certificates: 'Certificates', settings: 'Settings' },
+  zh: { dashboard: '学习面板', recordings: '课程录像', materials: '学习资料', assignments: '作业', grades: '我的成绩', timetable: '课程时间表', discussion: '讨论区', quizzes: '测验', certificates: '证书', settings: '设置' },
+  bm: { dashboard: 'Papan Pemuka', recordings: 'Rakaman', materials: 'Bahan', assignments: 'Tugasan', grades: 'Gred Saya', timetable: 'Jadual', discussion: 'Perbincangan', quizzes: 'Kuiz', certificates: 'Sijil', settings: 'Tetapan' }
+};
+
+function applyLanguage(lang) {
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    if (I18N[lang] && I18N[lang][key]) el.textContent = I18N[lang][key];
+  });
+  // Update lang button styles
+  ['en','zh','bm'].forEach(l => {
+    const btn = document.getElementById('lang-' + l);
+    if (!btn) return;
+    if (l === lang) {
+      btn.style.cssText = 'padding:4px 7px;background:var(--cyan-dim);color:var(--cyan);border:1px solid var(--cyan);cursor:pointer;letter-spacing:0.05em;font-family:var(--font-c);font-size:9px';
+    } else {
+      btn.style.cssText = 'padding:4px 7px;background:none;color:var(--muted);border:1px solid var(--border);cursor:pointer;letter-spacing:0.05em;font-family:var(--font-c);font-size:9px';
+    }
+  });
+}
+
+async function setLanguage(lang) {
+  localStorage.setItem('lang', lang);
+  applyLanguage(lang);
+  try {
+    await PUT('/api/settings/language', { language: lang });
+  } catch(e) {}
+}
+
+// Apply language on boot
+(function() {
+  const lang = localStorage.getItem('lang') || 'en';
+  applyLanguage(lang);
+})();
+
+// ══════════════════════════════════════════════════════
+//  SY6 — Full-text Search
+// ══════════════════════════════════════════════════════
+
+let _searchTimer = null;
+function debounceSearch(q) {
+  clearTimeout(_searchTimer);
+  if (!q || q.length < 2) {
+    document.getElementById('search-results').style.display = 'none';
+    return;
+  }
+  _searchTimer = setTimeout(() => runSearch(q), 300);
+}
+
+async function runSearch(q) {
+  try {
+    const data = await GET(`/api/search?q=${encodeURIComponent(q)}`);
+    const results = data.results || [];
+    const el = document.getElementById('search-results');
+    if (results.length === 0) {
+      el.innerHTML = `<div style="padding:12px 16px;color:var(--muted);font-family:var(--font-m);font-size:11px">No results for "${q}"</div>`;
+    } else {
+      el.innerHTML = results.map(r => {
+        const icon = r.type === 'material' ? 'fa-file' : r.type === 'assignment' ? 'fa-tasks' : 'fa-comments';
+        return `<div onclick="navigateToResult(${JSON.stringify(r).replace(/"/g,'&quot;')})" style="padding:10px 16px;cursor:pointer;border-bottom:1px solid var(--border);font-family:var(--font-m);font-size:11px;transition:background 0.15s" onmouseover="this.style.background='var(--cyan-glow)'" onmouseout="this.style.background=''">
+          <div style="display:flex;align-items:center;gap:8px">
+            <i class="fas ${icon}" style="color:var(--cyan);font-size:11px;width:14px"></i>
+            <span style="color:var(--text)">${r.title}</span>
+          </div>
+          <div style="font-size:10px;color:var(--muted);margin-top:2px;padding-left:22px">${r.course}${r.week ? ' · Week ' + r.week : ''}</div>
+        </div>`;
+      }).join('');
+    }
+    el.style.display = 'block';
+  } catch(e) {}
+}
+
+function navigateToResult(r) {
+  document.getElementById('search-results').style.display = 'none';
+  document.getElementById('search-input').value = '';
+  if (r.type === 'material') switchView('materials');
+  else if (r.type === 'assignment') switchView('assignments');
+  else if (r.type === 'discussion') switchView('discussion');
+}
+
+document.addEventListener('click', e => {
+  if (!document.getElementById('search-wrapper')?.contains(e.target)) {
+    const el = document.getElementById('search-results');
+    if (el) el.style.display = 'none';
+  }
+});
+
+// ══════════════════════════════════════════════════════
+//  S11 — Resume Last Lesson
+// ══════════════════════════════════════════════════════
+
+async function trackLastLesson(materialId) {
+  if (STATE.user?.role !== 'student' || !STATE.courseId) return;
+  try {
+    await PUT(`/api/courses/${STATE.courseId}/last_lesson`, { material_id: materialId });
+  } catch(e) {}
+}
+
+async function resumeLastLesson() {
+  if (!STATE.courseId) return;
+  try {
+    const data = await GET(`/api/courses/${STATE.courseId}/last_lesson`);
+    if (data.last_lesson) {
+      showToast('Resuming: ' + data.last_lesson.material_title);
+      switchView('materials');
+    } else {
+      showToast('No lesson to resume yet', true);
+    }
+  } catch(e) { showToast('Error: ' + e.message, true); }
+}
+
+// ══════════════════════════════════════════════════════
+//  S5/T2 — Quizzes (Student)
+// ══════════════════════════════════════════════════════
+
+let _activeQuiz = null;
+let _quizAnswers = {};
+
+VIEW_LOADERS['quizzes'] = loadQuizzes;
+VIEW_LOADERS['t-quizzes'] = loadTeacherQuizzes;
+VIEW_LOADERS['discussion'] = loadDiscussion;
+VIEW_LOADERS['t-discussion'] = loadTeacherDiscussion;
+VIEW_LOADERS['certificates'] = loadCertificates;
+
+async function loadQuizzes() {
+  if (!STATE.courseId) return;
+  const container = document.getElementById('quiz-list-container');
+  try {
+    const quizzes = await GET(`/api/courses/${STATE.courseId}/quizzes`);
+    const arr = Array.isArray(quizzes) ? quizzes : [];
+    if (arr.length === 0) {
+      container.innerHTML = `<div style="color:var(--muted);font-family:var(--font-m);font-size:12px;padding:32px;text-align:center">No quizzes available yet.</div>`;
+      return;
+    }
+    container.innerHTML = arr.map(q => {
+      const attLeft = q.attempts_remaining !== undefined ? q.attempts_remaining : q.max_attempts;
+      const badge = q.best_passed === true ? `<span style="background:var(--green-dim);color:var(--green);border:1px solid var(--green3);font-family:var(--font-c);font-size:9px;padding:2px 8px;letter-spacing:0.08em">PASSED</span>` :
+                    q.best_passed === false ? `<span style="background:var(--red-dim);color:var(--red);border:1px solid rgba(255,92,92,0.4);font-family:var(--font-c);font-size:9px;padding:2px 8px;letter-spacing:0.08em">FAILED</span>` : '';
+      return `<div class="card" style="margin-bottom:12px">
+        <div style="padding:16px 20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
+          <div>
+            <div style="font-family:var(--font-d);font-size:15px;font-weight:700;margin-bottom:4px">${q.title} ${badge}</div>
+            <div style="font-family:var(--font-c);font-size:10px;color:var(--muted)">
+              ${q.week ? 'Week ' + q.week + ' · ' : ''}
+              Pass: ${q.pass_score}% ·
+              ${q.time_limit_mins ? q.time_limit_mins + ' min · ' : ''}
+              ${attLeft > 0 ? attLeft + ' attempt(s) left' : '<span style="color:var(--red)">No attempts left</span>'}
+              ${q.best_score !== null && q.best_score !== undefined ? ` · Best: ${q.best_score}%` : ''}
+            </div>
+          </div>
+          ${attLeft > 0 ? `<button class="btn-action" onclick="startQuiz(${q.id})"><i class="fas fa-play"></i> Take Quiz</button>` : ''}
+        </div>
+      </div>`;
+    }).join('');
+  } catch(e) {
+    container.innerHTML = `<div style="color:var(--red);font-family:var(--font-m);font-size:12px;padding:32px;text-align:center">Failed to load quizzes.</div>`;
+  }
+}
+
+async function startQuiz(qid) {
+  try {
+    const data = await GET(`/api/quizzes/${qid}`);
+    _activeQuiz = data;
+    _quizAnswers = {};
+    renderQuizAttempt(data);
+  } catch(e) {
+    showToast('Error: ' + e.message, true);
+  }
+}
+
+function renderQuizAttempt(quiz) {
+  const listEl = document.getElementById('quiz-list-container');
+  const attemptEl = document.getElementById('quiz-attempt-view');
+  listEl.style.display = 'none';
+  attemptEl.style.display = 'block';
+
+  const qs = (quiz.questions || []).map((q, i) => `
+    <div style="border:1px solid var(--border);padding:16px 20px;margin-bottom:12px;background:var(--surface)">
+      <div style="font-family:var(--font-d);font-size:13px;font-weight:600;margin-bottom:12px">${i+1}. ${q.question_text} <span style="font-family:var(--font-c);font-size:10px;color:var(--muted)">(${q.points} pt${q.points!==1?'s':''})</span></div>
+      ${q.question_type === 'mcq' ? (q.choices||[]).map(c => `
+        <label style="display:flex;align-items:center;gap:10px;padding:8px 12px;cursor:pointer;border:1px solid var(--border);margin-bottom:6px;transition:all 0.15s" id="choice-label-${c.id}" onmouseover="this.style.background='var(--cyan-glow)'" onmouseout="if(!this.querySelector('input').checked)this.style.background=''">
+          <input type="radio" name="q-${q.id}" value="${c.id}" style="accent-color:var(--cyan)" onchange="_quizAnswers[${q.id}]=${c.id};document.querySelectorAll('[name=q-${q.id}]').forEach(r=>{r.closest('label').style.background=r.checked?'var(--cyan-dim)':''})">
+          <span style="font-family:var(--font-m);font-size:12px">${c.choice_text}</span>
+        </label>`).join('') :
+        `<textarea class="feedback-input" rows="2" placeholder="Your answer..." oninput="_quizAnswers[${q.id}]=this.value"></textarea>`
+      }
+    </div>`).join('');
+
+  attemptEl.innerHTML = `
+    <div class="page-header" style="margin-bottom:16px">
+      <div class="page-title">${quiz.title}</div>
+      <div class="page-sub">// ${quiz.question_count || (quiz.questions||[]).length} questions · Pass: ${quiz.pass_score}%</div>
+    </div>
+    ${qs}
+    <div style="display:flex;gap:12px;justify-content:flex-end;margin-top:16px">
+      <button class="btn-action red" onclick="cancelQuiz()">Cancel</button>
+      <button class="btn-action" onclick="submitQuiz(${quiz.id})"><i class="fas fa-paper-plane"></i> Submit Quiz</button>
+    </div>`;
+}
+
+function cancelQuiz() {
+  document.getElementById('quiz-list-container').style.display = '';
+  document.getElementById('quiz-attempt-view').style.display = 'none';
+  _activeQuiz = null;
+  _quizAnswers = {};
+}
+
+async function submitQuiz(qid) {
+  if (!confirm('Submit your quiz? You cannot change answers after submission.')) return;
+  try {
+    const data = await POST(`/api/quizzes/${qid}/attempt`, { submit: true, answers: _quizAnswers });
+    renderQuizResult(data);
+  } catch(e) {
+    showToast('Error: ' + e.message, true);
+  }
+}
+
+function renderQuizResult(data) {
+  const attemptEl = document.getElementById('quiz-attempt-view');
+  const passed = data.passed;
+  const answerRows = (data.answers || []).map(a => `
+    <div style="border:1px solid ${a.is_correct ? 'var(--green3)' : 'rgba(255,92,92,0.4)'};padding:12px 16px;margin-bottom:8px;background:${a.is_correct ? 'var(--green-dim)' : 'var(--red-dim)'}">
+      <div style="font-family:var(--font-d);font-size:12px;font-weight:600;margin-bottom:4px">
+        ${a.is_correct ? '<i class="fas fa-check" style="color:var(--green)"></i>' : '<i class="fas fa-times" style="color:var(--red)"></i>'}
+        ${a.question_text || ''}
+      </div>
+      ${a.explanation ? `<div style="font-family:var(--font-m);font-size:11px;color:var(--muted);margin-top:4px"><i class="fas fa-lightbulb" style="color:var(--gold)"></i> ${a.explanation}</div>` : ''}
+    </div>`).join('');
+
+  attemptEl.innerHTML = `
+    <div style="text-align:center;padding:32px 20px;border:1px solid ${passed ? 'var(--green3)' : 'rgba(255,92,92,0.4)'};background:${passed ? 'var(--green-dim)' : 'var(--red-dim)'};margin-bottom:24px">
+      <div style="font-size:48px;margin-bottom:8px">${passed ? '🎉' : '📚'}</div>
+      <div style="font-family:var(--font-d);font-size:28px;font-weight:800;color:${passed ? 'var(--green)' : 'var(--red)'}">${data.score}%</div>
+      <div style="font-family:var(--font-d);font-size:16px;margin-top:4px">${passed ? 'Passed! Well done!' : 'Not passed. Keep practicing!'}</div>
+      <div style="font-family:var(--font-c);font-size:10px;color:var(--muted);margin-top:8px">${data.attempts_remaining} attempt(s) remaining</div>
+    </div>
+    <div>${answerRows}</div>
+    <button class="btn-action" style="margin-top:16px" onclick="cancelQuiz();loadQuizzes()"><i class="fas fa-arrow-left"></i> Back to Quizzes</button>`;
+}
+
+// ══════════════════════════════════════════════════════
+//  T2 — Quizzes (Teacher)
+// ══════════════════════════════════════════════════════
+
+let _editingQuizId = null;
+
+async function loadTeacherQuizzes() {
+  if (!STATE.courseId) return;
+  try {
+    const quizzes = await GET(`/api/courses/${STATE.courseId}/quizzes`);
+    const arr = Array.isArray(quizzes) ? quizzes : [];
+    const el = document.getElementById('t-quiz-list');
+    el.innerHTML = arr.length === 0
+      ? `<div style="padding:16px 20px;color:var(--muted);font-family:var(--font-m);font-size:11px">No quizzes yet.</div>`
+      : arr.map(q => `<div class="file-row" id="tq-row-${q.id}">
+          <div style="flex:1">
+            <div class="file-name">${q.title}</div>
+            <div class="file-sub">${q.week ? 'Week '+q.week+' · ' : ''}${q.question_count} questions · Pass: ${q.pass_score}%</div>
+          </div>
+          <button class="btn-action ghost" style="font-size:10px;padding:5px 10px;margin-right:4px" onclick="toggleQuizPublish(${q.id},${q.is_published})">
+            <i class="fas fa-${q.is_published ? 'eye-slash' : 'eye'}"></i> ${q.is_published ? 'Unpublish' : 'Publish'}
+          </button>
+          <button class="btn-action" style="font-size:10px;padding:5px 10px;margin-right:4px" onclick="openQuizEditor(${q.id},'${q.title.replace(/'/g,"\\'")}')">
+            <i class="fas fa-edit"></i> Edit
+          </button>
+          <button class="btn-action red" onclick="deleteQuiz(${q.id})"><i class="fas fa-trash"></i></button>
+        </div>`).join('');
+  } catch(e) { showToast('Error: ' + e.message, true); }
+}
+
+async function createQuiz() {
+  const title = document.getElementById('quiz-title-input')?.value.trim();
+  if (!title) { showToast('Title is required', true); return; }
+  try {
+    await POST('/api/quizzes', {
+      course_id: STATE.courseId,
+      title,
+      week: parseInt(document.getElementById('quiz-week-input')?.value) || null,
+      pass_score: parseInt(document.getElementById('quiz-pass-score-input')?.value) || 70,
+      max_attempts: parseInt(document.getElementById('quiz-max-attempts-input')?.value) || 2,
+      time_limit_mins: parseInt(document.getElementById('quiz-time-limit-input')?.value) || null
+    });
+    showToast('Quiz created!');
+    document.getElementById('quiz-title-input').value = '';
+    await loadTeacherQuizzes();
+  } catch(e) { showToast('Error: ' + e.message, true); }
+}
+
+async function toggleQuizPublish(qid, current) {
+  try {
+    await PUT(`/api/quizzes/${qid}/publish`);
+    showToast(current ? 'Quiz unpublished' : 'Quiz published!');
+    await loadTeacherQuizzes();
+  } catch(e) { showToast('Error: ' + e.message, true); }
+}
+
+async function deleteQuiz(qid) {
+  if (!confirm('Delete this quiz and all its questions?')) return;
+  try {
+    await DELETE(`/api/quizzes/${qid}`);
+    document.getElementById(`tq-row-${qid}`)?.remove();
+    showToast('Quiz deleted');
+  } catch(e) { showToast('Error: ' + e.message, true); }
+}
+
+async function openQuizEditor(qid, title) {
+  _editingQuizId = qid;
+  document.getElementById('t-quiz-editor').style.display = '';
+  document.getElementById('t-quiz-editor-title').innerHTML = `<i class="fas fa-edit"></i> Editing: ${title}`;
+  await loadQuizQuestions(qid);
+}
+
+async function loadQuizQuestions(qid) {
+  try {
+    const q = await GET(`/api/quizzes/${qid}`);
+    const el = document.getElementById('t-question-list');
+    const qs = q.questions || [];
+    el.innerHTML = qs.length === 0
+      ? `<div style="color:var(--muted);font-family:var(--font-m);font-size:11px">No questions yet. Add one below.</div>`
+      : qs.map((qq, i) => `<div style="border:1px solid var(--border);padding:12px 16px;margin-bottom:8px;display:flex;align-items:flex-start;gap:12px">
+          <div style="flex:1">
+            <div style="font-family:var(--font-m);font-size:12px;font-weight:600">${i+1}. ${qq.question_text}</div>
+            <div style="font-family:var(--font-c);font-size:10px;color:var(--muted);margin-top:4px">${qq.question_type.toUpperCase()} · ${qq.points} pt(s)</div>
+            ${(qq.choices||[]).map(c => `<div style="font-family:var(--font-m);font-size:11px;color:${c.is_correct?'var(--green)':'var(--muted)'};margin-top:2px">${c.is_correct?'✓':' '} ${c.choice_text}</div>`).join('')}
+          </div>
+          <button class="btn-action red" onclick="deleteQuestion(${_editingQuizId},${qq.id})"><i class="fas fa-trash"></i></button>
+        </div>`).join('');
+  } catch(e) {}
+}
+
+function openAddQuestionForm() {
+  document.getElementById('t-add-question-form').style.display = '';
+}
+
+async function submitAddQuestion() {
+  const text = document.getElementById('aq-text')?.value.trim();
+  if (!text) { showToast('Question text required', true); return; }
+  const type = document.getElementById('aq-type')?.value;
+  const points = parseInt(document.getElementById('aq-points')?.value) || 1;
+  const explanation = document.getElementById('aq-explanation')?.value || '';
+  const correctIdx = document.querySelector('#aq-choices-list input[name="aq-correct"]:checked')?.value;
+  const choiceInputs = document.querySelectorAll('#aq-choices-list input[type="text"]');
+  const choices = Array.from(choiceInputs).map((inp, i) => ({
+    choice_text: inp.value.trim(),
+    is_correct: String(i) === String(correctIdx)
+  })).filter(c => c.choice_text);
+
+  try {
+    await POST(`/api/quizzes/${_editingQuizId}/questions`, { question_text: text, question_type: type, points, explanation, choices });
+    showToast('Question added!');
+    document.getElementById('t-add-question-form').style.display = 'none';
+    document.getElementById('aq-text').value = '';
+    document.getElementById('aq-explanation').value = '';
+    choiceInputs.forEach(i => i.value = '');
+    document.querySelector('#aq-choices-list input[name="aq-correct"]:checked')?.setAttribute('checked', false);
+    await loadQuizQuestions(_editingQuizId);
+  } catch(e) { showToast('Error: ' + e.message, true); }
+}
+
+async function deleteQuestion(qid, qqid) {
+  if (!confirm('Delete this question?')) return;
+  try {
+    await DELETE(`/api/quizzes/${qid}/questions/${qqid}`);
+    await loadQuizQuestions(qid);
+    showToast('Question deleted');
+  } catch(e) { showToast('Error: ' + e.message, true); }
+}
+
+// ══════════════════════════════════════════════════════
+//  S8/T8 — Discussion
+// ══════════════════════════════════════════════════════
+
+let _discWeek = null;
+let _discViewingPost = null;
+
+async function loadDiscussion() {
+  if (!STATE.courseId) return;
+  await renderDiscussionWeekTabs('disc-week-tabs', false);
+  await renderDiscussionList('discussion-list', false);
+}
+
+async function loadTeacherDiscussion() {
+  if (!STATE.courseId) return;
+  await renderDiscussionWeekTabs('t-disc-week-tabs', true);
+  await renderDiscussionList('t-discussion-list', true);
+}
+
+async function renderDiscussionWeekTabs(containerId, isTeacher) {
+  const course = STATE.courses.find(c => c.id === STATE.courseId);
+  const weeks = course ? course.weeks : 6;
+  const el = document.getElementById(containerId);
+  if (!el) return;
+  const tabs = [{ label: 'All', val: null }];
+  for (let i = 1; i <= weeks; i++) tabs.push({ label: 'Week ' + i, val: i });
+  el.innerHTML = tabs.map(t => `<button onclick="${isTeacher ? 'setDiscWeekTeacher' : 'setDiscWeek'}(${t.val})" style="padding:7px 14px;background:${_discWeek === t.val ? 'var(--cyan-dim)' : 'none'};color:${_discWeek === t.val ? 'var(--cyan)' : 'var(--muted)'};border:1px solid ${_discWeek === t.val ? 'var(--cyan)' : 'var(--border)'};font-family:var(--font-c);font-size:10px;cursor:pointer;transition:all 0.15s">${t.label}</button>`).join('');
+
+  // Populate new post week selector
+  const weekSel = document.getElementById('new-post-week');
+  if (weekSel) {
+    weekSel.innerHTML = `<option value="">All Weeks</option>` + Array.from({length: weeks}, (_,i) => `<option value="${i+1}">Week ${i+1}</option>`).join('');
+  }
+}
+
+async function setDiscWeek(week) {
+  _discWeek = week;
+  await renderDiscussionWeekTabs('disc-week-tabs', false);
+  await renderDiscussionList('discussion-list', false);
+}
+
+async function setDiscWeekTeacher(week) {
+  _discWeek = week;
+  await renderDiscussionWeekTabs('t-disc-week-tabs', true);
+  await renderDiscussionList('t-discussion-list', true);
+}
+
+async function renderDiscussionList(containerId, isTeacher) {
+  const el = document.getElementById(containerId);
+  if (!el) return;
+  const postView = document.getElementById(isTeacher ? 't-discussion-post-view' : 'discussion-post-view');
+  if (postView) postView.style.display = 'none';
+
+  try {
+    let url = `/api/courses/${STATE.courseId}/discussions`;
+    if (_discWeek) url += `?week=${_discWeek}`;
+    const posts = await GET(url);
+    const arr = Array.isArray(posts) ? posts : [];
+    el.style.display = '';
+    if (arr.length === 0) {
+      el.innerHTML = `<div style="color:var(--muted);font-family:var(--font-m);font-size:12px;padding:32px;text-align:center">No posts yet. Be the first to ask a question!</div>`;
+      return;
+    }
+    el.innerHTML = arr.map(p => {
+      const pinBadge = p.is_pinned ? `<span style="background:var(--orange-dim);color:var(--orange);border:1px solid rgba(245,160,48,0.4);font-family:var(--font-c);font-size:9px;padding:2px 6px;letter-spacing:0.08em">PINNED</span>` : '';
+      const resBadge = p.is_resolved ? `<span style="background:var(--green-dim);color:var(--green);border:1px solid var(--green3);font-family:var(--font-c);font-size:9px;padding:2px 6px;letter-spacing:0.08em">RESOLVED</span>` : '';
+      const teacherControls = isTeacher ? `
+        <button class="btn-action ghost" style="font-size:9px;padding:3px 7px" onclick="event.stopPropagation();togglePin(${p.id})"><i class="fas fa-thumbtack"></i></button>
+        <button class="btn-action ghost" style="font-size:9px;padding:3px 7px" onclick="event.stopPropagation();toggleResolve(${p.id})"><i class="fas fa-check"></i></button>
+        <button class="btn-action red" style="font-size:9px;padding:3px 7px" onclick="event.stopPropagation();deletePost(${p.id},${isTeacher})"><i class="fas fa-trash"></i></button>
+      ` : '';
+      return `<div style="border:1px solid var(--border);${p.is_pinned ? 'border-left:3px solid var(--orange);' : ''}background:var(--surface);padding:14px 18px;margin-bottom:8px;cursor:pointer;transition:all 0.15s" onclick="openDiscussionPost(${p.id},${isTeacher})" onmouseover="this.style.background='var(--bg-hover)'" onmouseout="this.style.background='var(--surface)'">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap">
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+            ${pinBadge}${resBadge}
+            <span style="font-family:var(--font-d);font-size:13px;font-weight:600">${p.title || p.body.slice(0,60)}</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:6px">
+            ${teacherControls}
+            <button class="btn-action ghost" style="font-size:9px;padding:3px 8px" onclick="event.stopPropagation();upvotePost(${p.id},${isTeacher})">
+              <i class="fas fa-arrow-up"></i> ${p.upvote_count}
+            </button>
+          </div>
+        </div>
+        <div style="font-family:var(--font-m);font-size:11px;color:var(--muted);margin-top:6px">
+          ${p.author_name} · ${p.time_ago}${p.week ? ' · Week '+p.week : ''} · <i class="fas fa-comment"></i> ${p.reply_count}
+        </div>
+      </div>`;
+    }).join('');
+  } catch(e) {
+    el.innerHTML = `<div style="color:var(--red);font-family:var(--font-m);font-size:12px;padding:32px;text-align:center">Failed to load discussions.</div>`;
+  }
+}
+
+async function openDiscussionPost(pid, isTeacher) {
+  const listEl = document.getElementById(isTeacher ? 't-discussion-list' : 'discussion-list');
+  const viewEl = document.getElementById(isTeacher ? 't-discussion-post-view' : 'discussion-post-view');
+  listEl.style.display = 'none';
+  viewEl.style.display = '';
+  viewEl.innerHTML = `<div style="color:var(--muted);font-family:var(--font-m);font-size:12px;padding:20px;text-align:center">Loading...</div>`;
+
+  try {
+    const p = await GET(`/api/discussions/${pid}`);
+    const replies = (p.replies || []).map(r => `
+      <div style="border:1px solid var(--border);${r.is_instructor ? 'border-left:3px solid var(--cyan);' : ''}padding:12px 16px;margin-bottom:8px;background:var(--surface)">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+          <div style="display:flex;align-items:center;gap:8px">
+            <div style="width:26px;height:26px;background:var(--cyan-dim);border:1px solid var(--border-strong);display:grid;place-items:center;font-size:10px;color:var(--cyan)">${r.author_initials}</div>
+            <span style="font-family:var(--font-m);font-size:11px;font-weight:600">${r.author_name}</span>
+            ${r.is_instructor ? `<span style="background:var(--cyan-dim);color:var(--cyan);border:1px solid var(--cyan);font-family:var(--font-c);font-size:9px;padding:2px 6px;letter-spacing:0.08em">INSTRUCTOR</span>` : ''}
+            <span style="font-family:var(--font-c);font-size:10px;color:var(--muted)">${r.time_ago}</span>
+          </div>
+          ${isTeacher || r.author_id === STATE.user?.id ? `<button class="btn-action red" style="font-size:9px;padding:2px 6px" onclick="deleteReply(${r.id},${pid},${isTeacher})"><i class="fas fa-trash"></i></button>` : ''}
+        </div>
+        <div style="font-family:var(--font-m);font-size:12px;line-height:1.6">${r.body}</div>
+      </div>`).join('');
+
+    viewEl.innerHTML = `
+      <button class="btn-action ghost" style="margin-bottom:16px" onclick="backToDiscussionList(${isTeacher})"><i class="fas fa-arrow-left"></i> Back</button>
+      <div class="card">
+        <div style="padding:20px 24px">
+          <div style="font-family:var(--font-d);font-size:18px;font-weight:700;margin-bottom:8px">${p.title || ''}</div>
+          <div style="font-family:var(--font-m);font-size:12px;line-height:1.7;margin-bottom:12px">${p.body}</div>
+          <div style="font-family:var(--font-c);font-size:10px;color:var(--muted)">${p.author_name} · ${p.time_ago}${p.week ? ' · Week '+p.week : ''}</div>
+        </div>
+        <div style="padding:0 24px 20px">
+          <div style="font-family:var(--font-c);font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);margin-bottom:12px">${p.reply_count} Replies</div>
+          ${replies || `<div style="color:var(--muted);font-family:var(--font-m);font-size:11px">No replies yet.</div>`}
+          <div style="margin-top:16px;display:flex;gap:10px;align-items:flex-start">
+            <textarea class="feedback-input" id="reply-body-${pid}" rows="2" placeholder="Write a reply..." style="flex:1"></textarea>
+            <button class="btn-action" style="flex-shrink:0" onclick="submitReply(${pid},${isTeacher})"><i class="fas fa-paper-plane"></i></button>
+          </div>
+        </div>
+      </div>`;
+  } catch(e) {
+    viewEl.innerHTML = `<div style="color:var(--red);font-family:var(--font-m);font-size:12px;padding:20px">Error loading post.</div>`;
+  }
+}
+
+function backToDiscussionList(isTeacher) {
+  document.getElementById(isTeacher ? 't-discussion-list' : 'discussion-list').style.display = '';
+  document.getElementById(isTeacher ? 't-discussion-post-view' : 'discussion-post-view').style.display = 'none';
+}
+
+async function submitReply(pid, isTeacher) {
+  const body = document.getElementById(`reply-body-${pid}`)?.value.trim();
+  if (!body) { showToast('Reply cannot be empty', true); return; }
+  try {
+    await POST(`/api/discussions/${pid}/replies`, { body });
+    showToast('Reply posted!');
+    await openDiscussionPost(pid, isTeacher);
+  } catch(e) { showToast('Error: ' + e.message, true); }
+}
+
+async function deleteReply(rid, pid, isTeacher) {
+  if (!confirm('Delete this reply?')) return;
+  try {
+    await DELETE(`/api/discussions/replies/${rid}`);
+    await openDiscussionPost(pid, isTeacher);
+    showToast('Reply deleted');
+  } catch(e) { showToast('Error: ' + e.message, true); }
+}
+
+async function upvotePost(pid, isTeacher) {
+  try {
+    await POST(`/api/discussions/${pid}/upvote`);
+    await renderDiscussionList(isTeacher ? 't-discussion-list' : 'discussion-list', isTeacher);
+  } catch(e) { showToast('Error: ' + e.message, true); }
+}
+
+async function togglePin(pid) {
+  try {
+    await PUT(`/api/discussions/${pid}/pin`);
+    await renderDiscussionList('t-discussion-list', true);
+  } catch(e) { showToast('Error: ' + e.message, true); }
+}
+
+async function toggleResolve(pid) {
+  try {
+    await PUT(`/api/discussions/${pid}/resolve`);
+    await renderDiscussionList('t-discussion-list', true);
+  } catch(e) { showToast('Error: ' + e.message, true); }
+}
+
+async function deletePost(pid, isTeacher) {
+  if (!confirm('Delete this post and all its replies?')) return;
+  try {
+    await DELETE(`/api/discussions/${pid}`);
+    await renderDiscussionList(isTeacher ? 't-discussion-list' : 'discussion-list', isTeacher);
+    showToast('Post deleted');
+  } catch(e) { showToast('Error: ' + e.message, true); }
+}
+
+function openNewPostModal() {
+  document.getElementById('new-post-title').value = '';
+  document.getElementById('new-post-body').value = '';
+  document.getElementById('new-post-modal').classList.add('open');
+}
+
+async function submitNewPost() {
+  const title = document.getElementById('new-post-title')?.value.trim();
+  const body  = document.getElementById('new-post-body')?.value.trim();
+  const week  = document.getElementById('new-post-week')?.value || null;
+  if (!body) { showToast('Post body is required', true); return; }
+  try {
+    await POST(`/api/courses/${STATE.courseId}/discussions`, { title, body, week: week ? parseInt(week) : null });
+    closeModal('new-post-modal');
+    showToast('Post created!');
+    await renderDiscussionList('discussion-list', false);
+  } catch(e) { showToast('Error: ' + e.message, true); }
+}
+
+// ══════════════════════════════════════════════════════
+//  S10/A8 — Certificates (Student)
+// ══════════════════════════════════════════════════════
+
+async function loadCertificates() {
+  const el = document.getElementById('certificates-container');
+  try {
+    const certs = await GET('/api/certificates/me');
+    const arr = Array.isArray(certs) ? certs : [];
+    if (arr.length === 0) {
+      el.innerHTML = `<div style="text-align:center;padding:48px 20px">
+        <div style="font-size:40px;margin-bottom:12px">🎓</div>
+        <div style="font-family:var(--font-d);font-size:16px;font-weight:700;margin-bottom:6px">No certificates yet</div>
+        <div style="font-family:var(--font-m);font-size:12px;color:var(--muted)">Complete your courses to earn certificates!</div>
+      </div>`;
+      return;
+    }
+    el.innerHTML = arr.map(c => `
+      <div class="card" style="margin-bottom:12px">
+        <div style="padding:20px 24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
+          <div>
+            <div style="font-family:var(--font-d);font-size:16px;font-weight:700;margin-bottom:4px">${c.course_title}</div>
+            <div style="font-family:var(--font-c);font-size:10px;color:var(--cyan);margin-bottom:4px">${c.cert_number}</div>
+            <div style="font-family:var(--font-m);font-size:11px;color:var(--muted)">Issued: ${c.issued_at}</div>
+          </div>
+          <a href="/api/certificates/${c.id}/download" target="_blank" class="btn-action">
+            <i class="fas fa-download"></i> Download Certificate
+          </a>
+        </div>
+      </div>`).join('');
+  } catch(e) {
+    el.innerHTML = `<div style="color:var(--red);font-family:var(--font-m);font-size:12px;padding:24px;text-align:center">Failed to load certificates.</div>`;
+  }
+}
+
+// ══════════════════════════════════════════════════════
+//  A5 — Material publish/schedule (Teacher)
+// ══════════════════════════════════════════════════════
+
+async function toggleMaterialPublish(mid) {
+  try {
+    const data = await PUT(`/api/materials/${mid}/publish`);
+    showToast(data.material.is_published ? 'Material published!' : 'Material unpublished');
+    await loadTeacherMaterials();
+  } catch(e) { showToast('Error: ' + e.message, true); }
+}
+
+async function scheduleMaterial(mid) {
+  const dt = prompt('Schedule publish at (YYYY-MM-DDTHH:MM), leave blank to clear:');
+  if (dt === null) return;
+  try {
+    await PUT(`/api/materials/${mid}/schedule`, { publish_at: dt });
+    showToast(dt ? `Scheduled for ${dt}` : 'Schedule cleared');
+    await loadTeacherMaterials();
+  } catch(e) { showToast('Error: ' + e.message, true); }
+}
+
+// Update VIEW_TITLES for new views
+VIEW_TITLES['quizzes'] = 'Quizzes';
+VIEW_TITLES['t-quizzes'] = 'Quiz Builder';
+VIEW_TITLES['discussion'] = 'Discussion';
+VIEW_TITLES['t-discussion'] = 'Discussion';
+VIEW_TITLES['certificates'] = 'Certificates';
 </script>
 </body>
 </html>

@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Certificate — {{ cert.cert_number }}</title>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&family=Lora:ital,wght@0,400;0,600;1,400;1,600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Lora', serif;
+      background: #f5f0e8;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 20px;
+    }
+
+    .cert-wrapper {
+      width: 297mm;
+      max-width: 100%;
+      background: #fff;
+      position: relative;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+    }
+
+    .cert-outer {
+      padding: 16px;
+      background: linear-gradient(135deg, #0a3d2a 0%, #145a3d 50%, #0a3d2a 100%);
+    }
+
+    .cert-inner {
+      border: 3px solid #00c485;
+      padding: 60px 80px;
+      background: #fff;
+      position: relative;
+      overflow: hidden;
+      min-height: 210mm;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+    }
+
+    /* Watermark */
+    .cert-inner::before {
+      content: 'codencode.my';
+      position: absolute;
+      font-family: 'Outfit', sans-serif;
+      font-size: 120px;
+      font-weight: 800;
+      color: rgba(0, 196, 133, 0.04);
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) rotate(-30deg);
+      white-space: nowrap;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .cert-content { position: relative; z-index: 1; width: 100%; }
+
+    /* Corner decorations */
+    .corner {
+      position: absolute;
+      width: 60px; height: 60px;
+      border-color: #00c485;
+      border-style: solid;
+    }
+    .corner-tl { top: 20px; left: 20px; border-width: 3px 0 0 3px; }
+    .corner-tr { top: 20px; right: 20px; border-width: 3px 3px 0 0; }
+    .corner-bl { bottom: 20px; left: 20px; border-width: 0 0 3px 3px; }
+    .corner-br { bottom: 20px; right: 20px; border-width: 0 3px 3px 0; }
+
+    /* Brand */
+    .brand {
+      font-family: 'Outfit', sans-serif;
+      font-size: 28px;
+      font-weight: 800;
+      color: #0a3d2a;
+      letter-spacing: -0.02em;
+      margin-bottom: 4px;
+    }
+    .brand span { color: #00c485; }
+    .brand-sub {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: #666;
+      margin-bottom: 32px;
+    }
+
+    /* Divider */
+    .divider {
+      width: 200px;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, #00c485, transparent);
+      margin: 0 auto 32px;
+    }
+
+    /* Certificate heading */
+    .cert-heading {
+      font-family: 'Outfit', sans-serif;
+      font-size: 13px;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: #888;
+      margin-bottom: 20px;
+    }
+
+    .cert-of {
+      font-family: 'Outfit', sans-serif;
+      font-size: 40px;
+      font-weight: 800;
+      color: #0a3d2a;
+      letter-spacing: -0.02em;
+      margin-bottom: 8px;
+      line-height: 1.1;
+    }
+
+    .cert-completion {
+      font-family: 'Outfit', sans-serif;
+      font-size: 18px;
+      font-weight: 400;
+      color: #555;
+      margin-bottom: 36px;
+    }
+
+    /* Body text */
+    .cert-body-text {
+      font-size: 14px;
+      color: #777;
+      margin-bottom: 24px;
+      line-height: 1.6;
+    }
+
+    /* Student name */
+    .student-name {
+      font-family: 'Lora', serif;
+      font-size: 52px;
+      font-weight: 600;
+      font-style: italic;
+      color: #0a3d2a;
+      margin-bottom: 8px;
+      line-height: 1.2;
+    }
+
+    .name-line {
+      width: 380px;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, #ccc, transparent);
+      margin: 0 auto 32px;
+    }
+
+    /* Course */
+    .course-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: #999;
+      margin-bottom: 8px;
+    }
+
+    .course-name {
+      font-family: 'Outfit', sans-serif;
+      font-size: 24px;
+      font-weight: 700;
+      color: #1a2e28;
+      margin-bottom: 36px;
+    }
+
+    /* Meta info */
+    .cert-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      width: 100%;
+      margin-top: 40px;
+      padding-top: 24px;
+      border-top: 1px solid #eee;
+    }
+
+    .cert-meta-item { text-align: center; }
+    .cert-meta-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: #aaa;
+      margin-bottom: 6px;
+    }
+    .cert-meta-value {
+      font-family: 'Outfit', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      color: #333;
+    }
+
+    .cert-number-badge {
+      background: #f0faf6;
+      border: 1px solid #00c485;
+      padding: 8px 16px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      color: #00874a;
+      letter-spacing: 0.1em;
+    }
+
+    /* Signature area */
+    .signature-area {
+      margin-top: 32px;
+      padding-top: 16px;
+      border-top: 2px solid #0a3d2a;
+      width: 200px;
+      text-align: center;
+    }
+    .signature-name {
+      font-family: 'Outfit', sans-serif;
+      font-size: 15px;
+      font-weight: 700;
+      color: #0a3d2a;
+    }
+    .signature-title {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #888;
+      margin-top: 2px;
+    }
+
+    /* Print button */
+    .print-actions {
+      margin-top: 32px;
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+    }
+    .btn-print {
+      background: #00c485;
+      color: #fff;
+      border: none;
+      padding: 12px 32px;
+      font-family: 'Outfit', sans-serif;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      letter-spacing: 0.05em;
+      transition: opacity 0.2s;
+    }
+    .btn-print:hover { opacity: 0.85; }
+    .btn-close {
+      background: none;
+      color: #666;
+      border: 1px solid #ddd;
+      padding: 12px 24px;
+      font-family: 'Outfit', sans-serif;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-close:hover { border-color: #999; color: #333; }
+
+    @media print {
+      body {
+        background: #fff;
+        padding: 0;
+      }
+      .cert-wrapper {
+        box-shadow: none;
+        width: 100%;
+      }
+      .print-actions { display: none !important; }
+      @page {
+        size: A4 landscape;
+        margin: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="cert-wrapper">
+    <div class="cert-outer">
+      <div class="cert-inner">
+        <div class="corner corner-tl"></div>
+        <div class="corner corner-tr"></div>
+        <div class="corner corner-bl"></div>
+        <div class="corner corner-br"></div>
+
+        <div class="cert-content">
+          <div class="brand">code<span>ncode</span>.my</div>
+          <div class="brand-sub">Learning Management System</div>
+
+          <div class="divider"></div>
+
+          <div class="cert-heading">Certificate</div>
+          <div class="cert-of">of Completion</div>
+          <div class="cert-completion">This certificate is proudly presented to</div>
+
+          <div class="cert-body-text">
+            <em>This certifies that</em>
+          </div>
+
+          <div class="student-name">{{ cert.student.name }}</div>
+          <div class="name-line"></div>
+
+          <div class="cert-body-text">has successfully completed the course</div>
+
+          <div class="course-label">Course</div>
+          <div class="course-name">{{ cert.course.title }}</div>
+
+          <div class="cert-body-text">
+            offered by <strong>codencode.my</strong>
+          </div>
+
+          <div class="cert-meta">
+            <div class="cert-meta-item">
+              <div class="cert-meta-label">Date Issued</div>
+              <div class="cert-meta-value">{{ cert.issued_at.strftime('%d %B %Y') }}</div>
+            </div>
+            <div class="cert-meta-item">
+              <div class="signature-area">
+                <div class="signature-name">codencode.my</div>
+                <div class="signature-title">Authorised Signature</div>
+              </div>
+            </div>
+            <div class="cert-meta-item">
+              <div class="cert-meta-label">Certificate No.</div>
+              <div class="cert-number-badge">{{ cert.cert_number }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="print-actions">
+    <button class="btn-print" onclick="window.print()">
+      Print / Save as PDF
+    </button>
+    <button class="btn-close" onclick="window.close()">
+      Close
+    </button>
+  </div>
+</body>
+</html>
