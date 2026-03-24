@@ -55,7 +55,7 @@ app.config.update(
     UPLOAD_FOLDER=os.path.join(os.path.dirname(__file__), 'uploads'),
     MAX_CONTENT_LENGTH=2 * 1024 * 1024 * 1024,
     ALLOWED_VIDEO={'mp4', 'mov', 'mkv', 'webm'},
-    ALLOWED_MATERIAL={'pdf', 'py', 'ipynb', 'zip', 'csv', 'txt', 'docx'},
+    ALLOWED_MATERIAL={'pdf', 'py', 'ipynb', 'zip', 'csv', 'txt', 'docx', 'pptx'},
     ALLOWED_SUBMISSION={'py', 'ipynb', 'zip', 'pdf', 'txt'},
     ALLOWED_RECEIPT={'pdf', 'jpg', 'jpeg', 'png', 'heic'},
 )
@@ -844,7 +844,8 @@ def admin_enroll_student(uid):
         student_id      = uid,
         course_id       = course_id,
         payment_status  = data.get('payment_status', 'pending'),
-        payment_remarks = data.get('payment_remarks', '')
+        payment_remarks = data.get('payment_remarks', ''),
+        class_timing    = data.get('class_timing', '')
     )
     db.session.add(e)
     db.session.commit()
@@ -867,6 +868,7 @@ def admin_update_payment(eid):
     data = request.get_json()
     if 'payment_status'  in data: e.payment_status  = data['payment_status']
     if 'payment_remarks' in data: e.payment_remarks = data['payment_remarks']
+    if 'class_timing'    in data: e.class_timing    = data['class_timing']
     db.session.commit()
     return jsonify({'enrollment': e.to_dict()})
 
