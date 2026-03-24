@@ -20,10 +20,16 @@ from flask_login import (LoginManager, login_user, logout_user,
                          login_required, current_user)
 from werkzeug.utils import secure_filename
 
+import io
+import csv
 from models import (db, User, Course, Enrollment, Recording,
                     WatchLog, Material, Assignment, Submission, Attendance,
                     TimetableSession, Session, SessionParticipant,
-                    Notification, Announcement)
+                    Notification, Announcement,
+                    LoginLog, Certificate,
+                    Quiz, QuizQuestion, QuizChoice, QuizAttempt, QuizAnswer,
+                    DiscussionPost, DiscussionReply, PostUpvote,
+                    LastLesson)
 
 # ─────────────────────────────────────────────
 # App setup
@@ -167,6 +173,12 @@ def api_login():
 
     login_user(user, remember=False)   # session expires when browser closes
     user.last_login = datetime.utcnow()
+    # A6 — log login activity
+    try:
+        ip = request.headers.get('X-Forwarded-For', request.remote_addr or '').split(',')[0].strip()
+        db.session.add(LoginLog(user_id=user.id, ip_address=ip))
+    except Exception:
+        pass
     db.session.commit()
     return jsonify({'user': user.to_dict()})
 
@@ -290,13 +302,17 @@ def api_materials(cid):
         return jsonify({'error': 'Not enrolled'}), 403
 
     course = Course.query.get_or_404(cid)
+    now = datetime.utcnow()
     mats = Material.query.filter_by(course_id=cid).order_by(
-        Material.week, Material.uploaded_at).all()
+        Material.week, Material.order_index, Material.uploaded_at).all()
 
-    # Gate by current_week for students: week 0 (general) always visible
     if current_user.role == 'student':
-        mats = [m for m in mats if m.week == 0 or m.week <= course.current_week]
-
+        # Gate by current_week and publish state
+        mats = [m for m in mats
+                if (m.week == 0 or m.week <= course.current_week)
+                and (m.is_published if m.is_published is not None else True)
+                and (m.publish_at is None or m.publish_at <= now)]
+    # teachers/admins see all materials including unpublished
     return jsonify([m.to_dict() for m in mats])
 
 
@@ -860,6 +876,7 @@ def admin_create_course():
     data = request.get_json()
     if not data.get('title'):
         return jsonify({'error': 'title is required'}), 400
+    seat_cap_val = data.get('seat_cap')
     c = Course(
         title        = data['title'].strip(),
         description  = data.get('description', ''),
@@ -867,6 +884,8 @@ def admin_create_course():
         current_week = 1,
         start_date   = datetime.strptime(data['start_date'], '%Y-%m-%d').date() if data.get('start_date') else None,
         programme    = data.get('programme', '').strip(),
+        language     = data.get('language', 'en'),
+        seat_cap     = int(seat_cap_val) if seat_cap_val else None,
     )
     db.session.add(c)
     db.session.commit()
@@ -894,6 +913,9 @@ def admin_update_course(cid):
     if 'description' in data: c.description = data['description'].strip()
     if 'weeks'       in data: c.weeks       = int(data['weeks'])
     if 'programme'   in data: c.programme   = data['programme'].strip()
+    if 'language'    in data: c.language    = data['language']
+    if 'seat_cap'    in data:
+        c.seat_cap = int(data['seat_cap']) if data['seat_cap'] else None
     if 'start_date'  in data and data['start_date']:
         c.start_date = datetime.strptime(data['start_date'], '%Y-%m-%d').date()
     elif 'start_date' in data and not data['start_date']:
@@ -1598,6 +1620,704 @@ def api_set_start_date(cid):
 
 
 # ─────────────────────────────────────────────
+# A5 — Material publish/schedule/reorder
+# ─────────────────────────────────────────────
+@app.route('/api/materials/<int:mid>/publish', methods=['PUT'])
+@teacher_required
+def api_material_publish(mid):
+    mat = Material.query.get_or_404(mid)
+    mat.is_published = not (mat.is_published if mat.is_published is not None else True)
+    db.session.commit()
+    return jsonify({'material': mat.to_dict()})
+
+
+@app.route('/api/materials/<int:mid>/schedule', methods=['PUT'])
+@teacher_required
+def api_material_schedule(mid):
+    mat = Material.query.get_or_404(mid)
+    data = request.get_json()
+    publish_at_str = data.get('publish_at', '')
+    if publish_at_str:
+        for fmt in ('%Y-%m-%dT%H:%M', '%Y-%m-%d'):
+            try:
+                mat.publish_at = datetime.strptime(publish_at_str, fmt)
+                break
+            except ValueError:
+                continue
+    else:
+        mat.publish_at = None
+    db.session.commit()
+    return jsonify({'material': mat.to_dict()})
+
+
+@app.route('/api/materials/<int:mid>/order', methods=['PUT'])
+@teacher_required
+def api_material_order(mid):
+    mat = Material.query.get_or_404(mid)
+    data = request.get_json()
+    mat.order_index = int(data.get('order_index', 0))
+    db.session.commit()
+    return jsonify({'material': mat.to_dict()})
+
+
+# ─────────────────────────────────────────────
+# A6 — Analytics CSV export + login activity
+# ─────────────────────────────────────────────
+@app.route('/api/admin/analytics/export')
+@admin_required
+def admin_analytics_export():
+    course_id = request.args.get('course_id', type=int)
+    export_type = request.args.get('type', 'students')
+
+    output = io.StringIO()
+    writer = csv.writer(output)
+
+    if export_type == 'students':
+        writer.writerow(['Name', 'Email', 'Phone', 'IC Number', 'Enrolled At', 'Payment Status', 'Last Login'])
+        q = Enrollment.query
+        if course_id:
+            q = q.filter_by(course_id=course_id)
+        for e in q.all():
+            s = e.student
+            writer.writerow([
+                s.name, s.email, s.phone or '', s.ic_number or '',
+                e.enrolled_at.strftime('%Y-%m-%d'),
+                e.payment_status or '',
+                s.last_login.strftime('%Y-%m-%d %H:%M') if s.last_login else ''
+            ])
+    elif export_type == 'submissions':
+        writer.writerow(['Student', 'Email', 'Assignment', 'Week', 'Submitted At', 'Score', 'Max Points', 'Feedback'])
+        q = Submission.query.join(Assignment)
+        if course_id:
+            q = q.filter(Assignment.course_id == course_id)
+        for sub in q.all():
+            writer.writerow([
+                sub.student.name, sub.student.email,
+                sub.assignment.title, sub.assignment.week,
+                sub.submitted_at.strftime('%Y-%m-%d %H:%M'),
+                sub.score or '', sub.assignment.max_points,
+                sub.feedback or ''
+            ])
+    elif export_type == 'attendance':
+        if not course_id:
+            return jsonify({'error': 'course_id required for attendance export'}), 400
+        course = Course.query.get_or_404(course_id)
+        week_headers = [f'Week {w}' for w in range(1, course.current_week + 1)]
+        writer.writerow(['Student', 'Email'] + week_headers + ['Present', 'Absent', 'Late'])
+        enrollments = Enrollment.query.filter_by(course_id=course_id).all()
+        att_records = Attendance.query.filter_by(course_id=course_id).all()
+        att_map = {(a.student_id, a.week): a.status for a in att_records}
+        for e in enrollments:
+            s = e.student
+            week_statuses = [att_map.get((s.id, w), 'absent') for w in range(1, course.current_week + 1)]
+            present = week_statuses.count('present')
+            absent  = week_statuses.count('absent')
+            late    = week_statuses.count('late')
+            writer.writerow([s.name, s.email] + week_statuses + [present, absent, late])
+
+    output.seek(0)
+    from flask import Response
+    filename = f'export_{export_type}_{course_id or "all"}.csv'
+    return Response(
+        output.getvalue(),
+        mimetype='text/csv',
+        headers={'Content-Disposition': f'attachment; filename={filename}'}
+    )
+
+
+@app.route('/api/admin/analytics/login_activity')
+@admin_required
+def admin_login_activity():
+    course_id = request.args.get('course_id', type=int)
+    if course_id:
+        student_ids = [e.student_id for e in Enrollment.query.filter_by(course_id=course_id).all()]
+        logs = LoginLog.query.filter(LoginLog.user_id.in_(student_ids))\
+            .order_by(LoginLog.login_at.desc()).limit(30).all()
+    else:
+        logs = LoginLog.query.order_by(LoginLog.login_at.desc()).limit(30).all()
+    return jsonify([l.to_dict() for l in logs])
+
+
+# ─────────────────────────────────────────────
+# A8+S10 — Certificates
+# ─────────────────────────────────────────────
+@app.route('/api/admin/certificates', methods=['GET'])
+@admin_required
+def admin_list_certificates():
+    certs = Certificate.query.order_by(Certificate.issued_at.desc()).all()
+    return jsonify([c.to_dict() for c in certs])
+
+
+@app.route('/api/admin/certificates', methods=['POST'])
+@admin_required
+def admin_issue_certificate():
+    data       = request.get_json()
+    student_id = data.get('student_id')
+    course_id  = data.get('course_id')
+    if not student_id or not course_id:
+        return jsonify({'error': 'student_id and course_id required'}), 400
+
+    # Generate cert number CC-YYYY-NNN
+    year = datetime.utcnow().year
+    count = Certificate.query.filter(
+        Certificate.cert_number.like(f'CC-{year}-%')
+    ).count()
+    cert_number = f'CC-{year}-{count + 1:03d}'
+
+    cert = Certificate(
+        student_id  = student_id,
+        course_id   = course_id,
+        issued_by   = current_user.id,
+        cert_number = cert_number
+    )
+    db.session.add(cert)
+    db.session.commit()
+    return jsonify({'certificate': cert.to_dict()}), 201
+
+
+@app.route('/api/certificates/me')
+@login_required
+def my_certificates():
+    certs = Certificate.query.filter_by(student_id=current_user.id)\
+        .order_by(Certificate.issued_at.desc()).all()
+    return jsonify([c.to_dict() for c in certs])
+
+
+@app.route('/api/certificates/<int:cert_id>/download')
+@login_required
+def download_certificate(cert_id):
+    from flask import render_template
+    cert = Certificate.query.get_or_404(cert_id)
+    if current_user.role == 'student' and cert.student_id != current_user.id:
+        return jsonify({'error': 'Forbidden'}), 403
+    html = render_template('certificate.html', cert=cert)
+    return html, 200, {'Content-Type': 'text/html'}
+
+
+# ─────────────────────────────────────────────
+# S5+T2 — Quizzes
+# ─────────────────────────────────────────────
+@app.route('/api/courses/<int:cid>/quizzes')
+@login_required
+def api_list_quizzes(cid):
+    if not enrolled_or_staff(cid):
+        return jsonify({'error': 'Not enrolled'}), 403
+    if current_user.role == 'student':
+        quizzes = Quiz.query.filter_by(course_id=cid, is_published=True).all()
+    else:
+        quizzes = Quiz.query.filter_by(course_id=cid).all()
+    result = []
+    for q in quizzes:
+        d = q.to_dict()
+        if current_user.role == 'student':
+            attempts_used = QuizAttempt.query.filter_by(
+                quiz_id=q.id, student_id=current_user.id,
+                submitted_at=None
+            ).count()
+            completed = QuizAttempt.query.filter(
+                QuizAttempt.quiz_id == q.id,
+                QuizAttempt.student_id == current_user.id,
+                QuizAttempt.submitted_at != None
+            ).count()
+            d['attempts_used'] = completed
+            d['attempts_remaining'] = max(0, (q.max_attempts or 2) - completed)
+            best = QuizAttempt.query.filter(
+                QuizAttempt.quiz_id == q.id,
+                QuizAttempt.student_id == current_user.id,
+                QuizAttempt.submitted_at != None
+            ).order_by(QuizAttempt.score.desc()).first()
+            d['best_score'] = best.score if best else None
+            d['best_passed'] = best.passed if best else None
+        result.append(d)
+    return jsonify(result)
+
+
+@app.route('/api/quizzes/<int:qid>')
+@login_required
+def api_get_quiz(qid):
+    q = Quiz.query.get_or_404(qid)
+    if not enrolled_or_staff(q.course_id):
+        return jsonify({'error': 'Not enrolled'}), 403
+    hide_correct = (current_user.role == 'student')
+    return jsonify(q.to_dict(include_questions=True, hide_correct=hide_correct))
+
+
+@app.route('/api/quizzes', methods=['POST'])
+@teacher_required
+def api_create_quiz():
+    data = request.get_json()
+    if not data.get('title') or not data.get('course_id'):
+        return jsonify({'error': 'title and course_id required'}), 400
+    q = Quiz(
+        course_id       = data['course_id'],
+        title           = data['title'].strip(),
+        description     = data.get('description', ''),
+        week            = data.get('week'),
+        pass_score      = int(data.get('pass_score', 70)),
+        max_attempts    = int(data.get('max_attempts', 2)),
+        time_limit_mins = int(data['time_limit_mins']) if data.get('time_limit_mins') else None,
+        created_by      = current_user.id
+    )
+    db.session.add(q)
+    db.session.commit()
+    return jsonify({'quiz': q.to_dict()}), 201
+
+
+@app.route('/api/quizzes/<int:qid>', methods=['PUT'])
+@teacher_required
+def api_update_quiz(qid):
+    q = Quiz.query.get_or_404(qid)
+    data = request.get_json()
+    if 'title'           in data: q.title           = data['title'].strip()
+    if 'description'     in data: q.description     = data['description']
+    if 'week'            in data: q.week             = data['week']
+    if 'pass_score'      in data: q.pass_score       = int(data['pass_score'])
+    if 'max_attempts'    in data: q.max_attempts     = int(data['max_attempts'])
+    if 'time_limit_mins' in data:
+        q.time_limit_mins = int(data['time_limit_mins']) if data['time_limit_mins'] else None
+    db.session.commit()
+    return jsonify({'quiz': q.to_dict()})
+
+
+@app.route('/api/quizzes/<int:qid>', methods=['DELETE'])
+@teacher_required
+def api_delete_quiz(qid):
+    q = Quiz.query.get_or_404(qid)
+    db.session.delete(q)
+    db.session.commit()
+    return jsonify({'ok': True})
+
+
+@app.route('/api/quizzes/<int:qid>/publish', methods=['PUT'])
+@teacher_required
+def api_quiz_publish(qid):
+    q = Quiz.query.get_or_404(qid)
+    q.is_published = not q.is_published
+    db.session.commit()
+    return jsonify({'quiz': q.to_dict()})
+
+
+@app.route('/api/quizzes/<int:qid>/questions', methods=['POST'])
+@teacher_required
+def api_add_quiz_question(qid):
+    quiz = Quiz.query.get_or_404(qid)
+    data = request.get_json()
+    if not data.get('question_text'):
+        return jsonify({'error': 'question_text required'}), 400
+
+    order = len(quiz.questions)
+    qq = QuizQuestion(
+        quiz_id       = qid,
+        question_text = data['question_text'],
+        question_type = data.get('question_type', 'mcq'),
+        points        = int(data.get('points', 1)),
+        explanation   = data.get('explanation', ''),
+        order_index   = order
+    )
+    db.session.add(qq)
+    db.session.flush()
+
+    for c in data.get('choices', []):
+        db.session.add(QuizChoice(
+            question_id = qq.id,
+            choice_text = c.get('choice_text', ''),
+            is_correct  = bool(c.get('is_correct', False))
+        ))
+    db.session.commit()
+    return jsonify({'question': qq.to_dict()}), 201
+
+
+@app.route('/api/quizzes/<int:qid>/questions/<int:qqid>', methods=['PUT'])
+@teacher_required
+def api_update_quiz_question(qid, qqid):
+    qq = QuizQuestion.query.get_or_404(qqid)
+    data = request.get_json()
+    if 'question_text' in data: qq.question_text = data['question_text']
+    if 'question_type' in data: qq.question_type = data['question_type']
+    if 'points'        in data: qq.points        = int(data['points'])
+    if 'explanation'   in data: qq.explanation   = data['explanation']
+    if 'order_index'   in data: qq.order_index   = int(data['order_index'])
+    if 'choices' in data:
+        QuizChoice.query.filter_by(question_id=qqid).delete()
+        for c in data['choices']:
+            db.session.add(QuizChoice(
+                question_id = qqid,
+                choice_text = c.get('choice_text', ''),
+                is_correct  = bool(c.get('is_correct', False))
+            ))
+    db.session.commit()
+    return jsonify({'question': qq.to_dict()})
+
+
+@app.route('/api/quizzes/<int:qid>/questions/<int:qqid>', methods=['DELETE'])
+@teacher_required
+def api_delete_quiz_question(qid, qqid):
+    qq = QuizQuestion.query.get_or_404(qqid)
+    db.session.delete(qq)
+    db.session.commit()
+    return jsonify({'ok': True})
+
+
+@app.route('/api/quizzes/<int:qid>/attempt', methods=['POST'])
+@login_required
+def api_quiz_attempt(qid):
+    quiz = Quiz.query.get_or_404(qid)
+    if not enrolled_or_staff(quiz.course_id):
+        return jsonify({'error': 'Not enrolled'}), 403
+
+    data = request.get_json() or {}
+    is_submit = data.get('submit', False)
+
+    # Count completed attempts
+    completed_count = QuizAttempt.query.filter(
+        QuizAttempt.quiz_id == qid,
+        QuizAttempt.student_id == current_user.id,
+        QuizAttempt.submitted_at != None
+    ).count()
+
+    if is_submit:
+        if completed_count >= (quiz.max_attempts or 2):
+            return jsonify({'error': 'Max attempts reached'}), 400
+
+        # Grade the attempt
+        answers_data = data.get('answers', {})  # {question_id: choice_id or text}
+        attempt = QuizAttempt(
+            quiz_id    = qid,
+            student_id = current_user.id,
+            started_at = datetime.utcnow(),
+            submitted_at = datetime.utcnow()
+        )
+        db.session.add(attempt)
+        db.session.flush()
+
+        total_points = 0
+        earned_points = 0
+        result_answers = []
+
+        for q in quiz.questions:
+            total_points += q.points
+            user_answer = answers_data.get(str(q.id))
+            is_correct = False
+            selected_choice_id = None
+            short_text = None
+
+            if q.question_type == 'mcq' and user_answer:
+                selected_choice_id = int(user_answer)
+                choice = QuizChoice.query.get(selected_choice_id)
+                is_correct = choice.is_correct if choice else False
+                if is_correct:
+                    earned_points += q.points
+            elif q.question_type == 'short':
+                short_text = str(user_answer) if user_answer else ''
+
+            ans = QuizAnswer(
+                attempt_id         = attempt.id,
+                question_id        = q.id,
+                selected_choice_id = selected_choice_id,
+                short_answer_text  = short_text,
+                is_correct         = is_correct
+            )
+            db.session.add(ans)
+            result_answers.append({
+                'question_id': q.id,
+                'question_text': q.question_text,
+                'is_correct': is_correct,
+                'explanation': q.explanation or '',
+                'selected_choice_id': selected_choice_id,
+                'correct_choice_id': next((c.id for c in q.choices if c.is_correct), None)
+            })
+
+        score = round((earned_points / total_points * 100), 1) if total_points > 0 else 0
+        passed = score >= (quiz.pass_score or 70)
+        attempt.score = score
+        attempt.passed = passed
+        db.session.commit()
+
+        return jsonify({
+            'attempt': attempt.to_dict(),
+            'score': score,
+            'passed': passed,
+            'answers': result_answers,
+            'attempts_used': completed_count + 1,
+            'attempts_remaining': max(0, (quiz.max_attempts or 2) - completed_count - 1)
+        })
+    else:
+        # Just return quiz info for starting
+        if completed_count >= (quiz.max_attempts or 2):
+            return jsonify({'error': 'Max attempts reached'}), 400
+        return jsonify({'quiz': quiz.to_dict(include_questions=True, hide_correct=True)})
+
+
+@app.route('/api/quizzes/<int:qid>/attempts')
+@login_required
+def api_quiz_attempts(qid):
+    attempts = QuizAttempt.query.filter_by(
+        quiz_id=qid, student_id=current_user.id
+    ).filter(QuizAttempt.submitted_at != None)\
+    .order_by(QuizAttempt.submitted_at.desc()).all()
+    return jsonify([a.to_dict() for a in attempts])
+
+
+# ─────────────────────────────────────────────
+# S8+T8 — Discussion / Q&A
+# ─────────────────────────────────────────────
+@app.route('/api/courses/<int:cid>/discussions')
+@login_required
+def api_list_discussions(cid):
+    if not enrolled_or_staff(cid):
+        return jsonify({'error': 'Not enrolled'}), 403
+    week = request.args.get('week', type=int)
+    q = DiscussionPost.query.filter_by(course_id=cid)
+    if week:
+        q = q.filter_by(week=week)
+    posts = q.all()
+    # Sort: pinned first, then by upvotes desc, then by created_at desc
+    posts.sort(key=lambda p: (not p.is_pinned, -len(p.upvotes), -p.created_at.timestamp()))
+    return jsonify([p.to_dict(current_user_id=current_user.id) for p in posts])
+
+
+@app.route('/api/courses/<int:cid>/discussions', methods=['POST'])
+@login_required
+def api_create_discussion(cid):
+    if not enrolled_or_staff(cid):
+        return jsonify({'error': 'Not enrolled'}), 403
+    data = request.get_json()
+    if not data.get('body'):
+        return jsonify({'error': 'body required'}), 400
+    post = DiscussionPost(
+        course_id = cid,
+        week      = data.get('week'),
+        author_id = current_user.id,
+        title     = data.get('title', ''),
+        body      = data['body']
+    )
+    db.session.add(post)
+    db.session.commit()
+    return jsonify({'post': post.to_dict(current_user_id=current_user.id)}), 201
+
+
+@app.route('/api/discussions/<int:pid>', methods=['DELETE'])
+@login_required
+def api_delete_discussion(pid):
+    post = DiscussionPost.query.get_or_404(pid)
+    if current_user.role not in ('teacher', 'admin') and post.author_id != current_user.id:
+        return jsonify({'error': 'Forbidden'}), 403
+    db.session.delete(post)
+    db.session.commit()
+    return jsonify({'ok': True})
+
+
+@app.route('/api/discussions/<int:pid>/pin', methods=['PUT'])
+@teacher_required
+def api_pin_discussion(pid):
+    post = DiscussionPost.query.get_or_404(pid)
+    post.is_pinned = not post.is_pinned
+    db.session.commit()
+    return jsonify({'post': post.to_dict(current_user_id=current_user.id)})
+
+
+@app.route('/api/discussions/<int:pid>/resolve', methods=['PUT'])
+@login_required
+def api_resolve_discussion(pid):
+    post = DiscussionPost.query.get_or_404(pid)
+    if current_user.role not in ('teacher', 'admin') and post.author_id != current_user.id:
+        return jsonify({'error': 'Forbidden'}), 403
+    post.is_resolved = not post.is_resolved
+    db.session.commit()
+    return jsonify({'post': post.to_dict(current_user_id=current_user.id)})
+
+
+@app.route('/api/discussions/<int:pid>/replies', methods=['POST'])
+@login_required
+def api_add_reply(pid):
+    post = DiscussionPost.query.get_or_404(pid)
+    if not enrolled_or_staff(post.course_id):
+        return jsonify({'error': 'Not enrolled'}), 403
+    data = request.get_json()
+    if not data.get('body'):
+        return jsonify({'error': 'body required'}), 400
+    reply = DiscussionReply(
+        post_id       = pid,
+        author_id     = current_user.id,
+        body          = data['body'],
+        is_instructor = current_user.role in ('teacher', 'admin')
+    )
+    db.session.add(reply)
+    db.session.commit()
+    return jsonify({'reply': reply.to_dict()}), 201
+
+
+@app.route('/api/discussions/replies/<int:rid>', methods=['DELETE'])
+@login_required
+def api_delete_reply(rid):
+    reply = DiscussionReply.query.get_or_404(rid)
+    if current_user.role not in ('teacher', 'admin') and reply.author_id != current_user.id:
+        return jsonify({'error': 'Forbidden'}), 403
+    db.session.delete(reply)
+    db.session.commit()
+    return jsonify({'ok': True})
+
+
+@app.route('/api/discussions/<int:pid>/upvote', methods=['POST'])
+@login_required
+def api_upvote_discussion(pid):
+    post = DiscussionPost.query.get_or_404(pid)
+    existing = PostUpvote.query.filter_by(post_id=pid, user_id=current_user.id).first()
+    if existing:
+        db.session.delete(existing)
+        upvoted = False
+    else:
+        db.session.add(PostUpvote(post_id=pid, user_id=current_user.id))
+        upvoted = True
+    db.session.commit()
+    return jsonify({'upvoted': upvoted, 'upvote_count': len(post.upvotes)})
+
+
+@app.route('/api/discussions/<int:pid>')
+@login_required
+def api_get_discussion(pid):
+    post = DiscussionPost.query.get_or_404(pid)
+    if not enrolled_or_staff(post.course_id):
+        return jsonify({'error': 'Not enrolled'}), 403
+    d = post.to_dict(current_user_id=current_user.id)
+    d['replies'] = [r.to_dict() for r in post.replies]
+    return jsonify(d)
+
+
+# ─────────────────────────────────────────────
+# S11 — Resume Last Lesson
+# ─────────────────────────────────────────────
+@app.route('/api/courses/<int:cid>/last_lesson', methods=['PUT'])
+@login_required
+def api_set_last_lesson(cid):
+    if current_user.role != 'student':
+        return jsonify({'ok': True})
+    data = request.get_json()
+    material_id = data.get('material_id')
+    if not material_id:
+        return jsonify({'error': 'material_id required'}), 400
+
+    ll = LastLesson.query.filter_by(student_id=current_user.id, course_id=cid).first()
+    if ll:
+        ll.material_id = material_id
+        ll.updated_at = datetime.utcnow()
+    else:
+        ll = LastLesson(student_id=current_user.id, course_id=cid, material_id=material_id)
+        db.session.add(ll)
+    db.session.commit()
+    return jsonify({'ok': True, 'last_lesson': ll.to_dict()})
+
+
+@app.route('/api/courses/<int:cid>/last_lesson')
+@login_required
+def api_get_last_lesson(cid):
+    ll = LastLesson.query.filter_by(student_id=current_user.id, course_id=cid).first()
+    if not ll:
+        return jsonify({'last_lesson': None})
+    return jsonify({'last_lesson': ll.to_dict()})
+
+
+# ─────────────────────────────────────────────
+# R1/R2/R3 — Recording Access Control
+# ─────────────────────────────────────────────
+@app.route('/api/sessions/<int:sid>/recording/access')
+@login_required
+def get_recording_access(sid):
+    s = Session.query.get_or_404(sid)
+
+    # Admin and teacher always have access
+    if current_user.role in ('admin', 'teacher'):
+        return jsonify({'url': s.recording_url or ''})
+
+    if not s.recording_url:
+        return jsonify({'error': 'No recording available'}), 404
+
+    if s.session_type == 'cohort':
+        enrollment = Enrollment.query.filter_by(
+            student_id=current_user.id,
+            course_id=s.course_id
+        ).first()
+        if enrollment:
+            return jsonify({'url': s.recording_url})
+    elif s.session_type in ('group', 'private'):
+        participant = SessionParticipant.query.filter_by(
+            session_id=sid,
+            student_id=current_user.id
+        ).first()
+        if participant:
+            return jsonify({'url': s.recording_url})
+
+    return jsonify({'error': 'Access denied'}), 403
+
+
+# ─────────────────────────────────────────────
+# SY3 — Language preference
+# ─────────────────────────────────────────────
+@app.route('/api/settings/language', methods=['PUT'])
+@login_required
+def api_set_language():
+    data = request.get_json()
+    lang = data.get('language', 'en')
+    if lang not in ('en', 'zh', 'bm'):
+        return jsonify({'error': 'Invalid language'}), 400
+    current_user.language_pref = lang
+    db.session.commit()
+    return jsonify({'ok': True, 'language': lang})
+
+
+# ─────────────────────────────────────────────
+# SY6 — Full-text search
+# ─────────────────────────────────────────────
+@app.route('/api/search')
+@login_required
+def api_search():
+    q = request.args.get('q', '').strip()
+    if len(q) < 2:
+        return jsonify({'results': []})
+
+    results = []
+
+    # Get enrolled course IDs
+    if current_user.role == 'student':
+        enrolled_course_ids = [e.course_id for e in Enrollment.query.filter_by(student_id=current_user.id).all()]
+    else:
+        enrolled_course_ids = [c.id for c in Course.query.all()]
+
+    # Search materials
+    mats = Material.query.filter(
+        Material.course_id.in_(enrolled_course_ids),
+        Material.title.ilike(f'%{q}%')
+    ).limit(10).all()
+    for m in mats:
+        results.append({'type': 'material', 'id': m.id, 'title': m.title,
+                        'course': m.course.title if m.course else '', 'week': m.week})
+
+    # Search assignments
+    assignments = Assignment.query.filter(
+        Assignment.course_id.in_(enrolled_course_ids),
+        Assignment.title.ilike(f'%{q}%')
+    ).limit(5).all()
+    for a in assignments:
+        results.append({'type': 'assignment', 'id': a.id, 'title': a.title,
+                        'course': a.course.title if a.course else ''})
+
+    # Search discussion posts
+    try:
+        posts = DiscussionPost.query.filter(
+            DiscussionPost.course_id.in_(enrolled_course_ids),
+            db.or_(DiscussionPost.title.ilike(f'%{q}%'), DiscussionPost.body.ilike(f'%{q}%'))
+        ).limit(5).all()
+        for p in posts:
+            course_obj = Course.query.get(p.course_id)
+            results.append({'type': 'discussion', 'id': p.id, 'title': p.title or p.body[:50],
+                            'course': course_obj.title if course_obj else ''})
+    except Exception:
+        pass
+
+    return jsonify({'results': results, 'query': q})
+
+
+# ─────────────────────────────────────────────
 # Init DB & run
 # ─────────────────────────────────────────────
 with app.app_context():
@@ -1647,6 +2367,37 @@ with app.app_context():
                 conn.commit()
     except Exception:
         pass
+    # A3 — Course language + seat_cap columns
+    try:
+        insp_c = sa_inspect(db.engine)
+        course_cols3 = {c['name'] for c in insp_c.get_columns('courses')}
+        with db.engine.connect() as conn:
+            if 'language' not in course_cols3:
+                conn.execute(text("ALTER TABLE courses ADD COLUMN language VARCHAR(5) DEFAULT 'en'"))
+                conn.commit()
+            if 'seat_cap' not in course_cols3:
+                conn.execute(text('ALTER TABLE courses ADD COLUMN seat_cap INTEGER'))
+                conn.commit()
+    except Exception:
+        pass
+
+    # A5 — Material is_published, publish_at, order_index
+    try:
+        insp_m = sa_inspect(db.engine)
+        mat_cols = {c['name'] for c in insp_m.get_columns('materials')}
+        with db.engine.connect() as conn:
+            if 'is_published' not in mat_cols:
+                conn.execute(text('ALTER TABLE materials ADD COLUMN is_published BOOLEAN DEFAULT 1'))
+                conn.commit()
+            if 'publish_at' not in mat_cols:
+                conn.execute(text('ALTER TABLE materials ADD COLUMN publish_at DATETIME'))
+                conn.commit()
+            if 'order_index' not in mat_cols:
+                conn.execute(text('ALTER TABLE materials ADD COLUMN order_index INTEGER DEFAULT 0'))
+                conn.commit()
+    except Exception:
+        pass
+
     seed_demo()
 
 if __name__ == '__main__':

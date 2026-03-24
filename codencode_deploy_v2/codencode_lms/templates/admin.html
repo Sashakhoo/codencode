@@ -794,6 +794,16 @@
       </div>
     </div>
 
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Academic</div>
+      <div class="nav-item" onclick="showView('certificates')">
+        <i class="fas fa-certificate"></i> Certificates
+      </div>
+      <div class="nav-item" onclick="showView('analytics')">
+        <i class="fas fa-chart-line"></i> Analytics
+      </div>
+    </div>
+
     <div class="sidebar-footer">
       <div class="avatar-sm" id="admin-avatar">AD</div>
       <div>
@@ -1034,6 +1044,59 @@
         </div>
       </div>
 
+      <!-- ── CERTIFICATES ──────────────────────── -->
+      <div id="view-certificates" class="view">
+        <div class="section-header" style="margin-bottom:20px">
+          <div class="section-title">Certificates</div>
+          <button class="btn btn-primary btn-sm" onclick="openIssueCertModal()">
+            <i class="fas fa-plus"></i> Issue Certificate
+          </button>
+        </div>
+        <div class="card">
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>Cert No.</th><th>Student</th><th>Course</th><th>Issued</th><th>Action</th></tr>
+              </thead>
+              <tbody id="certs-tbody">
+                <tr><td colspan="5" style="color:var(--text-muted);text-align:center;padding:24px">Loading...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── ANALYTICS ──────────────────────────── -->
+      <div id="view-analytics" class="view">
+        <div class="section-header" style="margin-bottom:20px">
+          <div class="section-title">Analytics &amp; Exports</div>
+        </div>
+        <div class="card" style="margin-bottom:20px">
+          <div class="card-title" style="padding:16px 20px;border-bottom:1px solid var(--border2)">Export Data</div>
+          <div style="padding:20px;display:flex;flex-direction:column;gap:12px">
+            <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+              <select class="form-select" id="analytics-course-select" style="width:240px">
+                <option value="">All Courses</option>
+              </select>
+              <button class="btn btn-secondary btn-sm" onclick="exportCSV('students')"><i class="fas fa-file-csv"></i> Export Students</button>
+              <button class="btn btn-secondary btn-sm" onclick="exportCSV('submissions')"><i class="fas fa-file-csv"></i> Export Submissions</button>
+              <button class="btn btn-secondary btn-sm" onclick="exportCSV('attendance')"><i class="fas fa-file-csv"></i> Export Attendance</button>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title" style="padding:16px 20px;border-bottom:1px solid var(--border2)">Recent Login Activity</div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>User</th><th>Login Time</th><th>IP Address</th></tr></thead>
+              <tbody id="login-activity-tbody">
+                <tr><td colspan="3" style="color:var(--text-muted);text-align:center;padding:24px">Loading...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
     </div><!-- /content -->
   </div><!-- /main -->
 </div><!-- /app -->
@@ -1164,6 +1227,18 @@
         <label class="form-label">Week 1 Start Date (Friday)</label>
         <input class="form-input" type="date" id="c-start-date" />
       </div>
+      <div class="form-group">
+        <label class="form-label">Language</label>
+        <select class="form-input" id="c-language">
+          <option value="en">English (EN)</option>
+          <option value="zh">中文 (ZH)</option>
+          <option value="bm">Bahasa Melayu (BM)</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Seat Cap (optional)</label>
+        <input class="form-input" type="number" id="c-seat-cap" placeholder="Leave blank for unlimited" min="1" />
+      </div>
     </div>
     <div class="modal-footer">
       <button class="btn btn-secondary" onclick="closeModal('modal-course')">Cancel</button>
@@ -1196,6 +1271,31 @@
       <button class="btn btn-secondary" onclick="closeModal('modal-announcement')">Cancel</button>
       <button class="btn btn-primary" onclick="saveAnnouncement()">
         <i class="fas fa-paper-plane"></i> Publish
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Issue Certificate Modal -->
+<div class="modal-overlay" id="modal-issue-cert" onclick="if(event.target===this)closeModal('modal-issue-cert')">
+  <div class="modal-box">
+    <div class="modal-title">Issue Certificate</div>
+    <div class="form-group">
+      <label class="form-label">Student</label>
+      <select class="form-input" id="cert-student-select">
+        <option value="">Select student...</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Course</label>
+      <select class="form-input" id="cert-course-select">
+        <option value="">Select course...</option>
+      </select>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('modal-issue-cert')">Cancel</button>
+      <button class="btn btn-primary" id="issue-cert-btn" onclick="issueCertificate()">
+        <i class="fas fa-award"></i> Issue
       </button>
     </div>
   </div>
@@ -1294,6 +1394,8 @@ const VIEW_TITLES = {
   timetable:     ['Timetable',        'Set topics & schedule per course'],
   announcements: ['Announcements',    'Send announcements to students'],
   sessions:      ['Sessions',         'View all scheduled sessions'],
+  certificates:  ['Certificates',     'Issue & manage student certificates'],
+  analytics:     ['Analytics',        'Export data & view login activity'],
 };
 
 function showView(name) {
@@ -1313,6 +1415,8 @@ function showView(name) {
   if (name === 'timetable')     populateTimetableCourseSelect();
   if (name === 'announcements') loadAdminAnnouncements();
   if (name === 'sessions')      loadAdminSessions();
+  if (name === 'certificates')  loadAdminCertificates();
+  if (name === 'analytics')     loadAdminAnalytics();
 }
 
 // ═══════════════════════════════════════════════════════
@@ -1637,9 +1741,10 @@ function renderCourses() {
       ${c.programme ? `<div class="prog-badge">${c.programme}</div>` : ''}
       <div class="card-title" style="margin-bottom:6px">${c.title}</div>
       <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px">${c.description || ''}</div>
-      <div style="font-size:11px;color:var(--text-muted);margin-bottom:16px">
+      <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px">
         ${c.start_date ? '<i class="fas fa-calendar" style="color:var(--cyan);margin-right:4px"></i>' + formatDate(c.start_date) + ' start &nbsp;·&nbsp; ' : ''}
-        ${c.enrolled_count} students enrolled
+        ${c.enrolled_count}${c.seat_cap ? '/'+c.seat_cap : ''} students enrolled
+        ${c.language && c.language !== 'en' ? '&nbsp;·&nbsp;<span style="text-transform:uppercase;font-weight:700;color:var(--cyan)">' + c.language + '</span>' : ''}
       </div>
       <div style="margin-bottom:16px">
         <div style="font-size:11px;color:var(--text-muted);margin-bottom:6px">PROGRESS</div>
@@ -2020,6 +2125,10 @@ function openAddCourse() {
   document.getElementById('c-description').value = '';
   document.getElementById('c-weeks').value       = '6';
   document.getElementById('c-start-date').value  = '';
+  const langEl = document.getElementById('c-language');
+  if (langEl) langEl.value = 'en';
+  const capEl = document.getElementById('c-seat-cap');
+  if (capEl) capEl.value = '';
   openModal('modal-course');
 }
 
@@ -2033,17 +2142,25 @@ function openEditCourse(cid) {
   document.getElementById('c-description').value = c.description || '';
   document.getElementById('c-weeks').value       = c.weeks;
   document.getElementById('c-start-date').value  = c.start_date || '';
+  const langEl = document.getElementById('c-language');
+  if (langEl) langEl.value = c.language || 'en';
+  const capEl = document.getElementById('c-seat-cap');
+  if (capEl) capEl.value = c.seat_cap || '';
   openModal('modal-course');
 }
 
 async function saveCourse() {
   const cid  = document.getElementById('edit-course-id').value;
+  const langEl = document.getElementById('c-language');
+  const capEl  = document.getElementById('c-seat-cap');
   const data = {
     title:       document.getElementById('c-title').value.trim(),
     programme:   document.getElementById('c-programme').value.trim(),
     description: document.getElementById('c-description').value.trim(),
     weeks:       parseInt(document.getElementById('c-weeks').value) || 6,
     start_date:  document.getElementById('c-start-date').value || null,
+    language:    langEl ? (langEl.value || 'en') : 'en',
+    seat_cap:    capEl && capEl.value ? parseInt(capEl.value) : null,
   };
   if (!data.title) { toast('Course title is required', true); return; }
   const btn = document.getElementById('course-save-btn');
@@ -2286,6 +2403,113 @@ async function loadAdminSessions() {
       </tr>`;
     }).join('');
   } catch(e) { toast('Error loading sessions: ' + e.message, true); }
+}
+
+// ═══════════════════════════════════════════════════════
+// CERTIFICATES (Admin)
+// ═══════════════════════════════════════════════════════
+
+async function loadAdminCertificates() {
+  // Populate dropdowns in issue modal
+  const stuSel = document.getElementById('cert-student-select');
+  const cSel   = document.getElementById('cert-course-select');
+  if (stuSel) {
+    stuSel.innerHTML = '<option value="">Select student...</option>' +
+      S.students.map(s => `<option value="${s.id}">${s.name}</option>`).join('');
+  }
+  if (cSel) {
+    cSel.innerHTML = '<option value="">Select course...</option>' +
+      S.courses.map(c => `<option value="${c.id}">${c.title}</option>`).join('');
+  }
+
+  try {
+    const certs = await GET('/api/admin/certificates');
+    const arr   = Array.isArray(certs) ? certs : [];
+    const tbody = document.getElementById('certs-tbody');
+    if (!tbody) return;
+    if (arr.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="5" style="color:var(--text-muted);text-align:center;padding:24px">No certificates issued yet.</td></tr>`;
+      return;
+    }
+    tbody.innerHTML = arr.map(c => `
+      <tr>
+        <td><span style="font-family:'JetBrains Mono',monospace;font-size:12px;background:var(--surface);border:1px solid var(--border);padding:3px 8px;border-radius:4px">${c.cert_number}</span></td>
+        <td style="font-weight:600">${c.student_name || '—'}</td>
+        <td style="color:var(--text-muted)">${c.course_title || '—'}</td>
+        <td style="font-size:12px;color:var(--text-muted)">${c.issued_at ? new Date(c.issued_at).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}) : '—'}</td>
+        <td>
+          <a href="/api/certificates/${c.id}/download" target="_blank" class="btn btn-sm" style="background:var(--surface);border:1px solid var(--border);color:var(--text)">
+            <i class="fas fa-download"></i> View
+          </a>
+        </td>
+      </tr>`).join('');
+  } catch(e) { toast('Error loading certificates: ' + e.message, true); }
+}
+
+function openIssueCertModal() {
+  const stuSel = document.getElementById('cert-student-select');
+  const cSel   = document.getElementById('cert-course-select');
+  if (stuSel) stuSel.value = '';
+  if (cSel)   cSel.value   = '';
+  openModal('modal-issue-cert');
+}
+
+async function issueCertificate() {
+  const studentId = document.getElementById('cert-student-select')?.value;
+  const courseId  = document.getElementById('cert-course-select')?.value;
+  if (!studentId || !courseId) { toast('Select student and course', true); return; }
+  const btn = document.getElementById('issue-cert-btn');
+  if (btn) btn.disabled = true;
+  try {
+    await POST('/api/admin/certificates', { student_id: parseInt(studentId), course_id: parseInt(courseId) });
+    toast('Certificate issued!');
+    closeModal('modal-issue-cert');
+    loadAdminCertificates();
+  } catch(e) { toast('Error: ' + e.message, true); }
+  if (btn) btn.disabled = false;
+}
+
+// ═══════════════════════════════════════════════════════
+// ANALYTICS (Admin)
+// ═══════════════════════════════════════════════════════
+
+async function loadAdminAnalytics() {
+  // Populate course select
+  const sel = document.getElementById('analytics-course-select');
+  if (sel) {
+    sel.innerHTML = '<option value="">All Courses</option>' +
+      S.courses.map(c => `<option value="${c.id}">${c.title}</option>`).join('');
+  }
+  await loadLoginActivity();
+}
+
+async function loadLoginActivity() {
+  try {
+    const logs  = await GET('/api/admin/analytics/login_activity');
+    const arr   = Array.isArray(logs) ? logs : [];
+    const tbody = document.getElementById('login-activity-tbody');
+    if (!tbody) return;
+    if (arr.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="3" style="color:var(--text-muted);text-align:center;padding:24px">No login activity yet.</td></tr>`;
+      return;
+    }
+    tbody.innerHTML = arr.map(l => `
+      <tr>
+        <td style="font-weight:600">${l.user_name || l.user_id}</td>
+        <td style="color:var(--text-muted);font-size:12px">${l.login_at ? new Date(l.login_at).toLocaleString('en-GB') : '—'}</td>
+        <td style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text-muted)">${l.ip_address || '—'}</td>
+      </tr>`).join('');
+  } catch(e) {
+    const tbody = document.getElementById('login-activity-tbody');
+    if (tbody) tbody.innerHTML = `<tr><td colspan="3" style="color:var(--red);padding:20px">${e.message}</td></tr>`;
+  }
+}
+
+function exportCSV(type) {
+  const cid = document.getElementById('analytics-course-select')?.value || '';
+  let url = `/api/admin/analytics/export?type=${type}`;
+  if (cid) url += `&course_id=${cid}`;
+  window.open(url, '_blank');
 }
 </script>
 </body>
