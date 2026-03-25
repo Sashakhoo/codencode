@@ -7,7 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Lato:ital,wght@0,300;0,400;0,700;1,400&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.0/css/all.min.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
 
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -353,13 +353,17 @@
     .logout-btn {
       margin-left: auto;
       background: none;
-      border: none;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
       color: var(--text-muted);
       cursor: pointer;
-      font-size: 14px;
-      padding: 4px;
+      font-size: 11px;
+      padding: 6px 10px;
+      display: flex; align-items: center; gap: 5px;
+      font-family: var(--font-m);
+      white-space: nowrap;
     }
-    .logout-btn:hover { color: var(--red); }
+    .logout-btn:hover { color: var(--red); border-color: var(--red); }
 
     /* ── Main area ── */
     .main-area {
@@ -1045,7 +1049,7 @@
         <div class="footer-role" id="footer-role-label">Student</div>
       </div>
       <button class="logout-btn" onclick="doLogout()" title="Logout">
-        <i class="fas fa-sign-out-alt"></i>
+        <i class="fas fa-sign-out-alt"></i> Logout
       </button>
     </div>
   </aside>
