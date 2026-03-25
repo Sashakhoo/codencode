@@ -7,7 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Lato:ital,wght@0,300;0,400;0,700;1,400&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.0/css/all.min.css" />
 
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -821,6 +821,13 @@
       color: var(--text); cursor: pointer; font-size: 14px;
       place-items: center; flex-shrink: 0;
     }
+    /* ── Sidebar close button (mobile only) ── */
+    #sidebar-close {
+      display: none; background: none; border: 1px solid var(--border);
+      border-radius: var(--radius); width: 28px; height: 28px;
+      color: var(--text-muted); cursor: pointer; font-size: 12px;
+      place-items: center; flex-shrink: 0; margin-left: auto;
+    }
 
     /* ── Responsive ── */
     @media (max-width: 768px) {
@@ -832,6 +839,7 @@
       .video-grid { grid-template-columns: 1fr; }
       .topbar { padding: 12px 16px; }
       #menu-toggle { display: grid; }
+      #sidebar-close { display: grid; }
       #search-wrapper { display: none; }
       #lang-switcher { display: none; }
     }
@@ -941,9 +949,14 @@
   <!-- ═══ SIDEBAR ═══ -->
   <aside class="sidebar" id="sidebar">
     <!-- Brand -->
-    <div class="sidebar-logo">
-      <div class="brand">code<span>ncode</span>.my</div>
-      <span class="role-badge-sidebar" id="role-badge">STUDENT</span>
+    <div class="sidebar-logo" style="display:flex;align-items:center;justify-content:space-between">
+      <div>
+        <div class="brand">code<span>ncode</span>.my</div>
+        <span class="role-badge-sidebar" id="role-badge">STUDENT</span>
+      </div>
+      <button id="sidebar-close" onclick="toggleSidebar()" title="Close menu">
+        <i class="fas fa-xmark"></i>
+      </button>
     </div>
 
     <!-- Course selector -->
@@ -2179,6 +2192,14 @@ async function switchView(id) {
   const titleEl = document.getElementById('topbar-title');
   if (titleEl) titleEl.textContent = VIEW_TITLES[id] || '';
   document.getElementById('main-content').scrollTop = 0;
+
+  // Auto-close sidebar on mobile after navigation
+  if (window.innerWidth <= 768) {
+    const sidebar = document.getElementById('sidebar');
+    const backdrop = document.getElementById('sidebar-backdrop');
+    sidebar.classList.remove('mobile-open');
+    backdrop.classList.remove('active');
+  }
 
   if (VIEW_LOADERS[id] && STATE.courseId) {
     try { await VIEW_LOADERS[id](); }
