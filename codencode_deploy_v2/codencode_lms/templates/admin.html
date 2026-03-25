@@ -1813,6 +1813,10 @@ async function loadStudentAttendance(uid) {
 
 // ── Add / Edit Student Modal ───────────────────
 function openAddStudent() {
+  if (window.innerWidth <= 768) {
+    document.getElementById('sidebar').classList.remove('mobile-open');
+    document.getElementById('sidebar-backdrop').classList.remove('active');
+  }
   document.getElementById('student-modal-title').textContent = 'Add Student';
   document.getElementById('edit-student-id').value = '';
   ['s-name','s-email','s-phone','s-ic','s-password'].forEach(id => {
