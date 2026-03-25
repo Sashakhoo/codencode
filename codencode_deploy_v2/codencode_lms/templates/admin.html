@@ -272,6 +272,29 @@
     }
     .logout-btn:hover { color: var(--red); }
 
+    /* ── Mobile sidebar backdrop ── */
+    #sidebar-backdrop {
+      display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 39;
+    }
+    #sidebar-backdrop.active { display: block; }
+
+    /* ── Hamburger button (mobile only) ── */
+    #menu-toggle {
+      display: none; background: none; border: 1px solid var(--border);
+      border-radius: 4px; width: 32px; height: 32px;
+      color: var(--text-muted); cursor: pointer; font-size: 14px;
+      place-items: center; flex-shrink: 0;
+    }
+    #menu-toggle:hover { color: var(--text); border-color: var(--border2); }
+
+    /* ── Sidebar close button (mobile only) ── */
+    #sidebar-close {
+      display: none; background: none; border: 1px solid var(--border);
+      border-radius: 4px; width: 28px; height: 28px;
+      color: var(--text-muted); cursor: pointer; font-size: 12px;
+      place-items: center; flex-shrink: 0; margin-left: auto;
+    }
+
     /* ── Main content ───────────────────────────────── */
     .main {
       flex: 1;
@@ -714,6 +737,13 @@
     @media (max-width: 800px) {
       .two-pane { grid-template-columns: 1fr; }
     }
+    @media (max-width: 768px) {
+      .sidebar { position: fixed; left: 0; top: 0; bottom: 0; z-index: 40; transform: translateX(-100%); transition: transform 0.2s; }
+      .sidebar.mobile-open { transform: translateX(0); }
+      .topbar { padding: 12px 16px; }
+      #menu-toggle { display: grid; }
+      #sidebar-close { display: grid; }
+    }
     /* ── Timetable (admin) ─────────────────── */
     .tt-week-card { margin-bottom: 14px; border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
     .tt-week-head { display:flex; align-items:center; gap:12px; padding:10px 16px; background:var(--surface2); border-bottom:1px solid var(--border); }
@@ -737,11 +767,18 @@
 <body>
 <div id="app">
 
+  <div id="sidebar-backdrop" onclick="toggleSidebar()"></div>
+
   <!-- ═══ SIDEBAR ═══ -->
-  <aside class="sidebar">
-    <div class="sidebar-logo">
-      <div class="brand">code<span>ncode</span>.my</div>
-      <span class="admin-badge">ADMIN</span>
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo" style="display:flex;align-items:center;gap:8px">
+      <div style="flex:1">
+        <div class="brand">code<span>ncode</span>.my</div>
+        <span class="admin-badge">ADMIN</span>
+      </div>
+      <button id="sidebar-close" onclick="toggleSidebar()" title="Close menu">
+        <i class="fas fa-xmark"></i>
+      </button>
     </div>
 
     <div class="sidebar-section">
@@ -821,9 +858,14 @@
 
     <!-- Topbar -->
     <div class="topbar">
-      <div>
-        <div class="topbar-title" id="topbar-title">Dashboard</div>
-        <div class="topbar-subtitle" id="topbar-subtitle">Welcome back</div>
+      <div style="display:flex;align-items:center;gap:10px">
+        <button id="menu-toggle" onclick="toggleSidebar()" title="Menu">
+          <i class="fas fa-bars"></i>
+        </button>
+        <div>
+          <div class="topbar-title" id="topbar-title">Dashboard</div>
+          <div class="topbar-subtitle" id="topbar-subtitle">Welcome back</div>
+        </div>
       </div>
       <div class="topbar-actions" style="margin-left:auto;display:flex;align-items:center;gap:10px">
         <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme" style="width:32px;height:32px;background:none;border:1px solid var(--border);color:var(--text-muted);cursor:pointer;display:grid;place-items:center;border-radius:4px;transition:all 0.2s">
@@ -1511,6 +1553,14 @@ const VIEW_TITLES = {
   analytics:     ['Analytics',        'Export data & view login activity'],
 };
 
+// ── Sidebar (mobile) ─────────────────────────────────
+function toggleSidebar() {
+  const sidebar = document.getElementById('sidebar');
+  const backdrop = document.getElementById('sidebar-backdrop');
+  sidebar.classList.toggle('mobile-open');
+  backdrop.classList.toggle('active');
+}
+
 function showView(name) {
   document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
@@ -1518,6 +1568,11 @@ function showView(name) {
   if (el) el.classList.add('active');
   document.querySelector(`[onclick="showView('${name}')"]`)?.classList.add('active');
   const [title, sub] = VIEW_TITLES[name] || [name, ''];
+  // Close sidebar on mobile after navigation
+  if (window.innerWidth <= 768) {
+    document.getElementById('sidebar').classList.remove('mobile-open');
+    document.getElementById('sidebar-backdrop').classList.remove('active');
+  }
   document.getElementById('topbar-title').textContent    = title;
   document.getElementById('topbar-subtitle').textContent = sub;
   S.currentView = name;
