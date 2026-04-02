@@ -1148,9 +1148,14 @@
 
 <!-- Add / Edit Student -->
 <div class="modal-overlay" id="modal-student" onclick="if(event.target===this)closeModal('modal-student')">
-  <div class="modal-box">
+  <div class="modal-box" style="max-height:92vh;overflow-y:auto;display:flex;flex-direction:column;">
     <div class="modal-title" id="student-modal-title">Add Student</div>
     <input type="hidden" id="edit-student-id" value="" />
+
+    <!-- Personal Info -->
+    <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;color:var(--cyan);margin-bottom:12px">
+      <i class="fas fa-user" style="margin-right:6px"></i>Personal Info
+    </div>
     <div class="form-grid">
       <div class="form-group">
         <label class="form-label">Full Name *</label>
@@ -1161,19 +1166,82 @@
         <input class="form-input" id="s-email" type="email" placeholder="alex@codencode.my" />
       </div>
       <div class="form-group">
-        <label class="form-label">Phone</label>
+        <label class="form-label">Phone Number</label>
         <input class="form-input" id="s-phone" placeholder="012-3456789" />
       </div>
       <div class="form-group">
         <label class="form-label">IC / Passport No.</label>
         <input class="form-input" id="s-ic" placeholder="900101-14-1234" />
       </div>
+      <div class="form-group">
+        <label class="form-label">Preferred Language</label>
+        <select class="form-select" id="s-language">
+          <option value="en">English</option>
+          <option value="bm">Malay (BM)</option>
+          <option value="zh">Chinese (中文)</option>
+        </select>
+      </div>
       <div class="form-group" id="s-pass-group">
         <label class="form-label">Password</label>
         <input class="form-input" id="s-password" type="password" placeholder="codencode123" />
       </div>
     </div>
-    <div class="modal-footer">
+
+    <!-- Enrolment (Add only) -->
+    <div id="s-enrol-section">
+      <div style="border-top:1px solid var(--border);margin:16px 0 14px"></div>
+      <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;color:var(--cyan);margin-bottom:12px">
+        <i class="fas fa-book-open" style="margin-right:6px"></i>Enrolment <span style="font-weight:400;color:var(--text-muted);text-transform:none;letter-spacing:0">(optional — can be done later)</span>
+      </div>
+
+      <div class="form-group" style="margin-bottom:14px">
+        <label class="form-label">Course</label>
+        <select class="form-select" id="s-course-select">
+          <option value="">— skip enrolment for now —</option>
+        </select>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">
+        <div class="form-group">
+          <label class="form-label">Class Format</label>
+          <select class="form-select" id="s-class-format">
+            <option value="">— select —</option>
+            <option value="1v1">1 vs 1 &nbsp;(Private)</option>
+            <option value="2v1">2 vs 1 &nbsp;(Pair)</option>
+            <option value="5v1">5 vs 1 &nbsp;(Small Group)</option>
+            <option value="cohort">Cohort &nbsp;(Full Class)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Payment Status</label>
+          <select class="form-select" id="s-payment-status">
+            <option value="pending">Pending</option>
+            <option value="paid">Paid</option>
+            <option value="overdue">Overdue</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group" style="margin-bottom:14px">
+        <label class="form-label">Time of Class</label>
+        <div style="display:flex;flex-direction:column;gap:8px;margin-top:4px">
+          <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:12px;color:var(--text)">
+            <input type="checkbox" id="s-timing-fri" value="Fri 8-10pm" style="accent-color:var(--cyan);width:14px;height:14px">
+            <span><i class="fas fa-clock" style="color:var(--cyan);font-size:11px;margin-right:4px"></i>Friday &nbsp;8:00 PM – 10:00 PM</span>
+          </label>
+          <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:12px;color:var(--text)">
+            <input type="checkbox" id="s-timing-sat" value="Sat 9-11am" style="accent-color:var(--cyan);width:14px;height:14px">
+            <span><i class="fas fa-clock" style="color:var(--cyan);font-size:11px;margin-right:4px"></i>Saturday 9:00 AM – 11:00 AM</span>
+          </label>
+          <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:12px;color:var(--text)">
+            <input type="checkbox" id="s-timing-sun" value="Sun 9-11am" style="accent-color:var(--cyan);width:14px;height:14px">
+            <span><i class="fas fa-clock" style="color:var(--cyan);font-size:11px;margin-right:4px"></i>Sunday &nbsp;9:00 AM – 11:00 AM</span>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-footer" style="margin-top:auto">
       <button class="btn btn-secondary" onclick="closeModal('modal-student')">Cancel</button>
       <button class="btn btn-primary" onclick="saveStudent()">
         <i class="fas fa-save"></i> Save
@@ -1844,7 +1912,19 @@ function openAddStudent() {
   ['s-name','s-email','s-phone','s-ic','s-password'].forEach(id => {
     document.getElementById(id).value = '';
   });
+  document.getElementById('s-language').value = 'en';
   document.getElementById('s-pass-group').style.display = 'flex';
+
+  // Populate course dropdown and reset enrolment fields
+  const courseOpts = S.courses.map(c => `<option value="${c.id}">${c.title}</option>`).join('');
+  document.getElementById('s-course-select').innerHTML =
+    '<option value="">— skip enrolment for now —</option>' + courseOpts;
+  document.getElementById('s-class-format').value    = '';
+  document.getElementById('s-payment-status').value  = 'pending';
+  ['s-timing-fri','s-timing-sat','s-timing-sun'].forEach(id => {
+    document.getElementById(id).checked = false;
+  });
+  document.getElementById('s-enrol-section').style.display = 'block';
   openModal('modal-student');
 }
 
@@ -1853,23 +1933,27 @@ function openEditStudent(uid) {
   if (!s) return;
   document.getElementById('student-modal-title').textContent = 'Edit Student';
   document.getElementById('edit-student-id').value = uid;
-  document.getElementById('s-name').value  = s.name;
-  document.getElementById('s-email').value = s.email;
-  document.getElementById('s-phone').value = s.phone;
-  document.getElementById('s-ic').value    = s.ic_number;
-  document.getElementById('s-password').value = '';
-  document.getElementById('s-pass-group').style.display = 'flex';
+  document.getElementById('s-name').value          = s.name;
+  document.getElementById('s-email').value         = s.email;
+  document.getElementById('s-phone').value         = s.phone;
+  document.getElementById('s-ic').value            = s.ic_number;
+  document.getElementById('s-language').value      = s.language_pref || 'en';
+  document.getElementById('s-password').value      = '';
+  document.getElementById('s-pass-group').style.display   = 'flex';
+  // Hide enrolment section on edit (use Assign Course button instead)
+  document.getElementById('s-enrol-section').style.display = 'none';
   openModal('modal-student');
 }
 
 async function saveStudent() {
   const uid  = document.getElementById('edit-student-id').value;
   const data = {
-    name:      document.getElementById('s-name').value.trim(),
-    email:     document.getElementById('s-email').value.trim(),
-    phone:     document.getElementById('s-phone').value.trim(),
-    ic_number: document.getElementById('s-ic').value.trim(),
-    password:  document.getElementById('s-password').value,
+    name:          document.getElementById('s-name').value.trim(),
+    email:         document.getElementById('s-email').value.trim(),
+    phone:         document.getElementById('s-phone').value.trim(),
+    ic_number:     document.getElementById('s-ic').value.trim(),
+    password:      document.getElementById('s-password').value,
+    language_pref: document.getElementById('s-language').value,
   };
   if (!data.name || !data.email) { toast('Name and email are required', true); return; }
   try {
@@ -1877,8 +1961,26 @@ async function saveStudent() {
       await PUT(`/api/admin/students/${uid}`, data);
       toast('Student updated');
     } else {
-      await POST('/api/admin/students', data);
-      toast('Student added');
+      const res = await POST('/api/admin/students', data);
+      const newId = res.student.id;
+
+      // Auto-enrol if a course was selected
+      const courseId = document.getElementById('s-course-select').value;
+      if (courseId) {
+        const timings = ['s-timing-fri','s-timing-sat','s-timing-sun']
+          .filter(id => document.getElementById(id).checked)
+          .map(id => document.getElementById(id).value);
+        await POST(`/api/admin/students/${newId}/enroll`, {
+          course_id:       parseInt(courseId),
+          class_format:    document.getElementById('s-class-format').value,
+          class_timing:    timings.join(', '),
+          payment_status:  document.getElementById('s-payment-status').value,
+          payment_remarks: '',
+        });
+        toast('Student added and enrolled');
+      } else {
+        toast('Student added');
+      }
     }
     closeModal('modal-student');
     await loadStudents();
