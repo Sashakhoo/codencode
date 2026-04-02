@@ -77,11 +77,14 @@ def load_user(user_id):
 # ─────────────────────────────────────────────
 # Email utility
 # ─────────────────────────────────────────────
-_SMTP_HOST = os.environ.get('EMAIL_SMTP_SERVER', 'smtp.gmail.com')
-_SMTP_PORT = 465
-_EMAIL_FROM = os.environ.get('EMAIL_FROM', 'codencode@gmail.com')
-_EMAIL_USER = os.environ.get('EMAIL_USER', '')
-_EMAIL_PASS = os.environ.get('EMAIL_PASS', '')
+_SMTP_HOST      = os.environ.get('EMAIL_SMTP_SERVER', 'smtp.gmail.com')
+_SMTP_PORT      = 465
+_EMAIL_FROM     = os.environ.get('EMAIL_FROM',  'codencode@gmail.com')
+_EMAIL_USER     = os.environ.get('EMAIL_USER',  '')
+_EMAIL_PASS     = os.environ.get('EMAIL_PASS',  '')
+_BUSINESS_NAME  = os.environ.get('BUSINESS_NAME',    'CODE N CODE SOLUTION')
+_BUSINESS_SSM   = os.environ.get('BUSINESS_SSM',     '202603072017 (AS0511861-M)')
+_BUSINESS_ADDR  = os.environ.get('BUSINESS_ADDRESS', '16, Pengkalan Tiara 35, Taman Pengkalan Tiara, 31650 Ipoh, Perak')
 
 
 def send_email(to: str, subject: str, html_body: str):
@@ -110,6 +113,195 @@ def send_email_bulk(recipients: list[str], subject: str, html_body: str):
     """Send the same email to a list of addresses."""
     results = {r: send_email(r, subject, html_body) for r in recipients}
     return results
+
+
+def send_email_with_attachment(to: str, subject: str, html_body: str,
+                                attachment_bytes: bytes, attachment_filename: str) -> bool:
+    """Send an HTML email with a single binary attachment (e.g. PDF receipt)."""
+    if not _EMAIL_USER or not _EMAIL_PASS:
+        app.logger.warning('Email not configured — skipping send to %s', to)
+        return False
+    try:
+        from email.mime.base import MIMEBase
+        from email import encoders as _enc
+
+        msg = MIMEMultipart('mixed')
+        msg['Subject'] = subject
+        msg['From']    = f'codencode.my <{_EMAIL_FROM}>'
+        msg['To']      = to
+        msg.attach(MIMEText(html_body, 'html', 'utf-8'))
+
+        part = MIMEBase('application', 'octet-stream')
+        part.set_payload(attachment_bytes)
+        _enc.encode_base64(part)
+        part.add_header('Content-Disposition', 'attachment', filename=attachment_filename)
+        msg.attach(part)
+
+        ctx = ssl.create_default_context()
+        with smtplib.SMTP_SSL(_SMTP_HOST, _SMTP_PORT, context=ctx) as server:
+            server.login(_EMAIL_USER, _EMAIL_PASS)
+            server.sendmail(_EMAIL_FROM, to, msg.as_string())
+        return True
+    except Exception as exc:
+        app.logger.error('Email (with attachment) failed to %s: %s', to, exc)
+        return False
+
+
+def generate_receipt_pdf(enrollment) -> bytes:
+    """Return bytes of an A4 PDF official receipt for a paid enrollment."""
+    from reportlab.lib.pagesizes import A4
+    from reportlab.lib.units import mm
+    from reportlab.pdfgen import canvas as _cv
+    from reportlab.lib.colors import HexColor, white
+    import io as _io
+
+    buf  = _io.BytesIO()
+    c    = _cv.Canvas(buf, pagesize=A4)
+    W, H = A4
+
+    green    = HexColor('#00c485')
+    dk      = HexColor('#0a3d2a')
+    muted   = HexColor('#666666')
+    body    = HexColor('#222222')
+    pale    = HexColor('#f0fdf4')
+
+    s      = enrollment.student
+    course = enrollment.course
+    rcpt   = f'RCP-{enrollment.id:05d}'
+    paid_d = (enrollment.paid_at or datetime.utcnow()).strftime('%d %B %Y')
+    now_d  = datetime.utcnow().strftime('%d %B %Y')
+    amt    = enrollment.payment_amount
+    method = enrollment.payment_method or 'N/A'
+
+    # ── Header ────────────────────────────────────────────────────────────────
+    c.setFillColor(dk)
+    c.rect(0, H - 52*mm, W, 52*mm, fill=1, stroke=0)
+
+    c.setFillColor(white)
+    c.setFont('Helvetica-Bold', 20)
+    c.drawString(20*mm, H - 20*mm, _BUSINESS_NAME)
+    c.setFont('Helvetica', 8)
+    c.setFillColor(HexColor('#7ec8a0'))
+    c.drawString(20*mm, H - 27*mm, 'OFFICIAL RECEIPT  ·  SSM NO. ' + _BUSINESS_SSM)
+    c.setFont('Helvetica', 7)
+    c.setFillColor(HexColor('#5a9e78'))
+    c.drawString(20*mm, H - 33*mm, _BUSINESS_ADDR)
+
+    c.setFillColor(white)
+    c.setFont('Helvetica-Bold', 14)
+    c.drawRightString(W - 20*mm, H - 20*mm, rcpt)
+    c.setFont('Helvetica', 8)
+    c.setFillColor(HexColor('#7ec8a0'))
+    c.drawRightString(W - 20*mm, H - 27*mm, f'Issued: {now_d}')
+
+    # Green divider
+    c.setStrokeColor(green)
+    c.setLineWidth(2)
+    c.line(0, H - 55*mm, W, H - 55*mm)
+
+    # ── Bill To ───────────────────────────────────────────────────────────────
+    y = H - 72*mm
+    c.setFillColor(pale)
+    c.setStrokeColor(green)
+    c.setLineWidth(0.5)
+    c.roundRect(15*mm, y - 42*mm, 83*mm, 43*mm, 3, fill=1, stroke=1)
+
+    c.setFillColor(dk)
+    c.setFont('Helvetica-Bold', 8)
+    c.drawString(20*mm, y - 5*mm, 'BILL TO')
+    c.setFillColor(body)
+    c.setFont('Helvetica-Bold', 12)
+    c.drawString(20*mm, y - 13*mm, s.name)
+    c.setFont('Helvetica', 9)
+    c.setFillColor(muted)
+    c.drawString(20*mm, y - 20*mm, s.email)
+    if s.phone:
+        c.drawString(20*mm, y - 27*mm, s.phone)
+    if s.ic_number:
+        c.drawString(20*mm, y - 34*mm, f'IC / Passport: {s.ic_number}')
+
+    # ── Course Details ────────────────────────────────────────────────────────
+    c.setFillColor(pale)
+    c.setStrokeColor(green)
+    c.roundRect(103*mm, y - 42*mm, 92*mm, 43*mm, 3, fill=1, stroke=1)
+
+    c.setFillColor(dk)
+    c.setFont('Helvetica-Bold', 8)
+    c.drawString(108*mm, y - 5*mm, 'COURSE')
+    c.setFillColor(body)
+    c.setFont('Helvetica-Bold', 11)
+    title = course.title
+    if len(title) > 26:
+        c.drawString(108*mm, y - 13*mm, title[:26])
+        c.setFont('Helvetica', 9)
+        c.drawString(108*mm, y - 19*mm, title[26:52])
+        nr = y - 26*mm
+    else:
+        c.drawString(108*mm, y - 13*mm, title)
+        nr = y - 20*mm
+    c.setFont('Helvetica', 9)
+    c.setFillColor(muted)
+    if enrollment.class_format:
+        c.drawString(108*mm, nr, f'Format: {enrollment.class_format.upper()}')
+        nr -= 7*mm
+    if enrollment.class_timing:
+        c.drawString(108*mm, nr, ('Schedule: ' + enrollment.class_timing)[:38])
+
+    # ── Payment Details ───────────────────────────────────────────────────────
+    y2 = y - 58*mm
+    c.setFillColor(HexColor('#f8f8f8'))
+    c.setStrokeColor(HexColor('#dddddd'))
+    c.roundRect(15*mm, y2 - 46*mm, 180*mm, 47*mm, 3, fill=1, stroke=1)
+
+    c.setFillColor(dk)
+    c.setFont('Helvetica-Bold', 8)
+    c.drawString(20*mm, y2 - 5*mm, 'PAYMENT DETAILS')
+
+    c.setFillColor(muted)
+    c.setFont('Helvetica', 7)
+    c.drawString(20*mm, y2 - 13*mm, 'AMOUNT PAID')
+    c.setFillColor(green)
+    c.setFont('Helvetica-Bold', 24)
+    amt_str = f'RM {amt:,.2f}' if amt is not None else 'RM  —'
+    c.drawString(20*mm, y2 - 25*mm, amt_str)
+
+    c.setFillColor(muted)
+    c.setFont('Helvetica', 7)
+    c.drawString(110*mm, y2 - 13*mm, 'PAYMENT METHOD')
+    c.setFillColor(body)
+    c.setFont('Helvetica-Bold', 11)
+    c.drawString(110*mm, y2 - 21*mm, method)
+
+    c.setFillColor(muted)
+    c.setFont('Helvetica', 7)
+    c.drawString(110*mm, y2 - 30*mm, 'DATE PAID')
+    c.setFillColor(body)
+    c.setFont('Helvetica-Bold', 11)
+    c.drawString(110*mm, y2 - 38*mm, paid_d)
+
+    # PAID badge
+    c.setFillColor(green)
+    c.roundRect(148*mm, y2 - 30*mm, 42*mm, 14*mm, 4, fill=1, stroke=0)
+    c.setFillColor(white)
+    c.setFont('Helvetica-Bold', 13)
+    c.drawCentredString(169*mm, y2 - 23*mm, 'PAID')
+
+    # ── Footer ────────────────────────────────────────────────────────────────
+    c.setFillColor(HexColor('#eeeeee'))
+    c.rect(0, 0, W, 22*mm, fill=1, stroke=0)
+    c.setFillColor(muted)
+    c.setFont('Helvetica', 7.5)
+    c.drawCentredString(W / 2, 14*mm,
+        f'{_BUSINESS_NAME}   ·   SSM: {_BUSINESS_SSM}   ·   learn.codencode.my')
+    c.setFont('Helvetica', 7)
+    c.setFillColor(HexColor('#aaaaaa'))
+    c.drawCentredString(W / 2, 8*mm,
+        'This is an official receipt. Please retain for your records.')
+
+    c.showPage()
+    c.save()
+    buf.seek(0)
+    return buf.read()
 
 
 # ── Email templates ───────────────────────────────────────────────────────────
@@ -201,6 +393,114 @@ def email_announcement(student_name: str, email: str, announcement_title: str, a
     <a class="btn" href="https://learn.codencode.my">View on Portal →</a>
     """
     return send_email(email, announcement_title, _email_wrapper(announcement_title, body))
+
+
+def email_payment_receipt(enrollment) -> bool:
+    """Generate PDF receipt and send it to the student by email."""
+    s = enrollment.student
+    if not s or not s.email:
+        return False
+    try:
+        pdf_bytes = generate_receipt_pdf(enrollment)
+    except Exception as exc:
+        app.logger.error('Receipt PDF generation failed for enrollment %s: %s', enrollment.id, exc)
+        return False
+
+    rcpt_no  = f'RCP-{enrollment.id:05d}'
+    amt_str  = f'RM {enrollment.payment_amount:,.2f}' if enrollment.payment_amount else '—'
+    paid_d   = (enrollment.paid_at or datetime.utcnow()).strftime('%d %B %Y')
+    body = f"""
+    <p>Hi <strong>{s.name}</strong>,</p>
+    <p>Thank you! Your payment for <strong>{enrollment.course.title}</strong> has been received and confirmed.</p>
+    <p>
+      <span class="badge">{rcpt_no}</span>&nbsp;
+      <span class="badge">{amt_str}</span>
+    </p>
+    <p>Your official receipt is attached to this email. Please keep it for your records.</p>
+    <p style="color:#A4B4A4;font-size:13px">Payment date: {paid_d}</p>
+    <a class="btn" href="https://learn.codencode.my">Go to Student Portal →</a>
+    """
+    return send_email_with_attachment(
+        s.email,
+        f'Payment Confirmed — {enrollment.course.title} | codencode.my',
+        _email_wrapper('Payment Received! 🎉', body),
+        pdf_bytes,
+        f'{rcpt_no}.pdf'
+    )
+
+
+def email_enrollment_confirmation(enrollment) -> bool:
+    """Send class schedule and preparation guide to newly confirmed student."""
+    s = enrollment.student
+    if not s or not s.email:
+        return False
+
+    course = enrollment.course
+
+    # Build schedule lines from class_timing or cohort schedule
+    sched_lines = []
+    if enrollment.class_timing:
+        sched_lines.append(enrollment.class_timing)
+    if enrollment.cohort and enrollment.cohort.schedule:
+        import json as _json
+        try:
+            slots = _json.loads(enrollment.cohort.schedule)
+            for sl in slots:
+                day, st, en = sl.get('day',''), sl.get('start',''), sl.get('end','')
+                if day and st:
+                    sched_lines.append(f'{day}: {st}–{en}')
+        except Exception:
+            pass
+    sched_html = ''.join(f'<li>{ln}</li>' for ln in sched_lines) if sched_lines \
+                 else '<li>To be confirmed — check your student portal</li>'
+
+    # First class date
+    start_html = ''
+    if enrollment.cohort and enrollment.cohort.start_date:
+        start_html = f"<p><strong>First Class:</strong> {enrollment.cohort.start_date.strftime('%A, %d %B %Y')}</p>"
+    elif course.start_date:
+        start_html = f"<p><strong>First Class:</strong> {course.start_date.strftime('%A, %d %B %Y')}</p>"
+
+    # What to prepare — tailored by programme keyword
+    prog = (course.programme or course.title or '').lower()
+    if any(k in prog for k in ('machine learning', ' ml', 'data science', 'deep learning', 'ai ')):
+        prep = [
+            'Laptop — Windows, Mac, or Linux',
+            'Python 3.10+ installed',
+            'Jupyter Notebook or VSCode with Python extension',
+            'pip packages: numpy, pandas, matplotlib, scikit-learn (we will guide installation)',
+            'Stable internet connection (min 5 Mbps)',
+            'Notebook and pen',
+        ]
+    else:
+        prep = [
+            'Laptop — Windows, Mac, or Linux',
+            'Python 3.10+ — <a href="https://www.python.org/downloads/" style="color:#7ec8a0">python.org/downloads</a>',
+            'Visual Studio Code — <a href="https://code.visualstudio.com/" style="color:#7ec8a0">code.visualstudio.com</a>',
+            'Stable internet connection (min 5 Mbps)',
+            'Notebook and pen',
+        ]
+    prep_html = ''.join(f'<li style="margin-bottom:6px">{it}</li>' for it in prep)
+
+    body = f"""
+    <p>Hi <strong>{s.name}</strong>,</p>
+    <p>You are officially enrolled in <strong>{course.title}</strong>. Here is everything you need before your first class.</p>
+    {start_html}
+    <p><strong>Class Schedule:</strong></p>
+    <ul style="color:#A4B4A4;padding-left:18px;margin:6px 0 16px">{sched_html}</ul>
+    <p><strong>What to Prepare:</strong></p>
+    <ul style="color:#A4B4A4;padding-left:18px;margin:6px 0 16px">{prep_html}</ul>
+    <p>Log in to your student portal to view your timetable, materials, and assignments.</p>
+    <a class="btn" href="https://learn.codencode.my">Open Student Portal →</a>
+    <p style="color:#627160;font-size:12px;margin-top:18px">
+      Questions? Email us at <a href="mailto:codencode@gmail.com" style="color:#7ec8a0">codencode@gmail.com</a>
+    </p>
+    """
+    return send_email(
+        s.email,
+        f'You\'re In! Class Details for {course.title} — codencode.my',
+        _email_wrapper('Enrolment Confirmed ✅', body)
+    )
 
 
 # ─────────────────────────────────────────────
@@ -869,13 +1169,38 @@ def admin_unenroll(eid):
 @app.route('/api/admin/enrollments/<int:eid>/payment', methods=['PUT'])
 @admin_required
 def admin_update_payment(eid):
-    e    = Enrollment.query.get_or_404(eid)
-    data = request.get_json()
+    e          = Enrollment.query.get_or_404(eid)
+    data       = request.get_json()
+    old_status = e.payment_status
+
     if 'payment_status'  in data: e.payment_status  = data['payment_status']
     if 'payment_remarks' in data: e.payment_remarks = data['payment_remarks']
     if 'class_timing'    in data: e.class_timing    = data['class_timing']
     if 'class_format'    in data: e.class_format    = data['class_format']
+    if 'payment_method'  in data: e.payment_method  = data['payment_method'] or None
+    if 'payment_amount'  in data and data['payment_amount'] not in (None, '', 0, '0'):
+        try:
+            e.payment_amount = float(data['payment_amount'])
+        except (ValueError, TypeError):
+            pass
+
+    just_paid = (old_status != 'paid' and e.payment_status == 'paid')
+    if just_paid and not e.paid_at:
+        e.paid_at = datetime.utcnow()
+
     db.session.commit()
+
+    # Fire receipt PDF + enrollment confirmation when first marked as paid
+    if just_paid:
+        try:
+            email_payment_receipt(e)
+        except Exception as exc:
+            app.logger.error('Receipt email failed for enrollment %s: %s', eid, exc)
+        try:
+            email_enrollment_confirmation(e)
+        except Exception as exc:
+            app.logger.error('Enrolment confirmation email failed for enrollment %s: %s', eid, exc)
+
     return jsonify({'enrollment': e.to_dict()})
 
 
@@ -2070,8 +2395,35 @@ def download_certificate(cert_id):
     cert = Certificate.query.get_or_404(cert_id)
     if current_user.role == 'student' and cert.student_id != current_user.id:
         return jsonify({'error': 'Forbidden'}), 403
-    html = render_template('certificate.html', cert=cert)
+
+    verify_url = f'https://learn.codencode.my/verify/{cert.cert_number}'
+    qr_b64 = ''
+    try:
+        import qrcode, base64 as _b64, io as _io
+        qr = qrcode.QRCode(version=1,
+                           error_correction=qrcode.constants.ERROR_CORRECT_M,
+                           box_size=4, border=3)
+        qr.add_data(verify_url)
+        qr.make(fit=True)
+        img = qr.make_image(fill_color='#0a3d2a', back_color='white')
+        buf = _io.BytesIO()
+        img.save(buf, format='PNG')
+        qr_b64 = _b64.b64encode(buf.getvalue()).decode()
+    except Exception as exc:
+        app.logger.warning('QR generation failed for cert %s: %s', cert_id, exc)
+
+    html = render_template('certificate.html', cert=cert,
+                           qr_b64=qr_b64, verify_url=verify_url)
     return html, 200, {'Content-Type': 'text/html'}
+
+
+@app.route('/verify/<cert_number>')
+def verify_certificate_public(cert_number):
+    """Public certificate verification page — no login required."""
+    from flask import render_template
+    cert = Certificate.query.filter_by(cert_number=cert_number).first()
+    return render_template('verify.html', cert=cert, cert_number=cert_number), \
+           (200 if cert else 404)
 
 
 # ─────────────────────────────────────────────
@@ -2700,6 +3052,23 @@ with app.app_context():
                 conn.commit()
             if 'end_date' not in coh_cols:
                 conn.execute(text('ALTER TABLE cohorts ADD COLUMN end_date DATE'))
+                conn.commit()
+    except Exception:
+        pass
+
+    # Payment amount, method, paid_at columns (receipt + QR feature)
+    try:
+        insp_pay = sa_inspect(db.engine)
+        pay_cols = {c['name'] for c in insp_pay.get_columns('enrollments')}
+        with db.engine.connect() as conn:
+            if 'payment_amount' not in pay_cols:
+                conn.execute(text('ALTER TABLE enrollments ADD COLUMN payment_amount REAL'))
+                conn.commit()
+            if 'payment_method' not in pay_cols:
+                conn.execute(text('ALTER TABLE enrollments ADD COLUMN payment_method VARCHAR(50)'))
+                conn.commit()
+            if 'paid_at' not in pay_cols:
+                conn.execute(text('ALTER TABLE enrollments ADD COLUMN paid_at DATETIME'))
                 conn.commit()
     except Exception:
         pass

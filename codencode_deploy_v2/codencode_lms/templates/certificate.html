@@ -186,6 +186,32 @@
     }
 
     .cert-meta-item { text-align: center; }
+
+    /* QR verify block */
+    .cert-qr {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+    }
+    .cert-qr img {
+      width: 72px; height: 72px;
+      border: 2px solid #00c485;
+      padding: 3px;
+      background: white;
+    }
+    .cert-qr-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 7px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #aaa;
+    }
+    .cert-qr-url {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 7px;
+      color: #00874a;
+    }
     .cert-meta-label {
       font-family: 'JetBrains Mono', monospace;
       font-size: 9px;
@@ -322,6 +348,8 @@
             <div class="cert-meta-item">
               <div class="cert-meta-label">Date Issued</div>
               <div class="cert-meta-value">{{ cert.issued_at.strftime('%d %B %Y') }}</div>
+              <div class="cert-meta-label" style="margin-top:10px">Certificate No.</div>
+              <div class="cert-number-badge">{{ cert.cert_number }}</div>
             </div>
             <div class="cert-meta-item">
               <div class="signature-area">
@@ -329,10 +357,20 @@
                 <div class="signature-title">Authorised Signature</div>
               </div>
             </div>
+            {% if qr_b64 %}
             <div class="cert-meta-item">
-              <div class="cert-meta-label">Certificate No.</div>
-              <div class="cert-number-badge">{{ cert.cert_number }}</div>
+              <div class="cert-qr">
+                <div class="cert-qr-label">Scan to Verify</div>
+                <img src="data:image/png;base64,{{ qr_b64 }}" alt="Verify certificate" />
+                <div class="cert-qr-url">learn.codencode.my/verify/{{ cert.cert_number }}</div>
+              </div>
             </div>
+            {% else %}
+            <div class="cert-meta-item">
+              <div class="cert-meta-label">Verify Online</div>
+              <div class="cert-meta-value" style="font-size:10px;color:#00874a">learn.codencode.my/verify/{{ cert.cert_number }}</div>
+            </div>
+            {% endif %}
           </div>
         </div>
       </div>

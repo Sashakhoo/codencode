@@ -124,6 +124,9 @@ class Enrollment(db.Model):
     class_timing     = db.Column(db.String(100))   # e.g. "Fri 8-10pm, Sat 9-11am"
     class_format     = db.Column(db.String(20))    # e.g. "1v1", "2v1", "5v1", "cohort"
     cohort_id        = db.Column(db.Integer, db.ForeignKey('cohorts.id'), nullable=True)
+    payment_amount   = db.Column(db.Float,   nullable=True)   # e.g. 1200.00
+    payment_method   = db.Column(db.String(50), nullable=True) # e.g. "Bank Transfer"
+    paid_at          = db.Column(db.DateTime, nullable=True)   # timestamp when marked paid
 
     student = db.relationship('User', back_populates='enrollments', foreign_keys=[student_id])
     course  = db.relationship('Course', back_populates='enrollments')
@@ -145,7 +148,10 @@ class Enrollment(db.Model):
             'class_timing': self.class_timing or '',
             'class_format': self.class_format or '',
             'cohort_id':    self.cohort_id,
-            'cohort_name':  self.cohort.name if self.cohort else None
+            'cohort_name':  self.cohort.name if self.cohort else None,
+            'payment_amount': self.payment_amount,
+            'payment_method': self.payment_method or '',
+            'paid_at': self.paid_at.strftime('%b %d, %Y') if self.paid_at else None,
         }
 
 
