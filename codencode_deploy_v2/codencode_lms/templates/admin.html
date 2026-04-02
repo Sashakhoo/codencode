@@ -1258,6 +1258,28 @@
         <option value="overdue">Overdue</option>
       </select>
     </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">
+      <div class="form-group">
+        <label class="form-label">Amount (RM)</label>
+        <input type="number" class="form-input" id="pay-amount" placeholder="e.g. 1200.00" step="0.01" min="0" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Payment Method</label>
+        <select class="form-select" id="pay-method">
+          <option value="">— select —</option>
+          <option value="Bank Transfer">Bank Transfer</option>
+          <option value="FPX">FPX</option>
+          <option value="Cash">Cash</option>
+          <option value="Credit Card">Credit Card</option>
+          <option value="Debit Card">Debit Card</option>
+          <option value="Other">Other</option>
+        </select>
+      </div>
+    </div>
+    <div id="pay-email-note" style="display:none;background:rgba(0,196,133,.08);border:1px solid rgba(0,196,133,.3);border-radius:6px;padding:9px 12px;font-size:11px;color:var(--cyan);margin-bottom:14px">
+      <i class="fas fa-paper-plane" style="margin-right:6px"></i>
+      Setting to <strong>Paid</strong> will automatically email the student a PDF receipt and enrolment confirmation.
+    </div>
     <div class="form-group" style="margin-bottom:14px">
       <label class="form-label">Remarks</label>
       <textarea class="form-textarea" id="pay-remarks" placeholder="Notes about payment..."></textarea>
@@ -2419,15 +2441,21 @@ function openPaymentModal(eid) {
   if (!e) { toast('Enrollment data not found', true); return; }
   document.getElementById('pay-enrollment-id').value = eid;
   document.getElementById('pay-status-select').value = e.payment_status || 'pending';
-  document.getElementById('pay-remarks').value       = e.payment_remarks || '';
-  document.getElementById('pay-receipt-file').value  = '';
+  document.getElementById('pay-amount').value         = e.payment_amount != null ? e.payment_amount : '';
+  document.getElementById('pay-method').value         = e.payment_method || '';
+  document.getElementById('pay-remarks').value        = e.payment_remarks || '';
+  document.getElementById('pay-receipt-file').value   = '';
+  // Show email-auto note only when not yet paid
+  const noteEl = document.getElementById('pay-email-note');
+  noteEl.style.display = (e.payment_status !== 'paid') ? 'block' : 'none';
+  document.getElementById('pay-status-select').onchange = function() {
+    noteEl.style.display = (this.value === 'paid' && e.payment_status !== 'paid') ? 'block' : 'none';
+  };
   // Show existing receipt link
   const existingDiv = document.getElementById('pay-existing-receipt');
-  if (e.receipt_file) {
-    existingDiv.innerHTML = `<i class="fas fa-paperclip"></i> Receipt on file — <a href="/uploads/receipts/${e.receipt_file}" target="_blank" style="color:var(--cyan)">view</a> (uploading a new file will replace it)`;
-  } else {
-    existingDiv.innerHTML = '';
-  }
+  existingDiv.innerHTML = e.receipt_file
+    ? `<i class="fas fa-paperclip"></i> Receipt on file — <a href="/uploads/receipts/${e.receipt_file}" target="_blank" style="color:var(--cyan)">view</a> (uploading a new file will replace it)`
+    : '';
   openModal('modal-payment');
 }
 
@@ -2444,10 +2472,13 @@ async function savePayment() {
   const activeTabText = activeTab ? activeTab.textContent.trim() : null;
 
   try {
-    // 1) Update status + remarks
+    // 1) Update status, amount, method + remarks
+    const amtVal = document.getElementById('pay-amount').value;
     await PUT(`/api/admin/enrollments/${eid}/payment`, {
       payment_status:  document.getElementById('pay-status-select').value,
       payment_remarks: document.getElementById('pay-remarks').value,
+      payment_amount:  amtVal !== '' ? parseFloat(amtVal) : null,
+      payment_method:  document.getElementById('pay-method').value || null,
     });
     // 2) Upload receipt file if selected
     const fileInput = document.getElementById('pay-receipt-file');
