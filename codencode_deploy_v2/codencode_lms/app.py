@@ -1089,11 +1089,12 @@ def admin_create_student():
         return jsonify({'error': 'Email already exists'}), 409
 
     u = User(
-        name      = data['name'].strip(),
-        email     = email,
-        role      = 'student',
-        phone     = data.get('phone', '').strip(),
-        ic_number = data.get('ic_number', '').strip()
+        name          = data['name'].strip(),
+        email         = email,
+        role          = 'student',
+        phone         = data.get('phone', '').strip(),
+        ic_number     = data.get('ic_number', '').strip(),
+        language_pref = data.get('language_pref', 'en'),
     )
     u.set_password(data.get('password', 'codencode123'))
     db.session.add(u)
@@ -1115,10 +1116,11 @@ def admin_get_student(uid):
 def admin_update_student(uid):
     s = User.query.get_or_404(uid)
     data = request.get_json()
-    if 'name'      in data: s.name      = data['name'].strip()
-    if 'phone'     in data: s.phone     = data['phone'].strip()
-    if 'ic_number' in data: s.ic_number = data['ic_number'].strip()
-    if 'email'     in data:
+    if 'name'          in data: s.name          = data['name'].strip()
+    if 'phone'         in data: s.phone         = data['phone'].strip()
+    if 'ic_number'     in data: s.ic_number     = data['ic_number'].strip()
+    if 'language_pref' in data: s.language_pref = data['language_pref']
+    if 'email'         in data:
         new_email = data['email'].strip().lower()
         existing  = User.query.filter_by(email=new_email).first()
         if existing and existing.id != uid:
