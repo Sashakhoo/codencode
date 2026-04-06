@@ -13,9 +13,10 @@ import os
 import uuid
 import smtplib
 import ssl
+import re
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
-from datetime import datetime
+from datetime import datetime, timedelta
 from functools import wraps
 
 from dotenv import load_dotenv
@@ -85,6 +86,40 @@ _EMAIL_PASS     = os.environ.get('EMAIL_PASS',  '')
 _BUSINESS_NAME  = os.environ.get('BUSINESS_NAME',    'CODE N CODE SOLUTION')
 _BUSINESS_SSM   = os.environ.get('BUSINESS_SSM',     '202603072017 (AS0511861-M)')
 _BUSINESS_ADDR  = os.environ.get('BUSINESS_ADDRESS', '16, Pengkalan Tiara 35, Taman Pengkalan Tiara, 31650 Ipoh, Perak')
+
+# ─────────────────────────────────────────────
+# Twilio / WhatsApp
+# ─────────────────────────────────────────────
+_TWILIO_SID   = os.environ.get('TWILIO_ACCOUNT_SID', '')
+_TWILIO_TOKEN = os.environ.get('TWILIO_AUTH_TOKEN',  '')
+_TWILIO_FROM  = os.environ.get('TWILIO_WHATSAPP_FROM', 'whatsapp:+60xxxxxxxxxx')
+
+
+def _normalize_phone(phone: str) -> str:
+    """Convert Malaysian phone (011-2345678 / 0112345678) → +601xxxxxxxx"""
+    digits = re.sub(r'\D', '', phone or '')
+    if digits.startswith('60'):
+        return '+' + digits
+    if digits.startswith('0'):
+        return '+6' + digits
+    return '+60' + digits
+
+
+def send_whatsapp(to_phone: str, body: str) -> bool:
+    """Send a WhatsApp message via Twilio. Returns True on success."""
+    if not _TWILIO_SID or not _TWILIO_TOKEN or 'xxxxxxxxxx' in _TWILIO_FROM:
+        app.logger.warning('Twilio not configured — skipping WhatsApp to %s', to_phone)
+        return False
+    try:
+        from twilio.rest import Client
+        client = Client(_TWILIO_SID, _TWILIO_TOKEN)
+        to_wa = 'whatsapp:' + _normalize_phone(to_phone)
+        client.messages.create(from_=_TWILIO_FROM, to=to_wa, body=body)
+        app.logger.info('WhatsApp sent to %s', to_phone)
+        return True
+    except Exception as exc:
+        app.logger.error('WhatsApp failed to %s: %s', to_phone, exc)
+        return False
 
 
 def send_email(to: str, subject: str, html_body: str):
@@ -1674,6 +1709,131 @@ def reset_admin():
 
 
 # ─────────────────────────────────────────────
+# WELCOME REMINDER  (3 days before class starts)
+# ─────────────────────────────────────────────
+
+def _build_welcome_email(student_name: str, course_title: str,
+                         class_timing: str, class_format: str) -> str:
+    timing_display = class_timing or 'as scheduled'
+    fmt_display    = class_format  or 'Private'
+    return f"""
+    <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;background:#0a1a12;color:#e0ffe8;padding:32px;border-radius:12px">
+      <div style="text-align:center;margin-bottom:24px">
+        <span style="font-size:28px;font-weight:900;letter-spacing:-1px">code<span style="color:#00e5a0">ncode</span>.my</span>
+      </div>
+      <h2 style="color:#00e5a0;margin-bottom:8px">Your class starts in 3 days! 🎉</h2>
+      <p style="color:#aaa;margin-bottom:24px">Hi <strong style="color:#fff">{student_name}</strong>, we're excited to have you!</p>
+      <div style="background:#0d2a1c;border-radius:8px;padding:20px;margin-bottom:20px">
+        <p style="margin:4px 0"><strong>📚 Course:</strong> {course_title}</p>
+        <p style="margin:4px 0"><strong>🕐 Schedule:</strong> {timing_display}</p>
+        <p style="margin:4px 0"><strong>👥 Format:</strong> {fmt_display}</p>
+      </div>
+      <h3 style="color:#00e5a0">What to prepare:</h3>
+      <ul style="color:#ccc;line-height:1.8">
+        <li>Laptop with Python 3.10+ installed (<a href="https://python.org" style="color:#00e5a0">python.org</a>)</li>
+        <li>VS Code installed (<a href="https://code.visualstudio.com" style="color:#00e5a0">code.visualstudio.com</a>)</li>
+        <li>Stable internet connection</li>
+        <li>Notebook & pen for notes</li>
+      </ul>
+      <p style="color:#aaa;margin-top:24px">Log in to your learning portal anytime at
+        <a href="https://learn.codencode.my" style="color:#00e5a0">learn.codencode.my</a>
+      </p>
+      <hr style="border-color:#1a3a28;margin:24px 0">
+      <p style="font-size:11px;color:#666;text-align:center">
+        {_BUSINESS_NAME} · SSM {_BUSINESS_SSM}
+      </p>
+    </div>"""
+
+
+def _build_welcome_whatsapp(student_name: str, course_title: str,
+                             class_timing: str, class_format: str) -> str:
+    timing_display = class_timing or 'as scheduled'
+    fmt_display    = class_format  or 'Private'
+    return (
+        f"Hi {student_name}! 👋\n\n"
+        f"Your *{course_title}* class starts in *3 days*!\n\n"
+        f"📅 Schedule: {timing_display}\n"
+        f"👥 Format: {fmt_display}\n\n"
+        f"*What to prepare:*\n"
+        f"✅ Laptop with Python 3.10+\n"
+        f"✅ VS Code installed\n"
+        f"✅ Stable internet\n\n"
+        f"Log in anytime: https://learn.codencode.my\n\n"
+        f"See you soon! 🚀\n"
+        f"— {_BUSINESS_NAME}"
+    )
+
+
+def send_welcome_reminders():
+    """Called daily — finds enrollments whose course starts exactly 3 days from today
+       and sends a WhatsApp + email welcome message to each student."""
+    with app.app_context():
+        target = (datetime.utcnow() + timedelta(days=3)).date()
+        app.logger.info('[Reminder] Checking for courses starting on %s', target)
+
+        courses = Course.query.filter_by(start_date=target).all()
+        if not courses:
+            app.logger.info('[Reminder] No courses starting on %s', target)
+            return
+
+        for course in courses:
+            for enrollment in course.enrollments:
+                student = enrollment.student
+                if not student:
+                    continue
+
+                timing = enrollment.class_timing or ''
+                fmt    = enrollment.class_format  or ''
+
+                # Email
+                try:
+                    send_email(
+                        student.email,
+                        f'Your {course.title} class starts in 3 days! 🎉',
+                        _build_welcome_email(student.name, course.title, timing, fmt)
+                    )
+                    app.logger.info('[Reminder] Email sent to %s', student.email)
+                except Exception as exc:
+                    app.logger.error('[Reminder] Email failed for %s: %s', student.email, exc)
+
+                # WhatsApp
+                if student.phone:
+                    send_whatsapp(
+                        student.phone,
+                        _build_welcome_whatsapp(student.name, course.title, timing, fmt)
+                    )
+
+
+def _start_scheduler():
+    """Start APScheduler background job — runs daily at 9:00 AM."""
+    try:
+        from apscheduler.schedulers.background import BackgroundScheduler
+        from apscheduler.triggers.cron import CronTrigger
+        scheduler = BackgroundScheduler(daemon=True)
+        scheduler.add_job(
+            send_welcome_reminders,
+            trigger=CronTrigger(hour=9, minute=0),
+            id='welcome_reminder',
+            replace_existing=True,
+            misfire_grace_time=3600,
+        )
+        scheduler.start()
+        app.logger.info('[Scheduler] Welcome reminder job scheduled — runs daily at 09:00')
+    except Exception as exc:
+        app.logger.error('[Scheduler] Failed to start: %s', exc)
+
+
+# ── Manual trigger endpoint (admin only) ──────
+@app.route('/api/admin/trigger-welcome-reminders', methods=['POST'])
+@admin_required
+def trigger_welcome_reminders():
+    """Manually fire the welcome reminder — useful for testing."""
+    import threading
+    threading.Thread(target=send_welcome_reminders, daemon=True).start()
+    return jsonify({'ok': True, 'message': 'Welcome reminders triggered in background'})
+
+
+# ─────────────────────────────────────────────
 # SEED
 # ─────────────────────────────────────────────
 def seed_demo():
@@ -3076,6 +3236,7 @@ with app.app_context():
         pass
 
     seed_demo()
+    _start_scheduler()
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
