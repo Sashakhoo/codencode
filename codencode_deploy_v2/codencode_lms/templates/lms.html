@@ -2432,7 +2432,7 @@ async function loadMaterials() {
               <div class="file-sub">${m.description || m.title}</div>
             </div>
             <span class="file-size">${m.file_size || ''}</span>
-            <a class="btn-dl" href="${BASE}/uploads/materials/${m.filename}" download="${m.orig_name||m.title}">
+            <a class="btn-dl" href="/uploads/materials/${m.filename}" download="${m.orig_name||m.title}">
               <i class="fas fa-download"></i> Download
             </a>
           </div>`).join('')}
@@ -2668,7 +2668,7 @@ async function renderGradingTable(aid, title, maxPoints) {
             </td>
             <td style="font-family:var(--font-m);font-size:11px">${s.submitted_at||''}</td>
             <td>
-              <a href="${BASE}/uploads/submissions/${s.filename}" download="${s.orig_name||s.filename}"
+              <a href="/uploads/submissions/${s.filename}" download="${s.orig_name||s.filename}"
                  style="color:var(--cyan);font-family:var(--font-m);font-size:11px">
                 <i class="fas fa-file-code"></i> ${s.orig_name||s.filename}
               </a>
