@@ -2084,17 +2084,19 @@ async function bootApp() {
   document.getElementById('role-badge').className      = 'role-badge-sidebar' + (isTeacher ? ' teacher' : '');
   document.getElementById('user-display-name').textContent = STATE.user.name;
   document.getElementById('footer-role-label').textContent = isTeacher ? 'Teacher' : 'Student';
-  document.getElementById('student-greeting').textContent = 'Good to see you, ' + STATE.user.name.split(' ')[0] + '. 👋';
+  const greetEl = document.getElementById('student-greeting');
+  if (greetEl) greetEl.textContent = 'Good to see you, ' + STATE.user.name.split(' ')[0] + '. 👋';
   const initials = STATE.user.name.split(' ').map(p=>p[0]).join('').toUpperCase().slice(0,2);
   const avatarEl = document.getElementById('user-avatar-initials');
   avatarEl.textContent = initials;
   if (!isTeacher) avatarEl.classList.add('student');
 
-  switchView(isTeacher ? 't-dashboard' : 'dashboard');
-
-  // Everything ready — swap screens
+  // Show app shell first so the view has DOM to render into
   document.getElementById('login-screen').style.display = 'none';
   document.getElementById('app').classList.add('visible');
+
+  // Now load the view content (app is visible so DOM elements exist)
+  await switchView(isTeacher ? 't-dashboard' : 'dashboard');
 
   // Load notifications in background
   loadNotifications().catch(() => {});
