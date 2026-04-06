@@ -947,7 +947,7 @@
 <!-- ═══════════════════════════════════════
      APP SHELL
 ═══════════════════════════════════════ -->
-<div id="app">
+<div id="app" style="display:none">
 
   <div id="sidebar-backdrop" onclick="toggleSidebar()"></div>
 
@@ -2067,10 +2067,7 @@ function showLoginScreen() {
 }
 
 async function bootApp() {
-  document.getElementById('login-screen').style.display = 'none';
-  document.getElementById('app').classList.add('visible');
-
-  // Load courses
+  // Load courses first — only show app after all data is ready
   STATE.courses = await GET('/api/courses');
   renderCourseSelector();
 
@@ -2095,6 +2092,11 @@ async function bootApp() {
   if (!isTeacher) avatarEl.classList.add('student');
 
   switchView(isTeacher ? 't-dashboard' : 'dashboard');
+
+  // Everything ready — swap screens
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('app').classList.add('visible');
+
   // Load notifications in background
   loadNotifications().catch(() => {});
 }
