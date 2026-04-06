@@ -2066,7 +2066,7 @@ function showLoginScreen() {
 }
 
 async function bootApp() {
-  // Load courses first — only show app after all data is ready
+  // 1. Load data while login screen is still visible
   STATE.courses = await GET('/api/courses');
   renderCourseSelector();
 
@@ -2076,7 +2076,7 @@ async function bootApp() {
     document.getElementById('topbar-subtitle').textContent = STATE.courses[0].title;
   }
 
-  // Setup role UI
+  // 2. Setup role UI (DOM writes, cannot fail)
   const isTeacher = STATE.user.role === 'teacher';
   document.getElementById('student-nav').style.display = isTeacher ? 'none' : 'block';
   document.getElementById('teacher-nav').style.display = isTeacher ? 'block' : 'none';
@@ -2088,17 +2088,14 @@ async function bootApp() {
   if (greetEl) greetEl.textContent = 'Good to see you, ' + STATE.user.name.split(' ')[0] + '. 👋';
   const initials = STATE.user.name.split(' ').map(p=>p[0]).join('').toUpperCase().slice(0,2);
   const avatarEl = document.getElementById('user-avatar-initials');
-  avatarEl.textContent = initials;
-  if (!isTeacher) avatarEl.classList.add('student');
+  if (avatarEl) { avatarEl.textContent = initials; if (!isTeacher) avatarEl.classList.add('student'); }
 
-  // Show app shell first so the view has DOM to render into
+  // 3. Show app — everything above succeeded
   document.getElementById('login-screen').style.display = 'none';
   document.getElementById('app').classList.add('visible');
 
-  // Now load the view content (app is visible so DOM elements exist)
-  await switchView(isTeacher ? 't-dashboard' : 'dashboard');
-
-  // Load notifications in background
+  // 4. Load view content — fire-and-forget (switchView has its own internal error handling)
+  switchView(isTeacher ? 't-dashboard' : 'dashboard').catch(() => {});
   loadNotifications().catch(() => {});
 }
 
@@ -2139,6 +2136,7 @@ async function doLogin() {
     }
     await bootApp();
   } catch (e) {
+    showLoginScreen();
     showError('login-error', e.message);
     btn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Access Portal';
   }
