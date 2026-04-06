@@ -1131,7 +1131,9 @@ def admin_create_student():
         ic_number     = data.get('ic_number', '').strip(),
         language_pref = data.get('language_pref', 'en'),
     )
-    u.set_password(data.get('password', 'codencode123'))
+    plain_pw = data.get('password') or 'codencode123'
+    u.set_password(plain_pw)
+    u.temp_password = plain_pw   # saved for welcome email
     db.session.add(u)
     db.session.commit()
     return jsonify({'student': u.to_dict()}), 201
@@ -1713,9 +1715,11 @@ def reset_admin():
 # ─────────────────────────────────────────────
 
 def _build_welcome_email(student_name: str, course_title: str,
-                         class_timing: str, class_format: str) -> str:
+                         class_timing: str, class_format: str,
+                         login_email: str = '', login_password: str = '') -> str:
     timing_display = class_timing or 'as scheduled'
     fmt_display    = class_format  or 'Private'
+    password_display = login_password or 'codencode123'
     return f"""
     <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;background:#0a1a12;color:#e0ffe8;padding:32px;border-radius:12px">
       <div style="text-align:center;margin-bottom:24px">
@@ -1723,21 +1727,34 @@ def _build_welcome_email(student_name: str, course_title: str,
       </div>
       <h2 style="color:#00e5a0;margin-bottom:8px">Your class starts in 3 days! 🎉</h2>
       <p style="color:#aaa;margin-bottom:24px">Hi <strong style="color:#fff">{student_name}</strong>, we're excited to have you!</p>
+
       <div style="background:#0d2a1c;border-radius:8px;padding:20px;margin-bottom:20px">
         <p style="margin:4px 0"><strong>📚 Course:</strong> {course_title}</p>
         <p style="margin:4px 0"><strong>🕐 Schedule:</strong> {timing_display}</p>
         <p style="margin:4px 0"><strong>👥 Format:</strong> {fmt_display}</p>
       </div>
+
+      <div style="background:#0a2a1a;border:1px solid #00e5a033;border-radius:8px;padding:20px;margin-bottom:20px">
+        <p style="color:#00e5a0;font-weight:700;margin:0 0 12px 0">🔐 Your Login Details</p>
+        <p style="margin:6px 0;font-size:14px"><strong>Portal:</strong>
+          <a href="https://learn.codencode.my" style="color:#00e5a0">learn.codencode.my</a>
+        </p>
+        <p style="margin:6px 0;font-size:14px"><strong>Username:</strong>
+          <span style="background:#0d3a20;padding:2px 8px;border-radius:4px;font-family:monospace">{login_email}</span>
+        </p>
+        <p style="margin:6px 0;font-size:14px"><strong>Password:</strong>
+          <span style="background:#0d3a20;padding:2px 8px;border-radius:4px;font-family:monospace">{password_display}</span>
+        </p>
+        <p style="color:#888;font-size:11px;margin-top:10px">Please change your password after your first login.</p>
+      </div>
+
       <h3 style="color:#00e5a0">What to prepare:</h3>
       <ul style="color:#ccc;line-height:1.8">
         <li>Laptop with Python 3.10+ installed (<a href="https://python.org" style="color:#00e5a0">python.org</a>)</li>
         <li>VS Code installed (<a href="https://code.visualstudio.com" style="color:#00e5a0">code.visualstudio.com</a>)</li>
         <li>Stable internet connection</li>
-        <li>Notebook & pen for notes</li>
+        <li>Notebook &amp; pen for notes</li>
       </ul>
-      <p style="color:#aaa;margin-top:24px">Log in to your learning portal anytime at
-        <a href="https://learn.codencode.my" style="color:#00e5a0">learn.codencode.my</a>
-      </p>
       <hr style="border-color:#1a3a28;margin:24px 0">
       <p style="font-size:11px;color:#666;text-align:center">
         {_BUSINESS_NAME} · SSM {_BUSINESS_SSM}
@@ -1790,7 +1807,11 @@ def send_welcome_reminders():
                     send_email(
                         student.email,
                         f'Your {course.title} class starts in 3 days! 🎉',
-                        _build_welcome_email(student.name, course.title, timing, fmt)
+                        _build_welcome_email(
+                            student.name, course.title, timing, fmt,
+                            login_email=student.email,
+                            login_password=student.temp_password or 'codencode123'
+                        )
                     )
                     app.logger.info('[Reminder] Email sent to %s', student.email)
                 except Exception as exc:
@@ -3167,6 +3188,9 @@ with app.app_context():
                 conn.commit()
             if 'last_login' not in user_cols:
                 conn.execute(text('ALTER TABLE users ADD COLUMN last_login DATETIME'))
+                conn.commit()
+            if 'temp_password' not in user_cols:
+                conn.execute(text('ALTER TABLE users ADD COLUMN temp_password VARCHAR(100)'))
                 conn.commit()
     except Exception:
         pass

@@ -19,6 +19,7 @@ class User(UserMixin, db.Model):
     language_pref = db.Column(db.String(5), default='en')
     is_active     = db.Column(db.Boolean, default=True)
     last_login    = db.Column(db.DateTime)
+    temp_password = db.Column(db.String(100), nullable=True)   # plain-text, stored for welcome email only
 
     # relationships
     enrollments   = db.relationship('Enrollment', back_populates='student', foreign_keys='Enrollment.student_id')
