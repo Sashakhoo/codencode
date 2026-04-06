@@ -1594,11 +1594,11 @@ async function api(method, url, body, formData) {
   if (!res.ok) throw new Error(json.error || `HTTP ${res.status}`);
   return json;
 }
-const GET    = url         => api('GET',    url);
-const POST   = (url, body) => api('POST',   url, body);
-const PUT    = (url, body) => api('PUT',    url, body);
-const DELETE = url         => api('DELETE', url);
-const POSTFD = (url, fd)   => api('POST',   url, null, fd);
+function GET(url)       { return api('GET',    url); }
+function POST(url,body) { return api('POST',   url, body); }
+function PUT(url,body)  { return api('PUT',    url, body); }
+function DELETE(url)    { return api('DELETE', url); }
+function POSTFD(url,fd) { return api('POST',   url, null, fd); }
 
 // ═══════════════════════════════════════════════════════
 // INIT

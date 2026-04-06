@@ -2013,11 +2013,10 @@ async function api(method, url, body = null) {
 }
 
 // API routes are always at root regardless of page path
-const BASE   = '';
-const GET    = url        => api('GET',    BASE + url);
-const POST   = (url, b)  => api('POST',   BASE + url, b);
-const DELETE = url        => api('DELETE', BASE + url);
-const PUT    = (url, b)  => api('PUT',    BASE + url, b);
+function GET(url)    { return api('GET',    url); }
+function POST(url,b) { return api('POST',   url, b); }
+function PUT(url,b)  { return api('PUT',    url, b); }
+function DELETE(url) { return api('DELETE', url); }
 
 // ── Boot ──────────────────────────────────────────────
 
