@@ -1115,6 +1115,21 @@
           <div class="section-title">Analytics &amp; Exports</div>
         </div>
         <div class="card" style="margin-bottom:20px">
+          <div class="card-title" style="padding:16px 20px;border-bottom:1px solid var(--border2)">
+            <span>Welcome Reminders</span>
+            <span style="font-size:11px;color:var(--text-muted);font-weight:400;margin-left:8px">auto-sent 3 days before class starts</span>
+          </div>
+          <div style="padding:20px;display:flex;align-items:center;gap:16px;flex-wrap:wrap">
+            <div style="flex:1;min-width:220px;color:var(--text-muted);font-size:13px">
+              Runs automatically every day at <strong>9:00 AM</strong>.<br>
+              Sends WhatsApp + Email to students whose course starts in 3 days.
+            </div>
+            <button class="btn btn-primary btn-sm" onclick="triggerWelcomeReminders()">
+              <i class="fas fa-paper-plane"></i> Send Now (Test)
+            </button>
+          </div>
+        </div>
+        <div class="card" style="margin-bottom:20px">
           <div class="card-title" style="padding:16px 20px;border-bottom:1px solid var(--border2)">Export Data</div>
           <div style="padding:20px;display:flex;flex-direction:column;gap:12px">
             <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
@@ -3032,6 +3047,20 @@ function exportCSV(type) {
   let url = `/api/admin/analytics/export?type=${type}`;
   if (cid) url += `&course_id=${cid}`;
   window.open(url, '_blank');
+}
+
+async function triggerWelcomeReminders() {
+  try {
+    const btn = event.currentTarget;
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
+    await POST('/api/admin/trigger-welcome-reminders', {});
+    toast('Welcome reminders triggered! Check server logs for delivery status.');
+    btn.disabled = false;
+    btn.innerHTML = '<i class="fas fa-paper-plane"></i> Send Now (Test)';
+  } catch(e) {
+    toast('Error: ' + e.message, true);
+  }
 }
 </script>
 </body>
