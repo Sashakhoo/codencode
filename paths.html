@@ -3,13 +3,10 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Your Learning Path | codencode.my — Johor Bahru</title>
-<meta name="description" content="Find your tech career path. SPM leavers and career changers — codencode maps your background to the right courses, certifications and job outcomes. Johor Bahru, Malaysia."/>
+<title>Career Roadmaps & Learning Paths — codencode.my | Python, Data, ML & Cybersecurity Malaysia</title>
+<meta name="description" content="Detailed career roadmaps for Data Analyst, Data Scientist, ML Engineer, Python Developer, Automation Engineer and Cybersecurity — with codencode courses, Google certifications, and Malaysian salary ranges."/>
 <meta name="robots" content="index, follow"/>
 <link rel="canonical" href="https://codencode.my/paths.html"/>
-<meta property="og:title" content="Your Learning Path | codencode.my"/>
-<meta property="og:description" content="SPM leaver or career changer? See your personalised roadmap and which global certifications you can earn."/>
-<meta property="og:url" content="https://codencode.my/paths.html"/>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;700;800&display=swap" rel="stylesheet">
@@ -17,408 +14,1013 @@
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --bg:#080c10;--surf:#0d1117;
+  --bg:#080c10;--surf:#0d1117;--surf2:#111820;
   --b:rgba(255,255,255,0.07);--bs:rgba(0,220,180,0.22);
-  --cyan:#00dcb4;--cdim:rgba(0,220,180,0.12);--cglow:rgba(0,220,180,0.06);
-  --elec:#3de0ff;--gold:#f5c842;--gdim:rgba(245,200,66,0.1);--org:#ff6b35;
+  --cyan:#00dcb4;--cdim:rgba(0,220,180,0.10);
+  --gold:#f5c842;--gdim:rgba(245,200,66,0.10);
+  --elec:#3de0ff;--org:#ff6b35;
   --w:#e8edf3;--mu:#5a6a7a;--mu2:#3a4a5a;
   --mono:'Space Mono',monospace;--disp:'Syne',sans-serif;
+  /* career track colours */
+  --c1:#00dcb4; /* Data Analyst - cyan */
+  --c2:#f5c842; /* Data Scientist - gold */
+  --c3:#3de0ff; /* ML Engineer - elec */
+  --c4:#a78bfa; /* Python Dev - purple */
+  --c5:#fb923c; /* Automation - orange */
+  --c6:#f87171; /* Cybersecurity - red */
 }
 html{scroll-behavior:smooth}
 body{font-family:var(--disp);background:var(--bg);color:var(--w);overflow-x:hidden}
 body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(var(--b) 1px,transparent 1px),linear-gradient(90deg,var(--b) 1px,transparent 1px);background-size:60px 60px;pointer-events:none;z-index:0}
 ::-webkit-scrollbar{width:4px}::-webkit-scrollbar-track{background:var(--bg)}::-webkit-scrollbar-thumb{background:var(--cyan);border-radius:2px}
 
-/* NAV */
-.topnav{position:fixed;top:0;left:0;right:0;z-index:200;background:rgba(8,12,16,.9);backdrop-filter:blur(16px);border-bottom:1px solid var(--b)}
-.nav-inner{max-width:1200px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;padding:0 24px;height:60px}
+/* ── NAV ── */
+.topnav{position:fixed;top:0;left:0;right:0;z-index:200;background:rgba(8,12,16,.92);backdrop-filter:blur(16px);border-bottom:1px solid var(--b);transition:border-color .3s}
+.nav-inner{max-width:1240px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;padding:0 24px;height:60px}
 .logo{display:flex;align-items:center;gap:10px;text-decoration:none}
 .logo-mark{width:34px;height:34px;border:1.5px solid var(--cyan);display:grid;place-items:center;font-family:var(--mono);font-size:9px;color:var(--cyan);position:relative;letter-spacing:.05em}
 .logo-mark::before{content:'';position:absolute;top:3px;left:3px;right:3px;bottom:3px;background:var(--cdim)}
 .logo-text{font-weight:800;font-size:15px;letter-spacing:-.02em}
 .logo-text span{color:var(--cyan)}
-.nav-links{display:flex;gap:28px;list-style:none}
-.nav-links a{font-family:var(--mono);font-size:11px;color:var(--mu);text-decoration:none;letter-spacing:.08em;text-transform:uppercase;transition:color .2s}
-.nav-links a:hover,.nav-links a.act{color:var(--cyan)}
-.nav-cta{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--cyan);color:var(--cyan);font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;padding:8px 18px;text-decoration:none;transition:all .2s;position:relative;overflow:hidden}
-.nav-cta::before{content:'';position:absolute;inset:0;background:var(--cdim);transform:translateX(-100%);transition:transform .2s}
-.nav-cta:hover::before{transform:translateX(0)}
-.nav-cta:hover{color:var(--w)}
-.hamburger{display:none;background:none;border:none;color:var(--w);font-size:20px;cursor:pointer}
-.mob-nav{display:none;background:var(--surf);border-top:1px solid var(--b);padding:0 24px;flex-direction:column}
-.mob-nav.open{display:flex}
-.mob-nav a{font-family:var(--mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--mu);text-decoration:none;padding:13px 0;border-bottom:1px solid var(--b);transition:color .2s}
-.mob-nav a:hover{color:var(--cyan)}
+.nav-back{font-family:var(--mono);font-size:11px;color:var(--mu);text-decoration:none;display:flex;align-items:center;gap:6px;transition:color .2s}
+.nav-back:hover{color:var(--cyan)}
 
-/* LAYOUT */
-.container{max-width:1200px;margin:0 auto;padding:0 24px;position:relative;z-index:1}
-.sec{padding:88px 0;position:relative;z-index:1}
-.alt{background:var(--surf)}
+/* ── LAYOUT ── */
+.container{max-width:1240px;margin:0 auto;padding:0 24px;position:relative;z-index:1}
+.page{padding:88px 0 80px}
 .lbl{display:inline-flex;align-items:center;gap:10px;font-family:var(--mono);font-size:11px;letter-spacing:.15em;text-transform:uppercase;color:var(--cyan);margin-bottom:14px}
 .lbl::before{content:'';display:block;width:28px;height:1px;background:var(--cyan)}
-.h2{font-size:clamp(28px,4.5vw,46px);font-weight:800;line-height:1.08;letter-spacing:-.03em;margin-bottom:14px}
-.sub{color:var(--mu);font-family:var(--mono);font-size:13px;line-height:1.8;max-width:540px}
 
-/* BUTTONS */
-.btn-p{display:inline-flex;align-items:center;gap:8px;background:var(--cyan);color:#080c10;font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;padding:13px 26px;text-decoration:none;transition:all .2s;position:relative}
-.btn-p::after{content:'';position:absolute;bottom:-3px;right:-3px;width:100%;height:100%;border:1px solid var(--cyan);transition:all .2s}
-.btn-p:hover{background:var(--elec)}
-.btn-p:hover::after{bottom:-5px;right:-5px}
-.btn-g{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--bs);color:var(--w);font-family:var(--mono);font-size:12px;letter-spacing:.05em;text-transform:uppercase;padding:13px 26px;text-decoration:none;transition:all .2s}
+/* ── HERO ── */
+.hero{padding:48px 0 64px;text-align:center}
+.hero h1{font-size:clamp(34px,5.5vw,62px);font-weight:800;line-height:1.05;letter-spacing:-.04em;margin-bottom:16px}
+.hero p{font-family:var(--mono);font-size:13px;color:var(--mu);line-height:1.8;max-width:560px;margin:0 auto 36px}
+
+/* track filter tabs */
+.track-tabs{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:56px}
+.tab{font-family:var(--mono);font-size:11px;letter-spacing:.06em;padding:8px 18px;border:1px solid var(--b);color:var(--mu);cursor:pointer;transition:all .2s;background:none;text-transform:uppercase}
+.tab:hover{border-color:var(--cyan);color:var(--cyan)}
+.tab.active{color:var(--bg);font-weight:700}
+
+/* ── ROADMAP CARD ── */
+.roadmap{margin-bottom:80px;scroll-margin-top:80px}
+.roadmap-header{display:grid;grid-template-columns:auto 1fr auto;align-items:start;gap:24px;padding:28px 32px;position:relative;overflow:hidden;margin-bottom:0}
+.roadmap-header::after{content:'';position:absolute;bottom:0;left:0;right:0;height:1px;background:var(--b)}
+.rh-icon{width:60px;height:60px;display:grid;place-items:center;font-size:24px;flex-shrink:0}
+.rh-info h2{font-size:clamp(20px,2.8vw,28px);font-weight:800;letter-spacing:-.03em;margin-bottom:6px}
+.rh-info p{font-family:var(--mono);font-size:12px;color:var(--mu);line-height:1.7;max-width:560px}
+.rh-salary{text-align:right;flex-shrink:0}
+.salary-label{font-family:var(--mono);font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--mu);margin-bottom:4px}
+.salary-val{font-size:22px;font-weight:800;line-height:1.1}
+.salary-sub{font-family:var(--mono);font-size:10px;color:var(--mu);margin-top:2px}
+
+/* timeline */
+.timeline{padding:32px;display:grid;gap:0;position:relative}
+.timeline::before{content:'';position:absolute;left:55px;top:0;bottom:0;width:1px;background:var(--b)}
+.phase{display:grid;grid-template-columns:44px 1fr;gap:20px;margin-bottom:32px;position:relative}
+.phase:last-child{margin-bottom:0}
+.phase-dot{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:12px;font-weight:700;flex-shrink:0;z-index:1;position:relative}
+.phase-body{padding-top:10px}
+.phase-title{font-size:16px;font-weight:700;margin-bottom:6px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.phase-dur{font-family:var(--mono);font-size:10px;padding:2px 8px;border-radius:2px;letter-spacing:.06em}
+.phase-desc{font-family:var(--mono);font-size:12px;color:var(--mu);line-height:1.7;margin-bottom:12px}
+
+/* skill pills */
+.skills{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+.skill{font-family:var(--mono);font-size:10px;padding:4px 10px;border:1px solid var(--b);color:var(--mu);letter-spacing:.04em}
+.skill.cc{border-color:rgba(0,220,180,0.35);color:var(--cyan);background:rgba(0,220,180,0.05)} /* codencode */
+.skill.gc{border-color:rgba(66,133,244,0.4);color:#79b0f5;background:rgba(66,133,244,0.07)} /* google cert */
+.skill.ext{border-color:rgba(245,200,66,0.35);color:var(--gold);background:rgba(245,200,66,0.05)} /* external */
+
+/* cert cards inside phase */
+.cert-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:8px;margin-top:10px}
+.cert-card{padding:12px 14px;border:1px solid var(--b);background:var(--surf2)}
+.cert-card-top{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.cert-badge{font-family:var(--mono);font-size:9px;padding:2px 7px;letter-spacing:.06em;text-transform:uppercase;font-weight:700}
+.cert-name{font-size:12px;font-weight:700;margin-bottom:3px}
+.cert-desc{font-family:var(--mono);font-size:10px;color:var(--mu);line-height:1.5}
+
+/* jobs section */
+.jobs-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:8px;margin-top:12px}
+.job-pill{padding:10px 14px;border:1px solid var(--b);background:var(--surf2)}
+.job-title{font-size:12px;font-weight:700;margin-bottom:3px}
+.job-sal{font-family:var(--mono);font-size:11px;margin-bottom:2px}
+.job-co{font-family:var(--mono);font-size:10px;color:var(--mu)}
+
+/* Malaysia employers strip */
+.employers{margin-top:10px;display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.emp-label{font-family:var(--mono);font-size:10px;color:var(--mu2);letter-spacing:.08em;text-transform:uppercase}
+.emp-pill{font-family:var(--mono);font-size:10px;padding:3px 10px;border:1px solid var(--b);color:var(--mu)}
+
+/* legend */
+.legend{display:flex;flex-wrap:wrap;gap:16px;padding:16px 24px;background:var(--surf2);border-bottom:1px solid var(--b);margin-bottom:48px}
+.legend-item{display:flex;align-items:center;gap:7px;font-family:var(--mono);font-size:10px;color:var(--mu);letter-spacing:.06em}
+.legend-dot{width:10px;height:10px;flex-shrink:0}
+
+/* CTA bottom */
+.cta-bar{background:var(--surf);border:1px solid var(--bs);padding:36px 40px;display:grid;grid-template-columns:1fr auto;gap:24px;align-items:center;margin-top:60px}
+.cta-bar h3{font-size:22px;font-weight:800;margin-bottom:6px}
+.cta-bar p{font-family:var(--mono);font-size:12px;color:var(--mu);line-height:1.7}
+.btn-p{display:inline-flex;align-items:center;gap:8px;background:var(--cyan);color:#080c10;font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;padding:14px 26px;text-decoration:none;transition:all .2s;white-space:nowrap}
+.btn-p:hover{background:#00f0c5}
+.btn-g{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--bs);color:var(--w);font-family:var(--mono);font-size:12px;letter-spacing:.05em;text-transform:uppercase;padding:14px 26px;text-decoration:none;transition:all .2s}
 .btn-g:hover{border-color:var(--cyan);color:var(--cyan)}
 
-/* HERO */
-#hero{min-height:60vh;display:flex;align-items:center;padding-top:80px;position:relative;overflow:hidden}
-.hglow{position:absolute;width:600px;height:600px;background:radial-gradient(circle,rgba(0,220,180,.07) 0%,transparent 70%);top:-80px;right:-180px;pointer-events:none}
+/* footer */
+footer{background:#050709;border-top:1px solid var(--b);padding:24px 0;position:relative;z-index:1;margin-top:60px}
+.fbar{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px}
+.fcopy{font-family:var(--mono);font-size:10px;color:var(--mu2)}
+.fcopy span{color:var(--cyan)}
 
-/* BREADCRUMB */
-.bc{font-family:var(--mono);font-size:11px;color:var(--mu);margin-bottom:20px;display:flex;align-items:center;gap:8px}
-.bc a{color:var(--mu);text-decoration:none;transition:color .2s}
-.bc a:hover{color:var(--cyan)}
-.bc i{font-size:9px}
-
-/* PATH CARDS */
-.path-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:48px}
-.pcard{border:1px solid var(--b);background:var(--surf);padding:32px 28px;cursor:pointer;position:relative;overflow:hidden;transition:border-color .25s,transform .2s}
-.pcard:hover{transform:translateY(-3px)}
-.pcard.on{border-color:var(--cyan)}
-.pcard.spm.on{border-color:var(--gold)}
-.pcard.on::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--cyan)}
-.pcard.spm.on::before{background:var(--gold)}
-.ptag{font-family:var(--mono);font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--cyan);margin-bottom:10px}
-.pcard.spm .ptag{color:var(--gold)}
-.pem{font-size:26px;margin-bottom:12px;display:block}
-.ptitle{font-size:19px;font-weight:800;letter-spacing:-.02em;margin-bottom:10px;line-height:1.25}
-.psub{font-family:var(--mono);font-size:12px;color:var(--mu);line-height:1.7}
-.pzh{font-size:12px;color:var(--mu2);margin-top:6px;display:block;font-family:var(--mono)}
-.pbtn{margin-top:20px;font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.08em;padding:8px 18px;border:1px solid;cursor:pointer;background:transparent;transition:all .2s;display:inline-block}
-.bc2{color:var(--cyan);border-color:rgba(0,220,180,.35)}
-.bc2:hover,.on .bc2{background:var(--cyan);color:#080c10;border-color:var(--cyan)}
-.bg2{color:var(--gold);border-color:rgba(245,200,66,.35)}
-.bg2:hover,.spm.on .bg2{background:var(--gold);color:#080c10;border-color:var(--gold)}
-
-/* PANELS */
-.panel{display:none}.panel.on{display:block;animation:fu .3s ease}
-@keyframes fu{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
-.sec-lbl{font-family:var(--mono);font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--mu);margin-bottom:14px;display:flex;align-items:center;gap:12px}
-.sec-lbl::after{content:'';flex:1;height:1px;background:var(--b)}
-
-/* CERT BANNER */
-.cert-ban{display:flex;align-items:flex-start;gap:22px;flex-wrap:wrap;background:var(--bg);border:1px solid rgba(245,200,66,.28);border-left:3px solid var(--gold);padding:24px 28px;margin-bottom:36px}
-.cicon{font-size:28px;flex-shrink:0;margin-top:2px}
-.cbody{flex:1;min-width:200px}
-.c-eye{font-family:var(--mono);font-size:10px;letter-spacing:.15em;color:var(--gold);text-transform:uppercase;margin-bottom:5px}
-.c-ttl{font-size:17px;font-weight:800;letter-spacing:-.01em;margin-bottom:7px;line-height:1.3}
-.c-desc{font-family:var(--mono);font-size:12px;color:var(--mu);line-height:1.7;margin-bottom:14px}
-.cpills{display:flex;flex-wrap:wrap;gap:7px}
-.cpill{font-family:var(--mono);font-size:10px;font-weight:700;padding:3px 11px;border:1px solid rgba(245,200,66,.28);color:var(--gold);letter-spacing:.05em}
-
-/* CHIPS */
-.chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:32px}
-.chip{font-family:var(--mono);font-size:11px;padding:5px 13px;border:1px solid var(--bs);color:var(--mu);background:rgba(255,255,255,.03)}
-
-/* PHASES */
-.phases{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin-bottom:28px}
-.phase{background:var(--surf);border:1px solid var(--b);padding:24px 20px;position:relative;overflow:hidden;transition:border-color .2s,transform .2s}
-.phase:hover{border-color:rgba(245,200,66,.38);transform:translateY(-3px)}
-.phn{font-family:var(--mono);font-size:44px;font-weight:700;color:rgba(245,200,66,.07);position:absolute;top:8px;right:12px;line-height:1}
-.phtag{font-family:var(--mono);font-size:10px;color:var(--gold);letter-spacing:.12em;text-transform:uppercase;margin-bottom:7px}
-.phtitle{font-size:14px;font-weight:700;letter-spacing:-.01em;margin-bottom:7px;line-height:1.3}
-.phdesc{font-family:var(--mono);font-size:12px;color:var(--mu);line-height:1.65;margin-bottom:12px}
-.phproj{font-family:var(--mono);font-size:11px;color:var(--cyan);padding:5px 11px;background:var(--cdim);border-left:2px solid var(--cyan)}
-
-/* TIMELINE */
-.timeline{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:2px;margin-bottom:28px}
-.step{background:var(--surf);border:1px solid var(--b);padding:24px 20px 28px;position:relative;transition:border-color .2s,transform .2s}
-.step:hover{border-color:rgba(0,220,180,.4);transform:translateY(-2px);z-index:2}
-.step::after{content:'›';position:absolute;right:-12px;top:50%;transform:translateY(-50%);font-size:18px;color:rgba(0,220,180,.2);z-index:3}
-.step:last-child::after{display:none}
-.snum{font-family:var(--mono);font-size:10px;color:var(--cyan);letter-spacing:.15em;margin-bottom:8px}
-.slabel{font-size:14px;font-weight:700;letter-spacing:-.01em;margin-bottom:6px;line-height:1.3}
-.ssub{font-family:var(--mono);font-size:12px;color:var(--mu);line-height:1.6;margin-bottom:12px}
-.sbadge{font-family:var(--mono);font-size:10px;padding:3px 9px;font-weight:700}
-.bc3{border:1px solid rgba(0,220,180,.3);color:var(--cyan)}
-.bg3{border:1px solid rgba(245,200,66,.3);color:var(--gold)}
-.bm2{border:1px solid var(--b);color:var(--mu)}
-.bw2{border:1px solid rgba(255,255,255,.15);color:var(--w)}
-
-/* ROLES BAR */
-.roles{display:flex;flex-wrap:wrap;gap:14px;align-items:center;padding:18px 24px;background:var(--cdim);border:1px solid var(--bs);margin-bottom:40px}
-.rlbl{font-family:var(--mono);font-size:10px;color:var(--cyan);letter-spacing:.12em;text-transform:uppercase;flex-shrink:0}
-.rpills{display:flex;flex-wrap:wrap;gap:8px}
-.rpill{font-family:var(--mono);font-size:12px;color:var(--w);padding:4px 12px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.04)}
-
-/* CERT GRID */
-.certg{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:0;border:1px solid var(--b);margin-top:40px}
-.citem{padding:22px 18px;border-right:1px solid var(--b);border-bottom:1px solid var(--b);transition:background .2s}
-.citem:hover{background:var(--gdim)}
-.cname{font-size:14px;font-weight:700;letter-spacing:-.01em;color:var(--gold);margin-bottom:4px}
-.cby{font-family:var(--mono);font-size:11px;color:var(--mu);margin-bottom:8px}
-.ctag2{font-family:var(--mono);font-size:10px;padding:2px 8px;border:1px solid rgba(0,220,180,.22);color:var(--cyan)}
-
-/* CTA FINAL */
-.cta-final{padding:44px;background:var(--cdim);border:1px solid var(--bs);position:relative;margin-top:0}
-.cta-final::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--cyan)}
-.cta-final h2{font-size:clamp(22px,3.5vw,32px);font-weight:800;letter-spacing:-.02em;margin-bottom:8px}
-.cta-final p{font-family:var(--mono);font-size:13px;color:var(--mu);margin-bottom:24px}
-.cta-btns{display:flex;gap:12px;flex-wrap:wrap}
-
-/* WA FLOAT */
-.wa{position:fixed;bottom:30px;right:30px;width:58px;height:58px;background:#25D366;border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 20px rgba(37,211,102,.4);z-index:9999;text-decoration:none;transition:transform .2s}
+/* WA float */
+.wa{position:fixed;bottom:28px;right:28px;width:52px;height:52px;background:#25D366;border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 20px rgba(37,211,102,.4);z-index:9999;text-decoration:none;transition:transform .2s}
 .wa:hover{transform:scale(1.1)}
-.wa svg{width:28px;height:28px;fill:#fff}
-.wa-pulse{position:absolute;width:58px;height:58px;border-radius:50%;background:rgba(37,211,102,.3);animation:ping 2s ease-out infinite}
+.wa svg{width:24px;height:24px;fill:#fff}
+.wa-pulse{position:absolute;width:52px;height:52px;border-radius:50%;background:rgba(37,211,102,.3);animation:ping 2s ease-out infinite}
 @keyframes ping{0%{transform:scale(1);opacity:.5}100%{transform:scale(1.8);opacity:0}}
 
-/* FOOTER MINI */
-.mini-footer{background:#050709;border-top:1px solid var(--b);padding:24px 0;text-align:center;font-family:var(--mono);font-size:11px;color:var(--mu2)}
-.mini-footer span{color:var(--cyan)}
-.mini-footer a{color:var(--mu);text-decoration:none;margin:0 8px}
-.mini-footer a:hover{color:var(--cyan)}
-
-/* RESPONSIVE */
-@media(max-width:768px){
-  .nav-links,.nav-cta{display:none}
-  .hamburger{display:block}
-  .path-grid{grid-template-columns:1fr}
-  .timeline{gap:10px}
-  .step::after{display:none}
-  .certg{grid-template-columns:repeat(2,1fr)}
-  .cta-final{padding:28px 20px}
+/* responsive */
+@media(max-width:900px){
+  .roadmap-header{grid-template-columns:1fr;gap:16px}
+  .rh-salary{text-align:left}
+  .cta-bar{grid-template-columns:1fr;gap:20px}
+  .timeline::before{left:22px}
+  .phase{grid-template-columns:44px 1fr}
+}
+@media(max-width:640px){
+  .roadmap-header,.timeline{padding:20px}
+  .phase{gap:12px}
+  .cert-row{grid-template-columns:1fr}
 }
 </style>
 </head>
 <body>
 
-<!-- NAV -->
-<nav class="topnav" id="navbar">
+<nav class="topnav">
   <div class="nav-inner">
-    <a class="logo" href="/">
-      <div class="logo-mark">CE</div>
-      <span class="logo-text">code<span>ncode</span>.my</span>
+    <a class="logo" href="/" style="display:flex;align-items:center;">
+      <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAnQAAAEUCAIAAAAtFzxfAABHoklEQVR4nO3dd3wURRsH8Gf3Wi69QgolhKoGJaEldISAFFEQBEFABKUor1ixIIqAiKggCgh2sGCjSu9FetOEDjGENEju0su13fePAEZydzt3t5cD/H0//ENudnb2bnefndkpnLd/JAEAAIB8eE8XAAAA4E6D4AoAACAzBFcAAACZIbgCAADIDMEVAABAZgiuAAAAMkNwBQAAkBmCKwAAgMwQXAEAAGSG4AoAACAzBFcAAACZIbgCAADIDMEVAABAZgiuAAAAMkNwBQAAkBmCKwAAgMwQXAEAAGSG4AoAACAzBFcAAACZIbgCAADIDMEVAABAZgiuAAAAMkNwBQAAkBmCKwAAgMwQXAEAAGSG4AoAACAzBFcAAACZIbgCAADIDMEVAABAZgiuAAAAMkNwBQAAkBmCKwAAgMwQXAEAAGSG4AoAACAzBFcAAACZIbgCAADIDMEVAABAZgiuAAAAMkNwBQAAkJnS0wX4b+LEgPpig9qihqhMz11M5cssVT8WvcLE+lGiv5Z4E3fuTz7fdNP2kglI4Ss0aCSGaEkwcDlp3GU9Vz2HhvVFXxWZSri/L3D55Y4lUPgK9euLgb6k4innJH+pyMrm9ksoSeIQVGJ4tBAeRBoFlaTzpzI5sdrmdkvo8q/AiQF1xXqhoreGLEXcX6d4o+hgAqlDkObuQ3D5RJL+FVRiRCMhKpAUFsrP5C9mchZHE0iQOtVdP5FcPATpX8HVQwBPQM3VE9S1xAahpDvPHz/NlfuIDeuKin8nEEyUl85fyCRb9xGJBAqxTozoXcqdPMGfyxPDosUQ7b8+53zFBvVFUzb/5wk+yyw2iBG9OccSCAJXeJU/f4ErF5wqoSSpQyCBDAX83+c4ncFGAaRK6PqvYCmljFT+UhHZ2INUAqlDkOT2Q3D5RJL6FcSg+kKEivs7mU++yGkihPrBooMJJEiW0OUTSYZDsP8ruH4I4AkIrjWPE4NDRUHPZek5YxGXcYVTBYq+qn+lMBbwOj2V24xLEglUAWKAmsvJ5EvKucJsXi+IoYFiletR9AkVtUYuI4erKOeuXOYMWjHEp+oFL5mAxDJOl8uVmUi0fq+TPAQJUodAZOHyc7nCUs5WYJMooeu/gsiV6Pj8QjLbLIFUAqlDkOD+Q3D5RJL6FTRimD8VZXK6Eq5Mz2UVk38YqThHEkiQLqGrJ5LrhyDxK8hwCOAJCK41T0neGjIZyDtKaBRNSiMJalGrkrEhR1RoRbVAJqVQv6kQ7kMVFtL4VHkDwJFGS2QiPkBo1FgI5MlEpK1aI5FM4HZSh+A6t/8K7nfrn0hSFBrSKMlkoVqNhOhaZDYQrxE1vAMJJLj/TL4DDgHcA8G1xnFKUcmTIJDWXwz0F1VEApFK1pffyspMleQfKPprSBBIqRK5Kg/LKiUJAim0YmCQ6KUkgUihpqoP05IJ3E3yEFxUA7+Cu90WJ5J9vJIURAIv+vqLgX5EAvFKUvAOJJDk7jP5DjgEcI/b6m5yZxDNnFkQtTzlnlZcJVIFCzyRySznLgQTEU9CMZ98kIgTw2uRYOSqNmqZzcTzVJ6lOJJJnFZoQiT8uwCSCdxN8hBcVAO/grvdFieSRP5mEoh4M5d6jCcS/aKJBBIEBxJIcveZfAccArgHaq41T6ByM6m8Kx9sRJVWVAqcwSLjkyhnquDMyusthEryVpHJQP9cjyIZDMRrSM0TEfEq0vBUYSCRPYHbSR2C69z+K7jfrX8iSR6BiQxEGg1xdK39UzCRQXAggQT3n8l3wCGAeyC41jwL5V/hyE/01xKpKCSEDHlckazd/ExFXH4FhdQiBYnqQNGfuCu5VXvncyVXuVKlGBogEif61xKVpVxucdWbsmQCt5M6BJe5/1dwu9vgRJIgVnBX88m7lqhVEOcjhvlQQQ5XdSCKZAIpbj+T74BDAPfgvP0jPV2G/yLRO0ysW1f046kgm7+UxZn+fbF5RViaR1d58jFwZ5L5QpMDCTiNGF5PiAgmcwmX+TenK7v5alT4C/Xri8FaKtVzly/xJdVHytpNwPkKsc1F7yp/yUrmL5f8sxfJEkqSOASVGNNcCNP884eiNP5M9j+3fskSuvorcGJIE6FR8D/pTXo++VyVTCQTSB0CAzcfgssnkvSvwIlBdcU64aLKyOWmcxn6aocvmUCKxKnu+onk4iEw/AouHgJ4AoIrAACAzNAsDAAAIDMEVwAAAJkhuAIAAMgMwRUAAEBmCK4AAAAyQ3AFAACQGYIrAACAzBBcAQAAZIbgCgAAIDMEVwAAAJkhuAIAAMgMwRUAAEBmCK4AAAAyQ3AFAACQGYIrAACAzBBcAQAAZIbgCgAAIDMEVwAAAJkhuAIAAMgMwRUAAEBmCK4AAAAyQ3AFAACQGYIrAACAzJSeLgDcBixtEw1zF0inKyz07tXV/cUBALfYtf33Vi3jJJO9M+P92XM+roHy3NZQcwUAAJAZgisAAIDMEFwBAABkhuAKAAAgMwRXAAAAmSG4AgAAyAzBFQAAQGYIrgAAADJDcAUAAJAZgisAAIDMEFwBAABkhuAKAAAgMwRXAAAAmSG4AgAAyAzBFQAAQGYIrgAAADJDcAUAAJCZ0tMFcIAQGWVp10GsHy0Gh4iBQWJQsBgcRP6BVFrKlZVSaSlXXMSfPcMfPaw4cpArLfVMIZvdZYlvLdapKwYFi0FBYlCQGBBE/v6k13OF+VxBAZev5wryubQ0xZGDfNrfNVk2S7uOltZtxIgooVZtsVZtCg7mrl7h8vI4fR539Sp/7LBy+1brW4piTZbzn936+VviW4kxDYWoKDEiSgwIJD8/0cePvLVcXi7pdFy+nsvXcTk5ij/2KE6leKSQd4BmTRt37NiuYUx0g+j6detGxTSI9vPzzc3TFRUV5ecXHDh45Pd1m/bs3V9j5en3YK+2bVpGRkSEhoYEBQbUrh0WHBzk5eWl0+eXFJcUl5RkZ1/Zf+DQ9h17Dh85VmOluknvXj0S2raKiooIDQkJCQkOCQ4KCQn28fHOybmSp9Pr9fk6nf7KldyTp05v2bbz8uXMGitYo4Yxgx/t37hRw8jI8MiI8IiI2kaj6Wpu7pUruTk5Vy6lZ3zz7Q8XU63feUQPXel3NWuSmNgmpkH9hjENoiIjAoMC/P39/f18RVHMy9NfvZqbp9Nfzc1NTU379bc1tgp/q+G8/SM9XQYJ5p59LG0ThHvjxEgHisqfSlHs3KbYuJ7Py3Vf2SoJYbUs3XsKcfGWe+PI39+BLfV6xYmj/Iljym1buHy9m4pnib3X3H+gpUNn8vOzn5LLzlL+slz5+yqupORfObRsbfhksfSeCgu9e3V1paiVxKBg8wN9LB06CXEt2bfisrIUe3cptm1RJJ9wvQy3heXff/lg3wfspykqKo6o28zWpx07JD73v3G9enaX3FdWVvbiz7/54KNPHS4lm1Yt4x5+qHdiQuuEtq3Zt9Ln5+/a9cfPv65as3aDmwpWVds2rR7s2zOhbev4uHs1Gg37hhcuph48dHTPnv3Lvv/JTWXz9/d78onHH+n/YHz8fZKJN2za+tnir7Zu23XT37dtXsXy/b8z4/3Zcz52sqBVxMXdO3hQ/6TuXZs1bcy+1fETyZs2b/ttxZpTp8+6Xgb3uaWDq6n/IPOoMWJomCuZ8MeOqL7+XHH0sFylqkoMCTWNHmvu3ZfUDlxpVlRUKDeuUy77is/OlqloRESixsv03Ivmhx9xtDCqT+eqVvxy4w+WuJaGBZ9Lb+hycBUaNTENG2nper8r3yeXelE9513Fn8ddKclt4fPFHw8dMlAymU9AVPU/PvxQnxcnPcNyI64qLS399Tenr16z3qGt7Lv7rqZTp7wi+ZRgX26e7tffVk+bPru4uEQ6teMS2rae8vqLXbt0dDGfq7l5X361bMGiL/LzC+Qo1zU9krp+Mu/9OnUcu5kfPnLs8ZFjMzKybvxl66ZViQluD64cxz066OExT45ITGjNcZzT+WzYuOWNN2ecPXfB6Rzc6hYNruZuPUxPjxfr1pcnO4tF+eN3qs8+4QRBngwrw+qop8x9HiSNl1x5ktms2LFNtexr/sI51zOzNLvbOON9h6r7VSl/XKb+ZO61rFrEGxZ+Ib2NC8FV9A8wvviqJamnc5tXx+/bo54/l09PkyvDW9DHH80aM3qEZLLmce1TU9Nu/Fej0cz98N2Rw4c4t1NRFF+ePHXR4q+c27yqunWjpk555dGBDyuV8ryfSktLHzXm2UOHj8qSW6WEtq1ff/WF+7t2dCUM3KSoqPj7H3/5+JPPXG8u9vLymv3uW0+OepznnelAk52dM2jIE8dPJFf+d/OGFe3btZXcypXgGhd378JPPri3+T3ObX4To9G47Lufps+ck5unkyVDGd2KHZoM77xnnP6ebJGViBQK8+MjDZ8vFSIiZMnPcm+L8h9XmAcMkjOyEpFSaUnqWfHtjyZH65rVWFrEGxZ/7XRkJSLzY8Mr5nwsqtRERBbZHkqs76tj5/IffpMxshKR0K5jxbc/mDvJ0Ex9yyph61gQGhJS9b/r1/7kdGQlIo7jPnh/+guTJjidQ6Wk7l0O7ds2dMhAuSIrEUVH19uxdc3kl5+TK8NJ/xu/ddPKbvd3kjGyEpG/v9/4sU8e2retY4dEV/JRKBQrf102ZvQI5yIrEUVEhG/4/dcHenSr/K/FYnGlPJLenvrq3p0b5IqsRKRWq0c/OXzfnk0y5imXWyu4in7+FZ9/a+newx2ZC3fdXbFkqVCnnov5mNt3Mny8kHx9ZSmVFRxneuUN4+ixTmcg1Is2zJ5LKpWLBRHadzS+9CoRkeDGS840eqzxvY8oOFj+rDVexhmzzb0flD/nW0NpaRlLstDQf4Lrzz9+7dBLTVumT3ujR5LzDy4jHh/yy/Jv/P0lOgE4Z+qUVxZ++qHr+cyaOXXm9CnyhtWq/P39Vv76nSvt4V8snt+pYzsXi+Hn5/v9siVNmzQidwZXPz/ftauWv/ziRHdkHhkZ8fuan2Q5sWV0CwVXITyi4svvhHuau3EfISEVS74WGjVxOgNzUk/jrA9krrBa3dHosYZX33Si657oH2j4eKFk3yVGlr4PWWLvI/dccqJCaZgx2zR6LLnt/kVKpfGNt02PSbed3o4Yg2vA9Rg2fdobfXrL9uQ6e9Y05zZ8e+qrCz/9QOXyw58dI4cP+WLJfKfjIsdx33y58H/POv+Ay0ir9fru28UjHnemIeGN1158dNDDshTDy8vr47nvEZEguKW3cL16dXZsXXt/V1ffWNsREhy0ZuUPPZPud98uHHWrBFdR42WYv1isU8ftewoMqpi3UAxypp5kubeF8a2ZJF8rlsTu+vU3D3/C0a2ML04Wa4fLVgiOM77+Juu7as6xK9P45juW+5OcKZVDOM40cZJp1FNu31GNMxgNLMn8/P2IqGOHxEn/Gyfj3ps0bvjGay86utWEcaNffnGi+6qDNzw2+JHp0153bttpb702aOBD8pbHFqVSueCTOe0S2zi01X33xr7+6gsyFqNjh8Rhjw1yR801MDBgzcof7mrmfJWGkY+P94pfl8n4+OiiW2Wcq/GlV2sislYKDjbMfN9rwhiHNhL9A4wzZpOz7zacYxo9VrFrJ3uvHKFRE3nfXBKRGB1jemSwvHkSkWnQYEsPBxrEuLRUxYnjXMZl7uoVMhrEiCgxso7lvvvEJjbHmfxrd0+N5/f/oThzytny3ooMFWzB1dcnKCjwyyXznX4zZ8vTTz3x7nsfsQ+OjL3nrnfedjLgOeG5ieO279i9fcceh7a6v2tHeZ9CJPE8v3jh3Lbtu5eVlTNuMn3aG7IX4523Xzt9hqkrpUPDYb9Y/HHjRg3Z0x879uehw8cyMrMuZ2T6eGvr1Ilq0KB+u4Q29evXZdn8449m7dm7v6iomH2PbnJLBFfz/d0tffqxp+cPH1Ru2cifP8tdySGjUYiOEevWFevUM/UfxPjqTmgRb3pijOobhh6w1xmmvevQoCD+wD7lru3c+XNcXh5/NUcIDRNr1RIbNjZ37S4kML8mUWsM097VjhrKmPzaK1L2Qp4+pVi3WnEymcvOJqNBrFvfcl+cefgTYlitqsksD7I9xYus1REhMtL07POshTywT/3JR/zfqdazqlvfMH0WS4g1vvG218ghMvYY9ziTycySzMvLa/LLz0VFyT8uIDQkuHevpHXrNzOm//LzT7Ra1lcquXm6FSvWbNq8Pf1yxukz55o1bdyoUUzDmAbtEtv07cP0BMnz/Oeffdy+0wM5V64y7jQ0JHjJonkKhYIxfVFR8ZatOzZs3HoxNS0rOzsjI6tpk0ZRURGJCW369unJ3ssmJiZ61oypz73wGkviB3p063Z/J8aciaikpHTVmnVr1m5ITU07feZck8YNG8Y0eGLk0Ju+xvDw2uHhtVkyZG94GDVyaK8HmFqnTCbT9z/+On3mnJycK1YTPNSv9/x5s0NDJO7wERHh7783bdwEOav1zvH8UBwhrFbFd7+wviMsKtC8NEmR8pfVD0VfX+PEFy19+zG9wzOZtP17c3qmDtymx0aYJk5iKiERf/igeuY0/mqOrQRCVB3jWzOE2HsZM1TPfFu5bo1kMnOnrsb3HOjHofpgVtXBrFUZn37G/MRo9qyuYR6KY5gzz9Ke6e6g/O5b9ULpTv+GKW9beks/n6mWLHToieoWN+yxQUs+myeZbNHir4Y9Nuim3kNXruauXbthw8atl9Ivnz5zrmmTRg0bxnTp3L5v756MVYRK3//4y9PjJrGknPvBzKefeoIx29Vr1o98coLJZLL66YN9H5j7wcyICKbXH8u+/4n9Vrt6xQ/du3VmSWmxWL7+5vspb820M7K2d68e8+fOYiynIAgt23Q5d/6iZMpD+7fdczdTgw0RnTx1pv/A4ZmZWdU/atum1eJFHzlUrazEPhTn4rnj4bVrSacjGjbi6VWr19lPExUVueKXpbH33CWZW7/+j23bvptlv+7j+XeuprETGCMrl5Pj9eRwW5GViLiSEs2saeqpTE9/pFKZRjK1DIu+vibmvrvK77/1em68nchKRHxmhtfTTyi2bGLM0/ToYyzJzINZK7hEpJ72pq3ISkTqJQs0Lo+1sMXSNpExsiq2bmaJrESkmfG2YvUKyWSmJ0a73l381iGw1cKrR9Z58xfFNG7x3Auvbdy8rbIl8Oy5C+s3bH7l1bfuvjfhh+W/spehXQLTy8ImjRuyR9ZPFiwZOvwpW5GViNb+vjG+TZc//2Ka8HLQIw/VrWtlGo3qevfqwRhZiWjEqPHPvfCa/Tkr1m/YnNA+iXG6Pp7nx499UjJZz6T72SNrcsqpnr0fsRpZiejgoSMdu/R2tNmc3fvvTWOMrJNfe1syshJRZmZWrz6DWH73+XNns+zXrTwcXEVfX8v9bO+fDRWaVybxWdJjrpXbNis2rGXJ0tzvIdE/UDrZgwPIW8uSIf/XCdUC1rHV6tnTuWzrJ/1NxMZNLVITAYqBgcK9LRh3rdi4TrlJ4lRWHDqgmv8RY4YOYXxS4TIz1TPfZs9WPeddLkvq+1RrTKMce9d+K2N89XVTZO3X/7E33pxhJ/1TY59bsZLpCiKiBg3qBwYGSCYb+9Qoxgw3bt726uvS/ZCLiorHTXjBYJB+6+zl5fXCc0xPik8xzMhRad78RSzBgIjydPqnxz1v50GhqmFDH5X8Mvv1682SFREZDIanx02yPxVUcXHJiFHjbEVfV4SGBI8e9ThLyt9WrPl0IcMEcEREpM/PH/3URLNZ4oVIdHQ99oc5N/FwcDUPGEReTO9gVIs+ZZ+3SD1nlvR9log0XqZh0peTub/0DHPX9jv1dfZOkFxZmfpD1scr8xCJ09TcNYkYXxQVFqg/mMWSULX8O/6EzBOjW+6+h7E9XDPlZc5QwZ4zJwiqBfOkC9Cpq+j+kVS3rMmvvc3SXDZx0uTCwiLGPFu1bCGZZvCj/Vmyysm58sgg1gj3V/LJ6TM/YEk5bOijklWoRg1jGEfunjt/0f7TyU0OHDz85VffsaT08fGWDPAP9OzGuN/5ny75K/mkZLL8/IIJE19izJPd2KdHeTHc23OuXP3f8471FDl95tyy73+WTDbokRrq722LJ4OrSGQeyDbAq7hYudKBpiquokK5QvrbJyLJvrWWxA6M3ZgV69fYbw22ssm+PRxbT2BL+472p5eydGYd4KVcu5orYxofSUSqRTJP1G4exNR2zR85xJ8942jmyh1b+eQ/JRL5+Fi6uX/8zy1pw8YtjFWEgoJC9sZhyW47E8aNDgoKZMnqq2++Z9xppbkfL2R5CPDx8e7/cF/7acaNZa1bs1ezbvhk4RLGUS5jnhxhp7tQ1y4dGRtaKyoqPl2whLF4W7ft2rf/EGNiFhzHMQ7eXfbdTwUFhY7mP+2d9yT7AycmtK5Xr6ZGoFjjyeAqxN7H2P9W+dvPnMnoUOaKI0znihgeIdSy193A3J3tRiwIqq+d6Smj/JVtlQyet3S1VxLhXrYZ2M1m5c8/MKUkIiJF8gn+ZDJ7evtEnrd06sKSkvVrqUY9Z5bkAnnmnqwNa3cSo9H4ymtvs6dfv4G1D3DdOhJvNBk795aWli1e8jXjTm84eIhpJmHJ+eh7s3Vqzc7O+eZbB66gSmlp6Rs22ljP8d/q1Ils26aVrU/Z52P6dcWaPJ0DC2058cRgR/dunVlWETAajYs//8aJ/HPzdHM/Xmg/Dcdxo0YOcyJzuXg0uMbHM6ZUbmR6vVEVf+4MFTG1awltE+x9ytaGyZ85xWdmMJXs35SbWBcYEZrdbfOj6AaMrev8yWRH1+BTMJdQktAmgbQMb68NFYo9O53bBX/hHJcq0d9SiG8lhoQ6l//t67eVa6tO3y9p1+59jMMufXx97HyqUChat2K60rfv2O1QPKi0b/9BlmRtWtvrtRAREc7YR3rVmvXOzbTAvihe61Zxtj5i78q0apVj98zVa9br9PkObWJHUnemBvZDh49lZzvW2nfDF18uk0zzyABPTn3qyXGuFsYOOHq9c2ubqBd+LERJXzCczuZoHDEwkHH9AD7FyeodV1zMZaSLDF1YhaZNbX8k3Te9En/C4YXYFPv2ml6Y7OhWVlnYBvjy585yLizazKenWRo2spdCobAktlf+vtrpXdyOlnz+rUPpLRbLmTPnWNak87M7z3ab1vHebP0B9x9wZl3INWs3VJ082TlJ3bowpjx46Ihzu9i15w/GlPfdF2vro6ZN7Z7Y1xkMhu07He4DvHPnnkcGODDfgB2MCxKc+NP5VjF9fv7V3LxaYfaekhvGNGjUMObCRetD5N3Nk8FViGVqyVSccHIBKeWalc5teIOlJetM0LwLq4fyJ09aGIKrWLe+6KXhrE3KIzRiXWpYcdzhWwOflcldviTLIkWWVtKrWRERl37Jlb1wl6Q3F5o0I/oPBdfklFNOLMSWmZXNElx9fOzVXNlbMnfu2suYsqqz5y5MdqS526oEhkVMK+1wduBKRkZWZmYWy1QezWOtt1F5eXnFNIhm2ddfySdZ+lHfZOeuvbIE11phobYO4SYuLsX6999p9oMrEbVq2cJTwdVjzcJCw8bk78+Skr9w3t2FsUW4j7Xhmj9/1um98Gmsv71wr/X2IqEha3B1ouZKRPwZh/sWVSfyvBjDNFydy8tzZUf8JelhheyPI3eGbdt3ObHV5Qym1UZ9fOxVTFu3ZrqIKioqGMetugNLh2ciys7OcaLh+obzF5iu9GZNG1vtZ9umdTzjBJanTjuzIPSBg05Wym/Srl1bximccnJYZ86y6sJF6Su9eXOmMO8OHguulnibL+1vwjgY1B0szdl6CYkil53t9F64q6xnmFDHeis3Y9Ci4mKObar3m3CZl53Y6iZi/WjW3ekdeyt8E17qnSsRubIy0u2IZUhGdYzdOO0vyMo4y0SGG4ZaMgoOCmKcVj4ry8kXhJUYZ2FUKpWNG8VU/zv7ZIqXLzvT/+PU6bOyTNzfIJq1lSuLZcCkbRcYHlbuvov1LbXsPNYsLNZjnSiHy2R6fHYHMZJpYhcuL5ezMM3yan3zHOYzzM96XV+sxTYj6BUnbw18hgzBleX9dyXT85NNz8vzltcmX18hIoJ34ZHo9nL4iDMtFkajY130qwsNCQ4IYGqgysz02G/RtGkjxhphZpZLhWSPzcHBQdX/GBVlbzBeVWlp6axl+rfLlzOjo12dwqwe23xYRPTHbtZZ6pxWA6vx2OKxmqvobe89TVVcPtP0v25h92XSPwodHqdVFVdYwJhStNaQLnppGDfnrzh5a+Ac7GBsXYirvU7kJTIH+zuAQ/2EbzAYXA2ugYGBjCn18nVVdZQ/8+LHLvanzc9n3dxqcPVm6WlPRESpfzvZayHXtTcylVzvXyYj9icS2XluKI4v6wnNlbMuwyQv0UvDuMCcQxMJWVHOOqWDaLXmqmV9TCHmKH4z5kkn7BC97fUprXnWv8w7EftcSzdxvZGQce4IIiqvcO0icoF/AOu9qMK1QpYyrygXZG0SRC1bp2siuprr5NNwaakMV7qv3d7jNYznecmFdNy1a4/slYhExkohEZWVurMgtvmwXnLk2iXHlTI/PVh7IhG9vVk3Nzt5r+Tk+AlEH+Zy1gy2/nR3gDI5no2cExjI+iWXMwce2dkfSlSVi7GnjHlzqzMMs9dcjUamqYyrK5ejJuPndwsFV/JcTdpzNVct662W89AjrejDfIq4WMIK1hNatNp+xf5NOjjL1T9kuTszt1XUDPEWK88dyZ/5CcaDNVf2mpaLsaeMefOAAJdqrgZnv0yZaq7MFacawd58Ii8PvnO9xeox1WlY32U61wXXmc2tPbqKahXr5hYn1wl3td37Wi7sixrUBATXGuDHfJ+VpZ+qc7yYey1UWBtlzq68nPU68rXWsKdWqRk3N7ItwlNdheOjY6tjX0q9ZgQFWXmBXQM8V3NljigeW8OEuS1UVLNenNY3Z75mrFaRHXgnrWIOw/8m+kmvKSatRGKi7Zr2n2kW9iD2+ih7m6fsSkpYr3T2MOzi5lbruBXMTVxOf5kBclwU9te4rXnB/7WaK1fMfKv1UHDlipj7AKuZo6NVzFcCV2LtrC1lfghw9tZgvTnaQQ784jUCNdcaYH8x0aq8tB5bB5B9VRYNc2uWVewxr9DaAISSEtY2W29n+zfI0qJbyDape41hHAwmO4+Nc2W/1YreWq6owJ1lsY4rLiZBYOowzDZpvi2iF/NjZrGVs5YrZX5OVDl7a5AnuLJecurXXlLu2u76HsHj2MeuaF27iFzB/gTAOEmyLewvTfXWilTC/Bjt4+xLN/ZRSXYUFbLe2+tE38P+5d92PNcszNxIKAZ7piM1EZHVmmI1LjYLE/MlZzU+ccyXHDldc5WlksfeEnArdeUHV+iYJwsM9txlns9cc/VyrebKHvOsVqZLma90rbPNwn7+MlzpVqvdVnmqq1HN8GCzMGs9Roxgne9DdtabYatjHilvFfvyZzar+2y9ecVAJ1/si1EyrDnsQFsFez9tuLVdvsw6vZoHB/vr9axPAC4O6ggLY93can2O/V1meDjTgurVsU+uZEeh1DLmNyC4uoUDt9pI6XUk3ITLZro1iLVqiwrnG9gF5gVnuMvWZzXjdExjxoVIJ2Mk+5J2dvAXWRdgECM8dp8FeVksFsaJF+rXk+EBzjkXU9MYC1mvrkuFjK7POrNgSsqp6n9kX/q0UcMGrGWqIi7uXqsLBjgqNVV6Pv1K7F/I7chzwZVh6ZJKYrjHgit/2sopbgXHsU+VXJ1Yh/WKVRy1vuAln5bGtH1wsHMt2EITGSa/5oqLObZ5uoUGTItWwm3hb7Z5br28vMJrO1nfcpHFYjl5kmndp7quPQHUr8c04+alS5dz86zM+ZqccppxRw3YVqa7CeOa9pK27djNmJJ97ffbkcc6NCmOsS5vJDR2cuZl0T9QuIuhymU22wxaJ1nX8hXujuX/dnLVQKGxzVXQq+Lycrl86+1X3N+p1LEz075axCkOHXCgcESin59cjQf8qRQLQ1ZCQ7ZFfuB2cPjIMcbJ09u0ablm7QYndtGxQyJLj9Bz5y6cO299xaQ//0ppybDqXFhoSIMG9f92auZejuOasX0PtpYwOvFnssViUSgUkjk0j3WmqanFfc2d2Kq6jIysnJwr4eHSq4kguLoFV1DApf0tRks3XwjN7ha9vTnHJwkyP/Swafz/pEty7oz2iaFWP2J/ArDEt1KuW+NA4a4TiYTYe1lS8mdtPrfyf0svslbJ0qKlo8GVcU17FvypFEv3HtLpQkKFetF8eppc+wUPOnDg8IjHh7CkvL9LRyeCK8dxvyz/hmXKvVFjnrEVXI8eO/HkqMdZdpfUveuSz79xqISV7u/aUcs23Oj4ib+s/t1kMv2ddqlRQyur0d2EfXG6f23FtsI5ixN/pTzAEFwTElpzHCeKolz7vaV4rrcwEZ9i/Ry6mVJpadvOifwtrdqyJFOcOGbrI664iHE1WfZl1attGMc4zpU/ZXNJTvb15IX4lowpbzD37uvoJrbwyX+y7vTBh+TaKXjW1u2sjYTt2yc4kX/XLh1YIqvFYtmydaetT/cfsN52VV2Hdkx3leo6dmC9iR06bPOOxLjcukaj6dOb4Sm2iuaxd7doIU/NlYiOHWO60kNDgvs92Euund5qPFZzJSLFn8ctfZnuoZYevZQ7tjqUucjzQos4lpT84UP2Pj172hIh3ZIpRkZa7otT/OnwqpnmXqyhy86zCHfxPBUWkrX5SG8i3B0rBgXbal62kj40zNL5fsbEkvhTKWSoYJkVxNKjFy34WK79ultcU69WzZgqJZ+vLnBzWW45mZlZly5drl9f+nXjXc2atGoZd+SoYxdRt/uZXogkp5y2M6Ty7LkLOn1+iLWF3m7SvVuXwMAA9nknbnh04MMsycxms51If/DgkV49u7Pk82DfB9at38xYNiJ6ZsIYGactPHT4KGPKgQP6rV6zXq793lI8Glx3bafnXyGGsV+Wjp0dXdpaaJtILNMKms2KwwftFXL7VkuXbix7NA8d4WhwFf0DLT3ZHtwK8vljNs9Xjkixb7el14PS+SiVpgGD1F8uZiyhedBjpJTtJOFEUbF7lyWpp2RKMayWuV9/5ZqVTuyl4rOvhDr1OF0ep8vj9Hlcno7TXeWu5nK5V6/9cyJTu3q09Xnp8TCWlKt2FecWeGwSXU/5ff2mZ8aPkUzGcdzEZ54a+eQEhzLvxFYj3H/A3jM0Ea3fsHn4sMGS+QQE+D81esScDz9hKtx1Ax95iOXxgoi2bt9lp+vybyvXvj31VZZ8Hu7X58WXpzBOxB8YGDDoETnbirbv2JOZmRUVJV0tebDvA3ff1fTU6bOO7qJWWOiRQzsNFRVXc3VXr+ZeuXr1ypXcK1euZudcyczMTr+ckZNzxamyy8aTzcJcSYly4+9MSXnePHQEe84ikenJp5kyPnPK/rz5yq2bGPu4Wjp2FupFs6S8wTRsBOPkjqpflnMWs50Eih2sUxpZ+vRjTClENzAPlL7dOES19CvGlMZnJonBDg8rtCS2F+5tQcHBYuMmQkI7S+9+5hGjTM9PNs76wPDF0orVG8v3HStbu8Xw+luO5gxOm/vxIqORaUWmfg/2iogIZ8/5gR7d4uKYuizs3rPPfoJPF3zOuNNRI4cxprzhf88w3Y4ki5GamvbnXyks+fj5+T75BNNbZCKa9+EsWQbh3GCxWJZ88S1LSpVKtXjhXCd28crLz4UEB0VGRrS4L7ZHUtfhwwa/9MKzc2a/8923i3dsXXPx7LHSwszzp49MZP7mZefJ4EpEyu+/JYFpqRZzv/6W5i0YszWNGSfcw/T+QLl6hXSa335i3K/h/Y/Y5++1JHYwDx3Olm+F8pcf7SdR7NvDOMmwGB5hHPusdDIvL8P7c9nnPWbEXzzPH9zPlNTPzzDnY9HBa9749DPSiUJCFIxlADlkZ+cw9lRSq9WffzaPsX0yvHatxWyJ09MzNmyUeK+UcvL0pi1MT6j169dd/v2XLCkrzZn9DktXZCI6fvyvHTv32E+zaTPrY/TLL/2P5UnlqTEjBw2Uv4vDws++ZJz8Mj7+vsWLHIuvUVGRT4yw3gu1qrCw0JWr2epvbuDh4MpnZyt272RKqlIb5nxkuVu6F5ylVRszW7WVO3eGpYuvcuUvxDblhVgv2jDrI5aUlsT2hpnvE0OveiJSrv9dcq4oThAUByWezW8wj3zScm8L+2mM02aJdRwcvMsyDzORatnXjPkJd91t+GA+++qEhjffEZtKd+7n0lKV2xx4HQWum79gCWPKrl06LvlsHkvKLz//JDSEadLEKW/NNDGswrZgIWvl9cG+D8x45w2WlNPeem3CuNGM2X62RPrSWLV6HWNuIcFBny2QuB117dJx9rsOt+LwDFd6WVn50mUSVYIbHh/66Ifvz2BMXK9enRW/LGXper385xUZGUztju7g4eBKRKqF81nX4vYPNHyxzDR6rK3PRV9f40uvGuZ/xrhr9dw5LMm4igrVovmMeQptE8u/+cHOjIZiULBh6nTDh5+wTvev16u+YDoi5c+spzIRGT5eaO7Z2+pHlriW5T+vtrANnP0XtmcFxbEjip3bGLMU4ltVLF9p7tRVIllkVMWSbyxsvcMYf3eQ0dGjJ5Z9z9oCNHTIwCMHd9iZ06Bvn54n/9zfpXMHltz27T/02wqmYXLbtu9euYq1ovP8cxO++XKhnQStW8Xv3bnhpRekW4kq7dt/6LsffpZM9udfKfv2S7w/vqF7t867tv9utf4aGBjwybzZq1d878RSPyzBlYg++OjTS5cuM+Y5buyoP3Zvkqzi90y6f8fWtbH3SA/kzc8vmD7zA8a9u4MnOzRV4jPS1R9/YHxtKmN60+ixpv6DVD9/zx85zF29wuflCk2aCXXqCDGNzA8PJObpvxU7t7P3P1Kt+k1ok2jpwtRvVmzSrPzn1Yr9exWbN/IZ6VxWJimVYmiYGB5h7t2PaaBnFZrpbzJ27lX8dYLf/4eQ2J4tXy/jWzNMg4cp165SnEzm0tPEOvUsbRMtbROFVm1uTlxUxLT6qYL1WU397rSKe5qLYUwz8oihYcb3PjSlXlTs3qnYt0dRpde00KSZJa6lJamncHcs466Vq36z34UN3OTlyVPbJbZpGMM0M99dzZrs3LZ2y9ad3yz94e+/L/35V0pMTHSzpk0aNWzQsUNC714OXERvvMlaJSKiiZMmt24VX6cO06wpgwY+1KlTu99/37hh49bLGZkpJ09HRUVGRUY0bdJo5IjHEhNas+9Xn5//5FOsYfidGe9vXPcrY+JWLeP+OrZ31Zp1K1etu3gx9WpuXvdunTt36tC7V1LtWjf3wissLGKZjkPJ1smxoKBw/LMvrl8r/cRQqcV9sbu3rztw8PDqNRv27N13/MS1OXyCggJbtWzRI+n+vr171mOeJGvya29nZnqs2kpEnLe/xyYXrMrw7geMoUseer3XmOF8jgPdj0Vf34qlP4nhNTrtrfKHpepP57GnFxo2qljGeiqzU7/2knEW0zOgdzvW8b6W++IMixx4cVUVd+E8+fo68VtwWVlejz/CVdjrwuaEySNCGHsL3/3oeRl7Cw95dMCXn0t3W83OzmnUzOHxzUT0zPgx7783TTLZkaPHO9/P1GbQpnXLHVudmWvFafM/XfzaG+84tEnHDolrV/2oUqncVKTqRFEcNuJph0ak/PbL0gd6MI1iYLdx8zajwcgy8HTe/EXsjyxTp7wy+eXnnChPWVn5xdS/IyLCGRv/q/p93abBQ590Yqcy8nyzcCX1rGlc7tUa2llhgdezTzkUWYmIKylRT5lMZntdduXFnT2jcnCsJ3/xgmL7FnmLoVz+Hescy45Q/Hlcuewb57YVGzV25imnsEDzwrOyR1Zgd+jw0Rnv1lxL3Xc//OxoZCWiPXv3OzrSxkVffrXM0bGe7773kcDWFZRRcXHJ8y++bjAwdepmrLlWmj5zjqNjlyt5e2ubx97tRGT9K/nk2AnPO7FHed0qwZUrLtZMHMc46MUlpaVez47l01iXDahKcSpF/frLVFYue6Gq40+leD03gXN8YjD1h7O5HNbVMyRxWVmqRZ9y5awLSbJ3liYi1aL57D2xXVVU5PXs05hS0eNmzZ47b/6iGtjRmrUbxo538g47c9aHcz9eWDPT8n33w88vvDzF0a2OHj0xe46cs6xMnzknPT2jlK37i0Pr2oqiOGjwE4xzNrnu1OmzfR4c7MQsH7K7VYIrEfHpaV5jHrczyZ8MKio0zz/DvvZZdcq9u7zGjSJdnoyFqk6xZ5dm7JNcUYET23L5es0LzzAOy5Egiup3pnAmI1dczDhiirwdWIqVI1J/OFs1dzZr5s7i0lK9xozgL15w616A0Rtvznj+pTfM7mwE2rZ99+MjbfZ8ZDFl6swJz77E0sfYaYIgTH7t7bHjn7dYnHlTMOPdD1asXCtLSQ4cPLxg0RdEVFBQwJLe24e1A3+lq7l5Sb0GbNgoc6NadZu2bO/Ra4A+n2kIkLvdQsGViLiCAs2EMYo9u9yROX8qxeuJoQrGCY3t5HPhnNeoYRzzXPmOEUXlN19qJj9vf8oI+/i0vzVTX3O9LOp3pyn+OnHtP2xXnejt4+heVL/8pH71RWJbUNMJig2/ez0xjM9gWvgMasaSz78ZOvwp9tW/2ZWWls2c9WH/gY87F7GqWvrd8kceHVHEvPS3Q8rKyoc/Me5T5sE/Vg1/Yhz7RIO2HD+R/Niwa/Nn6XRMfSd9mEfH3VBRUTFw8BPzP2WdG85RJpNp2vTZAwYOtzPJZQ27tYIrEXFGg2by8+q3XuNkbMErKlC9/67XmBFytQryebleTwxTfTqPmCfpZcr28EHNUyPVSxa4npVi/17NxLGkd7Z4ZWWaSROqDgLm9FYWmLTCwUfaSsq9u7yGPqLYIM9j+D90eep3p2mmT7U/CRd4xLr1m9u06/bD8l9lrMJu37EnsUOPd9/7yPXIWmnb9t2tE+//dtlyxhmmWJhMph9/+q1t++7sI1bt6Nd/6M+/rHJ68+079vTsPeBq7rWmuOxspikDvR0PrpVee+OdPv0Gu/5AcJOTp848/Mjj73/AOmCyZtxywbWScssm7ZAB6vemu/76ULFlk/axR1SrWHuuM+JMRtUPS7WP9FV9uZhxigk7+BPHNE+P8npuvOIU09xmLBRHD2uHDuQPOrbAHBGRXu81fvRNK9NxbC3hTtRcK/E52Zrpb3kNGaDYvZNcftfFZWSo5szSPtxb+ftqF7MC90lPz3hq7HOJHXqs/X2ji1ldunR5zNP/e/DhIRdTnelOYUdGRtaEZ19sndDt519WuRizLRbLr7+tbtX2/jFP/y81NU2W4hUXl4wa88zY8c870Qzw40+/9ev/WNX5h7Oyme63Pk49Q1fauWtv1+79hg5/KuUk69rvdhw8dOSxx8e0Sey2c9de13OTl+fHudqhXLNSsXaVENfS0qGTJaGdGC29kOE1JiN/5LByx1bFjq2cLG8fbeAqKlRfLlYu+8aSkGhp30lonSCGM8+MWlHB/3lCceiAYs9ONzVackUFXs9PsCS0Mw0eJrRJIPsTxYkifzJZsWGdctO66qvn8pmXBUqU3qXW+auOiPj0NM2rL4ghoeaOXYS2iZa4lkzja28oK1Ps2aXctI4/sE/22fnBTU6dPjtk2Oi6daP69e3VvVuX9u3ast+709MzNmzc8tvKtX/sc+/Y5QsXU0eNeeb1N6f3e7BXUrfO7dsl+Pv7MW6r0+f/8ceBbTt2r1u/OZstejnqux9+3rp91zPjxwx/fHBYqMSM3Pn5Bb+v3/T9D7/s2XvzJKCMExdrXZ4VdfWa9avXrG/TumVS9y5du3RsGX+fWs2wzsp1OTlX1qzdsPS75TfGwt6CbpVxriyE8AhL1+5i3XpiULAYFCQGB4uBweTrSzodV1jAFeRz+XquIJ+7eFG5ZYNbY6q9QjZuaklsJ0TVo+AgMSBQDA4VA4NIyXP5+ZxOR8VFXL6ey8vj/zqh3OuWV8s2C1Yv2vT4SKFpM/LxE329yT+Qios5XR6Xl8vl5XJZmcoNv/OZGTVZJBaWuJaW+FZieIQYFET+Ade+T28tFRZwJaVUWszl5/MZ6VxWNnf5kuLwQc7grne3UGMe6te7XWKbiPDaoaEhgYEBtWvXCq9dq7i4RK/P1+n0+vwCnU6flZ29ecsOyen43ad3rx4d2reNiowICQkOCgqqXSs0IiK8pKRUr8/Py9Pp9Pl5Ol1GRtau3X9IThcsrwnjRg98pF9wcJCfn5+/n5+3tzY7Oycn5+qV3NwrV3KPHD3+1dff1WR5WPj5+T7Qs1ub1i1r1wq79qPXCgsPr11RUVFcUlpcVFxYVJxz5cqltMvplzPOnDnHOAu0Z91OwRUAAOC2cIu+cwUAALh9IbgCAADIDMEVAABAZgiuAAAAMkNwBQAAkBmCKwAAgMwQXAEAAGSG4AoAACAzBFcAAACZIbgCAADIDMEVAABAZgiuAAAAMkNwBQAAkBmCKwAAgMwQXAEAAGSG4AoAACAzBFcAAACZIbgCAADIDMEVAABAZgiuAAAAMkNwBQAAkBmCKwAAgMwQXAEAAGSG4AoAACAzBFcAAACZIbgCAADIDMEVAABAZgiuAAAAMkNwBQAAkBmCKwAAgMwQXAEAAGSG4AoAACAzBFcAAACZIbgCAADIDMEVAABAZgiuAAAAMkNwBQAAkBmCKwAAgMwQXAEAAGSG4AoAACAzBFcAAACZIbgCAADITOnpAsjmnt6RCwd6aar8pTj56uhPStLN1ZIq+d6joybHlL05U7e7iIgoPC5k4Tjv819kTjksmKpnrVQ+PDHq1eaKa9nmVhzblb9gc7mVnImIyKdp0LLJQZFV/1RYPOWt3K1FVhKHt661bLyvHxERGQqNKcmFy34tPmAtZaXG3SO+GKqtcpiW/V9cfmWftWITqfy1U6dFJAVU/ZtxxezM98+KVlJrVZPeqDsk8kYCvvezdSYHFIyZXXTexpGSUtl7YMiYttrIAL44t/zAroLPbX0t//4OiYhIOPtr5pj1Jmsl57qPrTOjrYqIyGTOuli69Ff9ulTR6jE66tqvk1v4ykzd7iJShfi8P612oqri2+lZizKspA+OC1s6Tr31o8x5Z4mIgmNDlk7U7v7IxndY+YOOUa2YnbkoVaIkwU2Dv5gcGFnt78XHcoZ/WpZjZQu+97N1p8ZX+Q5N5Qveyl5mLSkRqcJ9F04JMa7KnLTVLP3V+XtNeSOyb1iVv2Tlj5+Zf7zcWmKnTpXuA0PGtNVGB/CG3IoDdq4gpWr8lKgBhbmjPylNNxMpVcMnR44w6UZ/ZO1avi68da0vxvv6nckd81GxzTIQEXGdnqwzvWnZm2/rdls9NJepwn3nTanV0lTyzoyr63VSiUO8xowI6dNME6oS8tLLtq7L//ywqdT1zLXqV96oMyCSiMhQZkpLLlj0o727ikO3rMo7rfH6WRocG/LFCwGRWQWTZuoPVPtKVSE+M6aE1T+WM2FZhb5yXzH+C18IKlmV9cpWe0d6B7hzgisRkcmw4lv9gaJrdz1jgTHb6mVmFras1idNDp3QuzhluVGvVY94yFednLfguPUQVcmQW7xgeYleq0po6580sHa4NnPCb7ZPDpMleXPusrPCjf+m2D6zyWTa9YtunY7CI7RJSWHTA8QJn5TYukFkHcqbnKMMbhr4fB9Vyq95K9PN2en2ik0k5B3Tz9tpNF77ryUt3XpUuE7dqYt26VmrN/d/Uyp7j4uY2pyOHtQvTTbpzYp7YhR+KiLbtzZDbvGC5cU514or6LKtRtbrCku+/aVUF6FJjPN7dbImYnb2olT7JWdlNJEhUNupIbf7uBjR1KexSpDexg2K04umf1TmR6T21w4fGeR3LHfhHyYjkTHPYOO2KRxYlf3KTmX9LqHPNDMt/7bgWJH5XJ5MpSky/LQ4a3eAMmlIaKfyormry3IKzeckwg/7qcL3Hh0xNZ6OHtQvTzbpzfw9TVXR3uXpdi4Kx/Cx8WrjmdLsEO+40OLz0gVyo4im3hEFpUdJ3TmG36Kzd22q/LWTn6/d18e4ZfPV/akWo1YVG8BpiOyEHPbMiYTiM4UL9poi6nkndAibXVf15vv63fbuQo7cskhQN/SNDylbr+Pi22hDbJfDpCv9Yp3vwoeD+uzIXpZBpFQm9Q6MzCt45Y87PLLSHRdczefOlu+WelokIlNO6cJ1vgsfDulz6EpKXGhSQPmCz0rtPBcTERUZjieXnzeXbz1UrpsSNaS5Nnq16aSNTYwk5qSW705hCgYGEtJSy3anEh0vO6/1mtfV556AkvM2jqK0yHQgxRSs8jWYFNkXy3fbqD9VVZJXsT/FyHYqC8VZRmOMb0J42SqpO1RwQ/8xzfmjv2RN2notRu4+LpV9keF4coXdisU/DKXm48dLD+wr/XlL2ZQ3Igc85LPOajuEE0zGlItibJxXeLIpvq1ad8ZADTk58nWwFOXm4ylmIlKFKPqYBLpcsT9F4o6jzzDuzjDGxQoGkznlbLm9e6XDxPOpFeeVqvq9KaHMeCy5QuqrduhUCRgR7+Cp4giVv6ZzXTq5vkjXIzQxRrkyh6Gm7iZKZXy8pjglb513yJh4TcjhcjvfTZMOQUlhpuWzs+Zda+Qo3ypf5kRkKKw4sK88Z1/J0kOGLycHje5QfHS9zRPMoVuWMdeQUq5OaqrclaLqHCMeu2iK9beZ+Pwf+hVtIwc/7L3rs7KSZv5Dmgm7Piuy3iJyZ/nvvnM9/4d+RbZ6xJPhb3ZVpqzKX+fQ0657rl2Vv7pzM5WG5KmfOaf4csmBIk2feJWP1HNXRKxXCBl3pditfcqiyLD7rMmvnncTb7lyFC8llxXX841vpu0cYjqQbDZKbwI3c+BUaaiNcOep4tfQ+x6Vcf9Zw7GLQv14TYTnqgyqAE3ncPF8iiEl2Uh1vZvYDjmkVN4Tq6Lcsl3Zbsj830qzyw7kUnSsJkS2b8a8P9kU0VbbPNa3cXnZ/my7bT/lpp9WF5c0CxrS3GvwQ77qZP3SM568xdWYO6vm6u3z6pyYV6//L23d5dF2Wm7LTT/9WtR5clDExbw3/3Dgsm/cJqhPQ0pbV55m+9FerVImTWyQdP2/hou5Y2bbfBWkUWlGTokZee1/luR1BSyVb2Z8dI8623pc/19ZyTtv2X1bYzJt2WtI6OrXfG+B3Ww5P2+FpsygL3OgKJqGocuWhN7Y0+8fZcxgelIWiwsFg7ci2JtInrqaaMwpPWaqNfghtZ+ucKlOkyS9CVTDfqqE/HOqJAyvM6+r2n5fAQdxsbFadU5BSqFgTDHSEJ/YgNJ0Oa8gB4TE+NQnw7p0IVtVesknqFM9znZdkAvx5qjIpGP+ChzJ/N9MYlaRSN4KP9tJHLplkUnQp5RnxwWM7sEXJ19JJ4nHXv2ZgqXJPpPH1aayigVflsnT/nTLu7OC67/fuRZn229k4+rHaiOINBHaxqFFJ6VqrlUDQ94Z3aItdjP/9wsMY4HRTiSufOe6pZCPjfdrXFY4e7VRL1EWh/z7navJklJoP714KaX4ZFJIn6bF+xlyVztSlJveuWZf9NgDrKHMvPu4MGSgKuXbimyTRnoDsMKxU6VS8pYrr6T7TRjqK1sptKqEpnz2TkO2mSi97JI6mOF9pJvwsfEadY7+XBmZyHgsj+8TpwlOqbB/OTOffM5k7gCHbllExryKXbqQV5uZvl1qNsRJZW4Wdq0r6B8f4nfQwTbC29kdFlxZ37kSkU+M/6SuypRfr5yPCx0z0OeY1DvXG4GhONuQopPouerEO9etqbQ1xfjK5PA3e2RPsv1qxAmOvHMlIiJdxboU4ZUO3ln2Eom6bLNBpfB1qDbpyDvXKji/AF5TZnKolixFOHdQv4CU54+bjfWkU6uJo8rmetV/902KFY6cKpUND6U5pv1kHGz3+ikxVbtwqv/luuB6PgmRysihdfcMvfaXPIb3ke6g8td0bqYKDaj985Lrf9J6N9FWVO9DS0RElkt5AoWrfO32AXQ285s25iL9OSqyFNtO4tAti4jIZN69XheRbF6ZLkRIBlciY7lgNJGhSPzvvIK5s4IrO61qxGOBken6SZtLsy+qEyYGPxVX/o7VcTg3OBkYHFFuXHfINK9zYOLB3K0eatciIiIxeW+J7kX/hFKObF+6WallaarAzrGqlTnufe2q8vdKaqoqTs8/J2dwJZOu4uf1RETBdpMZyswlVaq2auLIJBSX/ideGjFw5FRpytjVSCwuE4n+6WLmqyJDmWC0cenVj/MOKSxZ8EPxpXKRiAtvH/JMjG8T//IcOXt7MfGr532PyrjlW90WnUjEqev5TeqtTahHB85aS20Wzp8xGJt7J0TkH5cateVw5v/mU883IYzS9hl0Mt6+TKQ/W7LoLBFRhHy53knurOCqUjZpqu10YyhOmTE5VbBaY7una+iACOPS94pPmonOFn6R7PvmQ0GJZ3Vydb9UExceo+1k+qdf+7mLphyGM/vcwaKUpNDhbVX7bVReffxVzespg2OUGhUf0VDbSWXOTjeet1ts31CvxFj++gOjIJmeiEpzytalB73aXGG4aDtNeulPyf5THw6bbMrfrRNJq+7UnNb9aLcfoL8mrrlXxPX7a3GeISXHZhuAxkfZOFbr6+3VJ8k/MbDi28VS3bndw5hdcb40qM9jwWmry3KUyqSHvP0KCo9LPPrw0THenbwd/vUlBddRxwYq64fyGpUytqnWWGSWypkLqefVOdbM8OtzjWM0EQHKJv6kVqnjm3tFFpqTU82SDR4OnCqDaj1P+Qd0FNzUp4k3l2Irtdl8/qxJPTD4+R7CynQxODZwQD1K2WGy/pVrVZ2bKYvP5G+5XlUNNpUNaO5j/32kRq28J1ZL5dI3CkdwsXHakIKydYfKK2uTqnTq3LlWXKzK56z1azntUNGuLrWHPBlWsrrkUjmpw7WdA8rm/ma1pdfhzIlIE6COjyN1jG//rn4RuQVv7rXXHub0LQtsucOCq2bAmIgBN/6brhs9o7D6aBmfOn6TequzdmStuDZpgLBrtb7P5LBrw17lKYmieZ/w9/tc/6+p/KO3sn9maKgy6cpWHrNM7xyYuNf6CO7INqGzr08ikTgwPFG6YwgfGh86I/7Gfy27Fl22PldGVWbzgZ1lec397PSAILN5/WfZ9FjYhJERfYkMhcZzyfkldvPVhPm9MPGfLLP2Zo35yvZLowDfZ8b7ElHexcL3ZuvXyTTI1VGmovK5i68YBgY/MzFAQ0JWcuHsH/Ml2uJUqs5Dwzv/kwXrry+FT3g44vokEsoh47VD7E4iQUSk4qM71JrR4cb/bf/6/prBY29MIhH46sRAe5NIVOXgqTKAiEym5L36pSk2T8KTm6+8SaETeoe/701UWLHlh+wFf1iv8vqEaOMi6Pxm443Qq88uP1/qH2//fWSAz8jxPv/818aNwjFaVUJTZfHl8rTr35ipzHA0R+zU3Dt6tfXMTUXls+fmlIwIGzPeT0NCXpbx5JZig0yZE/F+zUKmNiMiS9rB3Ml2J5Egcv6WBbZw3v7Vp4gBAAAA56F3BgAAgMwQXAEAAGSG4AoAACAzBFcAAACZIbgCAADIDMEVAABAZgiuAAAAMkNwBQAAkBmCKwAAgMwQXAEAAGSG4AoAACAzBFcAAACZIbgCAADIDMEVAABAZgiuAAAAMkNwBQAAkBmCKwAAgMwQXAEAAGSG4AoAACAzBFcAAACZIbgCAADIDMEVAABAZgiuAAAAMlN6ugAAtxRebNLD3DKMiKgiXbFhD18heLpINUtV29Kjh+BPREQXtioPZ3MeLhDAbQnBFaAaSwl/7BhXVMQZ/2ORlYhMev7AVs4/Soi/S/R0WQBuXwiuANWVU95lvuC/F1mJiEycLpsrVQtCE0+XBOA2hneuAAAAMkNwBQAAkBmCKwAAgMwQXAEAAGSG4AoAACAzBFcAAACZIbgCAADIDMEVAABAZgiuAAAAMkNwBQAAkBmmPwSoRhEm9BomYOJ+AHAW5+0f6ekyANxCRK9QMVBLRCSUcHn53H8sthKpxJBQUaUkIq40hys2ebo8ALclBFeAW4GX0ChWDFJY/7Akhz976b8X5gFuYwiuAAAAMkOHJgAAAJkhuAIAAMgMwRUAAEBmCK4AAAAyQ3AFAACQGYIrAACAzBBcAQAAZIbgCgAAIDMEVwAAAJkhuAIAAMgMwRUAAEBmCK4AAAAyQ3AFAACQGYIrAACAzBBcAQAAZIbgCgAAIDMEVwAAAJkhuAIAAMgMwRUAAEBmCK4AAAAyQ3AFAACQGYIrAACAzBBcAQAAZIbgCgAAIDMEVwAAAJkhuAIAAMgMwRUAAEBmCK4AAAAyQ3AFAACQGYIrAACAzBBcAQAAZIbgCgAAIDMEVwAAAJkhuAIAAMgMwRUAAEBmCK4AAAAyQ3AFAACQGYIrAACAzP4PVXBMl5B2iJoAAAAASUVORK5CYII=" alt="codencode.my" style="height:36px;width:auto;" />
     </a>
-    <ul class="nav-links">
-      <li><a href="/">Home</a></li>
-      <li><a href="/#courses">Courses</a></li>
-      <li><a href="/#pricing">Pricing</a></li>
-      <li><a href="/paths.html" class="act">Your Path</a></li>
-      <li><a href="/#contact">Contact</a></li>
-    </ul>
-    <a class="nav-cta" href="/#contact">Free Trial <i class="fas fa-arrow-right"></i></a>
-    <button class="hamburger" id="mob-btn"><i class="fas fa-bars"></i></button>
-  </div>
-  <div class="mob-nav" id="mob-menu">
-    <a href="/">Home</a>
-    <a href="/#courses">Courses</a>
-    <a href="/#pricing">Pricing</a>
-    <a href="/paths.html">Your Path</a>
-    <a href="/#contact">Free Trial →</a>
+    <a class="nav-back" href="/"><i class="fas fa-arrow-left"></i>&nbsp; Back to Home</a>
   </div>
 </nav>
 
-<!-- HERO -->
-<section id="hero">
-  <div class="hglow"></div>
-  <div class="container">
-    <div class="bc"><a href="/">Home</a><i class="fas fa-chevron-right"></i><span style="color:var(--w)">Your Path</span></div>
-    <div class="lbl">Learning Paths</div>
-    <h1 class="h2" style="font-size:clamp(34px,5.5vw,60px)">Two paths.<br>One <span style="color:var(--cyan)">destination</span>:<br>a <span style="color:var(--gold)">future</span> in tech.</h1>
-    <p class="sub" style="margin-top:16px">Select your situation below. We'll show you the exact roadmap, what you'll learn, and which internationally recognised certifications you can earn.</p>
+<div class="page">
+<div class="container">
 
-    <div class="path-grid">
-      <div class="pcard spm on" id="card-spm" onclick="selectPath('spm')">
-        <span class="pem">🎓</span>
-        <div class="ptag">For SPM Leavers</div>
-        <div class="ptitle">我不知道我要做什么。<br>I don't know what I want.</div>
-        <div class="psub">Just finished SPM and feeling lost? You don't need a plan yet. We help you find direction step by step.
-          <span class="pzh">迷茫没关系。我们帮你找到方向。</span>
-        </div>
-        <button class="pbtn bg2">See my path →</button>
-      </div>
-      <div class="pcard career" id="card-career" onclick="selectPath('career')">
-        <span class="pem">🔄</span>
-        <div class="ptag">For Career Changers</div>
-        <div class="ptitle">I want out.<br>I want a tech career.</div>
-        <div class="psub">Stuck in admin, sales, security, or a role going nowhere? You have more transferable skills than you think.
-          <span class="pzh">换跑道不嫌迟。最好的时机就是现在。</span>
-        </div>
-        <button class="pbtn bc2">See my path →</button>
-      </div>
+  <!-- HERO -->
+  <div class="hero">
+    <div class="lbl">Career Roadmaps</div>
+    <h1>Where does your<br><span style="color:var(--cyan)">coding journey</span> take you?</h1>
+    <p>Six complete career paths — from your first line of Python to a senior role in Malaysia. Every roadmap includes codencode courses, Google certifications, and realistic salary ranges.</p>
+    <div class="track-tabs">
+      <button class="tab active" style="background:var(--c1);border-color:var(--c1)" onclick="filterTrack('all',this)">All Paths</button>
+      <button class="tab" onclick="filterTrack('analyst',this)"><i class="fas fa-chart-bar"></i> Data Analyst</button>
+      <button class="tab" onclick="filterTrack('scientist',this)"><i class="fas fa-brain"></i> Data Scientist</button>
+      <button class="tab" onclick="filterTrack('ml',this)"><i class="fas fa-robot"></i> ML Engineer</button>
+      <button class="tab" onclick="filterTrack('dev',this)"><i class="fas fa-code"></i> Python Dev</button>
+      <button class="tab" onclick="filterTrack('auto',this)"><i class="fas fa-cogs"></i> Automation</button>
+      <button class="tab" onclick="filterTrack('cyber',this)"><i class="fas fa-shield-alt"></i> Cybersecurity</button>
     </div>
   </div>
-</section>
 
-<!-- SPM PANEL -->
-<section class="sec alt panel on" id="panel-spm">
-  <div class="container">
+  <!-- LEGEND -->
+  <div class="legend">
+    <div class="legend-item"><div class="legend-dot" style="background:var(--cyan)"></div>codencode course</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#79b0f5"></div>Google Certificate</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--gold)"></div>External certification / skill</div>
+    <div style="margin-left:auto;font-family:var(--mono);font-size:10px;color:var(--mu2)">Salary ranges are for Malaysia market · 2025–2026</div>
+  </div>
 
-    <div class="sec-lbl">who is this for</div>
-    <div class="chips">
-      <span class="chip">Just finished SPM</span>
-      <span class="chip">Not sure what to study</span>
-      <span class="chip">Gap year before college</span>
-      <span class="chip">Curious about tech, never tried</span>
-      <span class="chip">Parents want something productive</span>
-    </div>
-
-    <div class="cert-ban">
-      <div class="cicon">🏆</div>
-      <div class="cbody">
-        <div class="c-eye">internationally recognised · your end goal</div>
-        <div class="c-ttl">Graduate with a Google or Microsoft certification — not just a codencode cert.</div>
-        <div class="c-desc">Our curriculum prepares you for globally trusted credentials. These badges are issued by Google, Microsoft, Amazon and GitHub — they mean something to employers in Malaysia, Singapore and beyond. Cert prep is built into your path, no extra cost.</div>
-        <div class="cpills">
-          <span class="cpill">Google AI Essentials</span>
-          <span class="cpill">Google Data Analytics</span>
-          <span class="cpill">Microsoft AI-900</span>
-          <span class="cpill">GitHub Foundations</span>
-          <span class="cpill">AWS Cloud Practitioner</span>
+  <!-- ══════════════════════════════════════════════════
+       TRACK 1 — DATA ANALYST
+  ══════════════════════════════════════════════════ -->
+  <div class="roadmap" id="track-analyst" data-track="analyst">
+    <div class="roadmap-header" style="background:linear-gradient(135deg,rgba(0,220,180,0.07),transparent);border:1px solid rgba(0,220,180,0.2);border-bottom:none">
+      <div class="rh-icon" style="background:rgba(0,220,180,0.1);color:var(--c1)"><i class="fas fa-chart-bar"></i></div>
+      <div class="rh-info">
+        <h2 style="color:var(--c1)">Data Analyst</h2>
+        <p>The most direct career from Python Fundamentals. Turn raw data into business decisions. Every company in Malaysia — from manufacturing to banking — needs this role. Fastest path to employment from zero experience.</p>
+        <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:12px">
+          <span style="font-family:var(--mono);font-size:10px;color:var(--mu)"><i class="fas fa-clock" style="color:var(--c1);margin-right:4px"></i>Timeline to first job: 6–12 months</span>
+          <span style="font-family:var(--mono);font-size:10px;color:var(--mu)"><i class="fas fa-map-marker-alt" style="color:var(--c1);margin-right:4px"></i>Strong demand in JB, KL, Penang</span>
         </div>
       </div>
-    </div>
-
-    <div class="sec-lbl">your 12-month roadmap</div>
-    <div class="phases">
-      <div class="phase"><div class="phn">1</div><div class="phtag">Month 1–2 · Discover</div><div class="phtitle">Vibe Coding &amp; Web Dev</div><div class="phdesc">Build your first real website using AI tools. Zero experience needed. You'll surprise yourself in week one.</div><div class="phproj">↳ Project: Personal portfolio site</div></div>
-      <div class="phase"><div class="phn">2</div><div class="phtag">Month 3–5 · Build</div><div class="phtitle">Python Fundamentals</div><div class="phdesc">The world's most in-demand language. Write scripts, automate tasks, understand how software works.</div><div class="phproj">↳ Project: Automation tool</div></div>
-      <div class="phase"><div class="phn">3</div><div class="phtag">Month 6–9 · Specialise</div><div class="phtitle">Data Analytics or Prompt Engineering</div><div class="phdesc">Pick your direction — data decisions or AI systems. Both lead to in-demand job roles.</div><div class="phproj">↳ Prep: Google AI Essentials cert</div></div>
-      <div class="phase"><div class="phn">4</div><div class="phtag">Month 10–12 · Launch</div><div class="phtitle">ML Fundamentals + Cert Sprint</div><div class="phdesc">Build your portfolio, pass your exam, and enter university or the job market with real proof of skills.</div><div class="phproj">↳ Cert: Google / Microsoft / GitHub</div></div>
-    </div>
-
-    <div class="roles">
-      <div class="rlbl">→ after 12 months you can be</div>
-      <div class="rpills">
-        <span class="rpill">Junior Developer</span>
-        <span class="rpill">Data Analyst</span>
-        <span class="rpill">AI Automation Exec</span>
-        <span class="rpill">Freelance Coder</span>
-        <span class="rpill">Tech Support Specialist</span>
-        <span class="rpill">Startup Intern</span>
+      <div class="rh-salary">
+        <div class="salary-label">Malaysia salary</div>
+        <div class="salary-val" style="color:var(--c1)">RM 2,500</div>
+        <div class="salary-sub">entry · up to RM 8,000 senior</div>
       </div>
     </div>
+    <div class="timeline" style="border:1px solid rgba(0,220,180,0.2);border-top:none">
 
-  </div>
-</section>
-
-<!-- CAREER PANEL -->
-<section class="sec alt panel" id="panel-career">
-  <div class="container">
-
-    <div class="sec-lbl">who is this for</div>
-    <div class="chips">
-      <span class="chip">Admin / HR</span>
-      <span class="chip">Security / Auxiliary Police</span>
-      <span class="chip">Sales / Retail</span>
-      <span class="chip">Engineers &amp; Technicians</span>
-      <span class="chip">Degree holder — wrong field</span>
-      <span class="chip">Ready to bet on yourself</span>
-    </div>
-
-    <div class="cert-ban">
-      <div class="cicon">🏆</div>
-      <div class="cbody">
-        <div class="c-eye">internationally recognised · your proof of change</div>
-        <div class="c-ttl">Prove your career switch with a credential employers worldwide already trust.</div>
-        <div class="c-desc">Saying you "learned Python online" is one thing. Showing them a Google or Microsoft cert is another. Our courses prepare you for these exams — your transition is backed by evidence, not just ambition.</div>
-        <div class="cpills">
-          <span class="cpill">Google AI Essentials</span>
-          <span class="cpill">Google Data Analytics</span>
-          <span class="cpill">Microsoft AI-900</span>
-          <span class="cpill">Microsoft PL-900</span>
-          <span class="cpill">AWS Cloud Practitioner</span>
+      <div class="phase">
+        <div class="phase-dot" style="background:rgba(0,220,180,0.15);color:var(--c1);border:1.5px solid var(--c1)">1</div>
+        <div class="phase-body">
+          <div class="phase-title">Foundation — Python for Data <span class="phase-dur" style="background:rgba(0,220,180,0.1);color:var(--c1)">Weeks 1–6</span></div>
+          <div class="phase-desc">Learn Python from scratch — variables, loops, functions, file handling, and pandas. By Week 6 you'll have automated a real data task and built a portfolio project.</div>
+          <div class="skills">
+            <span class="skill cc"><i class="fas fa-graduation-cap"></i> codencode: Python Fundamentals</span>
+            <span class="skill">Variables & control flow</span>
+            <span class="skill">pandas & CSV</span>
+            <span class="skill">Data cleaning</span>
+            <span class="skill">Basic automation</span>
+          </div>
+          <div class="cert-row">
+            <div class="cert-card">
+              <div class="cert-card-top"><span class="cert-badge" style="background:rgba(0,220,180,0.15);color:var(--c1)">codencode</span></div>
+              <div class="cert-name">Python Fundamentals Certificate</div>
+              <div class="cert-desc">Verifiable via QR on codencode.my · RM 1,350 early bird</div>
+            </div>
+          </div>
         </div>
       </div>
-    </div>
 
-    <div class="sec-lbl">your 6–9 month roadmap</div>
-    <div class="timeline">
-      <div class="step"><div class="snum">MONTH 01–02</div><div class="slabel">Vibe Coding &amp; No-code AI</div><div class="ssub">Build real things immediately. Cursor, Copilot, Make, n8n. No background required.</div><span class="sbadge bc3">Entry point</span></div>
-      <div class="step"><div class="snum">MONTH 03–04</div><div class="slabel">Python Fundamentals</div><div class="ssub">Scripts, automation, data handling. The skill every tech employer wants. Hands-on from day one.</div><span class="sbadge bw2">Core skill</span></div>
-      <div class="step"><div class="snum">MONTH 05–06</div><div class="slabel">Data Analytics or Prompt Engineering</div><div class="ssub">Data decisions or AI workflows — pick the lane that fits your target role.</div><span class="sbadge bg3">Specialise</span></div>
-      <div class="step"><div class="snum">MONTH 07–09</div><div class="slabel">ML Fundamentals + Cert Sprint</div><div class="ssub">Optional deep-dive. Pass your cert, update your resume, start applying.</div><span class="sbadge bm2">+ Cert</span></div>
-    </div>
+      <div class="phase">
+        <div class="phase-dot" style="background:rgba(0,220,180,0.15);color:var(--c1);border:1.5px solid var(--c1)">2</div>
+        <div class="phase-body">
+          <div class="phase-title">Visualisation & SQL <span class="phase-dur" style="background:rgba(0,220,180,0.1);color:var(--c1)">Months 2–4</span></div>
+          <div class="phase-desc">Add SQL for querying databases and Power BI or Tableau for building dashboards. These two skills alone unlock 80% of data analyst job descriptions in Malaysia.</div>
+          <div class="skills">
+            <span class="skill ext">SQL (PostgreSQL / MySQL)</span>
+            <span class="skill ext">Power BI</span>
+            <span class="skill ext">Tableau</span>
+            <span class="skill ext">Excel advanced</span>
+            <span class="skill gc">Google Data Analytics Certificate</span>
+          </div>
+          <div class="cert-row">
+            <div class="cert-card">
+              <div class="cert-card-top"><span class="cert-badge" style="background:rgba(66,133,244,0.15);color:#79b0f5">Google</span></div>
+              <div class="cert-name">Google Data Analytics Professional Certificate</div>
+              <div class="cert-desc">Coursera · ~6 months · ~USD 49/month · Covers SQL, spreadsheets, R, Tableau, data cleaning. Recognised by Grab, Deloitte, Google itself.</div>
+            </div>
+            <div class="cert-card">
+              <div class="cert-card-top"><span class="cert-badge" style="background:rgba(245,200,66,0.15);color:var(--gold)">Microsoft</span></div>
+              <div class="cert-name">PL-300: Power BI Data Analyst</div>
+              <div class="cert-desc">~RM 800 exam fee · Industry standard for BI roles in Malaysian banks and GLCs</div>
+            </div>
+          </div>
+        </div>
+      </div>
 
-    <div class="roles">
-      <div class="rlbl">→ roles you can target</div>
-      <div class="rpills">
-        <span class="rpill">AI Automation Exec</span>
-        <span class="rpill">Data Analyst</span>
-        <span class="rpill">Prompt Engineer</span>
-        <span class="rpill">Operations Analyst</span>
-        <span class="rpill">Junior Developer</span>
-        <span class="rpill">Business Analyst</span>
+      <div class="phase">
+        <div class="phase-dot" style="background:rgba(0,220,180,0.15);color:var(--c1);border:1.5px solid var(--c1)">3</div>
+        <div class="phase-body">
+          <div class="phase-title">Portfolio & job search <span class="phase-dur" style="background:rgba(0,220,180,0.1);color:var(--c1)">Months 4–6</span></div>
+          <div class="phase-desc">Build 2–3 real projects using open Malaysian datasets (data.gov.my). Push to GitHub. Update LinkedIn. Apply to junior roles. The capstone project from codencode is your first portfolio piece.</div>
+          <div class="skills">
+            <span class="skill">GitHub portfolio</span>
+            <span class="skill">LinkedIn profile</span>
+            <span class="skill">data.gov.my datasets</span>
+            <span class="skill">Kaggle competitions</span>
+          </div>
+          <div class="jobs-grid">
+            <div class="job-pill">
+              <div class="job-title">Junior Data Analyst</div>
+              <div class="job-sal" style="color:var(--c1)">RM 2,500–3,800</div>
+              <div class="job-co">Retail / logistics / SME</div>
+            </div>
+            <div class="job-pill">
+              <div class="job-title">BI Analyst</div>
+              <div class="job-sal" style="color:var(--c1)">RM 3,000–4,500</div>
+              <div class="job-co">Banking / fintech</div>
+            </div>
+            <div class="job-pill">
+              <div class="job-title">Operations Analyst</div>
+              <div class="job-sal" style="color:var(--c1)">RM 2,800–4,000</div>
+              <div class="job-co">Manufacturing / GLC</div>
+            </div>
+          </div>
+          <div class="employers">
+            <span class="emp-label">Hires in MY:</span>
+            <span class="emp-pill">Maybank</span><span class="emp-pill">CIMB</span><span class="emp-pill">Shopee</span><span class="emp-pill">Grab</span><span class="emp-pill">Petronas</span><span class="emp-pill">Accenture</span><span class="emp-pill">Deloitte</span><span class="emp-pill">KPMG</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="phase">
+        <div class="phase-dot" style="background:var(--c1);color:#080c10;border:1.5px solid var(--c1)">↑</div>
+        <div class="phase-body">
+          <div class="phase-title">Senior & specialisation <span class="phase-dur" style="background:rgba(0,220,180,0.1);color:var(--c1)">Year 2–3</span></div>
+          <div class="phase-desc">Deep expertise in one industry (finance, manufacturing, healthcare). Lead dashboards, own KPIs, mentor juniors. Senior analysts in banking earn RM 6,000–9,000.</div>
+          <div class="skills">
+            <span class="skill ext">Advanced SQL</span>
+            <span class="skill ext">dbt (data build tool)</span>
+            <span class="skill ext">Looker / Metabase</span>
+            <span class="skill gc">Google Advanced Data Analytics</span>
+          </div>
+          <div class="jobs-grid">
+            <div class="job-pill">
+              <div class="job-title">Senior Data Analyst</div>
+              <div class="job-sal" style="color:var(--c1)">RM 5,000–8,000</div>
+              <div class="job-co">Banking / consulting</div>
+            </div>
+            <div class="job-pill">
+              <div class="job-title">Analytics Manager</div>
+              <div class="job-sal" style="color:var(--c1)">RM 7,000–12,000</div>
+              <div class="job-co">Tech / GLC</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════
+       TRACK 2 — DATA SCIENTIST
+  ══════════════════════════════════════════════════ -->
+  <div class="roadmap" id="track-scientist" data-track="scientist">
+    <div class="roadmap-header" style="background:linear-gradient(135deg,rgba(245,200,66,0.07),transparent);border:1px solid rgba(245,200,66,0.2);border-bottom:none">
+      <div class="rh-icon" style="background:rgba(245,200,66,0.1);color:var(--c2)"><i class="fas fa-brain"></i></div>
+      <div class="rh-info">
+        <h2 style="color:var(--c2)">Data Scientist</h2>
+        <p>The full data career. Build predictive models, run A/B experiments, find signals in messy data. Highest-paying non-management data role in Malaysia. Requires Python Fundamentals + ML Fundamentals + continued self-study.</p>
+        <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:12px">
+          <span style="font-family:var(--mono);font-size:10px;color:var(--mu)"><i class="fas fa-clock" style="color:var(--c2);margin-right:4px"></i>Timeline: 12–24 months</span>
+          <span style="font-family:var(--mono);font-size:10px;color:var(--mu)"><i class="fas fa-map-marker-alt" style="color:var(--c2);margin-right:4px"></i>KL / remote · international opportunities</span>
+        </div>
+      </div>
+      <div class="rh-salary">
+        <div class="salary-label">Malaysia salary</div>
+        <div class="salary-val" style="color:var(--c2)">RM 5,000</div>
+        <div class="salary-sub">entry · up to RM 18,000 senior</div>
       </div>
     </div>
+    <div class="timeline" style="border:1px solid rgba(245,200,66,0.2);border-top:none">
 
-  </div>
-</section>
+      <div class="phase">
+        <div class="phase-dot" style="background:rgba(245,200,66,0.15);color:var(--c2);border:1.5px solid var(--c2)">1</div>
+        <div class="phase-body">
+          <div class="phase-title">Python & data foundation <span class="phase-dur" style="background:rgba(245,200,66,0.1);color:var(--c2)">Weeks 1–6</span></div>
+          <div class="phase-desc">Same starting point as Data Analyst — Python Fundamentals. You need clean, confident Python before anything else. Master pandas, numpy, and working with real datasets.</div>
+          <div class="skills">
+            <span class="skill cc"><i class="fas fa-graduation-cap"></i> codencode: Python Fundamentals</span>
+            <span class="skill">NumPy</span><span class="skill">pandas</span><span class="skill">Matplotlib</span><span class="skill">Jupyter notebooks</span>
+          </div>
+        </div>
+      </div>
 
-<!-- CERTS -->
-<section id="certs" class="sec">
-  <div class="container">
-    <div class="lbl">Global certifications</div>
-    <h2 class="h2">Certs that mean<br>something.</h2>
-    <p class="sub">Issued by Google, Microsoft, Amazon and GitHub — not codencode. That's the point. We prepare you for the exam; the badge is yours forever, recognised by employers worldwide.</p>
-    <div class="certg">
-      <div class="citem"><div class="cname">Google AI Essentials</div><div class="cby">Google · Coursera</div><span class="ctag2">AI · Beginner</span></div>
-      <div class="citem"><div class="cname">Google Data Analytics</div><div class="cby">Google · Coursera</div><span class="ctag2">Data · Intermediate</span></div>
-      <div class="citem"><div class="cname">Microsoft AI-900</div><div class="cby">Microsoft</div><span class="ctag2">AI Fundamentals</span></div>
-      <div class="citem"><div class="cname">Microsoft PL-900</div><div class="cby">Microsoft</div><span class="ctag2">Power Platform</span></div>
-      <div class="citem"><div class="cname">AWS Cloud Practitioner</div><div class="cby">Amazon Web Services</div><span class="ctag2">Cloud · Beginner</span></div>
-      <div class="citem"><div class="cname">GitHub Foundations</div><div class="cby">GitHub</div><span class="ctag2">Developer Tools</span></div>
+      <div class="phase">
+        <div class="phase-dot" style="background:rgba(245,200,66,0.15);color:var(--c2);border:1.5px solid var(--c2)">2</div>
+        <div class="phase-body">
+          <div class="phase-title">Machine learning fundamentals <span class="phase-dur" style="background:rgba(245,200,66,0.1);color:var(--c2)">Weeks 7–16</span></div>
+          <div class="phase-desc">Regression, classification, clustering, model evaluation. Understand what each algorithm is doing — not just how to call .fit(). Build an end-to-end ML pipeline on a real dataset for your portfolio.</div>
+          <div class="skills">
+            <span class="skill cc"><i class="fas fa-graduation-cap"></i> codencode: ML Fundamentals</span>
+            <span class="skill">scikit-learn</span><span class="skill">Cross-validation</span><span class="skill">Feature engineering</span><span class="skill">Model evaluation</span>
+          </div>
+          <div class="cert-row">
+            <div class="cert-card">
+              <div class="cert-card-top"><span class="cert-badge" style="background:rgba(0,220,180,0.15);color:var(--c1)">codencode</span></div>
+              <div class="cert-name">ML Fundamentals Certificate</div>
+              <div class="cert-desc">Verifiable via QR · RM 1,800 early bird · End-to-end ML capstone project included</div>
+            </div>
+            <div class="cert-card">
+              <div class="cert-card-top"><span class="cert-badge" style="background:rgba(66,133,244,0.15);color:#79b0f5">Google</span></div>
+              <div class="cert-name">Google Advanced Data Analytics</div>
+              <div class="cert-desc">Coursera · Covers regression, ML, Python stats · Natural follow-on after codencode ML Fundamentals</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="phase">
+        <div class="phase-dot" style="background:rgba(245,200,66,0.15);color:var(--c2);border:1.5px solid var(--c2)">3</div>
+        <div class="phase-body">
+          <div class="phase-title">Statistics & experimentation <span class="phase-dur" style="background:rgba(245,200,66,0.1);color:var(--c2)">Months 5–8</span></div>
+          <div class="phase-desc">Real data science is 80% statistics and 20% ML. Learn hypothesis testing, A/B testing, probability, and Bayesian thinking. SQL becomes essential for pulling your own data without waiting for an analyst.</div>
+          <div class="skills">
+            <span class="skill ext">Statistics (probability, distributions)</span>
+            <span class="skill ext">A/B testing & hypothesis testing</span>
+            <span class="skill ext">Advanced SQL</span>
+            <span class="skill ext">Seaborn / Plotly</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="phase">
+        <div class="phase-dot" style="background:rgba(245,200,66,0.15);color:var(--c2);border:1.5px solid var(--c2)">4</div>
+        <div class="phase-body">
+          <div class="phase-title">Deep learning & specialisation <span class="phase-dur" style="background:rgba(245,200,66,0.1);color:var(--c2)">Months 8–14</span></div>
+          <div class="phase-desc">Neural networks, CNNs for images, NLP for text. Pick one vertical to specialise in — finance (fraud detection, risk models), manufacturing (quality prediction, defect detection), or healthcare.</div>
+          <div class="skills">
+            <span class="skill ext">TensorFlow / PyTorch</span>
+            <span class="skill ext">Deep learning fundamentals</span>
+            <span class="skill gc">Google Machine Learning Crash Course</span>
+            <span class="skill ext">Kaggle competitions (Silver/Gold)</span>
+          </div>
+          <div class="cert-row">
+            <div class="cert-card">
+              <div class="cert-card-top"><span class="cert-badge" style="background:rgba(66,133,244,0.15);color:#79b0f5">Google</span></div>
+              <div class="cert-name">Google Cloud Professional Data Engineer</div>
+              <div class="cert-desc">GCP BigQuery, Dataflow, Vertex AI · RM 1,200 exam fee · Recognised by tech companies and GLCs hiring data scientists in Malaysia</div>
+            </div>
+            <div class="cert-card">
+              <div class="cert-card-top"><span class="cert-badge" style="background:rgba(245,200,66,0.15);color:var(--gold)">DeepLearning.AI</span></div>
+              <div class="cert-name">Deep Learning Specialization</div>
+              <div class="cert-desc">Andrew Ng · Coursera · 5-course series · Gold standard for ML credibility globally</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="phase">
+        <div class="phase-dot" style="background:var(--c2);color:#080c10;border:1.5px solid var(--c2)">↑</div>
+        <div class="phase-body">
+          <div class="phase-title">Senior Data Scientist <span class="phase-dur" style="background:rgba(245,200,66,0.1);color:var(--c2)">Year 2–4</span></div>
+          <div class="jobs-grid">
+            <div class="job-pill">
+              <div class="job-title">Data Scientist</div>
+              <div class="job-sal" style="color:var(--c2)">RM 5,000–9,000</div>
+              <div class="job-co">Tech / fintech / e-commerce</div>
+            </div>
+            <div class="job-pill">
+              <div class="job-title">Senior Data Scientist</div>
+              <div class="job-sal" style="color:var(--c2)">RM 9,000–15,000</div>
+              <div class="job-co">Grab / Shopee / banks</div>
+            </div>
+            <div class="job-pill">
+              <div class="job-title">Principal / Lead DS</div>
+              <div class="job-sal" style="color:var(--c2)">RM 15,000–22,000</div>
+              <div class="job-co">MNCs / remote (SGD)</div>
+            </div>
+          </div>
+          <div class="employers" style="margin-top:12px">
+            <span class="emp-label">Hires in MY:</span>
+            <span class="emp-pill">Grab</span><span class="emp-pill">Shopee</span><span class="emp-pill">AirAsia</span><span class="emp-pill">Maybank</span><span class="emp-pill">Petronas</span><span class="emp-pill">McKinsey</span><span class="emp-pill">BCG Gamma</span>
+          </div>
+        </div>
+      </div>
+
     </div>
   </div>
-</section>
 
-<!-- CTA BACK TO MAIN -->
-<section class="sec alt">
-  <div class="container">
-    <div class="cta-final">
-      <h2>Ready to start?</h2>
-      <p>Book a free trial class on the main site — no pressure, no credit card. We'll match you to the right course and language in 24 hours.</p>
-      <div class="cta-btns">
-        <a class="btn-p" href="/#contact">Book Free Trial <i class="fas fa-arrow-right"></i></a>
-        <a class="btn-g" href="/#courses">View All Courses</a>
-        <a class="btn-g" href="https://wa.me/601131652854?text=Hi%20codencode!%20I%20just%20read%20the%20paths%20page%20and%20want%20to%20know%20more%20👋" target="_blank" rel="noopener" style="border-color:rgba(37,211,102,.4);color:#25D366"><i class="fab fa-whatsapp"></i> WhatsApp Us</a>
+  <!-- ══════════════════════════════════════════════════
+       TRACK 3 — ML ENGINEER
+  ══════════════════════════════════════════════════ -->
+  <div class="roadmap" id="track-ml" data-track="ml">
+    <div class="roadmap-header" style="background:linear-gradient(135deg,rgba(61,224,255,0.07),transparent);border:1px solid rgba(61,224,255,0.2);border-bottom:none">
+      <div class="rh-icon" style="background:rgba(61,224,255,0.1);color:var(--c3)"><i class="fas fa-robot"></i></div>
+      <div class="rh-info">
+        <h2 style="color:var(--c3)">Machine Learning Engineer</h2>
+        <p>The highest-paying technical role in Malaysia's data ecosystem. You don't just build models — you deploy them, scale them, and keep them running in production. Requires strong Python + ML + software engineering fundamentals.</p>
+        <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:12px">
+          <span style="font-family:var(--mono);font-size:10px;color:var(--mu)"><i class="fas fa-clock" style="color:var(--c3);margin-right:4px"></i>Timeline: 18–30 months</span>
+          <span style="font-family:var(--mono);font-size:10px;color:var(--mu)"><i class="fas fa-map-marker-alt" style="color:var(--c3);margin-right:4px"></i>KL · Singapore · Remote-first roles</span>
+        </div>
+      </div>
+      <div class="rh-salary">
+        <div class="salary-label">Malaysia salary</div>
+        <div class="salary-val" style="color:var(--c3)">RM 6,000</div>
+        <div class="salary-sub">entry · up to RM 25,000 senior</div>
       </div>
     </div>
-  </div>
-</section>
+    <div class="timeline" style="border:1px solid rgba(61,224,255,0.2);border-top:none">
 
-<!-- MINI FOOTER -->
-<footer class="mini-footer">
+      <div class="phase">
+        <div class="phase-dot" style="background:rgba(61,224,255,0.15);color:var(--c3);border:1.5px solid var(--c3)">1</div>
+        <div class="phase-body">
+          <div class="phase-title">Python + ML foundation <span class="phase-dur" style="background:rgba(61,224,255,0.1);color:var(--c3)">Months 1–4</span></div>
+          <div class="phase-desc">Complete both codencode courses back to back. The bundle is the most efficient path. You need to be fluent in Python and understand ML algorithms deeply before adding engineering complexity on top.</div>
+          <div class="skills">
+            <span class="skill cc"><i class="fas fa-graduation-cap"></i> codencode: Python Fundamentals</span>
+            <span class="skill cc"><i class="fas fa-graduation-cap"></i> codencode: ML Fundamentals</span>
+            <span class="skill">NumPy / pandas / scikit-learn</span>
+            <span class="skill">Git version control</span>
+          </div>
+          <div class="cert-row">
+            <div class="cert-card">
+              <div class="cert-card-top"><span class="cert-badge" style="background:rgba(0,220,180,0.15);color:var(--c1)">codencode</span></div>
+              <div class="cert-name">Python + ML Bundle</div>
+              <div class="cert-desc">RM 2,500 — saves RM 650 vs buying separately. 16 weeks, two verifiable certificates.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="phase">
+        <div class="phase-dot" style="background:rgba(61,224,255,0.15);color:var(--c3);border:1.5px solid var(--c3)">2</div>
+        <div class="phase-body">
+          <div class="phase-title">Software engineering fundamentals <span class="phase-dur" style="background:rgba(61,224,255,0.1);color:var(--c3)">Months 4–8</span></div>
+          <div class="phase-desc">ML Engineering is software engineering applied to ML. Learn REST APIs with FastAPI, Docker containers, basic cloud (GCP or AWS), and how to write production-quality code (not just notebook code).</div>
+          <div class="skills">
+            <span class="skill ext">FastAPI / Flask APIs</span>
+            <span class="skill ext">Docker & containers</span>
+            <span class="skill ext">Linux command line</span>
+            <span class="skill ext">SQL + NoSQL databases</span>
+            <span class="skill gc">Google Cloud Associate Engineer</span>
+          </div>
+          <div class="cert-row">
+            <div class="cert-card">
+              <div class="cert-card-top"><span class="cert-badge" style="background:rgba(66,133,244,0.15);color:#79b0f5">Google Cloud</span></div>
+              <div class="cert-name">Associate Cloud Engineer</div>
+              <div class="cert-desc">GCP fundamentals · ~RM 900 exam · Foundation for all GCP ML services (Vertex AI, BigQuery ML). Many ML Engineer JDs in Malaysia list this as preferred.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="phase">
+        <div class="phase-dot" style="background:rgba(61,224,255,0.15);color:var(--c3);border:1.5px solid var(--c3)">3</div>
+        <div class="phase-body">
+          <div class="phase-title">MLOps — deploying models that scale <span class="phase-dur" style="background:rgba(61,224,255,0.1);color:var(--c3)">Months 8–14</span></div>
+          <div class="phase-desc">MLOps is the DevOps of machine learning — CI/CD pipelines for models, model monitoring, data drift detection, A/B testing in production. This is where most data scientists stop and ML engineers begin.</div>
+          <div class="skills">
+            <span class="skill ext">MLflow / Weights & Biases</span>
+            <span class="skill ext">Kubernetes basics</span>
+            <span class="skill ext">Feature stores (Feast)</span>
+            <span class="skill gc">Google Professional ML Engineer</span>
+            <span class="skill ext">CI/CD pipelines</span>
+          </div>
+          <div class="cert-row">
+            <div class="cert-card">
+              <div class="cert-card-top"><span class="cert-badge" style="background:rgba(66,133,244,0.15);color:#79b0f5">Google Cloud</span></div>
+              <div class="cert-name">Professional ML Engineer</div>
+              <div class="cert-desc">The gold standard for ML Engineers in Malaysia. Covers Vertex AI, AutoML, model monitoring. RM 1,200 exam fee. Recognised by Grab, GoTo, Sea Group.</div>
+            </div>
+            <div class="cert-card">
+              <div class="cert-card-top"><span class="cert-badge" style="background:rgba(245,200,66,0.15);color:var(--gold)">DeepLearning.AI</span></div>
+              <div class="cert-name">MLOps Specialization</div>
+              <div class="cert-desc">Andrew Ng · Coursera · 4 courses covering ML pipelines, deployment, monitoring. Industry standard.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="phase">
+        <div class="phase-dot" style="background:var(--c3);color:#080c10;border:1.5px solid var(--c3)">↑</div>
+        <div class="phase-body">
+          <div class="phase-title">Senior & Staff ML Engineer <span class="phase-dur" style="background:rgba(61,224,255,0.1);color:var(--c3)">Year 2.5+</span></div>
+          <div class="jobs-grid">
+            <div class="job-pill">
+              <div class="job-title">ML Engineer</div>
+              <div class="job-sal" style="color:var(--c3)">RM 6,000–11,000</div>
+              <div class="job-co">Tech / fintech</div>
+            </div>
+            <div class="job-pill">
+              <div class="job-title">Senior ML Engineer</div>
+              <div class="job-sal" style="color:var(--c3)">RM 11,000–18,000</div>
+              <div class="job-co">Grab / Shopee / Sea</div>
+            </div>
+            <div class="job-pill">
+              <div class="job-title">Staff / Principal MLE</div>
+              <div class="job-sal" style="color:var(--c3)">RM 18,000–28,000</div>
+              <div class="job-co">MNC / remote SGD</div>
+            </div>
+          </div>
+          <div class="employers" style="margin-top:12px">
+            <span class="emp-label">Hires in MY:</span>
+            <span class="emp-pill">Grab</span><span class="emp-pill">Shopee</span><span class="emp-pill">Sea Group</span><span class="emp-pill">AirAsia MOVE</span><span class="emp-pill">Axiata</span><span class="emp-pill">Telekom</span><span class="emp-pill">Fusionex</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════
+       TRACK 4 — PYTHON DEVELOPER
+  ══════════════════════════════════════════════════ -->
+  <div class="roadmap" id="track-dev" data-track="dev">
+    <div class="roadmap-header" style="background:linear-gradient(135deg,rgba(167,139,250,0.07),transparent);border:1px solid rgba(167,139,250,0.2);border-bottom:none">
+      <div class="rh-icon" style="background:rgba(167,139,250,0.1);color:var(--c4)"><i class="fas fa-code"></i></div>
+      <div class="rh-info">
+        <h2 style="color:var(--c4)">Python Developer</h2>
+        <p>Build web applications, APIs, and backend systems using Python. Fewer data science prerequisites — this path suits people who enjoy building products more than analysing datasets. Django and FastAPI are the tools of the trade.</p>
+        <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:12px">
+          <span style="font-family:var(--mono);font-size:10px;color:var(--mu)"><i class="fas fa-clock" style="color:var(--c4);margin-right:4px"></i>Timeline: 10–18 months</span>
+          <span style="font-family:var(--mono);font-size:10px;color:var(--mu)"><i class="fas fa-map-marker-alt" style="color:var(--c4);margin-right:4px"></i>JB · KL · Strong remote / freelance market</span>
+        </div>
+      </div>
+      <div class="rh-salary">
+        <div class="salary-label">Malaysia salary</div>
+        <div class="salary-val" style="color:var(--c4)">RM 3,000</div>
+        <div class="salary-sub">junior · up to RM 14,000 senior</div>
+      </div>
+    </div>
+    <div class="timeline" style="border:1px solid rgba(167,139,250,0.2);border-top:none">
+
+      <div class="phase">
+        <div class="phase-dot" style="background:rgba(167,139,250,0.15);color:var(--c4);border:1.5px solid var(--c4)">1</div>
+        <div class="phase-body">
+          <div class="phase-title">Python core + web basics <span class="phase-dur" style="background:rgba(167,139,250,0.1);color:var(--c4)">Weeks 1–6</span></div>
+          <div class="phase-desc">Python Fundamentals gives you the language foundation. Then add HTML/CSS to understand the web layer. A backend Python developer who can't read the frontend they're serving is half a developer.</div>
+          <div class="skills">
+            <span class="skill cc"><i class="fas fa-graduation-cap"></i> codencode: Python Fundamentals</span>
+            <span class="skill ext">HTML & CSS basics</span>
+            <span class="skill">OOP in Python</span>
+            <span class="skill">Git & GitHub</span>
+          </div>
+          <div class="cert-row">
+            <div class="cert-card">
+              <div class="cert-card-top"><span class="cert-badge" style="background:rgba(66,133,244,0.15);color:#79b0f5">Google</span></div>
+              <div class="cert-name">Google IT Support Certificate</div>
+              <div class="cert-desc">Coursera · Good starting point for non-CS background students. Covers networking, OS, scripting — useful context for any developer.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="phase">
+        <div class="phase-dot" style="background:rgba(167,139,250,0.15);color:var(--c4);border:1.5px solid var(--c4)">2</div>
+        <div class="phase-body">
+          <div class="phase-title">Django / FastAPI + databases <span class="phase-dur" style="background:rgba(167,139,250,0.1);color:var(--c4)">Months 3–7</span></div>
+          <div class="phase-desc">Pick Django (batteries-included, good for full apps) or FastAPI (modern, async, excellent for APIs). Add PostgreSQL for databases. Build a real project — a web app with user authentication, a REST API, a simple SaaS tool.</div>
+          <div class="skills">
+            <span class="skill ext">Django or FastAPI</span>
+            <span class="skill ext">PostgreSQL & SQLAlchemy</span>
+            <span class="skill ext">REST API design</span>
+            <span class="skill ext">Authentication (JWT / OAuth)</span>
+            <span class="skill ext">Docker</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="phase">
+        <div class="phase-dot" style="background:rgba(167,139,250,0.15);color:var(--c4);border:1.5px solid var(--c4)">3</div>
+        <div class="phase-body">
+          <div class="phase-title">Cloud deployment + portfolio <span class="phase-dur" style="background:rgba(167,139,250,0.1);color:var(--c4)">Months 7–10</span></div>
+          <div class="phase-desc">Deploy your projects publicly — Google Cloud Run, Railway, or Render. A Python developer without live deployed projects has no portfolio. Every project must have a working URL and a GitHub repo with a README.</div>
+          <div class="skills">
+            <span class="skill gc">Google Associate Cloud Engineer</span>
+            <span class="skill ext">Cloud Run / App Engine</span>
+            <span class="skill ext">CI/CD (GitHub Actions)</span>
+            <span class="skill ext">Redis / caching basics</span>
+          </div>
+          <div class="jobs-grid">
+            <div class="job-pill">
+              <div class="job-title">Junior Python Developer</div>
+              <div class="job-sal" style="color:var(--c4)">RM 3,000–4,500</div>
+              <div class="job-co">Software houses / SME</div>
+            </div>
+            <div class="job-pill">
+              <div class="job-title">Backend Developer</div>
+              <div class="job-sal" style="color:var(--c4)">RM 4,500–7,000</div>
+              <div class="job-co">Fintech / e-commerce</div>
+            </div>
+            <div class="job-pill">
+              <div class="job-title">Freelance Dev</div>
+              <div class="job-sal" style="color:var(--c4)">RM 2,000–8,000/project</div>
+              <div class="job-co">Self-employed</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="phase">
+        <div class="phase-dot" style="background:var(--c4);color:#080c10;border:1.5px solid var(--c4)">↑</div>
+        <div class="phase-body">
+          <div class="phase-title">Senior Python / Full-stack Dev <span class="phase-dur" style="background:rgba(167,139,250,0.1);color:var(--c4)">Year 2–3</span></div>
+          <div class="jobs-grid">
+            <div class="job-pill">
+              <div class="job-title">Senior Python Dev</div>
+              <div class="job-sal" style="color:var(--c4)">RM 7,000–11,000</div>
+              <div class="job-co">Tech / consulting</div>
+            </div>
+            <div class="job-pill">
+              <div class="job-title">Tech Lead</div>
+              <div class="job-sal" style="color:var(--c4)">RM 10,000–16,000</div>
+              <div class="job-co">Scale-up / MNC</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════
+       TRACK 5 — AUTOMATION ENGINEER
+  ══════════════════════════════════════════════════ -->
+  <div class="roadmap" id="track-auto" data-track="auto">
+    <div class="roadmap-header" style="background:linear-gradient(135deg,rgba(251,146,60,0.07),transparent);border:1px solid rgba(251,146,60,0.2);border-bottom:none">
+      <div class="rh-icon" style="background:rgba(251,146,60,0.1);color:var(--c5)"><i class="fas fa-cogs"></i></div>
+      <div class="rh-info">
+        <h2 style="color:var(--c5)">Automation Engineer / RPA Developer</h2>
+        <p>The fastest ROI career path from Python Fundamentals. You automate repetitive business processes — data entry, report generation, system integrations. Massive demand from banks, insurance companies, and shared service centres in Malaysia.</p>
+        <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:12px">
+          <span style="font-family:var(--mono);font-size:10px;color:var(--mu)"><i class="fas fa-clock" style="color:var(--c5);margin-right:4px"></i>Timeline: 6–10 months</span>
+          <span style="font-family:var(--mono);font-size:10px;color:var(--mu)"><i class="fas fa-star" style="color:var(--c5);margin-right:4px"></i>Best for working adults who want to stay in current industry</span>
+        </div>
+      </div>
+      <div class="rh-salary">
+        <div class="salary-label">Malaysia salary</div>
+        <div class="salary-val" style="color:var(--c5)">RM 3,500</div>
+        <div class="salary-sub">entry · up to RM 10,000 senior</div>
+      </div>
+    </div>
+    <div class="timeline" style="border:1px solid rgba(251,146,60,0.2);border-top:none">
+
+      <div class="phase">
+        <div class="phase-dot" style="background:rgba(251,146,60,0.15);color:var(--c5);border:1.5px solid var(--c5)">1</div>
+        <div class="phase-body">
+          <div class="phase-title">Python Fundamentals + automation mindset <span class="phase-dur" style="background:rgba(251,146,60,0.1);color:var(--c5)">Weeks 1–6</span></div>
+          <div class="phase-desc">Python Fundamentals teaches you the building blocks. The automation mindset is: look at every repetitive task and ask "can a script do this?" File renaming, email sending, report generation, spreadsheet merging — all automatable with basic Python.</div>
+          <div class="skills">
+            <span class="skill cc"><i class="fas fa-graduation-cap"></i> codencode: Python Fundamentals</span>
+            <span class="skill">os / shutil (file operations)</span>
+            <span class="skill">openpyxl (Excel)</span>
+            <span class="skill">smtplib (email)</span>
+            <span class="skill">schedule (task scheduling)</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="phase">
+        <div class="phase-dot" style="background:rgba(251,146,60,0.15);color:var(--c5);border:1.5px solid var(--c5)">2</div>
+        <div class="phase-body">
+          <div class="phase-title">Browser & UI automation <span class="phase-dur" style="background:rgba(251,146,60,0.1);color:var(--c5)">Months 2–4</span></div>
+          <div class="phase-desc">Selenium and Playwright for automating web browsers. PyAutoGUI for desktop app automation. This unlocks the ability to automate any system — even ones without an API. Banks and insurance companies pay well for people who can do this.</div>
+          <div class="skills">
+            <span class="skill ext">Selenium / Playwright</span>
+            <span class="skill ext">PyAutoGUI</span>
+            <span class="skill ext">Beautiful Soup (web scraping)</span>
+            <span class="skill ext">requests (HTTP / REST APIs)</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="phase">
+        <div class="phase-dot" style="background:rgba(251,146,60,0.15);color:var(--c5);border:1.5px solid var(--c5)">3</div>
+        <div class="phase-body">
+          <div class="phase-title">RPA platforms + no-code integration <span class="phase-dur" style="background:rgba(251,146,60,0.1);color:var(--c5)">Months 3–6</span></div>
+          <div class="phase-desc">Enterprise companies use RPA platforms like UiPath or Automation Anywhere. Add these on top of Python skills and you become extremely hireable in banking, insurance, and GLC environments. Also learn Make (Integromat) and n8n for lighter workflows.</div>
+          <div class="skills">
+            <span class="skill ext">UiPath (RPA)</span>
+            <span class="skill ext">Automation Anywhere</span>
+            <span class="skill ext">Make / n8n</span>
+            <span class="skill ext">Power Automate (Microsoft)</span>
+            <span class="skill gc">Google Workspace Automation</span>
+          </div>
+          <div class="cert-row">
+            <div class="cert-card">
+              <div class="cert-card-top"><span class="cert-badge" style="background:rgba(245,200,66,0.15);color:var(--gold)">UiPath</span></div>
+              <div class="cert-name">UiPath Certified RPA Associate</div>
+              <div class="cert-desc">Free training on UiPath Academy · Paid exam ~USD 150 · Recognised at CIMB, Maybank, RHB, TM, and most large Malaysian enterprises</div>
+            </div>
+            <div class="cert-card">
+              <div class="cert-card-top"><span class="cert-badge" style="background:rgba(245,200,66,0.15);color:var(--gold)">Microsoft</span></div>
+              <div class="cert-name">PL-500: Power Automate RPA Developer</div>
+              <div class="cert-desc">Microsoft certification · ~RM 700 exam · Useful for companies in the Microsoft 365 ecosystem (most large Malaysian companies)</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="phase">
+        <div class="phase-dot" style="background:var(--c5);color:#080c10;border:1.5px solid var(--c5)">↑</div>
+        <div class="phase-body">
+          <div class="phase-title">Senior Automation / RPA Lead <span class="phase-dur" style="background:rgba(251,146,60,0.1);color:var(--c5)">Year 1.5+</span></div>
+          <div class="jobs-grid">
+            <div class="job-pill">
+              <div class="job-title">RPA Developer</div>
+              <div class="job-sal" style="color:var(--c5)">RM 3,500–6,000</div>
+              <div class="job-co">Banking / insurance / SSC</div>
+            </div>
+            <div class="job-pill">
+              <div class="job-title">Automation Engineer</div>
+              <div class="job-sal" style="color:var(--c5)">RM 4,500–8,000</div>
+              <div class="job-co">Tech / consulting</div>
+            </div>
+            <div class="job-pill">
+              <div class="job-title">RPA Lead / Architect</div>
+              <div class="job-sal" style="color:var(--c5)">RM 8,000–14,000</div>
+              <div class="job-co">MNC / GLC</div>
+            </div>
+          </div>
+          <div class="employers" style="margin-top:12px">
+            <span class="emp-label">Hires in MY:</span>
+            <span class="emp-pill">CIMB</span><span class="emp-pill">Maybank</span><span class="emp-pill">Prudential</span><span class="emp-pill">AIA</span><span class="emp-pill">TM</span><span class="emp-pill">Telekom</span><span class="emp-pill">Accenture</span><span class="emp-pill">IBM</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════
+       TRACK 6 — CYBERSECURITY
+  ══════════════════════════════════════════════════ -->
+  <div class="roadmap" id="track-cyber" data-track="cyber">
+    <div class="roadmap-header" style="background:linear-gradient(135deg,rgba(248,113,113,0.07),transparent);border:1px solid rgba(248,113,113,0.2);border-bottom:none">
+      <div class="rh-icon" style="background:rgba(248,113,113,0.1);color:var(--c6)"><i class="fas fa-shield-alt"></i></div>
+      <div class="rh-info">
+        <h2 style="color:var(--c6)">Cybersecurity Analyst / Engineer</h2>
+        <p>Malaysia's fastest-growing tech sector. Every bank, GLC, and hospital is under regulatory pressure to improve security (Bank Negara RMiT, PDPA, NACSA). Python is used extensively for security scripting, log analysis, and tool development. High demand, low supply of qualified people.</p>
+        <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:12px">
+          <span style="font-family:var(--mono);font-size:10px;color:var(--mu)"><i class="fas fa-clock" style="color:var(--c6);margin-right:4px"></i>Timeline: 12–20 months</span>
+          <span style="font-family:var(--mono);font-size:10px;color:var(--mu)"><i class="fas fa-bolt" style="color:var(--c6);margin-right:4px"></i>Malaysia faces a critical shortage of 12,000+ cyber professionals</span>
+        </div>
+      </div>
+      <div class="rh-salary">
+        <div class="salary-label">Malaysia salary</div>
+        <div class="salary-val" style="color:var(--c6)">RM 3,500</div>
+        <div class="salary-sub">entry · up to RM 18,000 senior</div>
+      </div>
+    </div>
+    <div class="timeline" style="border:1px solid rgba(248,113,113,0.2);border-top:none">
+
+      <div class="phase">
+        <div class="phase-dot" style="background:rgba(248,113,113,0.15);color:var(--c6);border:1.5px solid var(--c6)">1</div>
+        <div class="phase-body">
+          <div class="phase-title">Python + networking foundations <span class="phase-dur" style="background:rgba(248,113,113,0.1);color:var(--c6)">Months 1–3</span></div>
+          <div class="phase-desc">Python is the primary language of cybersecurity scripting — used for log parsing, vulnerability scanners, packet analysis, and exploit development. You don't need to be a Python expert, but Python Fundamentals gives you the scripting ability that separates real security practitioners from people who just run tools.</div>
+          <div class="skills">
+            <span class="skill cc"><i class="fas fa-graduation-cap"></i> codencode: Python Fundamentals</span>
+            <span class="skill ext">TCP/IP networking basics</span>
+            <span class="skill ext">Linux command line</span>
+            <span class="skill ext">Wireshark basics</span>
+            <span class="skill ext">Virtual machines / labs</span>
+          </div>
+          <div class="cert-row">
+            <div class="cert-card">
+              <div class="cert-card-top"><span class="cert-badge" style="background:rgba(66,133,244,0.15);color:#79b0f5">Google</span></div>
+              <div class="cert-name">Google Cybersecurity Certificate</div>
+              <div class="cert-desc">Coursera · 6 months · Covers threat detection, incident response, SIEM tools, Python for security scripting. Best entry point for non-IT-background students. Pairs perfectly with codencode Python Fundamentals.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="phase">
+        <div class="phase-dot" style="background:rgba(248,113,113,0.15);color:var(--c6);border:1.5px solid var(--c6)">2</div>
+        <div class="phase-body">
+          <div class="phase-title">Security operations & threat detection <span class="phase-dur" style="background:rgba(248,113,113,0.1);color:var(--c6)">Months 3–7</span></div>
+          <div class="phase-desc">SOC (Security Operations Centre) Analyst is the most common entry-level cybersecurity role in Malaysia. You monitor alerts, investigate incidents, and triage threats. Learn SIEM tools (Splunk, Microsoft Sentinel) and incident response playbooks.</div>
+          <div class="skills">
+            <span class="skill ext">Splunk / Microsoft Sentinel</span>
+            <span class="skill ext">SIEM & log analysis</span>
+            <span class="skill ext">Incident response basics</span>
+            <span class="skill ext">MITRE ATT&CK framework</span>
+            <span class="skill ext">TryHackMe / HackTheBox labs</span>
+          </div>
+          <div class="cert-row">
+            <div class="cert-card">
+              <div class="cert-card-top"><span class="cert-badge" style="background:rgba(245,200,66,0.15);color:var(--gold)">CompTIA</span></div>
+              <div class="cert-name">CompTIA Security+</div>
+              <div class="cert-desc">The most recognised entry-level cybersecurity cert globally. RM 1,200–1,500 exam fee. Required or preferred in most Malaysian SOC job descriptions. Bank Negara and NACSA-registered employers actively seek this.</div>
+            </div>
+            <div class="cert-card">
+              <div class="cert-card-top"><span class="cert-badge" style="background:rgba(245,200,66,0.15);color:var(--gold)">CompTIA</span></div>
+              <div class="cert-name">CompTIA CySA+ (Cybersecurity Analyst)</div>
+              <div class="cert-desc">Next step after Security+ · Focuses on threat hunting, SIEM analysis, vulnerability management. Mid-level analysts in Malaysian banks are often required to have this.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="phase">
+        <div class="phase-dot" style="background:rgba(248,113,113,0.15);color:var(--c6);border:1.5px solid var(--c6)">3</div>
+        <div class="phase-body">
+          <div class="phase-title">Ethical hacking & penetration testing <span class="phase-dur" style="background:rgba(248,113,113,0.1);color:var(--c6)">Months 6–12</span></div>
+          <div class="phase-desc">Penetration testing (pen testing) is where cybersecurity pays the most. You're paid to legally break into systems to find weaknesses before attackers do. Python scripting is heavily used — network scanners, custom exploits, automation of reconnaissance. Bank Negara's RMiT requires all Malaysian banks to conduct regular pen tests — creating constant demand.</div>
+          <div class="skills">
+            <span class="skill ext">Kali Linux</span>
+            <span class="skill ext">Metasploit Framework</span>
+            <span class="skill ext">Nmap / Nessus</span>
+            <span class="skill ext">Burp Suite (web app testing)</span>
+            <span class="skill ext">Python for scripting exploits</span>
+            <span class="skill ext">OWASP Top 10</span>
+          </div>
+          <div class="cert-row">
+            <div class="cert-card">
+              <div class="cert-card-top"><span class="cert-badge" style="background:rgba(245,200,66,0.15);color:var(--gold)">EC-Council</span></div>
+              <div class="cert-name">CEH — Certified Ethical Hacker</div>
+              <div class="cert-desc">RM 5,000–8,000 training + exam · Most recognised offensive security cert in Malaysia. Required by many banks and government agencies. HRD Corp claimable (once codencode is registered).</div>
+            </div>
+            <div class="cert-card">
+              <div class="cert-card-top"><span class="cert-badge" style="background:rgba(245,200,66,0.15);color:var(--gold)">Offensive Security</span></div>
+              <div class="cert-name">OSCP — Offensive Security Certified Professional</div>
+              <div class="cert-desc">The gold standard for pen testers globally. Very hard, very respected. USD 1,499 · Requires 24-hour practical exam. If you pass this, you can name your price.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="phase">
+        <div class="phase-dot" style="background:rgba(248,113,113,0.15);color:var(--c6);border:1.5px solid var(--c6)">4</div>
+        <div class="phase-body">
+          <div class="phase-title">Cloud security & architecture <span class="phase-dur" style="background:rgba(248,113,113,0.1);color:var(--c6)">Months 10–18</span></div>
+          <div class="phase-desc">As more Malaysian companies move to the cloud, cloud security expertise commands a premium. Google Cloud and AWS security specialisations are in extremely high demand. Security architects — who design secure systems rather than just monitor them — earn the most.</div>
+          <div class="skills">
+            <span class="skill gc">Google Cloud Security Engineer</span>
+            <span class="skill ext">Zero Trust architecture</span>
+            <span class="skill ext">IAM & access control</span>
+            <span class="skill ext">Cloud security posture management</span>
+          </div>
+          <div class="cert-row">
+            <div class="cert-card">
+              <div class="cert-card-top"><span class="cert-badge" style="background:rgba(66,133,244,0.15);color:#79b0f5">Google Cloud</span></div>
+              <div class="cert-name">Professional Cloud Security Engineer</div>
+              <div class="cert-desc">GCP · RM 1,200 exam · Covers IAM, VPC security, encryption, compliance. Organisations under Bank Negara RMiT and PDPA regulations actively recruit for this.</div>
+            </div>
+            <div class="cert-card">
+              <div class="cert-card-top"><span class="cert-badge" style="background:rgba(245,200,66,0.15);color:var(--gold)">ISC²</span></div>
+              <div class="cert-name">CISSP — Certified Info Systems Security Professional</div>
+              <div class="cert-desc">Requires 5 years experience · USD 699 exam · The CISO credential. Security managers and architects with CISSP in Malaysia earn RM 15,000–25,000+.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="phase">
+        <div class="phase-dot" style="background:var(--c6);color:#080c10;border:1.5px solid var(--c6)">↑</div>
+        <div class="phase-body">
+          <div class="phase-title">Senior roles in cybersecurity <span class="phase-dur" style="background:rgba(248,113,113,0.1);color:var(--c6)">Year 2–5</span></div>
+          <div class="jobs-grid">
+            <div class="job-pill">
+              <div class="job-title">SOC Analyst (L1/L2)</div>
+              <div class="job-sal" style="color:var(--c6)">RM 3,500–6,000</div>
+              <div class="job-co">Banks / MSS providers</div>
+            </div>
+            <div class="job-pill">
+              <div class="job-title">Pen Tester</div>
+              <div class="job-sal" style="color:var(--c6)">RM 5,000–10,000</div>
+              <div class="job-co">Consulting firms</div>
+            </div>
+            <div class="job-pill">
+              <div class="job-title">Security Engineer</div>
+              <div class="job-sal" style="color:var(--c6)">RM 7,000–14,000</div>
+              <div class="job-co">Tech / fintech / telco</div>
+            </div>
+            <div class="job-pill">
+              <div class="job-title">CISO / Security Architect</div>
+              <div class="job-sal" style="color:var(--c6)">RM 15,000–30,000</div>
+              <div class="job-co">Banks / GLC / MNC</div>
+            </div>
+          </div>
+          <div class="employers" style="margin-top:12px">
+            <span class="emp-label">Hires in MY:</span>
+            <span class="emp-pill">CIMB</span><span class="emp-pill">Maybank</span><span class="emp-pill">TM / Telekom</span><span class="emp-pill">CyberSecurity Malaysia</span><span class="emp-pill">NACSA</span><span class="emp-pill">Deloitte</span><span class="emp-pill">PwC</span><span class="emp-pill">KPMG</span><span class="emp-pill">IBM Security</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- CTA -->
+  <div class="cta-bar">
+    <div>
+      <h3>Not sure which path is right for you?</h3>
+      <p>WhatsApp Sasha directly — describe your background and goal and she'll tell you exactly which course to start with and which career track makes the most sense for you. No sales pitch, just honest advice.</p>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <a class="btn-p" href="https://wa.me/601131652854?text=Hi%20codencode!%20I%20want%20to%20know%20which%20career%20path%20fits%20me%20best%20%F0%9F%99%8B" target="_blank" rel="noopener"><i class="fab fa-whatsapp"></i> Ask Sasha</a>
+      <a class="btn-g" href="/register.html"><i class="fas fa-arrow-right"></i> Register Now</a>
+    </div>
+  </div>
+
+</div><!-- /.container -->
+</div><!-- /.page -->
+
+<footer>
   <div class="container">
-    <p>© 2025 <span>codencode.my</span> · Johor Bahru, Malaysia · 100% Online &nbsp;·&nbsp;
-      <a href="/">Home</a>
-      <a href="/#courses">Courses</a>
-      <a href="/#pricing">Pricing</a>
-      <a href="/#contact">Contact</a>
-    </p>
+    <div class="fbar">
+      <div class="fcopy">© 2026 <span>codencode.my</span> · CODE N CODE SOLUTION (202603072017 / AS0511861-M)</div>
+      <div class="fcopy"><a href="/" style="color:var(--mu);text-decoration:none">← Home</a> &nbsp;·&nbsp; <a href="/register.html" style="color:var(--mu);text-decoration:none">Register</a></div>
+    </div>
   </div>
 </footer>
 
-<!-- WA FLOAT -->
-<a class="wa" href="https://wa.me/601131652854?text=Hi%20codencode!%20I'm%20interested%20in%20your%20courses%20👋" target="_blank" rel="noopener" aria-label="WhatsApp codencode">
+<a class="wa" href="https://wa.me/601131652854?text=Hi%20codencode!%20I%20want%20to%20know%20which%20career%20path%20is%20right%20for%20me%20%F0%9F%99%8B" target="_blank" rel="noopener" aria-label="WhatsApp codencode">
   <div class="wa-pulse"></div>
   <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347zm-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884zm8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
 </a>
 
 <script>
-function selectPath(id){
-  document.querySelectorAll('.pcard').forEach(c=>c.classList.remove('on'));
-  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('on'));
-  document.getElementById('card-'+id).classList.add('on');
-  document.getElementById('panel-'+id).classList.add('on');
-  setTimeout(()=>{document.getElementById('panel-'+id).scrollIntoView({behavior:'smooth',block:'start'});},80);
+// Filter tabs
+function filterTrack(track, btn) {
+  document.querySelectorAll('.tab').forEach(t => {
+    t.classList.remove('active');
+    t.style.background = '';
+    t.style.borderColor = '';
+    t.style.color = '';
+  });
+  btn.classList.add('active');
+
+  const colors = {
+    all: 'var(--c1)', analyst: 'var(--c1)', scientist: 'var(--c2)',
+    ml: 'var(--c3)', dev: 'var(--c4)', auto: 'var(--c5)', cyber: 'var(--c6)'
+  };
+  btn.style.background = colors[track] || 'var(--c1)';
+  btn.style.borderColor = colors[track] || 'var(--c1)';
+  btn.style.color = '#080c10';
+
+  document.querySelectorAll('.roadmap').forEach(r => {
+    if (track === 'all') {
+      r.style.display = '';
+    } else {
+      r.style.display = r.dataset.track === track ? '' : 'none';
+    }
+  });
 }
-const mobBtn=document.getElementById('mob-btn');
-const mobMenu=document.getElementById('mob-menu');
-mobBtn.addEventListener('click',()=>{
-  mobMenu.classList.toggle('open');
-  mobBtn.querySelector('i').className=mobMenu.classList.contains('open')?'fas fa-times':'fas fa-bars';
-});
-window.addEventListener('scroll',()=>{
-  document.getElementById('navbar').style.borderBottomColor=window.scrollY>50?'rgba(0,220,180,.2)':'rgba(255,255,255,.07)';
+
+// Scroll spy for nav
+window.addEventListener('scroll', () => {
+  document.querySelector('.topnav').style.borderBottomColor =
+    window.scrollY > 30 ? 'rgba(0,220,180,.2)' : 'rgba(255,255,255,.07)';
 });
 </script>
 </body>
