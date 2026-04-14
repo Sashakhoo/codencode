@@ -1904,35 +1904,24 @@ def seed_demo():
     if User.query.first():
         return
 
-    from datetime import timedelta
-    now = datetime.utcnow()
-
-    # ── Users ──────────────────────────────────
     admin = User(name='Admin', email='admin@codencode.my', role='admin',
                  phone='010-0000000', ic_number='')
     admin.set_password('admin1234')
 
-    teacher = User(name='Michael Chang', email='teacher@codencode.my', role='teacher',
+    teacher = User(name='Teacher', email='teacher@codencode.my', role='teacher',
                    phone='011-2345678', ic_number='')
     teacher.set_password('demo1234')
 
-    demo_students = [
-        ('Alex Tan',    'student@codencode.my', '012-3456789', '900101-14-1234'),
-        ('Jamie Lim',   'jamie@codencode.my',   '013-4567890', '950215-10-5678'),
-        ('Rahim Nor',   'rahim@codencode.my',   '014-5678901', '980320-08-9012'),
-        ('Wei Ling',    'weiling@codencode.my', '016-6789012', '910712-04-3456'),
-        ('Zara Hassan', 'zara@codencode.my',    '017-7890123', '970825-12-7890'),
-        ('Kai Chen',    'kai@codencode.my',     '018-8901234', '930930-02-2345'),
-    ]
-    students = []
-    for name, email, phone, ic in demo_students:
-        u = User(name=name, email=email, role='student', phone=phone, ic_number=ic)
-        u.set_password('demo1234')
-        students.append(u)
+    student = User(name='Student', email='student@codencode.my', role='student',
+                   phone='012-3456789', ic_number='')
+    student.set_password('demo1234')
 
-    db.session.add_all([admin, teacher] + students)
-    db.session.flush()
+    db.session.add_all([admin, teacher, student])
+    db.session.commit()
+    print('✓ Default accounts seeded')
 
+
+def _seed_demo_old():
     # ── Courses ────────────────────────────────
     python_course = Course(
         title='Python Programming Bootcamp',
@@ -2133,7 +2122,7 @@ def seed_demo():
             week=wk, status=status))
 
     db.session.commit()
-    print('✓ Demo data seeded')
+    print('✓ Demo data seeded (unused)')
 
 
 # ─────────────────────────────────────────────
@@ -3304,10 +3293,6 @@ with app.app_context():
 
     seed_demo()
     _start_scheduler()
-
-with app.app_context():
-    db.drop_all()
-    db.create_all()
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
