@@ -469,7 +469,7 @@ def email_invoice(enrollment) -> bool:
     s = enrollment.student
     if not s or not s.email:
         return False
-    inv_num  = f'INV-{enrollment.id:05d}'
+    inv_num  = f'INV-{1110 + enrollment.id}'
     amt_str  = f'RM {enrollment.payment_amount:,.2f}' if enrollment.payment_amount else '—'
     issued   = datetime.utcnow().strftime('%d %B %Y')
     body = f"""
@@ -1224,6 +1224,18 @@ def admin_enroll_student(uid):
     return jsonify({'enrollment': e.to_dict()}), 201
 
 
+@app.route('/api/admin/students/<int:uid>', methods=['DELETE'])
+@admin_required
+def admin_delete_student(uid):
+    u = User.query.get_or_404(uid)
+    if u.role == 'admin':
+        return jsonify({'error': 'Cannot delete admin accounts'}), 403
+    Enrollment.query.filter_by(student_id=uid).delete()
+    db.session.delete(u)
+    db.session.commit()
+    return jsonify({'ok': True})
+
+
 @app.route('/api/admin/enrollments/<int:eid>', methods=['DELETE'])
 @admin_required
 def admin_unenroll(eid):
@@ -1308,7 +1320,7 @@ def admin_invoice(eid):
     e = Enrollment.query.get_or_404(eid)
     s = e.student
     c = e.course
-    inv_num = f'INV-{e.id:05d}'
+    inv_num = f'INV-{1110 + e.id}'
     issued  = datetime.utcnow().strftime('%d %B %Y')
     enr_date = e.enrolled_at.strftime('%d %B %Y')
 
@@ -1551,6 +1563,16 @@ def admin_update_course(cid):
     d = c.to_dict()
     d['enrolled_count'] = Enrollment.query.filter_by(course_id=c.id).count()
     return jsonify({'course': d})
+
+
+@app.route('/api/admin/courses/<int:cid>', methods=['DELETE'])
+@admin_required
+def admin_delete_course(cid):
+    c = Course.query.get_or_404(cid)
+    Enrollment.query.filter_by(course_id=cid).delete()
+    db.session.delete(c)
+    db.session.commit()
+    return jsonify({'ok': True})
 
 
 @app.route('/api/admin/courses/<int:cid>/students', methods=['GET'])
