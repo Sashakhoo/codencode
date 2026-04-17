@@ -1280,12 +1280,13 @@ def admin_invoice(eid):
     e = Enrollment.query.get_or_404(eid)
     s = e.student
     c = e.course
-    inv_num = f'INV-{e.id:05d}'
-    issued  = datetime.utcnow().strftime('%d %B %Y')
-    enr_date = e.enrolled_at.strftime('%d %B %Y')
+    inv_num  = f'INV-{e.id:05d}'
+    issued   = datetime.utcnow().strftime('%d %B %Y')
+    enr_date = e.enrolled_at.strftime('%d %B %Y') if e.enrolled_at else issued
+    pay_status = (e.payment_status or 'pending').lower()
 
     status_colour = {'paid': '#28ca41', 'pending': '#e3b341', 'overdue': '#f85149'}.get(
-        e.payment_status, '#7d8590')
+        pay_status, '#7d8590')
 
     receipt_html = ''
     if e.receipt_file:
@@ -1349,13 +1350,17 @@ def admin_invoice(eid):
 
   <div class="section">
     <div class="section-title">Payment Details</div>
-    <p><strong>Status:</strong> <span class="status-badge">{e.payment_status.upper()}</span></p>
+    <p><strong>Status:</strong> <span class="status-badge">{pay_status.upper()}</span></p>
+    {'<p><strong>Amount:</strong> RM ' + (str(e.payment_amount) if e.payment_amount else '—') + '</p>'}
+    {'<p><strong>Method:</strong> ' + (e.payment_method or '—') + '</p>'}
     {'<p><strong>Remarks:</strong> ' + (e.payment_remarks or '—') + '</p>'}
     {receipt_html}
   </div>
 
   <div class="footer">
-    <p>codencode.my · {inv_num} · Generated {issued}</p>
+    <p><strong>{_BUSINESS_NAME}</strong> · SSM No. {_BUSINESS_SSM}</p>
+    <p style="margin-top:4px">{_BUSINESS_ADDR}</p>
+    <p style="margin-top:8px">codencode.my · {inv_num} · Generated {issued}</p>
     <p style="margin-top:4px">Thank you for learning with us!</p>
   </div>
 
