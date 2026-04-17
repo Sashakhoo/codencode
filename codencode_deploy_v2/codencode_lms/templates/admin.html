@@ -3297,16 +3297,16 @@ function renderTeacherList(q = '') {
   body.innerHTML = list.map(t => {
     const initials = t.name.split(' ').map(p=>p[0]).join('').slice(0,2).toUpperCase();
     const avatarEl = t.avatar_filename
-      ? `<img src="/uploads/avatars/${t.avatar_filename}" style="width:36px;height:36px;border-radius:50%;object-fit:cover;border:2px solid var(--border);flex-shrink:0">`
-      : `<div class="student-dot" style="background:var(--purple);width:36px;height:36px;font-size:13px;flex-shrink:0">${initials}</div>`;
+      ? `<img src="/uploads/avatars/${t.avatar_filename}" style="width:34px;height:34px;border-radius:50%;object-fit:cover;border:1px solid var(--border);flex-shrink:0">`
+      : `<div class="student-avatar" style="background:rgba(168,145,201,.18);border-color:var(--purple);color:var(--purple)">${initials}</div>`;
     return `
-    <div class="student-row" onclick="showTeacherDetail(${t.id})">
+    <div class="student-item" onclick="showTeacherDetail(${t.id})" style="cursor:pointer">
       ${avatarEl}
       <div style="flex:1;min-width:0">
         <div class="student-name">${t.name}</div>
-        <div class="student-meta">${t.title ? t.title + ' · ' : ''}${t.email}</div>
+        <div class="student-email">${t.title ? t.title + ' · ' : ''}${t.email}</div>
       </div>
-      <span style="font-size:10px;background:var(--purple-dim);color:var(--purple);border:1px solid var(--purple);padding:2px 8px;border-radius:20px;font-family:var(--font-m)">TEACHER</span>
+      <span style="font-size:10px;background:rgba(168,145,201,.12);color:var(--purple);border:1px solid rgba(168,145,201,.4);padding:2px 8px;border-radius:20px;font-family:var(--font-m);flex-shrink:0">TEACHER</span>
     </div>`;
   }).join('');
 }
