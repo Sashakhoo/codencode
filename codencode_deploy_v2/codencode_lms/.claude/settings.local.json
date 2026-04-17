@@ -23,7 +23,8 @@
       "Bash(curl -s -c /tmp/lms_cookies.txt -b /tmp/lms_cookies.txt \"http://localhost:5000/api/admin/courses/1/cohorts\" -w \"\\\\nHTTP_STATUS:%{http_code}\")",
       "Bash(curl -s -c /tmp/lms_cookies.txt -b /tmp/lms_cookies.txt \"http://localhost:5000/api/courses/1/cohorts\" -w \"\\\\nHTTP_STATUS:%{http_code}\")",
       "Bash(curl -s -c /tmp/lms_cookies.txt -b /tmp/lms_cookies.txt \"http://localhost:5000/api/admin/courses\" -w \"\\\\nHTTP_STATUS:%{http_code}\")",
-      "Bash(curl -s -c /tmp/lms_cookies.txt -b /tmp/lms_cookies.txt \"http://localhost:5000/api/admin/students\" -w \"\\\\nHTTP_STATUS:%{http_code}\")"
+      "Bash(curl -s -c /tmp/lms_cookies.txt -b /tmp/lms_cookies.txt \"http://localhost:5000/api/admin/students\" -w \"\\\\nHTTP_STATUS:%{http_code}\")",
+      "Bash(del \"C:\\\\Users\\\\NATASYA\\\\OneDrive - Cantal Electric Pte Ltd\\\\Desktop\\\\codencode\\\\codencode_deploy_v2\\\\codencode_lms\\\\instance\\\\codencode_lms.db\")"
     ]
   },
   "disableAllHooks": true
