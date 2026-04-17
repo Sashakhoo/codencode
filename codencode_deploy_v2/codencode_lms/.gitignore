@@ -6,3 +6,4 @@ uploads/submissions/
 uploads/receipts/
 .env
 venv/
+codencode_deploy_v2/codencode_lms/.claude/

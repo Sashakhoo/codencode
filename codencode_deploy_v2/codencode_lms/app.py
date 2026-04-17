@@ -464,6 +464,34 @@ def email_payment_receipt(enrollment) -> bool:
     )
 
 
+def email_invoice(enrollment) -> bool:
+    """Send invoice to student by email."""
+    s = enrollment.student
+    if not s or not s.email:
+        return False
+    inv_num  = f'INV-{1110 + enrollment.id}'
+    amt_str  = f'RM {enrollment.payment_amount:,.2f}' if enrollment.payment_amount else '—'
+    issued   = datetime.utcnow().strftime('%d %B %Y')
+    body = f"""
+    <p>Hi <strong>{s.name}</strong>,</p>
+    <p>Please find your invoice for <strong>{enrollment.course.title}</strong> below.</p>
+    <div style="background:#0d2a1c;border-radius:8px;padding:16px;margin:16px 0">
+      <p style="margin:4px 0"><strong>Invoice No:</strong> {inv_num}</p>
+      <p style="margin:4px 0"><strong>Course:</strong> {enrollment.course.title}</p>
+      <p style="margin:4px 0"><strong>Amount:</strong> {amt_str}</p>
+      <p style="margin:4px 0"><strong>Status:</strong> {enrollment.payment_status.upper()}</p>
+      <p style="margin:4px 0"><strong>Issued:</strong> {issued}</p>
+    </div>
+    <p>If you have any questions about this invoice, please reply to this email.</p>
+    <a class="btn" href="https://learn.codencode.my">Go to Student Portal →</a>
+    """
+    return send_email(
+        s.email,
+        f'Invoice {inv_num} — {enrollment.course.title} | codencode.my',
+        _email_wrapper('Your Invoice 🧾', body)
+    )
+
+
 def email_enrollment_confirmation(enrollment) -> bool:
     """Send class schedule and preparation guide to newly confirmed student."""
     s = enrollment.student
@@ -1196,6 +1224,18 @@ def admin_enroll_student(uid):
     return jsonify({'enrollment': e.to_dict()}), 201
 
 
+@app.route('/api/admin/students/<int:uid>', methods=['DELETE'])
+@admin_required
+def admin_delete_student(uid):
+    u = User.query.get_or_404(uid)
+    if u.role == 'admin':
+        return jsonify({'error': 'Cannot delete admin accounts'}), 403
+    Enrollment.query.filter_by(student_id=uid).delete()
+    db.session.delete(u)
+    db.session.commit()
+    return jsonify({'ok': True})
+
+
 @app.route('/api/admin/enrollments/<int:eid>', methods=['DELETE'])
 @admin_required
 def admin_unenroll(eid):
@@ -1374,6 +1414,12 @@ def admin_invoice(eid):
   </div>
 </body>
 </html>"""
+    # Send invoice email to student
+    try:
+        email_invoice(e)
+    except Exception as exc:
+        app.logger.error('[Invoice] Email failed for enrollment %s: %s', eid, exc)
+
     from flask import Response
     return Response(html, mimetype='text/html')
 
@@ -1522,6 +1568,16 @@ def admin_update_course(cid):
     d = c.to_dict()
     d['enrolled_count'] = Enrollment.query.filter_by(course_id=c.id).count()
     return jsonify({'course': d})
+
+
+@app.route('/api/admin/courses/<int:cid>', methods=['DELETE'])
+@admin_required
+def admin_delete_course(cid):
+    c = Course.query.get_or_404(cid)
+    Enrollment.query.filter_by(course_id=cid).delete()
+    db.session.delete(c)
+    db.session.commit()
+    return jsonify({'ok': True})
 
 
 @app.route('/api/admin/courses/<int:cid>/students', methods=['GET'])
@@ -1721,16 +1777,18 @@ def reset_admin():
 
 def _build_welcome_email(student_name: str, course_title: str,
                          class_timing: str, class_format: str,
-                         login_email: str = '', login_password: str = '') -> str:
-    timing_display = class_timing or 'as scheduled'
-    fmt_display    = class_format  or 'Private'
+                         login_email: str = '', login_password: str = '',
+                         days_before: int = 3) -> str:
+    timing_display   = class_timing or 'as scheduled'
+    fmt_display      = class_format  or 'Private'
     password_display = login_password or 'codencode123'
+    days_label       = f'{days_before} days' if days_before > 1 else 'tomorrow'
     return f"""
     <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;background:#0a1a12;color:#e0ffe8;padding:32px;border-radius:12px">
       <div style="text-align:center;margin-bottom:24px">
         <span style="font-size:28px;font-weight:900;letter-spacing:-1px">code<span style="color:#00e5a0">ncode</span>.my</span>
       </div>
-      <h2 style="color:#00e5a0;margin-bottom:8px">Your class starts in 3 days! 🎉</h2>
+      <h2 style="color:#00e5a0;margin-bottom:8px">Your class starts in {days_label}! 🎉</h2>
       <p style="color:#aaa;margin-bottom:24px">Hi <strong style="color:#fff">{student_name}</strong>, we're excited to have you!</p>
 
       <div style="background:#0d2a1c;border-radius:8px;padding:20px;margin-bottom:20px">
@@ -1786,48 +1844,55 @@ def _build_welcome_whatsapp(student_name: str, course_title: str,
     )
 
 
+def _send_reminders_for_day(days_before: int):
+    """Send welcome reminder emails/WhatsApp for courses starting in exactly `days_before` days."""
+    target = (datetime.utcnow() + timedelta(days=days_before)).date()
+    days_label = f'{days_before} days' if days_before > 1 else 'tomorrow'
+    app.logger.info('[Reminder] Checking %d-day reminders for courses starting on %s', days_before, target)
+
+    courses = Course.query.filter_by(start_date=target).all()
+    if not courses:
+        app.logger.info('[Reminder] No courses starting on %s', target)
+        return
+
+    for course in courses:
+        for enrollment in course.enrollments:
+            student = enrollment.student
+            if not student:
+                continue
+
+            timing = enrollment.class_timing or ''
+            fmt    = enrollment.class_format  or ''
+
+            # Email
+            try:
+                send_email(
+                    student.email,
+                    f'Your {course.title} class starts in {days_label}! 🎉',
+                    _build_welcome_email(
+                        student.name, course.title, timing, fmt,
+                        login_email=student.email,
+                        login_password=student.temp_password or 'codencode123',
+                        days_before=days_before
+                    )
+                )
+                app.logger.info('[Reminder] %d-day email sent to %s', days_before, student.email)
+            except Exception as exc:
+                app.logger.error('[Reminder] %d-day email failed for %s: %s', days_before, student.email, exc)
+
+            # WhatsApp
+            if student.phone:
+                send_whatsapp(
+                    student.phone,
+                    _build_welcome_whatsapp(student.name, course.title, timing, fmt)
+                )
+
+
 def send_welcome_reminders():
-    """Called daily — finds enrollments whose course starts exactly 3 days from today
-       and sends a WhatsApp + email welcome message to each student."""
+    """Called daily — sends welcome emails 5 days and 1 day before class starts."""
     with app.app_context():
-        target = (datetime.utcnow() + timedelta(days=3)).date()
-        app.logger.info('[Reminder] Checking for courses starting on %s', target)
-
-        courses = Course.query.filter_by(start_date=target).all()
-        if not courses:
-            app.logger.info('[Reminder] No courses starting on %s', target)
-            return
-
-        for course in courses:
-            for enrollment in course.enrollments:
-                student = enrollment.student
-                if not student:
-                    continue
-
-                timing = enrollment.class_timing or ''
-                fmt    = enrollment.class_format  or ''
-
-                # Email
-                try:
-                    send_email(
-                        student.email,
-                        f'Your {course.title} class starts in 3 days! 🎉',
-                        _build_welcome_email(
-                            student.name, course.title, timing, fmt,
-                            login_email=student.email,
-                            login_password=student.temp_password or 'codencode123'
-                        )
-                    )
-                    app.logger.info('[Reminder] Email sent to %s', student.email)
-                except Exception as exc:
-                    app.logger.error('[Reminder] Email failed for %s: %s', student.email, exc)
-
-                # WhatsApp
-                if student.phone:
-                    send_whatsapp(
-                        student.phone,
-                        _build_welcome_whatsapp(student.name, course.title, timing, fmt)
-                    )
+        _send_reminders_for_day(5)
+        _send_reminders_for_day(1)
 
 
 def _start_scheduler():
@@ -1866,35 +1931,24 @@ def seed_demo():
     if User.query.first():
         return
 
-    from datetime import timedelta
-    now = datetime.utcnow()
-
-    # ── Users ──────────────────────────────────
     admin = User(name='Admin', email='admin@codencode.my', role='admin',
                  phone='010-0000000', ic_number='')
     admin.set_password('admin1234')
 
-    teacher = User(name='Michael Chang', email='teacher@codencode.my', role='teacher',
+    teacher = User(name='Teacher', email='teacher@codencode.my', role='teacher',
                    phone='011-2345678', ic_number='')
     teacher.set_password('demo1234')
 
-    demo_students = [
-        ('Alex Tan',    'student@codencode.my', '012-3456789', '900101-14-1234'),
-        ('Jamie Lim',   'jamie@codencode.my',   '013-4567890', '950215-10-5678'),
-        ('Rahim Nor',   'rahim@codencode.my',   '014-5678901', '980320-08-9012'),
-        ('Wei Ling',    'weiling@codencode.my', '016-6789012', '910712-04-3456'),
-        ('Zara Hassan', 'zara@codencode.my',    '017-7890123', '970825-12-7890'),
-        ('Kai Chen',    'kai@codencode.my',     '018-8901234', '930930-02-2345'),
-    ]
-    students = []
-    for name, email, phone, ic in demo_students:
-        u = User(name=name, email=email, role='student', phone=phone, ic_number=ic)
-        u.set_password('demo1234')
-        students.append(u)
+    student = User(name='Student', email='student@codencode.my', role='student',
+                   phone='012-3456789', ic_number='')
+    student.set_password('demo1234')
 
-    db.session.add_all([admin, teacher] + students)
-    db.session.flush()
+    db.session.add_all([admin, teacher, student])
+    db.session.commit()
+    print('✓ Default accounts seeded')
 
+
+def _seed_demo_old():
     # ── Courses ────────────────────────────────
     python_course = Course(
         title='Python Programming Bootcamp',
@@ -2095,7 +2149,7 @@ def seed_demo():
             week=wk, status=status))
 
     db.session.commit()
-    print('✓ Demo data seeded')
+    print('✓ Demo data seeded (unused)')
 
 
 # ─────────────────────────────────────────────

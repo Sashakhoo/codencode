@@ -1813,6 +1813,9 @@ function renderStudentDetail(s) {
         <button class="btn btn-secondary btn-sm" onclick="openEditStudent(${s.id})">
           <i class="fas fa-edit"></i> Edit Info
         </button>
+        <button class="btn btn-danger btn-sm" onclick="deleteStudent(${s.id},'${s.name}')" title="Delete student">
+          <i class="fas fa-trash"></i>
+        </button>
       </div>
 
       <div class="detail-tabs">
@@ -2072,6 +2075,27 @@ async function unenroll(eid, uid) {
   } catch(e) { toast(e.message, true); }
 }
 
+async function deleteStudent(uid, name) {
+  if (!confirm(`Permanently delete student "${name}" and all their enrollments? This cannot be undone.`)) return;
+  try {
+    await DELETE(`/api/admin/students/${uid}`);
+    toast(`${name} deleted`);
+    document.getElementById('student-detail').innerHTML = '';
+    await loadStudents();
+    renderStudentList();
+  } catch(e) { toast(e.message, true); }
+}
+
+async function deleteCourse(cid, title) {
+  if (!confirm(`Permanently delete course "${title}" and all its enrollments? This cannot be undone.`)) return;
+  try {
+    await DELETE(`/api/admin/courses/${cid}`);
+    toast(`${title} deleted`);
+    await loadCourses();
+    renderCourses();
+  } catch(e) { toast(e.message, true); }
+}
+
 // ═══════════════════════════════════════════════════════
 // COURSES
 // ═══════════════════════════════════════════════════════
@@ -2109,6 +2133,9 @@ function renderCourses() {
         </button>
         <button class="btn btn-secondary btn-sm" onclick="goToTimetable(${c.id})" title="Manage Timetable" style="color:var(--cyan)">
           <i class="fas fa-calendar-alt"></i>
+        </button>
+        <button class="btn btn-danger btn-sm" onclick="deleteCourse(${c.id},'${c.title.replace(/'/g,`\\'`)}')" title="Delete course">
+          <i class="fas fa-trash"></i>
         </button>
       </div>
     </div>
