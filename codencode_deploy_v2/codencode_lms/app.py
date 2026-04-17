@@ -56,7 +56,7 @@ app.config.update(
     UPLOAD_FOLDER=os.path.join(os.path.dirname(__file__), 'uploads'),
     MAX_CONTENT_LENGTH=2 * 1024 * 1024 * 1024,
     ALLOWED_VIDEO={'mp4', 'mov', 'mkv', 'webm'},
-    ALLOWED_MATERIAL={'pdf', 'py', 'ipynb', 'zip', 'csv', 'txt', 'docx', 'pptx'},
+    ALLOWED_MATERIAL={'pdf', 'py', 'ipynb', 'zip', 'csv', 'txt', 'docx', 'pptx', 'html'},
     ALLOWED_SUBMISSION={'py', 'ipynb', 'zip', 'pdf', 'txt'},
     ALLOWED_RECEIPT={'pdf', 'jpg', 'jpeg', 'png', 'heic'},
 )
@@ -1422,6 +1422,70 @@ def admin_invoice(eid):
 
     from flask import Response
     return Response(html, mimetype='text/html')
+
+
+# ── Teachers ──────────────────────────────────
+@app.route('/api/admin/teachers', methods=['GET'])
+@admin_required
+def admin_list_teachers():
+    teachers = User.query.filter_by(role='teacher').order_by(User.name).all()
+    return jsonify([t.to_dict() for t in teachers])
+
+
+@app.route('/api/admin/teachers', methods=['POST'])
+@admin_required
+def admin_create_teacher():
+    data  = request.get_json()
+    email = data.get('email', '').strip().lower()
+    if not email or not data.get('name'):
+        return jsonify({'error': 'name and email are required'}), 400
+    if User.query.filter_by(email=email).first():
+        return jsonify({'error': 'Email already exists'}), 409
+    t = User(
+        name          = data['name'].strip(),
+        email         = email,
+        role          = 'teacher',
+        phone         = data.get('phone', '').strip(),
+        ic_number     = data.get('ic_number', '').strip(),
+        language_pref = data.get('language_pref', 'en'),
+    )
+    plain_pw = data.get('password') or 'codencode123'
+    t.set_password(plain_pw)
+    t.temp_password = plain_pw
+    db.session.add(t)
+    db.session.commit()
+    return jsonify({'teacher': t.to_dict()}), 201
+
+
+@app.route('/api/admin/teachers/<int:uid>', methods=['PUT'])
+@admin_required
+def admin_update_teacher(uid):
+    t    = User.query.get_or_404(uid)
+    data = request.get_json()
+    if 'name'          in data: t.name          = data['name'].strip()
+    if 'phone'         in data: t.phone         = data['phone'].strip()
+    if 'ic_number'     in data: t.ic_number     = data['ic_number'].strip()
+    if 'language_pref' in data: t.language_pref = data['language_pref']
+    if 'email'         in data:
+        new_email = data['email'].strip().lower()
+        existing  = User.query.filter_by(email=new_email).first()
+        if existing and existing.id != uid:
+            return jsonify({'error': 'Email already in use'}), 409
+        t.email = new_email
+    if 'password' in data and data['password']:
+        t.set_password(data['password'])
+        t.temp_password = data['password']
+    db.session.commit()
+    return jsonify({'teacher': t.to_dict()})
+
+
+@app.route('/api/admin/teachers/<int:uid>', methods=['DELETE'])
+@admin_required
+def admin_delete_teacher(uid):
+    t = User.query.get_or_404(uid)
+    db.session.delete(t)
+    db.session.commit()
+    return jsonify({'ok': True})
 
 
 # ── Courses ───────────────────────────────────

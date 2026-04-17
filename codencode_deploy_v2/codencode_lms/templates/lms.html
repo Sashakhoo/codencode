@@ -1453,9 +1453,9 @@
                   <div class="upload-zone" onclick="document.getElementById('mat-file').click()">
                     <div class="upload-icon"><i class="fas fa-paperclip"></i></div>
                     <div class="upload-text">Drop file or click to browse</div>
-                    <div class="upload-sub">PDF, PY, IPYNB, ZIP, CSV — max 100MB</div>
+                    <div class="upload-sub">PDF, PY, IPYNB, ZIP, CSV, HTML — max 100MB</div>
                   </div>
-                  <input type="file" id="mat-file" name="file" class="upload-input" onchange="handleFileSelect(this)" />
+                  <input type="file" id="mat-file" name="file" class="upload-input" accept=".pdf,.py,.ipynb,.zip,.csv,.txt,.docx,.pptx,.html" onchange="handleFileSelect(this)" />
                 </div>
                 <button class="btn-action" style="width:100%;justify-content:center;padding:14px" id="upload-mat-btn" onclick="uploadMaterial()">
                   <i class="fas fa-upload"></i> Publish Material

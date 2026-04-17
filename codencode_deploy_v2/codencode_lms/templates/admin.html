@@ -789,12 +789,18 @@
     </div>
 
     <div class="sidebar-section">
-      <div class="sidebar-section-label">Students</div>
+      <div class="sidebar-section-label">People</div>
       <div class="nav-item" onclick="showView('students')">
         <i class="fas fa-users"></i> All Students
       </div>
       <div class="nav-item" onclick="openAddStudent()">
         <i class="fas fa-user-plus"></i> Add Student
+      </div>
+      <div class="nav-item" onclick="showView('teachers')">
+        <i class="fas fa-chalkboard-teacher"></i> Teachers
+      </div>
+      <div class="nav-item" onclick="openAddTeacher()">
+        <i class="fas fa-user-tie"></i> Add Teacher
       </div>
     </div>
 
@@ -887,6 +893,29 @@
           <div class="card">
             <div class="card-title"><i class="fas fa-layer-group" style="color:var(--cyan);margin-right:8px"></i>Courses & Current Week</div>
             <div id="dash-courses-list"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── TEACHERS ────────────────────────── -->
+      <div id="view-teachers" class="view">
+        <div class="two-pane">
+          <div class="pane-list">
+            <div class="pane-list-header">
+              <input class="pane-search" id="teacher-search" placeholder="Search teachers..." oninput="filterTeachers()" />
+              <button class="btn btn-primary btn-sm" onclick="openAddTeacher()" title="Add Teacher">
+                <i class="fas fa-plus"></i>
+              </button>
+            </div>
+            <div class="pane-list-body" id="teacher-list-body">
+              <div style="padding:20px;color:var(--text-muted);text-align:center">Loading...</div>
+            </div>
+          </div>
+          <div id="teacher-detail">
+            <div class="empty-state">
+              <i class="fas fa-chalkboard-teacher"></i>
+              <p>Select a teacher to view their details</p>
+            </div>
           </div>
         </div>
       </div>
@@ -1265,6 +1294,53 @@
   </div>
 </div>
 
+<!-- Add / Edit Teacher -->
+<div class="modal-overlay" id="modal-teacher" onclick="if(event.target===this)closeModal('modal-teacher')">
+  <div class="modal-box">
+    <div class="modal-title" id="teacher-modal-title">Add Teacher</div>
+    <input type="hidden" id="edit-teacher-id" value="" />
+    <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;color:var(--cyan);margin-bottom:12px">
+      <i class="fas fa-user-tie" style="margin-right:6px"></i>Teacher Info
+    </div>
+    <div class="form-grid">
+      <div class="form-group">
+        <label class="form-label">Full Name *</label>
+        <input class="form-input" id="t-name" placeholder="Michael Chang" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Email *</label>
+        <input class="form-input" id="t-email" type="email" placeholder="teacher@codencode.my" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Phone Number</label>
+        <input class="form-input" id="t-phone" placeholder="011-2345678" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">IC / Passport No.</label>
+        <input class="form-input" id="t-ic" placeholder="900101-14-1234" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Preferred Language</label>
+        <select class="form-select" id="t-language">
+          <option value="en">English</option>
+          <option value="bm">Malay (BM)</option>
+          <option value="zh">Chinese (中文)</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Password</label>
+        <input class="form-input" id="t-password" type="password" placeholder="codencode123" />
+      </div>
+    </div>
+    <div class="modal-footer" style="margin-top:16px">
+      <button class="btn btn-secondary" onclick="closeModal('modal-teacher')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveTeacher()">
+        <i class="fas fa-save"></i> Save
+      </button>
+    </div>
+  </div>
+</div>
+
 <!-- Enroll Student in Course -->
 <div class="modal-overlay" id="modal-enroll" onclick="if(event.target===this)closeModal('modal-enroll')">
   <div class="modal-box">
@@ -1589,6 +1665,7 @@ const S = {
   user:        null,
   courses:     [],
   students:    [],
+  teachers:    [],
   allPayments: [],
   currentView: 'dashboard',
 };
@@ -1628,7 +1705,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const initials = S.user.name.split(' ').map(p=>p[0]).join('').toUpperCase().slice(0,2);
     document.getElementById('admin-avatar').textContent = initials;
 
-    await Promise.all([loadCourses(), loadStudents()]);
+    await Promise.all([loadCourses(), loadStudents(), loadTeachers()]);
     populateCourseSelects();
     loadDashboard();
   } catch(e) {
@@ -1647,6 +1724,7 @@ async function doLogout() {
 const VIEW_TITLES = {
   dashboard:     ['Dashboard',        'Overview & quick stats'],
   students:      ['Students',         'Manage student profiles'],
+  teachers:      ['Teachers',         'Manage teacher accounts'],
   courses:       ['Courses',          'Manage courses & current week'],
   attendance:    ['Attendance',       'Mark & review attendance'],
   materials:     ['Upload Materials', 'Add materials per week'],
@@ -1683,6 +1761,7 @@ function showView(name) {
   S.currentView = name;
 
   if (name === 'students')      renderStudentList();
+  if (name === 'teachers')      renderTeacherList();
   if (name === 'courses')       renderCourses();
   if (name === 'payments')      renderPayments();
   if (name === 'timetable')     populateTimetableCourseSelect();
@@ -3074,6 +3153,121 @@ function exportCSV(type) {
   let url = `/api/admin/analytics/export?type=${type}`;
   if (cid) url += `&course_id=${cid}`;
   window.open(url, '_blank');
+}
+
+// ── Teachers ──────────────────────────────────
+function openAddTeacher() {
+  document.getElementById('edit-teacher-id').value = '';
+  document.getElementById('teacher-modal-title').textContent = 'Add Teacher';
+  ['t-name','t-email','t-phone','t-ic','t-password'].forEach(id => {
+    document.getElementById(id).value = '';
+  });
+  document.getElementById('t-language').value = 'en';
+  openModal('modal-teacher');
+}
+
+function openEditTeacher(t) {
+  document.getElementById('edit-teacher-id').value = t.id;
+  document.getElementById('teacher-modal-title').textContent = 'Edit Teacher';
+  document.getElementById('t-name').value     = t.name;
+  document.getElementById('t-email').value    = t.email;
+  document.getElementById('t-phone').value    = t.phone || '';
+  document.getElementById('t-ic').value       = t.ic_number || '';
+  document.getElementById('t-language').value = t.language_pref || 'en';
+  document.getElementById('t-password').value = '';
+  openModal('modal-teacher');
+}
+
+async function saveTeacher() {
+  const uid  = document.getElementById('edit-teacher-id').value;
+  const data = {
+    name:          document.getElementById('t-name').value.trim(),
+    email:         document.getElementById('t-email').value.trim(),
+    phone:         document.getElementById('t-phone').value.trim(),
+    ic_number:     document.getElementById('t-ic').value.trim(),
+    password:      document.getElementById('t-password').value,
+    language_pref: document.getElementById('t-language').value,
+  };
+  if (!data.name || !data.email) { toast('Name and email are required', true); return; }
+  try {
+    if (uid) {
+      await PUT(`/api/admin/teachers/${uid}`, data);
+      toast('Teacher updated');
+    } else {
+      await POST('/api/admin/teachers', data);
+      toast('Teacher added');
+    }
+    closeModal('modal-teacher');
+    await loadTeachers();
+  } catch(e) { toast(e.message, true); }
+}
+
+async function loadTeachers() {
+  const teachers = await GET('/api/admin/teachers');
+  S.teachers = teachers;
+  renderTeacherList();
+}
+
+function filterTeachers() {
+  renderTeacherList(document.getElementById('teacher-search').value.toLowerCase());
+}
+
+function renderTeacherList(q = '') {
+  const body = document.getElementById('teacher-list-body');
+  const list = (S.teachers || []).filter(t =>
+    !q || t.name.toLowerCase().includes(q) || t.email.toLowerCase().includes(q)
+  );
+  if (!list.length) {
+    body.innerHTML = `<div style="padding:20px;color:var(--text-muted);text-align:center">No teachers found.</div>`;
+    return;
+  }
+  body.innerHTML = list.map(t => `
+    <div class="student-row" onclick="showTeacherDetail(${t.id})">
+      <div class="student-dot" style="background:var(--purple)">${t.name.split(' ').map(p=>p[0]).join('').slice(0,2).toUpperCase()}</div>
+      <div style="flex:1;min-width:0">
+        <div class="student-name">${t.name}</div>
+        <div class="student-meta">${t.email}</div>
+      </div>
+      <span style="font-size:10px;background:var(--purple-dim);color:var(--purple);border:1px solid var(--purple);padding:2px 8px;border-radius:20px;font-family:var(--font-m)">TEACHER</span>
+    </div>`).join('');
+}
+
+async function showTeacherDetail(id) {
+  const t = (S.teachers || []).find(x => x.id === id);
+  if (!t) return;
+  document.getElementById('teacher-detail').innerHTML = `
+    <div style="padding:24px">
+      <div style="display:flex;align-items:center;gap:16px;margin-bottom:20px">
+        <div class="student-dot" style="width:52px;height:52px;font-size:18px;background:var(--purple)">${t.name.split(' ').map(p=>p[0]).join('').slice(0,2).toUpperCase()}</div>
+        <div>
+          <div style="font-size:18px;font-weight:700">${t.name}</div>
+          <div style="color:var(--text-muted);font-size:12px">${t.email}</div>
+        </div>
+        <button class="btn btn-secondary btn-sm" style="margin-left:auto" onclick="openEditTeacher(${JSON.stringify(t).replace(/"/g,'&quot;')})">
+          <i class="fas fa-edit"></i> Edit
+        </button>
+        <button class="btn btn-danger btn-sm" onclick="deleteTeacher(${t.id})">
+          <i class="fas fa-trash"></i>
+        </button>
+      </div>
+      <div class="info-grid" style="grid-template-columns:1fr 1fr;gap:12px;display:grid">
+        <div class="info-cell"><div class="info-label">Phone</div><div class="info-val">${t.phone||'—'}</div></div>
+        <div class="info-cell"><div class="info-label">IC / Passport</div><div class="info-val">${t.ic_number||'—'}</div></div>
+        <div class="info-cell"><div class="info-label">Language</div><div class="info-val">${{en:'English',bm:'Malay',zh:'Chinese'}[t.language_pref]||'English'}</div></div>
+        <div class="info-cell"><div class="info-label">Last Login</div><div class="info-val">${t.last_login||'Never'}</div></div>
+        <div class="info-cell"><div class="info-label">Joined</div><div class="info-val">${t.created_at||'—'}</div></div>
+      </div>
+    </div>`;
+}
+
+async function deleteTeacher(id) {
+  if (!confirm('Delete this teacher? This cannot be undone.')) return;
+  try {
+    await DELETE(`/api/admin/teachers/${id}`);
+    toast('Teacher deleted');
+    await loadTeachers();
+    document.getElementById('teacher-detail').innerHTML = `<div class="empty-state"><i class="fas fa-chalkboard-teacher"></i><p>Select a teacher to view their details</p></div>`;
+  } catch(e) { toast(e.message, true); }
 }
 
 async function triggerWelcomeReminders() {
