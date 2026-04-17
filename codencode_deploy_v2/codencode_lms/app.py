@@ -86,7 +86,7 @@ _EMAIL_USER     = os.environ.get('EMAIL_USER',  '')
 _EMAIL_PASS     = os.environ.get('EMAIL_PASS',  '')
 _BUSINESS_NAME  = os.environ.get('BUSINESS_NAME',    'CODE N CODE SOLUTION')
 _BUSINESS_SSM   = os.environ.get('BUSINESS_SSM',     '202603072017 (AS0511861-M)')
-_BUSINESS_ADDR  = os.environ.get('BUSINESS_ADDRESS', '16, Pengkalan Tiara 35, Taman Pengkalan Tiara, 31650 Ipoh, Perak')
+_BUSINESS_ADDR  = os.environ.get('BUSINESS_ADDRESS', '')
 
 # ─────────────────────────────────────────────
 # Twilio / WhatsApp
@@ -219,10 +219,6 @@ def generate_receipt_pdf(enrollment) -> bytes:
     c.setFont('Helvetica', 8)
     c.setFillColor(HexColor('#7ec8a0'))
     c.drawString(20*mm, H - 27*mm, 'OFFICIAL RECEIPT  ·  SSM NO. ' + _BUSINESS_SSM)
-    c.setFont('Helvetica', 7)
-    c.setFillColor(HexColor('#5a9e78'))
-    c.drawString(20*mm, H - 33*mm, _BUSINESS_ADDR)
-
     c.setFillColor(white)
     c.setFont('Helvetica-Bold', 14)
     c.drawRightString(W - 20*mm, H - 20*mm, rcpt)
@@ -1400,7 +1396,6 @@ def admin_invoice(eid):
 
   <div class="footer">
     <p><strong>{_BUSINESS_NAME}</strong> · SSM No. {_BUSINESS_SSM}</p>
-    <p style="margin-top:4px">{_BUSINESS_ADDR}</p>
     <p style="margin-top:8px">codencode.my · {inv_num} · Generated {issued}</p>
     <p style="margin-top:4px">Thank you for learning with us!</p>
   </div>
