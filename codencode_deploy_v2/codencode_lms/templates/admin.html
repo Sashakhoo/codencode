@@ -1332,6 +1332,41 @@
         <input class="form-input" id="t-password" type="password" placeholder="codencode123" />
       </div>
     </div>
+
+    <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;color:var(--cyan);margin-bottom:12px;margin-top:18px">
+      <i class="fas fa-id-card" style="margin-right:6px"></i>Profile / Portfolio <span style="color:var(--text-dim);font-weight:400">(optional — shown to students)</span>
+    </div>
+    <div class="form-grid">
+      <div class="form-group">
+        <label class="form-label">Display Title</label>
+        <input class="form-input" id="t-title" placeholder="e.g. Lead Instructor, Senior Data Scientist" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Specializations <span style="color:var(--text-dim);font-size:10px">(comma-separated)</span></label>
+        <input class="form-input" id="t-specializations" placeholder="Python, Machine Learning, NLP" />
+      </div>
+      <div class="form-group" style="grid-column:span 2">
+        <label class="form-label">Short Bio</label>
+        <textarea class="form-textarea" id="t-bio" rows="2" placeholder="Brief intro shown to students on their dashboard..."></textarea>
+      </div>
+      <div class="form-group" style="grid-column:span 2">
+        <label class="form-label">Education</label>
+        <input class="form-input" id="t-education" placeholder="e.g. BSc CS, UPM · MSc AI, UM" />
+      </div>
+      <div class="form-group" style="grid-column:span 2">
+        <label class="form-label">Experience</label>
+        <textarea class="form-textarea" id="t-experience" rows="2" placeholder="e.g. 5+ years in Python, data engineering and ML..."></textarea>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Portfolio Website</label>
+        <input class="form-input" id="t-website" type="url" placeholder="https://portfolio.com" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">LinkedIn URL</label>
+        <input class="form-input" id="t-linkedin" type="url" placeholder="https://linkedin.com/in/name" />
+      </div>
+    </div>
+
     <div class="modal-footer" style="margin-top:16px">
       <button class="btn btn-secondary" onclick="closeModal('modal-teacher')">Cancel</button>
       <button class="btn btn-primary" onclick="saveTeacher()">
@@ -1574,6 +1609,12 @@
       <div class="form-group">
         <label class="form-label">Seat Cap (optional)</label>
         <input class="form-input" type="number" id="c-seat-cap" placeholder="Leave blank for unlimited" min="1" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Assigned Teacher (optional)</label>
+        <select class="form-input" id="c-teacher-id">
+          <option value="">— No teacher assigned —</option>
+        </select>
       </div>
     </div>
     <div class="modal-footer">
@@ -2194,6 +2235,7 @@ function renderCourses() {
         ${c.enrolled_count}${c.seat_cap ? '/'+c.seat_cap : ''} students enrolled
         ${c.language && c.language !== 'en' ? '&nbsp;·&nbsp;<span style="text-transform:uppercase;font-weight:700;color:var(--cyan)">' + c.language + '</span>' : ''}
       </div>
+      ${c.teacher_name ? `<div style="font-size:11px;color:var(--text-muted);margin-bottom:4px"><i class="fas fa-chalkboard-teacher" style="color:var(--purple);margin-right:4px"></i>${c.teacher_name}${c.teacher_title ? ' · ' + c.teacher_title : ''}</div>` : ''}
       <!-- Cohorts -->
       <div style="margin-bottom:14px">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
@@ -2760,6 +2802,15 @@ function fileIcon(ft) {
 // ═══════════════════════════════════════════════════════
 // COURSES — Create / Edit
 // ═══════════════════════════════════════════════════════
+function _populateCourseTeacherDropdown(selectedId) {
+  const sel = document.getElementById('c-teacher-id');
+  if (!sel) return;
+  sel.innerHTML = '<option value="">— No teacher assigned —</option>' +
+    (S.teachers || []).map(t =>
+      `<option value="${t.id}" ${t.id === selectedId ? 'selected' : ''}>${t.name}${t.title ? ' · '+t.title : ''}</option>`
+    ).join('');
+}
+
 function openAddCourse() {
   document.getElementById('course-modal-title').textContent = 'New Course';
   document.getElementById('edit-course-id').value = '';
@@ -2772,6 +2823,7 @@ function openAddCourse() {
   if (langEl) langEl.value = 'en';
   const capEl = document.getElementById('c-seat-cap');
   if (capEl) capEl.value = '';
+  _populateCourseTeacherDropdown(null);
   openModal('modal-course');
 }
 
@@ -2789,6 +2841,7 @@ function openEditCourse(cid) {
   if (langEl) langEl.value = c.language || 'en';
   const capEl = document.getElementById('c-seat-cap');
   if (capEl) capEl.value = c.seat_cap || '';
+  _populateCourseTeacherDropdown(c.teacher_id || null);
   openModal('modal-course');
 }
 
@@ -2796,6 +2849,7 @@ async function saveCourse() {
   const cid  = document.getElementById('edit-course-id').value;
   const langEl = document.getElementById('c-language');
   const capEl  = document.getElementById('c-seat-cap');
+  const teacherEl = document.getElementById('c-teacher-id');
   const data = {
     title:       document.getElementById('c-title').value.trim(),
     programme:   document.getElementById('c-programme').value.trim(),
@@ -2804,6 +2858,7 @@ async function saveCourse() {
     start_date:  document.getElementById('c-start-date').value || null,
     language:    langEl ? (langEl.value || 'en') : 'en',
     seat_cap:    capEl && capEl.value ? parseInt(capEl.value) : null,
+    teacher_id:  teacherEl && teacherEl.value ? parseInt(teacherEl.value) : null,
   };
   if (!data.title) { toast('Course title is required', true); return; }
   const btn = document.getElementById('course-save-btn');
@@ -3156,6 +3211,8 @@ function exportCSV(type) {
 }
 
 // ── Teachers ──────────────────────────────────
+const _TEACHER_PROFILE_FIELDS = ['t-title','t-specializations','t-bio','t-education','t-experience','t-website','t-linkedin'];
+
 function openAddTeacher() {
   document.getElementById('edit-teacher-id').value = '';
   document.getElementById('teacher-modal-title').textContent = 'Add Teacher';
@@ -3163,6 +3220,7 @@ function openAddTeacher() {
     document.getElementById(id).value = '';
   });
   document.getElementById('t-language').value = 'en';
+  _TEACHER_PROFILE_FIELDS.forEach(id => { document.getElementById(id).value = ''; });
   openModal('modal-teacher');
 }
 
@@ -3175,18 +3233,33 @@ function openEditTeacher(t) {
   document.getElementById('t-ic').value       = t.ic_number || '';
   document.getElementById('t-language').value = t.language_pref || 'en';
   document.getElementById('t-password').value = '';
+  // profile fields
+  document.getElementById('t-title').value           = t.title           || '';
+  document.getElementById('t-specializations').value = t.specializations || '';
+  document.getElementById('t-bio').value             = t.bio             || '';
+  document.getElementById('t-education').value       = t.education       || '';
+  document.getElementById('t-experience').value      = t.experience      || '';
+  document.getElementById('t-website').value         = t.website         || '';
+  document.getElementById('t-linkedin').value        = t.linkedin        || '';
   openModal('modal-teacher');
 }
 
 async function saveTeacher() {
   const uid  = document.getElementById('edit-teacher-id').value;
   const data = {
-    name:          document.getElementById('t-name').value.trim(),
-    email:         document.getElementById('t-email').value.trim(),
-    phone:         document.getElementById('t-phone').value.trim(),
-    ic_number:     document.getElementById('t-ic').value.trim(),
-    password:      document.getElementById('t-password').value,
-    language_pref: document.getElementById('t-language').value,
+    name:            document.getElementById('t-name').value.trim(),
+    email:           document.getElementById('t-email').value.trim(),
+    phone:           document.getElementById('t-phone').value.trim(),
+    ic_number:       document.getElementById('t-ic').value.trim(),
+    password:        document.getElementById('t-password').value,
+    language_pref:   document.getElementById('t-language').value,
+    title:           document.getElementById('t-title').value.trim(),
+    specializations: document.getElementById('t-specializations').value.trim(),
+    bio:             document.getElementById('t-bio').value.trim(),
+    education:       document.getElementById('t-education').value.trim(),
+    experience:      document.getElementById('t-experience').value.trim(),
+    website:         document.getElementById('t-website').value.trim(),
+    linkedin:        document.getElementById('t-linkedin').value.trim(),
   };
   if (!data.name || !data.email) { toast('Name and email are required', true); return; }
   try {
@@ -3221,41 +3294,81 @@ function renderTeacherList(q = '') {
     body.innerHTML = `<div style="padding:20px;color:var(--text-muted);text-align:center">No teachers found.</div>`;
     return;
   }
-  body.innerHTML = list.map(t => `
+  body.innerHTML = list.map(t => {
+    const initials = t.name.split(' ').map(p=>p[0]).join('').slice(0,2).toUpperCase();
+    const avatarEl = t.avatar_filename
+      ? `<img src="/uploads/avatars/${t.avatar_filename}" style="width:36px;height:36px;border-radius:50%;object-fit:cover;border:2px solid var(--border);flex-shrink:0">`
+      : `<div class="student-dot" style="background:var(--purple);width:36px;height:36px;font-size:13px;flex-shrink:0">${initials}</div>`;
+    return `
     <div class="student-row" onclick="showTeacherDetail(${t.id})">
-      <div class="student-dot" style="background:var(--purple)">${t.name.split(' ').map(p=>p[0]).join('').slice(0,2).toUpperCase()}</div>
+      ${avatarEl}
       <div style="flex:1;min-width:0">
         <div class="student-name">${t.name}</div>
-        <div class="student-meta">${t.email}</div>
+        <div class="student-meta">${t.title ? t.title + ' · ' : ''}${t.email}</div>
       </div>
       <span style="font-size:10px;background:var(--purple-dim);color:var(--purple);border:1px solid var(--purple);padding:2px 8px;border-radius:20px;font-family:var(--font-m)">TEACHER</span>
-    </div>`).join('');
+    </div>`;
+  }).join('');
 }
 
 async function showTeacherDetail(id) {
   const t = (S.teachers || []).find(x => x.id === id);
   if (!t) return;
+
+  const initials = t.name.split(' ').map(p=>p[0]).join('').slice(0,2).toUpperCase();
+  const avatarHtml = t.avatar_filename
+    ? `<img src="/uploads/avatars/${t.avatar_filename}" style="width:52px;height:52px;border-radius:50%;object-fit:cover;border:2px solid var(--border)">`
+    : `<div class="student-dot" style="width:52px;height:52px;font-size:18px;background:var(--purple)">${initials}</div>`;
+
+  const tags = (t.specializations||'').split(',').filter(s=>s.trim())
+    .map(s=>`<span style="background:rgba(168,145,201,.12);color:var(--purple);border:1px solid rgba(168,145,201,.25);border-radius:20px;padding:2px 10px;font-size:10px">${s.trim()}</span>`).join('');
+
+  // Assigned courses
+  const assignedCourses = (S.courses||[]).filter(c => c.teacher_id === t.id);
+  const coursesHtml = assignedCourses.length
+    ? assignedCourses.map(c=>`<span style="background:var(--bg-raised);border:1px solid var(--border);border-radius:6px;padding:3px 10px;font-size:11px">${c.title}</span>`).join(' ')
+    : '<span style="color:var(--text-muted);font-size:12px">None assigned</span>';
+
   document.getElementById('teacher-detail').innerHTML = `
     <div style="padding:24px">
-      <div style="display:flex;align-items:center;gap:16px;margin-bottom:20px">
-        <div class="student-dot" style="width:52px;height:52px;font-size:18px;background:var(--purple)">${t.name.split(' ').map(p=>p[0]).join('').slice(0,2).toUpperCase()}</div>
-        <div>
+      <div style="display:flex;align-items:flex-start;gap:16px;margin-bottom:20px">
+        ${avatarHtml}
+        <div style="flex:1;min-width:0">
           <div style="font-size:18px;font-weight:700">${t.name}</div>
-          <div style="color:var(--text-muted);font-size:12px">${t.email}</div>
+          ${t.title ? `<div style="color:var(--purple);font-size:12px;margin-top:2px">${t.title}</div>` : ''}
+          <div style="color:var(--text-muted);font-size:12px;margin-top:2px">${t.email}</div>
+          ${tags ? `<div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px">${tags}</div>` : ''}
         </div>
-        <button class="btn btn-secondary btn-sm" style="margin-left:auto" onclick="openEditTeacher(${JSON.stringify(t).replace(/"/g,'&quot;')})">
-          <i class="fas fa-edit"></i> Edit
-        </button>
-        <button class="btn btn-danger btn-sm" onclick="deleteTeacher(${t.id})">
-          <i class="fas fa-trash"></i>
-        </button>
+        <div style="display:flex;gap:6px;flex-shrink:0">
+          <button class="btn btn-secondary btn-sm" onclick="openEditTeacher(${JSON.stringify(t).replace(/"/g,'&quot;')})">
+            <i class="fas fa-edit"></i> Edit
+          </button>
+          <button class="btn btn-danger btn-sm" onclick="deleteTeacher(${t.id})">
+            <i class="fas fa-trash"></i>
+          </button>
+        </div>
       </div>
-      <div class="info-grid" style="grid-template-columns:1fr 1fr;gap:12px;display:grid">
+
+      ${t.bio ? `<p style="color:var(--text-muted);font-size:13px;line-height:1.6;margin-bottom:16px;padding:12px;background:var(--bg-raised);border-radius:8px;border:1px solid var(--border)">${t.bio}</p>` : ''}
+
+      <div class="info-grid" style="grid-template-columns:1fr 1fr;gap:12px;display:grid;margin-bottom:16px">
         <div class="info-cell"><div class="info-label">Phone</div><div class="info-val">${t.phone||'—'}</div></div>
         <div class="info-cell"><div class="info-label">IC / Passport</div><div class="info-val">${t.ic_number||'—'}</div></div>
         <div class="info-cell"><div class="info-label">Language</div><div class="info-val">${{en:'English',bm:'Malay',zh:'Chinese'}[t.language_pref]||'English'}</div></div>
         <div class="info-cell"><div class="info-label">Last Login</div><div class="info-val">${t.last_login||'Never'}</div></div>
         <div class="info-cell"><div class="info-label">Joined</div><div class="info-val">${t.created_at||'—'}</div></div>
+        ${t.education ? `<div class="info-cell" style="grid-column:span 2"><div class="info-label"><i class="fas fa-graduation-cap"></i> Education</div><div class="info-val">${t.education}</div></div>` : ''}
+        ${t.experience ? `<div class="info-cell" style="grid-column:span 2"><div class="info-label"><i class="fas fa-briefcase"></i> Experience</div><div class="info-val">${t.experience}</div></div>` : ''}
+      </div>
+
+      <div style="margin-bottom:14px">
+        <div class="info-label" style="margin-bottom:8px"><i class="fas fa-book-open"></i> Assigned Courses</div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px">${coursesHtml}</div>
+      </div>
+
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        ${t.website ? `<a href="${t.website}" target="_blank" class="btn btn-secondary btn-sm"><i class="fas fa-globe"></i> Portfolio</a>` : ''}
+        ${t.linkedin ? `<a href="${t.linkedin}" target="_blank" class="btn btn-secondary btn-sm"><i class="fab fa-linkedin"></i> LinkedIn</a>` : ''}
       </div>
     </div>`;
 }

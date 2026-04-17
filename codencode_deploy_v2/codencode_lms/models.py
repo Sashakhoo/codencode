@@ -21,6 +21,16 @@ class User(UserMixin, db.Model):
     last_login    = db.Column(db.DateTime)
     temp_password = db.Column(db.String(100), nullable=True)   # plain-text, stored for welcome email only
 
+    # ── Teacher profile fields ──────────────────────────────────
+    title            = db.Column(db.String(120))   # e.g. "Lead Instructor", "Senior Data Scientist"
+    bio              = db.Column(db.Text)            # short intro shown on student card
+    education        = db.Column(db.Text)            # e.g. "BSc CS, UPM | MSc AI, UM"
+    experience       = db.Column(db.Text)            # years / background paragraph
+    specializations  = db.Column(db.String(300))     # comma-separated, e.g. "Python, ML, NLP"
+    website          = db.Column(db.String(300))     # portfolio URL
+    linkedin         = db.Column(db.String(300))     # LinkedIn URL
+    avatar_filename  = db.Column(db.String(300))     # uploaded profile photo filename
+
     # relationships
     enrollments   = db.relationship('Enrollment', back_populates='student', foreign_keys='Enrollment.student_id')
     submissions   = db.relationship('Submission', back_populates='student')
@@ -42,7 +52,16 @@ class User(UserMixin, db.Model):
             'phone': self.phone or '', 'ic_number': self.ic_number or '',
             'created_at': self.created_at.strftime('%b %d, %Y'),
             'last_login': self.last_login.strftime('%b %d, %Y · %I:%M %p') if self.last_login else None,
-            'language_pref': self.language_pref or 'en'
+            'language_pref': self.language_pref or 'en',
+            # profile fields (relevant for teachers, present for all users)
+            'title':           self.title or '',
+            'bio':             self.bio or '',
+            'education':       self.education or '',
+            'experience':      self.experience or '',
+            'specializations': self.specializations or '',
+            'website':         self.website or '',
+            'linkedin':        self.linkedin or '',
+            'avatar_filename': self.avatar_filename or '',
         }
 
 
@@ -58,6 +77,9 @@ class Course(db.Model):
     language     = db.Column(db.String(5), default='en')   # 'en', 'zh', 'bm'
     seat_cap     = db.Column(db.Integer)                   # max enrolment seats (NULL = unlimited)
     created_at   = db.Column(db.DateTime, default=datetime.utcnow)
+    teacher_id   = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)  # assigned instructor
+
+    teacher      = db.relationship('User', foreign_keys=[teacher_id])
 
     enrollments  = db.relationship('Enrollment', back_populates='course')
     cohorts      = db.relationship('Cohort', back_populates='course', cascade='all, delete-orphan', order_by='Cohort.start_date')
@@ -70,13 +92,25 @@ class Course(db.Model):
     announcements = db.relationship('Announcement', back_populates='course', cascade='all, delete-orphan')
 
     def to_dict(self):
+        t = self.teacher
         return {
             'id': self.id, 'title': self.title, 'description': self.description,
             'weeks': self.weeks, 'current_week': self.current_week,
             'start_date': self.start_date.strftime('%Y-%m-%d') if self.start_date else None,
             'programme': self.programme or '',
             'language': self.language or 'en',
-            'seat_cap': self.seat_cap
+            'seat_cap': self.seat_cap,
+            'teacher_id': self.teacher_id,
+            'teacher_name': t.name if t else '',
+            'teacher_title': t.title if t else '',
+            'teacher_bio': t.bio if t else '',
+            'teacher_education': t.education if t else '',
+            'teacher_experience': t.experience if t else '',
+            'teacher_specializations': t.specializations if t else '',
+            'teacher_website': t.website if t else '',
+            'teacher_linkedin': t.linkedin if t else '',
+            'teacher_avatar': t.avatar_filename if t else '',
+            'teacher_initials': t.initials() if t else '',
         }
 
 

@@ -1039,6 +1039,9 @@
         <button class="nav-item" onclick="switchView('t-discussion')">
           <i class="fas fa-comments"></i><span data-i18n="discussion">Discussion</span>
         </button>
+        <button class="nav-item" onclick="switchView('t-profile')">
+          <i class="fas fa-id-card"></i><span>My Profile</span>
+        </button>
       </div>
     </div>
 
@@ -1169,6 +1172,15 @@
           </div>
           <div class="card-body" id="announcements-container">
             <div style="color:var(--muted);font-family:var(--font-m);font-size:12px">Loading announcements...</div>
+          </div>
+        </div>
+
+        <!-- Meet Your Instructor -->
+        <div class="card" id="instructor-card" style="display:none">
+          <div class="card-header">
+            <span class="card-title"><i class="fas fa-chalkboard-teacher"></i> Meet Your Instructor</span>
+          </div>
+          <div class="card-body" id="instructor-card-body">
           </div>
         </div>
       </div>
@@ -1810,6 +1822,96 @@
         <div id="t-discussion-post-view" style="display:none"></div>
       </div>
 
+      <!-- ══════════════════════════════
+           TEACHER: MY PROFILE
+      ══════════════════════════════ -->
+      <div class="view" id="view-t-profile">
+        <div class="page-header">
+          <div class="page-label">My Profile</div>
+          <div class="page-title">Instructor Profile</div>
+          <div class="page-sub">// This information is visible to your students</div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;max-width:900px">
+
+          <!-- Preview card -->
+          <div class="card" style="align-self:start">
+            <div class="card-header">
+              <span class="card-title"><i class="fas fa-eye"></i> Preview (student view)</span>
+            </div>
+            <div class="card-body" id="profile-preview-card">
+              <div style="color:var(--muted);font-family:var(--font-m);font-size:12px">Fill in your details on the right →</div>
+            </div>
+          </div>
+
+          <!-- Edit form -->
+          <div class="card">
+            <div class="card-header">
+              <span class="card-title"><i class="fas fa-edit"></i> Edit Profile</span>
+            </div>
+            <div class="card-body" style="display:flex;flex-direction:column;gap:14px">
+
+              <div class="form-group">
+                <label class="form-label">Profile Photo</label>
+                <div style="display:flex;align-items:center;gap:14px">
+                  <div id="profile-avatar-preview" style="width:64px;height:64px;border-radius:50%;background:var(--accent-dim);border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-family:var(--font-m);font-size:20px;font-weight:700;color:var(--cyan);overflow:hidden;flex-shrink:0"></div>
+                  <div>
+                    <button class="btn-action ghost" style="font-size:11px;padding:6px 12px" onclick="document.getElementById('avatar-file-input').click()">
+                      <i class="fas fa-upload"></i> Upload Photo
+                    </button>
+                    <div style="color:var(--muted);font-family:var(--font-m);font-size:10px;margin-top:4px">JPG, PNG, WebP · max 5MB</div>
+                  </div>
+                  <input type="file" id="avatar-file-input" accept="image/*" style="display:none" onchange="uploadAvatar(this)">
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Display Title <span style="color:var(--muted);font-size:10px">(e.g. Lead Instructor)</span></label>
+                <input class="form-input" id="prof-title" placeholder="e.g. Lead Python Instructor">
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Short Bio <span style="color:var(--muted);font-size:10px">(2–3 sentences)</span></label>
+                <textarea class="form-input" id="prof-bio" rows="3" placeholder="Tell students a bit about yourself..."></textarea>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Education</label>
+                <input class="form-input" id="prof-education" placeholder="e.g. BSc Computer Science, UPM · MSc AI, UM">
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Experience</label>
+                <textarea class="form-input" id="prof-experience" rows="2" placeholder="e.g. 5+ years in Python, data engineering and ML..."></textarea>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Specializations <span style="color:var(--muted);font-size:10px">(comma-separated)</span></label>
+                <input class="form-input" id="prof-specializations" placeholder="Python, Machine Learning, Data Science">
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Portfolio / Website</label>
+                <input class="form-input" id="prof-website" type="url" placeholder="https://yourportfolio.com">
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">LinkedIn URL</label>
+                <input class="form-input" id="prof-linkedin" type="url" placeholder="https://linkedin.com/in/yourname">
+              </div>
+
+              <button class="btn-action" style="width:100%;justify-content:center;margin-top:4px" onclick="saveTeacherProfile()">
+                <i class="fas fa-save"></i> Save Profile
+              </button>
+              <div id="profile-save-msg" style="display:none;text-align:center;font-family:var(--font-m);font-size:12px;color:var(--cyan);margin-top:6px">
+                <i class="fas fa-check-circle"></i> Profile saved successfully!
+              </div>
+            </div>
+          </div>
+
+        </div><!-- end grid -->
+      </div><!-- end view-t-profile -->
+
     </div><!-- end main-content -->
   </div><!-- end main-area -->
 </div><!-- end app -->
@@ -2326,6 +2428,9 @@ async function loadStudentDashboard() {
   const pending = d.assignments_pending ?? (d.total_assignments - d.assignments_submitted);
   const badge = document.getElementById('pending-badge');
   if (badge) { badge.textContent = pending; badge.style.display = pending > 0 ? '' : 'none'; }
+
+  // Load instructor card (fire and forget)
+  if (STATE.courseId) loadInstructorCard(STATE.courseId).catch(() => {});
 }
 
 async function loadAnnouncements() {
@@ -3952,6 +4057,175 @@ VIEW_TITLES['t-quizzes'] = 'Quiz Builder';
 VIEW_TITLES['discussion'] = 'Discussion';
 VIEW_TITLES['t-discussion'] = 'Discussion';
 VIEW_TITLES['certificates'] = 'Certificates';
+VIEW_TITLES['t-profile'] = 'My Profile';
+
+VIEW_LOADERS['t-profile'] = loadTeacherProfile;
+
+// ══════════════════════════════════════════════════════
+//  TEACHER PROFILE
+// ══════════════════════════════════════════════════════
+
+async function loadTeacherProfile() {
+  try {
+    const r = await GET('/api/teacher/profile');
+    const p = r.profile || {};
+    document.getElementById('prof-title').value          = p.title          || '';
+    document.getElementById('prof-bio').value            = p.bio            || '';
+    document.getElementById('prof-education').value      = p.education      || '';
+    document.getElementById('prof-experience').value     = p.experience     || '';
+    document.getElementById('prof-specializations').value= p.specializations|| '';
+    document.getElementById('prof-website').value        = p.website        || '';
+    document.getElementById('prof-linkedin').value       = p.linkedin       || '';
+    renderProfileAvatarPreview(p);
+    renderProfilePreviewCard(p);
+    // Live preview on input
+    ['prof-title','prof-bio','prof-education','prof-experience',
+     'prof-specializations','prof-website','prof-linkedin'].forEach(id => {
+      document.getElementById(id).oninput = () => renderProfilePreviewCard(collectProfileFields());
+    });
+  } catch(e) { showToast('Error loading profile: ' + e.message, true); }
+}
+
+function collectProfileFields() {
+  return {
+    name:            STATE.user?.name || '',
+    initials:        STATE.user?.initials || '',
+    avatar_filename: document.getElementById('prof-avatar-stored')?.value || '',
+    title:           document.getElementById('prof-title').value,
+    bio:             document.getElementById('prof-bio').value,
+    education:       document.getElementById('prof-education').value,
+    experience:      document.getElementById('prof-experience').value,
+    specializations: document.getElementById('prof-specializations').value,
+    website:         document.getElementById('prof-website').value,
+    linkedin:        document.getElementById('prof-linkedin').value,
+  };
+}
+
+function renderProfileAvatarPreview(p) {
+  const el = document.getElementById('profile-avatar-preview');
+  if (!el) return;
+  if (p.avatar_filename) {
+    el.innerHTML = `<img src="/uploads/avatars/${p.avatar_filename}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`;
+  } else {
+    el.textContent = (p.initials || (STATE.user?.name || 'T').slice(0,2).toUpperCase());
+    el.style.fontSize = '22px';
+  }
+  // Store avatar filename for form use
+  let hidden = document.getElementById('prof-avatar-stored');
+  if (!hidden) {
+    hidden = document.createElement('input');
+    hidden.type = 'hidden'; hidden.id = 'prof-avatar-stored';
+    el.parentElement.appendChild(hidden);
+  }
+  hidden.value = p.avatar_filename || '';
+}
+
+function renderProfilePreviewCard(p) {
+  const el = document.getElementById('profile-preview-card');
+  if (!el) return;
+  const avatarHtml = p.avatar_filename
+    ? `<img src="/uploads/avatars/${p.avatar_filename}" style="width:72px;height:72px;border-radius:50%;object-fit:cover;border:2px solid var(--border)">`
+    : `<div style="width:72px;height:72px;border-radius:50%;background:var(--accent-dim);border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-family:var(--font-m);font-size:24px;font-weight:700;color:var(--cyan);flex-shrink:0">${p.initials || (STATE.user?.name||'T').slice(0,2).toUpperCase()}</div>`;
+
+  const tags = (p.specializations || '').split(',').filter(s => s.trim())
+    .map(s => `<span style="background:var(--accent-dim);color:var(--cyan);border:1px solid var(--border2);border-radius:20px;padding:2px 10px;font-size:10px;font-family:var(--font-m)">${s.trim()}</span>`).join('');
+
+  el.innerHTML = `
+    <div style="display:flex;align-items:flex-start;gap:16px;margin-bottom:16px">
+      ${avatarHtml}
+      <div style="flex:1;min-width:0">
+        <div style="font-size:16px;font-weight:700;color:var(--text)">${p.name || STATE.user?.name || 'Teacher'}</div>
+        ${p.title ? `<div style="color:var(--cyan);font-family:var(--font-m);font-size:12px;margin-top:2px">${p.title}</div>` : ''}
+        ${tags ? `<div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px">${tags}</div>` : ''}
+      </div>
+    </div>
+    ${p.bio ? `<p style="color:var(--text-muted);font-size:13px;line-height:1.6;margin-bottom:14px">${p.bio}</p>` : ''}
+    ${p.education ? `<div style="display:flex;align-items:flex-start;gap:8px;margin-bottom:10px"><i class="fas fa-graduation-cap" style="color:var(--cyan);margin-top:2px;font-size:13px;flex-shrink:0"></i><span style="color:var(--text-muted);font-size:12px">${p.education}</span></div>` : ''}
+    ${p.experience ? `<div style="display:flex;align-items:flex-start;gap:8px;margin-bottom:10px"><i class="fas fa-briefcase" style="color:var(--cyan);margin-top:2px;font-size:13px;flex-shrink:0"></i><span style="color:var(--text-muted);font-size:12px">${p.experience}</span></div>` : ''}
+    ${p.website ? `<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px"><i class="fas fa-globe" style="color:var(--cyan);font-size:13px;flex-shrink:0"></i><a href="${p.website}" target="_blank" style="color:var(--cyan);font-size:12px;font-family:var(--font-m);text-decoration:none;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${p.website}</a></div>` : ''}
+    ${p.linkedin ? `<div style="display:flex;align-items:center;gap:8px"><i class="fab fa-linkedin" style="color:var(--cyan);font-size:13px;flex-shrink:0"></i><a href="${p.linkedin}" target="_blank" style="color:var(--cyan);font-size:12px;font-family:var(--font-m);text-decoration:none">LinkedIn Profile</a></div>` : ''}
+  `;
+}
+
+async function saveTeacherProfile() {
+  const p = collectProfileFields();
+  try {
+    const r = await PUT('/api/teacher/profile', {
+      title:           p.title,
+      bio:             p.bio,
+      education:       p.education,
+      experience:      p.experience,
+      specializations: p.specializations,
+      website:         p.website,
+      linkedin:        p.linkedin,
+    });
+    renderProfilePreviewCard(r.profile);
+    const msg = document.getElementById('profile-save-msg');
+    if (msg) { msg.style.display = ''; setTimeout(() => msg.style.display = 'none', 3000); }
+    showToast('Profile saved!');
+  } catch(e) { showToast('Error saving profile: ' + e.message, true); }
+}
+
+async function uploadAvatar(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const fd = new FormData();
+  fd.append('file', file);
+  try {
+    const r = await fetch('/api/teacher/profile/avatar', { method:'POST', body: fd });
+    const j = await r.json();
+    if (!r.ok) throw new Error(j.error || 'Upload failed');
+    const p = { avatar_filename: j.avatar_filename, name: STATE.user?.name || '', initials: STATE.user?.initials || '' };
+    renderProfileAvatarPreview(p);
+    // Update hidden field
+    const hidden = document.getElementById('prof-avatar-stored');
+    if (hidden) hidden.value = j.avatar_filename;
+    renderProfilePreviewCard(collectProfileFields());
+    showToast('Photo uploaded!');
+  } catch(e) { showToast('Upload failed: ' + e.message, true); }
+}
+
+// ── Instructor card on student dashboard ─────────────
+async function loadInstructorCard(courseId) {
+  try {
+    const r = await GET(`/api/courses/${courseId}/teacher-profile`);
+    const t = r.teacher;
+    const card = document.getElementById('instructor-card');
+    const body = document.getElementById('instructor-card-body');
+    if (!card || !body) return;
+    if (!t || (!t.name && !t.bio && !t.title)) { card.style.display = 'none'; return; }
+
+    const avatarHtml = t.avatar_filename
+      ? `<img src="/uploads/avatars/${t.avatar_filename}" style="width:72px;height:72px;border-radius:50%;object-fit:cover;border:2px solid var(--border)">`
+      : `<div style="width:72px;height:72px;border-radius:50%;background:var(--accent-dim);border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-family:var(--font-m);font-size:24px;font-weight:700;color:var(--cyan);flex-shrink:0">${t.initials || (t.name||'T').slice(0,2).toUpperCase()}</div>`;
+
+    const tags = (t.specializations || '').split(',').filter(s => s.trim())
+      .map(s => `<span style="background:var(--accent-dim);color:var(--cyan);border:1px solid var(--border2);border-radius:20px;padding:2px 10px;font-size:10px;font-family:var(--font-m)">${s.trim()}</span>`).join('');
+
+    body.innerHTML = `
+      <div style="display:flex;align-items:flex-start;gap:16px;margin-bottom:14px">
+        ${avatarHtml}
+        <div style="flex:1;min-width:0">
+          <div style="font-size:16px;font-weight:700;color:var(--text)">${t.name}</div>
+          ${t.title ? `<div style="color:var(--cyan);font-family:var(--font-m);font-size:12px;margin-top:2px">${t.title}</div>` : ''}
+          ${tags ? `<div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px">${tags}</div>` : ''}
+        </div>
+      </div>
+      ${t.bio ? `<p style="color:var(--text-muted);font-size:13px;line-height:1.6;margin-bottom:12px">${t.bio}</p>` : ''}
+      ${t.education ? `<div style="display:flex;align-items:flex-start;gap:8px;margin-bottom:8px"><i class="fas fa-graduation-cap" style="color:var(--cyan);margin-top:2px;font-size:12px;flex-shrink:0"></i><span style="color:var(--text-muted);font-size:12px">${t.education}</span></div>` : ''}
+      ${t.experience ? `<div style="display:flex;align-items:flex-start;gap:8px;margin-bottom:8px"><i class="fas fa-briefcase" style="color:var(--cyan);margin-top:2px;font-size:12px;flex-shrink:0"></i><span style="color:var(--text-muted);font-size:12px">${t.experience}</span></div>` : ''}
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px">
+        ${t.website ? `<a href="${t.website}" target="_blank" style="display:flex;align-items:center;gap:6px;color:var(--cyan);font-size:12px;font-family:var(--font-m);text-decoration:none;background:var(--bg-raised);border:1px solid var(--border);border-radius:6px;padding:6px 12px"><i class="fas fa-globe"></i> Portfolio</a>` : ''}
+        ${t.linkedin ? `<a href="${t.linkedin}" target="_blank" style="display:flex;align-items:center;gap:6px;color:var(--cyan);font-size:12px;font-family:var(--font-m);text-decoration:none;background:var(--bg-raised);border:1px solid var(--border);border-radius:6px;padding:6px 12px"><i class="fab fa-linkedin"></i> LinkedIn</a>` : ''}
+      </div>
+    `;
+    card.style.display = '';
+  } catch(e) {
+    // silently hide card if teacher not assigned
+    const card = document.getElementById('instructor-card');
+    if (card) card.style.display = 'none';
+  }
+}
 </script>
 </body>
 </html>
