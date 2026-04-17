@@ -68,6 +68,7 @@ login_manager.login_view = 'serve_frontend'
 
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 os.makedirs(os.path.join(app.config['UPLOAD_FOLDER'], 'receipts'), exist_ok=True)
+os.makedirs(os.path.join(app.config['UPLOAD_FOLDER'], 'avatars'), exist_ok=True)
 
 
 @login_manager.user_loader
@@ -1475,6 +1476,10 @@ def admin_update_teacher(uid):
     if 'password' in data and data['password']:
         t.set_password(data['password'])
         t.temp_password = data['password']
+    for field in ('title', 'bio', 'education', 'experience',
+                  'specializations', 'website', 'linkedin'):
+        if field in data:
+            setattr(t, field, (data[field] or '').strip())
     db.session.commit()
     return jsonify({'teacher': t.to_dict()})
 
@@ -1486,6 +1491,55 @@ def admin_delete_teacher(uid):
     db.session.delete(t)
     db.session.commit()
     return jsonify({'ok': True})
+
+
+# ── Teacher self-service profile ───────────────────────────────
+@app.route('/api/teacher/profile', methods=['GET'])
+@teacher_required
+def teacher_get_profile():
+    return jsonify({'profile': current_user.to_dict()})
+
+
+@app.route('/api/teacher/profile', methods=['PUT'])
+@teacher_required
+def teacher_update_profile():
+    data = request.get_json()
+    u = current_user
+    for field in ('title', 'bio', 'education', 'experience',
+                  'specializations', 'website', 'linkedin'):
+        if field in data:
+            setattr(u, field, (data[field] or '').strip())
+    db.session.commit()
+    return jsonify({'profile': u.to_dict()})
+
+
+@app.route('/api/teacher/profile/avatar', methods=['POST'])
+@teacher_required
+def teacher_upload_avatar():
+    """Upload a profile photo for the logged-in teacher."""
+    f = request.files.get('file')
+    if not f or f.filename == '':
+        return jsonify({'error': 'No file'}), 400
+    allowed_img = {'jpg', 'jpeg', 'png', 'webp', 'gif'}
+    if not allowed(f.filename, allowed_img):
+        return jsonify({'error': 'Image files only (jpg, png, webp, gif)'}), 400
+    stored, _ = save_upload(f, 'avatars', allowed_img)
+    current_user.avatar_filename = stored
+    db.session.commit()
+    return jsonify({'avatar_filename': stored})
+
+
+@app.route('/api/courses/<int:cid>/teacher-profile', methods=['GET'])
+@login_required
+def course_teacher_profile(cid):
+    """Return the assigned teacher's profile for a course.
+    Accessible by enrolled students and staff."""
+    c = Course.query.get_or_404(cid)
+    if not enrolled_or_staff(cid):
+        return jsonify({'error': 'Not enrolled'}), 403
+    if not c.teacher:
+        return jsonify({'teacher': None})
+    return jsonify({'teacher': c.teacher.to_dict()})
 
 
 # ── Courses ───────────────────────────────────
@@ -1508,6 +1562,7 @@ def admin_create_course():
     if not data.get('title'):
         return jsonify({'error': 'title is required'}), 400
     seat_cap_val = data.get('seat_cap')
+    tid = data.get('teacher_id')
     c = Course(
         title        = data['title'].strip(),
         description  = data.get('description', ''),
@@ -1517,6 +1572,7 @@ def admin_create_course():
         programme    = data.get('programme', '').strip(),
         language     = data.get('language', 'en'),
         seat_cap     = int(seat_cap_val) if seat_cap_val else None,
+        teacher_id   = int(tid) if tid else None,
     )
     db.session.add(c)
     db.session.commit()
@@ -1628,6 +1684,9 @@ def admin_update_course(cid):
         c.start_date = datetime.strptime(data['start_date'], '%Y-%m-%d').date()
     elif 'start_date' in data and not data['start_date']:
         c.start_date = None
+    if 'teacher_id' in data:
+        tid = data['teacher_id']
+        c.teacher_id = int(tid) if tid else None
     db.session.commit()
     d = c.to_dict()
     d['enrolled_count'] = Enrollment.query.filter_by(course_id=c.id).count()
@@ -3378,6 +3437,38 @@ with app.app_context():
                 conn.commit()
             if 'paid_at' not in pay_cols:
                 conn.execute(text('ALTER TABLE enrollments ADD COLUMN paid_at DATETIME'))
+                conn.commit()
+    except Exception:
+        pass
+
+    # ── Teacher profile columns migration ────────────────────────────────────────
+    try:
+        insp_tp = sa_inspect(db.engine)
+        u_cols  = {c['name'] for c in insp_tp.get_columns('users')}
+        with db.engine.connect() as conn:
+            for col, ddl in [
+                ('title',           'VARCHAR(120)'),
+                ('bio',             'TEXT'),
+                ('education',       'TEXT'),
+                ('experience',      'TEXT'),
+                ('specializations', 'VARCHAR(300)'),
+                ('website',         'VARCHAR(300)'),
+                ('linkedin',        'VARCHAR(300)'),
+                ('avatar_filename',  'VARCHAR(300)'),
+            ]:
+                if col not in u_cols:
+                    conn.execute(text(f'ALTER TABLE users ADD COLUMN {col} {ddl}'))
+                    conn.commit()
+    except Exception:
+        pass
+
+    # ── teacher_id on courses ─────────────────────────────────────────────────
+    try:
+        insp_tc = sa_inspect(db.engine)
+        c_cols  = {c['name'] for c in insp_tc.get_columns('courses')}
+        if 'teacher_id' not in c_cols:
+            with db.engine.connect() as conn:
+                conn.execute(text('ALTER TABLE courses ADD COLUMN teacher_id INTEGER'))
                 conn.commit()
     except Exception:
         pass
