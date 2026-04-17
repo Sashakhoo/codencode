@@ -2180,6 +2180,15 @@ async function bootApp() {
 
   // 2. Setup role UI (DOM writes, cannot fail)
   const isTeacher = STATE.user.role === 'teacher';
+
+  // Show banner if teacher has no courses assigned yet
+  if (isTeacher && STATE.courses.length === 0) {
+    const banner = document.createElement('div');
+    banner.id = 'no-courses-banner';
+    banner.style.cssText = 'position:fixed;top:0;left:0;right:0;background:rgba(245,200,66,.12);border-bottom:1px solid rgba(245,200,66,.3);color:#f5c842;font-family:var(--font-m);font-size:12px;padding:10px 20px;text-align:center;z-index:9999';
+    banner.innerHTML = '<i class="fas fa-exclamation-triangle"></i> &nbsp;No courses assigned to you yet. Ask your admin to assign a course to your account.';
+    document.body.prepend(banner);
+  }
   document.getElementById('student-nav').style.display = isTeacher ? 'none' : 'block';
   document.getElementById('teacher-nav').style.display = isTeacher ? 'block' : 'none';
   document.getElementById('role-badge').textContent    = isTeacher ? 'TEACHER' : 'STUDENT';
@@ -2203,6 +2212,10 @@ async function bootApp() {
 
 function renderCourseSelector() {
   const sel = document.getElementById('course-selector');
+  if (!STATE.courses.length) {
+    sel.innerHTML = '<option value="">No courses assigned</option>';
+    return;
+  }
   sel.innerHTML = STATE.courses.map(c =>
     `<option value="${c.id}">${c.title}</option>`
   ).join('');

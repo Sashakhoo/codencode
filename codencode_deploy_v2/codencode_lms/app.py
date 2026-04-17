@@ -698,8 +698,11 @@ def api_me():
 @app.route('/api/courses')
 @login_required
 def api_courses():
-    if current_user.role in ('teacher', 'admin'):
-        courses = Course.query.all()
+    if current_user.role == 'admin':
+        courses = Course.query.order_by(Course.title).all()
+    elif current_user.role == 'teacher':
+        # Teachers only see courses assigned to them
+        courses = Course.query.filter_by(teacher_id=current_user.id).order_by(Course.title).all()
     else:
         courses = [e.course for e in current_user.enrollments]
     return jsonify([c.to_dict() for c in courses])
