@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Register — codencode.my | Python & AI Courses JB</title>
+<meta name="description" content="Register for codencode Academy — Python & AI courses in Johor Bahru. Taught in English, Mandarin and Bahasa Melayu. SSM registered: 202603072017."/>
+<meta name="robots" content="index, follow"/>
+<link rel="canonical" href="https://codencode.my/register.html"/>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;700;800&display=swap" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet" crossorigin="anonymous"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#080c10;--surf:#0d1117;--surf2:#111820;
+  --b:rgba(255,255,255,0.07);--bs:rgba(0,220,180,0.22);
+  --cyan:#00dcb4;--cdim:rgba(0,220,180,0.10);--cglow:rgba(0,220,180,0.06);
+  --gold:#f5c842;--gdim:rgba(245,200,66,0.1);
+  --w:#e8edf3;--mu:#5a6a7a;--mu2:#3a4a5a;
+  --red:#ff4d6d;
+  --mono:'Space Mono',monospace;--disp:'Syne',sans-serif;
+}
+html{scroll-behavior:smooth}
+body{font-family:var(--disp);background:var(--bg);color:var(--w);overflow-x:hidden;min-height:100vh}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(var(--b) 1px,transparent 1px),linear-gradient(90deg,var(--b) 1px,transparent 1px);background-size:60px 60px;pointer-events:none;z-index:0}
+::-webkit-scrollbar{width:4px}::-webkit-scrollbar-track{background:var(--bg)}::-webkit-scrollbar-thumb{background:var(--cyan);border-radius:2px}
+
+/* ── NAV ── */
+.topnav{position:fixed;top:0;left:0;right:0;z-index:200;background:rgba(8,12,16,.92);backdrop-filter:blur(16px);border-bottom:1px solid var(--b)}
+.nav-inner{max-width:1200px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;padding:0 24px;height:60px}
+.logo{display:flex;align-items:center;gap:10px;text-decoration:none}
+.logo-mark{width:34px;height:34px;border:1.5px solid var(--cyan);display:grid;place-items:center;font-family:var(--mono);font-size:9px;color:var(--cyan);position:relative;letter-spacing:.05em}
+.logo-mark::before{content:'';position:absolute;top:3px;left:3px;right:3px;bottom:3px;background:var(--cdim)}
+.logo-text{font-weight:800;font-size:15px;letter-spacing:-.02em}
+.logo-text span{color:var(--cyan)}
+.nav-back{display:inline-flex;align-items:center;gap:6px;font-family:var(--mono);font-size:11px;color:var(--mu);text-decoration:none;letter-spacing:.06em;transition:color .2s}
+.nav-back:hover{color:var(--cyan)}
+
+/* ── LAYOUT ── */
+.container{max-width:1100px;margin:0 auto;padding:0 24px;position:relative;z-index:1}
+.page{padding:100px 0 80px}
+
+/* ── HEADER ── */
+.pg-header{display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center;margin-bottom:72px}
+.lbl{display:inline-flex;align-items:center;gap:10px;font-family:var(--mono);font-size:11px;letter-spacing:.15em;text-transform:uppercase;color:var(--cyan);margin-bottom:14px}
+.lbl::before{content:'';display:block;width:28px;height:1px;background:var(--cyan)}
+.h1{font-size:clamp(32px,5vw,56px);font-weight:800;line-height:1.05;letter-spacing:-.04em;margin-bottom:16px}
+.h1 .accent{color:var(--cyan)}
+.desc{color:var(--mu);font-family:var(--mono);font-size:13px;line-height:1.8;max-width:440px}
+
+/* intake card */
+.intake-card{background:var(--surf2);border:1px solid var(--bs);padding:28px;position:relative;overflow:hidden}
+.intake-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--cyan),var(--gold))}
+.intake-row{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px;padding-bottom:20px;border-bottom:1px solid var(--b)}
+.intake-row:last-child{margin-bottom:0;padding-bottom:0;border-bottom:none}
+.intake-label{font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--mu);margin-bottom:5px}
+.intake-val{font-weight:800;font-size:18px;color:var(--cyan)}
+.intake-val.gold{color:var(--gold)}
+.intake-sub{font-family:var(--mono);font-size:11px;color:var(--mu);margin-top:3px}
+.spots-bar{height:6px;background:var(--b);border-radius:3px;margin-top:8px;overflow:hidden}
+.spots-fill{height:100%;width:67%;background:linear-gradient(90deg,var(--cyan),var(--gold));border-radius:3px;animation:pulse-bar 2s ease-in-out infinite}
+@keyframes pulse-bar{0%,100%{opacity:1}50%{opacity:.7}}
+
+/* ── FORM ── */
+.form-wrap{display:grid;grid-template-columns:1fr 360px;gap:40px;align-items:start}
+.form-main{background:var(--surf);border:1px solid var(--b);padding:40px}
+.form-main::before{content:'// registration_form.py';display:block;font-family:var(--mono);font-size:10px;color:var(--mu2);letter-spacing:.08em;margin-bottom:28px;padding-bottom:16px;border-bottom:1px solid var(--b)}
+
+.field{margin-bottom:24px}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px}
+label{display:block;font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--cyan);margin-bottom:8px}
+label .req{color:var(--red)}
+input,select,textarea{width:100%;background:var(--bg);border:1px solid var(--b);color:var(--w);font-family:var(--mono);font-size:13px;padding:12px 14px;outline:none;transition:border-color .2s,box-shadow .2s;-webkit-appearance:none;appearance:none;border-radius:0}
+input:focus,select:focus,textarea:focus{border-color:var(--cyan);box-shadow:0 0 0 3px var(--cdim)}
+input::placeholder,textarea::placeholder{color:var(--mu2)}
+select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%2300dcb4' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;padding-right:36px;cursor:pointer}
+select option{background:var(--surf2);color:var(--w)}
+textarea{resize:vertical;min-height:80px;line-height:1.6}
+
+/* radio group */
+.radio-group{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:8px}
+.radio-opt{position:relative}
+.radio-opt input{position:absolute;opacity:0;width:0;height:0}
+.radio-opt label{display:flex;flex-direction:column;align-items:center;gap:4px;padding:14px 10px;border:1px solid var(--b);cursor:pointer;transition:all .2s;font-size:11px;letter-spacing:.05em;text-transform:uppercase;background:var(--bg);margin-bottom:0}
+.radio-opt label .ricon{font-size:18px;margin-bottom:4px}
+.radio-opt label .rprice{font-size:10px;color:var(--mu)}
+.radio-opt input:checked+label{border-color:var(--cyan);background:var(--cdim);color:var(--cyan)}
+.radio-opt input:checked+label .rprice{color:var(--gold)}
+
+/* checkbox */
+.check-group{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
+.check-opt{position:relative}
+.check-opt input{position:absolute;opacity:0;width:0;height:0}
+.check-opt label{display:flex;align-items:center;gap:8px;padding:10px 12px;border:1px solid var(--b);cursor:pointer;transition:all .2s;font-size:11px;letter-spacing:.05em;background:var(--bg);margin-bottom:0;text-transform:none}
+.check-opt label::before{content:'';width:14px;height:14px;border:1px solid var(--mu2);flex-shrink:0;transition:all .2s}
+.check-opt input:checked+label{border-color:var(--cyan);background:var(--cdim)}
+.check-opt input:checked+label::before{background:var(--cyan);border-color:var(--cyan);box-shadow:inset 0 0 0 2px var(--bg)}
+
+/* submit */
+.submit-wrap{margin-top:32px;padding-top:28px;border-top:1px solid var(--b)}
+.btn-submit{width:100%;display:flex;align-items:center;justify-content:center;gap:10px;background:var(--cyan);color:#080c10;font-family:var(--mono);font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:18px 28px;border:none;cursor:pointer;transition:all .2s;position:relative;overflow:hidden}
+.btn-submit::after{content:'';position:absolute;bottom:-3px;right:-3px;width:100%;height:100%;border:1px solid var(--cyan);pointer-events:none}
+.btn-submit:hover{background:#00f0c5;transform:translateY(-1px)}
+.btn-submit:active{transform:translateY(0)}
+.btn-submit:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.submit-note{font-family:var(--mono);font-size:10px;color:var(--mu);margin-top:14px;line-height:1.7;text-align:center}
+
+/* field hint */
+.hint{font-family:var(--mono);font-size:10px;color:var(--mu);margin-top:6px;line-height:1.5}
+
+/* ── SIDEBAR ── */
+.sidebar{display:flex;flex-direction:column;gap:16px}
+.side-card{background:var(--surf2);border:1px solid var(--b);padding:24px;position:relative}
+.side-card-title{font-family:var(--mono);font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--mu);margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid var(--b);display:flex;align-items:center;gap:8px}
+.side-card-title i{color:var(--cyan)}
+.price-table{width:100%}
+.price-row{display:flex;justify-content:space-between;align-items:baseline;padding:8px 0;border-bottom:1px solid var(--b)}
+.price-row:last-child{border-bottom:none;padding-bottom:0}
+.price-name{font-family:var(--mono);font-size:11px;color:var(--mu)}
+.price-amount{font-family:var(--mono);font-size:13px;font-weight:700;color:var(--w)}
+.price-amount .strike{font-size:10px;color:var(--mu2);text-decoration:line-through;margin-right:4px;font-weight:400}
+.price-amount .eb{color:var(--cyan)}
+.instalment{font-family:var(--mono);font-size:10px;color:var(--gold);margin-top:3px}
+
+.trust-list{list-style:none;display:flex;flex-direction:column;gap:10px}
+.trust-list li{font-family:var(--mono);font-size:11px;color:var(--mu);display:flex;align-items:flex-start;gap:8px;line-height:1.5}
+.trust-list li i{color:var(--cyan);margin-top:1px;flex-shrink:0}
+.trust-list li strong{color:var(--w)}
+
+.wa-side{display:flex;align-items:center;gap:12px;padding:16px;background:rgba(37,211,102,0.08);border:1px solid rgba(37,211,102,0.25);text-decoration:none;transition:all .2s}
+.wa-side:hover{background:rgba(37,211,102,0.14)}
+.wa-side i{font-size:22px;color:#25D366;flex-shrink:0}
+.wa-side-text{font-family:var(--mono);font-size:11px}
+.wa-side-text strong{display:block;color:var(--w);margin-bottom:2px}
+.wa-side-text span{color:var(--mu)}
+
+/* ── SUCCESS STATE ── */
+.success-panel{display:none;text-align:center;padding:60px 40px}
+.success-panel.show{display:block}
+.success-icon{width:72px;height:72px;background:var(--cdim);border:2px solid var(--cyan);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 24px;font-size:28px;color:var(--cyan)}
+.success-title{font-size:28px;font-weight:800;margin-bottom:12px}
+.success-desc{font-family:var(--mono);font-size:13px;color:var(--mu);line-height:1.8;max-width:400px;margin:0 auto 28px}
+.success-steps{text-align:left;background:var(--bg);border:1px solid var(--b);padding:24px;margin-top:28px}
+.success-steps h4{font-family:var(--mono);font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--mu2);margin-bottom:16px}
+.step-item{display:flex;gap:14px;margin-bottom:14px}
+.step-item:last-child{margin-bottom:0}
+.step-num{width:24px;height:24px;background:var(--cyan);color:var(--bg);font-family:var(--mono);font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.step-text{font-family:var(--mono);font-size:12px;color:var(--mu);line-height:1.6;padding-top:2px}
+.step-text strong{color:var(--w)}
+
+/* ── FOOTER ── */
+footer{background:#050709;border-top:1px solid var(--b);padding:24px 0;margin-top:60px;position:relative;z-index:1}
+.fbar{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px}
+.fcopy{font-family:var(--mono);font-size:10px;color:var(--mu2);line-height:1.7}
+.fcopy span{color:var(--cyan)}
+
+/* WA float */
+.wa{position:fixed;bottom:30px;right:30px;width:52px;height:52px;background:#25D366;border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 20px rgba(37,211,102,.4);z-index:9999;text-decoration:none;transition:transform .2s}
+.wa:hover{transform:scale(1.1)}
+.wa svg{width:24px;height:24px;fill:#fff}
+.wa-pulse{position:absolute;width:52px;height:52px;border-radius:50%;background:rgba(37,211,102,.3);animation:ping 2s ease-out infinite}
+@keyframes ping{0%{transform:scale(1);opacity:.5}100%{transform:scale(1.8);opacity:0}}
+
+/* ── RESPONSIVE ── */
+@media(max-width:900px){
+  .pg-header{grid-template-columns:1fr;gap:32px}
+  .form-wrap{grid-template-columns:1fr}
+  .sidebar{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+}
+@media(max-width:640px){
+  .field-row{grid-template-columns:1fr}
+  .radio-group{grid-template-columns:1fr}
+  .check-group{grid-template-columns:1fr}
+  .sidebar{grid-template-columns:1fr}
+  .form-main{padding:24px 18px}
+  .fbar{flex-direction:column;text-align:center}
+}
+</style>
+</head>
+<body>
+
+<nav class="topnav">
+  <div class="nav-inner">
+    <a class="logo" href="/">
+      <div class="logo-mark">&lt;cc/&gt;</div>
+      <span class="logo-text">code<span>n</span>code</span>
+    </a>
+    <a class="nav-back" href="/"><i class="fas fa-arrow-left"></i> Back to Home</a>
+  </div>
+</nav>
+
+<div class="page">
+  <div class="container">
+
+    <!-- HEADER -->
+    <div class="pg-header">
+      <div>
+        <div class="lbl">Registration</div>
+        <h1 class="h1">Secure your<br><span class="accent">spot today.</span></h1>
+        <p class="desc">Fill in the form and we'll WhatsApp you within 4 hours to confirm your spot and send payment details. Takes 3 minutes.</p>
+      </div>
+      <div class="intake-card">
+        <div class="intake-row">
+          <div>
+            <div class="intake-label">Next intake</div>
+            <div class="intake-val">8 May 2026</div>
+            <div class="intake-sub">Saturday · Registration closes 1 May</div>
+          </div>
+          <div style="text-align:right">
+            <div class="intake-label">Spots remaining</div>
+            <div class="intake-val gold">8 / 12</div>
+            <div class="intake-sub">4 spots already taken</div>
+          </div>
+        </div>
+        <div class="intake-row">
+          <div style="width:100%">
+            <div class="intake-label" style="margin-bottom:6px">Batch filling up</div>
+            <div class="spots-bar"><div class="spots-fill"></div></div>
+            <div class="intake-sub" style="margin-top:6px">Early bird pricing ends 30 April</div>
+          </div>
+        </div>
+        <div class="intake-row">
+          <div>
+            <div class="intake-label">SSM Registered</div>
+            <div style="font-family:var(--mono);font-size:11px;color:var(--w)">CODE N CODE SOLUTION</div>
+            <div style="font-family:var(--mono);font-size:10px;color:var(--mu);margin-top:2px">202603072017 (AS0511861-M)</div>
+          </div>
+          <div style="text-align:right">
+            <div class="intake-label">Languages</div>
+            <div style="font-family:var(--mono);font-size:12px;color:var(--w)">EN · 中文 · BM</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FORM + SIDEBAR -->
+    <div class="form-wrap">
+
+      <!-- MAIN FORM -->
+      <div>
+        <div class="form-main" id="formPanel">
+
+          <!-- Step indicator -->
+          <div style="display:flex;gap:8px;margin-bottom:28px">
+            <div style="height:3px;flex:1;background:var(--cyan);border-radius:2px"></div>
+            <div style="height:3px;flex:1;background:var(--cyan);border-radius:2px"></div>
+            <div style="height:3px;flex:1;background:var(--b);border-radius:2px" id="step3bar"></div>
+          </div>
+
+          <form id="regForm" novalidate>
+
+            <!-- PERSONAL INFO -->
+            <div style="font-family:var(--mono);font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--mu2);margin-bottom:20px">01 &mdash; Personal info</div>
+
+            <div class="field-row">
+              <div class="field" style="margin-bottom:0">
+                <label>Full name <span class="req">*</span></label>
+                <input type="text" id="name" placeholder="as per IC" required autocomplete="name"/>
+              </div>
+              <div class="field" style="margin-bottom:0">
+                <label>WhatsApp number <span class="req">*</span></label>
+                <input type="tel" id="phone" placeholder="+60 11-XXXX XXXX" required autocomplete="tel"/>
+              </div>
+            </div>
+
+            <div class="field" style="margin-top:16px">
+              <label>Email address <span class="req">*</span></label>
+              <input type="email" id="email" placeholder="you@email.com" required autocomplete="email"/>
+              <div class="hint"><i class="fas fa-info-circle" style="margin-right:4px"></i>Your registration confirmation will be sent here</div>
+            </div>
+
+            <div class="field">
+              <label>Current occupation</label>
+              <input type="text" id="job" placeholder="e.g. Operations Manager, Fresh Graduate, Student"/>
+            </div>
+
+            <!-- COURSE SELECTION -->
+            <div style="font-family:var(--mono);font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--mu2);margin:28px 0 20px;padding-top:24px;border-top:1px solid var(--b)">02 &mdash; Course &amp; format</div>
+
+            <div class="field">
+              <label>Which course? <span class="req">*</span></label>
+              <select id="course" required>
+                <option value="" disabled selected>Select a course →</option>
+                <option value="python">Python Fundamentals — RM 1,350 early bird (6 weeks)</option>
+                <option value="ml">ML Fundamentals — RM 1,800 early bird (10 weeks)</option>
+                <option value="bundle">Bundle: Python + ML — RM 2,500 (saves RM 650)</option>
+                <option value="unsure">Not sure yet — help me choose</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label>Class format <span class="req">*</span></label>
+              <div class="radio-group">
+                <div class="radio-opt">
+                  <input type="radio" name="format" id="f1" value="1-on-1" required/>
+                  <label for="f1">
+                    <span class="ricon"><i class="fas fa-user"></i></span>
+                    1 &#x2715; 1
+                    <span class="rprice">RM 199/hr</span>
+                  </label>
+                </div>
+                <div class="radio-opt">
+                  <input type="radio" name="format" id="f2" value="1-on-2"/>
+                  <label for="f2">
+                    <span class="ricon"><i class="fas fa-user-friends"></i></span>
+                    1 &#x2715; 2
+                    <span class="rprice">RM 149/hr each</span>
+                  </label>
+                </div>
+                <div class="radio-opt">
+                  <input type="radio" name="format" id="f3" value="1-on-5"/>
+                  <label for="f3">
+                    <span class="ricon"><i class="fas fa-users"></i></span>
+                    1 &#x2715; 5
+                    <span class="rprice">RM 99/hr each</span>
+                  </label>
+                </div>
+              </div>
+              <div class="hint">All formats cover the same curriculum. <a href="/#pricing" style="color:var(--cyan)">Compare formats →</a></div>
+            </div>
+
+            <div class="field">
+              <label>Teaching language <span class="req">*</span></label>
+              <select id="lang" required>
+                <option value="" disabled selected>Select language →</option>
+                <option value="en">English</option>
+                <option value="zh">中文 Mandarin</option>
+                <option value="bm">Bahasa Melayu</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label>Payment preference</label>
+              <select id="payment">
+                <option value="" disabled selected>Select payment method →</option>
+                <option value="full">Full payment upfront (best value)</option>
+                <option value="instalment">Instalment — RM 600/month × 3 (Python) or RM 500/month × 4 (ML)</option>
+                <option value="discuss">Discuss with trainer first</option>
+              </select>
+            </div>
+
+            <!-- BACKGROUND -->
+            <div style="font-family:var(--mono);font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--mu2);margin:28px 0 20px;padding-top:24px;border-top:1px solid var(--b)">03 &mdash; Your background</div>
+
+            <div class="field">
+              <label>Coding experience</label>
+              <select id="experience">
+                <option value="" disabled selected>Select your level →</option>
+                <option value="zero">Zero — never written a line of code</option>
+                <option value="beginner">Some basics — done a tutorial or two</option>
+                <option value="intermediate">Intermediate — can write simple scripts</option>
+                <option value="working">Working knowledge — use code at work sometimes</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label>How did you hear about us?</label>
+              <select id="source">
+                <option value="" disabled selected>Select source →</option>
+                <option value="xhs">小红书 XHS</option>
+                <option value="facebook">Facebook</option>
+                <option value="google">Google Search</option>
+                <option value="friend">Friend / colleague referral</option>
+                <option value="whatsapp">WhatsApp</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label>Referral code <span style="color:var(--mu);text-transform:none;font-size:9px">(if a graduate referred you — they get RM 150 credit!)</span></label>
+              <input type="text" id="referral" placeholder="e.g. ALUMNI-AHMAD" autocomplete="off"/>
+            </div>
+
+            <div class="field">
+              <label>Anything you want to tell us?</label>
+              <textarea id="message" placeholder="Your goal, schedule constraints, questions — anything helps us prepare for you"></textarea>
+            </div>
+
+            <!-- AGREEMENTS -->
+            <div style="font-family:var(--mono);font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--mu2);margin:28px 0 16px;padding-top:24px;border-top:1px solid var(--b)">04 &mdash; Confirm</div>
+
+            <div class="field">
+              <div class="check-group" style="grid-template-columns:1fr">
+                <div class="check-opt">
+                  <input type="checkbox" id="agree1" required/>
+                  <label for="agree1">I understand payment is required within 48 hours to confirm my spot <span class="req">*</span></label>
+                </div>
+                <div class="check-opt" style="margin-top:8px">
+                  <input type="checkbox" id="agree2" required/>
+                  <label for="agree2">I have read and agree to the <a href="/#trust" style="color:var(--cyan)">refund policy</a> <span class="req">*</span></label>
+                </div>
+                <div class="check-opt" style="margin-top:8px">
+                  <input type="checkbox" id="agree3"/>
+                  <label for="agree3">Add me to the codencode WhatsApp broadcast for student wins &amp; new intakes</label>
+                </div>
+              </div>
+            </div>
+
+            <div class="submit-wrap">
+              <button class="btn-submit" type="submit" id="submitBtn">
+                <i class="fas fa-paper-plane"></i>
+                Submit Registration
+              </button>
+              <p class="submit-note">
+                <i class="fas fa-lock" style="color:var(--cyan);margin-right:4px"></i>
+                Your information is kept private and never shared with third parties.<br>
+                We'll WhatsApp you within 4 hours with payment details and next steps.
+              </p>
+            </div>
+
+          </form>
+
+          <!-- SUCCESS STATE (hidden until submit) -->
+          <div class="success-panel" id="successPanel">
+            <div class="success-icon"><i class="fas fa-check"></i></div>
+            <h2 class="success-title">You're registered! 🎉</h2>
+            <p class="success-desc">Your registration has been received. Check your email for confirmation and expect a WhatsApp from us within 4 hours.</p>
+            <div class="success-steps">
+              <h4>What happens next</h4>
+              <div class="step-item">
+                <div class="step-num">1</div>
+                <div class="step-text"><strong>WhatsApp within 4 hours</strong> — we'll confirm your spot and send bank transfer details</div>
+              </div>
+              <div class="step-item">
+                <div class="step-num">2</div>
+                <div class="step-text"><strong>Pay within 48 hours</strong> — send us your receipt screenshot to lock in your spot</div>
+              </div>
+              <div class="step-item">
+                <div class="step-num">3</div>
+                <div class="step-text"><strong>Onboarding pack</strong> — LMS login, class WhatsApp group, and what to prepare for Day 1</div>
+              </div>
+              <div class="step-item">
+                <div class="step-num">4</div>
+                <div class="step-text"><strong>8 May — see you in class!</strong> 🚀</div>
+              </div>
+            </div>
+            <a class="wa-side" href="https://wa.me/601131652854?text=Hi%20codencode!%20I%20just%20submitted%20my%20registration%20form%20%F0%9F%99%8B" target="_blank" rel="noopener" style="margin-top:24px;text-decoration:none">
+              <i class="fab fa-whatsapp" style="font-size:22px;color:#25D366"></i>
+              <div class="wa-side-text">
+                <strong>Also drop us a WhatsApp</strong>
+                <span>+60 11-3165 2854 — so we can reply faster</span>
+              </div>
+            </a>
+          </div>
+
+        </div><!-- /.form-main -->
+      </div><!-- end left col -->
+
+      <!-- SIDEBAR -->
+      <div class="sidebar">
+
+        <!-- Pricing quick ref -->
+        <div class="side-card">
+          <div class="side-card-title"><i class="fas fa-tag"></i> Course fees</div>
+          <table class="price-table">
+            <tr class="price-row">
+              <td><div class="price-name">Python Fundamentals</div><div class="instalment">or RM 600/month × 3</div></td>
+              <td style="text-align:right"><div class="price-amount"><span class="strike">RM 1,500</span><span class="eb">1,350</span></div></td>
+            </tr>
+            <tr class="price-row">
+              <td><div class="price-name">ML Fundamentals</div><div class="instalment">or RM 500/month × 4</div></td>
+              <td style="text-align:right"><div class="price-amount"><span class="strike">RM 2,000</span><span class="eb">1,800</span></div></td>
+            </tr>
+            <tr class="price-row">
+              <td><div class="price-name">Bundle (Python + ML)</div><div class="instalment">saves RM 650</div></td>
+              <td style="text-align:right"><div class="price-amount"><span class="eb">2,500</span></div></td>
+            </tr>
+          </table>
+          <div style="font-family:var(--mono);font-size:10px;color:var(--mu);margin-top:14px;padding-top:14px;border-top:1px solid var(--b)">
+            <i class="fas fa-clock" style="color:var(--gold);margin-right:4px"></i>Early bird ends <strong style="color:var(--gold)">30 April 2026</strong>
+          </div>
+        </div>
+
+        <!-- Trust signals -->
+        <div class="side-card">
+          <div class="side-card-title"><i class="fas fa-shield-alt"></i> Why we're legit</div>
+          <ul class="trust-list">
+            <li><i class="fas fa-building"></i><span><strong>SSM Registered</strong><br>202603072017 (AS0511861-M)<br>Valid until 15 Mac 2027</span></li>
+            <li><i class="fas fa-undo-alt"></i><span><strong>Refund guarantee</strong><br>Join Week 1 — if it's not right, full refund. No questions asked.</span></li>
+            <li><i class="fas fa-file-invoice"></i><span><strong>PDF receipt</strong><br>Issued within 60 minutes of payment</span></li>
+            <li><i class="fas fa-certificate"></i><span><strong>Verifiable certificate</strong><br>QR code links to codencode.my verification page</span></li>
+          </ul>
+        </div>
+
+        <!-- WhatsApp -->
+        <a class="wa-side" href="https://wa.me/601131652854?text=Hi%20codencode!%20I%20have%20a%20question%20about%20registration%20%F0%9F%99%8B" target="_blank" rel="noopener">
+          <i class="fab fa-whatsapp"></i>
+          <div class="wa-side-text">
+            <strong>Have questions first?</strong>
+            <span>WhatsApp us — we reply within the hour</span>
+          </div>
+        </a>
+
+        <!-- Google reviews -->
+        <div class="side-card" style="background:rgba(66,133,244,0.05);border-color:rgba(66,133,244,0.2)">
+          <div class="side-card-title" style="border-color:rgba(66,133,244,0.15)"><i class="fab fa-google" style="color:#4285F4"></i> Real student reviews</div>
+          <div style="display:flex;gap:4px;margin-bottom:8px">
+            <i class="fas fa-star" style="color:#f5c842;font-size:13px"></i>
+            <i class="fas fa-star" style="color:#f5c842;font-size:13px"></i>
+            <i class="fas fa-star" style="color:#f5c842;font-size:13px"></i>
+            <i class="fas fa-star" style="color:#f5c842;font-size:13px"></i>
+            <i class="fas fa-star" style="color:#f5c842;font-size:13px"></i>
+            <span style="font-family:var(--mono);font-size:11px;color:var(--mu);margin-left:6px">5.0 · Google</span>
+          </div>
+          <p style="font-family:var(--mono);font-size:11px;color:var(--mu);line-height:1.6;margin-bottom:12px">"The trilingual class format was what convinced me. Learning in my own language removed the mental block I had for years."</p>
+          <a href="https://share.google/H43pWGekBXaZ785tc" target="_blank" rel="noopener" style="font-family:var(--mono);font-size:10px;color:#4285F4;text-decoration:none;display:inline-flex;align-items:center;gap:5px"><i class="fas fa-external-link-alt"></i> Read all reviews</a>
+        </div>
+
+      </div><!-- /.sidebar -->
+
+    </div><!-- /.form-wrap -->
+
+  </div><!-- /.container -->
+</div><!-- /.page -->
+
+<footer>
+  <div class="container">
+    <div class="fbar">
+      <div class="fcopy">© 2026 <span>codencode.my</span> · CODE N CODE SOLUTION (202603072017 / AS0511861-M)</div>
+      <div class="fcopy">SSM Registered · Johor Bahru, Malaysia · <a href="/" style="color:var(--mu);text-decoration:none">← Back to Home</a></div>
+    </div>
+  </div>
+</footer>
+
+<!-- WA float -->
+<a class="wa" href="https://wa.me/601131652854?text=Hi%20codencode!%20I%27m%20interested%20in%20registering%20%F0%9F%99%8B" target="_blank" rel="noopener" aria-label="WhatsApp codencode">
+  <div class="wa-pulse"></div>
+  <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347zm-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884zm8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+</a>
+
+<script>
+// ── FORM LOGIC ──────────────────────────────────────
+const form = document.getElementById('regForm');
+const submitBtn = document.getElementById('submitBtn');
+const formPanel = document.getElementById('formPanel');
+const successPanel = document.getElementById('successPanel');
+
+// Step 3 bar — lights up when user fills in section 3
+document.getElementById('experience').addEventListener('change', () => {
+  document.getElementById('step3bar').style.background = 'var(--cyan)';
+});
+
+// Format selection updates sidebar price note
+document.querySelectorAll('input[name="format"]').forEach(r => {
+  r.addEventListener('change', e => {
+    const map = {'1-on-1':'RM 199/hr — full personal attention','1-on-2':'RM 149/hr per person — bring a friend','1-on-5':'RM 99/hr per person — best value'};
+    // Could update a dynamic element here
+  });
+});
+
+// Simple validation
+function validate() {
+  const required = [
+    { el: document.getElementById('name'), msg: 'Please enter your full name' },
+    { el: document.getElementById('phone'), msg: 'Please enter your WhatsApp number' },
+    { el: document.getElementById('email'), msg: 'Please enter your email address' },
+    { el: document.getElementById('course'), msg: 'Please select a course' },
+    { el: document.getElementById('lang'), msg: 'Please select a language' },
+  ];
+  for (const { el, msg } of required) {
+    if (!el.value.trim()) { el.focus(); el.style.borderColor = 'var(--red)'; showError(el, msg); return false; }
+    el.style.borderColor = ''; clearError(el);
+  }
+  // Format radio
+  const fmt = document.querySelector('input[name="format"]:checked');
+  if (!fmt) { showError(document.getElementById('f1').closest('.radio-group'), 'Please select a class format'); return false; }
+  // Agreements
+  if (!document.getElementById('agree1').checked) { showError(document.getElementById('agree1'), 'Please confirm payment terms'); return false; }
+  if (!document.getElementById('agree2').checked) { showError(document.getElementById('agree2'), 'Please agree to the refund policy'); return false; }
+  return true;
+}
+
+function showError(el, msg) {
+  clearError(el);
+  const err = document.createElement('div');
+  err.className = 'field-error';
+  err.style.cssText = 'font-family:var(--mono);font-size:10px;color:var(--red);margin-top:5px;display:flex;align-items:center;gap:4px';
+  err.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${msg}`;
+  el.parentNode.appendChild(err);
+}
+function clearError(el) {
+  const existing = el.parentNode.querySelector('.field-error');
+  if (existing) existing.remove();
+}
+
+// Clear red border on input
+document.querySelectorAll('input,select,textarea').forEach(el => {
+  el.addEventListener('input', () => { el.style.borderColor = ''; clearError(el); });
+});
+
+// SUBMIT
+form.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  if (!validate()) return;
+
+  submitBtn.disabled = true;
+  submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting...';
+
+  // Build Google Form prefill URL
+  // Replace the entry IDs below with your actual Google Form field IDs
+  const GOOGLE_FORM_ACTION = 'https://docs.google.com/forms/d/e/YOUR_FORM_ID_HERE/formResponse';
+
+  const data = {
+    name: document.getElementById('name').value,
+    phone: document.getElementById('phone').value,
+    email: document.getElementById('email').value,
+    job: document.getElementById('job').value,
+    course: document.getElementById('course').options[document.getElementById('course').selectedIndex].text,
+    format: document.querySelector('input[name="format"]:checked')?.value || '',
+    lang: document.getElementById('lang').options[document.getElementById('lang').selectedIndex]?.text || '',
+    payment: document.getElementById('payment').options[document.getElementById('payment').selectedIndex]?.text || '',
+    experience: document.getElementById('experience').options[document.getElementById('experience').selectedIndex]?.text || '',
+    source: document.getElementById('source').options[document.getElementById('source').selectedIndex]?.text || '',
+    referral: document.getElementById('referral').value,
+    message: document.getElementById('message').value,
+    broadcast: document.getElementById('agree3').checked ? 'Yes' : 'No',
+  };
+
+  // Simulate submission (replace with actual Google Form fetch when ready)
+  await new Promise(r => setTimeout(r, 1200));
+
+  // WhatsApp message with summary
+  const waMsg = encodeURIComponent(
+    `Hi codencode! I just registered 🙋\n\n` +
+    `Name: ${data.name}\n` +
+    `Course: ${data.course}\n` +
+    `Format: ${data.format}\n` +
+    `Language: ${data.lang}\n` +
+    `Phone: ${data.phone}`
+  );
+
+  // Show success
+  form.style.display = 'none';
+  successPanel.classList.add('show');
+  submitBtn.disabled = false;
+
+  // Auto-open WhatsApp after 2s
+  setTimeout(() => {
+    window.open(`https://wa.me/601131652854?text=${waMsg}`, '_blank');
+  }, 2000);
+
+  // Scroll to top of form panel
+  formPanel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+});
+
+// Nav border on scroll
+window.addEventListener('scroll', () => {
+  document.querySelector('.topnav').style.borderBottomColor =
+    window.scrollY > 30 ? 'rgba(0,220,180,.2)' : 'rgba(255,255,255,.07)';
+});
+</script>
+</body>
+</html>
