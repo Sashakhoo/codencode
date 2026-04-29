@@ -1,2 +1,17 @@
 .claude/worktrees/
 codencode_deploy_v2/codencode_lms/.claude/
+
+# Database — never commit or overwrite local data
+*.db
+*.sqlite
+*.sqlite3
+instance/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.env
+
+# Uploads (user files, kept locally only)
+codencode_deploy_v2/codencode_lms/uploads/
