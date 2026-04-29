@@ -408,10 +408,10 @@
        VIEWS (pages)
     ═══════════════════════════════════ */
     .view { display: none; }
-    .view.active { display: block; }
+    .view.active { display: flex; flex-direction: column; gap: 24px; }
 
     /* Page header */
-    .page-header { margin-bottom: 24px; }
+    .page-header { }
     .page-label {
       font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 0.15em;
       text-transform: uppercase; color: var(--cyan); margin-bottom: 8px;
@@ -1119,7 +1119,7 @@
         <div class="page-header">
           <div class="page-label">Student Dashboard</div>
           <div class="page-title" id="student-greeting">Good to see you, Alex. 👋</div>
-          <div class="page-sub">// Python Bootcamp · Week 4 of 6</div>
+          <div class="page-sub" id="dashboard-week-sub">// —</div>
         </div>
         <div class="stats-row" id="student-stats-row">
           <div class="stat-cell" data-icon="🎬">
@@ -1314,8 +1314,8 @@
       <div class="view" id="view-t-dashboard">
         <div class="page-header">
           <div class="page-label">Teacher Dashboard</div>
-          <div class="page-title">Welcome back, Michael. 🎓</div>
-          <div class="page-sub">// Python Bootcamp · Feb 25, 2025</div>
+          <div class="page-title" id="teacher-greeting">Welcome back. 🎓</div>
+          <div class="page-sub" id="teacher-dashboard-sub">// —</div>
         </div>
         <div class="stats-row" id="teacher-stats-row">
           <div class="stat-cell" data-icon="👨‍🎓">
@@ -2391,6 +2391,15 @@ async function loadStudentDashboard() {
   const watchPct  = d.total_recordings ? Math.round(d.videos_watched / d.total_recordings * 100) : 0;
   const asgnPct   = d.total_assignments ? Math.round(d.assignments_submitted / d.total_assignments * 100) : 0;
 
+  // Update subtitle with real week/programme data
+  const subEl = document.getElementById('dashboard-week-sub');
+  if (subEl) {
+    const prog = d.programme || '';
+    const wk   = d.current_week || 1;
+    const tot  = d.weeks || 1;
+    subEl.textContent = prog ? `// ${prog} · Week ${wk} of ${tot}` : `// Week ${wk} of ${tot}`;
+  }
+
   // Stats row
   document.querySelector('#view-dashboard .stats-row').innerHTML = `
     <div class="stat-cell" data-icon="🎬">
@@ -2628,6 +2637,18 @@ async function loadGrades() {
 async function loadTeacherDashboard() {
   const d = await GET(`/api/courses/${STATE.courseId}/dashboard`);
   STATE.dashboard = d;
+
+  // Update greeting with real teacher name
+  const greetEl = document.getElementById('teacher-greeting');
+  if (greetEl && STATE.user) {
+    greetEl.textContent = 'Welcome back, ' + STATE.user.name.split(' ')[0] + '. 🎓';
+  }
+  const subEl = document.getElementById('teacher-dashboard-sub');
+  if (subEl) {
+    const prog = d.programme || '';
+    const date = d.start_date || '';
+    subEl.textContent = prog && date ? `// ${prog} · ${date}` : prog ? `// ${prog}` : '// —';
+  }
 
   document.querySelector('#view-t-dashboard .stats-row').innerHTML = `
     <div class="stat-cell" data-icon="👨‍🎓">
