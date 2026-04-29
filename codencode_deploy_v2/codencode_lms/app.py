@@ -1071,6 +1071,7 @@ def api_dashboard(cid):
                              'time': (s.graded_at or s.submitted_at).strftime('%b %d, %Y')})
         activity.sort(key=lambda x: x['time'], reverse=True)
 
+        course = Course.query.get(cid)
         return jsonify({
             'videos_watched': watched,
             'total_recordings': total_recordings,
@@ -1079,7 +1080,10 @@ def api_dashboard(cid):
             'assignments_submitted': len(subs),
             'avg_grade': avg,
             'submissions_graded': len(graded),
-            'recent_activity': activity[:5]
+            'recent_activity': activity[:5],
+            'programme': course.programme or course.title or '',
+            'current_week': _student_week(cid),
+            'weeks': course.weeks,
         })
     else:
         enrolled_count = Enrollment.query.filter_by(course_id=cid).count()
@@ -1114,13 +1118,16 @@ def api_dashboard(cid):
             .order_by(Submission.submitted_at.desc())
             .limit(5).all())
 
+        course = Course.query.get(cid)
         return jsonify({
             'enrolled_students': enrolled_count,
             'ungraded_submissions': ungraded,
             'total_recordings': total_recordings,
             'total_materials': total_materials,
             'student_progress': student_progress,
-            'recent_ungraded': [s.to_dict() for s in recent_subs]
+            'recent_ungraded': [s.to_dict() for s in recent_subs],
+            'programme': course.programme or course.title or '',
+            'start_date': course.start_date.strftime('%b %d, %Y') if course.start_date else '',
         })
 
 
@@ -1451,6 +1458,10 @@ def admin_create_teacher():
     plain_pw = data.get('password') or 'codencode123'
     t.set_password(plain_pw)
     t.temp_password = plain_pw
+    for field in ('title', 'bio', 'education', 'experience',
+                  'specializations', 'website', 'linkedin'):
+        if field in data:
+            setattr(t, field, (data[field] or '').strip())
     db.session.add(t)
     db.session.commit()
     return jsonify({'teacher': t.to_dict()}), 201
