@@ -79,10 +79,10 @@ def load_user(user_id):
 # Email utility
 # ─────────────────────────────────────────────
 _SMTP_HOST      = os.environ.get('EMAIL_SMTP_SERVER', 'smtp.gmail.com')
-_SMTP_PORT      = 465
-_EMAIL_FROM     = os.environ.get('EMAIL_FROM',  'codencode@gmail.com')
+_SMTP_PORT      = int(os.environ.get('EMAIL_SMTP_PORT', '587'))
+_EMAIL_FROM     = os.environ.get('EMAIL_FROM',  'codencodemy@gmail.com')
 _EMAIL_USER     = os.environ.get('EMAIL_USER',  '')
-_EMAIL_PASS     = os.environ.get('EMAIL_PASS',  'afsc ysqv qjzf qdde')
+_EMAIL_PASS     = os.environ.get('EMAIL_PASS',  '')
 _BUSINESS_NAME  = os.environ.get('BUSINESS_NAME',    'CODE N CODE SOLUTION')
 _BUSINESS_SSM   = os.environ.get('BUSINESS_SSM',     '202603072017 (AS0511861-M)')
 _BUSINESS_ADDR  = os.environ.get('BUSINESS_ADDRESS', '')
@@ -135,9 +135,15 @@ def send_email(to: str, subject: str, html_body: str):
         msg.attach(MIMEText(html_body, 'html', 'utf-8'))
 
         ctx = ssl.create_default_context()
-        with smtplib.SMTP_SSL(_SMTP_HOST, _SMTP_PORT, context=ctx) as server:
-            server.login(_EMAIL_USER, _EMAIL_PASS)
-            server.sendmail(_EMAIL_FROM, to, msg.as_string())
+        if _SMTP_PORT == 465:
+            with smtplib.SMTP_SSL(_SMTP_HOST, _SMTP_PORT, context=ctx, timeout=15) as server:
+                server.login(_EMAIL_USER, _EMAIL_PASS)
+                server.sendmail(_EMAIL_FROM, to, msg.as_string())
+        else:
+            with smtplib.SMTP(_SMTP_HOST, _SMTP_PORT, timeout=15) as server:
+                server.starttls(context=ctx)
+                server.login(_EMAIL_USER, _EMAIL_PASS)
+                server.sendmail(_EMAIL_FROM, to, msg.as_string())
         return True
     except Exception as exc:
         app.logger.error('Email send failed to %s: %s', to, exc)
