@@ -1831,13 +1831,14 @@ def admin_payments():
 def test_email():
     if current_user.role != 'admin':
         return jsonify({'error': 'Forbidden'}), 403
+    to = request.args.get('to', current_user.email)
     ok = send_email(
-        current_user.email,
+        to,
         'codencode.my — Email test',
         _email_wrapper('Email is working!',
             '<p>This is a test email from your codencode.my LMS. SMTP is configured correctly.</p>')
     )
-    return jsonify({'sent': ok, 'to': current_user.email})
+    return jsonify({'sent': ok, 'to': to})
 
 
 # ─────────────────────────────────────────────
