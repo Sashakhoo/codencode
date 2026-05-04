@@ -2269,30 +2269,6 @@ def api_sessions():
     # POST — teacher/admin only
     if current_user.role not in ('teacher', 'admin'):
         return jsonify({'error': 'Teachers only'}), 403
-
-
-@app.route('/api/sessions/timetable', methods=['GET'])
-@login_required
-def api_student_timetable():
-    """Student's personal timetable split into upcoming / past."""
-    now = datetime.utcnow()
-    if current_user.role in ('teacher', 'admin'):
-        sessions = Session.query.order_by(Session.start_datetime).all()
-    else:
-        enrolled_course_ids = {e.course_id for e in current_user.enrollments}
-        participant_session_ids = {p.session_id for p in SessionParticipant.query.filter_by(student_id=current_user.id).all()}
-        sessions = []
-        for s in Session.query.order_by(Session.start_datetime).all():
-            if s.session_type == 'cohort' and s.course_id in enrolled_course_ids:
-                sessions.append(s)
-            elif s.session_type in ('group', 'private') and s.id in participant_session_ids:
-                sessions.append(s)
-
-    upcoming = [s.to_dict() for s in sessions if s.start_datetime >= now]
-    past     = [s.to_dict() for s in sessions if s.start_datetime < now]
-    return jsonify({'upcoming': upcoming, 'past': past})
-
-
     data = request.get_json()
     title        = data.get('title', '').strip()
     session_type = data.get('session_type', 'cohort')
@@ -2318,6 +2294,26 @@ def api_student_timetable():
         db.session.add(SessionParticipant(session_id=s.id, student_id=int(sid)))
     db.session.commit()
     return jsonify({'session': s.to_dict()}), 201
+
+
+@app.route('/api/sessions/timetable', methods=['GET'])
+@login_required
+def api_student_timetable():
+    now = datetime.utcnow()
+    if current_user.role in ('teacher', 'admin'):
+        sessions = Session.query.order_by(Session.start_datetime).all()
+    else:
+        enrolled_course_ids = {e.course_id for e in current_user.enrollments}
+        participant_session_ids = {p.session_id for p in SessionParticipant.query.filter_by(student_id=current_user.id).all()}
+        sessions = []
+        for s in Session.query.order_by(Session.start_datetime).all():
+            if s.session_type == 'cohort' and s.course_id in enrolled_course_ids:
+                sessions.append(s)
+            elif s.session_type in ('group', 'private') and s.id in participant_session_ids:
+                sessions.append(s)
+    upcoming = [s.to_dict() for s in sessions if s.start_datetime >= now]
+    past     = [s.to_dict() for s in sessions if s.start_datetime < now]
+    return jsonify({'upcoming': upcoming, 'past': past})
 
 
 @app.route('/api/sessions/<int:sid>', methods=['PUT', 'DELETE'])
