@@ -44,7 +44,6 @@ from models import (db, User, Course, Enrollment, Recording,
 # ─────────────────────────────────────────────
 app = Flask(__name__, static_folder='static', template_folder='templates')
 
-# Railway supplies DATABASE_URL as "postgres://…" but SQLAlchemy 2.x requires "postgresql://…"
 _db_url = os.environ.get('DATABASE_URL', 'sqlite:///codencode_lms.db')
 if _db_url.startswith('postgres://'):
     _db_url = _db_url.replace('postgres://', 'postgresql://', 1)
@@ -83,7 +82,7 @@ _SMTP_HOST      = os.environ.get('EMAIL_SMTP_SERVER', 'smtp.gmail.com')
 _SMTP_PORT      = 465
 _EMAIL_FROM     = os.environ.get('EMAIL_FROM',  'codencode@gmail.com')
 _EMAIL_USER     = os.environ.get('EMAIL_USER',  '')
-_EMAIL_PASS     = os.environ.get('EMAIL_PASS',  '')
+_EMAIL_PASS     = os.environ.get('EMAIL_PASS',  'afsc ysqv qjzf qdde')
 _BUSINESS_NAME  = os.environ.get('BUSINESS_NAME',    'CODE N CODE SOLUTION')
 _BUSINESS_SSM   = os.environ.get('BUSINESS_SSM',     '202603072017 (AS0511861-M)')
 _BUSINESS_ADDR  = os.environ.get('BUSINESS_ADDRESS', '')
@@ -1136,28 +1135,24 @@ def api_dashboard(cid):
 # ═════════════════════════════════════════════
 
 # ── Students ──────────────────────────────────
-@app.route('/api/admin/students', methods=['GET'])
+@app.route('/api/admin/students', methods=['GET', 'POST'])
 @admin_required
-def admin_list_students():
-    students = User.query.filter_by(role='student').order_by(User.name).all()
-    result = []
-    for s in students:
-        d = s.to_dict()
-        d['enrollments'] = [e.to_dict() for e in s.enrollments]
-        result.append(d)
-    return jsonify(result)
-
-
-@app.route('/api/admin/students', methods=['POST'])
-@admin_required
-def admin_create_student():
+def admin_students():
+    if request.method == 'GET':
+        students = User.query.filter_by(role='student').order_by(User.name).all()
+        result = []
+        for s in students:
+            d = s.to_dict()
+            d['enrollments'] = [e.to_dict() for e in s.enrollments]
+            result.append(d)
+        return jsonify(result)
+    # POST
     data = request.get_json()
     email = data.get('email', '').strip().lower()
     if not email or not data.get('name'):
         return jsonify({'error': 'name and email are required'}), 400
     if User.query.filter_by(email=email).first():
         return jsonify({'error': 'Email already exists'}), 409
-
     u = User(
         name          = data['name'].strip(),
         email         = email,
@@ -1168,25 +1163,31 @@ def admin_create_student():
     )
     plain_pw = data.get('password') or 'codencode123'
     u.set_password(plain_pw)
-    u.temp_password = plain_pw   # saved for welcome email
+    u.temp_password = plain_pw
     db.session.add(u)
     db.session.commit()
     return jsonify({'student': u.to_dict()}), 201
 
 
-@app.route('/api/admin/students/<int:uid>', methods=['GET'])
+@app.route('/api/admin/students/<int:uid>', methods=['GET', 'PUT', 'DELETE'])
 @admin_required
-def admin_get_student(uid):
+def admin_student_detail(uid):
     s = User.query.get_or_404(uid)
-    d = s.to_dict()
-    d['enrollments'] = [e.to_dict() for e in s.enrollments]
-    return jsonify(d)
 
+    if request.method == 'GET':
+        d = s.to_dict()
+        d['enrollments'] = [e.to_dict() for e in s.enrollments]
+        return jsonify(d)
 
-@app.route('/api/admin/students/<int:uid>', methods=['PUT'])
-@admin_required
-def admin_update_student(uid):
-    s = User.query.get_or_404(uid)
+    if request.method == 'DELETE':
+        if s.role == 'admin':
+            return jsonify({'error': 'Cannot delete admin accounts'}), 403
+        Enrollment.query.filter_by(student_id=uid).delete()
+        db.session.delete(s)
+        db.session.commit()
+        return jsonify({'ok': True})
+
+    # PUT
     data = request.get_json()
     if 'name'          in data: s.name          = data['name'].strip()
     if 'phone'         in data: s.phone         = data['phone'].strip()
@@ -1198,8 +1199,9 @@ def admin_update_student(uid):
         if existing and existing.id != uid:
             return jsonify({'error': 'Email already in use'}), 409
         s.email = new_email
-    if 'password'  in data and data['password']:
+    if 'password' in data and data['password']:
         s.set_password(data['password'])
+        s.temp_password = data['password']
     db.session.commit()
     return jsonify({'student': s.to_dict()})
 
@@ -1229,18 +1231,6 @@ def admin_enroll_student(uid):
     db.session.add(e)
     db.session.commit()
     return jsonify({'enrollment': e.to_dict()}), 201
-
-
-@app.route('/api/admin/students/<int:uid>', methods=['DELETE'])
-@admin_required
-def admin_delete_student(uid):
-    u = User.query.get_or_404(uid)
-    if u.role == 'admin':
-        return jsonify({'error': 'Cannot delete admin accounts'}), 403
-    Enrollment.query.filter_by(student_id=uid).delete()
-    db.session.delete(u)
-    db.session.commit()
-    return jsonify({'ok': True})
 
 
 @app.route('/api/admin/enrollments/<int:eid>', methods=['DELETE'])
@@ -1431,16 +1421,13 @@ def admin_invoice(eid):
 
 
 # ── Teachers ──────────────────────────────────
-@app.route('/api/admin/teachers', methods=['GET'])
+@app.route('/api/admin/teachers', methods=['GET', 'POST'])
 @admin_required
-def admin_list_teachers():
-    teachers = User.query.filter_by(role='teacher').order_by(User.name).all()
-    return jsonify([t.to_dict() for t in teachers])
-
-
-@app.route('/api/admin/teachers', methods=['POST'])
-@admin_required
-def admin_create_teacher():
+def admin_teachers():
+    if request.method == 'GET':
+        teachers = User.query.filter_by(role='teacher').order_by(User.name).all()
+        return jsonify([t.to_dict() for t in teachers])
+    # POST
     data  = request.get_json()
     email = data.get('email', '').strip().lower()
     if not email or not data.get('name'):
@@ -1467,10 +1454,15 @@ def admin_create_teacher():
     return jsonify({'teacher': t.to_dict()}), 201
 
 
-@app.route('/api/admin/teachers/<int:uid>', methods=['PUT'])
+@app.route('/api/admin/teachers/<int:uid>', methods=['PUT', 'DELETE'])
 @admin_required
-def admin_update_teacher(uid):
-    t    = User.query.get_or_404(uid)
+def admin_teacher_detail(uid):
+    t = User.query.get_or_404(uid)
+    if request.method == 'DELETE':
+        db.session.delete(t)
+        db.session.commit()
+        return jsonify({'ok': True})
+    # PUT
     data = request.get_json()
     if 'name'          in data: t.name          = data['name'].strip()
     if 'phone'         in data: t.phone         = data['phone'].strip()
@@ -1493,25 +1485,13 @@ def admin_update_teacher(uid):
     return jsonify({'teacher': t.to_dict()})
 
 
-@app.route('/api/admin/teachers/<int:uid>', methods=['DELETE'])
-@admin_required
-def admin_delete_teacher(uid):
-    t = User.query.get_or_404(uid)
-    db.session.delete(t)
-    db.session.commit()
-    return jsonify({'ok': True})
-
-
 # ── Teacher self-service profile ───────────────────────────────
-@app.route('/api/teacher/profile', methods=['GET'])
+@app.route('/api/teacher/profile', methods=['GET', 'PUT'])
 @teacher_required
-def teacher_get_profile():
-    return jsonify({'profile': current_user.to_dict()})
-
-
-@app.route('/api/teacher/profile', methods=['PUT'])
-@teacher_required
-def teacher_update_profile():
+def teacher_profile():
+    if request.method == 'GET':
+        return jsonify({'profile': current_user.to_dict()})
+    # PUT
     data = request.get_json()
     u = current_user
     for field in ('title', 'bio', 'education', 'experience',
@@ -1552,21 +1532,18 @@ def course_teacher_profile(cid):
 
 
 # ── Courses ───────────────────────────────────
-@app.route('/api/admin/courses', methods=['GET'])
+@app.route('/api/admin/courses', methods=['GET', 'POST'])
 @admin_required
-def admin_list_courses():
-    courses = Course.query.order_by(Course.title).all()
-    result  = []
-    for c in courses:
-        d = c.to_dict()
-        d['enrolled_count'] = Enrollment.query.filter_by(course_id=c.id).count()
-        result.append(d)
-    return jsonify(result)
-
-
-@app.route('/api/admin/courses', methods=['POST'])
-@admin_required
-def admin_create_course():
+def admin_courses():
+    if request.method == 'GET':
+        courses = Course.query.order_by(Course.title).all()
+        result  = []
+        for c in courses:
+            d = c.to_dict()
+            d['enrolled_count'] = Enrollment.query.filter_by(course_id=c.id).count()
+            result.append(d)
+        return jsonify(result)
+    # POST
     data = request.get_json()
     if not data.get('title'):
         return jsonify({'error': 'title is required'}), 400
@@ -1589,15 +1566,15 @@ def admin_create_course():
 
 
 # ── Cohort routes ─────────────────────────────────────────────
-@app.route('/api/courses/<int:cid>/cohorts', methods=['GET'])
+@app.route('/api/courses/<int:cid>/cohorts', methods=['GET', 'POST'])
 @login_required
-def api_get_cohorts(cid):
-    cohorts = Cohort.query.filter_by(course_id=cid).order_by(Cohort.start_date).all()
-    return jsonify([c.to_dict() for c in cohorts])
-
-@app.route('/api/courses/<int:cid>/cohorts', methods=['POST'])
-@admin_required
-def api_create_cohort(cid):
+def api_cohorts(cid):
+    if request.method == 'GET':
+        cohorts = Cohort.query.filter_by(course_id=cid).order_by(Cohort.start_date).all()
+        return jsonify([c.to_dict() for c in cohorts])
+    # POST — admin only
+    if current_user.role != 'admin':
+        return jsonify({'error': 'Admins only'}), 403
     Course.query.get_or_404(cid)
     data = request.get_json()
     name = (data.get('name') or '').strip()
@@ -1605,7 +1582,6 @@ def api_create_cohort(cid):
         return jsonify({'error': 'name required'}), 400
     sd = None
     if data.get('start_date'):
-        from datetime import date as date_type
         sd = datetime.strptime(data['start_date'], '%Y-%m-%d').date()
     c = Cohort(course_id=cid, name=name, start_date=sd, current_week=1)
     db.session.add(c)
@@ -1624,11 +1600,16 @@ def admin_set_cohort_week(cohort_id):
     db.session.commit()
     return jsonify({'cohort': cohort.to_dict()})
 
-@app.route('/api/admin/cohorts/<int:cohort_id>', methods=['PUT'])
+@app.route('/api/admin/cohorts/<int:cohort_id>', methods=['PUT', 'DELETE'])
 @admin_required
-def admin_update_cohort(cohort_id):
-    import json as _json
+def admin_cohort_detail(cohort_id):
     cohort = Cohort.query.get_or_404(cohort_id)
+    if request.method == 'DELETE':
+        db.session.delete(cohort)
+        db.session.commit()
+        return jsonify({'ok': True})
+    # PUT
+    import json as _json
     data   = request.get_json()
     if data.get('name'):
         cohort.name = data['name'].strip()
@@ -1644,15 +1625,6 @@ def admin_update_cohort(cohort_id):
         cohort.notes = data['notes']
     db.session.commit()
     return jsonify({'cohort': cohort.to_dict()})
-
-
-@app.route('/api/admin/cohorts/<int:cohort_id>', methods=['DELETE'])
-@admin_required
-def admin_delete_cohort(cohort_id):
-    cohort = Cohort.query.get_or_404(cohort_id)
-    db.session.delete(cohort)
-    db.session.commit()
-    return jsonify({'ok': True})
 
 
 def _student_week(course_id):
@@ -1677,10 +1649,16 @@ def admin_set_week(cid):
     return jsonify({'course': c.to_dict()})
 
 
-@app.route('/api/admin/courses/<int:cid>', methods=['PUT'])
+@app.route('/api/admin/courses/<int:cid>', methods=['PUT', 'DELETE'])
 @admin_required
-def admin_update_course(cid):
-    c    = Course.query.get_or_404(cid)
+def admin_course_detail(cid):
+    c = Course.query.get_or_404(cid)
+    if request.method == 'DELETE':
+        Enrollment.query.filter_by(course_id=cid).delete()
+        db.session.delete(c)
+        db.session.commit()
+        return jsonify({'ok': True})
+    # PUT
     data = request.get_json()
     if 'title'       in data: c.title       = data['title'].strip()
     if 'description' in data: c.description = data['description'].strip()
@@ -1700,16 +1678,6 @@ def admin_update_course(cid):
     d = c.to_dict()
     d['enrolled_count'] = Enrollment.query.filter_by(course_id=c.id).count()
     return jsonify({'course': d})
-
-
-@app.route('/api/admin/courses/<int:cid>', methods=['DELETE'])
-@admin_required
-def admin_delete_course(cid):
-    c = Course.query.get_or_404(cid)
-    Enrollment.query.filter_by(course_id=cid).delete()
-    db.session.delete(c)
-    db.session.commit()
-    return jsonify({'ok': True})
 
 
 @app.route('/api/admin/courses/<int:cid>/students', methods=['GET'])
@@ -1747,10 +1715,18 @@ def admin_upload_material(cid):
     return jsonify({'material': mat.to_dict()}), 201
 
 
-@app.route('/api/admin/materials/<int:mid>', methods=['PUT'])
+@app.route('/api/admin/materials/<int:mid>', methods=['PUT', 'DELETE'])
 @admin_required
-def admin_update_material(mid):
-    mat  = Material.query.get_or_404(mid)
+def admin_material_detail(mid):
+    mat = Material.query.get_or_404(mid)
+    if request.method == 'DELETE':
+        fpath = os.path.join(app.config['UPLOAD_FOLDER'], 'materials', mat.filename)
+        if os.path.exists(fpath):
+            os.remove(fpath)
+        db.session.delete(mat)
+        db.session.commit()
+        return jsonify({'ok': True})
+    # PUT
     data = request.get_json()
     if 'week' in data:
         mat.week = max(0, int(data['week']))
@@ -1760,63 +1736,42 @@ def admin_update_material(mid):
     return jsonify({'material': mat.to_dict()})
 
 
-@app.route('/api/admin/materials/<int:mid>', methods=['DELETE'])
-@admin_required
-def admin_delete_material(mid):
-    mat   = Material.query.get_or_404(mid)
-    fpath = os.path.join(app.config['UPLOAD_FOLDER'], 'materials', mat.filename)
-    if os.path.exists(fpath):
-        os.remove(fpath)
-    db.session.delete(mat)
-    db.session.commit()
-    return jsonify({'ok': True})
-
-
 # ── Attendance ────────────────────────────────
-@app.route('/api/admin/courses/<int:cid>/attendance', methods=['GET'])
+@app.route('/api/admin/courses/<int:cid>/attendance', methods=['GET', 'POST'])
 @admin_required
-def admin_get_attendance(cid):
-    course      = Course.query.get_or_404(cid)
-    enrollments = Enrollment.query.filter_by(course_id=cid).all()
-    records     = Attendance.query.filter_by(course_id=cid).all()
-
-    # Index by (student_id, week)
-    att_map = {(a.student_id, a.week): a for a in records}
-
-    students_data = []
-    for e in enrollments:
-        s = e.student
-        weeks_data = {}
-        for w in range(1, course.current_week + 1):
-            att = att_map.get((s.id, w))
-            weeks_data[str(w)] = att.status if att else 'absent'
-        students_data.append({
-            'student_id':   s.id,
-            'student_name': s.name,
-            'weeks':        weeks_data
+def admin_attendance(cid):
+    if request.method == 'GET':
+        course      = Course.query.get_or_404(cid)
+        enrollments = Enrollment.query.filter_by(course_id=cid).all()
+        records     = Attendance.query.filter_by(course_id=cid).all()
+        att_map = {(a.student_id, a.week): a for a in records}
+        students_data = []
+        for e in enrollments:
+            s = e.student
+            weeks_data = {}
+            for w in range(1, course.current_week + 1):
+                att = att_map.get((s.id, w))
+                weeks_data[str(w)] = att.status if att else 'absent'
+            students_data.append({
+                'student_id':   s.id,
+                'student_name': s.name,
+                'weeks':        weeks_data
+            })
+        return jsonify({
+            'course_id':    cid,
+            'current_week': course.current_week,
+            'students':     students_data
         })
-
-    return jsonify({
-        'course_id':    cid,
-        'current_week': course.current_week,
-        'students':     students_data
-    })
-
-
-@app.route('/api/admin/courses/<int:cid>/attendance', methods=['POST'])
-@admin_required
-def admin_set_attendance(cid):
+    # POST
     data       = request.get_json()
     student_id = data.get('student_id')
     week       = data.get('week')
     status     = data.get('status', 'present')
     notes      = data.get('notes', '')
-
     if not student_id or not week:
         return jsonify({'error': 'student_id and week required'}), 400
     if status not in ('present', 'absent', 'late'):
         return jsonify({'error': 'status must be present/absent/late'}), 400
-
     att = Attendance.query.filter_by(
         student_id=student_id, course_id=cid, week=week).first()
     if att:
@@ -2288,26 +2243,27 @@ def _seed_demo_old():
 # SESSIONS (live class scheduling)
 # ─────────────────────────────────────────────
 
-@app.route('/api/sessions', methods=['GET'])
+@app.route('/api/sessions', methods=['GET', 'POST'])
 @login_required
-def api_list_sessions():
-    """Teacher sees sessions they created; student sees their timetable sessions."""
-    if current_user.role in ('teacher', 'admin'):
-        sessions = Session.query.filter_by(created_by=current_user.id).order_by(Session.start_datetime).all()
-        return jsonify([s.to_dict() for s in sessions])
-    # student: cohort sessions for enrolled courses + group/private where participant
-    enrolled_course_ids = {e.course_id for e in current_user.enrollments}
-    participant_session_ids = {p.session_id for p in SessionParticipant.query.filter_by(student_id=current_user.id).all()}
-
-    sessions = Session.query.all()
-    visible = []
-    for s in sessions:
-        if s.session_type == 'cohort' and s.course_id in enrolled_course_ids:
-            visible.append(s)
-        elif s.session_type in ('group', 'private') and s.id in participant_session_ids:
-            visible.append(s)
-    visible.sort(key=lambda x: x.start_datetime)
-    return jsonify([s.to_dict() for s in visible])
+def api_sessions():
+    if request.method == 'GET':
+        if current_user.role in ('teacher', 'admin'):
+            sessions = Session.query.filter_by(created_by=current_user.id).order_by(Session.start_datetime).all()
+            return jsonify([s.to_dict() for s in sessions])
+        enrolled_course_ids = {e.course_id for e in current_user.enrollments}
+        participant_session_ids = {p.session_id for p in SessionParticipant.query.filter_by(student_id=current_user.id).all()}
+        sessions = Session.query.all()
+        visible = []
+        for s in sessions:
+            if s.session_type == 'cohort' and s.course_id in enrolled_course_ids:
+                visible.append(s)
+            elif s.session_type in ('group', 'private') and s.id in participant_session_ids:
+                visible.append(s)
+        visible.sort(key=lambda x: x.start_datetime)
+        return jsonify([s.to_dict() for s in visible])
+    # POST — teacher/admin only
+    if current_user.role not in ('teacher', 'admin'):
+        return jsonify({'error': 'Teachers only'}), 403
 
 
 @app.route('/api/sessions/timetable', methods=['GET'])
@@ -2332,9 +2288,6 @@ def api_student_timetable():
     return jsonify({'upcoming': upcoming, 'past': past})
 
 
-@app.route('/api/sessions', methods=['POST'])
-@teacher_required
-def api_create_session():
     data = request.get_json()
     title        = data.get('title', '').strip()
     session_type = data.get('session_type', 'cohort')
@@ -2343,34 +2296,34 @@ def api_create_session():
     duration     = int(data.get('duration_minutes', 60))
     zoom_link    = data.get('zoom_link', '').strip()
     participant_ids = data.get('participant_ids', [])
-
     if not title or not start_str:
         return jsonify({'error': 'title and start_datetime are required'}), 400
-
     try:
         start_dt = datetime.strptime(start_str, '%Y-%m-%dT%H:%M')
     except ValueError:
         return jsonify({'error': 'start_datetime must be YYYY-MM-DDTHH:MM'}), 400
-
     s = Session(
         title=title, session_type=session_type, course_id=course_id or None,
         start_datetime=start_dt, duration_minutes=duration,
         zoom_link=zoom_link, created_by=current_user.id
     )
     db.session.add(s)
-    db.session.flush()  # get s.id
-
+    db.session.flush()
     for sid in participant_ids:
         db.session.add(SessionParticipant(session_id=s.id, student_id=int(sid)))
-
     db.session.commit()
     return jsonify({'session': s.to_dict()}), 201
 
 
-@app.route('/api/sessions/<int:sid>', methods=['PUT'])
+@app.route('/api/sessions/<int:sid>', methods=['PUT', 'DELETE'])
 @teacher_required
-def api_update_session(sid):
-    s    = Session.query.get_or_404(sid)
+def api_session_detail(sid):
+    s = Session.query.get_or_404(sid)
+    if request.method == 'DELETE':
+        db.session.delete(s)
+        db.session.commit()
+        return jsonify({'ok': True})
+    # PUT
     data = request.get_json()
     if 'title'            in data: s.title            = data['title'].strip()
     if 'session_type'     in data: s.session_type     = data['session_type']
@@ -2388,15 +2341,6 @@ def api_update_session(sid):
             db.session.add(SessionParticipant(session_id=sid, student_id=int(pid)))
     db.session.commit()
     return jsonify({'session': s.to_dict()})
-
-
-@app.route('/api/sessions/<int:sid>', methods=['DELETE'])
-@teacher_required
-def api_delete_session(sid):
-    s = Session.query.get_or_404(sid)
-    db.session.delete(s)
-    db.session.commit()
-    return jsonify({'ok': True})
 
 
 @app.route('/api/sessions/<int:sid>/recording', methods=['PUT'])
@@ -2452,32 +2396,31 @@ def api_mark_all_notifications_read():
 # ANNOUNCEMENTS
 # ─────────────────────────────────────────────
 
-@app.route('/api/announcements', methods=['GET'])
+@app.route('/api/announcements', methods=['GET', 'POST'])
 @login_required
 def api_announcements():
-    if current_user.role in ('teacher', 'admin'):
-        anns = Announcement.query.order_by(Announcement.created_at.desc()).all()
-    else:
-        enrolled_course_ids = list({e.course_id for e in current_user.enrollments})
-        if enrolled_course_ids:
-            anns = Announcement.query.filter(
-                (Announcement.course_id == None) |
-                (Announcement.course_id.in_(enrolled_course_ids))
-            ).order_by(Announcement.created_at.desc()).all()
+    if request.method == 'GET':
+        if current_user.role in ('teacher', 'admin'):
+            anns = Announcement.query.order_by(Announcement.created_at.desc()).all()
         else:
-            anns = Announcement.query.filter(
-                Announcement.course_id == None
-            ).order_by(Announcement.created_at.desc()).all()
-    return jsonify([a.to_dict() for a in anns])
-
-
-@app.route('/api/announcements', methods=['POST'])
-@teacher_required
-def api_create_announcement():
+            enrolled_course_ids = list({e.course_id for e in current_user.enrollments})
+            if enrolled_course_ids:
+                anns = Announcement.query.filter(
+                    (Announcement.course_id == None) |
+                    (Announcement.course_id.in_(enrolled_course_ids))
+                ).order_by(Announcement.created_at.desc()).all()
+            else:
+                anns = Announcement.query.filter(
+                    Announcement.course_id == None
+                ).order_by(Announcement.created_at.desc()).all()
+        return jsonify([a.to_dict() for a in anns])
+    # POST — teacher/admin only
+    if current_user.role not in ('teacher', 'admin'):
+        return jsonify({'error': 'Teachers only'}), 403
     data      = request.get_json()
     title     = data.get('title', '').strip()
     content   = data.get('content', '').strip()
-    course_id = data.get('course_id')  # None = global
+    course_id = data.get('course_id')
     if not title or not content:
         return jsonify({'error': 'title and content required'}), 400
     ann = Announcement(
@@ -2487,7 +2430,6 @@ def api_create_announcement():
     )
     db.session.add(ann)
     db.session.commit()
-    # email all relevant students
     if course_id:
         students = [e.student for e in Enrollment.query.filter_by(course_id=course_id).all() if e.student]
     else:
@@ -2712,29 +2654,23 @@ def admin_login_activity():
 # ─────────────────────────────────────────────
 # A8+S10 — Certificates
 # ─────────────────────────────────────────────
-@app.route('/api/admin/certificates', methods=['GET'])
+@app.route('/api/admin/certificates', methods=['GET', 'POST'])
 @admin_required
-def admin_list_certificates():
-    certs = Certificate.query.order_by(Certificate.issued_at.desc()).all()
-    return jsonify([c.to_dict() for c in certs])
-
-
-@app.route('/api/admin/certificates', methods=['POST'])
-@admin_required
-def admin_issue_certificate():
+def admin_certificates():
+    if request.method == 'GET':
+        certs = Certificate.query.order_by(Certificate.issued_at.desc()).all()
+        return jsonify([c.to_dict() for c in certs])
+    # POST
     data       = request.get_json()
     student_id = data.get('student_id')
     course_id  = data.get('course_id')
     if not student_id or not course_id:
         return jsonify({'error': 'student_id and course_id required'}), 400
-
-    # Generate cert number CC-YYYY-NNN
     year = datetime.utcnow().year
     count = Certificate.query.filter(
         Certificate.cert_number.like(f'CC-{year}-%')
     ).count()
     cert_number = f'CC-{year}-{count + 1:03d}'
-
     cert = Certificate(
         student_id  = student_id,
         course_id   = course_id,
@@ -2743,7 +2679,6 @@ def admin_issue_certificate():
     )
     db.session.add(cert)
     db.session.commit()
-    # email student
     student = User.query.get(student_id)
     course  = Course.query.get(course_id)
     if student and student.email and course:
@@ -2869,10 +2804,15 @@ def api_create_quiz():
     return jsonify({'quiz': q.to_dict()}), 201
 
 
-@app.route('/api/quizzes/<int:qid>', methods=['PUT'])
+@app.route('/api/quizzes/<int:qid>', methods=['PUT', 'DELETE'])
 @teacher_required
-def api_update_quiz(qid):
+def api_quiz_detail(qid):
     q = Quiz.query.get_or_404(qid)
+    if request.method == 'DELETE':
+        db.session.delete(q)
+        db.session.commit()
+        return jsonify({'ok': True})
+    # PUT
     data = request.get_json()
     if 'title'           in data: q.title           = data['title'].strip()
     if 'description'     in data: q.description     = data['description']
@@ -2883,15 +2823,6 @@ def api_update_quiz(qid):
         q.time_limit_mins = int(data['time_limit_mins']) if data['time_limit_mins'] else None
     db.session.commit()
     return jsonify({'quiz': q.to_dict()})
-
-
-@app.route('/api/quizzes/<int:qid>', methods=['DELETE'])
-@teacher_required
-def api_delete_quiz(qid):
-    q = Quiz.query.get_or_404(qid)
-    db.session.delete(q)
-    db.session.commit()
-    return jsonify({'ok': True})
 
 
 @app.route('/api/quizzes/<int:qid>/publish', methods=['PUT'])
@@ -2933,10 +2864,15 @@ def api_add_quiz_question(qid):
     return jsonify({'question': qq.to_dict()}), 201
 
 
-@app.route('/api/quizzes/<int:qid>/questions/<int:qqid>', methods=['PUT'])
+@app.route('/api/quizzes/<int:qid>/questions/<int:qqid>', methods=['PUT', 'DELETE'])
 @teacher_required
-def api_update_quiz_question(qid, qqid):
+def api_quiz_question_detail(qid, qqid):
     qq = QuizQuestion.query.get_or_404(qqid)
+    if request.method == 'DELETE':
+        db.session.delete(qq)
+        db.session.commit()
+        return jsonify({'ok': True})
+    # PUT
     data = request.get_json()
     if 'question_text' in data: qq.question_text = data['question_text']
     if 'question_type' in data: qq.question_type = data['question_type']
@@ -2953,15 +2889,6 @@ def api_update_quiz_question(qid, qqid):
             ))
     db.session.commit()
     return jsonify({'question': qq.to_dict()})
-
-
-@app.route('/api/quizzes/<int:qid>/questions/<int:qqid>', methods=['DELETE'])
-@teacher_required
-def api_delete_quiz_question(qid, qqid):
-    qq = QuizQuestion.query.get_or_404(qqid)
-    db.session.delete(qq)
-    db.session.commit()
-    return jsonify({'ok': True})
 
 
 @app.route('/api/quizzes/<int:qid>/attempt', methods=['POST'])
