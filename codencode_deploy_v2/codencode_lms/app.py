@@ -11,11 +11,10 @@ codencode.my LMS — Flask Backend
 
 import os
 import uuid
-import smtplib
-import ssl
 import re
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
+import urllib.request
+import urllib.error
+import json as _json_mod
 from datetime import datetime, timedelta
 from functools import wraps
 
@@ -78,11 +77,8 @@ def load_user(user_id):
 # ─────────────────────────────────────────────
 # Email utility
 # ─────────────────────────────────────────────
-_SMTP_HOST      = os.environ.get('EMAIL_SMTP_SERVER', 'smtp.gmail.com')
-_SMTP_PORT      = int(os.environ.get('EMAIL_SMTP_PORT', '587'))
-_EMAIL_FROM     = os.environ.get('EMAIL_FROM',  'codencodemy@gmail.com')
-_EMAIL_USER     = os.environ.get('EMAIL_USER',  '')
-_EMAIL_PASS     = os.environ.get('EMAIL_PASS',  '')
+_EMAIL_FROM     = os.environ.get('EMAIL_FROM', 'codencodemy@gmail.com')
+_BREVO_API_KEY  = os.environ.get('BREVO_API_KEY', '')
 _BUSINESS_NAME  = os.environ.get('BUSINESS_NAME',    'CODE N CODE SOLUTION')
 _BUSINESS_SSM   = os.environ.get('BUSINESS_SSM',     '202603072017 (AS0511861-M)')
 _BUSINESS_ADDR  = os.environ.get('BUSINESS_ADDRESS', '')
@@ -123,27 +119,29 @@ def send_whatsapp(to_phone: str, body: str) -> bool:
 
 
 def send_email(to: str, subject: str, html_body: str):
-    """Send a single HTML email. Returns True on success, False on failure."""
-    if not _EMAIL_USER or not _EMAIL_PASS:
-        app.logger.warning('Email not configured — skipping send to %s', to)
+    """Send email via Brevo HTTP API. Returns True on success, False on failure."""
+    if not _BREVO_API_KEY:
+        app.logger.warning('BREVO_API_KEY not set — skipping email to %s', to)
         return False
     try:
-        msg = MIMEMultipart('alternative')
-        msg['Subject'] = subject
-        msg['From']    = f'codencode.my <{_EMAIL_FROM}>'
-        msg['To']      = to
-        msg.attach(MIMEText(html_body, 'html', 'utf-8'))
-
-        ctx = ssl.create_default_context()
-        if _SMTP_PORT == 465:
-            with smtplib.SMTP_SSL(_SMTP_HOST, _SMTP_PORT, context=ctx, timeout=15) as server:
-                server.login(_EMAIL_USER, _EMAIL_PASS)
-                server.sendmail(_EMAIL_FROM, to, msg.as_string())
-        else:
-            with smtplib.SMTP(_SMTP_HOST, _SMTP_PORT, timeout=15) as server:
-                server.starttls(context=ctx)
-                server.login(_EMAIL_USER, _EMAIL_PASS)
-                server.sendmail(_EMAIL_FROM, to, msg.as_string())
+        payload = _json_mod.dumps({
+            'sender':     {'name': _BUSINESS_NAME, 'email': _EMAIL_FROM},
+            'to':         [{'email': to}],
+            'subject':    subject,
+            'htmlContent': html_body,
+        }).encode('utf-8')
+        req = urllib.request.Request(
+            'https://api.brevo.com/v3/smtp/email',
+            data    = payload,
+            headers = {
+                'api-key':      _BREVO_API_KEY,
+                'Content-Type': 'application/json',
+                'Accept':       'application/json',
+            },
+            method = 'POST'
+        )
+        with urllib.request.urlopen(req, timeout=15) as resp:
+            resp.read()
         return True
     except Exception as exc:
         app.logger.error('Email send failed to %s: %s', to, exc)
