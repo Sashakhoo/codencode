@@ -1858,24 +1858,6 @@ def reset_admin():
     return jsonify({'ok': True, 'email': 'admin@codencode.my', 'password': 'admin1234'})
 
 
-@app.route('/api/test-email')
-def test_email():
-    secret = request.args.get('secret', '')
-    if secret != 'codencode-reset-2026':
-        return jsonify({'error': 'forbidden'}), 403
-    to = request.args.get('to', '')
-    if not to:
-        return jsonify({'error': 'provide ?to=your@email.com'}), 400
-    ok = send_email(
-        to      = to,
-        subject = 'codencode.my — Email Test',
-        html_body = f'<p>Hi,</p><p>This is a test email from <strong>codencode.my</strong>. If you received this, email sending is working correctly.</p><p>— {_BUSINESS_NAME}</p>'
-    )
-    if ok:
-        return jsonify({'ok': True, 'sent_to': to})
-    return jsonify({'ok': False, 'error': 'Send failed — check Railway logs for SMTP details'}), 500
-
-
 # ─────────────────────────────────────────────
 # WELCOME REMINDER  (3 days before class starts)
 # ─────────────────────────────────────────────
