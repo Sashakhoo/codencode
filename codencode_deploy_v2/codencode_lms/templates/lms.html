@@ -2591,7 +2591,7 @@ async function loadAssignments() {
       <div class="asgn-meta">
         ${a.due_date ? `<span><i class="fas fa-clock"></i> Due: ${a.due_date}</span>` : ''}
         <span><i class="fas fa-star"></i> ${a.max_points} pts</span>
-        ${a.brief_file ? `<a href="/uploads/briefs/${a.brief_file}" target="_blank" class="btn-action ghost" style="font-size:11px"><i class="fas fa-paperclip"></i> Brief</a>` : ''}
+        ${a.brief_file ? `<a href="/uploads/materials/${a.brief_file}" target="_blank" class="btn-action ghost" style="font-size:11px"><i class="fas fa-paperclip"></i> Brief</a>` : ''}
         ${a.submission?.feedback ? `<span style="color:var(--muted)"><i class="fas fa-comment"></i> "${a.submission.feedback}"</span>` : ''}
         ${(!a.submission || a.submission.score === null)
           ? `<button class="btn-action" onclick="openSubmitModal(${a.id},'${a.title.replace(/'/g,"\\'")}')">
@@ -2750,7 +2750,7 @@ async function loadTeacherAssignments() {
             <span class="status-badge" style="border-color:rgba(0,220,180,0.3);color:var(--cyan)">${a.submission_count||0} submitted</span>
           </div>
           <div class="asgn-meta">
-            ${a.brief_file ? `<a href="/uploads/briefs/${a.brief_file}" target="_blank" class="btn-action ghost" style="font-size:11px"><i class="fas fa-paperclip"></i> Brief</a>` : ''}
+            ${a.brief_file ? `<a href="/uploads/materials/${a.brief_file}" target="_blank" class="btn-action ghost" style="font-size:11px"><i class="fas fa-paperclip"></i> Brief</a>` : ''}
             <button class="btn-action ghost" onclick="loadGradingForAssignment(${a.id},'${a.title.replace(/'/g,"\\'")}')">
               <i class="fas fa-check-double"></i> Grade
             </button>
