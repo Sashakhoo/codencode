@@ -862,9 +862,10 @@ def api_delete_material(mid):
 @app.route('/uploads/materials/<path:filename>')
 @login_required
 def serve_material(filename):
+    as_att = not filename.lower().endswith('.html')
     return send_from_directory(
         os.path.join(app.config['UPLOAD_FOLDER'], 'materials'),
-        filename, as_attachment=True)
+        filename, as_attachment=as_att)
 
 
 @app.route('/uploads/briefs/<path:filename>')
@@ -909,7 +910,7 @@ def api_create_assignment(cid):
     brief_file = None
     if 'file' in request.files and request.files['file'].filename:
         try:
-            stored, _ = save_upload(request.files['file'], 'briefs',
+            stored, _ = save_upload(request.files['file'], 'materials',
                                     app.config['ALLOWED_MATERIAL'])
             brief_file = stored
         except ValueError as e:
