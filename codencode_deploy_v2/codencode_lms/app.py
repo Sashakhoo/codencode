@@ -959,10 +959,20 @@ def api_submit(aid):
         assignment_id=aid, student_id=current_user.id).first()
 
     try:
-        stored, original = save_upload(
-            request.files.get('file'), 'submissions',
-            app.config['ALLOWED_SUBMISSION'])
-    except ValueError as e:
+        file = request.files.get('file')
+        if not file or file.filename == '':
+            return jsonify({'error': 'No file provided'}), 400
+        ext = file.filename.rsplit('.', 1)[1].lower() if '.' in file.filename else ''
+        if ext not in app.config['ALLOWED_SUBMISSION']:
+            return jsonify({'error': f'File type not allowed'}), 400
+        assignment = Assignment.query.get_or_404(aid)
+        safe_name = re.sub(r'[^A-Za-z0-9]+', '_', current_user.name).strip('_')
+        stored = f"Week{assignment.week}_{safe_name}.{ext}"
+        dest = os.path.join(app.config['UPLOAD_FOLDER'], 'submissions')
+        os.makedirs(dest, exist_ok=True)
+        file.save(os.path.join(dest, stored))
+        original = file.filename
+    except Exception as e:
         return jsonify({'error': str(e)}), 400
 
     if existing:
