@@ -966,8 +966,9 @@ def api_submit(aid):
         if ext not in app.config['ALLOWED_SUBMISSION']:
             return jsonify({'error': f'File type not allowed'}), 400
         assignment = Assignment.query.get_or_404(aid)
-        safe_name = re.sub(r'[^A-Za-z0-9]+', '_', current_user.name).strip('_')
-        stored = f"Week{assignment.week}_{safe_name}.{ext}"
+        safe_title  = re.sub(r'[^a-z0-9]+', '', assignment.title.lower())
+        safe_name   = re.sub(r'[^a-z0-9]+', '', current_user.name.lower())
+        stored = f"{safe_title}_{safe_name}.{ext}"
         dest = os.path.join(app.config['UPLOAD_FOLDER'], 'submissions')
         os.makedirs(dest, exist_ok=True)
         file.save(os.path.join(dest, stored))
