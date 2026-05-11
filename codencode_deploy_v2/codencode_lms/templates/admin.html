@@ -2603,7 +2603,7 @@ function handleMatDrop(e) {
   e.currentTarget.classList.remove('drag-over');
   const file = e.dataTransfer.files[0];
   if (file) {
-    const allowed = ['pdf','py','ipynb','zip','csv','txt','docx','pptx'];
+    const allowed = ['pdf','py','ipynb','zip','csv','txt','docx','pptx','html'];
     const ext = file.name.split('.').pop().toLowerCase();
     if (!allowed.includes(ext)) {
       toast(`File type .${ext} not allowed. Use: ${allowed.join(', ')}`, true);
