@@ -1560,9 +1560,9 @@
               <div class="form-group">
                 <label class="form-label">Attach Files (Optional)</label>
                 <div class="upload-zone" onclick="document.getElementById('asgn-file').click()" style="padding:20px">
-                  <div class="upload-sub"><span>Browse</span> or drag starter code / brief PDF</div>
+                  <div class="upload-sub"><span>Browse</span> or drag starter code / brief (PDF, HTML, DOCX, PY, ZIP…)</div>
                 </div>
-                <input type="file" id="asgn-file" name="file" class="upload-input" />
+                <input type="file" id="asgn-file" name="file" class="upload-input" accept=".pdf,.html,.py,.ipynb,.zip,.csv,.txt,.docx,.pptx" />
               </div>
               <button class="btn-action" style="width:100%;justify-content:center;padding:14px" id="create-asgn-btn" onclick="createAssignment()">
                 <i class="fas fa-paper-plane"></i> Publish Assignment
