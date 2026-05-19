@@ -36,7 +36,7 @@ from models import (db, User, Course, Enrollment, Recording,
                     LoginLog, Certificate,
                     Quiz, QuizQuestion, QuizChoice, QuizAttempt, QuizAnswer,
                     DiscussionPost, DiscussionReply, PostUpvote,
-                    LastLesson, Cohort)
+                    LastLesson, Cohort, Registration)
 
 # ─────────────────────────────────────────────
 # App setup
@@ -655,6 +655,70 @@ def serve_admin():
     if current_user.role != 'admin':
         return send_from_directory('templates', 'lms.html')
     return send_from_directory('templates', 'admin.html')
+
+
+# ─────────────────────────────────────────────
+# Public Registration
+# ─────────────────────────────────────────────
+@app.route('/register', methods=['GET'])
+def serve_register():
+    return send_from_directory('templates', 'register.html')
+
+
+@app.route('/register', methods=['POST'])
+def public_register():
+    data = request.get_json(silent=True) or {}
+    required = ('full_name', 'whatsapp', 'email', 'learning_goals')
+    missing = [f for f in required if not str(data.get(f, '')).strip()]
+    if missing:
+        return jsonify({'detail': f'Missing required fields: {", ".join(missing)}'}), 400
+
+    reg = Registration(
+        full_name          = data['full_name'].strip(),
+        whatsapp           = data['whatsapp'].strip(),
+        email              = data['email'].strip().lower(),
+        occupation         = data.get('occupation', '').strip(),
+        language           = data.get('language', ''),
+        experience_level   = data.get('experience_level', ''),
+        referral_source    = data.get('referral_source', ''),
+        learning_goals     = data.get('learning_goals', '').strip(),
+        course             = data.get('course', ''),
+        class_format       = data.get('class_format', ''),
+        total_fee          = data.get('total_fee', ''),
+        payment_preference = data.get('payment_preference', ''),
+        instalment_week1   = data.get('instalment_week1', ''),
+        instalment_week3   = data.get('instalment_week3', ''),
+        timing             = data.get('timing', ''),
+    )
+    db.session.add(reg)
+    db.session.commit()
+
+    try:
+        send_email(
+            reg.email,
+            'Registration Received — codencode.my',
+            _email_wrapper('We got your registration! 🎉', f'''
+                <p>Hi {reg.full_name},</p>
+                <p>Thanks for registering with <strong>codencode.my</strong>! We've received your details and will WhatsApp you at <strong>{reg.whatsapp}</strong> within 24 hours to confirm your slot.</p>
+                <p><strong>Course:</strong> {reg.course or 'Python / ML'}<br>
+                <strong>Format:</strong> {reg.class_format}<br>
+                <strong>Timing:</strong> {reg.timing}</p>
+                <p>Questions? Just reply to this email or WhatsApp us at +601131652854.</p>
+            ''')
+        )
+    except Exception as exc:
+        app.logger.warning('Registration confirmation email failed: %s', exc)
+
+    return jsonify({'ok': True, 'id': reg.id}), 200
+
+
+@app.route('/api/admin/registrations', methods=['GET'])
+@login_required
+def api_admin_registrations():
+    if current_user.role != 'admin':
+        return jsonify({'error': 'Forbidden'}), 403
+    regs = Registration.query.order_by(Registration.submitted_at.desc()).all()
+    return jsonify([r.to_dict() for r in regs])
 
 
 # ─────────────────────────────────────────────
