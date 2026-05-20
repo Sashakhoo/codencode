@@ -743,6 +743,51 @@ class PostUpvote(db.Model):
 
 
 # ─────────────────────────────────────────────
+# Public Registration (from register.html)
+# ─────────────────────────────────────────────
+class Registration(db.Model):
+    __tablename__ = 'registrations'
+    id                 = db.Column(db.Integer, primary_key=True)
+    full_name          = db.Column(db.String(100), nullable=False)
+    whatsapp           = db.Column(db.String(30), nullable=False)
+    email              = db.Column(db.String(150), nullable=False)
+    occupation         = db.Column(db.String(150))
+    language           = db.Column(db.String(20))
+    experience_level   = db.Column(db.String(50))
+    referral_source    = db.Column(db.String(100))
+    learning_goals     = db.Column(db.Text)
+    course             = db.Column(db.String(200))
+    class_format       = db.Column(db.String(100))
+    total_fee          = db.Column(db.String(50))
+    payment_preference = db.Column(db.String(50))
+    instalment_week1   = db.Column(db.String(50))
+    instalment_week3   = db.Column(db.String(50))
+    timing             = db.Column(db.String(200))
+    submitted_at       = db.Column(db.DateTime, default=datetime.utcnow)
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'full_name': self.full_name,
+            'whatsapp': self.whatsapp,
+            'email': self.email,
+            'occupation': self.occupation or '',
+            'language': self.language or '',
+            'experience_level': self.experience_level or '',
+            'referral_source': self.referral_source or '',
+            'learning_goals': self.learning_goals or '',
+            'course': self.course or '',
+            'class_format': self.class_format or '',
+            'total_fee': self.total_fee or '',
+            'payment_preference': self.payment_preference or '',
+            'instalment_week1': self.instalment_week1 or '',
+            'instalment_week3': self.instalment_week3 or '',
+            'timing': self.timing or '',
+            'submitted_at': self.submitted_at.strftime('%b %d, %Y · %I:%M %p'),
+        }
+
+
+# ─────────────────────────────────────────────
 # S11 — Resume Last Lesson
 # ─────────────────────────────────────────────
 class LastLesson(db.Model):
