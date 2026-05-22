@@ -768,8 +768,14 @@ def api_courses():
     if current_user.role == 'admin':
         courses = Course.query.order_by(Course.title).all()
     elif current_user.role == 'teacher':
-        # Teachers only see courses assigned to them
-        courses = Course.query.filter_by(teacher_id=current_user.id).order_by(Course.title).all()
+        # Teachers see courses assigned directly, plus courses where they own a cohort/intake.
+        from sqlalchemy import or_
+        courses = Course.query.outerjoin(Cohort).filter(or_(
+            Course.teacher_id == current_user.id,
+            Cohort.teacher_id == current_user.id,
+        )).order_by(Course.title).distinct().all()
+        if not courses and User.query.filter_by(role='teacher').count() == 1:
+            courses = Course.query.filter(Course.teacher_id.is_(None)).order_by(Course.title).all()
     else:
         courses = [e.course for e in current_user.enrollments]
     return jsonify([c.to_dict() for c in courses])
@@ -1663,7 +1669,12 @@ def api_cohorts(cid):
     sd = None
     if data.get('start_date'):
         sd = datetime.strptime(data['start_date'], '%Y-%m-%d').date()
-    c = Cohort(course_id=cid, name=name, start_date=sd, current_week=1)
+    ed = None
+    if data.get('end_date'):
+        ed = datetime.strptime(data['end_date'], '%Y-%m-%d').date()
+    tid = data.get('teacher_id')
+    c = Cohort(course_id=cid, name=name, start_date=sd, end_date=ed, current_week=1,
+               teacher_id=int(tid) if tid else None)
     db.session.add(c)
     db.session.commit()
     return jsonify({'cohort': c.to_dict()}), 201
@@ -1681,10 +1692,12 @@ def admin_set_cohort_week(cohort_id):
     return jsonify({'cohort': cohort.to_dict()})
 
 @app.route('/api/admin/cohorts/<int:cohort_id>', methods=['PUT', 'DELETE'])
-@admin_required
+@teacher_required
 def admin_cohort_detail(cohort_id):
     cohort = Cohort.query.get_or_404(cohort_id)
     if request.method == 'DELETE':
+        if current_user.role != 'admin':
+            return jsonify({'error': 'Admins only'}), 403
         db.session.delete(cohort)
         db.session.commit()
         return jsonify({'ok': True})
@@ -1703,6 +1716,9 @@ def admin_cohort_detail(cohort_id):
         cohort.schedule = _json.dumps(data['schedule']) if data['schedule'] else None
     if 'notes' in data:
         cohort.notes = data['notes']
+    if 'teacher_id' in data:
+        tid = data['teacher_id']
+        cohort.teacher_id = int(tid) if tid else None
     db.session.commit()
     return jsonify({'cohort': cohort.to_dict()})
 
@@ -2378,8 +2394,10 @@ def api_student_timetable():
     now = datetime.utcnow()
     if current_user.role in ('teacher', 'admin'):
         sessions = Session.query.order_by(Session.start_datetime).all()
+        timetable_items = []
     else:
-        enrolled_course_ids = {e.course_id for e in current_user.enrollments}
+        enrollments = Enrollment.query.filter_by(student_id=current_user.id).all()
+        enrolled_course_ids = {e.course_id for e in enrollments}
         participant_session_ids = {p.session_id for p in SessionParticipant.query.filter_by(student_id=current_user.id).all()}
         sessions = []
         for s in Session.query.order_by(Session.start_datetime).all():
@@ -2387,8 +2405,45 @@ def api_student_timetable():
                 sessions.append(s)
             elif s.session_type in ('group', 'private') and s.id in participant_session_ids:
                 sessions.append(s)
-    upcoming = [s.to_dict() for s in sessions if s.start_datetime >= now]
-    past     = [s.to_dict() for s in sessions if s.start_datetime < now]
+        timetable_items = []
+        for e in enrollments:
+            if not e.course:
+                continue
+            current_week = e.cohort.current_week if e.cohort else e.course.current_week
+            data = _build_timetable(
+                e.course,
+                cohort_id=e.cohort_id,
+                weeks=4,
+                start_week=current_week,
+                include_blank=False
+            )
+            for week in data['weeks']:
+                for row in week['sessions']:
+                    if not row.get('date_iso') or not row.get('time_start'):
+                        continue
+                    start_dt = datetime.strptime(
+                        f"{row['date_iso']}T{row['time_start']}", '%Y-%m-%dT%H:%M'
+                    )
+                    timetable_items.append({
+                        'id': f"tt-{e.course_id}-{e.cohort_id or 'course'}-{week['week']}-{row['session_num']}",
+                        'title': row.get('topic') or f"Week {week['week']} Class",
+                        'session_type': 'cohort' if e.cohort_id else 'class',
+                        'course_id': e.course_id,
+                        'course_title': e.course.title,
+                        'cohort_id': e.cohort_id,
+                        'cohort_name': e.cohort.name if e.cohort else '',
+                        'start_datetime': start_dt.strftime('%Y-%m-%dT%H:%M'),
+                        'start_display': start_dt.strftime('%a, %d %b %Y · %I:%M %p'),
+                        'duration_minutes': row.get('duration_minutes') or 60,
+                        'zoom_link': '',
+                        'has_recording': False,
+                    })
+    session_items = [s.to_dict() for s in sessions]
+    all_items = session_items + timetable_items
+    upcoming = [s for s in all_items if datetime.strptime(s['start_datetime'], '%Y-%m-%dT%H:%M') >= now]
+    past     = [s for s in all_items if datetime.strptime(s['start_datetime'], '%Y-%m-%dT%H:%M') < now]
+    upcoming.sort(key=lambda s: s['start_datetime'])
+    past.sort(key=lambda s: s['start_datetime'], reverse=True)
     return jsonify({'upcoming': upcoming, 'past': past})
 
 
@@ -2529,50 +2584,149 @@ def api_delete_announcement(aid):
 # ─────────────────────────────────────────────
 # TIMETABLE
 # ─────────────────────────────────────────────
+_DEFAULT_TIMETABLE_SLOTS = [
+    {'session_num': 1, 'day': 'Friday',   'time_start': '20:00', 'time_end': '22:00', 'day_offset': 0},
+    {'session_num': 2, 'day': 'Saturday', 'time_start': '09:00', 'time_end': '11:00', 'day_offset': 1},
+    {'session_num': 3, 'day': 'Sunday',   'time_start': '09:00', 'time_end': '11:00', 'day_offset': 2},
+]
+
+_DAY_INDEX = {
+    'Monday': 0, 'Tuesday': 1, 'Wednesday': 2, 'Thursday': 3,
+    'Friday': 4, 'Saturday': 5, 'Sunday': 6,
+}
+
+
+def _time_label(value):
+    if not value:
+        return ''
+    try:
+        return datetime.strptime(value, '%H:%M').strftime('%-I:%M %p')
+    except ValueError:
+        return value
+
+
+def _time_duration_minutes(start, end):
+    try:
+        s = datetime.strptime(start, '%H:%M')
+        e = datetime.strptime(end, '%H:%M')
+        minutes = int((e - s).total_seconds() // 60)
+        return minutes if minutes > 0 else 60
+    except Exception:
+        return 60
+
+
+def _day_offset(day_name, start_date=None):
+    if not start_date:
+        return {'Friday': 0, 'Saturday': 1, 'Sunday': 2}.get(day_name, _DAY_INDEX.get(day_name, 0))
+    return (_DAY_INDEX.get(day_name, start_date.weekday()) - start_date.weekday()) % 7
+
+
+def _scope_for_timetable(course, cohort_id=None):
+    cohort = None
+    if cohort_id:
+        cohort = Cohort.query.filter_by(id=int(cohort_id), course_id=course.id).first_or_404()
+    return {
+        'cohort': cohort,
+        'start_date': cohort.start_date if cohort and cohort.start_date else course.start_date,
+        'current_week': cohort.current_week if cohort else course.current_week,
+    }
+
+
+def _cohort_schedule_slots(cohort):
+    if not cohort or not cohort.schedule:
+        return []
+    try:
+        raw_slots = _json_mod.loads(cohort.schedule)
+    except Exception:
+        return []
+    slots = []
+    for i, slot in enumerate(raw_slots, start=1):
+        day = slot.get('day') or 'Friday'
+        slots.append({
+            'session_num': i,
+            'day': day,
+            'time_start': slot.get('start') or '20:00',
+            'time_end': slot.get('end') or '22:00',
+            'day_offset': None,
+        })
+    return slots
+
+
+def _build_timetable(course, cohort_id=None, weeks=None, start_week=1, include_blank=True):
+    from datetime import timedelta, date as date_type
+    scope = _scope_for_timetable(course, cohort_id)
+    cohort = scope['cohort']
+    start_date = scope['start_date']
+    current_week = scope['current_week']
+    max_week = course.weeks
+    end_week = min(max_week, start_week + weeks - 1) if weeks else max_week
+    start_week = max(1, min(start_week, max_week))
+    slots = _cohort_schedule_slots(cohort) or _DEFAULT_TIMETABLE_SLOTS
+    stored = {}
+    query = TimetableSession.query.filter_by(course_id=course.id, cohort_id=cohort.id if cohort else None).all()
+    for s in query:
+        stored[(s.week, s.session_num)] = s
+    today = date_type.today()
+    weeks_out = []
+    for w in range(start_week, end_week + 1):
+        nums = sorted({slot['session_num'] for slot in slots} |
+                      {s.session_num for s in query if s.week == w})
+        sessions = []
+        for snum in nums:
+            base = next((slot for slot in slots if slot['session_num'] == snum), None) or {
+                'session_num': snum, 'day': 'Friday', 'time_start': '20:00', 'time_end': '22:00', 'day_offset': 0
+            }
+            db_s = stored.get((w, snum))
+            day_name = db_s.day_name if db_s and db_s.day_name else base['day']
+            time_start = db_s.time_start if db_s and db_s.time_start else base['time_start']
+            time_end = db_s.time_end if db_s and db_s.time_end else base['time_end']
+            day_offset = _day_offset(day_name, start_date)
+            if start_date:
+                sd = start_date + timedelta(weeks=w - 1, days=day_offset)
+                date_str = sd.strftime('%d %b %Y')
+                date_iso = sd.strftime('%Y-%m-%d')
+                is_past = sd < today
+                is_today = sd == today
+            else:
+                date_str = date_iso = None
+                is_past = is_today = False
+            topic = db_s.topic if db_s else None
+            if not include_blank and not topic:
+                continue
+            sessions.append({
+                'id': db_s.id if db_s else None,
+                'session_num': snum,
+                'day': day_name,
+                'date': date_str,
+                'date_iso': date_iso,
+                'time_start': time_start,
+                'time_start_display': _time_label(time_start),
+                'time_end': time_end,
+                'time_end_display': _time_label(time_end),
+                'topic': topic,
+                'notes': db_s.notes if db_s else None,
+                'is_past': is_past,
+                'is_today': is_today,
+                'duration_minutes': _time_duration_minutes(time_start, time_end),
+            })
+        weeks_out.append({'week': w, 'sessions': sessions})
+    return {
+        'weeks': weeks_out,
+        'current_week': current_week,
+        'start_date': start_date.strftime('%Y-%m-%d') if start_date else None,
+        'cohort_id': cohort.id if cohort else None,
+        'cohort_name': cohort.name if cohort else '',
+    }
+
+
 @app.route('/api/courses/<int:cid>/timetable')
 @login_required
 def api_get_timetable(cid):
     if not enrolled_or_staff(cid):
         return jsonify({'error': 'Not enrolled'}), 403
-    from datetime import timedelta, date as date_type
     course = Course.query.get_or_404(cid)
-    sessions_db = {(s.week, s.session_num): s
-                   for s in TimetableSession.query.filter_by(course_id=cid).all()}
-    # Fixed weekly schedule
-    SCHEDULE = [
-        (1, 'Friday',   '8:00 PM',  '10:00 PM', 0),
-        (2, 'Saturday', '9:00 AM',  '11:00 AM', 1),
-        (3, 'Sunday',   '9:00 AM',  '11:00 AM', 2),
-    ]
-    today = date_type.today()
-    weeks = []
-    for w in range(1, course.weeks + 1):
-        sessions = []
-        for snum, day_name, t_start, t_end, day_offset in SCHEDULE:
-            if course.start_date:
-                sd = course.start_date + timedelta(weeks=w - 1, days=day_offset)
-                date_str  = sd.strftime('%d %b %Y')
-                is_past   = sd < today
-                is_today  = sd == today
-            else:
-                date_str  = None
-                is_past   = False
-                is_today  = False
-            db_s = sessions_db.get((w, snum))
-            sessions.append({
-                'session_num': snum,
-                'day':        day_name,
-                'date':       date_str,
-                'time_start': t_start,
-                'time_end':   t_end,
-                'topic':      db_s.topic if db_s else None,
-                'notes':      db_s.notes if db_s else None,
-                'is_past':    is_past,
-                'is_today':   is_today,
-            })
-        weeks.append({'week': w, 'sessions': sessions})
-    return jsonify({'weeks': weeks, 'current_week': course.current_week,
-                    'start_date': course.start_date.strftime('%Y-%m-%d') if course.start_date else None})
+    cohort_id = request.args.get('cohort_id') or None
+    return jsonify(_build_timetable(course, cohort_id=cohort_id))
 
 
 @app.route('/api/courses/<int:cid>/timetable', methods=['PUT'])
@@ -2581,15 +2735,41 @@ def api_save_timetable_session(cid):
     if current_user.role not in ('teacher', 'admin'):
         return jsonify({'error': 'Teachers only'}), 403
     data    = request.get_json()
-    week    = data.get('week')
+    week    = int(data.get('week'))
+    cohort_id = data.get('cohort_id') or None
     snum    = data.get('session_num')
     topic   = (data.get('topic')   or '').strip()
     notes   = (data.get('notes')   or '').strip()
-    s = TimetableSession.query.filter_by(course_id=cid, week=week, session_num=snum).first()
+    day_name = data.get('day') or data.get('day_name') or 'Friday'
+    time_start = data.get('time_start') or '20:00'
+    time_end = data.get('time_end') or '22:00'
+    day_offset = data.get('day_offset')
+    if day_offset is None:
+        course = Course.query.get_or_404(cid)
+        cohort = Cohort.query.filter_by(id=int(cohort_id), course_id=cid).first() if cohort_id else None
+        base_date = cohort.start_date if cohort and cohort.start_date else course.start_date
+        day_offset = _day_offset(day_name, base_date)
+    if cohort_id:
+        Cohort.query.filter_by(id=int(cohort_id), course_id=cid).first_or_404()
+    if not snum:
+        max_num = db.session.query(db.func.max(TimetableSession.session_num)).filter_by(
+            course_id=cid, cohort_id=int(cohort_id) if cohort_id else None, week=week
+        ).scalar() or 0
+        snum = max(max_num + 1, 4)
+    snum = int(snum)
+    s = TimetableSession.query.filter_by(
+        course_id=cid, cohort_id=int(cohort_id) if cohort_id else None, week=week, session_num=snum
+    ).first()
     if s:
         s.topic = topic; s.notes = notes
+        s.day_name = day_name; s.time_start = time_start; s.time_end = time_end; s.day_offset = int(day_offset)
     else:
-        s = TimetableSession(course_id=cid, week=week, session_num=snum, topic=topic, notes=notes)
+        s = TimetableSession(
+            course_id=cid, cohort_id=int(cohort_id) if cohort_id else None,
+            week=week, session_num=snum, day_name=day_name,
+            time_start=time_start, time_end=time_end, day_offset=int(day_offset),
+            topic=topic, notes=notes
+        )
         db.session.add(s)
     db.session.commit()
     return jsonify({'ok': True})
@@ -2744,10 +2924,15 @@ def admin_certificates():
     if not student_id or not course_id:
         return jsonify({'error': 'student_id and course_id required'}), 400
     year = datetime.utcnow().year
-    count = Certificate.query.filter(
-        Certificate.cert_number.like(f'CC-{year}-%')
-    ).count()
-    cert_number = f'CC-{year}-{count + 1:03d}'
+    existing_numbers = Certificate.query.filter(
+        Certificate.cert_number.ilike(f'CC-{year}-%')
+    ).with_entities(Certificate.cert_number).all()
+    last_number = 99
+    for (cert_no,) in existing_numbers:
+        match = re.search(rf'^CC-{year}-(\d+)$', cert_no or '', re.IGNORECASE)
+        if match:
+            last_number = max(last_number, int(match.group(1)))
+    cert_number = f'CC-{year}-{last_number + 1:03d}'
     cert = Certificate(
         student_id  = student_id,
         course_id   = course_id,
@@ -3420,7 +3605,7 @@ with app.app_context():
     except Exception:
         pass
 
-    # Cohort: schedule, notes, end_date columns
+    # Cohort: schedule, notes, end_date, teacher assignment columns
     try:
         insp_coh = sa_inspect(db.engine)
         coh_cols = {c['name'] for c in insp_coh.get_columns('cohorts')}
@@ -3434,6 +3619,27 @@ with app.app_context():
             if 'end_date' not in coh_cols:
                 conn.execute(text('ALTER TABLE cohorts ADD COLUMN end_date DATE'))
                 conn.commit()
+            if 'teacher_id' not in coh_cols:
+                conn.execute(text('ALTER TABLE cohorts ADD COLUMN teacher_id INTEGER'))
+                conn.commit()
+    except Exception:
+        pass
+
+    # Timetable: cohort scoping and editable timing columns
+    try:
+        insp_tt = sa_inspect(db.engine)
+        tt_cols = {c['name'] for c in insp_tt.get_columns('timetable_sessions')}
+        with db.engine.connect() as conn:
+            for col, ddl in [
+                ('cohort_id',  'INTEGER'),
+                ('day_name',   'VARCHAR(20)'),
+                ('time_start', 'VARCHAR(5)'),
+                ('time_end',   'VARCHAR(5)'),
+                ('day_offset', 'INTEGER'),
+            ]:
+                if col not in tt_cols:
+                    conn.execute(text(f'ALTER TABLE timetable_sessions ADD COLUMN {col} {ddl}'))
+                    conn.commit()
     except Exception:
         pass
 
@@ -3485,6 +3691,20 @@ with app.app_context():
                 conn.commit()
     except Exception:
         pass
+
+    # Existing installs may have courses from before teacher assignment existed.
+    # When there is only one teacher, make that teacher the owner so their portal
+    # does not come up empty after the migration.
+    try:
+        teachers = User.query.filter_by(role='teacher').all()
+        if len(teachers) == 1:
+            Course.query.filter(Course.teacher_id.is_(None)).update(
+                {Course.teacher_id: teachers[0].id},
+                synchronize_session=False
+            )
+            db.session.commit()
+    except Exception:
+        db.session.rollback()
 
     seed_demo()
     _start_scheduler()

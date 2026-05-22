@@ -1056,6 +1056,10 @@
           <select class="form-select" id="tt-course-select" onchange="loadAdminTimetable()" style="width:300px">
             <option value="">Select course...</option>
           </select>
+          <label>Class / Cohort</label>
+          <select class="form-select" id="tt-cohort-select" onchange="loadAdminTimetable()" style="width:260px">
+            <option value="">Whole course / class</option>
+          </select>
         </div>
         <div id="tt-start-date-bar" style="display:none;margin-bottom:20px">
           <div class="card" style="padding:16px 20px;display:flex;align-items:center;gap:12px;flex-wrap:wrap">
@@ -1513,6 +1517,10 @@
         <input class="form-input" type="date" id="add-cohort-end" />
       </div>
     </div>
+    <div class="form-group" style="margin-bottom:14px">
+      <label class="form-label">Teacher <span style="color:var(--text-dim);font-size:10px">(optional, overrides course teacher)</span></label>
+      <select class="form-select" id="add-cohort-teacher"></select>
+    </div>
     <div class="modal-footer">
       <button class="btn btn-secondary" onclick="closeModal('modal-add-cohort')">Cancel</button>
       <button class="btn btn-primary" onclick="saveNewCohort()">
@@ -1547,6 +1555,11 @@
         <label class="form-label">Current Week</label>
         <input class="form-input" type="number" id="edit-cohort-week" min="1" max="20" value="1" />
       </div>
+    </div>
+
+    <div class="form-group" style="margin-bottom:14px">
+      <label class="form-label">Teacher <span style="color:var(--text-dim);font-size:10px">(optional, overrides course teacher)</span></label>
+      <select class="form-select" id="edit-cohort-teacher"></select>
     </div>
 
     <div class="form-group" style="margin-bottom:14px">
@@ -2303,6 +2316,7 @@ async function loadCohortsForCourse(cid) {
               Week <span style="color:var(--cyan);font-weight:700">${h.current_week}</span> of ${course?.weeks||6}
               · ${h.enrollment_count} student${h.enrollment_count!==1?'s':''}
             </div>
+            ${h.teacher_name ? `<div style="font-size:10px;color:var(--text-muted);margin-top:2px"><i class="fas fa-chalkboard-teacher" style="color:var(--purple);margin-right:3px"></i>${h.teacher_name}${h.teacher_title ? ' · ' + h.teacher_title : ''}</div>` : ''}
             <div style="font-size:10px;color:var(--text-dim);margin-top:2px">
               <i class="fas fa-clock" style="margin-right:3px"></i>${scheduleStr}
             </div>
@@ -2355,6 +2369,8 @@ function openAddCohortModal(cid) {
   document.getElementById('add-cohort-course-id').value = cid;
   document.getElementById('add-cohort-name').value = '';
   document.getElementById('add-cohort-start').value = '';
+  document.getElementById('add-cohort-end').value = '';
+  _populateTeacherDropdown('add-cohort-teacher', null);
   openModal('modal-add-cohort');
 }
 
@@ -2363,9 +2379,15 @@ async function saveNewCohort() {
   const name  = document.getElementById('add-cohort-name').value.trim();
   const start = document.getElementById('add-cohort-start').value;
   const end   = document.getElementById('add-cohort-end').value;
+  const teacherId = document.getElementById('add-cohort-teacher')?.value;
   if (!name) { toast('Cohort name is required', true); return; }
   try {
-    await POST(`/api/courses/${cid}/cohorts`, { name, start_date: start || null, end_date: end || null });
+    await POST(`/api/courses/${cid}/cohorts`, {
+      name,
+      start_date: start || null,
+      end_date: end || null,
+      teacher_id: teacherId ? parseInt(teacherId) : null
+    });
     toast('Cohort created');
     closeModal('modal-add-cohort');
     loadCohortsForCourse(parseInt(cid));
@@ -2383,6 +2405,7 @@ function openEditCohortModal(cohortId, cid) {
     document.getElementById('edit-cohort-end').value      = h.end_date   || '';
     document.getElementById('edit-cohort-week').value     = h.current_week;
     document.getElementById('edit-cohort-notes').value    = h.notes || '';
+    _populateTeacherDropdown('edit-cohort-teacher', h.teacher_id || null);
     // Render schedule slots
     const sched = document.getElementById('edit-cohort-schedule');
     sched.innerHTML = '';
@@ -2428,6 +2451,9 @@ async function saveCohortEdit() {
     end_date:     document.getElementById('edit-cohort-end').value   || null,
     current_week: parseInt(document.getElementById('edit-cohort-week').value) || 1,
     schedule: slots,
+    teacher_id: document.getElementById('edit-cohort-teacher')?.value
+      ? parseInt(document.getElementById('edit-cohort-teacher').value)
+      : null,
     notes: document.getElementById('edit-cohort-notes').value,
   };
   try {
@@ -2803,9 +2829,13 @@ function fileIcon(ft) {
 // COURSES — Create / Edit
 // ═══════════════════════════════════════════════════════
 function _populateCourseTeacherDropdown(selectedId) {
-  const sel = document.getElementById('c-teacher-id');
+  _populateTeacherDropdown('c-teacher-id', selectedId, '— No teacher assigned —');
+}
+
+function _populateTeacherDropdown(elementId, selectedId, emptyLabel='— Use course teacher —') {
+  const sel = document.getElementById(elementId);
   if (!sel) return;
-  sel.innerHTML = '<option value="">— No teacher assigned —</option>' +
+  sel.innerHTML = `<option value="">${emptyLabel}</option>` +
     (S.teachers || []).map(t =>
       `<option value="${t.id}" ${t.id === selectedId ? 'selected' : ''}>${t.name}${t.title ? ' · '+t.title : ''}</option>`
     ).join('');
@@ -2889,10 +2919,24 @@ function populateTimetableCourseSelect() {
   if (!sel) return;
   sel.innerHTML = '<option value="">Select course...</option>' +
     S.courses.map(c => `<option value="${c.id}">${c.title}${c.programme ? ' · '+c.programme : ''}</option>`).join('');
+  populateTimetableCohortSelect('');
+}
+
+async function populateTimetableCohortSelect(cid) {
+  const sel = document.getElementById('tt-cohort-select');
+  if (!sel) return;
+  sel.innerHTML = '<option value="">Whole course / class</option>';
+  if (!cid) return;
+  try {
+    const cohorts = await GET(`/api/courses/${cid}/cohorts`);
+    sel.innerHTML += cohorts.map(h => `<option value="${h.id}">${h.name}</option>`).join('');
+  } catch(e) {}
 }
 
 async function loadAdminTimetable() {
   const cid = document.getElementById('tt-course-select').value;
+  const cohortSel = document.getElementById('tt-cohort-select');
+  let cohortId = cohortSel?.value || '';
   const container  = document.getElementById('tt-admin-container');
   const saveBar    = document.getElementById('tt-save-bar');
   const startBar   = document.getElementById('tt-start-date-bar');
@@ -2902,9 +2946,14 @@ async function loadAdminTimetable() {
     startBar.style.display = 'none';
     return;
   }
+  if (cohortSel && cohortSel.dataset.course !== cid) {
+    cohortSel.dataset.course = cid;
+    await populateTimetableCohortSelect(cid);
+    cohortId = '';
+  }
   container.innerHTML = '<div style="color:var(--text-muted);padding:20px;text-align:center">Loading timetable...</div>';
   try {
-    const data = await GET(`/api/courses/${cid}/timetable`);
+    const data = await GET(`/api/courses/${cid}/timetable${cohortId ? '?cohort_id=' + cohortId : ''}`);
     // Set start date input
     const sdInput = document.getElementById('tt-admin-start-date');
     if (sdInput) sdInput.value = data.start_date || '';
@@ -2922,12 +2971,19 @@ async function loadAdminTimetable() {
       const rows = w.sessions.map(s => {
         const cls  = s.is_today ? 'today' : s.is_past ? 'past' : '';
         const tv   = (s.topic || '').replace(/"/g,'&quot;');
+        const days = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
         return `<div class="tt-row ${cls}">
           <div>
-            <div class="tt-day">${s.day}</div>
+            <select class="form-select tt-day-select" data-week="${w.week}" data-snum="${s.session_num}" style="font-size:12px;padding:6px 8px;min-width:130px">
+              ${days.map(d => `<option value="${d}" ${d===s.day?'selected':''}>${d}</option>`).join('')}
+            </select>
             <div class="tt-date">${s.date || '—'}</div>
           </div>
-          <div><span class="tt-time-badge">${s.time_start} – ${s.time_end}</span></div>
+          <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+            <input class="form-input tt-time-start" type="time" value="${s.time_start || ''}" data-week="${w.week}" data-snum="${s.session_num}" style="width:112px;font-size:12px;padding:7px 8px" />
+            <span style="color:var(--text-muted);font-size:11px">to</span>
+            <input class="form-input tt-time-end" type="time" value="${s.time_end || ''}" data-week="${w.week}" data-snum="${s.session_num}" style="width:112px;font-size:12px;padding:7px 8px" />
+          </div>
           <input class="tt-input" type="text"
             placeholder="e.g. Python Basics &amp; Setup"
             value="${tv}"
@@ -2938,6 +2994,7 @@ async function loadAdminTimetable() {
         <div class="tt-week-head">
           <span class="tt-wk-num">WEEK ${w.week}</span>
           ${isCurrent ? '<span class="tt-wk-curr">Current Week</span>' : ''}
+          <button class="btn btn-secondary btn-sm" onclick="addTimetableRow(${w.week})" style="margin-left:auto;font-size:10px;padding:4px 9px"><i class="fas fa-plus"></i> Add timing</button>
         </div>
         ${rows}
       </div>`;
@@ -2950,16 +3007,57 @@ async function loadAdminTimetable() {
   }
 }
 
+function addTimetableRow(week) {
+  const card = [...document.querySelectorAll('#tt-admin-container .tt-week-card')]
+    .find(el => el.querySelector(`.tt-input[data-week="${week}"]`) || el.textContent.includes(`WEEK ${week}`));
+  if (!card) return;
+  const existing = [...card.querySelectorAll('.tt-input')].map(i => parseInt(i.dataset.snum) || 0);
+  const snum = Math.max(4, ...existing) + 1;
+  const days = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+  const row = document.createElement('div');
+  row.className = 'tt-row';
+  row.innerHTML = `
+    <div>
+      <select class="form-select tt-day-select" data-week="${week}" data-snum="${snum}" style="font-size:12px;padding:6px 8px;min-width:130px">
+        ${days.map(d => `<option value="${d}" ${d==='Friday'?'selected':''}>${d}</option>`).join('')}
+      </select>
+      <div class="tt-date">New timing</div>
+    </div>
+    <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+      <input class="form-input tt-time-start" type="time" value="20:00" data-week="${week}" data-snum="${snum}" style="width:112px;font-size:12px;padding:7px 8px" />
+      <span style="color:var(--text-muted);font-size:11px">to</span>
+      <input class="form-input tt-time-end" type="time" value="22:00" data-week="${week}" data-snum="${snum}" style="width:112px;font-size:12px;padding:7px 8px" />
+    </div>
+    <input class="tt-input" type="text" placeholder="e.g. Makeup class or project clinic" value="" data-week="${week}" data-snum="${snum}" />
+  `;
+  card.appendChild(row);
+}
+
 async function saveAdminStartDate() {
   const cid = document.getElementById('tt-course-select').value;
+  const cohortId = document.getElementById('tt-cohort-select')?.value || '';
   const val = document.getElementById('tt-admin-start-date').value;
   if (!cid) { toast('Select a course first', true); return; }
   if (!val) { toast('Pick a date first', true); return; }
   try {
-    await PUT(`/api/courses/${cid}/start_date`, { start_date: val });
-    // Update local courses data
-    const c = S.courses.find(x => x.id === parseInt(cid));
-    if (c) c.start_date = val;
+    if (cohortId) {
+      const cohorts = await GET(`/api/courses/${cid}/cohorts`);
+      const h = cohorts.find(x => x.id === parseInt(cohortId));
+      await PUT(`/api/admin/cohorts/${cohortId}`, {
+        name: h?.name || 'Cohort',
+        start_date: val,
+        end_date: h?.end_date || null,
+        current_week: h?.current_week || 1,
+        schedule: h?.schedule || [],
+        teacher_id: h?.teacher_id || null,
+        notes: h?.notes || ''
+      });
+      loadCohortsForCourse(parseInt(cid));
+    } else {
+      await PUT(`/api/courses/${cid}/start_date`, { start_date: val });
+      const c = S.courses.find(x => x.id === parseInt(cid));
+      if (c) c.start_date = val;
+    }
     toast('Start date saved!');
     await loadAdminTimetable();
   } catch(e) { toast(e.message, true); }
@@ -2967,14 +3065,23 @@ async function saveAdminStartDate() {
 
 async function saveAdminAllTopics() {
   const cid    = document.getElementById('tt-course-select').value;
+  const cohortId = document.getElementById('tt-cohort-select')?.value || '';
   const inputs = document.querySelectorAll('#tt-admin-container .tt-input');
   if (!cid) { toast('Select a course first', true); return; }
   let saved = 0;
   for (const inp of inputs) {
+    const selector = `[data-week="${inp.dataset.week}"][data-snum="${inp.dataset.snum}"]`;
+    const dayEl = document.querySelector(`#tt-admin-container .tt-day-select${selector}`);
+    const startEl = document.querySelector(`#tt-admin-container .tt-time-start${selector}`);
+    const endEl = document.querySelector(`#tt-admin-container .tt-time-end${selector}`);
     try {
       await PUT(`/api/courses/${cid}/timetable`, {
+        cohort_id:   cohortId ? parseInt(cohortId) : null,
         week:        parseInt(inp.dataset.week),
         session_num: parseInt(inp.dataset.snum),
+        day:         dayEl?.value || 'Friday',
+        time_start:  startEl?.value || '20:00',
+        time_end:    endEl?.value || '22:00',
         topic:       inp.value.trim(),
         notes:       ''
       });
@@ -2982,11 +3089,14 @@ async function saveAdminAllTopics() {
     } catch(e) {}
   }
   toast(`${saved} sessions saved!`);
+  await loadAdminTimetable();
 }
 
 function goToTimetable(cid) {
   showView('timetable');
   const sel = document.getElementById('tt-course-select');
+  const cohortSel = document.getElementById('tt-cohort-select');
+  if (cohortSel) { cohortSel.dataset.course = ''; cohortSel.value = ''; }
   if (sel) { sel.value = cid; loadAdminTimetable(); }
 }
 
