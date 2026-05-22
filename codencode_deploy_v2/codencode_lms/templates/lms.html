@@ -926,20 +926,15 @@
       </div>
       <div class="form-group">
         <label class="form-label">Email</label>
-        <input class="form-input" type="email" id="login-email" placeholder="you@codencode.my" value="student@codencode.my" />
+        <input class="form-input" type="email" id="login-email" placeholder="you@codencode.my" autocomplete="email" />
       </div>
       <div class="form-group">
         <label class="form-label">Password</label>
-        <input class="form-input" type="password" id="login-pass" placeholder="••••••••" value="demo1234" />
+        <input class="form-input" type="password" id="login-pass" placeholder="••••••••" autocomplete="current-password" />
       </div>
       <button class="btn-login" onclick="doLogin()">
         <i class="fas fa-sign-in-alt"></i> Access Portal
       </button>
-      <div class="demo-hint">
-        Demo: <span onclick="quickLogin('student')">student@codencode.my</span> or
-        <span onclick="quickLogin('teacher')">teacher@codencode.my</span> or
-        <span onclick="quickLogin('admin')">admin@codencode.my</span>
-      </div>
     </div>
   </div>
 </div>
@@ -1691,6 +1686,38 @@
             </div>
           </div>
         </div>
+        <div class="card" style="margin-top:20px">
+          <div class="card-header">
+            <span class="card-title"><i class="fas fa-calendar-alt"></i> Monthly Class Timetable</span>
+            <button class="btn-action ghost" onclick="saveTeacherMonthPlan()"><i class="fas fa-save"></i> Save Timetable</button>
+          </div>
+          <div class="card-body">
+            <div class="upload-form" style="margin-bottom:16px">
+              <div class="grid-2" style="gap:12px">
+                <div class="form-group">
+                  <label class="form-label">Course / Class</label>
+                  <select class="form-input" id="t-plan-course" onchange="loadTeacherMonthPlan()">
+                    <option value="">— select course —</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Cohort / Intake</label>
+                  <select class="form-input" id="t-plan-cohort" onchange="loadTeacherMonthPlan()">
+                    <option value="">Whole course / class</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Week 1 Start Date</label>
+                  <input class="form-input" type="date" id="t-plan-start-date" />
+                </div>
+              </div>
+              <button class="btn-action ghost" onclick="saveTeacherPlanStartDate()"><i class="fas fa-calendar-check"></i> Save Start Date</button>
+            </div>
+            <div id="t-plan-container">
+              <div style="padding:16px 20px;color:var(--muted);font-family:var(--font-m);font-size:11px">Select a course to edit the 4-week timetable.</div>
+            </div>
+          </div>
+        </div>
       </div>
 
       <!-- ══════════════════════════════
@@ -2226,15 +2253,6 @@ function renderCourseSelector() {
 function selectRole(role) {
   document.querySelectorAll('.role-tab').forEach(t => t.classList.remove('active'));
   document.querySelector(`[data-role="${role}"]`).classList.add('active');
-  const emails = { student: 'student@codencode.my', teacher: 'teacher@codencode.my', admin: 'admin@codencode.my' };
-  document.getElementById('login-email').value = emails[role] || '';
-}
-
-function quickLogin(role) {
-  selectRole(role);
-  const passwords = { student: 'demo1234', teacher: 'demo1234', admin: 'admin1234' };
-  document.getElementById('login-pass').value = passwords[role] || 'demo1234';
-  doLogin();
 }
 
 async function doLogin() {
@@ -3266,8 +3284,131 @@ async function loadTeacherSessions() {
     sel.innerHTML = `<option value="">— select course —</option>` +
       STATE.courses.map(c => `<option value="${c.id}">${c.title}</option>`).join('');
   }
+  const planSel = document.getElementById('t-plan-course');
+  if (planSel) {
+    planSel.innerHTML = `<option value="">— select course —</option>` +
+      STATE.courses.map(c => `<option value="${c.id}">${c.title}</option>`).join('');
+    if (!planSel.value && STATE.courseId) planSel.value = STATE.courseId;
+    if (planSel.value) loadTeacherMonthPlan().catch(() => {});
+  }
   // Load session list
   await refreshSessionList();
+}
+
+async function loadTeacherMonthPlan() {
+  const cid = document.getElementById('t-plan-course')?.value;
+  const cohortSel = document.getElementById('t-plan-cohort');
+  let cohortId = cohortSel?.value || '';
+  const container = document.getElementById('t-plan-container');
+  if (!container) return;
+  if (!cid) {
+    container.innerHTML = `<div style="padding:16px 20px;color:var(--muted);font-family:var(--font-m);font-size:11px">Select a course to edit the 4-week timetable.</div>`;
+    if (cohortSel) cohortSel.innerHTML = `<option value="">Whole course / class</option>`;
+    return;
+  }
+  if (cohortSel && cohortSel.dataset.course !== cid) {
+    cohortSel.dataset.course = cid;
+    cohortSel.innerHTML = `<option value="">Whole course / class</option>`;
+    try {
+      const cohorts = await GET(`/api/courses/${cid}/cohorts`);
+      cohortSel.innerHTML += cohorts.map(h => `<option value="${h.id}">${h.name}${h.teacher_name ? ' · ' + h.teacher_name : ''}</option>`).join('');
+    } catch(e) {}
+    cohortId = '';
+  }
+  container.innerHTML = `<div style="padding:16px 20px;color:var(--muted);font-family:var(--font-m);font-size:11px">Loading timetable...</div>`;
+  const data = await GET(`/api/courses/${cid}/timetable${cohortId ? '?cohort_id=' + cohortId : ''}`);
+  const startInput = document.getElementById('t-plan-start-date');
+  if (startInput) startInput.value = data.start_date || '';
+  const activeWeeks = data.weeks.slice(Math.max(0, (data.current_week || 1) - 1), Math.max(0, (data.current_week || 1) - 1) + 4);
+  container.innerHTML = activeWeeks.map(w => `
+    <div class="timetable-week">
+      <div class="tt-week-header">
+        <span class="tt-week-num">Week ${w.week}</span>
+        <button class="btn-action ghost" style="margin-left:auto;font-size:10px;padding:5px 10px" onclick="addTeacherPlanRow(${w.week})"><i class="fas fa-plus"></i> Add timing</button>
+      </div>
+      ${w.sessions.map(s => teacherPlanRow(w.week, s)).join('')}
+    </div>
+  `).join('');
+}
+
+function teacherPlanRow(week, s) {
+  const snum = s.session_num;
+  const days = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+  const topic = (s.topic || '').replace(/"/g, '&quot;');
+  return `<div class="tt-session" data-week="${week}" data-snum="${snum}" style="grid-template-columns:160px 250px 1fr">
+    <div>
+      <select class="form-input t-plan-day" data-week="${week}" data-snum="${snum}" style="padding:6px 8px;font-size:11px">
+        ${days.map(d => `<option value="${d}" ${d===s.day?'selected':''}>${d}</option>`).join('')}
+      </select>
+      <div class="tt-day-date">${s.date || '—'}</div>
+    </div>
+    <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+      <input class="form-input t-plan-start" type="time" value="${s.time_start || ''}" data-week="${week}" data-snum="${snum}" style="width:105px;padding:6px 8px;font-size:11px" />
+      <span style="color:var(--muted);font-size:10px">to</span>
+      <input class="form-input t-plan-end" type="time" value="${s.time_end || ''}" data-week="${week}" data-snum="${snum}" style="width:105px;padding:6px 8px;font-size:11px" />
+    </div>
+    <input class="tt-topic-input" type="text" placeholder="Class title / topic" value="${topic}" data-week="${week}" data-snum="${snum}" />
+  </div>`;
+}
+
+function addTeacherPlanRow(week) {
+  const container = document.getElementById('t-plan-container');
+  const weekEl = [...container.querySelectorAll('.timetable-week')].find(el => el.textContent.includes(`Week ${week}`));
+  if (!weekEl) return;
+  const existing = [...weekEl.querySelectorAll('.tt-topic-input')].map(i => parseInt(i.dataset.snum) || 0);
+  const snum = Math.max(4, ...existing) + 1;
+  weekEl.insertAdjacentHTML('beforeend', teacherPlanRow(week, {
+    session_num: snum, day: 'Friday', date: 'New timing', time_start: '20:00', time_end: '22:00', topic: ''
+  }));
+}
+
+async function saveTeacherPlanStartDate() {
+  const cid = document.getElementById('t-plan-course')?.value;
+  const cohortId = document.getElementById('t-plan-cohort')?.value || '';
+  const val = document.getElementById('t-plan-start-date')?.value;
+  if (!cid) { showToast('Select a course first', true); return; }
+  if (!val) { showToast('Pick a start date first', true); return; }
+  if (cohortId) {
+    const cohorts = await GET(`/api/courses/${cid}/cohorts`);
+    const h = cohorts.find(x => x.id === parseInt(cohortId));
+    await PUT(`/api/admin/cohorts/${cohortId}`, {
+      name: h?.name || 'Cohort',
+      start_date: val,
+      end_date: h?.end_date || null,
+      current_week: h?.current_week || 1,
+      schedule: h?.schedule || [],
+      teacher_id: h?.teacher_id || null,
+      notes: h?.notes || ''
+    });
+  } else {
+    await PUT(`/api/courses/${cid}/start_date`, { start_date: val });
+  }
+  showToast('Start date saved');
+  await loadTeacherMonthPlan();
+}
+
+async function saveTeacherMonthPlan() {
+  const cid = document.getElementById('t-plan-course')?.value;
+  const cohortId = document.getElementById('t-plan-cohort')?.value || '';
+  if (!cid) { showToast('Select a course first', true); return; }
+  const inputs = document.querySelectorAll('#t-plan-container .tt-topic-input');
+  let saved = 0;
+  for (const inp of inputs) {
+    const selector = `[data-week="${inp.dataset.week}"][data-snum="${inp.dataset.snum}"]`;
+    await PUT(`/api/courses/${cid}/timetable`, {
+      cohort_id: cohortId ? parseInt(cohortId) : null,
+      week: parseInt(inp.dataset.week),
+      session_num: parseInt(inp.dataset.snum),
+      day: document.querySelector(`#t-plan-container .t-plan-day${selector}`)?.value || 'Friday',
+      time_start: document.querySelector(`#t-plan-container .t-plan-start${selector}`)?.value || '20:00',
+      time_end: document.querySelector(`#t-plan-container .t-plan-end${selector}`)?.value || '22:00',
+      topic: inp.value.trim(),
+      notes: ''
+    });
+    saved++;
+  }
+  showToast(`${saved} timetable rows saved`);
+  await loadTeacherMonthPlan();
 }
 
 async function refreshSessionList() {

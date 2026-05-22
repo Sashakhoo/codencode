@@ -126,10 +126,12 @@ class Cohort(db.Model):
     # JSON array: [{"day":"Friday","start":"20:00","end":"22:00"}, ...]
     schedule     = db.Column(db.Text)
     notes        = db.Column(db.Text)   # free-form notes (e.g. "CNY break week 5")
+    teacher_id   = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)
     created_at   = db.Column(db.DateTime, default=datetime.utcnow)
 
     course      = db.relationship('Course', back_populates='cohorts')
     enrollments = db.relationship('Enrollment', back_populates='cohort')
+    teacher     = db.relationship('User', foreign_keys=[teacher_id])
 
     def to_dict(self):
         import json as _json
@@ -142,6 +144,9 @@ class Cohort(db.Model):
             'current_week': self.current_week,
             'schedule': _json.loads(self.schedule) if self.schedule else [],
             'notes': self.notes or '',
+            'teacher_id': self.teacher_id,
+            'teacher_name': self.teacher.name if self.teacher else '',
+            'teacher_title': self.teacher.title if self.teacher else '',
             'created_at': self.created_at.strftime('%b %d, %Y'),
             'enrollment_count': len(self.enrollments)
         }
@@ -354,13 +359,19 @@ class TimetableSession(db.Model):
     __tablename__ = 'timetable_sessions'
     id          = db.Column(db.Integer, primary_key=True)
     course_id   = db.Column(db.Integer, db.ForeignKey('courses.id'), nullable=False)
+    cohort_id   = db.Column(db.Integer, db.ForeignKey('cohorts.id'), nullable=True)
     week        = db.Column(db.Integer, nullable=False)
     session_num = db.Column(db.Integer, nullable=False)  # 1=Fri  2=Sat  3=Sun
+    day_name    = db.Column(db.String(20))
+    time_start  = db.Column(db.String(5))
+    time_end    = db.Column(db.String(5))
+    day_offset  = db.Column(db.Integer)
     topic       = db.Column(db.String(300))
     notes       = db.Column(db.Text)
 
     course = db.relationship('Course', back_populates='timetable_sessions')
-    __table_args__ = (db.UniqueConstraint('course_id', 'week', 'session_num'),)
+    cohort = db.relationship('Cohort')
+    __table_args__ = (db.UniqueConstraint('course_id', 'cohort_id', 'week', 'session_num'),)
 
 
 class Session(db.Model):
@@ -498,7 +509,7 @@ class Certificate(db.Model):
     course_id  = db.Column(db.Integer, db.ForeignKey('courses.id'))
     issued_at  = db.Column(db.DateTime, default=datetime.utcnow)
     issued_by  = db.Column(db.Integer, db.ForeignKey('users.id'))  # admin who issued
-    cert_number = db.Column(db.String(50), unique=True)  # e.g. CC-2026-001
+    cert_number = db.Column(db.String(50), unique=True)  # e.g. CC-2026-100
 
     student = db.relationship('User', foreign_keys=[student_id])
     course  = db.relationship('Course')
