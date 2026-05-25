@@ -1358,12 +1358,12 @@
         <div class="page-header">
           <div class="page-label">Recordings</div>
           <div class="page-title">Manage Recordings</div>
-          <div class="page-sub">// Upload class recordings for students to review</div>
+          <div class="page-sub">// Add class recording links for students to review</div>
         </div>
         <div class="grid-2">
           <div class="card">
             <div class="card-header">
-              <span class="card-title"><i class="fas fa-cloud-upload-alt"></i> Upload New Recording</span>
+              <span class="card-title"><i class="fas fa-link"></i> Add Recording Link</span>
             </div>
             <div class="card-body">
               <div class="upload-form">
@@ -1388,12 +1388,9 @@
                   </div>
                 </div>
                 <div class="form-group">
-                  <label class="form-label">Video File</label>
-                  <div class="upload-zone" onclick="document.getElementById('vid-file').click()">
-                    <div class="upload-icon"><i class="fas fa-film"></i></div>
-                    <div class="upload-text">Drop video here or click to browse</div>
-                    <div class="upload-sub">MP4, MOV, MKV — max 2GB</div>
-                  </div>
+                  <label class="form-label">Google Drive Link</label>
+                  <input class="form-input" type="url" id="recording-url" placeholder="https://drive.google.com/drive/folders/..." />
+                  <div class="upload-sub" style="margin-top:6px">Paste a shared Drive folder or recording link.</div>
                   <input type="file" id="vid-file" name="file" class="upload-input" accept="video/*" onchange="handleFileSelect(this)" />
                 </div>
                 <div class="form-group">
@@ -1401,7 +1398,7 @@
                   <textarea class="feedback-input" name="description" placeholder="Topics covered in this session..." style="min-height:60px"></textarea>
                 </div>
                 <button id="upload-rec-btn" class="btn-action" style="width:100%;justify-content:center;padding:14px" onclick="uploadRecording()">
-                  <i class="fas fa-upload"></i> Upload Recording
+                  <i class="fas fa-link"></i> Save Recording Link
                 </button>
               </div>
             </div>
@@ -2725,10 +2722,10 @@ async function loadTeacherVideos() {
     ? `<div style="padding:16px 20px;color:var(--muted);font-family:var(--font-m);font-size:11px">No recordings yet.</div>`
     : all.map(r => `
         <div class="file-row" id="rec-row-${r.id}">
-          <div class="file-icon mp4"><i class="fas fa-film"></i></div>
+          <div class="file-icon mp4"><i class="fas ${r.source_type === 'link' ? 'fa-link' : 'fa-film'}"></i></div>
           <div style="flex:1">
             <div class="file-name" style="font-size:12px">W${r.week}S${r.session_num} — ${r.title}</div>
-            <div class="file-sub">Uploaded ${r.uploaded_at||''} · ${r.duration||''}</div>
+            <div class="file-sub">${r.source_type === 'link' ? 'Drive link' : 'Uploaded'} ${r.uploaded_at||''}${r.duration ? ' - ' + r.duration : ''}</div>
           </div>
           <button class="btn-action red" onclick="deleteRecording(${r.id})"><i class="fas fa-trash"></i></button>
         </div>`).join('');
@@ -2888,23 +2885,27 @@ async function loadStudents() {
 // ── Upload recording ──
 async function uploadRecording() {
   const btn  = document.getElementById('upload-rec-btn');
-  btn.textContent = 'Uploading...';
+  btn.textContent = 'Saving...';
   try {
     const fd = new FormData();
     const fileInput = document.getElementById('vid-file');
-    if (!fileInput?.files[0]) { showToast('Please select a video file first', true); btn.innerHTML = '<i class="fas fa-upload"></i> Upload Recording'; return; }
-    fd.append('file', fileInput.files[0]);
+    const linkInput = document.getElementById('recording-url');
+    const recordingUrl = (linkInput?.value || '').trim();
+    if (!recordingUrl && !fileInput?.files[0]) { showToast('Please paste a Google Drive link first', true); btn.innerHTML = '<i class="fas fa-link"></i> Save Recording Link'; return; }
+    if (recordingUrl) fd.append('recording_url', recordingUrl);
+    else fd.append('file', fileInput.files[0]);
     fd.append('title', document.getElementById('vid-title')?.value || '');
     fd.append('week',  document.querySelector('[name="week"]')?.value || 1);
     fd.append('session_num', document.querySelector('[name="session_num"]')?.value || 1);
     fd.append('description', document.querySelector('[name="description"]')?.value || '');
     await POST(`/api/courses/${STATE.courseId}/recordings`, fd);
-    showToast('Recording uploaded!');
+    showToast('Recording saved!');
     document.getElementById('vid-title').value = '';
+    if (linkInput) linkInput.value = '';
     fileInput.value = '';
     await loadTeacherVideos();
   } catch(e) { showToast('Error: ' + e.message, true); }
-  btn.innerHTML = '<i class="fas fa-upload"></i> Upload Recording';
+  btn.innerHTML = '<i class="fas fa-link"></i> Save Recording Link';
 }
 
 async function deleteRecording(rid) {
@@ -3066,17 +3067,23 @@ function openVideoModal(rid, title, duration) {
   document.getElementById('video-modal-title').textContent    = title;
   document.getElementById('video-modal-duration').textContent = duration || '';
   document.getElementById('video-modal').dataset.recordingId  = rid;
-  // Set video src if real file
-  const src = `/uploads/videos/${STATE.recordings
-    ? Object.values(STATE.recordings).flat().find(r=>r.id===rid)?.filename : ''}`;
-  document.getElementById('video-modal-player').innerHTML = `
-    <video controls style="width:100%;display:block" preload="metadata">
-      <source src="${src}" type="video/mp4">
+  const rec = STATE.recordings ? Object.values(STATE.recordings).flat().find(r=>r.id===rid) : null;
+  if (rec?.recording_url) {
+    document.getElementById('video-modal-player').innerHTML = `
       <div class="video-player-placeholder">
-        <i class="fas fa-play-circle"></i>
-        <div style="margin-top:8px;font-size:11px">Video player — file served from /uploads/videos/</div>
-      </div>
-    </video>`;
+        <i class="fas fa-folder-open"></i>
+        <div style="margin-top:8px;font-size:13px">Recording is stored in Google Drive.</div>
+        <a class="btn-action" href="${rec.recording_url}" target="_blank" rel="noopener" style="margin-top:14px;display:inline-flex">
+          <i class="fas fa-external-link-alt"></i> Open Drive Folder
+        </a>
+      </div>`;
+  } else {
+    const src = `/uploads/videos/${rec?.filename || ''}`;
+    document.getElementById('video-modal-player').innerHTML = `
+      <video controls style="width:100%;display:block" preload="metadata">
+        <source src="${src}" type="video/mp4">
+      </video>`;
+  }
   document.getElementById('video-modal').classList.add('open');
 }
 
