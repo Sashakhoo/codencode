@@ -204,6 +204,8 @@ class Recording(db.Model):
     title       = db.Column(db.String(200), nullable=False)
     description = db.Column(db.Text)
     filename    = db.Column(db.String(300))
+    recording_url = db.Column(db.String(1000))
+    source_type = db.Column(db.String(20), default='upload')
     duration    = db.Column(db.String(20))
     uploaded_at = db.Column(db.DateTime, default=datetime.utcnow)
 
@@ -214,7 +216,9 @@ class Recording(db.Model):
         return {
             'id': self.id, 'week': self.week, 'session_num': self.session_num,
             'title': self.title, 'description': self.description,
-            'filename': self.filename, 'duration': self.duration,
+            'filename': self.filename, 'recording_url': self.recording_url,
+            'source_type': self.source_type or ('link' if self.recording_url else 'upload'),
+            'duration': self.duration,
             'uploaded_at': self.uploaded_at.strftime('%b %d, %Y'),
             'watched': watched
         }

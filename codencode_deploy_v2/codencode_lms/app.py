@@ -61,6 +61,9 @@ app.config.update(
 
 db.init_app(app)
 
+from lms_workshop_routes import workshop_bp
+app.register_blueprint(workshop_bp)
+
 login_manager = LoginManager(app)
 login_manager.login_view = 'serve_frontend'
 
@@ -84,38 +87,15 @@ _BUSINESS_SSM   = os.environ.get('BUSINESS_SSM',     '202603072017 (AS0511861-M)
 _BUSINESS_ADDR  = os.environ.get('BUSINESS_ADDRESS', '')
 
 # ─────────────────────────────────────────────
-# Twilio / WhatsApp
+# WhatsApp notifications disabled for now
 # ─────────────────────────────────────────────
-_TWILIO_SID   = os.environ.get('TWILIO_ACCOUNT_SID', '')
-_TWILIO_TOKEN = os.environ.get('TWILIO_AUTH_TOKEN',  '')
-_TWILIO_FROM  = os.environ.get('TWILIO_WHATSAPP_FROM', 'whatsapp:+60xxxxxxxxxx')
-
-
-def _normalize_phone(phone: str) -> str:
-    """Convert Malaysian phone (011-2345678 / 0112345678) → +601xxxxxxxx"""
-    digits = re.sub(r'\D', '', phone or '')
-    if digits.startswith('60'):
-        return '+' + digits
-    if digits.startswith('0'):
-        return '+6' + digits
-    return '+60' + digits
+_WHATSAPP_DISABLED = True
 
 
 def send_whatsapp(to_phone: str, body: str) -> bool:
-    """Send a WhatsApp message via Twilio. Returns True on success."""
-    if not _TWILIO_SID or not _TWILIO_TOKEN or 'xxxxxxxxxx' in _TWILIO_FROM:
-        app.logger.warning('Twilio not configured — skipping WhatsApp to %s', to_phone)
-        return False
-    try:
-        from twilio.rest import Client
-        client = Client(_TWILIO_SID, _TWILIO_TOKEN)
-        to_wa = 'whatsapp:' + _normalize_phone(to_phone)
-        client.messages.create(from_=_TWILIO_FROM, to=to_wa, body=body)
-        app.logger.info('WhatsApp sent to %s', to_phone)
-        return True
-    except Exception as exc:
-        app.logger.error('WhatsApp failed to %s: %s', to_phone, exc)
-        return False
+    """WhatsApp sending is disabled for now."""
+    app.logger.info('WhatsApp disabled; skipping message to %s', to_phone)
+    return False
 
 
 def send_email(to: str, subject: str, html_body: str):
@@ -645,6 +625,7 @@ enrolled_or_teacher = enrolled_or_staff
 # ─────────────────────────────────────────────
 @app.route('/')
 @app.route('/lms')
+@app.route('/login')
 def serve_frontend():
     return send_from_directory('templates', 'lms.html')
 
@@ -735,6 +716,10 @@ def api_login():
         return jsonify({'error': 'Invalid email or password'}), 401
 
     login_user(user, remember=False)   # session expires when browser closes
+    session['user_id'] = user.id
+    session['user_name'] = user.name
+    session['user_email'] = user.email
+    session['user_role'] = user.role
     user.last_login = datetime.utcnow()
     # A6 — log login activity
     try:
@@ -750,6 +735,10 @@ def api_login():
 @login_required
 def api_logout():
     logout_user()
+    session.pop('user_id', None)
+    session.pop('user_name', None)
+    session.pop('user_email', None)
+    session.pop('user_role', None)
     return jsonify({'ok': True})
 
 
@@ -762,6 +751,11 @@ def api_me():
 # ─────────────────────────────────────────────
 # COURSES
 # ─────────────────────────────────────────────
+@app.route('/health')
+def health():
+    return jsonify({'ok': True})
+
+
 @app.route('/api/courses')
 @login_required
 def api_courses():
@@ -814,20 +808,34 @@ def api_recordings(cid):
 @app.route('/api/courses/<int:cid>/recordings', methods=['POST'])
 @teacher_required
 def api_upload_recording(cid):
-    try:
-        stored, original = save_upload(
-            request.files.get('file'), 'videos',
-            app.config['ALLOWED_VIDEO'])
-    except ValueError as e:
-        return jsonify({'error': str(e)}), 400
+    Course.query.get_or_404(cid)
+    recording_url = (request.form.get('recording_url') or '').strip()
+    stored = None
+    original = ''
+    source_type = 'upload'
+
+    if recording_url:
+        if not recording_url.startswith(('https://drive.google.com/', 'https://docs.google.com/')):
+            return jsonify({'error': 'Please use a Google Drive folder or file link'}), 400
+        original = recording_url
+        source_type = 'link'
+    else:
+        try:
+            stored, original = save_upload(
+                request.files.get('file'), 'videos',
+                app.config['ALLOWED_VIDEO'])
+        except ValueError as e:
+            return jsonify({'error': str(e)}), 400
 
     rec = Recording(
         course_id   = cid,
         week        = int(request.form.get('week', 1)),
         session_num = int(request.form.get('session_num', 1)),
-        title       = request.form.get('title', original),
+        title       = request.form.get('title') or ('Google Drive Recording' if recording_url else original),
         description = request.form.get('description', ''),
         filename    = stored,
+        recording_url = recording_url or None,
+        source_type = source_type,
         duration    = request.form.get('duration', '')
     )
     db.session.add(rec)
@@ -839,8 +847,8 @@ def api_upload_recording(cid):
 @teacher_required
 def api_delete_recording(rid):
     rec = Recording.query.get_or_404(rid)
-    fpath = os.path.join(app.config['UPLOAD_FOLDER'], 'videos', rec.filename)
-    if os.path.exists(fpath):
+    fpath = os.path.join(app.config['UPLOAD_FOLDER'], 'videos', rec.filename or '')
+    if rec.filename and os.path.exists(fpath):
         os.remove(fpath)
     db.session.delete(rec)
     db.session.commit()
@@ -3515,8 +3523,31 @@ def api_search():
 # ─────────────────────────────────────────────
 # Init DB & run
 # ─────────────────────────────────────────────
+def init_workshop_schema():
+    """Create workshop portal tables when running on PostgreSQL."""
+    if db.engine.dialect.name != 'postgresql':
+        app.logger.info('Skipping workshop_schema.sql; workshop routes require PostgreSQL.')
+        return
+
+    schema_path = os.path.join(os.path.dirname(__file__), 'workshop_schema.sql')
+    if not os.path.exists(schema_path):
+        app.logger.warning('workshop_schema.sql not found; workshop tables were not initialized.')
+        return
+
+    with open(schema_path, encoding='utf-8') as schema_file:
+        schema_sql = schema_file.read()
+
+    try:
+        with db.engine.begin() as conn:
+            conn.exec_driver_sql(schema_sql)
+        app.logger.info('Workshop schema initialized.')
+    except Exception as exc:
+        app.logger.warning('Workshop schema initialization skipped/failed: %s', exc)
+
+
 with app.app_context():
     db.create_all()
+    init_workshop_schema()
     # Safe column migrations (SQLite doesn't support ALTER TABLE ADD IF NOT EXISTS)
     from sqlalchemy import text, inspect as sa_inspect
     try:
@@ -3601,6 +3632,19 @@ with app.app_context():
                 conn.commit()
             if 'order_index' not in mat_cols:
                 conn.execute(text('ALTER TABLE materials ADD COLUMN order_index INTEGER DEFAULT 0'))
+                conn.commit()
+    except Exception:
+        pass
+
+    try:
+        insp_rec = sa_inspect(db.engine)
+        rec_cols = {c['name'] for c in insp_rec.get_columns('recordings')}
+        with db.engine.connect() as conn:
+            if 'recording_url' not in rec_cols:
+                conn.execute(text('ALTER TABLE recordings ADD COLUMN recording_url VARCHAR(1000)'))
+                conn.commit()
+            if 'source_type' not in rec_cols:
+                conn.execute(text("ALTER TABLE recordings ADD COLUMN source_type VARCHAR(20) DEFAULT 'upload'"))
                 conn.commit()
     except Exception:
         pass
