@@ -1271,8 +1271,15 @@
 
       <div class="form-group" style="margin-bottom:14px">
         <label class="form-label">Course</label>
-        <select class="form-select" id="s-course-select">
+        <select class="form-select" id="s-course-select" onchange="loadStudentFormCohorts()">
           <option value="">— skip enrolment for now —</option>
+        </select>
+      </div>
+
+      <div class="form-group" style="margin-bottom:14px">
+        <label class="form-label">Cohort / Class <span style="color:var(--text-dim);font-size:10px">(teacher + timetable)</span></label>
+        <select class="form-select" id="s-cohort-select" onchange="applySelectedCohortTiming('s')">
+          <option value="">— choose course first —</option>
         </select>
       </div>
 
@@ -1408,7 +1415,7 @@
     </div>
     <div class="form-group" style="margin-bottom:14px">
       <label class="form-label">Cohort <span style="color:var(--text-dim);font-size:10px">(intake / semester)</span></label>
-      <select class="form-select" id="enroll-cohort-select">
+      <select class="form-select" id="enroll-cohort-select" onchange="applySelectedCohortTiming('enroll')">
         <option value="">— no cohort assigned —</option>
       </select>
     </div>
@@ -1780,6 +1787,18 @@ function resetClassTimingRows(scope) {
   addClassTimingRow(scope, { day:'Friday', start:'20:00', end:'22:00' });
 }
 
+function setClassTimingRows(scope, slots) {
+  const container = document.getElementById(timingBuilderId(scope));
+  if (!container) return;
+  container.innerHTML = '';
+  const clean = (slots || []).filter(s => s.day && s.start && s.end);
+  if (!clean.length) {
+    resetClassTimingRows(scope);
+    return;
+  }
+  clean.forEach(slot => addClassTimingRow(scope, slot));
+}
+
 function collectClassTimings(scope) {
   const container = document.getElementById(timingBuilderId(scope));
   if (!container) return '';
@@ -1789,6 +1808,34 @@ function collectClassTimings(scope) {
     const end = row.querySelector('.timing-end')?.value || '';
     return day && start && end ? `${day} ${start}-${end}` : '';
   }).filter(Boolean).join(', ');
+}
+
+function formatCohortSchedule(schedule) {
+  const slots = Array.isArray(schedule) ? schedule : [];
+  if (!slots.length) return 'No timetable set';
+  return slots.map(s => `${s.day || 'Day'} ${s.start || '--:--'}-${s.end || '--:--'}`).join(' · ');
+}
+
+function cohortOptionLabel(h) {
+  const teacher = h.teacher_name || 'Teacher TBA';
+  return `${h.name} · ${teacher} · ${formatCohortSchedule(h.schedule)}`;
+}
+
+function selectedCohortForScope(scope) {
+  const sel = document.getElementById(scope === 's' ? 's-cohort-select' : 'enroll-cohort-select');
+  if (!sel?.value) return null;
+  return JSON.parse(sel.selectedOptions[0]?.dataset.cohort || 'null');
+}
+
+function applySelectedCohortTiming(scope) {
+  const cohort = selectedCohortForScope(scope);
+  if (!cohort) return;
+  if (cohort.schedule && cohort.schedule.length) {
+    setClassTimingRows(scope, cohort.schedule);
+  }
+  const formatId = scope === 's' ? 's-class-format' : 'enroll-class-format';
+  const formatEl = document.getElementById(formatId);
+  if (formatEl && !formatEl.value) formatEl.value = 'cohort';
 }
 
 // ═══════════════════════════════════════════════════════
@@ -2115,6 +2162,7 @@ function openAddStudent() {
   const courseOpts = S.courses.map(c => `<option value="${c.id}">${c.title}</option>`).join('');
   document.getElementById('s-course-select').innerHTML =
     '<option value="">— skip enrolment for now —</option>' + courseOpts;
+  document.getElementById('s-cohort-select').innerHTML = '<option value="">— choose course first —</option>';
   document.getElementById('s-class-format').value    = '';
   document.getElementById('s-payment-status').value  = 'pending';
   resetClassTimingRows('s');
@@ -2161,8 +2209,10 @@ async function saveStudent() {
       // Auto-enrol if a course was selected
       const courseId = document.getElementById('s-course-select').value;
       if (courseId) {
+        const cohortVal = document.getElementById('s-cohort-select')?.value || '';
         await POST(`/api/admin/students/${newId}/enroll`, {
           course_id:       parseInt(courseId),
+          cohort_id:       cohortVal ? parseInt(cohortVal) : null,
           class_format:    document.getElementById('s-class-format').value,
           class_timing:    collectClassTimings('s'),
           payment_status:  document.getElementById('s-payment-status').value,
@@ -2177,6 +2227,29 @@ async function saveStudent() {
     await loadStudents();
     renderStudentList();
   } catch(e) { toast(e.message, true); }
+}
+
+async function loadStudentFormCohorts() {
+  const cid = document.getElementById('s-course-select')?.value;
+  const sel = document.getElementById('s-cohort-select');
+  if (!sel) return;
+  sel.innerHTML = '<option value="">— no cohort assigned —</option>';
+  if (!cid) {
+    sel.innerHTML = '<option value="">— choose course first —</option>';
+    return;
+  }
+  try {
+    const cohorts = await GET(`/api/courses/${cid}/cohorts`);
+    if (!cohorts.length) {
+      sel.innerHTML = '<option value="">— no cohorts yet, use course timing —</option>';
+      return;
+    }
+    sel.innerHTML += cohorts.map(h =>
+      `<option value="${h.id}" data-cohort='${JSON.stringify(h).replace(/'/g, '&#39;')}'>${cohortOptionLabel(h)}</option>`
+    ).join('');
+  } catch(e) {
+    sel.innerHTML = '<option value="">— could not load cohorts —</option>';
+  }
 }
 
 // ── Enroll Modal ───────────────────────────────
@@ -2206,7 +2279,8 @@ async function loadEnrollCohorts() {
     cohorts.forEach(c => {
       const opt = document.createElement('option');
       opt.value = c.id;
-      opt.textContent = `${c.name}${c.start_date ? '  (starts ' + c.start_date + ')' : ''}`;
+      opt.textContent = cohortOptionLabel(c);
+      opt.dataset.cohort = JSON.stringify(c);
       sel.appendChild(opt);
     });
   } catch(e) { /* no cohorts yet */ }
