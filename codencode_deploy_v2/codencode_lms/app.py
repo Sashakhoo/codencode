@@ -2500,6 +2500,91 @@ def admin_list_sessions():
     return jsonify([s.to_dict() for s in sessions])
 
 
+@app.route('/api/admin/calendar', methods=['GET'])
+@admin_required
+def admin_calendar():
+    """Week calendar data for admin scheduling and availability checks."""
+    start_str = request.args.get('start')
+    teacher_id = request.args.get('teacher_id')
+    try:
+        start_day = datetime.strptime(start_str, '%Y-%m-%d').date() if start_str else datetime.utcnow().date()
+    except ValueError:
+        start_day = datetime.utcnow().date()
+    start_day = start_day - timedelta(days=start_day.weekday())
+    end_day = start_day + timedelta(days=7)
+
+    events = []
+    query = Session.query.filter(
+        Session.start_datetime >= datetime.combine(start_day, datetime.min.time()),
+        Session.start_datetime < datetime.combine(end_day, datetime.min.time())
+    ).order_by(Session.start_datetime)
+    for s in query.all():
+        item = s.to_dict()
+        if teacher_id and str(item.get('teacher_id') or item.get('created_by')) != str(teacher_id):
+            continue
+        end_dt = s.start_datetime + timedelta(minutes=s.duration_minutes or 60)
+        item.update({
+            'source': 'session',
+            'date': s.start_datetime.strftime('%Y-%m-%d'),
+            'time_start': s.start_datetime.strftime('%H:%M'),
+            'time_end': end_dt.strftime('%H:%M'),
+            'end_datetime': end_dt.strftime('%Y-%m-%dT%H:%M'),
+        })
+        events.append(item)
+
+    courses = Course.query.all()
+    for course in courses:
+        scopes = [None] + list(course.cohorts)
+        for cohort in scopes:
+            current_week = cohort.current_week if cohort else course.current_week
+            data = _build_timetable(
+                course,
+                cohort_id=cohort.id if cohort else None,
+                weeks=8,
+                start_week=current_week or 1,
+                include_blank=False
+            )
+            event_teacher = cohort.teacher if cohort and cohort.teacher else course.teacher
+            if teacher_id and str(event_teacher.id if event_teacher else '') != str(teacher_id):
+                continue
+            for week in data['weeks']:
+                for row in week['sessions']:
+                    if not row.get('date_iso') or not row.get('time_start'):
+                        continue
+                    if not (start_day <= datetime.strptime(row['date_iso'], '%Y-%m-%d').date() < end_day):
+                        continue
+                    title = row.get('topic') or f"Week {week['week']} Class"
+                    start_dt = datetime.strptime(f"{row['date_iso']}T{row['time_start']}", '%Y-%m-%dT%H:%M')
+                    end_dt = start_dt + timedelta(minutes=row.get('duration_minutes') or 60)
+                    events.append({
+                        'id': f"tt-{course.id}-{cohort.id if cohort else 'course'}-{week['week']}-{row['session_num']}",
+                        'source': 'timetable',
+                        'title': title,
+                        'session_type': 'cohort' if cohort else 'class',
+                        'course_id': course.id,
+                        'course_title': course.title,
+                        'cohort_id': cohort.id if cohort else None,
+                        'cohort_name': cohort.name if cohort else '',
+                        'teacher_id': event_teacher.id if event_teacher else None,
+                        'teacher_name': event_teacher.name if event_teacher else '',
+                        'date': row['date_iso'],
+                        'time_start': row.get('time_start'),
+                        'time_end': row.get('time_end'),
+                        'start_datetime': start_dt.strftime('%Y-%m-%dT%H:%M'),
+                        'end_datetime': end_dt.strftime('%Y-%m-%dT%H:%M'),
+                        'start_display': start_dt.strftime('%a, %d %b %Y · %I:%M %p'),
+                        'duration_minutes': row.get('duration_minutes') or 60,
+                    })
+
+    teachers = User.query.filter_by(role='teacher').order_by(User.name).all()
+    return jsonify({
+        'start': start_day.strftime('%Y-%m-%d'),
+        'end': (end_day - timedelta(days=1)).strftime('%Y-%m-%d'),
+        'teachers': [{'id': t.id, 'name': t.name} for t in teachers],
+        'events': sorted(events, key=lambda e: e['start_datetime']),
+    })
+
+
 # ─────────────────────────────────────────────
 # NOTIFICATIONS
 # ─────────────────────────────────────────────
@@ -3558,7 +3643,7 @@ with app.app_context():
                 conn.execute(text('ALTER TABLE enrollments ADD COLUMN receipt_file VARCHAR(300)'))
                 conn.commit()
             if 'class_timing' not in existing:
-                conn.execute(text('ALTER TABLE enrollments ADD COLUMN class_timing VARCHAR(100)'))
+                conn.execute(text('ALTER TABLE enrollments ADD COLUMN class_timing VARCHAR(300)'))
                 conn.commit()
             if 'class_format' not in existing:
                 conn.execute(text('ALTER TABLE enrollments ADD COLUMN class_format VARCHAR(20)'))
