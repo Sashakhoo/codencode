@@ -729,6 +729,7 @@
       flex-wrap: wrap;
     }
     .filter-bar label { font-size: 11px; color: var(--text-muted); }
+    .filter-field { display:flex; flex-direction:column; gap:8px; min-width:240px; }
 
     /* scrollable list heights */
     .pane-list-body { max-height: calc(100vh - 220px); overflow-y: auto; }
@@ -749,7 +750,7 @@
     .tt-week-head { display:flex; align-items:center; gap:12px; padding:10px 16px; background:var(--surface2); border-bottom:1px solid var(--border); }
     .tt-wk-num  { font-size:10px; font-weight:700; color:var(--cyan); letter-spacing:1px; font-family:'JetBrains Mono',monospace; }
     .tt-wk-curr { margin-left:auto; font-size:10px; color:var(--cyan); border:1px solid var(--cyan); padding:1px 8px; border-radius:10px; font-family:'JetBrains Mono',monospace; }
-    .tt-row     { display:grid; grid-template-columns:110px 150px 1fr; gap:12px; align-items:center; padding:10px 16px; border-bottom:1px solid var(--border); background:var(--surface); }
+    .tt-row     { display:grid; grid-template-columns:minmax(180px,220px) minmax(260px,300px) minmax(280px,1fr); gap:18px; align-items:center; padding:14px 32px; border-bottom:1px solid var(--border); background:var(--surface); }
     .tt-row:last-child { border-bottom:none; }
     .tt-row.past { opacity:.45; }
     .tt-row.today { background:var(--accent-glow); border-left:2px solid var(--cyan); }
@@ -1066,14 +1067,18 @@
       <!-- ── TIMETABLE ────────────────────────── -->
       <div id="view-timetable" class="view">
         <div class="filter-bar" style="margin-bottom:20px">
-          <label>Course</label>
-          <select class="form-select" id="tt-course-select" onchange="loadAdminTimetable()" style="width:300px">
-            <option value="">Select course...</option>
-          </select>
-          <label>Class / Cohort</label>
-          <select class="form-select" id="tt-cohort-select" onchange="loadAdminTimetable()" style="width:260px">
-            <option value="">Whole course / class</option>
-          </select>
+          <div class="filter-field" style="min-width:320px">
+            <label>Course</label>
+            <select class="form-select" id="tt-course-select" onchange="loadAdminTimetable()">
+              <option value="">Select course...</option>
+            </select>
+          </div>
+          <div class="filter-field" style="min-width:280px">
+            <label>Class / Cohort</label>
+            <select class="form-select" id="tt-cohort-select" onchange="loadAdminTimetable()">
+              <option value="">Whole course / class</option>
+            </select>
+          </div>
         </div>
         <div id="tt-start-date-bar" style="display:none;margin-bottom:20px">
           <div class="card" style="padding:16px 20px;display:flex;align-items:center;gap:12px;flex-wrap:wrap">
