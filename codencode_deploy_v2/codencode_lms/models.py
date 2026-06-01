@@ -161,7 +161,7 @@ class Enrollment(db.Model):
     payment_status   = db.Column(db.String(20), default='pending')  # pending | paid | overdue
     payment_remarks  = db.Column(db.Text)
     receipt_file     = db.Column(db.String(300))   # stored filename of uploaded receipt
-    class_timing     = db.Column(db.String(100))   # e.g. "Fri 8-10pm, Sat 9-11am"
+    class_timing     = db.Column(db.String(300))   # e.g. "Friday 20:00-22:00, Saturday 09:00-11:00"
     class_format     = db.Column(db.String(20))    # e.g. "1v1", "2v1", "5v1", "cohort"
     cohort_id        = db.Column(db.Integer, db.ForeignKey('cohorts.id'), nullable=True)
     payment_amount   = db.Column(db.Float,   nullable=True)   # e.g. 1200.00
@@ -397,16 +397,23 @@ class Session(db.Model):
     creator      = db.relationship('User', foreign_keys=[created_by])
 
     def to_dict(self):
+        teacher = self.creator
+        if self.course and self.course.teacher:
+            teacher = self.course.teacher
         return {
             'id': self.id,
             'title': self.title,
             'session_type': self.session_type,
             'course_id': self.course_id,
             'course_title': self.course.title if self.course else None,
+            'teacher_id': teacher.id if teacher else None,
+            'teacher_name': teacher.name if teacher else '',
+            'created_by_name': self.creator.name if self.creator else '',
             'start_datetime': self.start_datetime.strftime('%Y-%m-%dT%H:%M'),
             'start_display': self.start_datetime.strftime('%a, %d %b %Y · %I:%M %p'),
             'duration_minutes': self.duration_minutes,
             'zoom_link': self.zoom_link or '',
+            'recording_url': self.recording_url or '',
             'has_recording': bool(self.recording_url),
             'created_by': self.created_by,
             'created_at': self.created_at.strftime('%b %d, %Y'),

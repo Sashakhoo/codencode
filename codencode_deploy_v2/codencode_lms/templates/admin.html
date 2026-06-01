@@ -758,6 +758,20 @@
     .tt-time-badge { font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--cyan); background:var(--cyan-dim); padding:2px 8px; border-radius:4px; white-space:nowrap; }
     .tt-input { background:var(--surface2); border:1px solid var(--border); color:var(--text); font-family:'Lato',sans-serif; font-size:11px; padding:5px 10px; border-radius:4px; width:100%; outline:none; transition:border-color .2s; }
     .tt-input:focus { border-color:var(--cyan); }
+    .timing-builder { display:flex; flex-direction:column; gap:8px; margin-top:4px; }
+    .timing-row { display:grid; grid-template-columns:1fr 96px 96px 34px; gap:8px; align-items:center; }
+    .icon-btn { width:34px; height:34px; display:inline-grid; place-items:center; border-radius:6px; border:1px solid var(--border); background:var(--surface2); color:var(--text-muted); cursor:pointer; }
+    .icon-btn:hover { color:var(--cyan); border-color:var(--cyan); }
+    .cal-toolbar { display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:14px; }
+    .calendar-grid { display:grid; grid-template-columns:70px repeat(7, minmax(120px, 1fr)); border:1px solid var(--border); border-radius:var(--radius); overflow:auto; background:var(--surface); }
+    .cal-head, .cal-time, .cal-cell { border-right:1px solid var(--border); border-bottom:1px solid var(--border); min-height:58px; }
+    .cal-head { padding:10px; background:var(--surface2); font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--text-muted); text-transform:uppercase; position:sticky; top:0; z-index:2; }
+    .cal-time { padding:8px; font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--text-dim); background:var(--bg-base); }
+    .cal-cell { padding:4px; position:relative; background:rgba(0,229,160,.025); }
+    .cal-cell.available::after { content:'Available'; color:var(--text-faint); font-family:'JetBrains Mono',monospace; font-size:9px; }
+    .cal-event { border-left:3px solid var(--cyan); background:var(--bg-raised); border-radius:6px; padding:6px 7px; margin-bottom:4px; box-shadow:0 4px 16px rgba(0,0,0,.18); }
+    .cal-event-title { font-size:11px; font-weight:700; color:var(--text); line-height:1.2; }
+    .cal-event-meta { margin-top:3px; font-family:'JetBrains Mono',monospace; font-size:9px; color:var(--text-muted); line-height:1.35; }
     /* ── Programme badge ───────────────────── */
     .prog-badge { display:inline-block; font-size:10px; padding:1px 8px; border-radius:10px; background:var(--cyan-dim); color:var(--cyan); margin-bottom:6px; font-family:'JetBrains Mono',monospace; }
     /* ── Course card actions ───────────────── */
@@ -1096,8 +1110,21 @@
       <!-- ── SESSIONS ─────────────────────────── -->
       <div id="view-sessions" class="view">
         <div class="section-header" style="margin-bottom:20px">
-          <div class="section-title">All Sessions</div>
-          <span style="font-size:11px;color:var(--text-muted)">View sessions scheduled by teachers</span>
+          <div class="section-title">Calendar & Sessions</div>
+          <span style="font-size:11px;color:var(--text-muted)">See teacher bookings and open time by week</span>
+        </div>
+        <div class="card" style="margin-bottom:20px">
+          <div class="cal-toolbar">
+            <button class="btn btn-secondary btn-sm" onclick="moveCalendarWeek(-1)"><i class="fas fa-chevron-left"></i></button>
+            <button class="btn btn-secondary btn-sm" onclick="moveCalendarWeek(1)"><i class="fas fa-chevron-right"></i></button>
+            <span id="calendar-week-label" style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--cyan);min-width:180px"></span>
+            <select class="form-select" id="calendar-teacher-filter" onchange="loadAdminCalendar()" style="width:220px">
+              <option value="">All teachers</option>
+            </select>
+          </div>
+          <div id="admin-calendar-grid">
+            <div style="color:var(--text-muted);text-align:center;padding:24px">Loading calendar...</div>
+          </div>
         </div>
         <div class="card">
           <div class="table-wrap">
@@ -1272,19 +1299,9 @@
 
       <div class="form-group" style="margin-bottom:14px">
         <label class="form-label">Time of Class</label>
-        <div style="display:flex;flex-direction:column;gap:8px;margin-top:4px">
-          <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:12px;color:var(--text)">
-            <input type="checkbox" id="s-timing-fri" value="Fri 8-10pm" style="accent-color:var(--cyan);width:14px;height:14px">
-            <span><i class="fas fa-clock" style="color:var(--cyan);font-size:11px;margin-right:4px"></i>Friday &nbsp;8:00 PM – 10:00 PM</span>
-          </label>
-          <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:12px;color:var(--text)">
-            <input type="checkbox" id="s-timing-sat" value="Sat 9-11am" style="accent-color:var(--cyan);width:14px;height:14px">
-            <span><i class="fas fa-clock" style="color:var(--cyan);font-size:11px;margin-right:4px"></i>Saturday 9:00 AM – 11:00 AM</span>
-          </label>
-          <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:12px;color:var(--text)">
-            <input type="checkbox" id="s-timing-sun" value="Sun 9-11am" style="accent-color:var(--cyan);width:14px;height:14px">
-            <span><i class="fas fa-clock" style="color:var(--cyan);font-size:11px;margin-right:4px"></i>Sunday &nbsp;9:00 AM – 11:00 AM</span>
-          </label>
+        <div class="timing-builder" id="s-timing-builder"></div>
+        <div style="margin-top:8px">
+          <button class="btn btn-secondary btn-sm" onclick="addClassTimingRow('s')"><i class="fas fa-plus"></i> Add time</button>
         </div>
       </div>
     </div>
@@ -1407,19 +1424,9 @@
     </div>
     <div class="form-group" style="margin-bottom:14px">
       <label class="form-label">Class Timing</label>
-      <div style="display:flex;flex-direction:column;gap:8px;margin-top:4px">
-        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:12px;color:var(--text)">
-          <input type="checkbox" id="timing-fri" value="Fri 8-10pm" style="accent-color:var(--cyan);width:14px;height:14px">
-          <span><i class="fas fa-clock" style="color:var(--cyan);font-size:11px;margin-right:4px"></i>Friday &nbsp;8:00 PM – 10:00 PM</span>
-        </label>
-        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:12px;color:var(--text)">
-          <input type="checkbox" id="timing-sat" value="Sat 9-11am" style="accent-color:var(--cyan);width:14px;height:14px">
-          <span><i class="fas fa-clock" style="color:var(--cyan);font-size:11px;margin-right:4px"></i>Saturday 9:00 AM – 11:00 AM</span>
-        </label>
-        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:12px;color:var(--text)">
-          <input type="checkbox" id="timing-sun" value="Sun 9-11am" style="accent-color:var(--cyan);width:14px;height:14px">
-          <span><i class="fas fa-clock" style="color:var(--cyan);font-size:11px;margin-right:4px"></i>Sunday &nbsp;9:00 AM – 11:00 AM</span>
-        </label>
+      <div class="timing-builder" id="timing-builder"></div>
+      <div style="margin-top:8px">
+        <button class="btn btn-secondary btn-sm" onclick="addClassTimingRow('enroll')"><i class="fas fa-plus"></i> Add time</button>
       </div>
     </div>
     <div class="form-group" style="margin-bottom:14px">
@@ -1745,6 +1752,44 @@ function POST(url,body) { return api('POST',   url, body); }
 function PUT(url,body)  { return api('PUT',    url, body); }
 function DELETE(url)    { return api('DELETE', url); }
 function POSTFD(url,fd) { return api('POST',   url, null, fd); }
+
+function timingBuilderId(scope) {
+  return scope === 's' ? 's-timing-builder' : 'timing-builder';
+}
+
+function addClassTimingRow(scope, slot = {}) {
+  const container = document.getElementById(timingBuilderId(scope));
+  if (!container) return;
+  const row = document.createElement('div');
+  row.className = 'timing-row';
+  row.innerHTML = `
+    <select class="form-select timing-day">
+      ${['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'].map(d => `<option value="${d}" ${d === (slot.day || 'Friday') ? 'selected' : ''}>${d}</option>`).join('')}
+    </select>
+    <input class="form-input timing-start" type="time" value="${slot.start || '20:00'}" />
+    <input class="form-input timing-end" type="time" value="${slot.end || '22:00'}" />
+    <button class="icon-btn" onclick="this.closest('.timing-row').remove()" title="Remove time"><i class="fas fa-times"></i></button>
+  `;
+  container.appendChild(row);
+}
+
+function resetClassTimingRows(scope) {
+  const container = document.getElementById(timingBuilderId(scope));
+  if (!container) return;
+  container.innerHTML = '';
+  addClassTimingRow(scope, { day:'Friday', start:'20:00', end:'22:00' });
+}
+
+function collectClassTimings(scope) {
+  const container = document.getElementById(timingBuilderId(scope));
+  if (!container) return '';
+  return [...container.querySelectorAll('.timing-row')].map(row => {
+    const day = row.querySelector('.timing-day')?.value || '';
+    const start = row.querySelector('.timing-start')?.value || '';
+    const end = row.querySelector('.timing-end')?.value || '';
+    return day && start && end ? `${day} ${start}-${end}` : '';
+  }).filter(Boolean).join(', ');
+}
 
 // ═══════════════════════════════════════════════════════
 // INIT
@@ -2072,9 +2117,7 @@ function openAddStudent() {
     '<option value="">— skip enrolment for now —</option>' + courseOpts;
   document.getElementById('s-class-format').value    = '';
   document.getElementById('s-payment-status').value  = 'pending';
-  ['s-timing-fri','s-timing-sat','s-timing-sun'].forEach(id => {
-    document.getElementById(id).checked = false;
-  });
+  resetClassTimingRows('s');
   document.getElementById('s-enrol-section').style.display = 'block';
   openModal('modal-student');
 }
@@ -2118,13 +2161,10 @@ async function saveStudent() {
       // Auto-enrol if a course was selected
       const courseId = document.getElementById('s-course-select').value;
       if (courseId) {
-        const timings = ['s-timing-fri','s-timing-sat','s-timing-sun']
-          .filter(id => document.getElementById(id).checked)
-          .map(id => document.getElementById(id).value);
         await POST(`/api/admin/students/${newId}/enroll`, {
           course_id:       parseInt(courseId),
           class_format:    document.getElementById('s-class-format').value,
-          class_timing:    timings.join(', '),
+          class_timing:    collectClassTimings('s'),
           payment_status:  document.getElementById('s-payment-status').value,
           payment_remarks: '',
         });
@@ -2151,9 +2191,7 @@ function openEnrollModal(uid) {
   document.getElementById('enroll-remarks').value = '';
   document.getElementById('enroll-class-format').value = '';
   document.getElementById('enroll-cohort-select').innerHTML = '<option value="">— no cohort assigned —</option>';
-  document.getElementById('timing-fri').checked = false;
-  document.getElementById('timing-sat').checked = false;
-  document.getElementById('timing-sun').checked = false;
+  resetClassTimingRows('enroll');
   loadEnrollCohorts();
   openModal('modal-enroll');
 }
@@ -2177,9 +2215,6 @@ async function loadEnrollCohorts() {
 async function enrollStudent() {
   const uid = parseInt(document.getElementById('enroll-student-id').value);
   const cid = parseInt(document.getElementById('enroll-course-select').value);
-  const timings = ['timing-fri','timing-sat','timing-sun']
-    .filter(id => document.getElementById(id).checked)
-    .map(id => document.getElementById(id).value);
   const cohortVal = document.getElementById('enroll-cohort-select').value;
   const data = {
     course_id:       cid,
@@ -2187,7 +2222,7 @@ async function enrollStudent() {
     payment_status:  document.getElementById('enroll-payment-status').value,
     payment_remarks: document.getElementById('enroll-remarks').value,
     class_format:    document.getElementById('enroll-class-format').value,
-    class_timing:    timings.join(', '),
+    class_timing:    collectClassTimings('enroll'),
   };
   try {
     await POST(`/api/admin/students/${uid}/enroll`, data);
@@ -3186,8 +3221,87 @@ const SESSION_TYPE_COLORS_ADMIN = {
   private: getComputedStyle(document.documentElement).getPropertyValue('--session-private').trim() || '#a891c9'
 };
 
+let ADMIN_CAL_START = null;
+
+function mondayOf(date) {
+  const d = new Date(date);
+  const day = (d.getDay() + 6) % 7;
+  d.setDate(d.getDate() - day);
+  d.setHours(0, 0, 0, 0);
+  return d;
+}
+
+function isoDate(d) {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+}
+
+function moveCalendarWeek(delta) {
+  ADMIN_CAL_START = mondayOf(ADMIN_CAL_START || new Date());
+  ADMIN_CAL_START.setDate(ADMIN_CAL_START.getDate() + delta * 7);
+  loadAdminCalendar();
+}
+
+function eventOverlapsHour(event, hour) {
+  const start = new Date(event.start_datetime);
+  const end = new Date(event.end_datetime || start.getTime() + (event.duration_minutes || 60) * 60000);
+  const cellStart = new Date(start);
+  cellStart.setHours(hour, 0, 0, 0);
+  const cellEnd = new Date(cellStart);
+  cellEnd.setHours(hour + 1, 0, 0, 0);
+  return start < cellEnd && end > cellStart;
+}
+
+async function loadAdminCalendar() {
+  const grid = document.getElementById('admin-calendar-grid');
+  if (!grid) return;
+  ADMIN_CAL_START = mondayOf(ADMIN_CAL_START || new Date());
+  const teacherId = document.getElementById('calendar-teacher-filter')?.value || '';
+  const data = await GET(`/api/admin/calendar?start=${isoDate(ADMIN_CAL_START)}${teacherId ? '&teacher_id=' + teacherId : ''}`);
+  const filter = document.getElementById('calendar-teacher-filter');
+  if (filter && filter.options.length <= 1) {
+    filter.innerHTML = '<option value="">All teachers</option>' + data.teachers.map(t => `<option value="${t.id}">${t.name}</option>`).join('');
+    filter.value = teacherId;
+  }
+  const days = Array.from({ length: 7 }, (_, i) => {
+    const d = new Date(ADMIN_CAL_START);
+    d.setDate(d.getDate() + i);
+    return d;
+  });
+  document.getElementById('calendar-week-label').textContent =
+    `${days[0].toLocaleDateString('en-GB', { day:'numeric', month:'short' })} - ${days[6].toLocaleDateString('en-GB', { day:'numeric', month:'short', year:'numeric' })}`;
+  const byDate = {};
+  (data.events || []).forEach(e => {
+    (byDate[e.date] ||= []).push(e);
+  });
+  const hours = Array.from({ length: 15 }, (_, i) => i + 8);
+  grid.innerHTML = `<div class="calendar-grid">
+    <div class="cal-head"></div>
+    ${days.map(d => `<div class="cal-head">${d.toLocaleDateString('en-GB', { weekday:'short', day:'numeric', month:'short' })}</div>`).join('')}
+    ${hours.map(hour => `
+      <div class="cal-time">${String(hour).padStart(2, '0')}:00</div>
+      ${days.map(d => {
+        const key = isoDate(d);
+        const events = (byDate[key] || []).filter(e => eventOverlapsHour(e, hour));
+        return `<div class="cal-cell ${events.length ? '' : 'available'}">
+          ${events.map(e => {
+            const color = SESSION_TYPE_COLORS_ADMIN[e.session_type] || 'var(--cyan)';
+            return `<div class="cal-event" style="border-left-color:${color}">
+              <div class="cal-event-title">${e.title}</div>
+              <div class="cal-event-meta">${e.time_start}-${e.time_end}<br>${e.teacher_name || 'Teacher TBA'}${e.course_title ? '<br>' + e.course_title : ''}</div>
+            </div>`;
+          }).join('')}
+        </div>`;
+      }).join('')}
+    `).join('')}
+  </div>`;
+}
+
 async function loadAdminSessions() {
   try {
+    await loadAdminCalendar();
     const sessions = await GET('/api/admin/sessions');
     const arr = Array.isArray(sessions) ? sessions : [];
     const tbody = document.getElementById('sessions-tbody');
