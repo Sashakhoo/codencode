@@ -1598,15 +1598,57 @@
           <div class="page-title">Class Roster</div>
           <div class="page-sub" id="students-sub">// No students enrolled yet.</div>
         </div>
+        <div class="card" style="margin-bottom:20px">
+          <div class="card-header">
+            <span class="card-title"><i class="fas fa-user-plus"></i> Add Student To This Course</span>
+          </div>
+          <div class="card-body">
+            <div class="upload-form" id="teacher-add-student-form">
+              <div class="grid-3">
+                <div class="form-group">
+                  <label class="form-label">Student Name</label>
+                  <input class="form-input" type="text" id="teacher-student-name" placeholder="e.g. Nur Aina" />
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Email</label>
+                  <input class="form-input" type="email" id="teacher-student-email" placeholder="student@email.com" />
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Phone</label>
+                  <input class="form-input" type="text" id="teacher-student-phone" placeholder="Optional" />
+                </div>
+              </div>
+              <div class="grid-3">
+                <div class="form-group">
+                  <label class="form-label">Temporary Password</label>
+                  <input class="form-input" type="text" id="teacher-student-password" placeholder="codencode123" />
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Language</label>
+                  <select class="form-input" id="teacher-student-language">
+                    <option value="en">English</option>
+                    <option value="zh">Mandarin</option>
+                    <option value="bm">Bahasa Melayu</option>
+                  </select>
+                </div>
+                <div class="form-group" style="display:flex;align-items:flex-end">
+                  <button class="btn-action" style="width:100%;justify-content:center;padding:14px" onclick="teacherAddStudent()">
+                    <i class="fas fa-user-plus"></i> Add & Assign
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
         <div class="card">
           <table class="grade-table">
             <thead>
               <tr>
-                <th>Student</th><th>Email</th><th>Videos Watched</th><th>Assignments</th><th>Avg Grade</th><th>Progress</th>
+                <th>Student</th><th>Email</th><th>Videos Watched</th><th>Assignments</th><th>Avg Grade</th><th>Progress</th><th>Actions</th>
               </tr>
             </thead>
             <tbody id="students-tbody">
-              <tr><td colspan="6" style="color:var(--muted);font-family:var(--font-m);font-size:12px;padding:24px;text-align:center">No progress yet.</td></tr>
+              <tr><td colspan="7" style="color:var(--muted);font-family:var(--font-m);font-size:12px;padding:24px;text-align:center">No progress yet.</td></tr>
             </tbody>
           </table>
           <div style="padding:14px 20px;border-top:1px solid var(--border)">
@@ -2870,19 +2912,69 @@ async function loadStudents() {
         ${s.submissions} / ${s.total_assignments} submitted
       </td>
       <td><span style="color:${s.avg_grade>=80?'var(--green)':s.avg_grade>=60?'var(--cyan)':'var(--orange)'};font-weight:700">
-        ${s.avg_grade ?? '—'}
+        ${s.avg_grade ?? '�'}
       </span></td>
       <td style="min-width:100px">${progressBar(s.progress_pct, s.progress_pct>=80?'green':s.progress_pct>=50?'':'orange')}</td>
-    </tr>`).join('') || `<tr><td colspan="6" style="color:var(--muted);font-family:var(--font-m);font-size:12px;padding:24px;text-align:center">No students enrolled yet.</td></tr>`;
+      <td style="min-width:130px">
+        <button class="btn-action" style="font-size:9px;padding:5px 8px" onclick="teacherIssueCertificate(${s.id}, '${(s.name||'').replace(/'/g,"\\'")}')">
+          <i class="fas fa-certificate"></i> Issue Cert
+        </button>
+      </td>
+    </tr>`).join('') || `<tr><td colspan="7" style="color:var(--muted);font-family:var(--font-m);font-size:12px;padding:24px;text-align:center">No students enrolled yet.</td></tr>`;
   const sub = document.getElementById('students-sub');
   if (sub) sub.textContent = `// ${d.enrolled_students} enrolled`;
 }
 
-// ══════════════════════════════════════════════════════
-//  ACTIONS — uploads, grading, deletes
-// ══════════════════════════════════════════════════════
+async function teacherAddStudent() {
+  const nameEl = document.getElementById('teacher-student-name');
+  const emailEl = document.getElementById('teacher-student-email');
+  const phoneEl = document.getElementById('teacher-student-phone');
+  const passEl = document.getElementById('teacher-student-password');
+  const langEl = document.getElementById('teacher-student-language');
+  const name = (nameEl?.value || '').trim();
+  const email = (emailEl?.value || '').trim();
+  if (!STATE.courseId) { showToast('Select a course first', true); return; }
+  if (!name || !email) { showToast('Student name and email are required', true); return; }
+  try {
+    await POST('/api/teacher/students', {
+      course_id: STATE.courseId,
+      name,
+      email,
+      phone: (phoneEl?.value || '').trim(),
+      password: (passEl?.value || '').trim(),
+      language_pref: langEl?.value || 'en',
+      payment_status: 'pending',
+      class_format: 'teacher-assigned'
+    });
+    if (nameEl) nameEl.value = '';
+    if (emailEl) emailEl.value = '';
+    if (phoneEl) phoneEl.value = '';
+    if (passEl) passEl.value = '';
+    STATE.dashboard = null;
+    await loadStudents();
+    showToast('Student added and assigned to this course');
+  } catch(e) {
+    showToast('Error: ' + e.message, true);
+  }
+}
 
-// ── Upload recording ──
+async function teacherIssueCertificate(studentId, studentName) {
+  if (!STATE.courseId) { showToast('Select a course first', true); return; }
+  if (!confirm(`Issue certificate to ${studentName || 'this student'}?`)) return;
+  try {
+    const r = await POST('/api/teacher/certificates', {
+      student_id: studentId,
+      course_id: STATE.courseId
+    });
+    showToast(`Certificate issued: ${r.certificate?.cert_number || 'done'}`);
+  } catch(e) {
+    showToast('Error: ' + e.message, true);
+  }
+}
+
+// -------------------------------------------------------
+//  ACTIONS � uploads, grading, deletes
+// -------------------------------------------------------
 async function uploadRecording() {
   const btn  = document.getElementById('upload-rec-btn');
   btn.textContent = 'Saving...';

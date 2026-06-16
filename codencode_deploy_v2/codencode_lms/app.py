@@ -61,9 +61,6 @@ app.config.update(
 
 db.init_app(app)
 
-from lms_workshop_routes import workshop_bp
-app.register_blueprint(workshop_bp)
-
 login_manager = LoginManager(app)
 login_manager.login_view = 'serve_frontend'
 
@@ -620,6 +617,66 @@ def enrolled_or_staff(course_id):
 enrolled_or_teacher = enrolled_or_staff
 
 
+def teacher_can_manage_course(course_id):
+    """Return True when the current teacher/admin may manage this course."""
+    if current_user.role == 'admin':
+        return True
+    if current_user.role != 'teacher':
+        return False
+    course = Course.query.get(course_id)
+    if not course:
+        return False
+    if course.teacher_id == current_user.id:
+        return True
+    if Cohort.query.filter_by(course_id=course_id, teacher_id=current_user.id).first():
+        return True
+    # Backwards-compatible fallback for old installs with one teacher and unassigned courses.
+    return course.teacher_id is None and User.query.filter_by(role='teacher').count() == 1
+
+
+def next_certificate_number():
+    """Generate the next public certificate number. First suffix is 111."""
+    year = datetime.utcnow().year
+    existing_numbers = Certificate.query.filter(
+        Certificate.cert_number.ilike(f'CC-{year}-%')
+    ).with_entities(Certificate.cert_number).all()
+    last_number = 110
+    for (cert_no,) in existing_numbers:
+        match = re.search(rf'^CC-{year}-(\d+)$', cert_no or '', re.IGNORECASE)
+        if match:
+            last_number = max(last_number, int(match.group(1)))
+    return f'CC-{year}-{last_number + 1:03d}'
+
+
+def issue_certificate_for(student_id, course_id):
+    """Create and email a certificate for an enrolled student/course."""
+    student = User.query.get(student_id)
+    course = Course.query.get(course_id)
+    if not student or student.role != 'student' or not course:
+        return None, ('student/course not found', 404)
+    if not Enrollment.query.filter_by(student_id=student_id, course_id=course_id).first():
+        return None, ('Student is not enrolled in this course', 400)
+    existing = Certificate.query.filter_by(student_id=student_id, course_id=course_id).first()
+    if existing:
+        return existing, None
+
+    cert = Certificate(
+        student_id=student_id,
+        course_id=course_id,
+        issued_by=current_user.id,
+        cert_number=next_certificate_number()
+    )
+    db.session.add(cert)
+    db.session.commit()
+
+    if student.email:
+        email_certificate_issued(
+            student.name, student.email,
+            course.title, cert.cert_number, cert.id
+        )
+    return cert, None
+
+
 # ─────────────────────────────────────────────
 # Serve frontends
 # ─────────────────────────────────────────────
@@ -716,10 +773,6 @@ def api_login():
         return jsonify({'error': 'Invalid email or password'}), 401
 
     login_user(user, remember=False)   # session expires when browser closes
-    session['user_id'] = user.id
-    session['user_name'] = user.name
-    session['user_email'] = user.email
-    session['user_role'] = user.role
     user.last_login = datetime.utcnow()
     # A6 — log login activity
     try:
@@ -735,10 +788,6 @@ def api_login():
 @login_required
 def api_logout():
     logout_user()
-    session.pop('user_id', None)
-    session.pop('user_name', None)
-    session.pop('user_email', None)
-    session.pop('user_role', None)
     return jsonify({'ok': True})
 
 
@@ -2139,6 +2188,12 @@ def seed_demo():
     db.session.commit()
     print('✓ Default accounts seeded')
 
+@app.cli.command('reset-certificates')
+def reset_certificates_command():
+    """Delete all certificate records. Next issued cert starts at CC-YYYY-111."""
+    deleted = Certificate.query.delete()
+    db.session.commit()
+    print(f'Deleted {deleted} certificate record(s). Next certificate starts at {next_certificate_number()}.')
 
 def _seed_demo_old():
     # ── Courses ────────────────────────────────
@@ -3016,31 +3071,90 @@ def admin_certificates():
     course_id  = data.get('course_id')
     if not student_id or not course_id:
         return jsonify({'error': 'student_id and course_id required'}), 400
-    year = datetime.utcnow().year
-    existing_numbers = Certificate.query.filter(
-        Certificate.cert_number.ilike(f'CC-{year}-%')
-    ).with_entities(Certificate.cert_number).all()
-    last_number = 99
-    for (cert_no,) in existing_numbers:
-        match = re.search(rf'^CC-{year}-(\d+)$', cert_no or '', re.IGNORECASE)
-        if match:
-            last_number = max(last_number, int(match.group(1)))
-    cert_number = f'CC-{year}-{last_number + 1:03d}'
-    cert = Certificate(
-        student_id  = student_id,
-        course_id   = course_id,
-        issued_by   = current_user.id,
-        cert_number = cert_number
-    )
-    db.session.add(cert)
-    db.session.commit()
-    student = User.query.get(student_id)
-    course  = Course.query.get(course_id)
-    if student and student.email and course:
-        email_certificate_issued(
-            student.name, student.email,
-            course.title, cert_number, cert.id
+    cert, err = issue_certificate_for(student_id, course_id)
+    if err:
+        msg, status = err
+        return jsonify({'error': msg}), status
+    return jsonify({'certificate': cert.to_dict()}), 201
+
+
+@app.route('/api/teacher/students', methods=['POST'])
+@teacher_required
+def teacher_add_student():
+    data = request.get_json() or {}
+    course_id = data.get('course_id')
+    if not course_id:
+        return jsonify({'error': 'course_id required'}), 400
+    course = Course.query.get_or_404(course_id)
+    if not teacher_can_manage_course(course.id):
+        return jsonify({'error': 'Forbidden'}), 403
+
+    name = (data.get('name') or '').strip()
+    email = (data.get('email') or '').strip().lower()
+    if not name or not email:
+        return jsonify({'error': 'name and email are required'}), 400
+
+    student = User.query.filter_by(email=email).first()
+    created = False
+    if student:
+        if student.role != 'student':
+            return jsonify({'error': 'Email belongs to a non-student account'}), 409
+    else:
+        plain_pw = data.get('password') or 'codencode123'
+        student = User(
+            name=name,
+            email=email,
+            role='student',
+            phone=(data.get('phone') or '').strip(),
+            ic_number=(data.get('ic_number') or '').strip(),
+            language_pref=data.get('language_pref', 'en'),
         )
+        student.set_password(plain_pw)
+        student.temp_password = plain_pw
+        db.session.add(student)
+        db.session.flush()
+        created = True
+
+    if course.teacher_id is None and current_user.role == 'teacher':
+        course.teacher_id = current_user.id
+
+    enrollment = Enrollment.query.filter_by(
+        student_id=student.id, course_id=course.id
+    ).first()
+    if not enrollment:
+        enrollment = Enrollment(
+            student_id=student.id,
+            course_id=course.id,
+            payment_status=data.get('payment_status', 'pending'),
+            payment_remarks=data.get('payment_remarks', ''),
+            class_timing=data.get('class_timing', ''),
+            class_format=data.get('class_format', ''),
+            cohort_id=data.get('cohort_id') or None,
+        )
+        db.session.add(enrollment)
+
+    db.session.commit()
+    return jsonify({
+        'student': student.to_dict(),
+        'enrollment': enrollment.to_dict(),
+        'created': created
+    }), 201
+
+
+@app.route('/api/teacher/certificates', methods=['POST'])
+@teacher_required
+def teacher_issue_certificate():
+    data = request.get_json() or {}
+    student_id = data.get('student_id')
+    course_id = data.get('course_id')
+    if not student_id or not course_id:
+        return jsonify({'error': 'student_id and course_id required'}), 400
+    if not teacher_can_manage_course(course_id):
+        return jsonify({'error': 'Forbidden'}), 403
+    cert, err = issue_certificate_for(student_id, course_id)
+    if err:
+        msg, status = err
+        return jsonify({'error': msg}), status
     return jsonify({'certificate': cert.to_dict()}), 201
 
 
@@ -3058,6 +3172,8 @@ def download_certificate(cert_id):
     from flask import render_template
     cert = Certificate.query.get_or_404(cert_id)
     if current_user.role == 'student' and cert.student_id != current_user.id:
+        return jsonify({'error': 'Forbidden'}), 403
+    if current_user.role == 'teacher' and not teacher_can_manage_course(cert.course_id):
         return jsonify({'error': 'Forbidden'}), 403
 
     verify_url = f'https://learn.codencode.my/verify/{cert.cert_number}'
@@ -3608,31 +3724,8 @@ def api_search():
 # ─────────────────────────────────────────────
 # Init DB & run
 # ─────────────────────────────────────────────
-def init_workshop_schema():
-    """Create workshop portal tables when running on PostgreSQL."""
-    if db.engine.dialect.name != 'postgresql':
-        app.logger.info('Skipping workshop_schema.sql; workshop routes require PostgreSQL.')
-        return
-
-    schema_path = os.path.join(os.path.dirname(__file__), 'workshop_schema.sql')
-    if not os.path.exists(schema_path):
-        app.logger.warning('workshop_schema.sql not found; workshop tables were not initialized.')
-        return
-
-    with open(schema_path, encoding='utf-8') as schema_file:
-        schema_sql = schema_file.read()
-
-    try:
-        with db.engine.begin() as conn:
-            conn.exec_driver_sql(schema_sql)
-        app.logger.info('Workshop schema initialized.')
-    except Exception as exc:
-        app.logger.warning('Workshop schema initialization skipped/failed: %s', exc)
-
-
 with app.app_context():
     db.create_all()
-    init_workshop_schema()
     # Safe column migrations (SQLite doesn't support ALTER TABLE ADD IF NOT EXISTS)
     from sqlalchemy import text, inspect as sa_inspect
     try:
