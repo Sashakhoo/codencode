@@ -1025,6 +1025,9 @@
         <button class="nav-item" onclick="switchView('t-students')">
           <i class="fas fa-users"></i><span>Students</span>
         </button>
+        <button class="nav-item" onclick="switchView('t-certificates')">
+          <i class="fas fa-certificate"></i><span>Certificates</span>
+        </button>
         <button class="nav-item" onclick="switchView('t-timetable')">
           <i class="fas fa-calendar-alt"></i><span data-i18n="timetable">Timetable</span>
         </button>
@@ -1657,6 +1660,59 @@
         </div>
       </div>
 
+      <div class="view" id="view-t-certificates">
+        <div class="page-header">
+          <div class="page-label">Certificates</div>
+          <div class="page-title">Issue Certificates</div>
+          <div class="page-sub">// Issue completion certificates for your own students</div>
+        </div>
+        <div class="grid-2" style="margin-bottom:20px">
+          <div class="card">
+            <div class="card-header">
+              <span class="card-title"><i class="fas fa-award"></i> New Certificate</span>
+            </div>
+            <div class="card-body">
+              <div class="upload-form">
+                <div class="form-group">
+                  <label class="form-label">Course</label>
+                  <select class="form-input" id="teacher-cert-course" onchange="populateTeacherCertStudents()">
+                    <option value="">Select course...</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Student</label>
+                  <select class="form-input" id="teacher-cert-student">
+                    <option value="">Select student...</option>
+                  </select>
+                </div>
+                <button class="btn-action" style="width:100%;justify-content:center;padding:14px" onclick="teacherIssueCertificateFromSection()">
+                  <i class="fas fa-certificate"></i> Issue Certificate
+                </button>
+              </div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header">
+              <span class="card-title"><i class="fas fa-list-check"></i> Issued Certificates</span>
+            </div>
+            <div class="card-body" id="teacher-cert-summary" style="font-family:var(--font-m);font-size:12px;color:var(--muted)">
+              Loading certificate data...
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <table class="grade-table">
+            <thead>
+              <tr>
+                <th>Cert No.</th><th>Student</th><th>Course</th><th>Issued</th><th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="teacher-certs-tbody">
+              <tr><td colspan="5" style="color:var(--muted);font-family:var(--font-m);font-size:12px;padding:24px;text-align:center">Loading certificates...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
       <div class="view" id="view-t-timetable">
         <div class="page-header">
           <div class="page-label">Sessions</div>
@@ -2158,6 +2214,7 @@ let STATE = {
   assignments: null,
   // for grading modal
   activeSubmissionId: null,
+  teacherCertOptions: { courses: [], students: [], enrollments: [] },
 };
 
 // ── Simple fetch wrappers ──────────────────────────────
@@ -2338,7 +2395,7 @@ const VIEW_TITLES = {
   'dashboard':'Dashboard','videos':'Recordings','materials':'Materials',
   'assignments':'Assignments','grades':'My Grades',
   't-dashboard':'Overview','t-videos':'Recordings','t-materials':'Materials',
-  't-assignments':'Assignments','t-grading':'Grading','t-students':'Students','t-timetable':'Timetable',
+  't-assignments':'Assignments','t-grading':'Grading','t-students':'Students','t-certificates':'Certificates','t-timetable':'Timetable',
   'timetable':'Timetable'
 };
 
@@ -2355,6 +2412,7 @@ const VIEW_LOADERS = {
   't-assignments':loadTeacherAssignments,
   't-grading':    loadTeacherGrading,
   't-students':   loadStudents,
+  't-certificates': loadTeacherCertificates,
   'timetable':    loadTimetable,
   't-timetable':  loadTeacherSessions,
 };
@@ -2967,11 +3025,99 @@ async function teacherIssueCertificate(studentId, studentName) {
       course_id: STATE.courseId
     });
     showToast(`Certificate issued: ${r.certificate?.cert_number || 'done'}`);
+    if (document.getElementById('view-t-certificates')?.classList.contains('active')) {
+      await loadTeacherCertificates();
+    }
   } catch(e) {
     showToast('Error: ' + e.message, true);
   }
 }
 
+async function loadTeacherCertificateOptions() {
+  const opts = await GET('/api/teacher/certificate-options');
+  STATE.teacherCertOptions = {
+    courses: Array.isArray(opts.courses) ? opts.courses : [],
+    students: Array.isArray(opts.students) ? opts.students : [],
+    enrollments: Array.isArray(opts.enrollments) ? opts.enrollments : []
+  };
+}
+
+function populateTeacherCertCourses() {
+  const sel = document.getElementById('teacher-cert-course');
+  if (!sel) return;
+  const current = sel.value || STATE.courseId || '';
+  sel.innerHTML = '<option value="">Select course...</option>' +
+    STATE.teacherCertOptions.courses.map(c => `<option value="${c.id}">${c.title}</option>`).join('');
+  if (current && [...sel.options].some(o => o.value === String(current))) sel.value = String(current);
+}
+
+function populateTeacherCertStudents() {
+  const courseSel = document.getElementById('teacher-cert-course');
+  const studentSel = document.getElementById('teacher-cert-student');
+  if (!studentSel) return;
+  const courseId = parseInt(courseSel?.value || '0');
+  let students = STATE.teacherCertOptions.students || [];
+  if (courseId && STATE.teacherCertOptions.enrollments?.length) {
+    const allowed = new Set(
+      STATE.teacherCertOptions.enrollments
+        .filter(e => parseInt(e.course_id) === courseId)
+        .map(e => parseInt(e.student_id))
+    );
+    students = students.filter(s => allowed.has(parseInt(s.id)));
+  }
+  studentSel.innerHTML = '<option value="">Select student...</option>' +
+    students.map(s => `<option value="${s.id}">${s.name}</option>`).join('');
+}
+
+async function loadTeacherCertificates() {
+  const tbody = document.getElementById('teacher-certs-tbody');
+  const summary = document.getElementById('teacher-cert-summary');
+  if (tbody) tbody.innerHTML = `<tr><td colspan="5" style="color:var(--muted);font-family:var(--font-m);font-size:12px;padding:24px;text-align:center">Loading certificates...</td></tr>`;
+  try {
+    await loadTeacherCertificateOptions();
+    populateTeacherCertCourses();
+    populateTeacherCertStudents();
+
+    const certs = await GET('/api/admin/certificates');
+    const arr = Array.isArray(certs) ? certs : [];
+    if (summary) {
+      summary.innerHTML = `
+        <div style="font-family:var(--font-d);font-size:28px;font-weight:800;color:var(--cyan);margin-bottom:4px">${arr.length}</div>
+        <div>Issued certificate${arr.length === 1 ? '' : 's'} across ${STATE.teacherCertOptions.courses.length} course${STATE.teacherCertOptions.courses.length === 1 ? '' : 's'}.</div>`;
+    }
+    if (!tbody) return;
+    if (!arr.length) {
+      tbody.innerHTML = `<tr><td colspan="5" style="color:var(--muted);font-family:var(--font-m);font-size:12px;padding:24px;text-align:center">No certificates issued yet.</td></tr>`;
+      return;
+    }
+    tbody.innerHTML = arr.map(c => `
+      <tr>
+        <td><span style="font-family:var(--font-c);font-size:10px;color:var(--cyan)">${c.cert_number || '-'}</span></td>
+        <td style="font-weight:700">${c.student_name || '-'}</td>
+        <td style="color:var(--muted);font-family:var(--font-m);font-size:11px">${c.course_title || '-'}</td>
+        <td style="font-family:var(--font-m);font-size:11px">${c.issued_at || '-'}</td>
+        <td><a href="/api/certificates/${c.id}/download" target="_blank" class="btn-action ghost" style="font-size:9px;padding:5px 8px"><i class="fas fa-download"></i> View</a></td>
+      </tr>`).join('');
+  } catch(e) {
+    if (tbody) tbody.innerHTML = `<tr><td colspan="5" style="color:var(--red);font-family:var(--font-m);font-size:12px;padding:24px;text-align:center">Failed to load certificates.</td></tr>`;
+    showToast('Error loading certificates: ' + e.message, true);
+  }
+}
+
+async function teacherIssueCertificateFromSection() {
+  const courseId = parseInt(document.getElementById('teacher-cert-course')?.value || '0');
+  const studentId = parseInt(document.getElementById('teacher-cert-student')?.value || '0');
+  const studentName = document.getElementById('teacher-cert-student')?.selectedOptions?.[0]?.textContent || 'this student';
+  if (!courseId || !studentId) { showToast('Select a course and student first', true); return; }
+  if (!confirm(`Issue certificate to ${studentName}?`)) return;
+  try {
+    const r = await POST('/api/teacher/certificates', { student_id: studentId, course_id: courseId });
+    showToast(`Certificate issued: ${r.certificate?.cert_number || 'done'}`);
+    await loadTeacherCertificates();
+  } catch(e) {
+    showToast('Error: ' + e.message, true);
+  }
+}
 // -------------------------------------------------------
 //  ACTIONS � uploads, grading, deletes
 // -------------------------------------------------------
