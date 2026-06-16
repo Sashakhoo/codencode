@@ -25,6 +25,7 @@ from flask import (Flask, request, jsonify, send_from_directory,
                    session, g)
 from flask_login import (LoginManager, login_user, logout_user,
                          login_required, current_user)
+from sqlalchemy.exc import IntegrityError
 from werkzeug.utils import secure_filename
 
 import io
@@ -677,14 +678,26 @@ def issue_certificate_for(student_id, course_id):
     if existing:
         return existing, None
 
-    cert = Certificate(
-        student_id=student_id,
-        course_id=course_id,
-        issued_by=current_user.id,
-        cert_number=next_certificate_number()
-    )
-    db.session.add(cert)
-    db.session.commit()
+    cert = None
+    for _ in range(5):
+        cert = Certificate(
+            student_id=student_id,
+            course_id=course_id,
+            issued_by=current_user.id,
+            cert_number=next_certificate_number()
+        )
+        db.session.add(cert)
+        try:
+            db.session.commit()
+            break
+        except IntegrityError:
+            db.session.rollback()
+            existing = Certificate.query.filter_by(student_id=student_id, course_id=course_id).first()
+            if existing:
+                return existing, None
+            cert = None
+    if cert is None:
+        return None, ('Could not generate a unique certificate number. Please try again.', 409)
 
     if student.email:
         email_certificate_issued(
