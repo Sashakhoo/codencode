@@ -240,14 +240,21 @@
     /* Signature area */
     .signature-area {
       margin-top: 24px;
-      padding-top: 22px;
+      padding-top: 12px;
       border-top: 3px solid #0a3d2a;
       width: 320px;
       text-align: center;
     }
+    .signature-image {
+      display: block;
+      width: 210px;
+      height: 92px;
+      object-fit: contain;
+      margin: 0 auto 8px;
+    }
     .signature-name {
       font-family: 'Outfit', sans-serif;
-      font-size: 24px;
+      font-size: 18px;
       font-weight: 800;
       color: #0a3d2a;
       letter-spacing: -0.03em;
@@ -358,6 +365,7 @@
             </div>
             <div class="cert-meta-item">
               <div class="signature-area">
+                <img class="signature-image" src="{{ url_for('static', filename='img/signature.png') }}" alt="Authorised signature" />
                 <div class="signature-name">code<span>ncode</span>.my</div>
                 <div class="signature-title">Authorised Signature</div>
               </div>
