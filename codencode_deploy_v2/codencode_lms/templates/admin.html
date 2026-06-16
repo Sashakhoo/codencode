@@ -1156,9 +1156,14 @@
       <div id="view-certificates" class="view">
         <div class="section-header" style="margin-bottom:20px">
           <div class="section-title">Certificates</div>
-          <button class="btn btn-primary btn-sm" onclick="openIssueCertModal()">
-            <i class="fas fa-plus"></i> Issue Certificate
-          </button>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <button class="btn btn-secondary btn-sm admin-only" onclick="resetCertificates()">
+              <i class="fas fa-trash"></i> Clear Certificates
+            </button>
+            <button class="btn btn-primary btn-sm" onclick="openIssueCertModal()">
+              <i class="fas fa-plus"></i> Issue Certificate
+            </button>
+          </div>
         </div>
         <div class="card">
           <div class="table-wrap">
@@ -1697,7 +1702,7 @@
     </div>
     <div class="form-group">
       <label class="form-label">Course</label>
-      <select class="form-input" id="cert-course-select">
+      <select class="form-input" id="cert-course-select" onchange="populateCertificateStudents()">
         <option value="">Select course...</option>
       </select>
     </div>
@@ -1739,6 +1744,7 @@ const S = {
   courses:     [],
   students:    [],
   teachers:    [],
+  certOptions: { courses: [], students: [], enrollments: [] },
   allPayments: [],
   currentView: 'dashboard',
 };
@@ -1850,11 +1856,21 @@ document.addEventListener('DOMContentLoaded', async () => {
   try {
     const meRes = await GET('/api/auth/me');
     const me = meRes.user || meRes;
-    if (me.role !== 'admin') { window.location.href = '/'; return; }
+    if (!['admin', 'teacher'].includes(me.role)) { window.location.href = '/'; return; }
     S.user = me;
     document.getElementById('admin-name').textContent  = S.user.name;
     const initials = S.user.name.split(' ').map(p=>p[0]).join('').toUpperCase().slice(0,2);
     document.getElementById('admin-avatar').textContent = initials;
+
+    if (S.user.role === 'teacher') {
+      document.querySelectorAll('.nav-item').forEach(item => {
+        const isCerts = item.getAttribute('onclick') === "showView('certificates')";
+        item.style.display = isCerts ? '' : 'none';
+      });
+      document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'none');
+      showView('certificates');
+      return;
+    }
 
     await Promise.all([loadCourses(), loadStudents(), loadTeachers()]);
     populateCourseSelects();
@@ -3410,20 +3426,54 @@ async function loadAdminSessions() {
 // CERTIFICATES (Admin)
 // ═══════════════════════════════════════════════════════
 
-async function loadAdminCertificates() {
-  // Populate dropdowns in issue modal
+async function loadCertificateOptions() {
+  try {
+    const opts = await GET('/api/teacher/certificate-options');
+    S.certOptions = {
+      courses: Array.isArray(opts.courses) ? opts.courses : [],
+      students: Array.isArray(opts.students) ? opts.students : [],
+      enrollments: Array.isArray(opts.enrollments) ? opts.enrollments : []
+    };
+  } catch(e) {
+    if (S.user?.role === 'admin') {
+      S.certOptions = { courses: S.courses, students: S.students, enrollments: [] };
+      return;
+    }
+    throw e;
+  }
+}
+
+function populateCertificateCourses() {
+  const cSel = document.getElementById('cert-course-select');
+  if (!cSel) return;
+  cSel.innerHTML = '<option value="">Select course...</option>' +
+    S.certOptions.courses.map(c => `<option value="${c.id}">${c.title}</option>`).join('');
+}
+
+function populateCertificateStudents() {
   const stuSel = document.getElementById('cert-student-select');
   const cSel   = document.getElementById('cert-course-select');
-  if (stuSel) {
-    stuSel.innerHTML = '<option value="">Select student...</option>' +
-      S.students.map(s => `<option value="${s.id}">${s.name}</option>`).join('');
+  if (!stuSel) return;
+  const courseId = parseInt(cSel?.value || '0');
+  let students = S.certOptions.students;
+  if (courseId && S.certOptions.enrollments.length) {
+    const allowedStudentIds = new Set(
+      S.certOptions.enrollments
+        .filter(e => parseInt(e.course_id) === courseId)
+        .map(e => parseInt(e.student_id))
+    );
+    students = students.filter(s => allowedStudentIds.has(parseInt(s.id)));
   }
-  if (cSel) {
-    cSel.innerHTML = '<option value="">Select course...</option>' +
-      S.courses.map(c => `<option value="${c.id}">${c.title}</option>`).join('');
-  }
+  stuSel.innerHTML = '<option value="">Select student...</option>' +
+    students.map(s => `<option value="${s.id}">${s.name}</option>`).join('');
+}
 
+async function loadAdminCertificates() {
   try {
+    await loadCertificateOptions();
+    populateCertificateCourses();
+    populateCertificateStudents();
+
     const certs = await GET('/api/admin/certificates');
     const arr   = Array.isArray(certs) ? certs : [];
     const tbody = document.getElementById('certs-tbody');
@@ -3447,11 +3497,20 @@ async function loadAdminCertificates() {
   } catch(e) { toast('Error loading certificates: ' + e.message, true); }
 }
 
-function openIssueCertModal() {
+async function openIssueCertModal() {
+  try {
+    await loadCertificateOptions();
+    populateCertificateCourses();
+    populateCertificateStudents();
+  } catch(e) {
+    toast('Error loading certificate options: ' + e.message, true);
+    return;
+  }
   const stuSel = document.getElementById('cert-student-select');
   const cSel   = document.getElementById('cert-course-select');
   if (stuSel) stuSel.value = '';
   if (cSel)   cSel.value   = '';
+  populateCertificateStudents();
   openModal('modal-issue-cert');
 }
 
@@ -3468,6 +3527,16 @@ async function issueCertificate() {
     loadAdminCertificates();
   } catch(e) { toast('Error: ' + e.message, true); }
   if (btn) btn.disabled = false;
+}
+
+async function resetCertificates() {
+  if (S.user?.role !== 'admin') return;
+  if (!confirm('Clear all issued certificates? The next certificate will start from 111.')) return;
+  try {
+    const result = await POST('/api/admin/certificates/reset', {});
+    toast(`Certificates cleared. Next: ${result.next_cert_number}`);
+    loadAdminCertificates();
+  } catch(e) { toast('Error clearing certificates: ' + e.message, true); }
 }
 
 // ═══════════════════════════════════════════════════════

@@ -634,6 +634,23 @@ def teacher_can_manage_course(course_id):
     return course.teacher_id is None and User.query.filter_by(role='teacher').count() == 1
 
 
+def teacher_manageable_course_ids():
+    """Return course ids the current user can manage."""
+    if current_user.role == 'admin':
+        return [c.id for c in Course.query.all()]
+    if current_user.role != 'teacher':
+        return []
+
+    ids = {c.id for c in Course.query.filter_by(teacher_id=current_user.id).all()}
+    ids.update(
+        h.course_id for h in Cohort.query.filter_by(teacher_id=current_user.id).all()
+        if h.course_id
+    )
+    if User.query.filter_by(role='teacher').count() == 1:
+        ids.update(c.id for c in Course.query.filter_by(teacher_id=None).all())
+    return sorted(ids)
+
+
 def next_certificate_number():
     """Generate the next public certificate number. First suffix is 111."""
     year = datetime.utcnow().year
@@ -690,7 +707,7 @@ def serve_frontend():
 @app.route('/admin')
 @login_required
 def serve_admin():
-    if current_user.role != 'admin':
+    if current_user.role not in ('admin', 'teacher'):
         return send_from_directory('templates', 'lms.html')
     return send_from_directory('templates', 'admin.html')
 
@@ -3060,10 +3077,16 @@ def admin_login_activity():
 # A8+S10 — Certificates
 # ─────────────────────────────────────────────
 @app.route('/api/admin/certificates', methods=['GET', 'POST'])
-@admin_required
+@teacher_required
 def admin_certificates():
     if request.method == 'GET':
-        certs = Certificate.query.order_by(Certificate.issued_at.desc()).all()
+        query = Certificate.query
+        if current_user.role == 'teacher':
+            course_ids = teacher_manageable_course_ids()
+            if not course_ids:
+                return jsonify([])
+            query = query.filter(Certificate.course_id.in_(course_ids))
+        certs = query.order_by(Certificate.issued_at.desc()).all()
         return jsonify([c.to_dict() for c in certs])
     # POST
     data       = request.get_json()
@@ -3071,11 +3094,51 @@ def admin_certificates():
     course_id  = data.get('course_id')
     if not student_id or not course_id:
         return jsonify({'error': 'student_id and course_id required'}), 400
+    if not teacher_can_manage_course(course_id):
+        return jsonify({'error': 'Forbidden'}), 403
     cert, err = issue_certificate_for(student_id, course_id)
     if err:
         msg, status = err
         return jsonify({'error': msg}), status
     return jsonify({'certificate': cert.to_dict()}), 201
+
+
+@app.route('/api/admin/certificates/reset', methods=['POST'])
+@admin_required
+def admin_reset_certificates():
+    deleted = Certificate.query.delete()
+    db.session.commit()
+    return jsonify({
+        'deleted': deleted,
+        'next_cert_number': next_certificate_number()
+    })
+
+
+@app.route('/api/teacher/certificate-options')
+@teacher_required
+def teacher_certificate_options():
+    course_ids = teacher_manageable_course_ids()
+    courses = Course.query.filter(Course.id.in_(course_ids)).order_by(Course.title).all() if course_ids else []
+    enrollments = Enrollment.query.filter(Enrollment.course_id.in_(course_ids)).all() if course_ids else []
+
+    student_map = {}
+    option_rows = []
+    for enrollment in enrollments:
+        if not enrollment.student or enrollment.student.role != 'student':
+            continue
+        student_map[enrollment.student.id] = enrollment.student
+        option_rows.append({
+            'student_id': enrollment.student.id,
+            'student_name': enrollment.student.name,
+            'course_id': enrollment.course_id,
+            'course_title': enrollment.course.title if enrollment.course else ''
+        })
+
+    return jsonify({
+        'courses': [c.to_dict() for c in courses],
+        'students': [s.to_dict() for s in sorted(student_map.values(), key=lambda u: u.name.lower())],
+        'enrollments': sorted(option_rows, key=lambda row: (row['course_title'].lower(), row['student_name'].lower()))
+    })
 
 
 @app.route('/api/teacher/students', methods=['POST'])
