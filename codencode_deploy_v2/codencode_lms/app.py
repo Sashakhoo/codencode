@@ -12,8 +12,11 @@ codencode.my LMS — Flask Backend
 import os
 import uuid
 import re
+import base64
+import time
 import urllib.request
 import urllib.error
+import urllib.parse
 import json as _json_mod
 from datetime import datetime, timedelta
 from functools import wraps
@@ -68,6 +71,8 @@ login_manager.login_view = 'serve_frontend'
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 os.makedirs(os.path.join(app.config['UPLOAD_FOLDER'], 'receipts'), exist_ok=True)
 os.makedirs(os.path.join(app.config['UPLOAD_FOLDER'], 'avatars'), exist_ok=True)
+
+_zoom_token_cache = {'token': None, 'expires_at': 0, 'api_url': 'https://api.zoom.us'}
 
 
 @login_manager.user_loader
@@ -2433,6 +2438,78 @@ def _seed_demo_old():
 # SESSIONS (live class scheduling)
 # ─────────────────────────────────────────────
 
+def _zoom_configured():
+    return all(os.environ.get(k) for k in ('ZOOM_ACCOUNT_ID', 'ZOOM_CLIENT_ID', 'ZOOM_CLIENT_SECRET'))
+
+
+def _zoom_access_token():
+    if not _zoom_configured():
+        return None
+    now = time.time()
+    if _zoom_token_cache['token'] and _zoom_token_cache['expires_at'] > now + 60:
+        return _zoom_token_cache['token']
+
+    client_id = os.environ['ZOOM_CLIENT_ID']
+    client_secret = os.environ['ZOOM_CLIENT_SECRET']
+    account_id = os.environ['ZOOM_ACCOUNT_ID']
+    basic = base64.b64encode(f'{client_id}:{client_secret}'.encode()).decode()
+    payload = urllib.parse.urlencode({
+        'grant_type': 'account_credentials',
+        'account_id': account_id,
+    }).encode()
+    req = urllib.request.Request(
+        'https://zoom.us/oauth/token',
+        data=payload,
+        headers={
+            'Authorization': f'Basic {basic}',
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        method='POST'
+    )
+    with urllib.request.urlopen(req, timeout=15) as res:
+        body = _json_mod.loads(res.read().decode())
+    _zoom_token_cache.update({
+        'token': body['access_token'],
+        'expires_at': now + int(body.get('expires_in', 3600)),
+        'api_url': body.get('api_url') or 'https://api.zoom.us',
+    })
+    return _zoom_token_cache['token']
+
+
+def _create_zoom_meeting(title, start_dt, duration_minutes):
+    token = _zoom_access_token()
+    if not token:
+        return None
+    zoom_user = os.environ.get('ZOOM_USER_ID', 'me')
+    timezone = os.environ.get('ZOOM_TIMEZONE', 'Asia/Kuala_Lumpur')
+    api_url = _zoom_token_cache.get('api_url') or 'https://api.zoom.us'
+    url = f"{api_url}/v2/users/{urllib.parse.quote(zoom_user, safe='')}/meetings"
+    payload = _json_mod.dumps({
+        'topic': title,
+        'type': 2,
+        'start_time': start_dt.strftime('%Y-%m-%dT%H:%M:%S'),
+        'timezone': timezone,
+        'duration': int(duration_minutes or 60),
+        'settings': {
+            'join_before_host': True,
+            'waiting_room': False,
+            'mute_upon_entry': True,
+            'approval_type': 2,
+            'audio': 'both',
+        }
+    }).encode()
+    req = urllib.request.Request(
+        url,
+        data=payload,
+        headers={
+            'Authorization': f'Bearer {token}',
+            'Content-Type': 'application/json',
+        },
+        method='POST'
+    )
+    with urllib.request.urlopen(req, timeout=20) as res:
+        return _json_mod.loads(res.read().decode())
+
 @app.route('/api/sessions', methods=['GET', 'POST'])
 @login_required
 def api_sessions():
@@ -2468,6 +2545,15 @@ def api_sessions():
         start_dt = datetime.strptime(start_str, '%Y-%m-%dT%H:%M')
     except ValueError:
         return jsonify({'error': 'start_datetime must be YYYY-MM-DDTHH:MM'}), 400
+    if not zoom_link and _zoom_configured():
+        try:
+            meeting = _create_zoom_meeting(title, start_dt, duration)
+            zoom_link = (meeting or {}).get('join_url', '')
+        except urllib.error.HTTPError as e:
+            msg = e.read().decode(errors='ignore')
+            return jsonify({'error': f'Zoom meeting could not be created: {msg or e.reason}'}), 502
+        except Exception as e:
+            return jsonify({'error': f'Zoom meeting could not be created: {e}'}), 502
     s = Session(
         title=title, session_type=session_type, course_id=course_id or None,
         start_datetime=start_dt, duration_minutes=duration,
@@ -2483,11 +2569,62 @@ def api_sessions():
 
 @app.route('/api/sessions/timetable', methods=['GET'])
 @login_required
-def api_student_timetable():
+def api_sessions_timetable():
     now = datetime.utcnow()
+    timetable_items = []
     if current_user.role in ('teacher', 'admin'):
-        sessions = Session.query.order_by(Session.start_datetime).all()
-        timetable_items = []
+        if current_user.role == 'admin':
+            sessions = Session.query.order_by(Session.start_datetime).all()
+            courses = Course.query.order_by(Course.title).all()
+        else:
+            sessions = [
+                s for s in Session.query.order_by(Session.start_datetime).all()
+                if s.created_by == current_user.id or (s.course and s.course.teacher_id == current_user.id)
+            ]
+            courses = [
+                c for c in Course.query.order_by(Course.title).all()
+                if c.teacher_id == current_user.id or any(h.teacher_id == current_user.id for h in c.cohorts)
+            ]
+        for course in courses:
+            if current_user.role == 'admin' or course.teacher_id == current_user.id:
+                scopes = [(None, '')] + [(h.id, h.name) for h in course.cohorts]
+            else:
+                scopes = [(h.id, h.name) for h in course.cohorts if h.teacher_id == current_user.id]
+            for cohort_id, cohort_name in scopes:
+                data = _build_timetable(course, cohort_id=cohort_id, include_blank=False)
+                teacher = data.get('cohort_id') and Cohort.query.get(data['cohort_id'])
+                teacher_user = teacher.teacher if teacher and teacher.teacher else course.teacher
+                student_names = []
+                if cohort_id:
+                    student_names = [e.student.name for e in Enrollment.query.filter_by(cohort_id=cohort_id).all() if e.student]
+                else:
+                    student_names = [e.student.name for e in course.enrollments if e.student and not e.cohort_id]
+                for week in data['weeks']:
+                    for row in week['sessions']:
+                        if not row.get('date_iso') or not row.get('time_start'):
+                            continue
+                        start_dt = datetime.strptime(
+                            f"{row['date_iso']}T{row['time_start']}", '%Y-%m-%dT%H:%M'
+                        )
+                        timetable_items.append({
+                            'id': f"tt-{course.id}-{cohort_id or 'course'}-{week['week']}-{row['session_num']}",
+                            'title': row.get('topic') or f"Lesson {week['week']}",
+                            'session_type': 'cohort' if cohort_id else 'class',
+                            'course_id': course.id,
+                            'course_title': course.title,
+                            'cohort_id': cohort_id,
+                            'cohort_name': cohort_name,
+                            'teacher_id': teacher_user.id if teacher_user else None,
+                            'teacher_name': teacher_user.name if teacher_user else '',
+                            'student_names': student_names,
+                            'start_datetime': start_dt.strftime('%Y-%m-%dT%H:%M'),
+                            'start_display': start_dt.strftime('%a, %d %b %Y · %I:%M %p'),
+                            'duration_minutes': row.get('duration_minutes') or 60,
+                            'zoom_link': '',
+                            'recording_url': '',
+                            'has_recording': False,
+                            'source': 'planned',
+                        })
     else:
         enrollments = Enrollment.query.filter_by(student_id=current_user.id).all()
         enrolled_course_ids = {e.course_id for e in enrollments}
@@ -2525,19 +2662,46 @@ def api_student_timetable():
                         'course_title': e.course.title,
                         'cohort_id': e.cohort_id,
                         'cohort_name': e.cohort.name if e.cohort else '',
+                        'teacher_id': e.cohort.teacher_id if e.cohort and e.cohort.teacher_id else e.course.teacher_id,
+                        'teacher_name': e.cohort.teacher.name if e.cohort and e.cohort.teacher else (e.course.teacher.name if e.course.teacher else ''),
+                        'student_names': [current_user.name],
                         'start_datetime': start_dt.strftime('%Y-%m-%dT%H:%M'),
                         'start_display': start_dt.strftime('%a, %d %b %Y · %I:%M %p'),
                         'duration_minutes': row.get('duration_minutes') or 60,
                         'zoom_link': '',
+                        'recording_url': '',
                         'has_recording': False,
+                        'source': 'planned',
                     })
-    session_items = [s.to_dict() for s in sessions]
+    session_items = []
+    for s in sessions:
+        item = s.to_dict()
+        end_dt = s.start_datetime + timedelta(minutes=s.duration_minutes or 60)
+        if s.session_type == 'cohort' and s.course:
+            student_names = [e.student.name for e in s.course.enrollments if e.student]
+        else:
+            student_names = [p.student.name for p in s.participants if p.student]
+        item.update({
+            'time_end': end_dt.strftime('%H:%M'),
+            'date': s.start_datetime.strftime('%Y-%m-%d'),
+            'student_names': student_names,
+            'source': 'session',
+        })
+        session_items.append(item)
     all_items = session_items + timetable_items
+    for item in all_items:
+        start_dt = datetime.strptime(item['start_datetime'], '%Y-%m-%dT%H:%M')
+        end_dt = start_dt + timedelta(minutes=item.get('duration_minutes') or 60)
+        item['date'] = item.get('date') or start_dt.strftime('%Y-%m-%d')
+        item['time_start'] = start_dt.strftime('%H:%M')
+        item['time_end'] = item.get('time_end') or end_dt.strftime('%H:%M')
+        item['month_key'] = start_dt.strftime('%Y-%m')
     upcoming = [s for s in all_items if datetime.strptime(s['start_datetime'], '%Y-%m-%dT%H:%M') >= now]
     past     = [s for s in all_items if datetime.strptime(s['start_datetime'], '%Y-%m-%dT%H:%M') < now]
     upcoming.sort(key=lambda s: s['start_datetime'])
     past.sort(key=lambda s: s['start_datetime'], reverse=True)
-    return jsonify({'upcoming': upcoming, 'past': past})
+    all_items.sort(key=lambda s: s['start_datetime'])
+    return jsonify({'upcoming': upcoming, 'past': past, 'events': all_items})
 
 
 @app.route('/api/sessions/<int:sid>', methods=['PUT', 'DELETE'])
