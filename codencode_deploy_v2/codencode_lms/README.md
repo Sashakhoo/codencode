@@ -108,3 +108,10 @@ location /uploads/ {
 | `DATABASE_URL` | SQLite `codencode_lms.db` | Postgres connection string |
 | `SECRET_KEY` | `dev-secret-change-me` | Flask session key — **change this in production** |
 | `DB_PATH` | `codencode_lms.db` | SQLite path (ignored if DATABASE_URL set) |
+| `ZOOM_ACCOUNT_ID` | unset | Zoom Server-to-Server OAuth account ID |
+| `ZOOM_CLIENT_ID` | unset | Zoom Server-to-Server OAuth client ID |
+| `ZOOM_CLIENT_SECRET` | unset | Zoom Server-to-Server OAuth client secret |
+| `ZOOM_USER_ID` | `me` | Zoom user ID or email that hosts auto-created LMS meetings |
+| `ZOOM_TIMEZONE` | `Asia/Kuala_Lumpur` | Timezone sent when creating scheduled Zoom meetings |
+
+When `ZOOM_ACCOUNT_ID`, `ZOOM_CLIENT_ID`, and `ZOOM_CLIENT_SECRET` are set, teachers can leave the Zoom Link field blank while scheduling a session. The LMS will create the Zoom meeting through Zoom's API and save the returned student join link.

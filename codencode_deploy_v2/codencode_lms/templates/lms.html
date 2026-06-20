@@ -894,7 +894,92 @@
       backdrop-filter: blur(8px);
     }
     .tt-topic-input:focus { border-color: var(--accent); }
+    .tt-topic-input[readonly] { opacity: .82; cursor: default; }
     .tt-notes { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--muted); margin-top: 3px; }
+
+    .month-cal-toolbar {
+      display: flex; align-items: center; justify-content: space-between; gap: 12px;
+      margin-bottom: 16px; flex-wrap: wrap;
+    }
+    .month-cal-title {
+      font-family: 'Outfit', sans-serif; font-size: 18px; font-weight: 700; color: var(--white);
+    }
+    .month-cal-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .month-stack { display: grid; gap: 22px; }
+    .month-block {
+      min-width: 0; background: var(--surface); border: 1px solid var(--border);
+      border-radius: 8px; overflow: hidden;
+    }
+    .month-heading {
+      font-family: 'Outfit', sans-serif; font-size: 20px; font-weight: 800;
+      color: var(--white); margin: 0; padding: 14px 16px;
+      border-bottom: 1px solid var(--border); background: var(--bg-base);
+    }
+    .month-legend {
+      display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
+      font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--muted);
+      margin-bottom: 14px;
+    }
+    .month-legend span { display: inline-flex; align-items: center; gap: 6px; }
+    .month-key {
+      width: 12px; height: 12px; display: inline-block; border: 1px solid rgba(255,255,255,.16);
+    }
+    .month-key.class { background: rgba(0,229,160,.36); }
+    .month-key.group { background: rgba(126,184,200,.38); }
+    .month-key.private { background: rgba(168,145,201,.42); }
+    .month-key.avoid { background: rgba(255,100,125,.30); }
+    .month-grid {
+      display: grid; grid-template-columns: repeat(7, minmax(112px, 1fr));
+      overflow-x: auto; background: var(--border); gap: 1px;
+    }
+    .month-dow {
+      min-height: 32px; padding: 9px 8px; background: var(--bg-raised);
+      font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--muted);
+      text-align: center; text-transform: uppercase; letter-spacing: .06em;
+    }
+    .month-cell {
+      min-height: 126px; padding: 7px 6px 6px; background: var(--bg-base);
+      position: relative; overflow: hidden;
+    }
+    .month-cell.muted { opacity: .38; background: var(--bg-raised); }
+    .month-cell.today { box-shadow: inset 0 0 0 1px var(--cyan); }
+    .month-day {
+      display: inline-grid; place-items: center; width: 24px; height: 24px;
+      font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--text);
+      margin-bottom: 4px; border-radius: 50%;
+    }
+    .month-cell.today .month-day { background: var(--cyan); color: var(--bg-base); font-weight: 800; }
+    .month-event {
+      padding: 5px 7px; margin-top: 4px; border-left: 3px solid var(--cyan);
+      border-radius: 4px; background: rgba(0,229,160,.20); color: var(--text);
+      min-width: 0; box-shadow: inset 0 0 0 1px rgba(255,255,255,.04);
+    }
+    .month-event.group { border-left-color: var(--session-group); background: rgba(126,184,200,.22); }
+    .month-event.private { border-left-color: var(--session-private); background: rgba(168,145,201,.24); }
+    .month-event.avoid { border-left-color: var(--red); background: rgba(255,100,125,.20); }
+    .month-event-title {
+      font-family: 'Outfit', sans-serif; font-size: 12px; font-weight: 700;
+      line-height: 1.15; color: var(--white); overflow-wrap: anywhere;
+      display: flex; align-items: baseline; gap: 5px;
+    }
+    .month-event-time {
+      font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 700;
+      color: var(--cyan); white-space: nowrap;
+    }
+    .month-event-meta {
+      font-family: 'JetBrains Mono', monospace; font-size: 9px; line-height: 1.35;
+      color: var(--text-muted); margin-top: 5px; overflow-wrap: anywhere;
+    }
+    .month-event-link {
+      display: inline-flex; align-items: center; gap: 5px; margin-top: 6px;
+      font-family: 'JetBrains Mono', monospace; font-size: 9px; color: var(--cyan);
+      text-decoration: none; font-weight: 700;
+    }
+    .month-event-link:hover { text-decoration: underline; }
+    @media (max-width: 900px) {
+      .month-grid { grid-template-columns: repeat(7, minmax(92px, 1fr)); }
+      .month-cell { min-height: 102px; }
+    }
   </style>
 </head>
 <body>
@@ -1242,16 +1327,24 @@
         <div class="page-header">
           <div class="page-label">Schedule</div>
           <div class="page-title">My Timetable</div>
-          <div class="page-sub">// Upcoming and past sessions</div>
+          <div class="page-sub">// Month-by-month class schedule</div>
         </div>
-        <!-- Legend -->
-        <div style="display:flex;gap:16px;margin-bottom:16px;font-family:'JetBrains Mono',monospace;font-size:10px">
-          <span style="display:flex;align-items:center;gap:6px"><span style="width:10px;height:10px;background:var(--session-class);border-radius:50%;display:inline-block"></span> Cohort</span>
-          <span style="display:flex;align-items:center;gap:6px"><span style="width:10px;height:10px;background:var(--session-group);border-radius:50%;display:inline-block"></span> Group</span>
-          <span style="display:flex;align-items:center;gap:6px"><span style="width:10px;height:10px;background:var(--session-private);border-radius:50%;display:inline-block"></span> Private</span>
+        <div class="month-cal-toolbar">
+          <div class="month-cal-title" id="tt-month-title">Monthly Timetable</div>
+          <div class="month-cal-actions">
+            <button class="btn-action ghost" onclick="shiftTTMonth(-1)"><i class="fas fa-chevron-left"></i></button>
+            <button class="btn-action ghost" onclick="resetTTMonth()"><i class="fas fa-calendar-day"></i> Today</button>
+            <button class="btn-action ghost" onclick="shiftTTMonth(1)"><i class="fas fa-chevron-right"></i></button>
+          </div>
         </div>
-        <!-- Tabs -->
-        <div style="display:flex;gap:0;border-bottom:1px solid var(--border);margin-bottom:16px">
+        <div class="month-legend">
+          <span><i class="month-key class"></i> Cohort / Class</span>
+          <span><i class="month-key group"></i> Group</span>
+          <span><i class="month-key private"></i> Private</span>
+          <span><i class="month-key avoid"></i> Avoid / Blocked</span>
+        </div>
+        <div id="timetable-months" class="month-stack"></div>
+        <div style="display:flex;gap:0;border-bottom:1px solid var(--border);margin:22px 0 16px">
           <button id="tt-tab-upcoming" onclick="switchTTTab('upcoming')" style="padding:9px 20px;background:var(--cyan-dim);border:none;color:var(--cyan);font-family:'JetBrains Mono',monospace;font-size:11px;cursor:pointer;border-bottom:2px solid var(--cyan)">Upcoming</button>
           <button id="tt-tab-past" onclick="switchTTTab('past')" style="padding:9px 20px;background:none;border:none;color:var(--muted);font-family:'JetBrains Mono',monospace;font-size:11px;cursor:pointer;border-bottom:2px solid transparent">Past</button>
         </div>
@@ -1757,7 +1850,7 @@
                 </div>
                 <div class="form-group">
                   <label class="form-label">Zoom Link</label>
-                  <input class="form-input" type="url" id="sess-zoom" placeholder="https://zoom.us/j/..." />
+                  <input class="form-input" type="url" id="sess-zoom" placeholder="Leave blank to auto-create Zoom meeting" />
                 </div>
                 <div class="form-group" id="sess-participants-group" style="display:none">
                   <label class="form-label">Participants</label>
@@ -1778,6 +1871,27 @@
             </div>
             <div id="t-sessions-list" style="max-height:480px;overflow-y:auto">
               <div style="padding:16px 20px;color:var(--muted);font-family:var(--font-m);font-size:11px">No sessions yet.</div>
+            </div>
+          </div>
+        </div>
+        <div class="card" style="margin-top:20px">
+          <div class="card-header">
+            <span class="card-title"><i class="fas fa-calendar-alt"></i> All Teacher / Student Schedule</span>
+            <div style="display:flex;gap:8px;flex-wrap:wrap">
+              <button class="btn-action ghost" onclick="shiftTeacherCalMonth(-1)"><i class="fas fa-chevron-left"></i></button>
+              <button class="btn-action ghost" onclick="resetTeacherCalMonth()"><i class="fas fa-calendar-day"></i> Today</button>
+              <button class="btn-action ghost" onclick="shiftTeacherCalMonth(1)"><i class="fas fa-chevron-right"></i></button>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="month-legend">
+              <span><i class="month-key class"></i> Cohort / Class</span>
+              <span><i class="month-key group"></i> Group</span>
+              <span><i class="month-key private"></i> Private</span>
+              <span><i class="month-key avoid"></i> Avoid / Blocked</span>
+            </div>
+            <div id="teacher-calendar-months" class="month-stack">
+              <div style="padding:16px 20px;color:var(--muted);font-family:var(--font-m);font-size:11px">Loading monthly schedule...</div>
             </div>
           </div>
         </div>
@@ -3390,6 +3504,96 @@ const SESSION_TYPE_COLORS = {
   private: 'var(--session-private)'
 };
 
+
+function esc(str) {
+  return String(str ?? '').replace(/[&<>"']/g, ch => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+  }[ch]));
+}
+
+function addMonths(date, amount) {
+  return new Date(date.getFullYear(), date.getMonth() + amount, 1);
+}
+
+function monthLabel(date) {
+  return date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+}
+
+function localDateKey(date) {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, '0');
+  const d = String(date.getDate()).padStart(2, '0');
+  return `${y}-${m}-${d}`;
+}
+
+function eventKind(item) {
+  const title = String(item.title || '').toLowerCase();
+  if (title.includes('avoid') || title.includes('blocked') || item.session_type === 'avoid') return 'avoid';
+  if (item.session_type === 'private') return 'private';
+  if (item.session_type === 'group') return 'group';
+  return 'class';
+}
+
+function renderMonthGrid(events, startMonth, containerId, opts = {}) {
+  const container = document.getElementById(containerId);
+  if (!container) return;
+  const months = [new Date(startMonth.getFullYear(), startMonth.getMonth(), 1), addMonths(startMonth, 1)];
+  const todayKey = localDateKey(new Date());
+  const byDate = events.reduce((acc, item) => {
+    const key = item.date || String(item.start_datetime || '').slice(0, 10);
+    if (!key) return acc;
+    (acc[key] ||= []).push(item);
+    return acc;
+  }, {});
+
+  container.innerHTML = months.map(month => {
+    const first = new Date(month.getFullYear(), month.getMonth(), 1);
+    const firstDow = (first.getDay() + 6) % 7;
+    const gridStart = new Date(first);
+    gridStart.setDate(first.getDate() - firstDow);
+    const days = [];
+    for (let i = 0; i < 42; i++) {
+      const d = new Date(gridStart);
+      d.setDate(gridStart.getDate() + i);
+      days.push(d);
+    }
+    const cells = days.map(d => {
+      const key = localDateKey(d);
+      const dayEvents = (byDate[key] || []).sort((a, z) => String(a.start_datetime).localeCompare(String(z.start_datetime)));
+      const muted = d.getMonth() !== month.getMonth();
+      const eventHtml = dayEvents.map(item => {
+        const kind = eventKind(item);
+        const students = Array.isArray(item.student_names) ? item.student_names.filter(Boolean) : [];
+        const meta = [
+          item.time_start && item.time_end ? `${item.time_start}-${item.time_end}` : '',
+          item.course_title || '',
+          opts.showPeople && item.teacher_name ? `Teacher: ${item.teacher_name}` : '',
+          opts.showPeople && students.length ? `Students: ${students.slice(0, 3).join(', ')}${students.length > 3 ? ' +' + (students.length - 3) : ''}` : ''
+        ].filter(Boolean).map(esc).join('<br>');
+        const zoom = item.zoom_link
+          ? `<a class="month-event-link" href="${esc(item.zoom_link)}" target="_blank" rel="noopener"><i class="fas fa-video"></i> Join Zoom</a>`
+          : '';
+        const timeLabel = item.time_start ? `<span class="month-event-time">${esc(item.time_start)}</span>` : '';
+        return `<div class="month-event ${kind}">
+          <div class="month-event-title">${timeLabel}<span>${esc(item.title || 'Class')}</span></div>
+          <div class="month-event-meta">${meta}</div>
+          ${zoom}
+        </div>`;
+      }).join('');
+      return `<div class="month-cell ${muted ? 'muted' : ''} ${key === todayKey ? 'today' : ''}">
+        <div class="month-day">${d.getDate()}</div>${eventHtml}
+      </div>`;
+    }).join('');
+    return `<section class="month-block">
+      <h2 class="month-heading">${monthLabel(month)}</h2>
+      <div class="month-grid">
+        ${['Mon','Tue','Wed','Thu','Fri','Sat','Sun'].map(d => `<div class="month-dow">${d}</div>`).join('')}
+        ${cells}
+      </div>
+    </section>`;
+  }).join('');
+}
+
 async function loadNotifications() {
   try {
     const notifs = await GET('/api/notifications');
@@ -3445,18 +3649,61 @@ document.addEventListener('click', e => {
 //  STUDENT TIMETABLE (sessions API)
 // ══════════════════════════════════════════════════════
 
-let _ttData = { upcoming: [], past: [] };
+let _ttData = { upcoming: [], past: [], events: [] };
 let _ttActiveTab = 'upcoming';
+let _ttMonthDate = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
+let _teacherCalMonthDate = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
+let _teacherCalEvents = [];
 
 async function loadTimetable() {
   try {
     _ttData = await GET('/api/sessions/timetable');
   } catch(e) {
-    _ttData = { upcoming: [], past: [] };
+    _ttData = { upcoming: [], past: [], events: [] };
   }
   _ttData.upcoming = Array.isArray(_ttData.upcoming) ? _ttData.upcoming : [];
   _ttData.past     = Array.isArray(_ttData.past)     ? _ttData.past     : [];
+  _ttData.events   = Array.isArray(_ttData.events)   ? _ttData.events   : [..._ttData.upcoming, ..._ttData.past];
+  renderTTMonth();
   renderTTTab(_ttActiveTab);
+}
+
+function renderTTMonth() {
+  const title = document.getElementById('tt-month-title');
+  if (title) title.textContent = `${monthLabel(_ttMonthDate)} - ${monthLabel(addMonths(_ttMonthDate, 1))}`;
+  renderMonthGrid(_ttData.events || [], _ttMonthDate, 'timetable-months', { showPeople: false });
+}
+
+function shiftTTMonth(amount) {
+  _ttMonthDate = addMonths(_ttMonthDate, amount);
+  renderTTMonth();
+}
+
+function resetTTMonth() {
+  _ttMonthDate = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
+  renderTTMonth();
+}
+
+async function renderTeacherCalendar() {
+  const container = document.getElementById('teacher-calendar-months');
+  if (!container) return;
+  try {
+    const data = await GET('/api/sessions/timetable');
+    _teacherCalEvents = Array.isArray(data.events) ? data.events : [...(data.upcoming || []), ...(data.past || [])];
+  } catch(e) {
+    _teacherCalEvents = [];
+  }
+  renderMonthGrid(_teacherCalEvents, _teacherCalMonthDate, 'teacher-calendar-months', { showPeople: true });
+}
+
+function shiftTeacherCalMonth(amount) {
+  _teacherCalMonthDate = addMonths(_teacherCalMonthDate, amount);
+  renderMonthGrid(_teacherCalEvents, _teacherCalMonthDate, 'teacher-calendar-months', { showPeople: true });
+}
+
+function resetTeacherCalMonth() {
+  _teacherCalMonthDate = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
+  renderMonthGrid(_teacherCalEvents, _teacherCalMonthDate, 'teacher-calendar-months', { showPeople: true });
 }
 
 function switchTTTab(tab) {
@@ -3536,8 +3783,9 @@ async function loadTeacherSessions() {
     if (!planSel.value && STATE.courseId) planSel.value = STATE.courseId;
     if (planSel.value) loadTeacherMonthPlan().catch(() => {});
   }
-  // Load session list
+  // Load session list and shared monthly calendar
   await refreshSessionList();
+  await renderTeacherCalendar();
 }
 
 async function loadTeacherMonthPlan() {
@@ -3562,6 +3810,7 @@ async function loadTeacherMonthPlan() {
   }
   container.innerHTML = `<div style="padding:16px 20px;color:var(--muted);font-family:var(--font-m);font-size:11px">Loading timetable...</div>`;
   const data = await GET(`/api/courses/${cid}/timetable${cohortId ? '?cohort_id=' + cohortId : ''}`);
+  const courseTitle = document.getElementById('t-plan-course')?.selectedOptions[0]?.textContent?.trim() || 'Class';
   const startInput = document.getElementById('t-plan-start-date');
   if (startInput) startInput.value = data.start_date || '';
   const activeWeeks = data.weeks.slice(Math.max(0, (data.current_week || 1) - 1), Math.max(0, (data.current_week || 1) - 1) + 4);
@@ -3571,15 +3820,15 @@ async function loadTeacherMonthPlan() {
         <span class="tt-week-num">Week ${w.week}</span>
         <button class="btn-action ghost" style="margin-left:auto;font-size:10px;padding:5px 10px" onclick="addTeacherPlanRow(${w.week})"><i class="fas fa-plus"></i> Add timing</button>
       </div>
-      ${w.sessions.map(s => teacherPlanRow(w.week, s)).join('')}
+      ${w.sessions.map(s => teacherPlanRow(w.week, s, courseTitle)).join('')}
     </div>
   `).join('');
 }
 
-function teacherPlanRow(week, s) {
+function teacherPlanRow(week, s, courseTitle = 'Class') {
   const snum = s.session_num;
   const days = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
-  const topic = (s.topic || '').replace(/"/g, '&quot;');
+  const topic = (courseTitle || s.topic || 'Class').replace(/"/g, '&quot;');
   return `<div class="tt-session" data-week="${week}" data-snum="${snum}" style="grid-template-columns:160px 250px 1fr">
     <div>
       <select class="form-input t-plan-day" data-week="${week}" data-snum="${snum}" style="padding:6px 8px;font-size:11px">
@@ -3592,7 +3841,7 @@ function teacherPlanRow(week, s) {
       <span style="color:var(--muted);font-size:10px">to</span>
       <input class="form-input t-plan-end" type="time" value="${s.time_end || ''}" data-week="${week}" data-snum="${snum}" style="width:105px;padding:6px 8px;font-size:11px" />
     </div>
-    <input class="tt-topic-input" type="text" placeholder="Class title / topic" value="${topic}" data-week="${week}" data-snum="${snum}" />
+    <input class="tt-topic-input" type="text" value="${topic}" data-week="${week}" data-snum="${snum}" readonly title="Uses the selected course title for every day" />
   </div>`;
 }
 
@@ -3602,9 +3851,10 @@ function addTeacherPlanRow(week) {
   if (!weekEl) return;
   const existing = [...weekEl.querySelectorAll('.tt-topic-input')].map(i => parseInt(i.dataset.snum) || 0);
   const snum = Math.max(4, ...existing) + 1;
+  const courseTitle = document.getElementById('t-plan-course')?.selectedOptions[0]?.textContent?.trim() || 'Class';
   weekEl.insertAdjacentHTML('beforeend', teacherPlanRow(week, {
     session_num: snum, day: 'Friday', date: 'New timing', time_start: '20:00', time_end: '22:00', topic: ''
-  }));
+  }, courseTitle));
 }
 
 async function saveTeacherPlanStartDate() {
@@ -3637,6 +3887,7 @@ async function saveTeacherMonthPlan() {
   const cohortId = document.getElementById('t-plan-cohort')?.value || '';
   if (!cid) { showToast('Select a course first', true); return; }
   const inputs = document.querySelectorAll('#t-plan-container .tt-topic-input');
+  const courseTitle = document.getElementById('t-plan-course')?.selectedOptions[0]?.textContent?.trim() || 'Class';
   let saved = 0;
   for (const inp of inputs) {
     const selector = `[data-week="${inp.dataset.week}"][data-snum="${inp.dataset.snum}"]`;
@@ -3647,7 +3898,7 @@ async function saveTeacherMonthPlan() {
       day: document.querySelector(`#t-plan-container .t-plan-day${selector}`)?.value || 'Friday',
       time_start: document.querySelector(`#t-plan-container .t-plan-start${selector}`)?.value || '20:00',
       time_end: document.querySelector(`#t-plan-container .t-plan-end${selector}`)?.value || '22:00',
-      topic: inp.value.trim(),
+      topic: courseTitle,
       notes: ''
     });
     saved++;
@@ -3676,7 +3927,7 @@ async function refreshSessionList() {
                 &nbsp;·&nbsp; ${s.start_display}
                 ${s.course_title ? `&nbsp;·&nbsp; ${s.course_title}` : ''}
               </div>
-              ${s.zoom_link ? `<div style="font-family:var(--font-m);font-size:10px;margin-top:2px"><i class="fas fa-link" style="color:var(--cyan)"></i> <a href="${s.zoom_link}" target="_blank" style="color:var(--cyan)">${s.zoom_link.slice(0,40)}…</a></div>` : ''}
+              ${s.zoom_link ? `<a href="${s.zoom_link}" target="_blank" rel="noopener" class="btn-action ghost" style="display:inline-flex;margin-top:8px;font-size:10px;padding:5px 10px"><i class="fas fa-video"></i> Join Zoom</a>` : ''}
               ${s.recording_url ? `<div style="font-family:var(--font-m);font-size:10px;margin-top:2px"><i class="fas fa-video" style="color:var(--green)"></i> Recording linked</div>` : ''}
             </div>
             <button class="btn-action ghost" style="font-size:10px;padding:5px 10px;margin-right:4px" onclick="openAddRecordingModal(${s.id})">
