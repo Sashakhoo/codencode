@@ -623,6 +623,26 @@ def enrolled_or_staff(course_id):
 enrolled_or_teacher = enrolled_or_staff
 
 
+def recording_visible_to_student_filter(course_id, student_id):
+    enrollment = Enrollment.query.filter_by(
+        student_id=student_id, course_id=course_id).first()
+    if not enrollment:
+        return db.false()
+    if enrollment.cohort_id:
+        return db.or_(
+            Recording.cohort_id.is_(None),
+            Recording.cohort_id == enrollment.cohort_id
+        )
+    return Recording.cohort_id.is_(None)
+
+
+def visible_recordings_query(course_id, student_id=None):
+    query = Recording.query.filter_by(course_id=course_id)
+    if student_id:
+        query = query.filter(recording_visible_to_student_filter(course_id, student_id))
+    return query
+
+
 def teacher_can_manage_course(course_id):
     """Return True when the current teacher/admin may manage this course."""
     if current_user.role == 'admin':
@@ -710,6 +730,44 @@ def issue_certificate_for(student_id, course_id):
             course.title, cert.cert_number, cert.id
         )
     return cert, None
+
+
+def issue_blank_name_certificate_for(course_id):
+    """Create a course certificate without a named student, for workshops."""
+    course = Course.query.get(course_id)
+    if not course:
+        return None, ('course not found', 404)
+
+    cert = None
+    for _ in range(5):
+        cert = Certificate(
+            student_id=None,
+            course_id=course_id,
+            issued_by=current_user.id,
+            cert_number=next_certificate_number()
+        )
+        db.session.add(cert)
+        try:
+            db.session.commit()
+            break
+        except IntegrityError:
+            db.session.rollback()
+            cert = None
+    if cert is None:
+        return None, ('Could not generate a unique certificate number. Please try again.', 409)
+    return cert, None
+
+
+def _certificate_quantity(data):
+    try:
+        qty = int(data.get('quantity') or 1)
+    except (TypeError, ValueError):
+        return None, ('quantity must be a number', 400)
+    if qty < 1:
+        return None, ('quantity must be at least 1', 400)
+    if qty > 200:
+        return None, ('quantity cannot exceed 200 per batch', 400)
+    return qty, None
 
 
 # ─────────────────────────────────────────────
@@ -869,8 +927,16 @@ def api_recordings(cid):
         return jsonify({'error': 'Not enrolled'}), 403
 
     course = Course.query.get_or_404(cid)
-    recs = Recording.query.filter_by(course_id=cid).order_by(
-        Recording.week, Recording.session_num).all()
+    query = visible_recordings_query(
+        cid,
+        current_user.id if current_user.role == 'student' else None
+    )
+    if current_user.role in ('teacher', 'admin'):
+        cohort_id = request.args.get('cohort_id')
+        if cohort_id:
+            Cohort.query.filter_by(id=int(cohort_id), course_id=cid).first_or_404()
+            query = query.filter(Recording.cohort_id == int(cohort_id))
+    recs = query.order_by(Recording.week, Recording.session_num).all()
 
     # Gate by cohort week (or course week as fallback) for students
     if current_user.role == 'student':
@@ -886,7 +952,8 @@ def api_recordings(cid):
     for r in data:
         w = r['week']
         weeks.setdefault(w, []).append(r)
-    return jsonify({'weeks': weeks, 'current_week': course.current_week})
+    current_week = _student_week(cid) if current_user.role == 'student' else course.current_week
+    return jsonify({'weeks': weeks, 'current_week': current_week})
 
 
 @app.route('/api/courses/<int:cid>/recordings', methods=['POST'])
@@ -894,6 +961,9 @@ def api_recordings(cid):
 def api_upload_recording(cid):
     Course.query.get_or_404(cid)
     recording_url = (request.form.get('recording_url') or '').strip()
+    cohort_id = request.form.get('cohort_id') or None
+    if cohort_id:
+        Cohort.query.filter_by(id=int(cohort_id), course_id=cid).first_or_404()
     stored = None
     original = ''
     source_type = 'upload'
@@ -913,6 +983,7 @@ def api_upload_recording(cid):
 
     rec = Recording(
         course_id   = cid,
+        cohort_id   = int(cohort_id) if cohort_id else None,
         week        = int(request.form.get('week', 1)),
         session_num = int(request.form.get('session_num', 1)),
         title       = request.form.get('title') or ('Google Drive Recording' if recording_url else original),
@@ -942,6 +1013,10 @@ def api_delete_recording(rid):
 @app.route('/api/recordings/<int:rid>/watch', methods=['POST'])
 @student_required
 def api_mark_watched(rid):
+    rec = Recording.query.get_or_404(rid)
+    if not visible_recordings_query(rec.course_id, current_user.id).filter(
+        Recording.id == rid).first():
+        return jsonify({'error': 'Recording not available for your class'}), 403
     exists = WatchLog.query.filter_by(
         student_id=current_user.id, recording_id=rid).first()
     if not exists:
@@ -1220,8 +1295,10 @@ def api_dashboard(cid):
     total_assignments = Assignment.query.filter_by(course_id=cid).count()
 
     if current_user.role == 'student':
+        total_recordings = visible_recordings_query(cid, current_user.id).count()
         watched = WatchLog.query.join(Recording).filter(
             Recording.course_id == cid,
+            recording_visible_to_student_filter(cid, current_user.id),
             WatchLog.student_id == current_user.id).count()
         subs = Submission.query.join(Assignment).filter(
             Assignment.course_id == cid,
@@ -1232,7 +1309,7 @@ def api_dashboard(cid):
 
         # Build recent activity feed
         activity = []
-        recent_recordings = (Recording.query.filter_by(course_id=cid)
+        recent_recordings = (visible_recordings_query(cid, current_user.id)
             .order_by(Recording.uploaded_at.desc()).limit(3).all())
         for r in recent_recordings:
             activity.append({'type': 'cyan', 'text': f'<strong>{r.title}</strong> — video uploaded',
@@ -1272,19 +1349,21 @@ def api_dashboard(cid):
         student_progress = []
         for e in enrollments:
             s = e.student
+            visible_total_recordings = visible_recordings_query(cid, s.id).count()
             watched = WatchLog.query.join(Recording).filter(
                 Recording.course_id == cid,
+                recording_visible_to_student_filter(cid, s.id),
                 WatchLog.student_id == s.id).count()
             subs   = Submission.query.join(Assignment).filter(
                 Assignment.course_id == cid,
                 Submission.student_id == s.id).all()
             graded = [x for x in subs if x.score is not None]
             avg    = round(sum(x.score for x in graded) / len(graded), 1) if graded else None
-            pct    = round((watched / total_recordings * 100)) if total_recordings else 0
+            pct    = round((watched / visible_total_recordings * 100)) if visible_total_recordings else 0
             student_progress.append({
                 'id': s.id, 'name': s.name, 'email': s.email,
                 'initials': s.initials(),
-                'videos_watched': watched, 'total_recordings': total_recordings,
+                'videos_watched': watched, 'total_recordings': visible_total_recordings,
                 'submissions': len(subs), 'total_assignments': total_assignments,
                 'avg_grade': avg, 'progress_pct': pct
             })
@@ -3004,10 +3083,13 @@ def _build_timetable(course, cohort_id=None, weeks=None, start_week=1, include_b
     end_week = min(max_week, start_week + weeks - 1) if weeks else max_week
     start_week = max(1, min(start_week, max_week))
     slots = _cohort_schedule_slots(cohort) or _DEFAULT_TIMETABLE_SLOTS
-    stored = {}
-    query = TimetableSession.query.filter_by(course_id=course.id, cohort_id=cohort.id if cohort else None).all()
-    for s in query:
-        stored[(s.week, s.session_num)] = s
+    shared_rows = TimetableSession.query.filter_by(course_id=course.id, cohort_id=None).all()
+    scoped_rows = []
+    if cohort:
+        scoped_rows = TimetableSession.query.filter_by(course_id=course.id, cohort_id=cohort.id).all()
+    shared = {(s.week, s.session_num): s for s in shared_rows}
+    scoped = {(s.week, s.session_num): s for s in scoped_rows}
+    query = shared_rows + scoped_rows
     today = date_type.today()
     weeks_out = []
     for w in range(start_week, end_week + 1):
@@ -3018,10 +3100,13 @@ def _build_timetable(course, cohort_id=None, weeks=None, start_week=1, include_b
             base = next((slot for slot in slots if slot['session_num'] == snum), None) or {
                 'session_num': snum, 'day': 'Friday', 'time_start': '20:00', 'time_end': '22:00', 'day_offset': 0
             }
-            db_s = stored.get((w, snum))
-            day_name = db_s.day_name if db_s and db_s.day_name else base['day']
-            time_start = db_s.time_start if db_s and db_s.time_start else base['time_start']
-            time_end = db_s.time_end if db_s and db_s.time_end else base['time_end']
+            shared_s = shared.get((w, snum))
+            scoped_s = scoped.get((w, snum))
+            db_s = scoped_s or shared_s
+            timing_s = scoped_s or shared_s
+            day_name = timing_s.day_name if timing_s and timing_s.day_name else base['day']
+            time_start = timing_s.time_start if timing_s and timing_s.time_start else base['time_start']
+            time_end = timing_s.time_end if timing_s and timing_s.time_end else base['time_end']
             day_offset = _day_offset(day_name, start_date)
             if start_date:
                 sd = start_date + timedelta(weeks=w - 1, days=day_offset)
@@ -3032,7 +3117,8 @@ def _build_timetable(course, cohort_id=None, weeks=None, start_week=1, include_b
             else:
                 date_str = date_iso = None
                 is_past = is_today = False
-            topic = db_s.topic if db_s else None
+            topic = shared_s.topic if shared_s else None
+            notes = shared_s.notes if shared_s else None
             if not include_blank and not topic:
                 continue
             sessions.append({
@@ -3046,7 +3132,7 @@ def _build_timetable(course, cohort_id=None, weeks=None, start_week=1, include_b
                 'time_end': time_end,
                 'time_end_display': _time_label(time_end),
                 'topic': topic,
-                'notes': db_s.notes if db_s else None,
+                'notes': notes,
                 'is_past': is_past,
                 'is_today': is_today,
                 'duration_minutes': _time_duration_minutes(time_start, time_end),
@@ -3099,18 +3185,36 @@ def api_save_timetable_session(cid):
         ).scalar() or 0
         snum = max(max_num + 1, 4)
     snum = int(snum)
+    shared_s = TimetableSession.query.filter_by(
+        course_id=cid, cohort_id=None, week=week, session_num=snum
+    ).first()
+    if shared_s:
+        shared_s.topic = topic
+        shared_s.notes = notes
+    else:
+        shared_s = TimetableSession(
+            course_id=cid, cohort_id=None, week=week, session_num=snum,
+            day_name=day_name if not cohort_id else None,
+            time_start=time_start if not cohort_id else None,
+            time_end=time_end if not cohort_id else None,
+            day_offset=int(day_offset) if not cohort_id else 0,
+            topic=topic, notes=notes
+        )
+        db.session.add(shared_s)
+    if not cohort_id:
+        db.session.commit()
+        return jsonify({'ok': True})
     s = TimetableSession.query.filter_by(
-        course_id=cid, cohort_id=int(cohort_id) if cohort_id else None, week=week, session_num=snum
+        course_id=cid, cohort_id=int(cohort_id), week=week, session_num=snum
     ).first()
     if s:
-        s.topic = topic; s.notes = notes
         s.day_name = day_name; s.time_start = time_start; s.time_end = time_end; s.day_offset = int(day_offset)
     else:
         s = TimetableSession(
-            course_id=cid, cohort_id=int(cohort_id) if cohort_id else None,
+            course_id=cid, cohort_id=int(cohort_id),
             week=week, session_num=snum, day_name=day_name,
             time_start=time_start, time_end=time_end, day_offset=int(day_offset),
-            topic=topic, notes=notes
+            topic=None, notes=None
         )
         db.session.add(s)
     db.session.commit()
@@ -3269,10 +3373,29 @@ def admin_certificates():
     data       = request.get_json()
     student_id = data.get('student_id')
     course_id  = data.get('course_id')
-    if not student_id or not course_id:
-        return jsonify({'error': 'student_id and course_id required'}), 400
+    blank_name = bool(data.get('blank_name'))
+    if not course_id or (not blank_name and not student_id):
+        return jsonify({'error': 'course_id required; student_id required unless blank_name is true'}), 400
     if not teacher_can_manage_course(course_id):
         return jsonify({'error': 'Forbidden'}), 403
+    if blank_name:
+        qty, qty_err = _certificate_quantity(data)
+        if qty_err:
+            msg, status = qty_err
+            return jsonify({'error': msg}), status
+        certs = []
+        for _ in range(qty):
+            cert, err = issue_blank_name_certificate_for(course_id)
+            if err:
+                msg, status = err
+                return jsonify({'error': msg, 'certificates': [c.to_dict() for c in certs]}), status
+            certs.append(cert)
+        return jsonify({
+            'certificate': certs[0].to_dict(),
+            'certificates': [c.to_dict() for c in certs],
+            'count': len(certs)
+        }), 201
+
     cert, err = issue_certificate_for(student_id, course_id)
     if err:
         msg, status = err
@@ -3387,10 +3510,29 @@ def teacher_issue_certificate():
     data = request.get_json() or {}
     student_id = data.get('student_id')
     course_id = data.get('course_id')
-    if not student_id or not course_id:
-        return jsonify({'error': 'student_id and course_id required'}), 400
+    blank_name = bool(data.get('blank_name'))
+    if not course_id or (not blank_name and not student_id):
+        return jsonify({'error': 'course_id required; student_id required unless blank_name is true'}), 400
     if not teacher_can_manage_course(course_id):
         return jsonify({'error': 'Forbidden'}), 403
+    if blank_name:
+        qty, qty_err = _certificate_quantity(data)
+        if qty_err:
+            msg, status = qty_err
+            return jsonify({'error': msg}), status
+        certs = []
+        for _ in range(qty):
+            cert, err = issue_blank_name_certificate_for(course_id)
+            if err:
+                msg, status = err
+                return jsonify({'error': msg, 'certificates': [c.to_dict() for c in certs]}), status
+            certs.append(cert)
+        return jsonify({
+            'certificate': certs[0].to_dict(),
+            'certificates': [c.to_dict() for c in certs],
+            'count': len(certs)
+        }), 201
+
     cert, err = issue_certificate_for(student_id, course_id)
     if err:
         msg, status = err
@@ -4063,6 +4205,9 @@ with app.app_context():
                 conn.commit()
             if 'source_type' not in rec_cols:
                 conn.execute(text("ALTER TABLE recordings ADD COLUMN source_type VARCHAR(20) DEFAULT 'upload'"))
+                conn.commit()
+            if 'cohort_id' not in rec_cols:
+                conn.execute(text('ALTER TABLE recordings ADD COLUMN cohort_id INTEGER'))
                 conn.commit()
     except Exception:
         pass

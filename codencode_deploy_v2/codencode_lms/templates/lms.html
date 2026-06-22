@@ -556,6 +556,52 @@
       cursor: pointer; background: none; transition: all 0.2s; white-space: nowrap;
     }
     .btn-dl:hover { background: var(--cyan-dim); }
+    .material-card {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 14px 18px;
+      background: rgba(255,255,255,0.04);
+      border-bottom: 1px solid var(--border);
+      gap: 14px;
+    }
+    .material-info { flex: 1; min-width: 0; }
+    .material-title { font-size: 13px; font-weight: 600; }
+    .material-actions { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
+    .btn-preview {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      border-radius: 8px;
+      border: 1px solid rgba(255,255,255,0.2);
+      background: transparent;
+      color: inherit;
+      cursor: pointer;
+      font-size: 13px;
+      font-family: var(--font-m);
+    }
+    .btn-open {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      border-radius: 8px;
+      background: var(--accent, #f0a500);
+      color: #000;
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 600;
+      font-family: var(--font-m);
+    }
+    .slide-preview-panel { display: none; margin: 12px 0 24px 0; padding: 0 18px 18px; }
+    .slide-preview-panel iframe {
+      width: 100%;
+      height: 580px;
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 12px;
+      background: var(--bg-base);
+    }
 
     /* ── Assignments ── */
     .assignment-list { display: flex; flex-direction: column; gap: 12px; }
@@ -1484,6 +1530,13 @@
                   </div>
                 </div>
                 <div class="form-group">
+                  <label class="form-label">Visible To</label>
+                  <select class="form-input" id="recording-cohort-select">
+                    <option value="">Whole course</option>
+                  </select>
+                  <div class="upload-sub" style="margin-top:6px">Choose a cohort/class for private 1-to-1, 2-to-1, or 5-to-1 recordings.</div>
+                </div>
+                <div class="form-group">
                   <label class="form-label">Google Drive Link</label>
                   <input class="form-input" type="url" id="recording-url" placeholder="https://drive.google.com/drive/folders/..." />
                   <div class="upload-sub" style="margin-top:6px">Paste a shared Drive folder or recording link.</div>
@@ -1777,6 +1830,16 @@
                   <select class="form-input" id="teacher-cert-student">
                     <option value="">Select student...</option>
                   </select>
+                </div>
+                <div class="form-group">
+                  <label style="display:flex;align-items:flex-start;gap:10px;color:var(--muted);font-family:var(--font-m);font-size:12px;line-height:1.5">
+                    <input type="checkbox" id="teacher-cert-blank-name" onchange="toggleTeacherBlankCertificateName()" style="margin-top:2px;accent-color:var(--cyan)" />
+                    <span>Workshop certificate without participant name</span>
+                  </label>
+                </div>
+                <div class="form-group" id="teacher-cert-blank-quantity-group" style="display:none">
+                  <label class="form-label">Quantity</label>
+                  <input class="form-input" type="number" id="teacher-cert-blank-quantity" min="1" max="200" value="1" />
                 </div>
                 <button class="btn-action" style="width:100%;justify-content:center;padding:14px" onclick="teacherIssueCertificateFromSection()">
                   <i class="fas fa-certificate"></i> Issue Certificate
@@ -2756,6 +2819,33 @@ async function loadVideos() {
   }).join('');
 }
 
+function toggleSlidePreview(weekId) {
+  const el = document.getElementById('slide-preview-' + weekId);
+  if (!el) return;
+  const isHidden = el.style.display === 'none' || el.style.display === '';
+  el.style.display = isHidden ? 'block' : 'none';
+}
+
+function slideEmbedForWeek(weekNum) {
+  if (!weekNum || weekNum < 1 || weekNum > 4) return '';
+  const weekId = `week${weekNum}`;
+  const url = `https://codencodemy.github.io/codencode-slides/${weekId}/`;
+  return `
+    <div class="material-card">
+      <div class="material-info">
+        <span class="material-title">Week ${weekNum} Lecture Slides</span>
+        <div class="file-sub">Preview the slides in LMS or open them in a new tab.</div>
+      </div>
+      <div class="material-actions">
+        <button class="btn-preview" onclick="toggleSlidePreview('${weekId}')"><i class="fas fa-eye"></i> Preview</button>
+        <a class="btn-open" href="${url}" target="_blank" rel="noopener"><i class="fas fa-arrow-up-right-from-square"></i> Open</a>
+      </div>
+    </div>
+    <div id="slide-preview-${weekId}" class="slide-preview-panel">
+      <iframe src="${url}" frameborder="0" allowfullscreen loading="lazy"></iframe>
+    </div>`;
+}
+
 async function loadMaterials() {
   const mats = await GET(`/api/courses/${STATE.courseId}/materials`);
   STATE.materials = mats;
@@ -2774,26 +2864,30 @@ async function loadMaterials() {
     (groups[label] = groups[label]||[]).push(m);
   });
 
-  container.innerHTML = Object.entries(groups).map(([label, items]) => `
-    <div class="card">
-      <div class="card-header">
-        <span class="card-title"><i class="fas fa-folder"></i> ${label}</span>
-      </div>
-      <div class="file-list">
-        ${items.map(m => `
-          <div class="file-row">
-            ${fileIcon(m.file_type)}
-            <div style="flex:1">
-              <div class="file-name">${m.orig_name || m.title}</div>
-              <div class="file-sub">${m.description || m.title}</div>
-            </div>
-            <span class="file-size">${m.file_size || ''}</span>
-            <a class="btn-dl" href="/uploads/materials/${m.filename}" download="${m.orig_name||m.title}">
-              <i class="fas fa-download"></i> Download
-            </a>
-          </div>`).join('')}
-      </div>
-    </div>`).join('');
+  container.innerHTML = Object.entries(groups).map(([label, items]) => {
+    const weekNum = items.find(m => m.week >= 1 && m.week <= 4)?.week;
+    return `
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title"><i class="fas fa-folder"></i> ${label}</span>
+        </div>
+        <div class="file-list">
+          ${slideEmbedForWeek(weekNum)}
+          ${items.map(m => `
+            <div class="file-row">
+              ${fileIcon(m.file_type)}
+              <div style="flex:1">
+                <div class="file-name">${m.orig_name || m.title}</div>
+                <div class="file-sub">${m.description || m.title}</div>
+              </div>
+              <span class="file-size">${m.file_size || ''}</span>
+              <a class="btn-dl" href="/uploads/materials/${m.filename}" download="${m.orig_name||m.title}">
+                <i class="fas fa-download"></i> Download
+              </a>
+            </div>`).join('')}
+        </div>
+      </div>`;
+  }).join('');
 }
 
 async function loadAssignments() {
@@ -2926,7 +3020,20 @@ async function loadTeacherDashboard() {
   if (badge) { badge.textContent = d.ungraded_submissions; badge.style.display = d.ungraded_submissions > 0 ? '' : 'none'; }
 }
 
+async function populateRecordingCohortSelect() {
+  const sel = document.getElementById('recording-cohort-select');
+  if (!sel || !STATE.courseId) return;
+  const current = sel.value || '';
+  sel.innerHTML = '<option value="">Whole course</option>';
+  try {
+    const cohorts = await GET(`/api/courses/${STATE.courseId}/cohorts`);
+    sel.innerHTML += cohorts.map(h => `<option value="${h.id}">${h.name}${h.teacher_name ? ' - ' + h.teacher_name : ''}</option>`).join('');
+    if ([...sel.options].some(o => o.value === current)) sel.value = current;
+  } catch(e) { /* keep whole-course option */ }
+}
+
 async function loadTeacherVideos() {
+  await populateRecordingCohortSelect();
   const resp = await GET(`/api/courses/${STATE.courseId}/recordings`);
   const weeks = (resp && resp.weeks) ? resp.weeks : (typeof resp === 'object' && !Array.isArray(resp) ? resp : {});
   const list = document.getElementById('t-recordings-list');
@@ -2939,7 +3046,7 @@ async function loadTeacherVideos() {
           <div class="file-icon mp4"><i class="fas ${r.source_type === 'link' ? 'fa-link' : 'fa-film'}"></i></div>
           <div style="flex:1">
             <div class="file-name" style="font-size:12px">W${r.week}S${r.session_num} — ${r.title}</div>
-            <div class="file-sub">${r.source_type === 'link' ? 'Drive link' : 'Uploaded'} ${r.uploaded_at||''}${r.duration ? ' - ' + r.duration : ''}</div>
+            <div class="file-sub">${r.cohort_name ? 'Class: ' + r.cohort_name + ' - ' : 'Whole course - '}${r.source_type === 'link' ? 'Drive link' : 'Uploaded'} ${r.uploaded_at||''}${r.duration ? ' - ' + r.duration : ''}</div>
           </div>
           <button class="btn-action red" onclick="deleteRecording(${r.id})"><i class="fas fa-trash"></i></button>
         </div>`).join('');
@@ -3168,7 +3275,13 @@ function populateTeacherCertCourses() {
 function populateTeacherCertStudents() {
   const courseSel = document.getElementById('teacher-cert-course');
   const studentSel = document.getElementById('teacher-cert-student');
+  const blankName = document.getElementById('teacher-cert-blank-name')?.checked;
   if (!studentSel) return;
+  studentSel.disabled = !!blankName;
+  if (blankName) {
+    studentSel.innerHTML = '<option value="">No name on certificate</option>';
+    return;
+  }
   const courseId = parseInt(courseSel?.value || '0');
   let students = STATE.teacherCertOptions.students || [];
   if (courseId && STATE.teacherCertOptions.enrollments?.length) {
@@ -3181,6 +3294,13 @@ function populateTeacherCertStudents() {
   }
   studentSel.innerHTML = '<option value="">Select student...</option>' +
     students.map(s => `<option value="${s.id}">${s.name}</option>`).join('');
+}
+
+function toggleTeacherBlankCertificateName() {
+  const qtyGroup = document.getElementById('teacher-cert-blank-quantity-group');
+  const blankName = document.getElementById('teacher-cert-blank-name')?.checked;
+  if (qtyGroup) qtyGroup.style.display = blankName ? 'block' : 'none';
+  populateTeacherCertStudents();
 }
 
 async function loadTeacherCertificates() {
@@ -3221,12 +3341,20 @@ async function loadTeacherCertificates() {
 async function teacherIssueCertificateFromSection() {
   const courseId = parseInt(document.getElementById('teacher-cert-course')?.value || '0');
   const studentId = parseInt(document.getElementById('teacher-cert-student')?.value || '0');
+  const blankName = document.getElementById('teacher-cert-blank-name')?.checked;
+  const quantity = parseInt(document.getElementById('teacher-cert-blank-quantity')?.value || '1');
   const studentName = document.getElementById('teacher-cert-student')?.selectedOptions?.[0]?.textContent || 'this student';
-  if (!courseId || !studentId) { showToast('Select a course and student first', true); return; }
-  if (!confirm(`Issue certificate to ${studentName}?`)) return;
+  if (!courseId || (!blankName && !studentId)) { showToast(blankName ? 'Select a course first' : 'Select a course and student first', true); return; }
+  if (blankName && (!quantity || quantity < 1 || quantity > 200)) { showToast('Enter a quantity between 1 and 200', true); return; }
+  if (!confirm(blankName ? `Issue ${quantity} workshop certificate${quantity === 1 ? '' : 's'} without participant name?` : `Issue certificate to ${studentName}?`)) return;
   try {
-    const r = await POST('/api/teacher/certificates', { student_id: studentId, course_id: courseId });
-    showToast(`Certificate issued: ${r.certificate?.cert_number || 'done'}`);
+    const r = await POST('/api/teacher/certificates', {
+      student_id: blankName ? null : studentId,
+      course_id: courseId,
+      blank_name: !!blankName,
+      quantity: blankName ? quantity : 1
+    });
+    showToast(blankName && r.count > 1 ? `${r.count} certificates issued!` : `Certificate issued: ${r.certificate?.cert_number || 'done'}`);
     await loadTeacherCertificates();
   } catch(e) {
     showToast('Error: ' + e.message, true);
@@ -3246,6 +3374,8 @@ async function uploadRecording() {
     if (!recordingUrl && !fileInput?.files[0]) { showToast('Please paste a Google Drive link first', true); btn.innerHTML = '<i class="fas fa-link"></i> Save Recording Link'; return; }
     if (recordingUrl) fd.append('recording_url', recordingUrl);
     else fd.append('file', fileInput.files[0]);
+    const cohortId = document.getElementById('recording-cohort-select')?.value || '';
+    if (cohortId) fd.append('cohort_id', cohortId);
     fd.append('title', document.getElementById('vid-title')?.value || '');
     fd.append('week',  document.querySelector('[name="week"]')?.value || 1);
     fd.append('session_num', document.querySelector('[name="session_num"]')?.value || 1);

@@ -199,6 +199,7 @@ class Recording(db.Model):
     __tablename__ = 'recordings'
     id          = db.Column(db.Integer, primary_key=True)
     course_id   = db.Column(db.Integer, db.ForeignKey('courses.id'), nullable=False)
+    cohort_id   = db.Column(db.Integer, db.ForeignKey('cohorts.id'), nullable=True)
     week        = db.Column(db.Integer, nullable=False)
     session_num = db.Column(db.Integer, nullable=False)
     title       = db.Column(db.String(200), nullable=False)
@@ -210,12 +211,16 @@ class Recording(db.Model):
     uploaded_at = db.Column(db.DateTime, default=datetime.utcnow)
 
     course     = db.relationship('Course', back_populates='recordings')
+    cohort     = db.relationship('Cohort')
     watch_logs = db.relationship('WatchLog', back_populates='recording')
 
     def to_dict(self, watched=False):
         return {
             'id': self.id, 'week': self.week, 'session_num': self.session_num,
             'title': self.title, 'description': self.description,
+            'course_id': self.course_id,
+            'cohort_id': self.cohort_id,
+            'cohort_name': self.cohort.name if self.cohort else '',
             'filename': self.filename, 'recording_url': self.recording_url,
             'source_type': self.source_type or ('link' if self.recording_url else 'upload'),
             'duration': self.duration,
