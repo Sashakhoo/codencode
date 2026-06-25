@@ -2819,30 +2819,50 @@ async function loadVideos() {
   }).join('');
 }
 
-function toggleSlidePreview(weekId) {
-  const el = document.getElementById('slide-preview-' + weekId);
+function toggleSlidePreview(slideId) {
+  const el = document.getElementById('slide-preview-' + slideId);
   if (!el) return;
   const isHidden = el.style.display === 'none' || el.style.display === '';
   el.style.display = isHidden ? 'block' : 'none';
 }
 
-function slideEmbedForWeek(weekNum) {
-  if (!weekNum || weekNum < 1 || weekNum > 4) return '';
-  const weekId = `week${weekNum}`;
-  const url = `https://codencodemy.github.io/codencode-slides/${weekId}/`;
+function slideNumberForMaterial(m) {
+  const match = String(m.filename || '').match(/^Session_(\d+)_Student_/);
+  return match ? match[1] : '';
+}
+
+function slidePublicUrl(m) {
+  const num = slideNumberForMaterial(m);
+  return num ? `https://codencodemy.github.io/codencode-slides/session-${num}/index.html` : '';
+}
+
+function materialLocalUrl(m, download=false) {
+  const filename = String(m.filename || '').split('/').map(encodeURIComponent).join('/');
+  return `/uploads/materials/${filename}${download ? '?download=1' : ''}`;
+}
+
+function materialActions(m) {
+  const publicUrl = slidePublicUrl(m);
+  const downloadUrl = materialLocalUrl(m, true);
+  if (!publicUrl) {
+    return `<a class="btn-dl" href="${downloadUrl}" download="${m.orig_name||m.title}"><i class="fas fa-download"></i> Download</a>`;
+  }
+  const slideId = `session-${slideNumberForMaterial(m)}`;
   return `
-    <div class="material-card">
-      <div class="material-info">
-        <span class="material-title">Week ${weekNum} Lecture Slides</span>
-        <div class="file-sub">Preview the slides in LMS or open them in a new tab.</div>
-      </div>
-      <div class="material-actions">
-        <button class="btn-preview" onclick="toggleSlidePreview('${weekId}')"><i class="fas fa-eye"></i> Preview</button>
-        <a class="btn-open" href="${url}" target="_blank" rel="noopener"><i class="fas fa-arrow-up-right-from-square"></i> Open</a>
-      </div>
-    </div>
-    <div id="slide-preview-${weekId}" class="slide-preview-panel">
-      <iframe src="${url}" frameborder="0" allowfullscreen loading="lazy"></iframe>
+    <div class="material-actions">
+      <button class="btn-preview" onclick="toggleSlidePreview('${slideId}')"><i class="fas fa-eye"></i> Preview</button>
+      <a class="btn-open" href="${publicUrl}" target="_blank" rel="noopener"><i class="fas fa-arrow-up-right-from-square"></i> Open</a>
+      <a class="btn-dl" href="${downloadUrl}" download="${m.orig_name||m.title}"><i class="fas fa-download"></i> Download</a>
+    </div>`;
+}
+
+function materialPreviewPanel(m) {
+  const publicUrl = slidePublicUrl(m);
+  if (!publicUrl) return '';
+  const slideId = `session-${slideNumberForMaterial(m)}`;
+  return `
+    <div id="slide-preview-${slideId}" class="slide-preview-panel">
+      <iframe src="${publicUrl}" frameborder="0" allowfullscreen loading="lazy"></iframe>
     </div>`;
 }
 
@@ -2865,14 +2885,12 @@ async function loadMaterials() {
   });
 
   container.innerHTML = Object.entries(groups).map(([label, items]) => {
-    const weekNum = items.find(m => m.week >= 1 && m.week <= 4)?.week;
     return `
       <div class="card">
         <div class="card-header">
           <span class="card-title"><i class="fas fa-folder"></i> ${label}</span>
         </div>
         <div class="file-list">
-          ${slideEmbedForWeek(weekNum)}
           ${items.map(m => `
             <div class="file-row">
               ${fileIcon(m.file_type)}
@@ -2881,10 +2899,9 @@ async function loadMaterials() {
                 <div class="file-sub">${m.description || m.title}</div>
               </div>
               <span class="file-size">${m.file_size || ''}</span>
-              <a class="btn-dl" href="/uploads/materials/${m.filename}" download="${m.orig_name||m.title}">
-                <i class="fas fa-download"></i> Download
-              </a>
-            </div>`).join('')}
+              ${materialActions(m)}
+            </div>
+            ${materialPreviewPanel(m)}`).join('')}
         </div>
       </div>`;
   }).join('');
