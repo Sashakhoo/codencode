@@ -1,0 +1,167 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Session 01 — Python Basics & Environment Setup</title><style>
+:root{--accent:#f97583;--bg:#0f0f1a;--text:#e8e8f0;--muted:#8888aa;--code-bg:#0d1117;--card:#1e2240;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);height:100vh;overflow:hidden;user-select:none;}
+#deck{width:100%;height:100vh;display:flex;flex-direction:column;}
+#topbar{display:flex;align-items:center;justify-content:space-between;padding:10px 20px;background:rgba(255,255,255,0.03);border-bottom:1px solid rgba(255,255,255,0.06);flex-shrink:0;gap:12px;}
+#session-label{font-size:11px;font-weight:700;letter-spacing:2px;color:var(--accent);text-transform:uppercase;white-space:nowrap;}
+#slide-title-bar{font-size:12px;color:var(--muted);flex:1;text-align:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+#topbar-right{display:flex;gap:8px;align-items:center;flex-shrink:0;}
+#counter{font-size:12px;color:var(--muted);white-space:nowrap;}
+.btn{background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.12);color:var(--text);border-radius:6px;padding:5px 12px;font-size:12px;cursor:pointer;transition:all 0.15s;}
+.btn:hover{background:var(--accent);border-color:var(--accent);color:#000;}
+#progress-wrap{height:3px;background:rgba(255,255,255,0.05);flex-shrink:0;}
+#progress-bar{height:100%;background:var(--accent);transition:width 0.3s ease;}
+#slides-wrap{flex:1;position:relative;overflow:hidden;}
+.slide{position:absolute;inset:0;display:none;flex-direction:column;padding:32px 48px 24px;overflow-y:auto;animation:fadeIn 0.25s ease;}
+.slide.active{display:flex;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+#nav{display:flex;align-items:center;justify-content:center;gap:16px;padding:10px 24px;flex-shrink:0;border-top:1px solid rgba(255,255,255,0.06);}
+.nav-btn{background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);color:var(--text);padding:7px 26px;border-radius:8px;font-size:14px;cursor:pointer;transition:all 0.15s;}
+.nav-btn:hover:not(:disabled){background:var(--accent);border-color:var(--accent);color:#000;}
+.nav-btn:disabled{opacity:0.3;cursor:default;}
+#dots{display:flex;gap:5px;flex-wrap:wrap;justify-content:center;max-width:600px;}
+.dot{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,0.2);cursor:pointer;transition:all 0.2s;}
+.dot.active{background:var(--accent);transform:scale(1.5);}
+.slide-title{align-items:center;justify-content:center;text-align:center;background:radial-gradient(ellipse at 50% 40%,#1e2a4a 0%,#0f0f1a 70%);}
+.session-badge{font-size:11px;font-weight:800;letter-spacing:3px;color:var(--accent);text-transform:uppercase;margin-bottom:20px;padding:5px 16px;border:1px solid var(--accent);border-radius:20px;display:inline-block;}
+.slide-title h1{font-size:clamp(26px,3.4vw,46px);font-weight:800;line-height:1.15;margin-bottom:16px;background:linear-gradient(135deg,#fff 30%,var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;white-space:pre-line;}
+.slide-title .sub{font-size:14px;color:var(--muted);max-width:580px;line-height:1.6;margin-bottom:28px;}
+.academy-tag{font-size:12px;color:var(--muted);letter-spacing:1px;}
+.section-tag{font-size:10px;font-weight:700;letter-spacing:2.5px;color:var(--accent);text-transform:uppercase;margin-bottom:6px;}
+.slide-heading{font-size:clamp(17px,2.2vw,28px);font-weight:700;margin-bottom:14px;line-height:1.25;}
+.cards{display:grid;gap:11px;}
+.cards-2{grid-template-columns:1fr 1fr;}
+.cards-3{grid-template-columns:1fr 1fr 1fr;}
+.cards-4{grid-template-columns:1fr 1fr 1fr 1fr;}
+.card{background:var(--card);border:1px solid rgba(255,255,255,0.07);border-radius:12px;padding:14px 16px;}
+.card-accent{border-left:3px solid var(--accent);}
+.card-icon{font-size:22px;margin-bottom:6px;}
+.card h3{font-size:13px;font-weight:700;margin-bottom:4px;color:#fff;}
+.card p{font-size:12px;color:var(--muted);line-height:1.55;}
+.steps{display:flex;flex-direction:column;gap:9px;}
+.step{display:flex;gap:12px;align-items:flex-start;background:var(--card);border-radius:10px;padding:11px 14px;border:1px solid rgba(255,255,255,0.06);}
+.step-num{width:24px;height:24px;border-radius:50%;background:var(--accent);color:#000;font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.step-body h4{font-size:13px;font-weight:700;margin-bottom:2px;}
+.step-body p{font-size:12px;color:var(--muted);line-height:1.5;}
+.code-wrap{background:var(--code-bg);border-radius:10px;border:1px solid rgba(255,255,255,0.08);overflow:hidden;margin:8px 0;}
+.code-header{background:rgba(255,255,255,0.05);padding:5px 13px;font-size:11px;color:var(--muted);font-family:monospace;display:flex;justify-content:space-between;align-items:center;}
+pre{padding:11px 15px;overflow-x:auto;font-family:'Cascadia Code','Fira Code',Consolas,monospace;font-size:12px;line-height:1.7;color:#c9d1d9;}
+.kw{color:#ff7b72;}.fn{color:#d2a8ff;}.st{color:#a5d6ff;}.cm{color:#8b949e;font-style:italic;}.nm{color:#79c0ff;}.op{color:#ff9e64;}
+.highlight{background:rgba(255,255,255,0.04);border-left:4px solid var(--accent);border-radius:0 8px 8px 0;padding:10px 14px;margin:8px 0;font-size:13px;line-height:1.6;}
+.highlight strong{color:var(--accent);}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:20px;flex:1;}
+.warn{background:rgba(255,100,50,0.1);border:1px solid rgba(255,100,50,0.3);border-radius:8px;padding:9px 13px;font-size:12px;margin:6px 0;}
+.tip{background:rgba(80,220,100,0.1);border:1px solid rgba(80,220,100,0.3);border-radius:8px;padding:9px 13px;font-size:12px;margin:6px 0;}
+.roadmap{display:grid;grid-template-columns:1fr 1fr;gap:9px;flex:1;}
+.roadmap-item{background:var(--card);border-radius:12px;padding:12px;border:1px solid rgba(255,255,255,0.06);display:flex;gap:9px;align-items:flex-start;}
+.rm-num{font-size:18px;font-weight:900;color:var(--accent);opacity:0.4;line-height:1;flex-shrink:0;width:22px;}
+.rm-icon{font-size:17px;flex-shrink:0;}
+.rm-text h4{font-size:12px;font-weight:700;margin-bottom:2px;}
+.rm-text p{font-size:11px;color:var(--muted);line-height:1.5;}
+.recap-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;flex:1;}
+.recap-item{background:var(--card);border-radius:10px;padding:12px;border-left:3px solid var(--accent);display:flex;gap:8px;align-items:flex-start;}
+.recap-icon{font-size:17px;flex-shrink:0;}
+.recap-text h4{font-size:13px;font-weight:700;margin-bottom:2px;}
+.recap-text p{font-size:11px;color:var(--muted);line-height:1.5;}
+.e-list{display:flex;flex-direction:column;gap:8px;}
+.e-item{display:flex;gap:8px;align-items:flex-start;font-size:13px;line-height:1.55;}
+.e-icon{font-size:15px;flex-shrink:0;}
+table{width:100%;border-collapse:collapse;font-size:12px;margin:8px 0;}
+th{background:rgba(255,255,255,0.06);padding:7px 10px;text-align:left;font-weight:700;color:var(--accent);}
+td{padding:6px 10px;border-top:1px solid rgba(255,255,255,0.05);color:var(--muted);}
+.slide::-webkit-scrollbar{width:4px;}
+.slide::-webkit-scrollbar-track{background:transparent;}
+.slide::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.15);border-radius:2px;}
+.tag{display:inline-block;padding:2px 8px;border-radius:12px;font-size:10px;font-weight:700;margin:2px;}
+.tag-green{background:rgba(80,200,80,0.2);color:#50c850;border:1px solid rgba(80,200,80,0.3);}
+.tag-blue{background:rgba(80,150,255,0.2);color:#79c0ff;border:1px solid rgba(80,150,255,0.3);}
+.tag-orange{background:rgba(255,150,50,0.2);color:#ff9e64;border:1px solid rgba(255,150,50,0.3);}
+.big-concept{background:linear-gradient(135deg,#1e2a4a,#1e2240);border:1px solid rgba(249,117,131,0.3);border-radius:14px;padding:20px 24px;margin:10px 0;text-align:center;}
+.big-concept .bc-emoji{font-size:36px;margin-bottom:8px;}
+.big-concept h2{font-size:20px;font-weight:800;color:#fff;margin-bottom:6px;}
+.big-concept p{font-size:13px;color:var(--muted);line-height:1.6;}
+
+@media(max-width:700px){
+  body{overflow:auto;}
+  #deck{height:auto;min-height:100vh;}
+  #slides-wrap{height:auto;min-height:60vh;}
+  .slide{position:relative;inset:auto;display:none;padding:16px 16px 12px;}
+  .slide.active{display:flex;}
+  .cards-2,.cards-3,.cards-4{grid-template-columns:1fr;}
+  .two-col,.roadmap,.recap-grid{grid-template-columns:1fr;}
+  #session-label{display:none;}
+  #slide-title-bar{display:none;}
+  pre{font-size:10px;line-height:1.6;}
+  .nav-btn{padding:6px 14px;font-size:13px;}
+  #dots{max-width:100%;}
+  .dot{width:5px;height:5px;}
+  .big-concept{padding:14px 16px;}
+  .big-concept h2{font-size:16px;}
+  .big-concept .bc-emoji{font-size:28px;}
+  .slide-heading{font-size:18px;}
+  #topbar{padding:8px 12px;gap:6px;}
+  #nav{padding:8px 12px;gap:10px;}
+  table{font-size:10px;}
+  th,td{padding:5px 6px;}
+  .card h3{font-size:12px;}
+  .card p{font-size:11px;}
+  .highlight,.tip,.warn{font-size:11px;}
+  .step-body h4{font-size:12px;}
+  .step-body p{font-size:11px;}
+}
+.code-wrap pre,.code-wrap *,.code-wrap{user-select:text !important;-webkit-user-select:text !important;}
+</style></head><body>
+<div id="deck">
+<div id="topbar"><div id="session-label">Session 01 · codencode Academy</div><div id="slide-title-bar"></div><div id="topbar-right"><span id="counter"></span><button class="btn" onclick="toggleFS()">⛶ Fullscreen</button></div></div>
+<div id="progress-wrap"><div id="progress-bar"></div></div>
+<div id="slides-wrap"></div>
+<div id="nav"><button class="nav-btn" id="prev-btn" onclick="go(-1)">← Prev</button><div id="dots"></div><button class="nav-btn" id="next-btn" onclick="go(1)">Next →</button></div>
+</div><script>
+const SLIDES_DATA = [{"label": "Title", "html": "<div class=\"slide-title\" style=\"flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;\"><div class=\"session-badge\">Session 01 of 15</div><div style=\"font-size:48px;margin-bottom:12px;\">&#x1F40D;</div><h1>Python Basics<br>&amp; Environment Setup</h1><p class=\"sub\">Your very first steps — variables, data types, and getting Python running on your machine</p><div class=\"academy-tag\">codencode Academy · Python + Data Science</div></div>"}, {"label": "Today's Roadmap", "html": "<div class=\"section-tag\">Today's Roadmap</div><div class=\"slide-heading\">What We'll Cover &#x1F5FA;&#xFE0F;</div><div class=\"roadmap\"><div class=\"roadmap-item\"><div class=\"rm-num\">1</div><div class=\"rm-icon\">&#x1F914;</div><div class=\"rm-text\"><h4>Why Python?</h4><p>Why the world's data scientists chose Python</p></div></div><div class=\"roadmap-item\"><div class=\"rm-num\">2</div><div class=\"rm-icon\">&#x1F4E6;</div><div class=\"rm-text\"><h4>Variables</h4><p>What they are, why we need them, how to use them</p></div></div><div class=\"roadmap-item\"><div class=\"rm-num\">3</div><div class=\"rm-icon\">&#x1F522;</div><div class=\"rm-text\"><h4>Data Types</h4><p>int, float, string, boolean — the building blocks</p></div></div><div class=\"roadmap-item\"><div class=\"rm-num\">4</div><div class=\"rm-icon\">&#x1F4CB;</div><div class=\"rm-text\"><h4>Lists &amp; Dicts</h4><p>Storing and organising multiple values</p></div></div><div class=\"roadmap-item\"><div class=\"rm-num\">5</div><div class=\"rm-icon\">&#x1F5A8;&#xFE0F;</div><div class=\"rm-text\"><h4>print() &amp; f-strings</h4><p>Showing output with formatting</p></div></div><div class=\"roadmap-item\"><div class=\"rm-num\">6</div><div class=\"rm-icon\">&#x1F4BB;</div><div class=\"rm-text\"><h4>Code Lab</h4><p>Build a burger order calculator</p></div></div></div>"}, {"label": "Why Python?", "html": "<div class=\"section-tag\">Why Python?</div><div class=\"slide-heading\">Why Python for Data Science? &#x1F40D;</div><div class=\"big-concept\"><div class=\"bc-emoji\">&#x1F3C6;</div><h2>Python is the #1 language for data science, AI, and ML</h2><p>90% of data scientists use Python. It reads like English. Thousands of free libraries. One language for everything from data wrangling to deep learning.</p></div><div class=\"cards cards-3\" style=\"margin-top:10px;\"><div class=\"card card-accent\"><div class=\"card-icon\">&#x1F4D6;</div><h3>Readable</h3><p>Python looks almost like English. <code>if sales &gt; 100: print(\"Great!\")</code> — anyone can follow this.</p></div><div class=\"card card-accent\"><div class=\"card-icon\">&#x1F4E6;</div><h3>Huge Library Ecosystem</h3><p>pandas · numpy · sklearn · keras · matplotlib — entire ecosystems built by thousands. Don't reinvent the wheel.</p></div><div class=\"card card-accent\"><div class=\"card-icon\">&#x1F4BC;</div><h3>Employable</h3><p>Data Analyst, ML Engineer, Quant, AI Developer — all use Python. One language, many high-paying careers.</p></div></div><div class=\"highlight\" style=\"margin-top:10px;\"><strong>Our stack:</strong> Python &rarr; pandas &rarr; matplotlib &rarr; scikit-learn &rarr; Keras &rarr; the complete data science toolkit.</div>"}, {"label": "Variables", "html": "<div class=\"section-tag\">Concept 1</div><div class=\"slide-heading\">Variables — Named Containers &#x1F4E6;</div><div class=\"big-concept\"><div class=\"bc-emoji\">&#x1F5C3;&#xFE0F;</div><h2>A variable is a named box that holds a value</h2><p>Give a value a name. Use that name everywhere. Change it once — updates everywhere. The foundation of all programming.</p></div><div class=\"code-wrap\" style=\"margin-top:10px;\"><div class=\"code-header\"><span>variables.py</span></div><pre><span class=\"cm\"># Without variables — messy and unmaintainable</span>\ntotal = 9.99 + 9.99 + 9.99  <span class=\"cm\"># what if price changes to 10.49?</span>\n\n<span class=\"cm\"># With variables — clean and flexible</span>\nburger_price = 9.99\nnum_burgers  = 3\ntotal        = burger_price * num_burgers  <span class=\"cm\"># 29.97</span>\n\n<span class=\"cm\"># Update the price — total recalculates automatically</span>\nburger_price = 10.99\ntotal = burger_price * num_burgers  <span class=\"cm\"># now 32.97</span>\n\n<span class=\"cm\"># Naming rules: lowercase, underscores, be descriptive</span>\ndaily_sales = 450       <span class=\"cm\"># ✅ clear</span>\nx           = 450       <span class=\"cm\"># ❌ what is x?</span>\n\nprint(f\"Total for {num_burgers} burgers: ${total:.2f}\")</pre></div>"}, {"label": "Data Types", "html": "<div class=\"section-tag\">Concept 2</div><div class=\"slide-heading\">Data Types — What Kind of Value? &#x1F522;</div><div class=\"highlight\">Every value in Python has a type. The type determines what you can do with it. <code>type(x)</code> tells you the type.</div><div class=\"code-wrap\" style=\"margin-top:8px;\"><div class=\"code-header\"><span>data_types.py</span></div><pre><span class=\"cm\"># int — whole numbers (no decimal point)</span>\nburger_count = 5\nprint(type(burger_count))   <span class=\"cm\"># &lt;class 'int'&gt;</span>\n\n<span class=\"cm\"># float — decimal numbers</span>\nprice = 9.99\nprint(type(price))          <span class=\"cm\"># &lt;class 'float'&gt;</span>\n\n<span class=\"cm\"># str — text, always in quotes</span>\nname = \"McDonald's\"\nprint(type(name))           <span class=\"cm\"># &lt;class 'str'&gt;</span>\n\n<span class=\"cm\"># bool — exactly True or False</span>\nis_open = True\nprint(type(is_open))        <span class=\"cm\"># &lt;class 'bool'&gt;</span>\n\n<span class=\"cm\"># WATCH OUT: \"5\" (str) is NOT 5 (int)!</span>\nprint(\"5\" + \"5\")   <span class=\"cm\"># \"55\"  — string joins</span>\nprint(5   + 5)     <span class=\"cm\"># 10   — maths</span>\n\n<span class=\"cm\"># Convert between types</span>\nprint(int(\"42\"))    <span class=\"cm\"># 42  (str → int)</span>\nprint(str(9.99))    <span class=\"cm\"># \"9.99\"  (float → str)</span></pre></div>"}, {"label": "Lists", "html": "<div class=\"section-tag\">Concept 3</div><div class=\"slide-heading\">Lists — Ordered Collections &#x1F4CB;</div><div class=\"big-concept\"><div class=\"bc-emoji\">&#x1F4DD;</div><h2>A list stores many values in order, in one variable</h2><p>Create with []. Access by position (index starts at 0). Add, remove, sort, and loop through items.</p></div><div class=\"code-wrap\" style=\"margin-top:10px;\"><div class=\"code-header\"><span>lists.py</span></div><pre>menu   = [\"Big Mac\", \"McFlurry\", \"Large Fries\", \"Coke\"]\nprices = [5.99, 3.49, 2.99, 1.99]\n\n<span class=\"cm\"># Access by index (starts at 0!)</span>\nprint(menu[0])     <span class=\"cm\"># \"Big Mac\"  ← first item</span>\nprint(menu[-1])    <span class=\"cm\"># \"Coke\"     ← last item</span>\nprint(menu[1:3])   <span class=\"cm\"># [\"McFlurry\", \"Large Fries\"]  ← slice</span>\n\n<span class=\"cm\"># Useful operations</span>\nmenu.append(\"Apple Pie\")  <span class=\"cm\"># add to end</span>\nmenu.remove(\"Coke\")       <span class=\"cm\"># remove by value</span>\nprint(len(menu))           <span class=\"cm\"># 4 — number of items</span>\nprint(sorted(prices))      <span class=\"cm\"># [1.99, 2.99, 3.49, 5.99]</span>\nprint(sum(prices))         <span class=\"cm\"># 14.46</span>\nprint(max(prices))         <span class=\"cm\"># 5.99</span>\n\n<span class=\"cm\"># List comprehension — compact loop</span>\ndiscounted = [p * 0.9 for p in prices]  <span class=\"cm\"># 10% off all</span></pre></div>"}, {"label": "Dictionaries", "html": "<div class=\"section-tag\">Concept 4</div><div class=\"slide-heading\">Dictionaries — Key &rarr; Value Lookup &#x1F5DD;&#xFE0F;</div><div class=\"highlight\">Dictionaries store data as <strong>key: value</strong> pairs. Access any value instantly by its key name — like a real dictionary.</div><div class=\"code-wrap\" style=\"margin-top:8px;\"><div class=\"code-header\"><span>dictionaries.py</span></div><pre><span class=\"cm\"># Create with curly braces</span>\nburger = {\n    \"name\":     \"Big Mac\",\n    \"price\":    5.99,\n    \"calories\": 563,\n    \"in_stock\": True\n}\n\n<span class=\"cm\"># Access by key name</span>\nprint(burger[\"name\"])     <span class=\"cm\"># \"Big Mac\"</span>\nprint(burger[\"calories\"]) <span class=\"cm\"># 563</span>\n\n<span class=\"cm\"># Add or update</span>\nburger[\"protein_g\"] = 26    <span class=\"cm\"># new key</span>\nburger[\"price\"]     = 6.49  <span class=\"cm\"># update</span>\n\n<span class=\"cm\"># Safe access with .get() — no crash if key missing</span>\nprint(burger.get(\"size\", \"unknown\"))  <span class=\"cm\"># \"unknown\"</span>\n\n<span class=\"cm\"># Loop over all items</span>\nfor key, value in burger.items():\n    print(f\"  {key}: {value}\")</pre></div>"}, {"label": "f-strings & print", "html": "<div class=\"section-tag\">Concept 5</div><div class=\"slide-heading\">print() &amp; f-strings — Formatted Output &#x1F5A8;&#xFE0F;</div><div class=\"code-wrap\"><div class=\"code-header\"><span>fstrings.py</span></div><pre><span class=\"cm\"># f-string: embed any expression inside {}</span>\nname  = \"McDonald's\"\nsales = 12345.67\ncount = 1247\n\nprint(f\"Restaurant: {name}\")\nprint(f\"Sales: ${sales:.2f}\")      <span class=\"cm\"># $12345.67  (2 decimals)</span>\nprint(f\"Sales: ${sales:,.0f}\")     <span class=\"cm\"># $12,346    (comma + round)</span>\nprint(f\"Count: {count:,}\")         <span class=\"cm\"># 1,247      (comma separator)</span>\n\ngrowth = 0.0823\nprint(f\"Growth: {growth:.1%}\")     <span class=\"cm\"># 8.2%</span>\n\n<span class=\"cm\"># Align text with width specifier</span>\nfor item, price in [(\"Big Mac\", 5.99), (\"Fries\", 2.99)]:\n    print(f\"  {item:<15} ${price:.2f}\")\n<span class=\"cm\"># Big Mac         $5.99</span>\n<span class=\"cm\"># Fries           $2.99</span></pre></div><div class=\"tip\">Format code cheat sheet: <code>.2f</code> = 2 decimals &nbsp;·&nbsp; <code>,</code> = thousands separator &nbsp;·&nbsp; <code>.1%</code> = percent &nbsp;·&nbsp; <code>&lt;15</code> = left-align in 15 chars</div>"}, {"label": "Code Lab", "html": "<div class=\"section-tag\">Code Lab</div><div class=\"slide-heading\">&#x1F4BB; Code Lab — Burger Order Calculator</div><div class=\"code-wrap\"><div class=\"code-header\"><span>order_calculator.py</span><span>python</span></div><pre>menu = {\n    \"Big Mac\":     5.99,\n    \"McChicken\":   4.49,\n    \"Large Fries\": 2.99,\n    \"McFlurry\":    3.49,\n    \"Coke\":        1.99\n}\n\norder = [\"Big Mac\", \"Large Fries\", \"Coke\"]\n\ntotal = 0\nprint(\"--- Your Order ---\")\nfor item in order:\n    price  = menu[item]\n    total += price\n    print(f\"  {item:<15} ${price:.2f}\")\n\ntax   = total * 0.10\ngrand = total + tax\nprint(\"-\" * 25)\nprint(f\"  {'Subtotal':<15} ${total:.2f}\")\nprint(f\"  {'Tax (10%)':<15} ${tax:.2f}\")\nprint(f\"  {'TOTAL':<15} ${grand:.2f}\")</pre></div><div class=\"tip\">&#x1F4CC; Extend it: add a 10% loyalty discount if total &gt; $20. Then try adding a \"combo deal\" that overrides individual prices.</div>"}, {"label": "Common Mistakes", "html": "<div class=\"section-tag\">Common Mistakes</div><div class=\"slide-heading\">&#x26A0;&#xFE0F; Errors Every Beginner Makes</div><div class=\"cards cards-2\"><div class=\"card\" style=\"border-left:3px solid #ff7b72;\"><h3 style=\"color:#ff7b72;\">No quotes around strings</h3><div class=\"code-wrap\"><pre style=\"font-size:11px;\">name = McDonalds   <span class=\"cm\"># NameError!</span>\nname = \"McDonalds\" <span class=\"cm\"># ✅</span></pre></div></div><div class=\"card\" style=\"border-left:3px solid #ff7b72;\"><h3 style=\"color:#ff7b72;\">= vs ==</h3><div class=\"code-wrap\"><pre style=\"font-size:11px;\">x = 5     <span class=\"cm\"># assigns value</span>\nx == 5    <span class=\"cm\"># compares (True/False)</span>\nif x = 5: <span class=\"cm\"># SyntaxError!</span></pre></div></div><div class=\"card\" style=\"border-left:3px solid #ffa657;\"><h3 style=\"color:#ffa657;\">List index starts at 0</h3><div class=\"code-wrap\"><pre style=\"font-size:11px;\">items = [\"a\",\"b\",\"c\"]\nprint(items[1])  <span class=\"cm\"># \"b\" not \"a\"!</span>\nprint(items[0])  <span class=\"cm\"># \"a\" ✅</span></pre></div></div><div class=\"card\" style=\"border-left:3px solid #ffa657;\"><h3 style=\"color:#ffa657;\">Mixing types</h3><div class=\"code-wrap\"><pre style=\"font-size:11px;\">print(\"Price: \" + 9.99) <span class=\"cm\"># TypeError!</span>\nprint(f\"Price: {9.99}\") <span class=\"cm\"># ✅</span></pre></div></div></div>"}, {"label": "Session Recap", "html": "<div class=\"section-tag\">Session Recap</div><div class=\"slide-heading\">What You've Learned &#x1F389;</div><div class=\"recap-grid\"><div class=\"recap-item\"><div class=\"recap-icon\">&#x1F4E6;</div><div class=\"recap-text\"><h4>Variables</h4><p>Named containers. Descriptive names with underscores. Change once, updates everywhere.</p></div></div><div class=\"recap-item\"><div class=\"recap-icon\">&#x1F522;</div><div class=\"recap-text\"><h4>Data Types</h4><p>int (whole), float (decimal), str (text in quotes), bool (True/False). type() reveals the type.</p></div></div><div class=\"recap-item\"><div class=\"recap-icon\">&#x1F4CB;</div><div class=\"recap-text\"><h4>Lists</h4><p>Ordered, indexed from 0. append(), remove(), len(), sorted(), sum(), max().</p></div></div><div class=\"recap-item\"><div class=\"recap-icon\">&#x1F5DD;&#xFE0F;</div><div class=\"recap-text\"><h4>Dictionaries</h4><p>Key-value pairs. Access by name. Perfect for structured data (name, price, calories).</p></div></div><div class=\"recap-item\"><div class=\"recap-icon\">&#x1F5A8;&#xFE0F;</div><div class=\"recap-text\"><h4>f-strings</h4><p>f\"text {variable:.2f}\" — embed values with formatting. The best way to print in Python.</p></div></div><div class=\"recap-item\"><div class=\"recap-icon\">&#x26A0;&#xFE0F;</div><div class=\"recap-text\"><h4>Common Traps</h4><p>Quotes around strings. = assign, == compare. List index starts at 0. f-strings for mixing types.</p></div></div></div><div class=\"highlight\" style=\"margin-top:auto;\">&#x1F680; <strong>Next:</strong> Session 2 — Control Flow: if/else decisions and loops to automate repetition</div>"}, {"label": "Homework", "html": "<div class=\"section-tag\">Homework</div><div class=\"slide-heading\">Before Next Session &#x1F4DA;</div><div class=\"two-col\"><div><h3 style=\"font-size:13px;font-weight:700;margin-bottom:10px;color:var(--accent);\">&#x1F3E0; Tasks</h3><div class=\"e-list\"><div class=\"e-item\"><div class=\"e-icon\">&#x1F4CC;</div><div>Build a dictionary for your favourite restaurant: name, address, rating (float), is_open (bool), top_dishes (list of 3 items)</div></div><div class=\"e-item\"><div class=\"e-icon\">&#x1F4CC;</div><div>Create a list of 5 prices. Print: sum, average (sum/len), max, min using f-strings with .2f formatting</div></div><div class=\"e-item\"><div class=\"e-icon\">&#x1F4CC;</div><div>Extend the burger calculator: add a 10% loyalty discount if total &gt; $20, print \"Loyalty discount applied!\" when triggered</div></div></div></div><div><h3 style=\"font-size:13px;font-weight:700;margin-bottom:10px;color:var(--accent);\">&#x1F4D6; Resources</h3><div class=\"e-list\"><div class=\"e-item\"><div class=\"e-icon\">&#x1F517;</div><div>docs.python.org/3/tutorial — official Python tutorial</div></div><div class=\"e-item\"><div class=\"e-icon\">&#x1F517;</div><div>w3schools.com/python — interactive exercises with answers</div></div><div class=\"e-item\"><div class=\"e-icon\">&#x1F517;</div><div>replit.com — run Python in your browser, no install needed</div></div></div></div></div>"}];
+let cur=0;
+const wrap=document.getElementById('slides-wrap');
+const dotsEl=document.getElementById('dots');
+function renderSlides(){
+  wrap.innerHTML='';dotsEl.innerHTML='';
+  SLIDES_DATA.forEach((s,i)=>{
+    const div=document.createElement('div');
+    div.className='slide'+(i===0?' active':'');
+    div.innerHTML=s.html;
+    wrap.appendChild(div);
+    const dot=document.createElement('div');
+    dot.className='dot'+(i===0?' active':'');
+    dot.onclick=()=>jump(i);
+    dotsEl.appendChild(dot);
+  });
+  updateUI();
+}
+function updateUI(){
+  const t=SLIDES_DATA.length;
+  document.getElementById('counter').textContent=(cur+1)+' / '+t;
+  document.getElementById('progress-bar').style.width=((cur+1)/t*100)+'%';
+  document.getElementById('slide-title-bar').textContent=SLIDES_DATA[cur].label||'';
+  document.getElementById('prev-btn').disabled=cur===0;
+  document.getElementById('next-btn').disabled=cur===t-1;
+  document.querySelectorAll('.slide').forEach((el,i)=>el.classList.toggle('active',i===cur));
+  document.querySelectorAll('.dot').forEach((el,i)=>el.classList.toggle('active',i===cur));
+}
+function go(d){jump(cur+d);}
+function jump(i){if(i<0||i>=SLIDES_DATA.length)return;cur=i;updateUI();document.querySelectorAll('.slide')[cur].scrollTop=0;}
+document.addEventListener('keydown',e=>{
+  if(e.key==='ArrowRight'||e.key===' '){e.preventDefault();go(1);}
+  if(e.key==='ArrowLeft'){e.preventDefault();go(-1);}
+  if(e.key==='f'||e.key==='F')toggleFS();
+  if(e.key==='Home')jump(0);
+  if(e.key==='End')jump(SLIDES_DATA.length-1);
+});
+function toggleFS(){if(!document.fullscreenElement)document.documentElement.requestFullscreen().catch(()=>{});else document.exitFullscreen();}
+
+let _tx=0;
+document.addEventListener('touchstart',e=>{_tx=e.changedTouches[0].clientX;},{passive:true});
+document.addEventListener('touchend',e=>{
+  const dx=e.changedTouches[0].clientX-_tx;
+  if(Math.abs(dx)>50){go(dx<0?1:-1);}
+},{passive:true});
+renderSlides();
+</script></body></html>
