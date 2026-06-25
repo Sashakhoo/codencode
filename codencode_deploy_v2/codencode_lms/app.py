@@ -1099,7 +1099,13 @@ def api_delete_material(mid):
 @app.route('/uploads/materials/<path:filename>')
 @login_required
 def serve_material(filename):
-    as_att = not filename.lower().endswith('.html')
+    mats = Material.query.filter_by(filename=filename).all()
+    if not mats:
+        return jsonify({'error': 'Material not found'}), 404
+    if current_user.role == 'student':
+        if not any(enrolled_or_staff(m.course_id) for m in mats):
+            return jsonify({'error': 'Not enrolled'}), 403
+    as_att = request.args.get('download') == '1' or not filename.lower().endswith('.html')
     return send_from_directory(
         os.path.join(app.config['UPLOAD_FOLDER'], 'materials'),
         filename, as_attachment=as_att)
