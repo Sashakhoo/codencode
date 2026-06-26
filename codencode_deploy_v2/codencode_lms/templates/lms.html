@@ -2831,9 +2831,16 @@ function slideNumberForMaterial(m) {
   return match ? match[1] : '';
 }
 
+function slideAccessKey(num) {
+  const n = parseInt(num, 10);
+  if (!n) return '';
+  return n <= 7 ? 'python-programming-bootcamp' : 'ml-fundamentals';
+}
+
 function slidePublicUrl(m) {
   const num = slideNumberForMaterial(m);
-  return num ? `https://codencodemy.github.io/codencode-slides/session-${num}/index.html?access=python-machine-learning` : '';
+  const access = slideAccessKey(num);
+  return num ? `https://codencodemy.github.io/codencode-slides/session-${num}/index.html?access=${access}` : '';
 }
 
 function materialLocalUrl(m, download=false) {
