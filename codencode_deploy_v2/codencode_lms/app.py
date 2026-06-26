@@ -74,7 +74,7 @@ os.makedirs(os.path.join(app.config['UPLOAD_FOLDER'], 'avatars'), exist_ok=True)
 
 _zoom_token_cache = {'token': None, 'expires_at': 0, 'api_url': 'https://api.zoom.us'}
 
-PYTHON_ML_SLIDE_MATERIALS = [
+SLIDE_MATERIALS = [
     (1, 'Session 01: Python Basics and Environment Setup', 'Session_01_Student_Python_Basics_and_Environment_Setup.html'),
     (2, 'Session 02: Control Flow Decisions and Loops', 'Session_02_Student_Control_Flow_Decisions_and_Loops.html'),
     (3, 'Session 03: Functions Modules and Reusable Code', 'Session_03_Student_Functions_Modules_and_Reusable_Code.html'),
@@ -88,9 +88,10 @@ PYTHON_ML_SLIDE_MATERIALS = [
     (11, 'Session 11: Classification Random Forest and Evaluation', 'Session_11_Student_Classification Random Forest and Evaluation.html'),
     (12, 'Session 12: Neural Networks and Deep Learning', 'Session_12_Student_Neural Networks and Deep Learning.html'),
     (13, 'Session 13: LSTM and Time Series Sequential Learning', 'Session_13_Student_LSTM and Time Series Sequential Learning.html'),
-    (14, 'Session 14: Vibe Coding - Building with AI', 'Session_14_Student_Vibe Coding — Building with AI.html'),
+    (14, 'Session 14: Vibe Coding - Building with AI', 'Session_14_Student_Vibe Coding \u2014 Building with AI.html'),
     (15, 'Session 15: Project Planning and Capstone Execution', 'Session_15_Student_Project Planning and Capstone Execution.html'),
 ]
+
 
 
 @login_manager.user_loader
@@ -1054,22 +1055,45 @@ def serve_video(filename):
 # MATERIALS
 # ─────────────────────────────────────────────
 
-def _is_python_ml_course(course):
+def _slide_materials_for_course(course):
     title = (course.title or '').lower()
-    return 'python' in title and ('machine learning' in title or 'ml' in title)
+    has_python = 'python' in title
+    has_ml = 'machine learning' in title or 'ml' in title
+
+    if has_python and has_ml:
+        return SLIDE_MATERIALS
+    if has_python:
+        return [item for item in SLIDE_MATERIALS if item[0] <= 7]
+    if has_ml:
+        return [item for item in SLIDE_MATERIALS if item[0] >= 8]
+    return []
 
 
-def _ensure_python_ml_slide_materials(course):
-    if not course or not _is_python_ml_course(course):
+def _ensure_slide_materials(course):
+    expected = _slide_materials_for_course(course)
+    if not course or not expected:
         return
 
-    materials_dir = os.path.join(app.config['UPLOAD_FOLDER'], 'materials')
-    existing = {
-        m.filename for m in Material.query.filter_by(course_id=course.id).all()
-    }
-    material_cols = {c.name for c in Material.__table__.columns}
+    expected_by_filename = {filename: (session_num, title)
+                            for session_num, title, filename in expected}
+    session_file_pattern = re.compile(r'^Session_(\d+)_Student_.*\.html$')
+    existing_materials = Material.query.filter_by(course_id=course.id).all()
     changed = False
-    for session_num, title, filename in PYTHON_ML_SLIDE_MATERIALS:
+
+    for material in existing_materials:
+        if session_file_pattern.match(material.filename or '') and material.filename not in expected_by_filename:
+            db.session.delete(material)
+            changed = True
+
+    existing = {
+        m.filename for m in existing_materials
+        if m.filename in expected_by_filename and m not in db.session.deleted
+    }
+    from sqlalchemy import inspect as sa_inspect
+    material_cols = {c['name'] for c in sa_inspect(db.engine).get_columns('materials')}
+    materials_dir = os.path.join(app.config['UPLOAD_FOLDER'], 'materials')
+
+    for session_num, title, filename in expected:
         if filename in existing:
             continue
         fpath = os.path.join(materials_dir, filename)
@@ -1101,7 +1125,7 @@ def api_materials(cid):
         return jsonify({'error': 'Not enrolled'}), 403
 
     course = Course.query.get_or_404(cid)
-    _ensure_python_ml_slide_materials(course)
+    _ensure_slide_materials(course)
     now = datetime.utcnow()
     mats = Material.query.filter_by(course_id=cid).order_by(
         Material.week, Material.order_index, Material.uploaded_at).all()
