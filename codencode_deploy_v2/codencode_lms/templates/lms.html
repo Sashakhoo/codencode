@@ -732,7 +732,7 @@
     .activity-text strong { color: var(--white); }
     .activity-time { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--muted2); margin-top: 2px; }
 
-    /* ── Week accordion ── */
+    /* ── Session accordion ── */
     .week-item { border: 1px solid var(--border); margin-bottom: 8px; }
     .week-header {
       display: flex; align-items: center; justify-content: space-between;
@@ -1511,14 +1511,14 @@
               <div class="upload-form">
                 <div class="form-group">
                   <label class="form-label">Session Title</label>
-                  <input class="form-input" type="text" placeholder="e.g. Week 4 Session 3 — GroupBy & Pivot Tables" id="vid-title" />
+                  <input class="form-input" type="text" placeholder="e.g. Session 4 - GroupBy & Pivot Tables" id="vid-title" />
                 </div>
                 <div class="grid-2" style="gap:12px">
                   <div class="form-group">
-                    <label class="form-label">Week</label>
+                    <label class="form-label">Session</label>
                     <select class="form-input" name="week">
-                      <option value="1">Week 1</option><option value="2">Week 2</option><option value="3">Week 3</option>
-                      <option value="4" selected>Week 4</option><option value="5">Week 5</option><option value="6">Week 6</option>
+                      <option value="1">Session 1</option><option value="2">Session 2</option><option value="3">Session 3</option>
+                      <option value="4" selected>Session 4</option><option value="5">Session 5</option><option value="6">Session 6</option>
                     </select>
                   </div>
                   <div class="form-group">
@@ -1594,11 +1594,11 @@
                   </select>
                 </div>
                 <div class="form-group">
-                  <label class="form-label">Week</label>
+                  <label class="form-label">Session</label>
                   <select class="form-input" name="week">
-                    <option value="0">General (All Weeks)</option>
-                    <option value="1">Week 1</option><option value="2">Week 2</option><option value="3">Week 3</option>
-                    <option value="4" selected>Week 4</option><option value="5">Week 5</option><option value="6">Week 6</option>
+                    <option value="0">General (All Sessions)</option>
+                    <option value="1">Session 1</option><option value="2">Session 2</option><option value="3">Session 3</option>
+                    <option value="4" selected>Session 4</option><option value="5">Session 5</option><option value="6">Session 6</option>
                   </select>
                 </div>
                 <div class="form-group">
@@ -1625,7 +1625,7 @@
                 <div class="file-icon pdf"><i class="fas fa-file-pdf"></i></div>
                 <div style="flex:1">
                   <div class="file-name" style="font-size:12px">Pandas Cheat Sheet.pdf</div>
-                  <div class="file-sub">Week 4 · 14 downloads</div>
+                  <div class="file-sub">Session 4 - 14 downloads</div>
                 </div>
                 <button class="btn-action red"><i class="fas fa-trash"></i></button>
               </div>
@@ -1633,7 +1633,7 @@
                 <div class="file-icon py"><i class="fas fa-file-code"></i></div>
                 <div style="flex:1">
                   <div class="file-name" style="font-size:12px">pandas_demo_notebook.ipynb</div>
-                  <div class="file-sub">Week 4 · 12 downloads</div>
+                  <div class="file-sub">Session 4 - 12 downloads</div>
                 </div>
                 <button class="btn-action red"><i class="fas fa-trash"></i></button>
               </div>
@@ -1641,7 +1641,7 @@
                 <div class="file-icon zip"><i class="fas fa-file-archive"></i></div>
                 <div style="flex:1">
                   <div class="file-name" style="font-size:12px">datasets_week4.zip</div>
-                  <div class="file-sub">Week 4 · 11 downloads</div>
+                  <div class="file-sub">Session 4 - 11 downloads</div>
                 </div>
                 <button class="btn-action red"><i class="fas fa-trash"></i></button>
               </div>
@@ -1683,10 +1683,10 @@
               </div>
               <div class="grid-3">
                 <div class="form-group">
-                  <label class="form-label">Week</label>
+                  <label class="form-label">Session</label>
                   <select class="form-input" name="week">
-                    <option value="1">Week 1</option><option value="2">Week 2</option><option value="3">Week 3</option>
-                    <option value="4">Week 4</option><option value="5" selected>Week 5</option><option value="6">Week 6</option>
+                    <option value="1">Session 1</option><option value="2">Session 2</option><option value="3">Session 3</option>
+                    <option value="4">Session 4</option><option value="5" selected>Session 5</option><option value="6">Session 6</option>
                   </select>
                 </div>
                 <div class="form-group">
@@ -1885,7 +1885,7 @@
               <div class="upload-form" id="new-session-form">
                 <div class="form-group">
                   <label class="form-label">Title</label>
-                  <input class="form-input" type="text" id="sess-title" placeholder="e.g. Week 4 Live Class" />
+                  <input class="form-input" type="text" id="sess-title" placeholder="e.g. Session 4 Live Class" />
                 </div>
                 <div class="form-group">
                   <label class="form-label">Type</label>
@@ -1979,14 +1979,14 @@
                   </select>
                 </div>
                 <div class="form-group">
-                  <label class="form-label">Week 1 Start Date</label>
+                  <label class="form-label">Session 1 Start Date</label>
                   <input class="form-input" type="date" id="t-plan-start-date" />
                 </div>
               </div>
               <button class="btn-action ghost" onclick="saveTeacherPlanStartDate()"><i class="fas fa-calendar-check"></i> Save Start Date</button>
             </div>
             <div id="t-plan-container">
-              <div style="padding:16px 20px;color:var(--muted);font-family:var(--font-m);font-size:11px">Select a course to edit the 4-week timetable.</div>
+              <div style="padding:16px 20px;color:var(--muted);font-family:var(--font-m);font-size:11px">Select a course to edit the session timetable.</div>
             </div>
           </div>
         </div>
@@ -2010,11 +2010,11 @@
               <div class="upload-form">
                 <div class="form-group">
                   <label class="form-label">Title</label>
-                  <input class="form-input" type="text" id="quiz-title-input" placeholder="e.g. Week 2 Python Quiz" />
+                  <input class="form-input" type="text" id="quiz-title-input" placeholder="e.g. Session 2 Python Quiz" />
                 </div>
                 <div class="grid-2" style="gap:12px">
                   <div class="form-group">
-                    <label class="form-label">Week</label>
+                    <label class="form-label">Session</label>
                     <input class="form-input" type="number" id="quiz-week-input" placeholder="1" min="1" />
                   </div>
                   <div class="form-group">
@@ -2333,9 +2333,9 @@
         <input class="form-input" type="text" id="new-post-title" placeholder="Summarize your question..." />
       </div>
       <div class="form-group">
-        <label class="form-label">Week (optional)</label>
+        <label class="form-label">Session (optional)</label>
         <select class="form-input" id="new-post-week">
-          <option value="">All Weeks</option>
+          <option value="">All Sessions</option>
         </select>
       </div>
       <div class="form-group">
@@ -2689,7 +2689,7 @@ async function loadStudentDashboard() {
     const prog = d.programme || '';
     const wk   = d.current_week || 1;
     const tot  = d.weeks || 1;
-    subEl.textContent = prog ? `// ${prog} · Week ${wk} of ${tot}` : `// Week ${wk} of ${tot}`;
+    subEl.textContent = prog ? `// ${prog} · Session ${wk} of ${tot}` : `// Session ${wk} of ${tot}`;
   }
 
   // Stats row
@@ -2792,7 +2792,7 @@ async function loadVideos() {
           <div class="video-thumb-grid"></div>
           <div class="video-play-btn"><i class="fas fa-play"></i></div>
           ${r.duration ? `<span class="video-duration">${r.duration}</span>` : ''}
-          <span class="video-week-tag">W${r.week} · S${r.session_num}</span>
+          <span class="video-week-tag">Session ${r.week}.${r.session_num}</span>
         </div>
         <div class="video-info">
           <div class="video-title">${r.title}</div>
@@ -2806,7 +2806,7 @@ async function loadVideos() {
     return `
       <div class="week-item">
         <button class="week-header open" onclick="toggleWeek(this)">
-          <span class="week-label"><i class="fas fa-layer-group"></i> Week ${wk}</span>
+          <span class="week-label"><i class="fas fa-layer-group"></i> Session ${wk}</span>
           <span style="display:flex;align-items:center;gap:12px">
             <span class="week-count">${recs.length} session${recs.length!==1?'s':''}</span>
             <i class="fas fa-chevron-down week-chevron"></i>
@@ -2839,6 +2839,12 @@ function slidePublicUrl(m) {
 function materialLocalUrl(m, download=false) {
   const filename = String(m.filename || '').split('/').map(encodeURIComponent).join('/');
   return `/uploads/materials/${filename}${download ? '?download=1' : ''}`;
+}
+
+function materialGroupLabel(m) {
+  const slideNum = slideNumberForMaterial(m);
+  if (slideNum) return `Session ${parseInt(slideNum, 10)}`;
+  return m.week === 0 ? 'General Resources' : `Session ${m.week}`;
 }
 
 function materialActions(m) {
@@ -2877,10 +2883,10 @@ async function loadMaterials() {
     return;
   }
 
-  // Group by week
+  // Group by session
   const groups = {};
   mats.forEach(m => {
-    const label = m.week === 0 ? 'General Resources' : `Week ${m.week}`;
+    const label = materialGroupLabel(m);
     (groups[label] = groups[label]||[]).push(m);
   });
 
@@ -3062,7 +3068,7 @@ async function loadTeacherVideos() {
         <div class="file-row" id="rec-row-${r.id}">
           <div class="file-icon mp4"><i class="fas ${r.source_type === 'link' ? 'fa-link' : 'fa-film'}"></i></div>
           <div style="flex:1">
-            <div class="file-name" style="font-size:12px">W${r.week}S${r.session_num} — ${r.title}</div>
+            <div class="file-name" style="font-size:12px">Session ${r.week}.${r.session_num} — ${r.title}</div>
             <div class="file-sub">${r.cohort_name ? 'Class: ' + r.cohort_name + ' - ' : 'Whole course - '}${r.source_type === 'link' ? 'Drive link' : 'Uploaded'} ${r.uploaded_at||''}${r.duration ? ' - ' + r.duration : ''}</div>
           </div>
           <button class="btn-action red" onclick="deleteRecording(${r.id})"><i class="fas fa-trash"></i></button>
@@ -3080,7 +3086,7 @@ async function loadTeacherMaterials() {
           ${fileIcon(m.file_type)}
           <div style="flex:1">
             <div class="file-name" style="font-size:12px">${m.orig_name||m.title}</div>
-            <div class="file-sub">${m.week===0?'General':'Week '+m.week} · ${m.file_size||''}</div>
+            <div class="file-sub">${m.week===0?'General':'Session '+m.week} · ${m.file_size||''}</div>
           </div>
           <button class="btn-action red" onclick="deleteMaterial(${m.id})"><i class="fas fa-trash"></i></button>
         </div>`).join('');
@@ -3942,7 +3948,7 @@ async function loadTeacherMonthPlan() {
   const container = document.getElementById('t-plan-container');
   if (!container) return;
   if (!cid) {
-    container.innerHTML = `<div style="padding:16px 20px;color:var(--muted);font-family:var(--font-m);font-size:11px">Select a course to edit the 4-week timetable.</div>`;
+    container.innerHTML = `<div style="padding:16px 20px;color:var(--muted);font-family:var(--font-m);font-size:11px">Select a course to edit the session timetable.</div>`;
     if (cohortSel) cohortSel.innerHTML = `<option value="">Whole course / class</option>`;
     return;
   }
@@ -3964,7 +3970,7 @@ async function loadTeacherMonthPlan() {
   container.innerHTML = activeWeeks.map(w => `
     <div class="timetable-week">
       <div class="tt-week-header">
-        <span class="tt-week-num">Week ${w.week}</span>
+        <span class="tt-week-num">Session ${w.week}</span>
         <button class="btn-action ghost" style="margin-left:auto;font-size:10px;padding:5px 10px" onclick="addTeacherPlanRow(${w.week})"><i class="fas fa-plus"></i> Add timing</button>
       </div>
       ${w.sessions.map(s => teacherPlanRow(w.week, s, courseTitle)).join('')}
@@ -3994,7 +4000,7 @@ function teacherPlanRow(week, s, courseTitle = 'Class') {
 
 function addTeacherPlanRow(week) {
   const container = document.getElementById('t-plan-container');
-  const weekEl = [...container.querySelectorAll('.timetable-week')].find(el => el.textContent.includes(`Week ${week}`));
+  const weekEl = [...container.querySelectorAll('.timetable-week')].find(el => el.textContent.includes(`Session ${week}`));
   if (!weekEl) return;
   const existing = [...weekEl.querySelectorAll('.tt-topic-input')].map(i => parseInt(i.dataset.snum) || 0);
   const snum = Math.max(4, ...existing) + 1;
@@ -4298,7 +4304,7 @@ async function runSearch(q) {
             <i class="fas ${icon}" style="color:var(--cyan);font-size:11px;width:14px"></i>
             <span style="color:var(--text)">${r.title}</span>
           </div>
-          <div style="font-size:10px;color:var(--muted);margin-top:2px;padding-left:22px">${r.course}${r.week ? ' · Week ' + r.week : ''}</div>
+          <div style="font-size:10px;color:var(--muted);margin-top:2px;padding-left:22px">${r.course}${r.week ? ' · Session ' + r.week : ''}</div>
         </div>`;
       }).join('');
     }
@@ -4377,7 +4383,7 @@ async function loadQuizzes() {
           <div>
             <div style="font-family:var(--font-d);font-size:15px;font-weight:700;margin-bottom:4px">${q.title} ${badge}</div>
             <div style="font-family:var(--font-c);font-size:10px;color:var(--muted)">
-              ${q.week ? 'Week ' + q.week + ' · ' : ''}
+              ${q.week ? 'Session ' + q.week + ' · ' : ''}
               Pass: ${q.pass_score}% ·
               ${q.time_limit_mins ? q.time_limit_mins + ' min · ' : ''}
               ${attLeft > 0 ? attLeft + ' attempt(s) left' : '<span style="color:var(--red)">No attempts left</span>'}
@@ -4491,7 +4497,7 @@ async function loadTeacherQuizzes() {
       : arr.map(q => `<div class="file-row" id="tq-row-${q.id}">
           <div style="flex:1">
             <div class="file-name">${q.title}</div>
-            <div class="file-sub">${q.week ? 'Week '+q.week+' · ' : ''}${q.question_count} questions · Pass: ${q.pass_score}%</div>
+            <div class="file-sub">${q.week ? 'Session '+q.week+' · ' : ''}${q.question_count} questions · Pass: ${q.pass_score}%</div>
           </div>
           <button class="btn-action ghost" style="font-size:10px;padding:5px 10px;margin-right:4px" onclick="toggleQuizPublish(${q.id},${q.is_published})">
             <i class="fas fa-${q.is_published ? 'eye-slash' : 'eye'}"></i> ${q.is_published ? 'Unpublish' : 'Publish'}
@@ -4627,13 +4633,13 @@ async function renderDiscussionWeekTabs(containerId, isTeacher) {
   const el = document.getElementById(containerId);
   if (!el) return;
   const tabs = [{ label: 'All', val: null }];
-  for (let i = 1; i <= weeks; i++) tabs.push({ label: 'Week ' + i, val: i });
+  for (let i = 1; i <= weeks; i++) tabs.push({ label: 'Session ' + i, val: i });
   el.innerHTML = tabs.map(t => `<button onclick="${isTeacher ? 'setDiscWeekTeacher' : 'setDiscWeek'}(${t.val})" style="padding:7px 14px;background:${_discWeek === t.val ? 'var(--cyan-dim)' : 'none'};color:${_discWeek === t.val ? 'var(--cyan)' : 'var(--muted)'};border:1px solid ${_discWeek === t.val ? 'var(--cyan)' : 'var(--border)'};font-family:var(--font-c);font-size:10px;cursor:pointer;transition:all 0.15s">${t.label}</button>`).join('');
 
   // Populate new post week selector
   const weekSel = document.getElementById('new-post-week');
   if (weekSel) {
-    weekSel.innerHTML = `<option value="">All Weeks</option>` + Array.from({length: weeks}, (_,i) => `<option value="${i+1}">Week ${i+1}</option>`).join('');
+    weekSel.innerHTML = `<option value="">All Sessions</option>` + Array.from({length: weeks}, (_,i) => `<option value="${i+1}">Session ${i+1}</option>`).join('');
   }
 }
 
@@ -4687,7 +4693,7 @@ async function renderDiscussionList(containerId, isTeacher) {
           </div>
         </div>
         <div style="font-family:var(--font-m);font-size:11px;color:var(--muted);margin-top:6px">
-          ${p.author_name} · ${p.time_ago}${p.week ? ' · Week '+p.week : ''} · <i class="fas fa-comment"></i> ${p.reply_count}
+          ${p.author_name} · ${p.time_ago}${p.week ? ' · Session '+p.week : ''} · <i class="fas fa-comment"></i> ${p.reply_count}
         </div>
       </div>`;
     }).join('');
@@ -4725,7 +4731,7 @@ async function openDiscussionPost(pid, isTeacher) {
         <div style="padding:20px 24px">
           <div style="font-family:var(--font-d);font-size:18px;font-weight:700;margin-bottom:8px">${p.title || ''}</div>
           <div style="font-family:var(--font-m);font-size:12px;line-height:1.7;margin-bottom:12px">${p.body}</div>
-          <div style="font-family:var(--font-c);font-size:10px;color:var(--muted)">${p.author_name} · ${p.time_ago}${p.week ? ' · Week '+p.week : ''}</div>
+          <div style="font-family:var(--font-c);font-size:10px;color:var(--muted)">${p.author_name} · ${p.time_ago}${p.week ? ' · Session '+p.week : ''}</div>
         </div>
         <div style="padding:0 24px 20px">
           <div style="font-family:var(--font-c);font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);margin-bottom:12px">${p.reply_count} Replies</div>

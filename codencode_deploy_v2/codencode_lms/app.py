@@ -387,7 +387,7 @@ def email_new_material(student_name: str, email: str, course_title: str, materia
     body = f"""
     <p>Hi <strong>{student_name}</strong>,</p>
     <p>New content is available in <strong>{course_title}</strong>:</p>
-    <p><strong>Week {week} — {material_title}</strong></p>
+    <p><strong>Session {week} - {material_title}</strong></p>
     <a class="btn" href="https://learn.codencode.my">View Material →</a>
     """
     return send_email(email, f'New material: {material_title} — codencode.my', _email_wrapper('New Content Available', body))
@@ -1643,7 +1643,7 @@ def admin_invoice(eid):
     <div class="section">
       <div class="section-title">Course</div>
       <p><strong>{c.title}</strong></p>
-      <p>Duration: {c.weeks} weeks</p>
+      <p>Duration: {c.weeks} sessions</p>
       <p>Enrolled: {enr_date}</p>
     </div>
   </div>
@@ -2392,13 +2392,13 @@ def _seed_demo_old():
     py_materials = [
         (0, 'Lecture Slides — All Sessions', 'py_slides.zip',            'zip', '2.9 MB'),
         (0, 'Python Cheat Sheet',            'py_cheat_sheet.py',        'py',  '5.4 KB'),
-        (1, 'Week 1 — Variables, Loops & Lists', 'py_week1_exercises.py','py',  '3.0 KB'),
-        (2, 'Week 2 — Functions',            'py_week2_exercises.py',    'py',  '3.6 KB'),
-        (3, 'Week 3 — OOP: Classes & Objects','py_week3_exercises.py',   'py',  '4.8 KB'),
-        (4, 'Week 4 — Files & Error Handling','py_week4_exercises.py',   'py',  '3.9 KB'),
-        (5, 'Week 5 — Modules & Pythonic Code','py_week5_exercises.py',  'py',  '5.3 KB'),
-        (6, 'Week 6 — Building Real Projects','py_week6_exercises.py',   'py',  '8.8 KB'),
-        (6, 'Week 6 — Mini Project Starter', 'py_week6_project_starter.py','py','6.9 KB'),
+        (1, 'Session 1 — Variables, Loops & Lists', 'py_week1_exercises.py','py',  '3.0 KB'),
+        (2, 'Session 2 — Functions',            'py_week2_exercises.py',    'py',  '3.6 KB'),
+        (3, 'Session 3 — OOP: Classes & Objects','py_week3_exercises.py',   'py',  '4.8 KB'),
+        (4, 'Session 4 — Files & Error Handling','py_week4_exercises.py',   'py',  '3.9 KB'),
+        (5, 'Session 5 — Modules & Pythonic Code','py_week5_exercises.py',  'py',  '5.3 KB'),
+        (6, 'Session 6 — Building Real Projects','py_week6_exercises.py',   'py',  '8.8 KB'),
+        (6, 'Session 6 — Mini Project Starter', 'py_week6_project_starter.py','py','6.9 KB'),
     ]
     for wk, title, fname, ftype, fsize in py_materials:
         db.session.add(Material(course_id=python_course.id, week=wk,
@@ -2407,13 +2407,13 @@ def _seed_demo_old():
     ml_materials = [
         (0, 'Lecture Slides — All Sessions',   'ml_slides.zip',                 'zip', '4.7 MB'),
         (0, 'ML Cheat Sheet',                  'ml_cheat_sheet.py',             'py',  '4.6 KB'),
-        (1, 'Week 1 — NumPy Fundamentals',     'ml_week1_exercises.py',         'py',  '4.3 KB'),
-        (2, 'Week 2 — Pandas Data Wrangling',  'ml_week2_exercises.py',         'py',  '4.7 KB'),
-        (3, 'Week 3 — Your First ML Model',    'ml_week3_exercises.py',         'py',  '4.7 KB'),
-        (4, 'Week 4 — Classification',         'ml_week4_exercises.py',         'py',  '4.5 KB'),
-        (5, 'Week 5 — Random Forest & Eval',   'ml_week5_exercises.py',         'py',  '4.9 KB'),
-        (6, 'Week 6 — Feature Engineering',    'ml_week6_feature_engineering.py','py', '6.3 KB'),
-        (6, 'Week 6 — Capstone Starter',       'ml_week6_capstone.py',          'py',  '7.6 KB'),
+        (1, 'Session 1 — NumPy Fundamentals',     'ml_week1_exercises.py',         'py',  '4.3 KB'),
+        (2, 'Session 2 — Pandas Data Wrangling',  'ml_week2_exercises.py',         'py',  '4.7 KB'),
+        (3, 'Session 3 — Your First ML Model',    'ml_week3_exercises.py',         'py',  '4.7 KB'),
+        (4, 'Session 4 — Classification',         'ml_week4_exercises.py',         'py',  '4.5 KB'),
+        (5, 'Session 5 — Random Forest & Eval',   'ml_week5_exercises.py',         'py',  '4.9 KB'),
+        (6, 'Session 6 — Feature Engineering',    'ml_week6_feature_engineering.py','py', '6.3 KB'),
+        (6, 'Session 6 — Capstone Starter',       'ml_week6_capstone.py',          'py',  '7.6 KB'),
     ]
     for wk, title, fname, ftype, fsize in ml_materials:
         db.session.add(Material(course_id=ml_course.id, week=wk,
@@ -2693,7 +2693,7 @@ def api_sessions_timetable():
                         )
                         timetable_items.append({
                             'id': f"tt-{course.id}-{cohort_id or 'course'}-{week['week']}-{row['session_num']}",
-                            'title': row.get('topic') or f"Lesson {week['week']}",
+                            'title': row.get('topic') or f"Session {week['week']}",
                             'session_type': 'cohort' if cohort_id else 'class',
                             'course_id': course.id,
                             'course_title': course.title,
@@ -2741,7 +2741,7 @@ def api_sessions_timetable():
                     )
                     timetable_items.append({
                         'id': f"tt-{e.course_id}-{e.cohort_id or 'course'}-{week['week']}-{row['session_num']}",
-                        'title': row.get('topic') or f"Week {week['week']} Class",
+                        'title': row.get('topic') or f"Session {week['week']} Class",
                         'session_type': 'cohort' if e.cohort_id else 'class',
                         'course_id': e.course_id,
                         'course_title': e.course.title,
@@ -2837,7 +2837,7 @@ def admin_list_sessions():
 @app.route('/api/admin/calendar', methods=['GET'])
 @admin_required
 def admin_calendar():
-    """Week calendar data for admin scheduling and availability checks."""
+    """Session calendar data for admin scheduling and availability checks."""
     start_str = request.args.get('start')
     teacher_id = request.args.get('teacher_id')
     try:
@@ -2887,7 +2887,7 @@ def admin_calendar():
                         continue
                     if not (start_day <= datetime.strptime(row['date_iso'], '%Y-%m-%d').date() < end_day):
                         continue
-                    title = row.get('topic') or f"Week {week['week']} Class"
+                    title = row.get('topic') or f"Session {week['week']} Class"
                     start_dt = datetime.strptime(f"{row['date_iso']}T{row['time_start']}", '%Y-%m-%dT%H:%M')
                     end_dt = start_dt + timedelta(minutes=row.get('duration_minutes') or 60)
                     events.append({
@@ -3308,7 +3308,7 @@ def admin_analytics_export():
                 s.last_login.strftime('%Y-%m-%d %H:%M') if s.last_login else ''
             ])
     elif export_type == 'submissions':
-        writer.writerow(['Student', 'Email', 'Assignment', 'Week', 'Submitted At', 'Score', 'Max Points', 'Feedback'])
+        writer.writerow(['Student', 'Email', 'Assignment', 'Session', 'Submitted At', 'Score', 'Max Points', 'Feedback'])
         q = Submission.query.join(Assignment)
         if course_id:
             q = q.filter(Assignment.course_id == course_id)
@@ -3324,7 +3324,7 @@ def admin_analytics_export():
         if not course_id:
             return jsonify({'error': 'course_id required for attendance export'}), 400
         course = Course.query.get_or_404(course_id)
-        week_headers = [f'Week {w}' for w in range(1, course.current_week + 1)]
+        week_headers = [f'Session {w}' for w in range(1, course.current_week + 1)]
         writer.writerow(['Student', 'Email'] + week_headers + ['Present', 'Absent', 'Late'])
         enrollments = Enrollment.query.filter_by(course_id=course_id).all()
         att_records = Attendance.query.filter_by(course_id=course_id).all()
