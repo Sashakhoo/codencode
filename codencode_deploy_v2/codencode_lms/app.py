@@ -1059,7 +1059,10 @@ def _slide_materials_for_course(course):
     title = (course.title or '').lower()
     has_python = 'python' in title
     has_ml = 'machine learning' in title or 'ml' in title
+    has_ai_workplace = 'ai' in title and 'workplace' in title
 
+    if has_ai_workplace:
+        return [item for item in SLIDE_MATERIALS if item[0] in (14, 15)]
     if has_python and has_ml:
         return SLIDE_MATERIALS
     if has_python:

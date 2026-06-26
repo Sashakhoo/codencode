@@ -2834,6 +2834,12 @@ function slideNumberForMaterial(m) {
 function slideAccessKey(num) {
   const n = parseInt(num, 10);
   if (!n) return '';
+  const course = STATE.courses.find(c => c.id === STATE.courseId) || {};
+  const title = String(course.title || '').toLowerCase();
+  if (title.includes('ai') && title.includes('workplace')) return 'ai-for-workplace';
+  if (title.includes('python') && (title.includes('machine learning') || title.includes('ml'))) return 'python-machine-learning';
+  if (title.includes('python')) return 'python-programming-bootcamp';
+  if (title.includes('machine learning') || title.includes('ml')) return 'ml-fundamentals';
   return n <= 7 ? 'python-programming-bootcamp' : 'ml-fundamentals';
 }
 
