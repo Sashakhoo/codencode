@@ -74,6 +74,24 @@ os.makedirs(os.path.join(app.config['UPLOAD_FOLDER'], 'avatars'), exist_ok=True)
 
 _zoom_token_cache = {'token': None, 'expires_at': 0, 'api_url': 'https://api.zoom.us'}
 
+PYTHON_ML_SLIDE_MATERIALS = [
+    (1, 'Session 01: Python Basics and Environment Setup', 'Session_01_Student_Python_Basics_and_Environment_Setup.html'),
+    (2, 'Session 02: Control Flow Decisions and Loops', 'Session_02_Student_Control_Flow_Decisions_and_Loops.html'),
+    (3, 'Session 03: Functions Modules and Reusable Code', 'Session_03_Student_Functions_Modules_and_Reusable_Code.html'),
+    (4, 'Session 04: NumPy and Pandas Data Wrangling', 'Session_04_Student_NumPy_and_Pandas_Data_Wrangling.html'),
+    (5, 'Session 05: Data Visualization Matplotlib and Seaborn', 'Session_05_Student_Data_Visualization_Matplotlib_and_Seaborn.html'),
+    (6, 'Session 06: APIs and Real Data', 'Session_06_Student_APIs and Real Data.html'),
+    (7, 'Session 07: Statistics and Probability', 'Session_07_Student_Statistics and Probability.html'),
+    (8, 'Session 08: Feature Engineering', 'Session_08_Student_Feature Engineering.html'),
+    (9, 'Session 09: Intro to Machine Learning', 'Session_09_Student_Intro to Machine Learning.html'),
+    (10, 'Session 10: Regression Models Predict Any Number', 'Session_10_Student_Regression Models Predict Any Number.html'),
+    (11, 'Session 11: Classification Random Forest and Evaluation', 'Session_11_Student_Classification Random Forest and Evaluation.html'),
+    (12, 'Session 12: Neural Networks and Deep Learning', 'Session_12_Student_Neural Networks and Deep Learning.html'),
+    (13, 'Session 13: LSTM and Time Series Sequential Learning', 'Session_13_Student_LSTM and Time Series Sequential Learning.html'),
+    (14, 'Session 14: Vibe Coding - Building with AI', 'Session_14_Student_Vibe Coding — Building with AI.html'),
+    (15, 'Session 15: Project Planning and Capstone Execution', 'Session_15_Student_Project Planning and Capstone Execution.html'),
+]
+
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -1035,6 +1053,47 @@ def serve_video(filename):
 # ─────────────────────────────────────────────
 # MATERIALS
 # ─────────────────────────────────────────────
+
+def _is_python_ml_course(course):
+    title = (course.title or '').lower()
+    return 'python' in title and ('machine learning' in title or 'ml' in title)
+
+
+def _ensure_python_ml_slide_materials(course):
+    if not course or not _is_python_ml_course(course):
+        return
+
+    materials_dir = os.path.join(app.config['UPLOAD_FOLDER'], 'materials')
+    existing = {
+        m.filename for m in Material.query.filter_by(course_id=course.id).all()
+    }
+    material_cols = {c.name for c in Material.__table__.columns}
+    changed = False
+    for session_num, title, filename in PYTHON_ML_SLIDE_MATERIALS:
+        if filename in existing:
+            continue
+        fpath = os.path.join(materials_dir, filename)
+        if not os.path.exists(fpath):
+            continue
+        values = {
+            'course_id': course.id,
+            'week': 0,
+            'title': title,
+            'description': 'Student HTML slides',
+            'filename': filename,
+            'file_type': 'html',
+            'file_size': human_size(fpath),
+        }
+        if 'is_published' in material_cols:
+            values['is_published'] = True
+        if 'order_index' in material_cols:
+            values['order_index'] = session_num
+        db.session.add(Material(**values))
+        changed = True
+    if changed:
+        db.session.commit()
+
+
 @app.route('/api/courses/<int:cid>/materials')
 @login_required
 def api_materials(cid):
@@ -1042,6 +1101,7 @@ def api_materials(cid):
         return jsonify({'error': 'Not enrolled'}), 403
 
     course = Course.query.get_or_404(cid)
+    _ensure_python_ml_slide_materials(course)
     now = datetime.utcnow()
     mats = Material.query.filter_by(course_id=cid).order_by(
         Material.week, Material.order_index, Material.uploaded_at).all()
