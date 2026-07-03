@@ -21,24 +21,29 @@
 
     .cert-wrapper {
       width: 297mm;
+      height: 210mm;
       max-width: 100%;
       background: #fff;
       position: relative;
       box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+      overflow: hidden;
     }
 
     .cert-outer {
-      padding: 16px;
+      width: 100%;
+      height: 100%;
+      padding: 5mm;
       background: linear-gradient(135deg, #0a3d2a 0%, #145a3d 50%, #0a3d2a 100%);
     }
 
     .cert-inner {
       border: 3px solid #00c485;
-      padding: 48px 52px;
+      width: 100%;
+      height: 100%;
+      padding: 9mm 14mm;
       background: #fff;
       position: relative;
       overflow: hidden;
-      min-height: 210mm;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -50,7 +55,7 @@
       content: 'codencode.my';
       position: absolute;
       font-family: 'Outfit', sans-serif;
-      font-size: 132px;
+      font-size: 118px;
       font-weight: 800;
       color: rgba(0, 196, 133, 0.04);
       top: 50%;
@@ -81,7 +86,7 @@
     /* Brand */
     .brand {
       font-family: 'Outfit', sans-serif;
-      font-size: 30px;
+      font-size: 28px;
       font-weight: 800;
       color: #0a3d2a;
       letter-spacing: -0.02em;
@@ -94,7 +99,7 @@
       letter-spacing: 0.2em;
       text-transform: uppercase;
       color: #666;
-      margin-bottom: 24px;
+      margin-bottom: 14px;
     }
 
     /* Divider */
@@ -102,17 +107,17 @@
       width: 280px;
       height: 2px;
       background: linear-gradient(90deg, transparent, #00c485, transparent);
-      margin: 0 auto 24px;
+      margin: 0 auto 14px;
     }
 
     /* Certificate heading */
     .cert-heading {
       font-family: 'Outfit', sans-serif;
-      font-size: 15px;
+      font-size: 14px;
       letter-spacing: 0.34em;
       text-transform: uppercase;
       color: #888;
-      margin-bottom: 14px;
+      margin-bottom: 8px;
     }
     .cert-content.no-recipient .cert-heading {
       font-size: 16px;
@@ -122,36 +127,36 @@
 
     .cert-of {
       font-family: 'Outfit', sans-serif;
-      font-size: 54px;
+      font-size: 46px;
       font-weight: 800;
       color: #0a3d2a;
       letter-spacing: -0.02em;
-      margin-bottom: 14px;
+      margin-bottom: 8px;
       line-height: 1.1;
     }
     .cert-content.no-recipient .cert-of {
-      font-size: 64px;
-      margin-bottom: 38px;
+      font-size: 54px;
+      margin-bottom: 24px;
     }
 
     .cert-completion {
       font-family: 'Outfit', sans-serif;
-      font-size: 20px;
+      font-size: 18px;
       font-weight: 400;
       color: #555;
-      margin-bottom: 22px;
+      margin-bottom: 14px;
     }
 
     /* Body text */
     .cert-body-text {
-      font-size: 16px;
+      font-size: 14px;
       color: #777;
-      margin-bottom: 14px;
+      margin-bottom: 8px;
       line-height: 1.55;
     }
     .cert-content.no-recipient .cert-body-text {
-      font-size: 20px;
-      margin-bottom: 24px;
+      font-size: 17px;
+      margin-bottom: 16px;
     }
     .cert-content.no-recipient .general-completion {
       margin-top: 0;
@@ -161,11 +166,11 @@
     /* Student name */
     .student-name {
       font-family: 'Lora', serif;
-      font-size: 64px;
+      font-size: 54px;
       font-weight: 600;
       font-style: italic;
       color: #0a3d2a;
-      margin-bottom: 8px;
+      margin-bottom: 4px;
       line-height: 1.2;
     }
 
@@ -173,7 +178,7 @@
       width: 560px;
       height: 1px;
       background: linear-gradient(90deg, transparent, #ccc, transparent);
-      margin: 0 auto 22px;
+      margin: 0 auto 14px;
     }
 
     /* Course */
@@ -183,7 +188,7 @@
       letter-spacing: 0.24em;
       text-transform: uppercase;
       color: #999;
-      margin-bottom: 10px;
+      margin-bottom: 8px;
     }
     .cert-content.no-recipient .course-label {
       font-size: 12px;
@@ -193,15 +198,15 @@
 
     .course-name {
       font-family: 'Outfit', sans-serif;
-      font-size: 36px;
+      font-size: 30px;
       font-weight: 700;
       color: #1a2e28;
-      margin-bottom: 20px;
+      margin-bottom: 12px;
     }
     .cert-content.no-recipient .course-name {
-      font-size: 48px;
+      font-size: 40px;
       line-height: 1.12;
-      margin-bottom: 30px;
+      margin-bottom: 20px;
     }
 
     /* Meta info */
@@ -210,13 +215,13 @@
       justify-content: space-between;
       align-items: flex-end;
       width: 100%;
-      margin-top: 24px;
-      padding-top: 18px;
+      margin-top: 14px;
+      padding-top: 12px;
       border-top: 1px solid #eee;
     }
     .cert-content.no-recipient .cert-meta {
-      margin-top: 58px;
-      padding-top: 20px;
+      margin-top: 34px;
+      padding-top: 12px;
     }
 
     .cert-meta-item { text-align: center; }
@@ -229,26 +234,26 @@
       gap: 6px;
     }
     .cert-qr img {
-      width: 72px; height: 72px;
+      width: 58px; height: 58px;
       border: 2px solid #00c485;
       padding: 3px;
       background: white;
     }
     .cert-qr-label {
       font-family: 'JetBrains Mono', monospace;
-      font-size: 7px;
+      font-size: 6px;
       letter-spacing: 0.12em;
       text-transform: uppercase;
       color: #aaa;
     }
     .cert-qr-url {
       font-family: 'JetBrains Mono', monospace;
-      font-size: 7px;
+      font-size: 6px;
       color: #00874a;
     }
     .cert-meta-label {
       font-family: 'JetBrains Mono', monospace;
-      font-size: 9px;
+      font-size: 8px;
       letter-spacing: 0.15em;
       text-transform: uppercase;
       color: #aaa;
@@ -256,7 +261,7 @@
     }
     .cert-meta-value {
       font-family: 'Outfit', sans-serif;
-      font-size: 13px;
+      font-size: 12px;
       font-weight: 600;
       color: #333;
     }
@@ -264,39 +269,39 @@
     .cert-number-badge {
       background: #f0faf6;
       border: 1px solid #00c485;
-      padding: 8px 16px;
+      padding: 6px 13px;
       font-family: 'JetBrains Mono', monospace;
-      font-size: 12px;
+      font-size: 11px;
       color: #00874a;
       letter-spacing: 0.1em;
     }
 
     /* Signature area */
     .signature-area {
-      margin-top: 24px;
-      width: 360px;
+      margin-top: 0;
+      width: 300px;
       text-align: center;
     }
     .signature-line {
       position: relative;
       width: 100%;
-      height: 92px;
+      height: 64px;
       border-bottom: 3px solid #0a3d2a;
-      margin-bottom: 12px;
+      margin-bottom: 8px;
     }
     .signature-image {
       display: block;
       position: absolute;
       left: 50%;
-      bottom: 8px;
+      bottom: 5px;
       transform: translateX(-50%);
-      width: 280px;
-      height: 82px;
+      width: 220px;
+      height: 58px;
       object-fit: contain;
     }
     .signature-name {
       font-family: 'Outfit', sans-serif;
-      font-size: 18px;
+      font-size: 15px;
       font-weight: 800;
       color: #0a3d2a;
       letter-spacing: 0.01em;
@@ -304,12 +309,12 @@
     }
     .signature-title {
       font-family: 'Outfit', sans-serif;
-      font-size: 13px;
+      font-size: 11px;
       font-weight: 600;
       letter-spacing: 0.08em;
       text-transform: none;
       color: #888;
-      margin-top: 6px;
+      margin-top: 4px;
     }
 
     /* Print button */
@@ -345,13 +350,21 @@
     .btn-close:hover { border-color: #999; color: #333; }
 
     @media print {
+      html,
       body {
         background: #fff;
         padding: 0;
+        margin: 0;
+        width: 297mm;
+        height: 210mm;
+        min-height: 210mm;
+        display: block;
       }
       .cert-wrapper {
         box-shadow: none;
-        width: 100%;
+        width: 297mm;
+        height: 210mm;
+        max-width: none;
       }
       .print-actions { display: none !important; }
       @page {
