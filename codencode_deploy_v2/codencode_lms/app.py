@@ -710,7 +710,17 @@ def next_certificate_number():
     return f'CC-{year}-{last_number + 1:03d}'
 
 
-def issue_certificate_for(student_id, course_id):
+def send_certificate_email(cert):
+    """Email a download link for an issued student certificate."""
+    if not cert or not cert.student or not cert.student.email or not cert.course:
+        return False
+    return email_certificate_issued(
+        cert.student.name, cert.student.email,
+        cert.course.title, cert.cert_number, cert.id
+    )
+
+
+def issue_certificate_for(student_id, course_id, send_email_now=True):
     """Create and email a certificate for an enrolled student/course."""
     student = User.query.get(student_id)
     course = Course.query.get(course_id)
@@ -743,11 +753,8 @@ def issue_certificate_for(student_id, course_id):
     if cert is None:
         return None, ('Could not generate a unique certificate number. Please try again.', 409)
 
-    if student.email:
-        email_certificate_issued(
-            student.name, student.email,
-            course.title, cert.cert_number, cert.id
-        )
+    if send_email_now:
+        send_certificate_email(cert)
     return cert, None
 
 
@@ -3467,6 +3474,7 @@ def admin_certificates():
     student_id = data.get('student_id')
     course_id  = data.get('course_id')
     blank_name = bool(data.get('blank_name'))
+    send_email_now = bool(data.get('send_email', True))
     if not course_id or (not blank_name and not student_id):
         return jsonify({'error': 'course_id required; student_id required unless blank_name is true'}), 400
     if not teacher_can_manage_course(course_id):
@@ -3489,11 +3497,26 @@ def admin_certificates():
             'count': len(certs)
         }), 201
 
-    cert, err = issue_certificate_for(student_id, course_id)
+    cert, err = issue_certificate_for(student_id, course_id, send_email_now=send_email_now)
     if err:
         msg, status = err
         return jsonify({'error': msg}), status
     return jsonify({'certificate': cert.to_dict()}), 201
+
+
+@app.route('/api/admin/certificates/<int:cert_id>/send', methods=['POST'])
+@teacher_required
+def admin_send_certificate_email(cert_id):
+    cert = Certificate.query.get_or_404(cert_id)
+    if not teacher_can_manage_course(cert.course_id):
+        return jsonify({'error': 'Forbidden'}), 403
+    if not cert.student:
+        return jsonify({'error': 'Blank-name certificates are not linked to a student'}), 400
+    if not cert.student.email:
+        return jsonify({'error': 'Student has no email address'}), 400
+    if not send_certificate_email(cert):
+        return jsonify({'error': 'Email could not be sent. Check email configuration.'}), 500
+    return jsonify({'ok': True, 'certificate': cert.to_dict()})
 
 
 @app.route('/api/admin/certificates/reset', methods=['POST'])
@@ -3604,6 +3627,7 @@ def teacher_issue_certificate():
     student_id = data.get('student_id')
     course_id = data.get('course_id')
     blank_name = bool(data.get('blank_name'))
+    send_email_now = bool(data.get('send_email', True))
     if not course_id or (not blank_name and not student_id):
         return jsonify({'error': 'course_id required; student_id required unless blank_name is true'}), 400
     if not teacher_can_manage_course(course_id):
@@ -3626,7 +3650,7 @@ def teacher_issue_certificate():
             'count': len(certs)
         }), 201
 
-    cert, err = issue_certificate_for(student_id, course_id)
+    cert, err = issue_certificate_for(student_id, course_id, send_email_now=send_email_now)
     if err:
         msg, status = err
         return jsonify({'error': msg}), status

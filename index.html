@@ -296,6 +296,26 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 .soc-pill.li{color:#0A66C2;border-color:rgba(10,102,194,.35);background:rgba(10,102,194,.06)}
 .soc-pill.li:hover{background:rgba(10,102,194,.15);border-color:#0A66C2}
 /* REVIEWS */
+.reviews-wrap{margin-top:48px;display:grid;grid-template-columns:360px 1fr;border:1px solid var(--b);background:var(--bg)}
+.review-score{padding:32px;border-right:1px solid var(--b);display:flex;flex-direction:column;justify-content:space-between;gap:28px;background:linear-gradient(180deg,rgba(0,220,180,.08),rgba(8,12,16,.3))}
+.google-line{display:flex;align-items:center;gap:10px;font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--mu)}
+.google-mark{width:30px;height:30px;display:grid;place-items:center;border:1px solid var(--b);background:#fff;color:#4285f4;font-family:Arial,sans-serif;font-weight:800;font-size:17px}
+.score-big{font-size:68px;font-weight:800;letter-spacing:-.05em;line-height:1;color:var(--w);margin:20px 0 10px}
+.score-stars{color:var(--gold);font-size:15px;letter-spacing:2px;margin-bottom:12px}
+.score-copy{font-family:var(--mono);font-size:12px;color:var(--mu);line-height:1.8}
+.review-actions{display:flex;gap:10px;flex-wrap:wrap}
+.review-action{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--bs);color:var(--cyan);font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;padding:11px 14px;text-decoration:none;transition:all .2s}
+.review-action:hover{background:var(--cdim);border-color:var(--cyan)}
+.review-action.write{background:#fff;color:#111;border-color:#fff}
+.review-action.write:hover{background:#e8edf3;border-color:#e8edf3}
+.review-highlights{display:grid;grid-template-columns:repeat(3,1fr)}
+.review-card{padding:28px;border-right:1px solid var(--b);min-height:260px;display:flex;flex-direction:column}
+.review-card:last-child{border-right:none}
+.review-stars{color:var(--gold);font-size:12px;letter-spacing:2px;margin-bottom:18px}
+.review-card h3{font-size:16px;font-weight:800;letter-spacing:-.01em;margin-bottom:10px}
+.review-card p{font-family:var(--mono);font-size:12px;color:var(--mu);line-height:1.8;flex:1}
+.review-source{display:flex;align-items:center;gap:8px;border-top:1px solid var(--b);padding-top:16px;margin-top:22px;font-family:var(--mono);font-size:10px;color:var(--mu2);letter-spacing:.08em;text-transform:uppercase}
+.review-source i{color:var(--cyan)}
 .rev-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:0;border:1px solid var(--b);margin-top:48px}
 .rcard{padding:28px;border-right:1px solid var(--b)}
 .rcard:last-child{border-right:none}
@@ -369,6 +389,11 @@ footer{background:#050709;border-top:1px solid var(--b);padding:56px 0 28px}
   .course-slider .ccard{flex:0 0 85vw}
   .course-grid{grid-template-columns:repeat(2,1fr)}
   .trainer-grid{grid-template-columns:1fr}
+  .reviews-wrap{grid-template-columns:1fr}
+  .review-score{border-right:none;border-bottom:1px solid var(--b)}
+  .review-highlights{grid-template-columns:1fr}
+  .review-card{border-right:none;border-bottom:1px solid var(--b);min-height:auto}
+  .review-card:last-child{border-bottom:none}
   .fgrid{grid-template-columns:1fr 1fr}
 }
 @media(max-width:768px){
@@ -393,6 +418,10 @@ footer{background:#050709;border-top:1px solid var(--b);padding:56px 0 28px}
   .trainer-card{grid-template-columns:1fr}
   .trainer-photo{min-height:420px}
   .trainer-body{padding:24px}
+  .review-score{padding:24px}
+  .score-big{font-size:56px}
+  .review-actions{flex-direction:column}
+  .review-action{justify-content:center}
   .rev-grid{grid-template-columns:1fr}
   .rcard{border-right:none;border-bottom:1px solid var(--b)}
   .cwrap{grid-template-columns:1fr}
@@ -424,6 +453,7 @@ footer{background:#050709;border-top:1px solid var(--b);padding:56px 0 28px}
     </a>
     <ul class="nav-links">
       <li><a href="#courses">Courses</a></li>
+      <li><a href="#reviews">Reviews</a></li>
       <li><a href="#trainer">Trainer</a></li>
       <li><a href="paths.html">Your Path</a></li>
       <li><a href="https://wa.me/601131652854?text=Hi%20codencode!%20I'm%20interested%20👋" target="_blank" rel="noopener">Contact</a></li>
@@ -433,6 +463,7 @@ footer{background:#050709;border-top:1px solid var(--b);padding:56px 0 28px}
   </div>
   <div class="mob-nav" id="mob-menu">
     <a href="#courses">Courses</a>
+    <a href="#reviews">Reviews</a>
     <a href="#trainer">Trainer</a>
     <a href="paths.html">Your Path</a>
     <a href="https://wa.me/601131652854?text=Hi%20codencode!%20I'm%20interested%20👋" target="_blank" rel="noopener">Free Trial → WhatsApp</a>
@@ -510,7 +541,7 @@ footer{background:#050709;border-top:1px solid var(--b);padding:56px 0 28px}
       <div class="wcard3" data-n="01">
         <div class="wico"><i class="fas fa-map-marker-alt"></i></div>
         <h3>Priced for JB, not SG</h3>
-        <p><a href="https://share.google/H43pWGekBXaZ785tc" target="_blank" rel="noopener" style="color:var(--cyan);text-decoration:none;font-weight:700">Based in Johor Bahru</a>. Priced for Malaysian salaries, not Singapore rates. Local context, global skills. We know the JB market.</p>
+        <p><a href="https://share.google/zRqjHddN39P0KPhgs" target="_blank" rel="noopener" style="color:var(--cyan);text-decoration:none;font-weight:700">Based in Johor Bahru</a>. Priced for Malaysian salaries, not Singapore rates. Local context, global skills. We know the JB market.</p>
       </div>
 
       <div class="wcard3" data-n="02">
@@ -674,6 +705,55 @@ footer{background:#050709;border-top:1px solid var(--b);padding:56px 0 28px}
   </div>
 </section>
 
+<!-- GOOGLE REVIEWS -->
+<section id="reviews" class="sec">
+  <div class="container">
+    <div class="lbl">Google Reviews</div>
+    <h2 class="h2">Loved by<br>our students.</h2>
+    <p class="sub">Real social proof for parents, students and career changers deciding whether codencode is the right place to start.</p>
+
+    <div class="reviews-wrap">
+      <aside class="review-score">
+        <div>
+          <div class="google-line"><span class="google-mark">G</span> Google Reviews</div>
+          <div class="score-big">4.7</div>
+          <div class="score-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+          <p class="score-copy">Students mention clear teaching, beginner-friendly pacing, and practical projects they can actually build on.</p>
+        </div>
+        <div class="review-actions">
+          <a class="review-action" href="https://share.google/zRqjHddN39P0KPhgs" target="_blank" rel="noopener">
+            <i class="fab fa-google"></i> Read Reviews
+          </a>
+          <a class="review-action write" href="https://share.google/zRqjHddN39P0KPhgs" target="_blank" rel="noopener">
+            <i class="fas fa-pen"></i> Write Review
+          </a>
+        </div>
+      </aside>
+
+      <div class="review-highlights">
+        <article class="review-card">
+          <div class="review-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+          <h3>Beginner-friendly</h3>
+          <p>Lessons are paced for students who are new to coding, with patient explanation and enough structure to keep everyone moving.</p>
+          <div class="review-source"><i class="fab fa-google"></i> From Google feedback</div>
+        </article>
+        <article class="review-card">
+          <div class="review-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+          <h3>Clear teaching</h3>
+          <p>Students appreciate being able to ask questions, revisit recordings, and understand the why behind each Python or AI concept.</p>
+          <div class="review-source"><i class="fab fa-google"></i> From Google feedback</div>
+        </article>
+        <article class="review-card">
+          <div class="review-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+          <h3>Practical projects</h3>
+          <p>Every course points toward useful work: data analysis, automation, AI tools, apps, dashboards, and portfolio-ready outcomes.</p>
+          <div class="review-source"><i class="fab fa-google"></i> From Google feedback</div>
+        </article>
+      </div>
+    </div>
+  </div>
+</section>
+
 <!-- TRAINER -->
 <section id="trainer" class="sec alt">
   <div class="container">
@@ -754,7 +834,7 @@ footer{background:#050709;border-top:1px solid var(--b);padding:56px 0 28px}
         <svg width="22" height="22" viewBox="0 0 24 24" fill="#fff" xmlns="http://www.w3.org/2000/svg"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347zm-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884zm8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
         WhatsApp Us — Book Free Trial
       </a>
-      <a class="cta-g-btn" href="https://share.google/H43pWGekBXaZ785tc" target="_blank" rel="noopener">
+      <a class="cta-g-btn" href="https://share.google/zRqjHddN39P0KPhgs" target="_blank" rel="noopener">
         <svg width="20" height="20" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
           <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
           <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
