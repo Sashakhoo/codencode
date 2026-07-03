@@ -34,7 +34,7 @@
 
     .cert-inner {
       border: 3px solid #00c485;
-      padding: 60px 80px;
+      padding: 48px 52px;
       background: #fff;
       position: relative;
       overflow: hidden;
@@ -50,7 +50,7 @@
       content: 'codencode.my';
       position: absolute;
       font-family: 'Outfit', sans-serif;
-      font-size: 120px;
+      font-size: 132px;
       font-weight: 800;
       color: rgba(0, 196, 133, 0.04);
       top: 50%;
@@ -62,6 +62,9 @@
     }
 
     .cert-content { position: relative; z-index: 1; width: 100%; }
+    .cert-content.no-recipient {
+      padding-top: 6px;
+    }
 
     /* Corner decorations */
     .corner {
@@ -78,7 +81,7 @@
     /* Brand */
     .brand {
       font-family: 'Outfit', sans-serif;
-      font-size: 28px;
+      font-size: 30px;
       font-weight: 800;
       color: #0a3d2a;
       letter-spacing: -0.02em;
@@ -91,57 +94,74 @@
       letter-spacing: 0.2em;
       text-transform: uppercase;
       color: #666;
-      margin-bottom: 32px;
+      margin-bottom: 24px;
     }
 
     /* Divider */
     .divider {
-      width: 200px;
+      width: 280px;
       height: 2px;
       background: linear-gradient(90deg, transparent, #00c485, transparent);
-      margin: 0 auto 32px;
+      margin: 0 auto 24px;
     }
 
     /* Certificate heading */
     .cert-heading {
       font-family: 'Outfit', sans-serif;
-      font-size: 13px;
-      letter-spacing: 0.3em;
+      font-size: 15px;
+      letter-spacing: 0.34em;
       text-transform: uppercase;
       color: #888;
-      margin-bottom: 20px;
+      margin-bottom: 14px;
+    }
+    .cert-content.no-recipient .cert-heading {
+      font-size: 16px;
+      letter-spacing: 0.36em;
+      margin-bottom: 18px;
     }
 
     .cert-of {
       font-family: 'Outfit', sans-serif;
-      font-size: 40px;
+      font-size: 54px;
       font-weight: 800;
       color: #0a3d2a;
       letter-spacing: -0.02em;
-      margin-bottom: 8px;
+      margin-bottom: 14px;
       line-height: 1.1;
+    }
+    .cert-content.no-recipient .cert-of {
+      font-size: 64px;
+      margin-bottom: 38px;
     }
 
     .cert-completion {
       font-family: 'Outfit', sans-serif;
-      font-size: 18px;
+      font-size: 20px;
       font-weight: 400;
       color: #555;
-      margin-bottom: 36px;
+      margin-bottom: 22px;
     }
 
     /* Body text */
     .cert-body-text {
-      font-size: 14px;
+      font-size: 16px;
       color: #777;
+      margin-bottom: 14px;
+      line-height: 1.55;
+    }
+    .cert-content.no-recipient .cert-body-text {
+      font-size: 20px;
       margin-bottom: 24px;
-      line-height: 1.6;
+    }
+    .cert-content.no-recipient .general-completion {
+      margin-top: 0;
+      color: #555;
     }
 
     /* Student name */
     .student-name {
       font-family: 'Lora', serif;
-      font-size: 52px;
+      font-size: 64px;
       font-weight: 600;
       font-style: italic;
       color: #0a3d2a;
@@ -150,28 +170,38 @@
     }
 
     .name-line {
-      width: 380px;
+      width: 560px;
       height: 1px;
       background: linear-gradient(90deg, transparent, #ccc, transparent);
-      margin: 0 auto 32px;
+      margin: 0 auto 22px;
     }
 
     /* Course */
     .course-label {
       font-family: 'JetBrains Mono', monospace;
-      font-size: 10px;
-      letter-spacing: 0.2em;
+      font-size: 11px;
+      letter-spacing: 0.24em;
       text-transform: uppercase;
       color: #999;
-      margin-bottom: 8px;
+      margin-bottom: 10px;
+    }
+    .cert-content.no-recipient .course-label {
+      font-size: 12px;
+      letter-spacing: 0.28em;
+      margin-bottom: 12px;
     }
 
     .course-name {
       font-family: 'Outfit', sans-serif;
-      font-size: 24px;
+      font-size: 36px;
       font-weight: 700;
       color: #1a2e28;
-      margin-bottom: 36px;
+      margin-bottom: 20px;
+    }
+    .cert-content.no-recipient .course-name {
+      font-size: 48px;
+      line-height: 1.12;
+      margin-bottom: 30px;
     }
 
     /* Meta info */
@@ -180,9 +210,13 @@
       justify-content: space-between;
       align-items: flex-end;
       width: 100%;
-      margin-top: 40px;
-      padding-top: 24px;
+      margin-top: 24px;
+      padding-top: 18px;
       border-top: 1px solid #eee;
+    }
+    .cert-content.no-recipient .cert-meta {
+      margin-top: 58px;
+      padding-top: 20px;
     }
 
     .cert-meta-item { text-align: center; }
@@ -240,36 +274,42 @@
     /* Signature area */
     .signature-area {
       margin-top: 24px;
-      padding-top: 12px;
-      border-top: 3px solid #0a3d2a;
-      width: 320px;
+      width: 360px;
       text-align: center;
+    }
+    .signature-line {
+      position: relative;
+      width: 100%;
+      height: 92px;
+      border-bottom: 3px solid #0a3d2a;
+      margin-bottom: 12px;
     }
     .signature-image {
       display: block;
-      width: 210px;
-      height: 92px;
+      position: absolute;
+      left: 50%;
+      bottom: 8px;
+      transform: translateX(-50%);
+      width: 280px;
+      height: 82px;
       object-fit: contain;
-      margin: 0 auto 8px;
     }
     .signature-name {
       font-family: 'Outfit', sans-serif;
       font-size: 18px;
       font-weight: 800;
       color: #0a3d2a;
-      letter-spacing: -0.03em;
-      line-height: 1;
-    }
-    .signature-name span {
-      color: #00874a;
+      letter-spacing: 0.01em;
+      line-height: 1.15;
     }
     .signature-title {
-      font-family: 'JetBrains Mono', monospace;
+      font-family: 'Outfit', sans-serif;
       font-size: 13px;
-      letter-spacing: 0.22em;
-      text-transform: uppercase;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: none;
       color: #888;
-      margin-top: 10px;
+      margin-top: 6px;
     }
 
     /* Print button */
@@ -330,7 +370,7 @@
         <div class="corner corner-bl"></div>
         <div class="corner corner-br"></div>
 
-        <div class="cert-content">
+        <div class="cert-content{% if not cert.student %} no-recipient{% endif %}">
           <div class="brand">code<span>ncode</span>.my</div>
           <div class="brand-sub">Learning Management System</div>
 
@@ -338,6 +378,7 @@
 
           <div class="cert-heading">Certificate</div>
           <div class="cert-of">of Achievement</div>
+          {% if cert.student %}
           <div class="cert-completion">This certificate is proudly presented to</div>
 
           <div class="cert-body-text">
@@ -348,6 +389,9 @@
           <div class="name-line"></div>
 
           <div class="cert-body-text">has successfully completed the course</div>
+          {% else %}
+          <div class="cert-body-text general-completion">For successful completion of</div>
+          {% endif %}
 
           <div class="course-label">Course</div>
           <div class="course-name">{{ cert.course.title }}</div>
@@ -365,9 +409,11 @@
             </div>
             <div class="cert-meta-item">
               <div class="signature-area">
-                <img class="signature-image" src="{{ url_for('static', filename='img/signature.png') }}" alt="Authorised signature" />
-                <div class="signature-name">code<span>ncode</span>.my</div>
-                <div class="signature-title">Authorised Signature</div>
+                <div class="signature-line">
+                  <img class="signature-image" src="{{ url_for('static', filename='img/signature.png') }}" alt="Natasya Khoo signature" />
+                </div>
+                <div class="signature-name">Natasya Khoo</div>
+                <div class="signature-title">Managing Director</div>
               </div>
             </div>
             {% if qr_b64 %}

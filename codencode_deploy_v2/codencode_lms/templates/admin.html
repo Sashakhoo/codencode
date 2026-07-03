@@ -1701,6 +1701,27 @@
       </select>
     </div>
     <div class="form-group">
+      <label style="display:flex;align-items:flex-start;gap:10px;color:var(--text-muted);font-size:13px;line-height:1.5">
+        <input type="checkbox" id="cert-blank-name" onchange="toggleBlankCertificateName()" style="margin-top:3px;accent-color:var(--primary)" />
+        <span>Workshop certificate without participant name</span>
+      </label>
+    </div>
+    <div class="form-group" id="cert-blank-quantity-group" style="display:none">
+      <label class="form-label">Quantity</label>
+      <input class="form-input" type="number" id="cert-blank-quantity" min="1" max="200" value="1" />
+    </div>
+    <div class="form-group" id="cert-email-group">
+      <label style="display:flex;align-items:flex-start;gap:10px;color:var(--text-muted);font-size:13px;line-height:1.5">
+        <input type="checkbox" id="cert-send-email" onchange="updateIssueCertButtonText()" style="margin-top:3px;accent-color:var(--primary)" />
+        <span>
+          Email student immediately
+          <small style="display:block;color:var(--text-dim);font-size:11px;margin-top:3px">
+            Leave unticked to issue now, print first, then use Send Email later from the certificate list.
+          </small>
+        </span>
+      </label>
+    </div>
+    <div class="form-group">
       <label class="form-label">Course</label>
       <select class="form-input" id="cert-course-select" onchange="populateCertificateStudents()">
         <option value="">Select course...</option>
@@ -3453,7 +3474,13 @@ function populateCertificateCourses() {
 function populateCertificateStudents() {
   const stuSel = document.getElementById('cert-student-select');
   const cSel   = document.getElementById('cert-course-select');
+  const blankName = document.getElementById('cert-blank-name')?.checked;
   if (!stuSel) return;
+  stuSel.disabled = !!blankName;
+  if (blankName) {
+    stuSel.innerHTML = '<option value="">No name on certificate</option>';
+    return;
+  }
   const courseId = parseInt(cSel?.value || '0');
   let students = S.certOptions.students;
   if (courseId && S.certOptions.enrollments.length) {
@@ -3466,6 +3493,30 @@ function populateCertificateStudents() {
   }
   stuSel.innerHTML = '<option value="">Select student...</option>' +
     students.map(s => `<option value="${s.id}">${s.name}</option>`).join('');
+}
+
+function toggleBlankCertificateName() {
+  const qtyGroup = document.getElementById('cert-blank-quantity-group');
+  const emailGroup = document.getElementById('cert-email-group');
+  const blankName = document.getElementById('cert-blank-name')?.checked;
+  if (qtyGroup) qtyGroup.style.display = blankName ? 'block' : 'none';
+  if (emailGroup) emailGroup.style.display = blankName ? 'none' : 'block';
+  populateCertificateStudents();
+  updateIssueCertButtonText();
+}
+
+function updateIssueCertButtonText() {
+  const btn = document.getElementById('issue-cert-btn');
+  if (!btn) return;
+  const blankName = document.getElementById('cert-blank-name')?.checked;
+  const sendEmail = document.getElementById('cert-send-email')?.checked;
+  if (blankName) {
+    btn.innerHTML = '<i class="fas fa-award"></i> Issue Blank Certs';
+  } else if (sendEmail) {
+    btn.innerHTML = '<i class="fas fa-paper-plane"></i> Issue & Email';
+  } else {
+    btn.innerHTML = '<i class="fas fa-print"></i> Issue for Print';
+  }
 }
 
 async function loadAdminCertificates() {
@@ -3492,6 +3543,10 @@ async function loadAdminCertificates() {
           <a href="/api/certificates/${c.id}/download" target="_blank" class="btn btn-sm" style="background:var(--surface);border:1px solid var(--border);color:var(--text)">
             <i class="fas fa-download"></i> View
           </a>
+          ${c.student_id ? `
+            <button class="btn btn-sm" onclick="sendCertificateEmail(${c.id})" style="background:var(--surface);border:1px solid var(--border);color:var(--text);margin-left:6px">
+              <i class="fas fa-envelope"></i> Send Email Later
+            </button>` : ''}
         </td>
       </tr>`).join('');
   } catch(e) { toast('Error loading certificates: ' + e.message, true); }
@@ -3508,8 +3563,15 @@ async function openIssueCertModal() {
   }
   const stuSel = document.getElementById('cert-student-select');
   const cSel   = document.getElementById('cert-course-select');
+  const blankCb = document.getElementById('cert-blank-name');
+  const qtyInput = document.getElementById('cert-blank-quantity');
+  const emailInput = document.getElementById('cert-send-email');
   if (stuSel) stuSel.value = '';
   if (cSel)   cSel.value   = '';
+  if (blankCb) blankCb.checked = false;
+  if (qtyInput) qtyInput.value = '1';
+  if (emailInput) emailInput.checked = false;
+  toggleBlankCertificateName();
   populateCertificateStudents();
   openModal('modal-issue-cert');
 }
@@ -3517,16 +3579,35 @@ async function openIssueCertModal() {
 async function issueCertificate() {
   const studentId = document.getElementById('cert-student-select')?.value;
   const courseId  = document.getElementById('cert-course-select')?.value;
-  if (!studentId || !courseId) { toast('Select student and course', true); return; }
+  const blankName = document.getElementById('cert-blank-name')?.checked;
+  const sendEmail = document.getElementById('cert-send-email')?.checked;
+  const quantity = parseInt(document.getElementById('cert-blank-quantity')?.value || '1');
+  if (!courseId || (!blankName && !studentId)) { toast(blankName ? 'Select course' : 'Select student and course', true); return; }
+  if (blankName && (!quantity || quantity < 1 || quantity > 200)) { toast('Enter a quantity between 1 and 200', true); return; }
   const btn = document.getElementById('issue-cert-btn');
   if (btn) btn.disabled = true;
   try {
-    await POST('/api/admin/certificates', { student_id: parseInt(studentId), course_id: parseInt(courseId) });
-    toast('Certificate issued!');
+    const r = await POST('/api/admin/certificates', {
+      student_id: blankName ? null : parseInt(studentId),
+      course_id: parseInt(courseId),
+      blank_name: !!blankName,
+      quantity: blankName ? quantity : 1,
+      send_email: blankName ? false : !!sendEmail
+    });
+    toast(blankName && r.count > 1 ? `${r.count} certificates issued!` : (sendEmail ? 'Certificate issued and emailed!' : 'Certificate issued for printing.'));
     closeModal('modal-issue-cert');
     loadAdminCertificates();
   } catch(e) { toast('Error: ' + e.message, true); }
   if (btn) btn.disabled = false;
+}
+
+async function sendCertificateEmail(certId) {
+  try {
+    await POST(`/api/admin/certificates/${certId}/send`, {});
+    toast('Certificate email sent!');
+  } catch(e) {
+    toast('Error sending certificate email: ' + e.message, true);
+  }
 }
 
 async function resetCertificates() {
