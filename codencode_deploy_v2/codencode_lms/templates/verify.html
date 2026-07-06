@@ -225,8 +225,8 @@
 
     <div class="info-grid">
       <div class="info-row">
-        <div class="info-label">Graduate</div>
-        <div class="info-value">{{ cert.student.name }}</div>
+        <div class="info-label">Participant</div>
+        <div class="info-value">{{ cert.student.name if cert.student else 'Not named on certificate' }}</div>
       </div>
       <div class="info-row">
         <div class="info-label">Course</div>
