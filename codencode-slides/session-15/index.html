@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="en" style="height:100%;"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>codencode · Session 15 · Project Planning &amp; Capstone Execution</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{--navy:#003566;--blue:#0077B6;--cyan:#00B4D8;--gold:#FFD166;--dark:#1A1A1A;--offwhite:#FFFDF7;--gray:#64748B;--yellow:#FFF5D6;--lblue:#E0F4FF;--lgreen:#E0F5E8;--lpurp:#F0E8FF;--lpink:#FFE0F0;--lorange:#FFF0E0;--code-bg:#1A1A2E;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Nunito',sans-serif;background:var(--navy);overflow:hidden;height:100%;width:100%;}
+#slideshow{width:100%;height:100%;position:relative;overflow:hidden;}
+.slide{position:absolute;inset:0;height:100%;display:flex;flex-direction:column;opacity:0;pointer-events:none;transition:opacity 0.35s ease;}
+.slide.active{opacity:1;pointer-events:all;}
+.slide-inner{width:100%;height:100%;display:flex;flex-direction:column;overflow:hidden;}
+.top-bar{background:var(--navy);padding:10px 28px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;border-bottom:3px solid var(--gold);min-height:52px;}
+.brand{font-size:13px;font-weight:800;color:var(--gold);letter-spacing:.5px;}
+.slide-id{font-size:12px;font-weight:700;color:#90B4CE;}
+.progress-bar{height:4px;background:rgba(255,255,255,.1);flex-shrink:0;}
+.progress-fill{height:100%;background:var(--gold);transition:width .35s ease;}
+.slide-body{flex:1;display:flex;flex-direction:column;justify-content:center;padding:18px 52px;overflow:hidden;background:var(--offwhite);}
+.slide-title{font-family:'Fredoka One',cursive;font-size:clamp(22px,3.2vw,36px);color:var(--navy);margin-bottom:14px;line-height:1.15;}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
+.three-col{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;}
+.concept-box{background:var(--lblue);border-left:4px solid var(--blue);border-radius:0 12px 12px 0;padding:12px 16px;font-size:13px;line-height:1.65;color:var(--dark);}
+.tip-box{background:var(--lgreen);border-left:4px solid #1A7A3C;border-radius:0 12px 12px 0;padding:10px 14px;font-size:12.5px;line-height:1.6;color:var(--dark);}
+.tip-t{font-weight:800;font-size:13px;margin-bottom:4px;color:#1A7A3C;}
+.warn-box{background:var(--lpink);border-left:4px solid #C0392B;border-radius:0 12px 12px 0;padding:10px 14px;font-size:12.5px;line-height:1.6;color:var(--dark);}
+.warn-t{font-weight:800;font-size:13px;margin-bottom:4px;color:#C0392B;}
+.gold-box{background:var(--yellow);border-left:4px solid #D4A000;border-radius:0 12px 12px 0;padding:10px 14px;font-size:12.5px;line-height:1.6;color:var(--dark);}
+.gold-t{font-weight:800;font-size:13px;margin-bottom:4px;color:#856A00;}
+.info-card{background:white;border:2px solid #E2E8F0;border-radius:12px;padding:12px 16px;}
+.info-card-title{font-weight:800;color:var(--navy);font-size:13px;margin-bottom:5px;}
+.info-card p{font-size:12px;color:var(--gray);line-height:1.65;}
+.code-block{background:var(--code-bg);border-radius:13px;border:2.5px solid var(--dark);padding:12px 16px;box-shadow:4px 4px 0 var(--dark);}
+.code-top{display:flex;align-items:center;gap:7px;margin-bottom:9px;}
+.cd{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+.cd1{background:#FF5F57;}.cd2{background:#FFBD2E;}.cd3{background:#28C840;}
+.fname{font-size:10px;color:#aaa;font-family:'JetBrains Mono',monospace;margin-left:4px;}
+pre{font-family:'JetBrains Mono',monospace;font-size:clamp(9.5px,1.05vw,12px);color:#E8E8E8;line-height:1.72;white-space:pre-wrap;word-break:break-word;}
+.cm{color:#6272A4;}.kw{color:#FF79C6;}.fn{color:#50FA7B;}.st{color:#F1FA8C;}.nm{color:#BD93F9;}
+.m-card{border-radius:14px;overflow:hidden;border:2.5px solid;}
+.m-head{padding:10px 16px;display:flex;align-items:center;gap:10px;}
+.m-badge{font-family:'Fredoka One',cursive;font-size:18px;width:40px;height:40px;border-radius:10px;background:rgba(255,255,255,0.25);display:flex;align-items:center;justify-content:center;color:white;flex-shrink:0;}
+.m-title{font-family:'Fredoka One',cursive;font-size:17px;color:white;line-height:1.1;}
+.m-subtitle{font-size:10.5px;color:rgba(255,255,255,0.8);}
+.m-body{background:white;padding:12px 16px;font-size:11.5px;color:var(--dark);line-height:1.65;}
+.m-body li{margin-bottom:3px;}
+.session-pill{display:inline-flex;align-items:center;gap:6px;border-radius:30px;padding:5px 12px;font-size:11.5px;font-weight:800;border:2px solid;margin:3px;}
+.outro-body{flex:1;display:grid;grid-template-columns:1fr 1fr;gap:0;background:var(--offwhite);}
+.outro-left{padding:28px 36px;display:flex;flex-direction:column;justify-content:center;}
+.outro-left h2{font-family:'Fredoka One',cursive;font-size:clamp(22px,2.8vw,34px);color:var(--navy);margin-bottom:14px;}
+.learned-list{list-style:none;display:flex;flex-direction:column;gap:7px;}
+.learned-list li{display:flex;align-items:center;gap:10px;font-size:13px;font-weight:700;color:var(--dark);}
+.ck{font-size:16px;}
+.outro-right{background:var(--navy);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;}
+.outro-emoji{font-size:72px;}
+.contact-info{color:rgba(255,255,255,0.75);font-size:13px;line-height:2;text-align:center;}
+.contact-info strong{color:var(--gold);font-size:15px;}
+#nav-bar{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:10px;background:rgba(0,30,60,0.9);backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,0.15);border-radius:40px;padding:8px 18px;z-index:200;transition:opacity 0.4s;}
+#nav-bar.hidden{opacity:0;pointer-events:none;}
+.nav-btn{background:none;border:1.5px solid rgba(255,255,255,0.25);color:white;width:34px;height:34px;border-radius:50%;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.2s;}
+.nav-btn:hover:not(:disabled){background:var(--gold);color:var(--navy);border-color:var(--gold);}
+.nav-btn:disabled{opacity:0.3;cursor:not-allowed;}
+.icon-btn{background:none;border:1.5px solid rgba(255,255,255,0.25);color:white;width:34px;height:34px;border-radius:50%;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.2s;}
+.icon-btn:hover,.icon-btn.active{background:var(--gold);color:var(--navy);border-color:var(--gold);}
+#slide-counter{color:rgba(255,255,255,0.8);font-size:12px;font-weight:700;min-width:52px;text-align:center;}
+#notes-panel{position:fixed;right:0;top:0;bottom:0;width:320px;background:white;border-left:3px solid var(--gold);box-shadow:-4px 0 20px rgba(0,0,0,0.2);z-index:300;transform:translateX(100%);transition:transform 0.3s ease;display:flex;flex-direction:column;}
+#notes-panel.visible{transform:translateX(0);}
+.nh{background:var(--navy);padding:14px 18px;display:flex;align-items:center;justify-content:space-between;}
+.nt{color:var(--gold);font-weight:800;font-size:14px;}
+.nc{background:none;border:1.5px solid rgba(255,255,255,0.3);color:white;width:28px;height:28px;border-radius:50%;cursor:pointer;font-size:14px;}
+.nb{padding:16px;font-size:13px;line-height:1.7;color:var(--dark);overflow-y:auto;flex:1;}
+#kb-hint{position:fixed;bottom:12px;right:16px;font-size:10px;color:rgba(255,255,255,0.3);font-family:'JetBrains Mono',monospace;}
+@media(max-width:768px){
+  body{overflow:auto;}
+  #slideshow{height:auto;min-height:100vh;}
+  .slide{position:relative;inset:auto;height:auto;min-height:100vh;}
+  .slide-inner{height:auto;}
+  .slide-body{padding:14px 16px !important;overflow-y:auto;height:auto;}
+  .outro-body{grid-template-columns:1fr !important;}
+  .outro-right{padding:24px 16px;min-height:250px;}
+
+  /* Force all grids to single column */
+  .two-col,.three-col,.four-col{grid-template-columns:1fr !important;}
+  div[style*="grid-template-columns"]{grid-template-columns:1fr !important;}
+
+  /* Typography */
+  .slide-title{font-size:22px !important;}
+  .info-card p{font-size:11.5px;}
+  .concept-box,.tip-box,.warn-box,.gold-box{font-size:11.5px;}
+  .lc-step,.m-body{font-size:11.5px;}
+
+  /* Code */
+  pre{font-size:11.5px !important;line-height:1.65 !important;overflow-x:auto;}
+  .code-block{overflow:auto;}
+  .pr-val{font-size:11px;}
+
+  /* SVG cap */
+  svg{max-height:200px !important;width:100% !important;}
+
+  /* Nav */
+  #nav-bar{padding:6px 12px;gap:8px;}
+  .nav-btn,.icon-btn{width:38px;height:38px;}
+  #kb-hint{display:none;}
+
+  /* Session pills wrap */
+  .session-pill{font-size:10px;padding:4px 8px;}
+
+  /* Top bar */
+  .top-bar{padding:8px 14px;}
+  .brand{font-size:11px;}
+}
+</style>
+</head>
+<body>
+<div id="slideshow">
+
+<!-- SLIDE 1 — COVER -->
+<div class="slide active" data-notes="Final session! This is the capstone — everything we have learned comes together into one real project. Open with energy. Let the students know this is where the rubber meets the road. Whatever they build today, they can show on their portfolio.">
+<div class="slide-inner">
+<div class="top-bar"><span class="brand">🐧 codencode · Python & ML</span><span class="slide-id">Session 15 · Slide 1 / 11</span></div>
+<div class="progress-bar"><div class="progress-fill" style="width:9%"></div></div>
+<div class="slide-body" style="background:var(--navy);align-items:center;text-align:center;position:relative;overflow:hidden;">
+  <div style="position:absolute;inset:0;background-image:radial-gradient(rgba(255,209,102,0.12) 1px,transparent 1px);background-size:28px 28px;"></div>
+  <div style="position:absolute;width:500px;height:500px;border-radius:50%;background:radial-gradient(circle,rgba(0,180,216,0.12),transparent 70%);bottom:-150px;right:-150px;pointer-events:none;"></div>
+  <div style="position:relative;z-index:1;">
+    <div style="font-size:64px;margin-bottom:12px;">🏆🎓</div>
+    <div style="font-family:'Fredoka One',cursive;font-size:clamp(28px,5.5vw,54px);color:white;line-height:1.05;margin-bottom:12px;">PROJECT PLANNING<br><span style="color:var(--gold);">&amp; CAPSTONE EXECUTION</span></div>
+    <div style="font-size:14px;color:rgba(255,255,255,0.65);max-width:620px;line-height:1.8;margin:0 auto 22px;">Session 15 — the final boss. You will plan, build, evaluate, and present a full end-to-end machine learning project from scratch. This goes on your portfolio. This is what gets you hired.</div>
+    <div style="display:flex;flex-wrap:wrap;gap:10px;justify-content:center;">
+      <span style="background:#E0F4FF;color:#0077B6;font-size:12px;font-weight:800;padding:6px 16px;border-radius:20px;">📋 Project Planning Framework</span>
+      <span style="background:#FFF5D6;color:#856A00;font-size:12px;font-weight:800;padding:6px 16px;border-radius:20px;">🗺️ Full ML Checklist</span>
+      <span style="background:#E0F5E8;color:#1A7A3C;font-size:12px;font-weight:800;padding:6px 16px;border-radius:20px;">💡 Project Ideas &amp; Datasets</span>
+      <span style="background:#F0E8FF;color:#7C3AED;font-size:12px;font-weight:800;padding:6px 16px;border-radius:20px;">📊 How to Present Results</span>
+      <span style="background:#FFE0F0;color:#A0154A;font-size:12px;font-weight:800;padding:6px 16px;border-radius:20px;">🎓 Your Learning Journey</span>
+    </div>
+  </div>
+</div>
+</div></div>
+
+<!-- SLIDE 2 — WHAT MAKES A GREAT ML PROJECT -->
+<div class="slide" data-notes="Not every idea is a good ML project. Walk through the checklist. The most common mistake: picking a boring or impossible problem. The second most common: not having real data. Get them to articulate their project idea before building anything.">
+<div class="slide-inner">
+<div class="top-bar"><span class="brand">🐧 codencode · Session 15</span><span class="slide-id">Session 15 · Slide 2 / 11</span></div>
+<div class="progress-bar"><div class="progress-fill" style="width:18%"></div></div>
+<div class="slide-body">
+  <div class="slide-title">🎯 What Makes a Great ML Project?</div>
+  <div class="two-col">
+    <div style="display:flex;flex-direction:column;gap:9px;">
+      <div style="background:white;border:2px solid #1A7A3C;border-radius:12px;padding:12px 16px;">
+        <div style="font-weight:800;color:#1A7A3C;font-size:13px;margin-bottom:6px;">✅ Signs of a GREAT project</div>
+        <div style="font-size:12.5px;color:var(--dark);line-height:1.8;">
+          ✓ Real data you can download today<br>
+          ✓ A clear prediction goal (one number or label)<br>
+          ✓ Problem that matters to someone<br>
+          ✓ Enough rows (500+ ideally 5,000+)<br>
+          ✓ Mix of feature types (numeric + categorical)<br>
+          ✓ Baseline to beat (random guess isn't 99%)
+        </div>
+      </div>
+      <div class="warn-box">
+        <div class="warn-t">❌ Red flags to avoid</div>
+        "Predict the stock market" (too noisy, no edge),  "I'll scrape Twitter" (you won't finish),  "95% accuracy from day 1" (probably data leakage),  Dataset with 50 rows (too small to generalise)
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:9px;">
+      <div class="gold-box" style="margin-bottom:2px;">
+        <div class="gold-t">🔑 The 3-Question Project Test</div>
+        <div style="font-size:12.5px;color:var(--dark);line-height:1.8;">
+          <strong>1. What am I predicting?</strong><br>
+          <em>"I am predicting the [TARGET] from [FEATURES]."</em><br><br>
+          <strong>2. Where is my data?</strong><br>
+          <em>"My dataset is [SOURCE] and has [N] rows."</em><br><br>
+          <strong>3. How will I evaluate success?</strong><br>
+          <em>"I will use [METRIC] because [REASON]."</em>
+        </div>
+      </div>
+      <div class="concept-box">
+        <strong>📐 Scope it right:</strong> A project with 1 model, 1 clean dataset, and a clear story is better than a project with 5 models and messy, unclear results. Depth &gt; breadth for a capstone. A great 30-minute demo beats a rushed 3-hour one.
+      </div>
+      <div class="tip-box"><div class="tip-t">💡 The "explain to grandma" rule</div>If you can't explain your project in 2 sentences that a non-technical person understands, it's probably too complicated — or not clearly defined yet.</div>
+    </div>
+  </div>
+</div>
+</div></div>
+
+<!-- SLIDE 3 — FULL ML PIPELINE MILESTONES -->
+<div class="slide" data-notes="This is the project map. Walk through each milestone — this is the exact same process every data scientist follows on the job. Use this as a checklist the students can print out and tick off as they build.">
+<div class="slide-inner">
+<div class="top-bar"><span class="brand">🐧 codencode · Session 15</span><span class="slide-id">Session 15 · Slide 3 / 11</span></div>
+<div class="progress-bar"><div class="progress-fill" style="width:27%"></div></div>
+<div class="slide-body" style="padding:14px 40px;overflow-y:auto;">
+  <div class="slide-title">🗺️ Full ML Pipeline — Your Capstone Roadmap</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+    <div class="m-card" style="border-color:#003566;">
+      <div class="m-head" style="background:#003566;">
+        <div class="m-badge">M1</div>
+        <div><div class="m-title">Define the Problem</div><div class="m-subtitle">~15 mins</div></div>
+      </div>
+      <div class="m-body"><ul style="padding-left:14px;"><li>Write your 3-question test (slide 2)</li><li>Choose regression or classification</li><li>Pick your evaluation metric</li><li>Identify your data source</li></ul></div>
+    </div>
+    <div class="m-card" style="border-color:#0077B6;">
+      <div class="m-head" style="background:#0077B6;">
+        <div class="m-badge">M2</div>
+        <div><div class="m-title">Load &amp; Explore Data</div><div class="m-subtitle">~20 mins</div></div>
+      </div>
+      <div class="m-body"><ul style="padding-left:14px;"><li>Load CSV and check shape, dtypes</li><li>df.isnull().sum() — what's missing?</li><li>df.describe() — outliers?</li><li>Plot target distribution</li><li>Correlation heatmap</li></ul></div>
+    </div>
+    <div class="m-card" style="border-color:#00B4D8;">
+      <div class="m-head" style="background:#00B4D8;">
+        <div class="m-badge">M3</div>
+        <div><div class="m-title">Clean &amp; Preprocess</div><div class="m-subtitle">~25 mins</div></div>
+      </div>
+      <div class="m-body"><ul style="padding-left:14px;"><li>Handle nulls (fill or drop)</li><li>Encode categoricals (LabelEncoder / get_dummies)</li><li>Remove duplicates</li><li>Cap or remove outliers if needed</li><li>Final: check df.isnull().sum() == 0</li></ul></div>
+    </div>
+    <div class="m-card" style="border-color:#FFD166;">
+      <div class="m-head" style="background:#856A00;">
+        <div class="m-badge" style="color:#FFD166;">M4</div>
+        <div><div class="m-title">Feature Engineering</div><div class="m-subtitle">~20 mins</div></div>
+      </div>
+      <div class="m-body"><ul style="padding-left:14px;"><li>Create 1–3 new features from existing cols</li><li>Extract date parts (year, month, day)</li><li>Bin numeric into categories if useful</li><li>Drop low-importance or redundant cols</li></ul></div>
+    </div>
+    <div class="m-card" style="border-color:#1A7A3C;">
+      <div class="m-head" style="background:#1A7A3C;">
+        <div class="m-badge">M5</div>
+        <div><div class="m-title">Split &amp; Scale</div><div class="m-subtitle">~10 mins</div></div>
+      </div>
+      <div class="m-body"><ul style="padding-left:14px;"><li>train_test_split (80/20 or 70/30)</li><li>StandardScaler — fit on X_train ONLY</li><li>Transform X_train and X_test</li><li>Never touch X_test before this step</li></ul></div>
+    </div>
+    <div class="m-card" style="border-color:#7C3AED;">
+      <div class="m-head" style="background:#7C3AED;">
+        <div class="m-badge">M6</div>
+        <div><div class="m-title">Train Models</div><div class="m-subtitle">~20 mins</div></div>
+      </div>
+      <div class="m-body"><ul style="padding-left:14px;"><li>Start with a baseline (LogReg or Linear Reg)</li><li>Train Random Forest</li><li>Train XGBoost</li><li>Print metric for each — compare</li><li>Pick best performer for tuning</li></ul></div>
+    </div>
+    <div class="m-card" style="border-color:#E65C00;">
+      <div class="m-head" style="background:#E65C00;">
+        <div class="m-badge">M7</div>
+        <div><div class="m-title">Evaluate &amp; Interpret</div><div class="m-subtitle">~20 mins</div></div>
+      </div>
+      <div class="m-body"><ul style="padding-left:14px;"><li>Print classification report or RMSE/R²</li><li>Plot confusion matrix (classification)</li><li>Plot actual vs predicted (regression)</li><li>Feature importances bar chart</li><li>Check for data leakage</li></ul></div>
+    </div>
+    <div class="m-card" style="border-color:#C0392B;">
+      <div class="m-head" style="background:#C0392B;">
+        <div class="m-badge">M8</div>
+        <div><div class="m-title">Present Your Story</div><div class="m-subtitle">~15 mins</div></div>
+      </div>
+      <div class="m-body"><ul style="padding-left:14px;"><li>Problem → Data → Method → Result</li><li>State your best metric clearly</li><li>Explain 1 key insight from features</li><li>State 1 limitation honestly</li><li>State 1 next step if you had more time</li></ul></div>
+    </div>
+  </div>
+</div>
+</div></div>
+
+<!-- SLIDE 4 — PROJECT IDEAS AND DATASETS -->
+<div class="slide" data-notes="Stuck for ideas? These are proven starter projects with real downloadable data. All of them can be completed in a few hours. The student should pick the one that excites them most — motivation matters more than problem difficulty.">
+<div class="slide-inner">
+<div class="top-bar"><span class="brand">🐧 codencode · Session 15</span><span class="slide-id">Session 15 · Slide 4 / 11</span></div>
+<div class="progress-bar"><div class="progress-fill" style="width:36%"></div></div>
+<div class="slide-body" style="padding:14px 44px;overflow-y:auto;">
+  <div class="slide-title">💡 Project Ideas — Pick What Excites You</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:10px;">
+    <div class="info-card" style="border-color:#C0392B;">
+      <div style="font-size:26px;margin-bottom:4px;">🚢</div>
+      <div class="info-card-title" style="color:#C0392B;">Titanic Survival</div>
+      <p><strong>Type:</strong> Classification<br><strong>Target:</strong> survived (0/1)<br><strong>Why:</strong> Clean, famous, well-documented. Perfect first project.<br><strong>Metric:</strong> Accuracy, F1<br><strong>Data:</strong> kaggle.com/titanic</p>
+      <span style="font-size:10px;font-weight:800;background:#FFE0E0;color:#C0392B;padding:2px 8px;border-radius:10px;display:inline-block;margin-top:6px;">Beginner-friendly ⭐</span>
+    </div>
+    <div class="info-card" style="border-color:#0077B6;">
+      <div style="font-size:26px;margin-bottom:4px;">🏠</div>
+      <div class="info-card-title" style="color:#0077B6;">House Price Prediction</div>
+      <p><strong>Type:</strong> Regression<br><strong>Target:</strong> SalePrice (RM)<br><strong>Why:</strong> Lots of features, good for feature engineering, real-world relevance.<br><strong>Metric:</strong> RMSE, R²<br><strong>Data:</strong> kaggle.com/house-prices</p>
+      <span style="font-size:10px;font-weight:800;background:#E0F4FF;color:#0077B6;padding:2px 8px;border-radius:10px;display:inline-block;margin-top:6px;">Intermediate ⭐⭐</span>
+    </div>
+    <div class="info-card" style="border-color:#1A7A3C;">
+      <div style="font-size:26px;margin-bottom:4px;">😊</div>
+      <div class="info-card-title" style="color:#1A7A3C;">Customer Churn</div>
+      <p><strong>Type:</strong> Classification<br><strong>Target:</strong> Churn (0/1)<br><strong>Why:</strong> Business-relevant, imbalanced classes — teaches real-world handling.<br><strong>Metric:</strong> F1, Precision/Recall<br><strong>Data:</strong> kaggle telco churn</p>
+      <span style="font-size:10px;font-weight:800;background:#E0F5E8;color:#1A7A3C;padding:2px 8px;border-radius:10px;display:inline-block;margin-top:6px;">Intermediate ⭐⭐</span>
+    </div>
+    <div class="info-card" style="border-color:#7C3AED;">
+      <div style="font-size:26px;margin-bottom:4px;">💳</div>
+      <div class="info-card-title" style="color:#7C3AED;">Credit Card Fraud</div>
+      <p><strong>Type:</strong> Classification<br><strong>Target:</strong> fraud (0/1)<br><strong>Why:</strong> Massively imbalanced (99.8% legit). Teaches SMOTE, class_weight, threshold tuning.<br><strong>Data:</strong> kaggle credit card fraud</p>
+      <span style="font-size:10px;font-weight:800;background:#F0E8FF;color:#7C3AED;padding:2px 8px;border-radius:10px;display:inline-block;margin-top:6px;">Advanced ⭐⭐⭐</span>
+    </div>
+    <div class="info-card" style="border-color:#E65C00;">
+      <div style="font-size:26px;margin-bottom:4px;">🌡️</div>
+      <div class="info-card-title" style="color:#E65C00;">Energy Consumption Forecast</div>
+      <p><strong>Type:</strong> Regression / Time Series<br><strong>Target:</strong> power usage (kWh)<br><strong>Why:</strong> Great for LSTM, relevant to sustainability. Uses lag features.<br><strong>Data:</strong> UCI Energy dataset</p>
+      <span style="font-size:10px;font-weight:800;background:#FFF0E0;color:#E65C00;padding:2px 8px;border-radius:10px;display:inline-block;margin-top:6px;">Advanced ⭐⭐⭐</span>
+    </div>
+    <div class="info-card" style="border-color:#856A00;">
+      <div style="font-size:26px;margin-bottom:4px;">🏥</div>
+      <div class="info-card-title" style="color:#856A00;">Diabetes Risk Prediction</div>
+      <p><strong>Type:</strong> Classification<br><strong>Target:</strong> Outcome (diabetic or not)<br><strong>Why:</strong> Meaningful healthcare use case, 8 clear features, 768 rows — perfect size.<br><strong>Data:</strong> Pima Indians (UCI)</p>
+      <span style="font-size:10px;font-weight:800;background:var(--yellow);color:#856A00;padding:2px 8px;border-radius:10px;display:inline-block;margin-top:6px;">Beginner-friendly ⭐</span>
+    </div>
+  </div>
+  <div class="tip-box"><div class="tip-t">🇲🇾 Singapore/Malaysia-flavoured ideas</div>HDB resale price prediction (data.gov.sg), Malaysia crime statistics by state (data.gov.my), Grab/GOJEK demand forecast, School PSLE score predictor — government open data is great for local projects.</div>
+</div>
+</div></div>
+
+<!-- SLIDE 5 — STRUCTURING YOUR NOTEBOOK -->
+<div class="slide" data-notes="Professional notebook structure. This is how you go from 'homework' to 'portfolio project'. The storytelling matters as much as the code. Recruiters and hiring managers read notebooks — make it readable, make it tell a story.">
+<div class="slide-inner">
+<div class="top-bar"><span class="brand">🐧 codencode · Session 15</span><span class="slide-id">Session 15 · Slide 5 / 11</span></div>
+<div class="progress-bar"><div class="progress-fill" style="width:45%"></div></div>
+<div class="slide-body" style="padding:16px 44px;">
+  <div class="slide-title">📓 Structuring Your Notebook — From Homework to Portfolio</div>
+  <div class="two-col">
+    <div style="display:flex;flex-direction:column;gap:8px;">
+      <div class="concept-box" style="margin-bottom:2px;"><strong>📌 Key rule:</strong> Every code cell should be preceded by a markdown cell explaining WHAT you're doing and WHY. A recruiter reading your notebook should understand your logic without running the code.</div>
+      <div class="code-block">
+        <div class="code-top"><div class="cd cd1"></div><div class="cd cd2"></div><div class="cd cd3"></div><span class="fname">✅ Professional notebook structure</span></div>
+        <pre><span class="cm"># 📌 Section 1 — Problem Statement</span>
+<span class="cm"># What we are predicting and why it matters</span>
+
+<span class="cm"># 📌 Section 2 — Data Loading &amp; EDA</span>
+<span class="cm"># What the data looks like and key observations</span>
+
+<span class="cm"># 📌 Section 3 — Data Cleaning</span>
+<span class="cm"># What we cleaned and why</span>
+
+<span class="cm"># 📌 Section 4 — Feature Engineering</span>
+<span class="cm"># What new features we created and the reasoning</span>
+
+<span class="cm"># 📌 Section 5 — Modelling</span>
+<span class="cm"># Models tried, metrics, comparison</span>
+
+<span class="cm"># 📌 Section 6 — Evaluation &amp; Insights</span>
+<span class="cm"># What the model learned. Feature importances.</span>
+
+<span class="cm"># 📌 Section 7 — Conclusion</span>
+<span class="cm"># Key findings, limitations, next steps</span></pre>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:8px;">
+      <div class="info-card" style="border-color:#1A7A3C;">
+        <div class="info-card-title" style="color:#1A7A3C;">🏆 What makes a portfolio-ready project</div>
+        <p>✓ Clear problem statement at the top<br>✓ Dataset source and description<br>✓ Every chart has a title and x/y labels<br>✓ Every metric is interpreted (not just printed)<br>✓ Honest limitations section<br>✓ Conclusion answers: "Did we solve the problem?"</p>
+      </div>
+      <div class="info-card" style="border-color:#C0392B;">
+        <div class="info-card-title" style="color:#C0392B;">⚠️ Rookie mistakes to avoid</div>
+        <p>✗ Giant code cells with no explanation<br>✗ Printing raw dataframes with 1000 rows<br>✗ No chart labels or titles<br>✗ Metric printed but not explained<br>✗ No conclusion — just code that runs<br>✗ Variable names: df2, df3, df_final_final</p>
+      </div>
+      <div class="tip-box"><div class="tip-t">🚀 Upload to GitHub</div>Push your finished notebook to GitHub and add it to your LinkedIn profile. Include a README.md with 3–5 sentences describing the project. This is your first real portfolio piece.</div>
+    </div>
+  </div>
+</div>
+</div></div>
+
+<!-- SLIDE 6 — HOW TO PRESENT RESULTS -->
+<div class="slide" data-notes="Most technical people can't communicate results. This slide teaches the most valuable non-technical skill: translating a number into a story. Walk through each point. Role-play a presentation scenario.">
+<div class="slide-inner">
+<div class="top-bar"><span class="brand">🐧 codencode · Session 15</span><span class="slide-id">Session 15 · Slide 6 / 11</span></div>
+<div class="progress-bar"><div class="progress-fill" style="width:54%"></div></div>
+<div class="slide-body" style="padding:16px 44px;">
+  <div class="slide-title">📊 Presenting Your Results — Tell the Story, Not Just the Number</div>
+  <div class="two-col" style="margin-bottom:12px;">
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      <div style="border-radius:14px;border:2.5px solid #C0392B;overflow:hidden;">
+        <div style="background:#C0392B;padding:8px 14px;font-weight:800;color:white;font-size:13px;">❌ Weak presentation</div>
+        <div style="background:white;padding:12px 14px;font-size:12.5px;color:var(--dark);line-height:1.7;">"I trained a Random Forest. My accuracy is 82.5%. The confusion matrix shows 125 TP and 15 FP."<br><br><em style="color:#C0392B;">→ No one cares about the number without context. What does 82.5% mean? Is that good? What does FP mean for this problem?</em></div>
+      </div>
+      <div style="border-radius:14px;border:2.5px solid #1A7A3C;overflow:hidden;">
+        <div style="background:#1A7A3C;padding:8px 14px;font-weight:800;color:white;font-size:13px;">✅ Compelling presentation</div>
+        <div style="background:white;padding:12px 14px;font-size:12.5px;color:var(--dark);line-height:1.7;">"I built a model to predict which patients are at risk of diabetes. It correctly identifies 82.5% of at-risk patients. The most important predictor was glucose level, followed by BMI. Out of 100 at-risk patients, it would correctly flag 82 — only missing 18."<br><br><em style="color:#1A7A3C;">→ A doctor understands this. A manager understands this. Anyone understands this.</em></div>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:9px;">
+      <div class="gold-box">
+        <div class="gold-t">📐 The 5-Minute Presentation Structure</div>
+        <div style="font-size:12.5px;line-height:1.9;">
+          <strong>1. Hook (30s):</strong> What problem, why it matters<br>
+          <strong>2. Data (1min):</strong> Source, size, key features<br>
+          <strong>3. Method (1min):</strong> What model, why you chose it<br>
+          <strong>4. Results (1.5min):</strong> Best metric, what it means, key insight<br>
+          <strong>5. Reflection (1min):</strong> 1 limitation + 1 next step
+        </div>
+      </div>
+      <div class="concept-box"><strong>💬 Translating metrics to plain English:</strong><br>
+        Accuracy 80% → "8 out of 10 predictions are correct"<br>
+        R² = 0.85 → "85% of price variation explained by our features"<br>
+        RMSE = 25,000 → "predictions off by ~RM25,000 on average"<br>
+        F1 = 0.78 → "balanced precision and recall of 78%"
+      </div>
+      <div class="tip-box"><div class="tip-t">🎙️ Practice tip</div>Record yourself giving the 5-minute presentation to your phone camera once before the real thing. You will immediately notice what to improve. This is what professionals do before big pitches.</div>
+    </div>
+  </div>
+</div>
+</div></div>
+
+<!-- SLIDE 7 — BUILD TIME -->
+<div class="slide" data-notes="Hands-on building time. Give students 60-90 minutes of uninterrupted project work. Walk around and help. The role of the trainer: ask clarifying questions, don't write code for them. Let them use AI tools. Check their problem definition first before they touch any data.">
+<div class="slide-inner">
+<div class="top-bar"><span class="brand">🐧 codencode · Session 15</span><span class="slide-id">Session 15 · Slide 7 / 11</span></div>
+<div class="progress-bar"><div class="progress-fill" style="width:63%"></div></div>
+<div class="slide-body" style="padding:16px 44px;">
+  <div class="slide-title">⚡ Build Time — Your Capstone Starts Now!</div>
+  <div class="concept-box" style="margin-bottom:16px;">🏁 <strong>Your task:</strong> Build milestones M1–M7 of your capstone project using the tools and knowledge from all 15 sessions. Use AI to accelerate — but understand every line. You have <strong>60–90 minutes</strong>.</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+    <div style="display:flex;flex-direction:column;gap:8px;">
+      <div style="background:white;border:2px solid #E2E8F0;border-radius:12px;padding:12px 16px;">
+        <div style="font-weight:800;font-size:13px;color:var(--navy);margin-bottom:8px;">📋 Before you write one line of code:</div>
+        <div style="display:flex;flex-direction:column;gap:6px;">
+          <label style="display:flex;gap:10px;font-size:12.5px;color:var(--dark);align-items:center;cursor:pointer;"><input type="checkbox" style="width:16px;height:16px;flex-shrink:0;"> I can complete the 3-question test (slide 2)</label>
+          <label style="display:flex;gap:10px;font-size:12.5px;color:var(--dark);align-items:center;cursor:pointer;"><input type="checkbox" style="width:16px;height:16px;flex-shrink:0;"> I have downloaded the dataset and can open it in Jupyter</label>
+          <label style="display:flex;gap:10px;font-size:12.5px;color:var(--dark);align-items:center;cursor:pointer;"><input type="checkbox" style="width:16px;height:16px;flex-shrink:0;"> I know if this is classification or regression</label>
+          <label style="display:flex;gap:10px;font-size:12.5px;color:var(--dark);align-items:center;cursor:pointer;"><input type="checkbox" style="width:16px;height:16px;flex-shrink:0;"> I know which metric I will use (accuracy / R² / RMSE / F1)</label>
+          <label style="display:flex;gap:10px;font-size:12.5px;color:var(--dark);align-items:center;cursor:pointer;"><input type="checkbox" style="width:16px;height:16px;flex-shrink:0;"> Trainer has approved my problem statement</label>
+        </div>
+      </div>
+      <div class="tip-box"><div class="tip-t">🤖 Suggested AI prompt to start</div>"I am building an ML project to predict [TARGET] from [DATASET]. Generate a complete Jupyter notebook structure with section headers, a skeleton for each stage (load, clean, model, evaluate), and comments explaining what to fill in at each step."</div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:8px;">
+      <div style="background:white;border:2px solid #E2E8F0;border-radius:12px;padding:12px 16px;">
+        <div style="font-weight:800;font-size:13px;color:var(--navy);margin-bottom:8px;">⏱️ Suggested time allocation:</div>
+        <div style="display:flex;flex-direction:column;gap:5px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;font-size:12px;padding:5px 8px;background:#E0F5E8;border-radius:8px;"><span>📋 Problem definition + data load</span><strong style="color:#1A7A3C;">10 min</strong></div>
+          <div style="display:flex;justify-content:space-between;align-items:center;font-size:12px;padding:5px 8px;background:#E0F4FF;border-radius:8px;"><span>🔍 EDA (explore, visualise, understand)</span><strong style="color:#0077B6;">20 min</strong></div>
+          <div style="display:flex;justify-content:space-between;align-items:center;font-size:12px;padding:5px 8px;background:#F0E8FF;border-radius:8px;"><span>🧹 Cleaning + feature engineering</span><strong style="color:#7C3AED;">20 min</strong></div>
+          <div style="display:flex;justify-content:space-between;align-items:center;font-size:12px;padding:5px 8px;background:#FFF0E0;border-radius:8px;"><span>🤖 Modelling (2–3 models)</span><strong style="color:#E65C00;">20 min</strong></div>
+          <div style="display:flex;justify-content:space-between;align-items:center;font-size:12px;padding:5px 8px;background:var(--yellow);border-radius:8px;"><span>📊 Evaluation + write conclusion</span><strong style="color:#856A00;">10 min</strong></div>
+        </div>
+      </div>
+      <div class="warn-box"><div class="warn-t">⚠️ Stuck? Ask these questions first:</div>Can you run df.head()? Does df.info() show the right dtypes? Does df.isnull().sum() show any nulls you haven't handled? What does the error traceback say on the last 3 lines?</div>
+    </div>
+  </div>
+</div>
+</div></div>
+
+<!-- SLIDE 8 — EVALUATION QUICK REFERENCE -->
+<div class="slide" data-notes="Quick reference card for choosing the right metric. Students often use the wrong one. Walk through the logic: classification = accuracy/F1, imbalanced = always F1 or AUC, regression = RMSE/R². This is something they will use every single project.">
+<div class="slide-inner">
+<div class="top-bar"><span class="brand">🐧 codencode · Session 15</span><span class="slide-id">Session 15 · Slide 8 / 11</span></div>
+<div class="progress-bar"><div class="progress-fill" style="width:72%"></div></div>
+<div class="slide-body" style="padding:16px 44px;">
+  <div class="slide-title">📐 Evaluation Quick Reference — Pick the Right Metric</div>
+  <div class="two-col" style="margin-bottom:14px;">
+    <div>
+      <div style="font-family:'Fredoka One',cursive;font-size:16px;color:var(--navy);margin-bottom:8px;">📊 Classification</div>
+      <div style="display:flex;flex-direction:column;gap:6px;">
+        <div style="display:flex;gap:10px;align-items:flex-start;background:white;border:2px solid #E2E8F0;border-radius:10px;padding:9px 12px;">
+          <span style="font-size:18px;flex-shrink:0;">🎯</span>
+          <div><div style="font-weight:800;font-size:12px;color:var(--navy);">Accuracy</div><div style="font-size:11.5px;color:var(--gray);">Use when classes are balanced. Titanic, iris. % predictions correct overall.</div></div>
+        </div>
+        <div style="display:flex;gap:10px;align-items:flex-start;background:white;border:2px solid #E2E8F0;border-radius:10px;padding:9px 12px;">
+          <span style="font-size:18px;flex-shrink:0;">⚖️</span>
+          <div><div style="font-weight:800;font-size:12px;color:var(--navy);">F1 Score (Macro)</div><div style="font-size:11.5px;color:var(--gray);">Use when classes are imbalanced (fraud, churn). Balances precision and recall.</div></div>
+        </div>
+        <div style="display:flex;gap:10px;align-items:flex-start;background:white;border:2px solid #E2E8F0;border-radius:10px;padding:9px 12px;">
+          <span style="font-size:18px;flex-shrink:0;">🏥</span>
+          <div><div style="font-weight:800;font-size:12px;color:var(--navy);">Recall (Sensitivity)</div><div style="font-size:11.5px;color:var(--gray);">Use when false negatives are costly — disease diagnosis, fraud detection. Don't miss positives!</div></div>
+        </div>
+        <div style="display:flex;gap:10px;align-items:flex-start;background:white;border:2px solid #E2E8F0;border-radius:10px;padding:9px 12px;">
+          <span style="font-size:18px;flex-shrink:0;">📈</span>
+          <div><div style="font-weight:800;font-size:12px;color:var(--navy);">ROC-AUC</div><div style="font-size:11.5px;color:var(--gray);">Measures how well model ranks positives above negatives regardless of threshold. Great for imbalanced.</div></div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div style="font-family:'Fredoka One',cursive;font-size:16px;color:var(--navy);margin-bottom:8px;">📉 Regression</div>
+      <div style="display:flex;flex-direction:column;gap:6px;">
+        <div style="display:flex;gap:10px;align-items:flex-start;background:white;border:2px solid #E2E8F0;border-radius:10px;padding:9px 12px;">
+          <span style="font-size:18px;flex-shrink:0;">📏</span>
+          <div><div style="font-weight:800;font-size:12px;color:var(--navy);">RMSE (Root Mean Squared Error)</div><div style="font-size:11.5px;color:var(--gray);">Average error in same units as target. House prices: RMSE=25000 = ±$25k average error. Penalises big errors.</div></div>
+        </div>
+        <div style="display:flex;gap:10px;align-items:flex-start;background:white;border:2px solid #E2E8F0;border-radius:10px;padding:9px 12px;">
+          <span style="font-size:18px;flex-shrink:0;">📊</span>
+          <div><div style="font-weight:800;font-size:12px;color:var(--navy);">R² (R-Squared)</div><div style="font-size:11.5px;color:var(--gray);">% of target variance explained. R²=0.85 = great. R²=0.40 = weak. R²=0.99 first try = check for leakage!</div></div>
+        </div>
+        <div style="display:flex;gap:10px;align-items:flex-start;background:white;border:2px solid #E2E8F0;border-radius:10px;padding:9px 12px;">
+          <span style="font-size:18px;flex-shrink:0;">🔢</span>
+          <div><div style="font-weight:800;font-size:12px;color:var(--navy);">MAE (Mean Absolute Error)</div><div style="font-size:11.5px;color:var(--gray);">Like RMSE but treats all errors equally. More interpretable. RMSE=harder to reach, MAE=more honest average.</div></div>
+        </div>
+      </div>
+      <div class="gold-box" style="margin-top:8px;"><div class="gold-t">📌 Decision tree for picking metric</div>Binary problem? → Accuracy (balanced) or F1 (imbalanced). Multi-class? → Macro F1. Regression? → RMSE + R² together. Health/fraud? → Always add Recall.</div>
+    </div>
+  </div>
+</div>
+</div></div>
+
+<!-- SLIDE 9 — THE JOURNEY — ALL 15 SESSIONS -->
+<div class="slide" data-notes="This is the emotional peak of the course. Walk through every session. Pause on each one and ask: 'Remember when you learned X?' Let the students feel the weight of how much they have covered. This is 15 weeks of real ML education.">
+<div class="slide-inner">
+<div class="top-bar"><span class="brand">🐧 codencode · Session 15</span><span class="slide-id">Session 15 · Slide 9 / 11</span></div>
+<div class="progress-bar"><div class="progress-fill" style="width:81%"></div></div>
+<div class="slide-body" style="padding:14px 44px;overflow-y:auto;">
+  <div class="slide-title">🗺️ Your Learning Journey — All 15 Sessions</div>
+  <div style="display:flex;flex-wrap:wrap;gap:7px;margin-bottom:12px;">
+    <span class="session-pill" style="background:#E0F4FF;border-color:#0077B6;color:#003566;">🐍 S1 Python Basics</span>
+    <span class="session-pill" style="background:#E0F5E8;border-color:#1A7A3C;color:#1A3A1A;">🔢 S2 Python Intermediate</span>
+    <span class="session-pill" style="background:#F0E8FF;border-color:#7C3AED;color:#3A1A7A;">🐼 S3 Pandas &amp; Data</span>
+    <span class="session-pill" style="background:#FFE0F0;border-color:#A0154A;color:#6A0A2A;">📊 S4 Visualisation</span>
+    <span class="session-pill" style="background:var(--yellow);border-color:#D4A000;color:#856A00;">⚙️ S5 Numpy &amp; Math</span>
+    <span class="session-pill" style="background:#E0F4FF;border-color:#00B4D8;color:#003566;">🌐 S6 APIs &amp; Real Data</span>
+    <span class="session-pill" style="background:#E0F5E8;border-color:#1A7A3C;color:#1A3A1A;">📈 S7 Statistics &amp; Prob</span>
+    <span class="session-pill" style="background:#F0E8FF;border-color:#7C3AED;color:#3A1A7A;">🔧 S8 Feature Engineering</span>
+    <span class="session-pill" style="background:#FFF0E0;border-color:#E65C00;color:#8A2A00;">🤖 S9 Intro to ML</span>
+    <span class="session-pill" style="background:#FFE0E0;border-color:#C0392B;color:#6A0A0A;">📉 S10 Regression</span>
+    <span class="session-pill" style="background:#E0F4FF;border-color:#0077B6;color:#003566;">🌲 S11 Random Forest</span>
+    <span class="session-pill" style="background:var(--yellow);border-color:#D4A000;color:#856A00;">🧠 S12 Neural Networks</span>
+    <span class="session-pill" style="background:#E0F5E8;border-color:#1A7A3C;color:#1A3A1A;">🔄 S13 LSTM &amp; Time Series</span>
+    <span class="session-pill" style="background:#F0E8FF;border-color:#7C3AED;color:#3A1A7A;">⚡ S14 Vibe Coding</span>
+    <span class="session-pill" style="background:#FFF5D6;border-color:#FFD166;color:#856A00;font-weight:900;">🏆 S15 CAPSTONE ← YOU ARE HERE</span>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;">
+    <div style="background:white;border:2px solid #003566;border-radius:12px;padding:14px;text-align:center;">
+      <div style="font-size:32px;margin-bottom:6px;">🐍</div>
+      <div style="font-family:'Fredoka One',cursive;font-size:16px;color:#003566;margin-bottom:4px;">Foundation</div>
+      <div style="font-size:12px;color:var(--gray);line-height:1.7;">Sessions 1–5<br>Python, Pandas, NumPy, data wrangling, visualisation</div>
+    </div>
+    <div style="background:white;border:2px solid #0077B6;border-radius:12px;padding:14px;text-align:center;">
+      <div style="font-size:32px;margin-bottom:6px;">📊</div>
+      <div style="font-family:'Fredoka One',cursive;font-size:16px;color:#0077B6;margin-bottom:4px;">Data &amp; ML Basics</div>
+      <div style="font-size:12px;color:var(--gray);line-height:1.7;">Sessions 6–9<br>Real data, statistics, feature engineering, first ML models</div>
+    </div>
+    <div style="background:white;border:2px solid #7C3AED;border-radius:12px;padding:14px;text-align:center;">
+      <div style="font-size:32px;margin-bottom:6px;">🤖</div>
+      <div style="font-family:'Fredoka One',cursive;font-size:16px;color:#7C3AED;margin-bottom:4px;">Advanced ML</div>
+      <div style="font-size:12px;color:var(--gray);line-height:1.7;">Sessions 10–15<br>Regression, classification, neural networks, LSTM, AI-assisted coding</div>
+    </div>
+  </div>
+  <div class="gold-box" style="margin-top:10px;"><div class="gold-t">🏆 What you have actually mastered</div>You went from "how do I print hello world" to building neural networks and LSTM models for time series forecasting — and you did it using Python, real datasets, and real ML libraries. That is not beginner knowledge. That is industry-relevant skill.</div>
+</div>
+</div></div>
+
+<!-- SLIDE 10 — WHAT'S NEXT -->
+<div class="slide" data-notes="Where do they go from here? Give concrete next steps. This is the 'now what?' slide. Make it actionable — not 'keep learning Python' but specific resources, specific next skills, specific career paths.">
+<div class="slide-inner">
+<div class="top-bar"><span class="brand">🐧 codencode · Session 15</span><span class="slide-id">Session 15 · Slide 10 / 11</span></div>
+<div class="progress-bar"><div class="progress-fill" style="width:90%"></div></div>
+<div class="slide-body" style="padding:16px 44px;">
+  <div class="slide-title">🚀 What's Next? Your Path Forward</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:12px;">
+    <div>
+      <div style="font-family:'Fredoka One',cursive;font-size:16px;color:var(--navy);margin-bottom:8px;">📚 Next Skills to Learn</div>
+      <div style="display:flex;flex-direction:column;gap:7px;">
+        <div class="info-card" style="border-color:#0077B6;"><div class="info-card-title" style="color:#0077B6;">🐧 SQL for Data Science</div><p>90% of data science jobs require SQL. Mode Analytics has a free course. Practice on real datasets at sql-practice.com.</p></div>
+        <div class="info-card" style="border-color:#7C3AED;"><div class="info-card-title" style="color:#7C3AED;">📊 Tableau / Power BI</div><p>Employers love analysts who can visualise insights, not just produce them. Tableau Public is free. Take the official getting started tutorial.</p></div>
+        <div class="info-card" style="border-color:#1A7A3C;"><div class="info-card-title" style="color:#1A7A3C;">☁️ Cloud ML (AWS/GCP/Azure)</div><p>Deploying models to production is the next frontier. AWS SageMaker free tier and Google Colab are the easiest entry points.</p></div>
+      </div>
+    </div>
+    <div>
+      <div style="font-family:'Fredoka One',cursive;font-size:16px;color:var(--navy);margin-bottom:8px;">💼 Career Paths in Data</div>
+      <div style="display:flex;flex-direction:column;gap:7px;">
+        <div class="info-card" style="border-color:#E65C00;"><div class="info-card-title" style="color:#E65C00;">📈 Data Analyst</div><p>SQL + Tableau + Python EDA skills. Entry role at most companies. Well-paid, high demand. Starting salary: RM3,500–RM6,500 in KL.</p></div>
+        <div class="info-card" style="border-color:#C0392B;"><div class="info-card-title" style="color:#C0392B;">🤖 Machine Learning Engineer</div><p>Builds and deploys ML models at scale. Requires deeper Python + cloud skills. Starting: RM5,000–RM9,000.</p></div>
+        <div class="info-card" style="border-color:#856A00;"><div class="info-card-title" style="color:#856A00;">🧬 Data Scientist</div><p>EDA + modelling + storytelling + domain expertise. Hybrid role. Starting: RM4,500–RM8,000. Your codencode training = strong foundation.</p></div>
+      </div>
+    </div>
+  </div>
+  <div class="tip-box"><div class="tip-t">🏗️ Build your portfolio — 3 projects is enough</div>1 classification project (Titanic / churn) + 1 regression project (house prices) + 1 that uses your capstone dataset = a portfolio that stands out. Upload all 3 to GitHub. Write a LinkedIn post about each one.</div>
+</div>
+</div></div>
+
+<!-- SLIDE 11 — YOU DID IT / OUTRO -->
+<div class="slide" data-notes="The final slide. Celebrate! This is a real accomplishment — 15 sessions of Python and ML is no small feat. End on energy and warmth. Share contact details for follow-up. Encourage them to stay in touch on LinkedIn and share their capstone projects.">
+<div class="slide-inner">
+<div class="outro-body">
+<div class="outro-left">
+<h2>🎓 You Did It!<br>15 Sessions. One Real ML Engineer.</h2>
+<ul class="learned-list">
+<li><span class="ck">🐍</span> Python from scratch to advanced OOP</li>
+<li><span class="ck">🐼</span> Pandas, NumPy — data wrangling at speed</li>
+<li><span class="ck">📊</span> Data visualisation with Matplotlib &amp; Seaborn</li>
+<li><span class="ck">🌐</span> APIs, real-world data, JSON parsing</li>
+<li><span class="ck">📈</span> Statistics, probability, distributions</li>
+<li><span class="ck">🔧</span> Feature engineering — the secret sauce</li>
+<li><span class="ck">🤖</span> Regression, classification, Random Forest, XGBoost</li>
+<li><span class="ck">🧠</span> Neural networks, backpropagation, Keras</li>
+<li><span class="ck">🔄</span> LSTM, time series forecasting</li>
+<li><span class="ck">⚡</span> Vibe Coding — building with AI tools</li>
+<li><span class="ck">🏆</span> A complete end-to-end capstone project</li>
+</ul>
+<div style="margin-top:14px;background:var(--yellow);border-radius:12px;padding:10px 16px;font-size:12.5px;font-weight:700;border:2px dashed var(--gold);">📣 Share your project! Tag <strong>@codencode</strong> and use <strong>#codencodeML</strong> — we'd love to feature your work!</div>
+</div>
+<div class="outro-right">
+<span class="outro-emoji">🎓</span>
+<div style="font-family:'Fredoka One',cursive;font-size:26px;color:var(--gold);text-align:center;line-height:1.3;margin-bottom:4px;">Congratulations,<br>Data Scientist!</div>
+<div class="contact-info"><strong>codencode</strong><br>🌐 codencode.my<br>✉️ hello@codencode.my<br>📱 +60 113 165 2854<br><br>KL · JB · Online<br><br>📲 LinkedIn: @codencode<br>📸 IG: @codencode.my</div>
+</div>
+</div>
+<div class="top-bar" style="position:absolute;bottom:0;top:auto;border-bottom:none;border-top:3px solid var(--gold)"><span class="brand">🐧 codencode · Session 15 Complete ✓ — Course Complete 🎉</span><span class="slide-id">End of Course</span></div>
+</div></div>
+
+</div>
+<div id="notes-panel"><div class="nh"><span class="nt">📋 TEACHER NOTES</span><button class="nc" onclick="toggleNotes()">✕</button></div><div class="nb" id="notes-content">No notes.</div></div>
+<div id="nav-bar"><button class="nav-btn" id="btn-prev" onclick="changeSlide(-1)" disabled>‹</button><span id="slide-counter">1 / 11</span><button class="nav-btn" id="btn-next" onclick="changeSlide(1)">›</button><button class="icon-btn" id="btn-notes" onclick="toggleNotes()" title="N">📋</button><button class="icon-btn" onclick="toggleFullscreen()" title="F">⛶</button></div>
+<div id="kb-hint">← → navigate | N notes | F fullscreen</div>
+<script>
+const slides=document.querySelectorAll('.slide'),total=slides.length;
+let current=0,notesVisible=false,navTimer;
+function showSlide(n){slides[current].classList.remove('active');current=Math.max(0,Math.min(n,total-1));slides[current].classList.add('active');document.getElementById('slide-counter').textContent=(current+1)+' / '+total;document.getElementById('btn-prev').disabled=current===0;document.getElementById('btn-next').disabled=current===total-1;const notes=slides[current].dataset.notes||'No notes.';document.getElementById('notes-content').innerHTML=notes;if(notesVisible){document.getElementById('notes-panel').classList.remove('visible');document.getElementById('btn-notes').classList.remove('active');notesVisible=false;}}
+function changeSlide(d){showSlide(current+d);}
+function toggleNotes(){notesVisible=!notesVisible;document.getElementById('notes-panel').classList.toggle('visible',notesVisible);document.getElementById('btn-notes').classList.toggle('active',notesVisible);}
+function toggleFullscreen(){if(!document.fullscreenElement)document.documentElement.requestFullscreen();else document.exitFullscreen();}
+document.addEventListener('keydown',e=>{if(e.target.tagName==='INPUT')return;if(e.key==='ArrowRight'||e.key===' '){e.preventDefault();changeSlide(1);}if(e.key==='ArrowLeft'){e.preventDefault();changeSlide(-1);}if(e.key==='n'||e.key==='N')toggleNotes();if(e.key==='f'||e.key==='F')toggleFullscreen();if(e.key==='Home')showSlide(0);if(e.key==='End')showSlide(total-1);});
+function resetNav(){document.getElementById('nav-bar').classList.remove('hidden');clearTimeout(navTimer);navTimer=setTimeout(()=>{if(!notesVisible)document.getElementById('nav-bar').classList.add('hidden');},3500);}
+document.addEventListener('mousemove',resetNav);document.addEventListener('click',resetNav);resetNav();
+let tx=0;document.addEventListener('touchstart',e=>{tx=e.touches[0].clientX;});
+document.addEventListener('touchend',e=>{const dx=e.changedTouches[0].clientX-tx;if(Math.abs(dx)>50)changeSlide(dx<0?1:-1);});
+</script>
+</body></html>
