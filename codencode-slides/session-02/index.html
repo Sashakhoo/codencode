@@ -1,0 +1,167 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Session 02 — Control Flow: Decisions & Loops</title><style>
+:root{--accent:#f97583;--bg:#0f0f1a;--text:#e8e8f0;--muted:#8888aa;--code-bg:#0d1117;--card:#1e2240;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);height:100vh;overflow:hidden;user-select:none;}
+#deck{width:100%;height:100vh;display:flex;flex-direction:column;}
+#topbar{display:flex;align-items:center;justify-content:space-between;padding:10px 20px;background:rgba(255,255,255,0.03);border-bottom:1px solid rgba(255,255,255,0.06);flex-shrink:0;gap:12px;}
+#session-label{font-size:11px;font-weight:700;letter-spacing:2px;color:var(--accent);text-transform:uppercase;white-space:nowrap;}
+#slide-title-bar{font-size:12px;color:var(--muted);flex:1;text-align:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+#topbar-right{display:flex;gap:8px;align-items:center;flex-shrink:0;}
+#counter{font-size:12px;color:var(--muted);white-space:nowrap;}
+.btn{background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.12);color:var(--text);border-radius:6px;padding:5px 12px;font-size:12px;cursor:pointer;transition:all 0.15s;}
+.btn:hover{background:var(--accent);border-color:var(--accent);color:#000;}
+#progress-wrap{height:3px;background:rgba(255,255,255,0.05);flex-shrink:0;}
+#progress-bar{height:100%;background:var(--accent);transition:width 0.3s ease;}
+#slides-wrap{flex:1;position:relative;overflow:hidden;}
+.slide{position:absolute;inset:0;display:none;flex-direction:column;padding:32px 48px 24px;overflow-y:auto;animation:fadeIn 0.25s ease;}
+.slide.active{display:flex;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+#nav{display:flex;align-items:center;justify-content:center;gap:16px;padding:10px 24px;flex-shrink:0;border-top:1px solid rgba(255,255,255,0.06);}
+.nav-btn{background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);color:var(--text);padding:7px 26px;border-radius:8px;font-size:14px;cursor:pointer;transition:all 0.15s;}
+.nav-btn:hover:not(:disabled){background:var(--accent);border-color:var(--accent);color:#000;}
+.nav-btn:disabled{opacity:0.3;cursor:default;}
+#dots{display:flex;gap:5px;flex-wrap:wrap;justify-content:center;max-width:600px;}
+.dot{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,0.2);cursor:pointer;transition:all 0.2s;}
+.dot.active{background:var(--accent);transform:scale(1.5);}
+.slide-title{align-items:center;justify-content:center;text-align:center;background:radial-gradient(ellipse at 50% 40%,#1e2a4a 0%,#0f0f1a 70%);}
+.session-badge{font-size:11px;font-weight:800;letter-spacing:3px;color:var(--accent);text-transform:uppercase;margin-bottom:20px;padding:5px 16px;border:1px solid var(--accent);border-radius:20px;display:inline-block;}
+.slide-title h1{font-size:clamp(26px,3.4vw,46px);font-weight:800;line-height:1.15;margin-bottom:16px;background:linear-gradient(135deg,#fff 30%,var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;white-space:pre-line;}
+.slide-title .sub{font-size:14px;color:var(--muted);max-width:580px;line-height:1.6;margin-bottom:28px;}
+.academy-tag{font-size:12px;color:var(--muted);letter-spacing:1px;}
+.section-tag{font-size:10px;font-weight:700;letter-spacing:2.5px;color:var(--accent);text-transform:uppercase;margin-bottom:6px;}
+.slide-heading{font-size:clamp(17px,2.2vw,28px);font-weight:700;margin-bottom:14px;line-height:1.25;}
+.cards{display:grid;gap:11px;}
+.cards-2{grid-template-columns:1fr 1fr;}
+.cards-3{grid-template-columns:1fr 1fr 1fr;}
+.cards-4{grid-template-columns:1fr 1fr 1fr 1fr;}
+.card{background:var(--card);border:1px solid rgba(255,255,255,0.07);border-radius:12px;padding:14px 16px;}
+.card-accent{border-left:3px solid var(--accent);}
+.card-icon{font-size:22px;margin-bottom:6px;}
+.card h3{font-size:13px;font-weight:700;margin-bottom:4px;color:#fff;}
+.card p{font-size:12px;color:var(--muted);line-height:1.55;}
+.steps{display:flex;flex-direction:column;gap:9px;}
+.step{display:flex;gap:12px;align-items:flex-start;background:var(--card);border-radius:10px;padding:11px 14px;border:1px solid rgba(255,255,255,0.06);}
+.step-num{width:24px;height:24px;border-radius:50%;background:var(--accent);color:#000;font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.step-body h4{font-size:13px;font-weight:700;margin-bottom:2px;}
+.step-body p{font-size:12px;color:var(--muted);line-height:1.5;}
+.code-wrap{background:var(--code-bg);border-radius:10px;border:1px solid rgba(255,255,255,0.08);overflow:hidden;margin:8px 0;}
+.code-header{background:rgba(255,255,255,0.05);padding:5px 13px;font-size:11px;color:var(--muted);font-family:monospace;display:flex;justify-content:space-between;align-items:center;}
+pre{padding:11px 15px;overflow-x:auto;font-family:'Cascadia Code','Fira Code',Consolas,monospace;font-size:12px;line-height:1.7;color:#c9d1d9;}
+.kw{color:#ff7b72;}.fn{color:#d2a8ff;}.st{color:#a5d6ff;}.cm{color:#8b949e;font-style:italic;}.nm{color:#79c0ff;}.op{color:#ff9e64;}
+.highlight{background:rgba(255,255,255,0.04);border-left:4px solid var(--accent);border-radius:0 8px 8px 0;padding:10px 14px;margin:8px 0;font-size:13px;line-height:1.6;}
+.highlight strong{color:var(--accent);}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:20px;flex:1;}
+.warn{background:rgba(255,100,50,0.1);border:1px solid rgba(255,100,50,0.3);border-radius:8px;padding:9px 13px;font-size:12px;margin:6px 0;}
+.tip{background:rgba(80,220,100,0.1);border:1px solid rgba(80,220,100,0.3);border-radius:8px;padding:9px 13px;font-size:12px;margin:6px 0;}
+.roadmap{display:grid;grid-template-columns:1fr 1fr;gap:9px;flex:1;}
+.roadmap-item{background:var(--card);border-radius:12px;padding:12px;border:1px solid rgba(255,255,255,0.06);display:flex;gap:9px;align-items:flex-start;}
+.rm-num{font-size:18px;font-weight:900;color:var(--accent);opacity:0.4;line-height:1;flex-shrink:0;width:22px;}
+.rm-icon{font-size:17px;flex-shrink:0;}
+.rm-text h4{font-size:12px;font-weight:700;margin-bottom:2px;}
+.rm-text p{font-size:11px;color:var(--muted);line-height:1.5;}
+.recap-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;flex:1;}
+.recap-item{background:var(--card);border-radius:10px;padding:12px;border-left:3px solid var(--accent);display:flex;gap:8px;align-items:flex-start;}
+.recap-icon{font-size:17px;flex-shrink:0;}
+.recap-text h4{font-size:13px;font-weight:700;margin-bottom:2px;}
+.recap-text p{font-size:11px;color:var(--muted);line-height:1.5;}
+.e-list{display:flex;flex-direction:column;gap:8px;}
+.e-item{display:flex;gap:8px;align-items:flex-start;font-size:13px;line-height:1.55;}
+.e-icon{font-size:15px;flex-shrink:0;}
+table{width:100%;border-collapse:collapse;font-size:12px;margin:8px 0;}
+th{background:rgba(255,255,255,0.06);padding:7px 10px;text-align:left;font-weight:700;color:var(--accent);}
+td{padding:6px 10px;border-top:1px solid rgba(255,255,255,0.05);color:var(--muted);}
+.slide::-webkit-scrollbar{width:4px;}
+.slide::-webkit-scrollbar-track{background:transparent;}
+.slide::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.15);border-radius:2px;}
+.tag{display:inline-block;padding:2px 8px;border-radius:12px;font-size:10px;font-weight:700;margin:2px;}
+.tag-green{background:rgba(80,200,80,0.2);color:#50c850;border:1px solid rgba(80,200,80,0.3);}
+.tag-blue{background:rgba(80,150,255,0.2);color:#79c0ff;border:1px solid rgba(80,150,255,0.3);}
+.tag-orange{background:rgba(255,150,50,0.2);color:#ff9e64;border:1px solid rgba(255,150,50,0.3);}
+.big-concept{background:linear-gradient(135deg,#1e2a4a,#1e2240);border:1px solid rgba(249,117,131,0.3);border-radius:14px;padding:20px 24px;margin:10px 0;text-align:center;}
+.big-concept .bc-emoji{font-size:36px;margin-bottom:8px;}
+.big-concept h2{font-size:20px;font-weight:800;color:#fff;margin-bottom:6px;}
+.big-concept p{font-size:13px;color:var(--muted);line-height:1.6;}
+
+@media(max-width:700px){
+  body{overflow:auto;}
+  #deck{height:auto;min-height:100vh;}
+  #slides-wrap{height:auto;min-height:60vh;}
+  .slide{position:relative;inset:auto;display:none;padding:16px 16px 12px;}
+  .slide.active{display:flex;}
+  .cards-2,.cards-3,.cards-4{grid-template-columns:1fr;}
+  .two-col,.roadmap,.recap-grid{grid-template-columns:1fr;}
+  #session-label{display:none;}
+  #slide-title-bar{display:none;}
+  pre{font-size:10px;line-height:1.6;}
+  .nav-btn{padding:6px 14px;font-size:13px;}
+  #dots{max-width:100%;}
+  .dot{width:5px;height:5px;}
+  .big-concept{padding:14px 16px;}
+  .big-concept h2{font-size:16px;}
+  .big-concept .bc-emoji{font-size:28px;}
+  .slide-heading{font-size:18px;}
+  #topbar{padding:8px 12px;gap:6px;}
+  #nav{padding:8px 12px;gap:10px;}
+  table{font-size:10px;}
+  th,td{padding:5px 6px;}
+  .card h3{font-size:12px;}
+  .card p{font-size:11px;}
+  .highlight,.tip,.warn{font-size:11px;}
+  .step-body h4{font-size:12px;}
+  .step-body p{font-size:11px;}
+}
+.code-wrap pre,.code-wrap *,.code-wrap{user-select:text !important;-webkit-user-select:text !important;}
+</style></head><body>
+<div id="deck">
+<div id="topbar"><div id="session-label">Session 02 · codencode Academy</div><div id="slide-title-bar"></div><div id="topbar-right"><span id="counter"></span><button class="btn" onclick="toggleFS()">⛶ Fullscreen</button></div></div>
+<div id="progress-wrap"><div id="progress-bar"></div></div>
+<div id="slides-wrap"></div>
+<div id="nav"><button class="nav-btn" id="prev-btn" onclick="go(-1)">← Prev</button><div id="dots"></div><button class="nav-btn" id="next-btn" onclick="go(1)">Next →</button></div>
+</div><script>
+const SLIDES_DATA = [{"label": "Title", "html": "<div class=\"slide-title\" style=\"flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;\"><div class=\"session-badge\">Session 02 of 15</div><div style=\"font-size:48px;margin-bottom:12px;\">&#x1F500;</div><h1>Control Flow:<br>Decisions &amp; Loops</h1><p class=\"sub\">Make your code smart — if/elif/else decisions, for loops, while loops, and why they matter</p><div class=\"academy-tag\">codencode Academy · Python + Data Science</div></div>"}, {"label": "Why Control Flow?", "html": "<div class=\"section-tag\">Why This Matters</div><div class=\"slide-heading\">Why Control Flow? &#x1F914;</div><div class=\"big-concept\"><div class=\"bc-emoji\">&#x1F6A6;</div><h2>Without control flow, every program does the same thing every time</h2><p>Control flow lets your code make decisions and repeat actions automatically — the difference between a script and a program.</p></div><div class=\"cards cards-3\" style=\"margin-top:10px;\"><div class=\"card card-accent\"><div class=\"card-icon\">&#x1F500;</div><h3>if / elif / else</h3><p>Branch based on conditions. \"If temperature &gt; 30&#xB0; &rarr; push cold drinks promo. Elif weekend &rarr; increase staff. Else &rarr; normal operations.\"</p></div><div class=\"card card-accent\"><div class=\"card-icon\">&#x1F501;</div><h3>for loop</h3><p>Do something for every item. \"For each order in today's 1,000 orders, calculate the total.\" Without loops this is 1,000 lines of code — with loops it's 4.</p></div><div class=\"card card-accent\"><div class=\"card-icon\">&#x21B3;</div><h3>while loop</h3><p>Repeat until a condition changes. \"Keep retrying the API call until it succeeds.\" Perfect for automation and error recovery.</p></div></div>"}, {"label": "if / elif / else", "html": "<div class=\"code-wrap\"><div class=\"code-header\"><span>conditionals.py</span><span>python</span></div><pre><span class=\"cm\"># Basic if/else</span>\ntemperature = 28\n\n<span class=\"kw\">if</span> temperature &gt; 30:\n    <span class=\"fn\">print</span>(<span class=\"st\">\"Heatwave — push ice cream!\"</span>)\n<span class=\"kw\">elif</span> temperature &gt; 22:\n    <span class=\"fn\">print</span>(<span class=\"st\">\"Warm — standard menu\"</span>)\n<span class=\"kw\">else</span>:\n    <span class=\"fn\">print</span>(<span class=\"st\">\"Cold — push hot drinks\"</span>)\n\n<span class=\"cm\"># Multiple conditions with elif</span>\nsales = 850\n\n<span class=\"kw\">if</span>   sales &gt;= 2000: grade = <span class=\"st\">\"&#x1F525; Excellent\"</span>\n<span class=\"kw\">elif</span> sales &gt;= 1400: grade = <span class=\"st\">\"&#x2705; Good\"</span>\n<span class=\"kw\">elif</span> sales &gt;= 1000: grade = <span class=\"st\">\"&#x26A0; Average\"</span>\n<span class=\"kw\">else</span>:               grade = <span class=\"st\">\"&#x274C; Below target\"</span>\n\n<span class=\"fn\">print</span>(<span class=\"st\">f\"Sales: {sales} &#x2192; {grade}\"</span>)\n\n<span class=\"cm\"># Combine conditions with and / or / not</span>\nis_weekend = <span class=\"kw\">True</span>;  is_raining = <span class=\"kw\">False</span>\n<span class=\"kw\">if</span> is_weekend <span class=\"kw\">and not</span> is_raining:\n    <span class=\"fn\">print</span>(<span class=\"st\">\"Perfect day for a promotion!\"</span>)</pre></div><div class=\"section-tag\" style=\"margin-top:8px;\">Concept 1</div><div class=\"slide-heading\">if / elif / else — Making Decisions &#x1F500;</div>"}, {"label": "for Loops", "html": "<div class=\"section-tag\">Concept 2</div><div class=\"slide-heading\">for Loops — Repeat for Every Item &#x1F501;</div><div class=\"big-concept\"><div class=\"bc-emoji\">&#x1F504;</div><h2>A for loop runs a block of code for each item in a collection</h2><p>Write 4 lines instead of 1,000. Python handles the iteration automatically.</p></div><div class=\"code-wrap\"><div class=\"code-header\"><span>for_loops.py</span><span>python</span></div><pre><span class=\"cm\"># Loop over a list</span>\nmenu = [<span class=\"st\">\"Big Mac\"</span>, <span class=\"st\">\"McFlurry\"</span>, <span class=\"st\">\"Fries\"</span>]\n<span class=\"kw\">for</span> item <span class=\"kw\">in</span> menu:\n    <span class=\"fn\">print</span>(<span class=\"st\">f\"Item: {item}\"</span>)\n\n<span class=\"cm\"># range() — loop N times</span>\n<span class=\"kw\">for</span> i <span class=\"kw\">in</span> <span class=\"fn\">range</span>(<span class=\"nm\">5</span>):          <span class=\"cm\"># 0,1,2,3,4</span>\n    <span class=\"fn\">print</span>(<span class=\"st\">f\"Day {i+1}\"</span>)  <span class=\"cm\"># Day 1...Day 5</span>\n\n<span class=\"cm\"># Accumulate with a running total</span>\nprices = [<span class=\"nm\">5.99</span>, <span class=\"nm\">3.49</span>, <span class=\"nm\">2.99</span>]\ntotal = <span class=\"nm\">0</span>\n<span class=\"kw\">for</span> price <span class=\"kw\">in</span> prices:\n    total += price  <span class=\"cm\"># total = total + price</span>\n<span class=\"fn\">print</span>(<span class=\"st\">f\"Total: ${total:.2f}\"</span>)\n\n<span class=\"cm\"># enumerate() — loop with index number</span>\n<span class=\"kw\">for</span> i, item <span class=\"kw\">in</span> <span class=\"fn\">enumerate</span>(menu):\n    <span class=\"fn\">print</span>(<span class=\"st\">f\"{i+1}. {item}\"</span>)\n\n<span class=\"cm\"># List comprehension — compact one-liner</span>\ndiscounted = [p * <span class=\"nm\">0.9</span> <span class=\"kw\">for</span> p <span class=\"kw\">in</span> prices]  <span class=\"cm\"># 10% off all</span></pre></div>"}, {"label": "while Loops", "html": "<div class=\"section-tag\">Concept 3</div><div class=\"slide-heading\">while Loops — Repeat Until Done &#x21B3;</div><div class=\"highlight\"><strong>while</strong> loops keep running as long as the condition is True. Use when you don't know in advance how many times to repeat.</div><div class=\"code-wrap\"><div class=\"code-header\"><span>while_loops.py</span><span>python</span></div><pre>stock = <span class=\"nm\">10</span>\n\n<span class=\"kw\">while</span> stock &gt; <span class=\"nm\">0</span>:\n    stock -= <span class=\"nm\">1</span>\n    <span class=\"fn\">print</span>(<span class=\"st\">f\"{stock} remaining\"</span>)\n\n<span class=\"fn\">print</span>(<span class=\"st\">\"Sold out!\"</span>)\n\n<span class=\"cm\"># Retry loop — keep trying until API succeeds</span>\n<span class=\"kw\">import</span> random, time\nattempts = <span class=\"nm\">0</span>\n<span class=\"kw\">while</span> <span class=\"kw\">True</span>:              <span class=\"cm\"># loop forever...</span>\n    attempts += <span class=\"nm\">1</span>\n    ok = random.random() &gt; <span class=\"nm\">0.6</span>  <span class=\"cm\"># 40% chance</span>\n    <span class=\"kw\">if</span> ok:\n        <span class=\"fn\">print</span>(<span class=\"st\">f\"Success after {attempts} tries!\"</span>)\n        <span class=\"kw\">break</span>        <span class=\"cm\"># ...until break exits</span>\n    time.sleep(<span class=\"nm\">0.5</span>)   <span class=\"cm\"># wait before retry</span></pre></div><div class=\"warn\">&#x26A0;&#xFE0F; <strong>Infinite loop danger:</strong> always ensure the condition eventually becomes False or include a <code>break</code>. An infinite loop freezes your program.</div>"}, {"label": "Code Lab — Sales Analyser", "html": "<div class=\"section-tag\">Code Lab</div><div class=\"slide-heading\">&#x1F4BB; Daily Sales Analyser</div><div class=\"code-wrap\"><div class=\"code-header\"><span>sales_analyser.py</span><span>python</span></div><pre>daily_sales = {\n    <span class=\"st\">\"Mon\"</span>: <span class=\"nm\">1200</span>, <span class=\"st\">\"Tue\"</span>: <span class=\"nm\">980</span>,  <span class=\"st\">\"Wed\"</span>: <span class=\"nm\">1450</span>,\n    <span class=\"st\">\"Thu\"</span>: <span class=\"nm\">1100</span>, <span class=\"st\">\"Fri\"</span>: <span class=\"nm\">1800</span>, <span class=\"st\">\"Sat\"</span>: <span class=\"nm\">2200</span>, <span class=\"st\">\"Sun\"</span>: <span class=\"nm\">1950</span>\n}\n\ntotal = <span class=\"nm\">0</span>;  best_day = <span class=\"st\">\"\"</span>;  best_val = <span class=\"nm\">0</span>\n\n<span class=\"kw\">for</span> day, sales <span class=\"kw\">in</span> daily_sales.items():\n    total += sales\n    <span class=\"kw\">if</span>   sales &gt;= <span class=\"nm\">2000</span>: grade = <span class=\"st\">\"&#x1F525; Excellent\"</span>\n    <span class=\"kw\">elif</span> sales &gt;= <span class=\"nm\">1400</span>: grade = <span class=\"st\">\"&#x2705; Good\"</span>\n    <span class=\"kw\">elif</span> sales &gt;= <span class=\"nm\">1000</span>: grade = <span class=\"st\">\"&#x26A0; Average\"</span>\n    <span class=\"kw\">else</span>:               grade = <span class=\"st\">\"&#x274C; Below target\"</span>\n    <span class=\"fn\">print</span>(<span class=\"st\">f\"{day}: {sales:,} &#x2192; {grade}\"</span>)\n    <span class=\"kw\">if</span> sales &gt; best_val: best_val = sales; best_day = day\n\n<span class=\"fn\">print</span>(<span class=\"st\">f\"\\nWeekly total:  {total:,}\"</span>)\n<span class=\"fn\">print</span>(<span class=\"st\">f\"Daily average: {total/len(daily_sales):,.0f}\"</span>)\n<span class=\"fn\">print</span>(<span class=\"st\">f\"Best day: {best_day} ({best_val:,})\"</span></pre></div><div class=\"tip\">&#x1F4CC; Challenge: also find the <em>worst</em> day and calculate how far each day is from the average.</div>"}, {"label": "Session Recap", "html": "<div class=\"section-tag\">Session Recap</div><div class=\"slide-heading\">What You've Learned &#x1F389;</div><div class=\"recap-grid\"><div class=\"recap-item\"><div class=\"recap-icon\">&#x1F500;</div><div class=\"recap-text\"><h4>if / elif / else</h4><p>Make decisions. Chain with elif for multiple conditions. Combine with and / or / not.</p></div></div><div class=\"recap-item\"><div class=\"recap-icon\">&#x1F501;</div><div class=\"recap-text\"><h4>for loop</h4><p>Iterate over any collection. range() for N times. enumerate() for index. List comprehensions for compact loops.</p></div></div><div class=\"recap-item\"><div class=\"recap-icon\">&#x21B3;</div><div class=\"recap-text\"><h4>while loop</h4><p>Repeat until condition False. break exits early. Always have an escape route!</p></div></div><div class=\"recap-item\"><div class=\"recap-icon\">&#x1F4A1;</div><div class=\"recap-text\"><h4>The Pattern</h4><p>Loops + if/else together = \"for each item, make a decision.\" Used in almost every real program.</p></div></div></div><div class=\"highlight\" style=\"margin-top:auto;\">&#x1F680; <strong>Next:</strong> Session 3 — Functions: write code once, use it anywhere</div>"}];
+let cur=0;
+const wrap=document.getElementById('slides-wrap');
+const dotsEl=document.getElementById('dots');
+function renderSlides(){
+  wrap.innerHTML='';dotsEl.innerHTML='';
+  SLIDES_DATA.forEach((s,i)=>{
+    const div=document.createElement('div');
+    div.className='slide'+(i===0?' active':'');
+    div.innerHTML=s.html;
+    wrap.appendChild(div);
+    const dot=document.createElement('div');
+    dot.className='dot'+(i===0?' active':'');
+    dot.onclick=()=>jump(i);
+    dotsEl.appendChild(dot);
+  });
+  updateUI();
+}
+function updateUI(){
+  const t=SLIDES_DATA.length;
+  document.getElementById('counter').textContent=(cur+1)+' / '+t;
+  document.getElementById('progress-bar').style.width=((cur+1)/t*100)+'%';
+  document.getElementById('slide-title-bar').textContent=SLIDES_DATA[cur].label||'';
+  document.getElementById('prev-btn').disabled=cur===0;
+  document.getElementById('next-btn').disabled=cur===t-1;
+  document.querySelectorAll('.slide').forEach((el,i)=>el.classList.toggle('active',i===cur));
+  document.querySelectorAll('.dot').forEach((el,i)=>el.classList.toggle('active',i===cur));
+}
+function go(d){jump(cur+d);}
+function jump(i){if(i<0||i>=SLIDES_DATA.length)return;cur=i;updateUI();document.querySelectorAll('.slide')[cur].scrollTop=0;}
+document.addEventListener('keydown',e=>{
+  if(e.key==='ArrowRight'||e.key===' '){e.preventDefault();go(1);}
+  if(e.key==='ArrowLeft'){e.preventDefault();go(-1);}
+  if(e.key==='f'||e.key==='F')toggleFS();
+  if(e.key==='Home')jump(0);
+  if(e.key==='End')jump(SLIDES_DATA.length-1);
+});
+function toggleFS(){if(!document.fullscreenElement)document.documentElement.requestFullscreen().catch(()=>{});else document.exitFullscreen();}
+
+let _tx=0;
+document.addEventListener('touchstart',e=>{_tx=e.changedTouches[0].clientX;},{passive:true});
+document.addEventListener('touchend',e=>{
+  const dx=e.changedTouches[0].clientX-_tx;
+  if(Math.abs(dx)>50){go(dx<0?1:-1);}
+},{passive:true});
+renderSlides();
+</script><script src="../access-guard.js"></script></body></html>

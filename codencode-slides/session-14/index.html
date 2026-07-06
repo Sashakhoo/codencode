@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="en" style="height:100%;"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>codencode · Session 14 · Vibe Coding — Building with AI</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{--navy:#003566;--blue:#0077B6;--cyan:#00B4D8;--gold:#FFD166;--dark:#1A1A1A;--offwhite:#FFFDF7;--gray:#64748B;--yellow:#FFF5D6;--lblue:#E0F4FF;--lgreen:#E0F5E8;--lpurp:#F0E8FF;--lpink:#FFE0F0;--lorange:#FFF0E0;--code-bg:#1A1A2E;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Nunito',sans-serif;background:var(--navy);overflow:hidden;height:100%;width:100%;}
+#slideshow{width:100%;height:100%;position:relative;overflow:hidden;}
+.slide{position:absolute;inset:0;height:100%;display:flex;flex-direction:column;opacity:0;pointer-events:none;transition:opacity 0.35s ease;}
+.slide.active{opacity:1;pointer-events:all;}
+.slide-inner{width:100%;height:100%;display:flex;flex-direction:column;overflow:hidden;}
+.top-bar{background:var(--navy);padding:10px 28px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;border-bottom:3px solid var(--gold);min-height:52px;}
+.brand{font-size:13px;font-weight:800;color:var(--gold);letter-spacing:.5px;}
+.slide-id{font-size:12px;font-weight:700;color:#90B4CE;}
+.progress-bar{height:4px;background:rgba(255,255,255,.1);flex-shrink:0;}
+.progress-fill{height:100%;background:var(--gold);transition:width .35s ease;}
+.slide-body{flex:1;display:flex;flex-direction:column;justify-content:center;padding:20px 52px;overflow:hidden;background:var(--offwhite);}
+.slide-title{font-family:'Fredoka One',cursive;font-size:clamp(22px,3.2vw,36px);color:var(--navy);margin-bottom:14px;line-height:1.15;}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
+.three-col{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;}
+.four-col{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;}
+.code-block{background:var(--code-bg);border-radius:13px;border:2.5px solid var(--dark);padding:12px 16px;box-shadow:4px 4px 0 var(--dark);}
+.code-top{display:flex;align-items:center;gap:7px;margin-bottom:9px;}
+.cd{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+.cd1{background:#FF5F57;}.cd2{background:#FFBD2E;}.cd3{background:#28C840;}
+.fname{font-size:10px;color:#aaa;font-family:'JetBrains Mono',monospace;margin-left:4px;}
+pre{font-family:'JetBrains Mono',monospace;font-size:clamp(9.5px,1.05vw,12px);color:#E8E8E8;line-height:1.72;white-space:pre-wrap;word-break:break-word;}
+.cm{color:#6272A4;}.kw{color:#FF79C6;}.fn{color:#50FA7B;}.st{color:#F1FA8C;}.nm{color:#BD93F9;}.tg{color:#FF9580;}.at{color:#80BFFF;}
+.concept-box{background:var(--lblue);border-left:4px solid var(--blue);border-radius:0 12px 12px 0;padding:12px 16px;font-size:13px;line-height:1.65;color:var(--dark);}
+.tip-box{background:var(--lgreen);border-left:4px solid #1A7A3C;border-radius:0 12px 12px 0;padding:10px 14px;font-size:12.5px;line-height:1.6;color:var(--dark);}
+.tip-t{font-weight:800;font-size:13px;margin-bottom:4px;color:#1A7A3C;}
+.warn-box{background:var(--lpink);border-left:4px solid #C0392B;border-radius:0 12px 12px 0;padding:10px 14px;font-size:12.5px;line-height:1.6;color:var(--dark);}
+.warn-t{font-weight:800;font-size:13px;margin-bottom:4px;color:#C0392B;}
+.gold-box{background:var(--yellow);border-left:4px solid #D4A000;border-radius:0 12px 12px 0;padding:10px 14px;font-size:12.5px;line-height:1.6;color:var(--dark);}
+.gold-t{font-weight:800;font-size:13px;margin-bottom:4px;color:#856A00;}
+.info-card{background:white;border:2px solid #E2E8F0;border-radius:12px;padding:12px 16px;}
+.info-card-title{font-weight:800;color:var(--navy);font-size:13px;margin-bottom:5px;}
+.info-card p{font-size:12px;color:var(--gray);line-height:1.65;}
+.lc-step{display:flex;align-items:flex-start;gap:12px;background:white;border:2px solid #E2E8F0;border-radius:12px;padding:11px 14px;}
+.lc-num{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:'Fredoka One',cursive;font-size:16px;color:white;flex-shrink:0;}
+.lc-title{font-weight:800;font-size:13px;color:var(--navy);margin-bottom:3px;}
+.lc-body{font-size:12px;color:var(--gray);line-height:1.55;}
+.prompt-recipe{background:var(--code-bg);border-radius:14px;border:2.5px solid #FFD166;padding:14px 18px;box-shadow:4px 4px 0 var(--navy);}
+.pr-label{font-family:'Fredoka One',cursive;font-size:12px;color:var(--gold);letter-spacing:1px;margin-bottom:8px;}
+.pr-line{display:flex;gap:10px;align-items:flex-start;margin-bottom:7px;font-size:12px;line-height:1.6;}
+.pr-key{background:rgba(255,209,102,0.2);color:var(--gold);font-family:'JetBrains Mono',monospace;font-size:10px;padding:2px 8px;border-radius:6px;white-space:nowrap;flex-shrink:0;margin-top:2px;}
+.pr-val{color:#E8E8E8;}
+.outro-body{flex:1;display:grid;grid-template-columns:1fr 1fr;gap:0;background:var(--offwhite);}
+.outro-left{padding:28px 36px;display:flex;flex-direction:column;justify-content:center;}
+.outro-left h2{font-family:'Fredoka One',cursive;font-size:clamp(22px,2.8vw,34px);color:var(--navy);margin-bottom:14px;}
+.learned-list{list-style:none;display:flex;flex-direction:column;gap:7px;}
+.learned-list li{display:flex;align-items:center;gap:10px;font-size:13px;font-weight:700;color:var(--dark);}
+.ck{font-size:16px;}
+.outro-right{background:var(--navy);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;}
+.outro-emoji{font-size:72px;}
+.contact-info{color:rgba(255,255,255,0.75);font-size:13px;line-height:2;text-align:center;}
+.contact-info strong{color:var(--gold);font-size:15px;}
+#nav-bar{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:10px;background:rgba(0,30,60,0.9);backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,0.15);border-radius:40px;padding:8px 18px;z-index:200;transition:opacity 0.4s;}
+#nav-bar.hidden{opacity:0;pointer-events:none;}
+.nav-btn{background:none;border:1.5px solid rgba(255,255,255,0.25);color:white;width:34px;height:34px;border-radius:50%;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.2s;}
+.nav-btn:hover:not(:disabled){background:var(--gold);color:var(--navy);border-color:var(--gold);}
+.nav-btn:disabled{opacity:0.3;cursor:not-allowed;}
+.icon-btn{background:none;border:1.5px solid rgba(255,255,255,0.25);color:white;width:34px;height:34px;border-radius:50%;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.2s;}
+.icon-btn:hover,.icon-btn.active{background:var(--gold);color:var(--navy);border-color:var(--gold);}
+#slide-counter{color:rgba(255,255,255,0.8);font-size:12px;font-weight:700;min-width:52px;text-align:center;}
+#notes-panel{position:fixed;right:0;top:0;bottom:0;width:320px;background:white;border-left:3px solid var(--gold);box-shadow:-4px 0 20px rgba(0,0,0,0.2);z-index:300;transform:translateX(100%);transition:transform 0.3s ease;display:flex;flex-direction:column;}
+#notes-panel.visible{transform:translateX(0);}
+.nh{background:var(--navy);padding:14px 18px;display:flex;align-items:center;justify-content:space-between;}
+.nt{color:var(--gold);font-weight:800;font-size:14px;}
+.nc{background:none;border:1.5px solid rgba(255,255,255,0.3);color:white;width:28px;height:28px;border-radius:50%;cursor:pointer;font-size:14px;}
+.nb{padding:16px;font-size:13px;line-height:1.7;color:var(--dark);overflow-y:auto;flex:1;}
+#kb-hint{position:fixed;bottom:12px;right:16px;font-size:10px;color:rgba(255,255,255,0.3);font-family:'JetBrains Mono',monospace;}
+@media(max-width:768px){
+  body{overflow:auto;}
+  #slideshow{height:auto;min-height:100vh;}
+  .slide{position:relative;inset:auto;height:auto;min-height:100vh;}
+  .slide-inner{height:auto;}
+  .slide-body{padding:14px 16px !important;overflow-y:auto;height:auto;}
+  .outro-body{grid-template-columns:1fr !important;}
+  .outro-right{padding:24px 16px;min-height:250px;}
+
+  /* Force all grids to single column */
+  .two-col,.three-col,.four-col{grid-template-columns:1fr !important;}
+  div[style*="grid-template-columns"]{grid-template-columns:1fr !important;}
+
+  /* Typography */
+  .slide-title{font-size:22px !important;}
+  .info-card p{font-size:11.5px;}
+  .concept-box,.tip-box,.warn-box,.gold-box{font-size:11.5px;}
+  .lc-step,.m-body{font-size:11.5px;}
+
+  /* Code */
+  pre{font-size:11.5px !important;line-height:1.65 !important;overflow-x:auto;}
+  .code-block{overflow:auto;}
+  .pr-val{font-size:11px;}
+
+  /* SVG cap */
+  svg{max-height:200px !important;width:100% !important;}
+
+  /* Nav */
+  #nav-bar{padding:6px 12px;gap:8px;}
+  .nav-btn,.icon-btn{width:38px;height:38px;}
+  #kb-hint{display:none;}
+
+  /* Session pills wrap */
+  .session-pill{font-size:10px;padding:4px 8px;}
+
+  /* Top bar */
+  .top-bar{padding:8px 14px;}
+  .brand{font-size:11px;}
+}
+</style>
+</head>
+<body>
+<div id="slideshow">
+
+<!-- SLIDE 1 — COVER -->
+<div class="slide active" data-notes="Session 14 — Vibe Coding. The shift from writing code manually to describing what you want and having AI generate it. This is how professionals work now. Open with: 'Today I'll show you something that will change how you code forever.'">
+<div class="slide-inner">
+<div class="top-bar"><span class="brand">🐧 codencode · Python & ML</span><span class="slide-id">Session 14 · Slide 1 / 10</span></div>
+<div class="progress-bar"><div class="progress-fill" style="width:10%"></div></div>
+<div class="slide-body" style="background:var(--navy);align-items:center;text-align:center;position:relative;overflow:hidden;">
+  <div style="position:absolute;inset:0;background-image:radial-gradient(rgba(0,180,216,0.15) 1px,transparent 1px);background-size:28px 28px;"></div>
+  <div style="position:absolute;width:420px;height:420px;border-radius:50%;background:radial-gradient(circle,rgba(255,209,102,0.12),transparent 70%);bottom:-100px;left:-100px;pointer-events:none;"></div>
+  <div style="position:absolute;width:350px;height:350px;border-radius:50%;background:radial-gradient(circle,rgba(0,180,216,0.12),transparent 70%);top:-80px;right:-80px;pointer-events:none;"></div>
+  <div style="position:relative;z-index:1;">
+    <div style="font-size:64px;margin-bottom:12px;">🤖⚡</div>
+    <div style="font-family:'Fredoka One',cursive;font-size:clamp(30px,5.5vw,56px);color:white;line-height:1.05;margin-bottom:12px;">VIBE CODING<br><span style="color:var(--gold);">BUILDING WITH AI</span></div>
+    <div style="font-size:14px;color:rgba(255,255,255,0.65);max-width:600px;line-height:1.8;margin:0 auto 22px;">Stop writing code from scratch. Start describing what you want — and let AI generate it, debug it, and explain it. This is how the best developers work in 2024.</div>
+    <div style="display:flex;flex-wrap:wrap;gap:10px;justify-content:center;">
+      <span style="background:#E0F4FF;color:#0077B6;font-size:12px;font-weight:800;padding:6px 16px;border-radius:20px;">🤖 AI Tools for DS</span>
+      <span style="background:#FFF5D6;color:#856A00;font-size:12px;font-weight:800;padding:6px 16px;border-radius:20px;">✍️ Prompt Engineering</span>
+      <span style="background:#E0F5E8;color:#1A7A3C;font-size:12px;font-weight:800;padding:6px 16px;border-radius:20px;">🔧 AI-Assisted Pipeline</span>
+      <span style="background:#F0E8FF;color:#7C3AED;font-size:12px;font-weight:800;padding:6px 16px;border-radius:20px;">⚠️ AI Limits &amp; Hallucinations</span>
+      <span style="background:#FFE0F0;color:#A0154A;font-size:12px;font-weight:800;padding:6px 16px;border-radius:20px;">🚀 Build a Pipeline Live</span>
+    </div>
+  </div>
+</div>
+</div></div>
+
+<!-- SLIDE 2 — WHAT IS VIBE CODING? -->
+<div class="slide" data-notes="Introduce the shift in mindset. The student already knows Python. Now show them that the best developers describe intent, verify output, and iterate — they don't type every character manually. This is the real industry skill.">
+<div class="slide-inner">
+<div class="top-bar"><span class="brand">🐧 codencode · Session 14</span><span class="slide-id">Session 14 · Slide 2 / 10</span></div>
+<div class="progress-bar"><div class="progress-fill" style="width:20%"></div></div>
+<div class="slide-body">
+  <div class="slide-title">🎵 What is Vibe Coding? The New Way Pros Build</div>
+  <div class="two-col" style="margin-bottom:14px;">
+    <div>
+      <div style="border-radius:16px;border:2.5px solid #C0392B;overflow:hidden;margin-bottom:12px;">
+        <div style="background:#C0392B;padding:10px 16px;display:flex;align-items:center;gap:10px;">
+          <span style="font-size:22px;">😤</span>
+          <div><div style="font-family:'Fredoka One',cursive;font-size:17px;color:white;">Old Way</div><div style="font-size:11px;color:rgba(255,255,255,0.8);">Write every line manually</div></div>
+        </div>
+        <div style="background:white;padding:14px 16px;">
+          <p style="font-size:12.5px;color:var(--dark);line-height:1.7;">Google every syntax error. Copy-paste from StackOverflow and pray. Spend 2 hours debugging a missing bracket. Write boilerplate from memory. Consult docs for every function signature.</p>
+          <p style="font-size:11.5px;color:#C0392B;font-weight:700;margin-top:6px;">Result: slow, frustrating, burnout-inducing</p>
+        </div>
+      </div>
+      <div class="concept-box">🧠 <strong>Vibe Coding</strong> = you describe your intent in plain English → AI generates code → you <em>review, test, and verify</em> → iterate. You are the <strong>architect</strong>. AI is the builder.</div>
+    </div>
+    <div>
+      <div style="border-radius:16px;border:2.5px solid #1A7A3C;overflow:hidden;margin-bottom:12px;">
+        <div style="background:#1A7A3C;padding:10px 16px;display:flex;align-items:center;gap:10px;">
+          <span style="font-size:22px;">🚀</span>
+          <div><div style="font-family:'Fredoka One',cursive;font-size:17px;color:white;">Vibe Coding Way</div><div style="font-size:11px;color:rgba(255,255,255,0.8);">Describe → Generate → Verify → Ship</div></div>
+        </div>
+        <div style="background:white;padding:14px 16px;">
+          <p style="font-size:12.5px;color:var(--dark);line-height:1.7;">You say: <em>"Load the Titanic dataset, clean nulls, encode categoricals, train a Random Forest, print feature importances."</em><br>AI writes 40 lines in 10 seconds.<br>You read it, test it, ship it.</p>
+          <p style="font-size:11.5px;color:#1A7A3C;font-weight:700;margin-top:6px;">Result: 10× faster. You learn by reading, not struggling.</p>
+        </div>
+      </div>
+      <div class="tip-box"><div class="tip-t">🔑 The key mindset shift</div>You are NOT asking AI to code for you — you are <strong>directing</strong> AI like a senior engineer. You must understand what it produces, verify it works, and catch its mistakes.</div>
+    </div>
+  </div>
+</div>
+</div></div>
+
+<!-- SLIDE 3 — AI TOOLKIT FOR DATA SCIENTISTS -->
+<div class="slide" data-notes="Walk through the actual tools. Demo ChatGPT and GitHub Copilot live if possible. The student has probably heard of ChatGPT — now show them it as a coding tool, not a chatbot.">
+<div class="slide-inner">
+<div class="top-bar"><span class="brand">🐧 codencode · Session 14</span><span class="slide-id">Session 14 · Slide 3 / 10</span></div>
+<div class="progress-bar"><div class="progress-fill" style="width:30%"></div></div>
+<div class="slide-body" style="padding:16px 40px;">
+  <div class="slide-title">🛠️ The AI Toolkit — What Data Scientists Actually Use</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:12px;">
+    <div class="info-card" style="border-color:#10A37F;">
+      <div style="font-size:24px;margin-bottom:6px;">🤖</div>
+      <div class="info-card-title" style="color:#10A37F;">ChatGPT / Claude</div>
+      <p>Best for: writing full pipelines, explaining error messages, generating feature engineering ideas, code review. Paste your error → get a fix in 10 seconds.</p>
+      <span style="font-size:10px;font-weight:800;background:#E0F5E8;color:#10A37F;padding:2px 8px;border-radius:10px;display:inline-block;margin-top:6px;">chat.openai.com · claude.ai</span>
+    </div>
+    <div class="info-card" style="border-color:#7C3AED;">
+      <div style="font-size:24px;margin-bottom:6px;">⚡</div>
+      <div class="info-card-title" style="color:#7C3AED;">GitHub Copilot</div>
+      <p>Autocompletes code as you type inside VS Code. Type a comment like <code style="font-size:10.5px;background:#F0E8FF;padding:1px 4px;border-radius:3px;"># load and scale features</code> and Copilot writes the next 10 lines. Instant, contextual.</p>
+      <span style="font-size:10px;font-weight:800;background:#F0E8FF;color:#7C3AED;padding:2px 8px;border-radius:10px;display:inline-block;margin-top:6px;">github.com/features/copilot</span>
+    </div>
+    <div class="info-card" style="border-color:#0077B6;">
+      <div style="font-size:24px;margin-bottom:6px;">🖱️</div>
+      <div class="info-card-title" style="color:#0077B6;">Cursor IDE</div>
+      <p>VS Code + AI built in. Select any block of code → press Cmd+K → describe what to change. Rewrites your function, refactors your class, or adds error handling in one command.</p>
+      <span style="font-size:10px;font-weight:800;background:#E0F4FF;color:#0077B6;padding:2px 8px;border-radius:10px;display:inline-block;margin-top:6px;">cursor.sh — free tier available</span>
+    </div>
+    <div class="info-card" style="border-color:#E65C00;">
+      <div style="font-size:24px;margin-bottom:6px;">📓</div>
+      <div class="info-card-title" style="color:#E65C00;">Jupyter AI</div>
+      <p>AI magic inside your Jupyter notebook. <code style="font-size:10.5px;background:#FFF5F0;padding:1px 4px;border-radius:3px;">%%ai</code> cell magic — describe a plot or transformation, AI generates the cell. Great for EDA.</p>
+      <span style="font-size:10px;font-weight:800;background:#FFF5F0;color:#E65C00;padding:2px 8px;border-radius:10px;display:inline-block;margin-top:6px;">pip install jupyter-ai</span>
+    </div>
+    <div class="info-card" style="border-color:#D4A000;">
+      <div style="font-size:24px;margin-bottom:6px;">🔍</div>
+      <div class="info-card-title" style="color:#856A00;">Perplexity / Phind</div>
+      <p>AI search specifically for code questions. Ask "how do I handle class imbalance with SMOTE in sklearn" → gets current docs + working code examples. Better than Googling.</p>
+      <span style="font-size:10px;font-weight:800;background:var(--yellow);color:#856A00;padding:2px 8px;border-radius:10px;display:inline-block;margin-top:6px;">perplexity.ai · phind.com</span>
+    </div>
+    <div class="info-card" style="border-color:#A0154A;">
+      <div style="font-size:24px;margin-bottom:6px;">📊</div>
+      <div class="info-card-title" style="color:#A0154A;">Kaggle Notebooks + AI</div>
+      <p>Kaggle's built-in AI assistant can suggest code for data cleaning, visualisation, and model tuning based on your dataset. Great for competition work and learning from others.</p>
+      <span style="font-size:10px;font-weight:800;background:#FFE0F0;color:#A0154A;padding:2px 8px;border-radius:10px;display:inline-block;margin-top:6px;">kaggle.com — free GPUs</span>
+    </div>
+  </div>
+  <div class="gold-box"><div class="gold-t">💡 Professional workflow</div>ChatGPT/Claude for planning and big questions → Copilot/Cursor for writing code live → Perplexity when you need current documentation. Use all three together.</div>
+</div>
+</div></div>
+
+<!-- SLIDE 4 — EFFECTIVE PROMPTING -->
+<div class="slide" data-notes="This is the most practical slide. Prompting well is a skill. Walk through each technique. The prompt recipe format is very visual — show them that a well-structured prompt gets a well-structured answer every time.">
+<div class="slide-inner">
+<div class="top-bar"><span class="brand">🐧 codencode · Session 14</span><span class="slide-id">Session 14 · Slide 4 / 10</span></div>
+<div class="progress-bar"><div class="progress-fill" style="width:40%"></div></div>
+<div class="slide-body" style="padding:16px 44px;">
+  <div class="slide-title">✍️ Effective Prompting — 5 Techniques That Get Perfect Code</div>
+  <div class="two-col">
+    <div style="display:flex;flex-direction:column;gap:9px;">
+      <div style="display:flex;align-items:flex-start;gap:12px;background:white;border:2px solid #E2E8F0;border-radius:12px;padding:11px 14px;">
+        <div style="background:#0077B6;color:white;font-family:'Fredoka One',cursive;font-size:16px;width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">1</div>
+        <div><div style="font-weight:800;font-size:13px;color:var(--navy);margin-bottom:2px;">Be Specific About Context</div><div style="font-size:12px;color:var(--gray);line-height:1.55;">❌ "write a model" → ✅ "Write a Random Forest classifier in sklearn using the Titanic dataset. Features: age, pclass, sex (encoded). Target: survived. Print accuracy and feature importances."</div></div>
+      </div>
+      <div style="display:flex;align-items:flex-start;gap:12px;background:white;border:2px solid #E2E8F0;border-radius:12px;padding:11px 14px;">
+        <div style="background:#1A7A3C;color:white;font-family:'Fredoka One',cursive;font-size:16px;width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">2</div>
+        <div><div style="font-weight:800;font-size:13px;color:var(--navy);margin-bottom:2px;">Paste the Error Message</div><div style="font-size:12px;color:var(--gray);line-height:1.55;">Always paste the full traceback. Ask: "I got this error: [paste]. Here is my code: [paste]. What is wrong and how do I fix it?" AI diagnoses it instantly.</div></div>
+      </div>
+      <div style="display:flex;align-items:flex-start;gap:12px;background:white;border:2px solid #E2E8F0;border-radius:12px;padding:11px 14px;">
+        <div style="background:#7C3AED;color:white;font-family:'Fredoka One',cursive;font-size:16px;width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">3</div>
+        <div><div style="font-weight:800;font-size:13px;color:var(--navy);margin-bottom:2px;">Ask for Explanations</div><div style="font-size:12px;color:var(--gray);line-height:1.55;">Add "explain each step with comments" to any request. You learn by reading good code, not just getting a result. Understanding > output.</div></div>
+      </div>
+      <div style="display:flex;align-items:flex-start;gap:12px;background:white;border:2px solid #E2E8F0;border-radius:12px;padding:11px 14px;">
+        <div style="background:#E65C00;color:white;font-family:'Fredoka One',cursive;font-size:16px;width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">4</div>
+        <div><div style="font-weight:800;font-size:13px;color:var(--navy);margin-bottom:2px;">Iterate, Don't Start Over</div><div style="font-size:12px;color:var(--gray);line-height:1.55;">Say "now add cross-validation" or "change this to XGBoost instead" — AI remembers the conversation. Build on what you have.</div></div>
+      </div>
+      <div style="display:flex;align-items:flex-start;gap:12px;background:white;border:2px solid #E2E8F0;border-radius:12px;padding:11px 14px;">
+        <div style="background:#C0392B;color:white;font-family:'Fredoka One',cursive;font-size:16px;width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">5</div>
+        <div><div style="font-weight:800;font-size:13px;color:var(--navy);margin-bottom:2px;">Always Verify the Output</div><div style="font-size:12px;color:var(--gray);line-height:1.55;">Run it. Check the numbers make sense. If R² = 0.99 on first try — something is wrong (data leakage?). AI is confident even when wrong.</div></div>
+      </div>
+    </div>
+    <div>
+      <div class="prompt-recipe">
+        <div class="pr-label">📋 THE PERFECT ML PROMPT RECIPE</div>
+        <div class="pr-line"><span class="pr-key">ROLE</span><span class="pr-val">You are a senior data scientist using Python and sklearn.</span></div>
+        <div class="pr-line"><span class="pr-key">TASK</span><span class="pr-val">Build a complete classification pipeline for the Titanic dataset.</span></div>
+        <div class="pr-line"><span class="pr-key">DATA</span><span class="pr-val">CSV file with columns: age (float, has nulls), pclass (int), sex (str), fare (float), survived (0/1 target).</span></div>
+        <div class="pr-line"><span class="pr-key">STEPS</span><span class="pr-val">1) Load  2) Clean nulls  3) Encode sex  4) Split 80/20  5) Scale  6) Train Random Forest  7) Print accuracy + confusion matrix.</span></div>
+        <div class="pr-line"><span class="pr-key">FORMAT</span><span class="pr-val">One runnable Python file with comments explaining each step. Use sklearn only.</span></div>
+        <div class="pr-line"><span class="pr-key">EXTRA</span><span class="pr-val">Add early stopping. Do NOT fit the scaler on test data.</span></div>
+      </div>
+      <div class="tip-box" style="margin-top:10px;"><div class="tip-t">🎯 Why this works</div>Role → context. Task → goal. Data → what you have. Steps → what to do. Format → how to present it. Constraints → guardrails. A specific prompt = specific, useful answer.</div>
+    </div>
+  </div>
+</div>
+</div></div>
+
+<!-- SLIDE 5 — PROMPT TEMPLATES -->
+<div class="slide" data-notes="Give them reusable templates. These are things they can copy-paste into ChatGPT right now for their capstone project. Make it practical — maybe live demo one of these.">
+<div class="slide-inner">
+<div class="top-bar"><span class="brand">🐧 codencode · Session 14</span><span class="slide-id">Session 14 · Slide 5 / 10</span></div>
+<div class="progress-bar"><div class="progress-fill" style="width:50%"></div></div>
+<div class="slide-body" style="padding:14px 40px;overflow-y:auto;">
+  <div class="slide-title">📋 Prompt Templates — Copy, Paste, Win</div>
+  <div class="two-col" style="gap:12px;">
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      <div class="code-block">
+        <div class="code-top"><div class="cd cd1"></div><div class="cd cd2"></div><div class="cd cd3"></div><span class="fname">🔍 EDA Template</span></div>
+        <pre><span class="cm"># Paste into ChatGPT:</span>
+I have a dataset called df with columns:
+[list your columns and types here].
+Target column: [target].
+
+Generate complete EDA code that:
+1. Shows shape, dtypes, null counts
+2. Plots distribution of each numeric col
+3. Shows correlation heatmap
+4. Plots target class balance
+5. Identifies potential outliers
+
+Add comments explaining what to look for.</pre>
+      </div>
+      <div class="code-block">
+        <div class="code-top"><div class="cd cd1"></div><div class="cd cd2"></div><div class="cd cd3"></div><span class="fname">🐛 Debug Template</span></div>
+        <pre><span class="cm"># Paste into ChatGPT:</span>
+I'm getting this error in Python:
+[PASTE FULL TRACEBACK]
+
+Here is the relevant code:
+[PASTE YOUR CODE]
+
+What is causing this error?
+Fix it and explain WHY it happened
+so I won't make the same mistake again.</pre>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      <div class="code-block">
+        <div class="code-top"><div class="cd cd1"></div><div class="cd cd2"></div><div class="cd cd3"></div><span class="fname">🤖 Model Comparison Template</span></div>
+        <pre><span class="cm"># Paste into ChatGPT:</span>
+I have X_train, X_test, y_train, y_test
+already prepared and scaled.
+
+Write code to train and compare these
+3 models on my data:
+1. Random Forest
+2. XGBoost
+3. Logistic Regression
+
+For each, print:
+- Accuracy
+- F1 Score (macro)
+- Training time
+Then show which performed best and why.</pre>
+      </div>
+      <div class="code-block">
+        <div class="code-top"><div class="cd cd1"></div><div class="cd cd2"></div><div class="cd cd3"></div><span class="fname">✨ Feature Engineering Template</span></div>
+        <pre><span class="cm"># Paste into ChatGPT:</span>
+I have a dataset about [topic].
+Current features: [list them].
+Target: [target].
+
+Suggest 5 creative new features I could
+engineer from the existing columns.
+For each feature:
+- What it is and why it might help
+- Python code to create it
+- Which ML models benefit most</pre>
+      </div>
+    </div>
+  </div>
+</div>
+</div></div>
+
+<!-- SLIDE 6 — AI-ASSISTED PIPELINE LAB -->
+<div class="slide" data-notes="Live coding session. Pick a dataset together — could be Titanic, HDB prices, or their capstone dataset. Use ChatGPT to build the pipeline together, step by step. The student writes the prompts, AI generates, they review and run each block.">
+<div class="slide-inner">
+<div class="top-bar"><span class="brand">🐧 codencode · Session 14</span><span class="slide-id">Session 14 · Slide 6 / 10</span></div>
+<div class="progress-bar"><div class="progress-fill" style="width:60%"></div></div>
+<div class="slide-body" style="padding:14px 44px;">
+  <div class="slide-title">🔧 Code Lab — Build a Full ML Pipeline with AI</div>
+  <div class="concept-box" style="margin-bottom:14px;">🎯 <strong>Goal:</strong> Using only AI prompts (no typing code yourself), build a complete ML pipeline from raw CSV to evaluated model. Your job: write the prompts, read the output, verify it runs correctly.</div>
+  <div style="display:flex;flex-direction:column;gap:9px;">
+    <div style="display:flex;align-items:center;gap:14px;background:white;border:2.5px solid #1A7A3C;border-radius:14px;padding:12px 18px;">
+      <div style="background:#1A7A3C;color:white;font-family:'Fredoka One',cursive;font-size:18px;width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">1</div>
+      <div style="flex:1"><div style="font-weight:800;font-size:13px;color:#1A7A3C;">Prompt: Explore the Data</div><div style="font-size:12px;color:var(--gray);">"Load titanic.csv and run a full EDA — shape, nulls, dtypes, histograms for age and fare, class balance chart."</div></div>
+      <div style="font-size:11px;font-weight:800;background:#E0F5E8;color:#1A7A3C;padding:4px 12px;border-radius:20px;">~2 mins</div>
+    </div>
+    <div style="display:flex;align-items:center;gap:14px;background:white;border:2.5px solid #0077B6;border-radius:14px;padding:12px 18px;">
+      <div style="background:#0077B6;color:white;font-family:'Fredoka One',cursive;font-size:18px;width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">2</div>
+      <div style="flex:1"><div style="font-weight:800;font-size:13px;color:#0077B6;">Prompt: Clean and Encode</div><div style="font-size:12px;color:var(--gray);">"Fill age nulls with median, drop cabin, encode sex and embarked as numbers, drop irrelevant columns."</div></div>
+      <div style="font-size:11px;font-weight:800;background:#E0F4FF;color:#0077B6;padding:4px 12px;border-radius:20px;">~3 mins</div>
+    </div>
+    <div style="display:flex;align-items:center;gap:14px;background:white;border:2.5px solid #7C3AED;border-radius:14px;padding:12px 18px;">
+      <div style="background:#7C3AED;color:white;font-family:'Fredoka One',cursive;font-size:18px;width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">3</div>
+      <div style="flex:1"><div style="font-weight:800;font-size:13px;color:#7C3AED;">Prompt: Split and Scale</div><div style="font-size:12px;color:var(--gray);">"Split 80/20, apply StandardScaler to X_train and X_test — fit on train only, transform both."</div></div>
+      <div style="font-size:11px;font-weight:800;background:#F0E8FF;color:#7C3AED;padding:4px 12px;border-radius:20px;">~2 mins</div>
+    </div>
+    <div style="display:flex;align-items:center;gap:14px;background:white;border:2.5px solid #E65C00;border-radius:14px;padding:12px 18px;">
+      <div style="background:#E65C00;color:white;font-family:'Fredoka One',cursive;font-size:18px;width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">4</div>
+      <div style="flex:1"><div style="font-weight:800;font-size:13px;color:#E65C00;">Prompt: Train and Compare</div><div style="font-size:12px;color:var(--gray);">"Train Random Forest and XGBoost. Print accuracy, F1, confusion matrix for each. Which is better and why?"</div></div>
+      <div style="font-size:11px;font-weight:800;background:#FFF0E0;color:#E65C00;padding:4px 12px;border-radius:20px;">~5 mins</div>
+    </div>
+    <div style="display:flex;align-items:center;gap:14px;background:white;border:2.5px solid #C0392B;border-radius:14px;padding:12px 18px;">
+      <div style="background:#C0392B;color:white;font-family:'Fredoka One',cursive;font-size:18px;width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">5</div>
+      <div style="flex:1"><div style="font-weight:800;font-size:13px;color:#C0392B;">Verify and Critique</div><div style="font-size:12px;color:var(--gray);">Ask AI: "Review this pipeline. Are there any data leakage risks, missing steps, or better approaches you'd recommend?"</div></div>
+      <div style="font-size:11px;font-weight:800;background:#FFE0E0;color:#C0392B;padding:4px 12px;border-radius:20px;">Critical step</div>
+    </div>
+  </div>
+</div>
+</div></div>
+
+<!-- SLIDE 7 — AI LIMITS -->
+<div class="slide" data-notes="Critical thinking slide. AI is powerful but not magic. Walk through each limit with a real example. Hallucinations are the biggest danger — AI will confidently give wrong answers. The verification mindset is the key skill.">
+<div class="slide-inner">
+<div class="top-bar"><span class="brand">🐧 codencode · Session 14</span><span class="slide-id">Session 14 · Slide 7 / 10</span></div>
+<div class="progress-bar"><div class="progress-fill" style="width:70%"></div></div>
+<div class="slide-body" style="padding:16px 44px;">
+  <div class="slide-title">⚠️ AI Limits — What It Cannot Do (And What Will Go Wrong)</div>
+  <div class="two-col" style="margin-bottom:14px;gap:14px;">
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      <div class="warn-box">
+        <div class="warn-t">🤥 Hallucination — The Biggest Risk</div>
+        AI invents answers with total confidence. It may cite a sklearn function that does not exist, describe a paper that was never published, or generate code that looks correct but crashes at line 7. <strong>Always run the code. Never trust — always verify.</strong>
+      </div>
+      <div class="warn-box">
+        <div class="warn-t">📅 Stale Knowledge Cutoff</div>
+        AI training data has a cutoff date. It may not know about the latest library version, a newly released dataset, or a recent API change. Always check the official docs for version-specific syntax.
+      </div>
+      <div class="warn-box">
+        <div class="warn-t">🔒 No Access to Your Data</div>
+        AI cannot see your actual CSV file (unless you paste it in). It writes code based on column names you describe. If your description is wrong, the code will be wrong too. Garbage in = garbage out.
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      <div class="warn-box">
+        <div class="warn-t">🐛 Subtle Bugs It Misses</div>
+        AI can introduce data leakage (fitting scaler on all data), incorrect train/test split logic, wrong metric for your problem type, or off-by-one errors in windowing. You must understand the code to catch these.
+      </div>
+      <div class="warn-box">
+        <div class="warn-t">🎯 Domain Knowledge Gap</div>
+        AI doesn't know your business problem. It doesn't know if predicting 3 days ahead vs 7 days ahead matters for your use case. Domain decisions are yours — AI only implements them.
+      </div>
+      <div class="tip-box">
+        <div class="tip-t">✅ The Golden Rule of Vibe Coding</div>
+        AI is a junior developer that works at superhuman speed but makes human mistakes. <strong>You are the senior engineer.</strong> Review every output. Test edge cases. Never deploy AI-generated code you don't fully understand.
+      </div>
+    </div>
+  </div>
+  <div class="gold-box"><div class="gold-t">🤖 vs 👨‍💻 The Skill That Will Always Matter</div>Understanding <em>why</em> code works — knowing what R² means, why data leakage matters, how LSTM gates work — is irreplaceable. AI amplifies what you know. If you know nothing, AI generates impressive-looking nonsense.</div>
+</div>
+</div></div>
+
+<!-- SLIDE 8 — CAPSTONE PREP WITH AI -->
+<div class="slide" data-notes="Bridge slide — connect today's AI tools directly to the capstone project coming up in Session 15. Students should leave today knowing exactly how to use AI to build their project.">
+<div class="slide-inner">
+<div class="top-bar"><span class="brand">🐧 codencode · Session 14</span><span class="slide-id">Session 14 · Slide 8 / 10</span></div>
+<div class="progress-bar"><div class="progress-fill" style="width:80%"></div></div>
+<div class="slide-body" style="padding:16px 44px;">
+  <div class="slide-title">🚀 Using AI to Build Your Capstone Project</div>
+  <div class="concept-box" style="margin-bottom:14px;">💡 Your capstone project in Session 15 is a <strong>full end-to-end ML project</strong>. Here's how to use AI at every stage — without having AI do the thinking for you.</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+    <div class="info-card" style="border-color:#1A7A3C;">
+      <div class="info-card-title" style="color:#1A7A3C;">🔍 Ideation Stage</div>
+      <p>"I want to predict [X]. Suggest 5 datasets I can find for free for this problem. For each: where to download, key features, and what model would likely work best."</p>
+    </div>
+    <div class="info-card" style="border-color:#0077B6;">
+      <div class="info-card-title" style="color:#0077B6;">🧹 Data Cleaning Stage</div>
+      <p>"Here is my df.info() and df.describe() output. [paste]. What cleaning steps do I need? Write me the cleaning code."</p>
+    </div>
+    <div class="info-card" style="border-color:#7C3AED;">
+      <div class="info-card-title" style="color:#7C3AED;">🤖 Modelling Stage</div>
+      <p>"I've tried Random Forest (R²=0.72) and XGBoost (R²=0.78). What hyperparameters should I tune next? Write the GridSearchCV code."</p>
+    </div>
+    <div class="info-card" style="border-color:#E65C00;">
+      <div class="info-card-title" style="color:#E65C00;">📊 Evaluation Stage</div>
+      <p>"My confusion matrix shows FP=42 and FN=8. Interpret this for a medical diagnosis problem. Which matters more and why? How do I tune the threshold?"</p>
+    </div>
+    <div class="info-card" style="border-color:#C0392B;">
+      <div class="info-card-title" style="color:#C0392B;">📝 Presentation Stage</div>
+      <p>"I built a model to predict stock prices using LSTM. R²=0.85, RMSE=$4.20. Write a 3-paragraph summary explaining my results to a non-technical audience."</p>
+    </div>
+    <div class="info-card" style="border-color:#D4A000;">
+      <div class="info-card-title" style="color:#856A00;">🔎 Code Review Stage</div>
+      <p>"Review this pipeline code for data leakage, incorrect metric choice, or sklearn best practice violations. Be critical." [paste your full script]</p>
+    </div>
+  </div>
+</div>
+</div></div>
+
+<!-- SLIDE 9 — COMMON MISTAKES -->
+<div class="slide" data-notes="Quick fire round of mistakes. These are all things that have happened to real students using AI for coding. Each one is a lesson.">
+<div class="slide-inner">
+<div class="top-bar"><span class="brand">🐧 codencode · Session 14</span><span class="slide-id">Session 14 · Slide 9 / 10</span></div>
+<div class="progress-bar"><div class="progress-fill" style="width:90%"></div></div>
+<div class="slide-body" style="padding:16px 44px;">
+  <div class="slide-title">🚫 Common Vibe Coding Mistakes — Don't Do These</div>
+  <div class="two-col" style="gap:12px;">
+    <div style="display:flex;flex-direction:column;gap:9px;">
+      <div style="display:flex;gap:12px;background:white;border:2px solid #FFE0E0;border-radius:12px;padding:11px 14px;align-items:flex-start;">
+        <span style="font-size:20px;flex-shrink:0;">❌</span>
+        <div><div style="font-weight:800;font-size:13px;color:#C0392B;">Accepting output without running it</div><div style="font-size:12px;color:var(--gray);">AI code that looks correct often has a subtle bug. Always run it. Always check the output values.</div></div>
+      </div>
+      <div style="display:flex;gap:12px;background:white;border:2px solid #FFE0E0;border-radius:12px;padding:11px 14px;align-items:flex-start;">
+        <span style="font-size:20px;flex-shrink:0;">❌</span>
+        <div><div style="font-weight:800;font-size:13px;color:#C0392B;">Vague prompts = vague code</div><div style="font-size:12px;color:var(--gray);">"Make a model" produces a toy example. Describe your exact data, goal, libraries, and output format.</div></div>
+      </div>
+      <div style="display:flex;gap:12px;background:white;border:2px solid #FFE0E0;border-radius:12px;padding:11px 14px;align-items:flex-start;">
+        <span style="font-size:20px;flex-shrink:0;">❌</span>
+        <div><div style="font-weight:800;font-size:13px;color:#C0392B;">Using AI as a shortcut to skip understanding</div><div style="font-size:12px;color:var(--gray);">If you submit AI code you can't explain, you will fail at the next question. AI is for speed, not for avoiding learning.</div></div>
+      </div>
+      <div style="display:flex;gap:12px;background:white;border:2px solid #FFE0E0;border-radius:12px;padding:11px 14px;align-items:flex-start;">
+        <span style="font-size:20px;flex-shrink:0;">❌</span>
+        <div><div style="font-weight:800;font-size:13px;color:#C0392B;">Not pasting the full error</div><div style="font-size:12px;color:var(--gray);">"It doesn't work" tells AI nothing. Paste the exact traceback. The last 3 lines of a traceback tell you everything.</div></div>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:9px;">
+      <div style="display:flex;gap:12px;background:white;border:2px solid #E0F5E8;border-radius:12px;padding:11px 14px;align-items:flex-start;">
+        <span style="font-size:20px;flex-shrink:0;">✅</span>
+        <div><div style="font-weight:800;font-size:13px;color:#1A7A3C;">Run → Error → Paste → Fix → Understand</div><div style="font-size:12px;color:var(--gray);">This is the loop. It takes 30 seconds per cycle. Do it 20 times a session and you're a professional debugger.</div></div>
+      </div>
+      <div style="display:flex;gap:12px;background:white;border:2px solid #E0F5E8;border-radius:12px;padding:11px 14px;align-items:flex-start;">
+        <span style="font-size:20px;flex-shrink:0;">✅</span>
+        <div><div style="font-weight:800;font-size:13px;color:#1A7A3C;">Ask AI to review its own output</div><div style="font-size:12px;color:var(--gray);">"Now review the code you just wrote. Are there any bugs, data leakage risks, or things you would change?" It often finds its own mistakes.</div></div>
+      </div>
+      <div style="display:flex;gap:12px;background:white;border:2px solid #E0F5E8;border-radius:12px;padding:11px 14px;align-items:flex-start;">
+        <span style="font-size:20px;flex-shrink:0;">✅</span>
+        <div><div style="font-weight:800;font-size:13px;color:#1A7A3C;">Use AI to understand, then delete its code</div><div style="font-size:12px;color:var(--gray);">Read what AI wrote, understand it, then re-write it yourself from memory. This is the fastest way to learn any concept.</div></div>
+      </div>
+      <div class="gold-box"><div class="gold-t">🏆 The best data scientists today</div>Are not the ones who know the most syntax. They are the ones who can think clearly about a problem, write a precise prompt, verify the output, and iterate fast. That is what you're becoming.</div>
+    </div>
+  </div>
+</div>
+</div></div>
+
+<!-- SLIDE 10 — RECAP / OUTRO -->
+<div class="slide" data-notes="Session 14 wrap up. Next session is the capstone project execution. This is the second-to-last session — leave the student energised and clear on how to use AI for their project.">
+<div class="slide-inner">
+<div class="outro-body">
+<div class="outro-left">
+<h2>Session 14 Complete — You Code at AI Speed Now 🤖⚡</h2>
+<ul class="learned-list">
+<li><span class="ck">🎵</span> Vibe Coding: describe intent → AI builds → you verify → iterate</li>
+<li><span class="ck">🛠️</span> AI Toolkit: ChatGPT, Claude, Copilot, Cursor, Jupyter AI</li>
+<li><span class="ck">✍️</span> Effective Prompting: Role + Task + Data + Steps + Format</li>
+<li><span class="ck">📋</span> Prompt Templates for EDA, debugging, modelling, feature engineering</li>
+<li><span class="ck">🔧</span> Built a full ML pipeline using only AI prompts</li>
+<li><span class="ck">⚠️</span> AI Limits: hallucination, stale knowledge, subtle bugs, domain gaps</li>
+<li><span class="ck">🚀</span> How to use AI at every stage of your capstone project</li>
+<li><span class="ck">🏆</span> The mindset: you are the senior engineer, AI is the junior dev</li>
+</ul>
+<div style="margin-top:12px;background:var(--yellow);border-radius:12px;padding:10px 16px;font-size:12px;border:2px dashed var(--gold);">📅 <strong>Next Session 15:</strong> Project Planning &amp; Capstone Execution — you'll plan, build, and present your full ML project.</div>
+<span style="display:inline-block;background:var(--navy);color:var(--gold);font-family:'Fredoka One',cursive;font-size:16px;padding:8px 20px;border-radius:20px;margin-top:14px;width:fit-content;">🎓 Session 15 → Capstone!</span>
+</div>
+<div class="outro-right">
+<span class="outro-emoji">🤖</span>
+<div class="contact-info"><strong>codencode</strong><p>🌐 codencode.my<br>✉️ hello@codencode.my<br>📱 +60 113 165 2854<br><br>KL · JB · Online</p></div>
+</div>
+</div>
+<div class="top-bar" style="position:absolute;bottom:0;top:auto;border-bottom:none;border-top:3px solid var(--gold)"><span class="brand">🐧 codencode · Session 14 Complete ✓</span><span class="slide-id">Vibe Coding Done</span></div>
+</div></div>
+
+</div>
+<div id="notes-panel"><div class="nh"><span class="nt">📋 TEACHER NOTES</span><button class="nc" onclick="toggleNotes()">✕</button></div><div class="nb" id="notes-content">No notes.</div></div>
+<div id="nav-bar"><button class="nav-btn" id="btn-prev" onclick="changeSlide(-1)" disabled>‹</button><span id="slide-counter">1 / 10</span><button class="nav-btn" id="btn-next" onclick="changeSlide(1)">›</button><button class="icon-btn" id="btn-notes" onclick="toggleNotes()" title="N">📋</button><button class="icon-btn" onclick="toggleFullscreen()" title="F">⛶</button></div>
+<div id="kb-hint">← → navigate | N notes | F fullscreen</div>
+<script>
+const slides=document.querySelectorAll('.slide'),total=slides.length;
+let current=0,notesVisible=false,navTimer;
+function showSlide(n){slides[current].classList.remove('active');current=Math.max(0,Math.min(n,total-1));slides[current].classList.add('active');document.getElementById('slide-counter').textContent=(current+1)+' / '+total;document.getElementById('btn-prev').disabled=current===0;document.getElementById('btn-next').disabled=current===total-1;const notes=slides[current].dataset.notes||'No notes.';document.getElementById('notes-content').innerHTML=notes;if(notesVisible){document.getElementById('notes-panel').classList.remove('visible');document.getElementById('btn-notes').classList.remove('active');notesVisible=false;}}
+function changeSlide(d){showSlide(current+d);}
+function toggleNotes(){notesVisible=!notesVisible;document.getElementById('notes-panel').classList.toggle('visible',notesVisible);document.getElementById('btn-notes').classList.toggle('active',notesVisible);}
+function toggleFullscreen(){if(!document.fullscreenElement)document.documentElement.requestFullscreen();else document.exitFullscreen();}
+document.addEventListener('keydown',e=>{if(e.target.tagName==='INPUT')return;if(e.key==='ArrowRight'||e.key===' '){e.preventDefault();changeSlide(1);}if(e.key==='ArrowLeft'){e.preventDefault();changeSlide(-1);}if(e.key==='n'||e.key==='N')toggleNotes();if(e.key==='f'||e.key==='F')toggleFullscreen();if(e.key==='Home')showSlide(0);if(e.key==='End')showSlide(total-1);});
+function resetNav(){document.getElementById('nav-bar').classList.remove('hidden');clearTimeout(navTimer);navTimer=setTimeout(()=>{if(!notesVisible)document.getElementById('nav-bar').classList.add('hidden');},3500);}
+document.addEventListener('mousemove',resetNav);document.addEventListener('click',resetNav);resetNav();
+let tx=0;document.addEventListener('touchstart',e=>{tx=e.touches[0].clientX;});
+document.addEventListener('touchend',e=>{const dx=e.changedTouches[0].clientX-tx;if(Math.abs(dx)>50)changeSlide(dx<0?1:-1);});
+</script>
+</body></html>

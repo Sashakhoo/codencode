@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Python and Machine Learning Slides</title>
+  <link rel="icon" href="data:,">
+  <style>
+    :root {
+      --bg: #0a0d0c;
+      --surface: #0f1412;
+      --raised: #141a18;
+      --hover: #1a2220;
+      --line: rgba(255,255,255,.10);
+      --line-strong: rgba(0,229,160,.34);
+      --text: #f4f7f5;
+      --muted: #8f9a96;
+      --muted2: #65706c;
+      --cyan: #00e5a0;
+      --cyan-dim: rgba(0,229,160,.12);
+      --pink: #ff6f91;
+      --pink-dim: rgba(255,111,145,.14);
+      --shadow: 0 18px 60px rgba(0,0,0,.36);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Inter, Arial, Helvetica, sans-serif;
+      background:
+        radial-gradient(circle at 12% 8%, rgba(0,229,160,.10), transparent 30%),
+        radial-gradient(circle at 88% 6%, rgba(255,111,145,.10), transparent 26%),
+        var(--bg);
+      color: var(--text);
+    }
+
+    a { color: inherit; text-decoration: none; }
+
+    button {
+      font: inherit;
+    }
+
+    main {
+      width: min(1160px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 28px 0 46px;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      min-height: 58px;
+      margin-bottom: 30px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: var(--cyan);
+      font-size: 12px;
+      font-weight: 900;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+    }
+
+    .mark {
+      width: 34px;
+      height: 34px;
+      display: grid;
+      place-items: center;
+      border: 1px solid var(--line-strong);
+      border-radius: 8px;
+      background: var(--cyan-dim);
+      color: var(--cyan);
+      font-weight: 900;
+    }
+
+    .top-link {
+      color: var(--muted);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 9px 12px;
+      background: rgba(20,26,24,.62);
+      font-size: 12px;
+      cursor: pointer;
+    }
+
+    .top-link:hover {
+      color: var(--cyan);
+      border-color: var(--line-strong);
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 360px;
+      gap: 28px;
+      align-items: end;
+      padding-bottom: 28px;
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 26px;
+    }
+
+    .crumb {
+      color: var(--muted);
+      font-size: 13px;
+      margin-bottom: 24px;
+    }
+
+    h1 {
+      margin: 0;
+      max-width: 860px;
+      font-size: clamp(38px, 6vw, 76px);
+      line-height: .98;
+      letter-spacing: 0;
+    }
+
+    .subtitle {
+      margin: 18px 0 0;
+      color: var(--muted);
+      font-size: 16px;
+      line-height: 1.65;
+      max-width: 720px;
+    }
+
+    .status-panel {
+      border: 1px solid var(--line);
+      background: rgba(20,26,24,.78);
+      border-radius: 8px;
+      padding: 18px;
+      box-shadow: var(--shadow);
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.55;
+    }
+
+    .status-panel strong {
+      display: block;
+      color: var(--cyan);
+      margin-bottom: 8px;
+      font-size: 12px;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+    }
+
+    .course-list {
+      display: grid;
+      gap: 16px;
+      max-width: 980px;
+      margin: 0 auto;
+    }
+
+    .course-card {
+      display: grid;
+      grid-template-columns: 120px 1fr auto;
+      gap: 22px;
+      align-items: center;
+      min-height: 150px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: linear-gradient(180deg, rgba(20,26,24,.97), rgba(15,20,18,.97));
+      padding: 24px;
+      box-shadow: 0 14px 46px rgba(0,0,0,.24);
+    }
+
+    .course-card.unlocked:hover {
+      border-color: var(--line-strong);
+      background: var(--hover);
+    }
+
+    .course-card.locked {
+      opacity: .72;
+    }
+
+    .course-icon {
+      width: 92px;
+      height: 92px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      display: grid;
+      place-items: center;
+      background: rgba(255,255,255,.03);
+      color: var(--cyan);
+      font-size: 26px;
+      font-weight: 900;
+      letter-spacing: .02em;
+    }
+
+    .course-card.locked .course-icon {
+      color: var(--muted2);
+      background: rgba(255,255,255,.02);
+    }
+
+    .course-title {
+      margin: 0 0 7px;
+      font-size: clamp(22px, 3vw, 30px);
+      line-height: 1.1;
+    }
+
+    .course-desc {
+      margin: 0;
+      color: var(--muted);
+      font-size: 15px;
+      line-height: 1.55;
+      max-width: 690px;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 88px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      padding: 8px 12px;
+      color: var(--muted);
+      background: var(--surface);
+      font-size: 11px;
+      font-weight: 900;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    .pill.ok {
+      color: var(--cyan);
+      border-color: var(--line-strong);
+      background: var(--cyan-dim);
+    }
+
+    .pill.locked {
+      color: var(--pink);
+      border-color: rgba(255,111,145,.32);
+      background: var(--pink-dim);
+    }
+
+    .course-action {
+      display: grid;
+      gap: 10px;
+      justify-items: end;
+    }
+
+    .primary-btn,
+    .secondary-btn,
+    .download-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 42px;
+      border-radius: 8px;
+      border: 1px solid var(--line);
+      background: var(--surface);
+      color: var(--text);
+      padding: 0 16px;
+      font-size: 13px;
+      font-weight: 800;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .primary-btn {
+      background: var(--cyan);
+      border-color: var(--cyan);
+      color: #06110d;
+    }
+
+    .primary-btn:hover {
+      filter: brightness(1.05);
+    }
+
+    .secondary-btn:hover,
+    .download-btn:hover {
+      border-color: var(--cyan);
+      color: var(--cyan);
+      background: var(--cyan-dim);
+    }
+
+    .locked-btn {
+      min-height: 42px;
+      border-radius: 8px;
+      border: 1px solid rgba(255,111,145,.32);
+      background: var(--pink-dim);
+      color: var(--pink);
+      padding: 0 16px;
+      font-size: 13px;
+      font-weight: 800;
+      cursor: not-allowed;
+      white-space: nowrap;
+    }
+
+    .course-layout {
+      display: grid;
+      grid-template-columns: 390px minmax(0, 1fr);
+      gap: 28px;
+      align-items: start;
+    }
+
+    .course-info {
+      display: grid;
+      gap: 16px;
+    }
+
+    .about {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 28px;
+      background: rgba(20,26,24,.72);
+      box-shadow: var(--shadow);
+    }
+
+    .about h2,
+    .sessions h2 {
+      margin: 0 0 16px;
+      font-size: clamp(25px, 3.4vw, 40px);
+      line-height: 1.1;
+    }
+
+    .about p {
+      margin: 0 0 16px;
+      color: var(--muted);
+      line-height: 1.7;
+      font-size: 15px;
+    }
+
+    .meta {
+      display: grid;
+      gap: 12px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 20px;
+      background: rgba(15,20,18,.84);
+    }
+
+    .meta-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 20px;
+      border-bottom: 1px solid var(--line);
+      padding-bottom: 10px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .meta-row:last-child {
+      border-bottom: 0;
+      padding-bottom: 0;
+    }
+
+    .meta-row strong {
+      color: var(--text);
+    }
+
+    .sessions { min-width: 0; }
+
+    .session-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 12px;
+    }
+
+    .session-card {
+      display: grid;
+      gap: 14px;
+      min-height: 150px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: linear-gradient(180deg, rgba(20,26,24,.97), rgba(15,20,18,.97));
+      padding: 18px;
+      box-shadow: 0 10px 30px rgba(0,0,0,.18);
+    }
+
+    .session-card:hover {
+      border-color: var(--line-strong);
+      background: var(--hover);
+    }
+
+    .session-num {
+      color: var(--pink);
+      font-size: 11px;
+      font-weight: 900;
+      letter-spacing: .13em;
+      text-transform: uppercase;
+    }
+
+    .session-title {
+      color: var(--text);
+      font-weight: 800;
+      font-size: 17px;
+      line-height: 1.3;
+      min-height: 44px;
+    }
+
+    .session-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: auto;
+    }
+
+    .download-btn {
+      min-width: 104px;
+      color: var(--cyan);
+    }
+
+    .lock-note {
+      border: 1px solid rgba(255,111,145,.32);
+      background: var(--pink-dim);
+      border-radius: 8px;
+      padding: 14px 16px;
+      color: #ffc3d0;
+      font-size: 13px;
+      line-height: 1.55;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    @media (max-width: 850px) {
+      header,
+      .hero,
+      .course-layout {
+        display: block;
+      }
+
+      .status-panel,
+      .meta,
+      .sessions {
+        margin-top: 18px;
+      }
+
+      .course-card {
+        grid-template-columns: 82px 1fr;
+        gap: 16px;
+      }
+
+      .course-icon {
+        width: 70px;
+        height: 70px;
+        font-size: 20px;
+      }
+
+      .course-action {
+        grid-column: 1 / -1;
+        justify-items: stretch;
+      }
+
+      .primary-btn,
+      .secondary-btn,
+      .locked-btn {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main data-version="course-gate-1">
+    <header>
+      <a class="brand" href="./" aria-label="Codencode Academy home"><span class="mark">C</span><span>Codencode Academy</span></a>
+      <button class="top-link hidden" id="back-to-courses" type="button">All Courses</button>
+    </header>
+
+    <section id="catalog-view">
+      <section class="hero">
+        <div>
+          <h1>Python and Machine Learning Slides</h1>
+          <p class="subtitle">Students can browse the course catalog here. Enrolled courses open into session cards, while courses that are not enrolled remain visible but locked.</p>
+        </div>
+        <div class="status-panel">
+          <strong>Student Access</strong>
+          Access is unlocked when this page is opened from the LMS with a valid enrolled course signal.
+        </div>
+      </section>
+
+      <section class="course-list" id="course-list" aria-label="Courses"></section>
+    </section>
+
+    <section id="course-view" class="hidden" aria-live="polite">
+      <div class="crumb">Codencode Academy / Courses</div>
+      <section class="hero">
+        <div>
+          <h1 id="course-heading">Python and Machine Learning Slides</h1>
+          <p class="subtitle" id="course-subtitle"></p>
+        </div>
+        <div class="status-panel" id="course-status"></div>
+      </section>
+
+      <section id="locked-course-message" class="lock-note hidden"></section>
+
+      <section id="unlocked-course-content" class="course-layout">
+        <div class="course-info">
+          <article class="about">
+            <h2>About this course</h2>
+            <p id="course-about"></p>
+            <p id="course-about-extra"></p>
+          </article>
+
+          <aside class="meta" aria-label="Course details">
+            <div class="meta-row"><span>Sessions</span><strong id="session-count">15</strong></div>
+            <div class="meta-row"><span>Format</span><strong>HTML slides</strong></div>
+            <div class="meta-row"><span>Downloads</span><strong>Available</strong></div>
+            <div class="meta-row"><span>Access</span><strong>Enrolled students</strong></div>
+          </aside>
+        </div>
+
+        <section class="sessions">
+          <h2>Course sessions</h2>
+          <div class="session-grid" id="session-grid" aria-label="Session slides"></div>
+        </section>
+      </section>
+    </section>
+  </main>
+
+  <script>
+    const ACCESS_KEY = 'codencode_slide_access';
+    const ACCESS_TTL_MS = 12 * 60 * 60 * 1000;
+    const PYTHON_BOOTCAMP = 'python-programming-bootcamp';
+    const ML_FUNDAMENTALS = 'ml-fundamentals';
+    const AI_WORKPLACE = 'ai-for-workplace';
+    const PYTHON_ML = 'python-machine-learning';
+
+    const sessions = [
+      ['01', 'Python Basics and Environment Setup'],
+      ['02', 'Control Flow Decisions and Loops'],
+      ['03', 'Functions Modules and Reusable Code'],
+      ['04', 'NumPy and Pandas Data Wrangling'],
+      ['05', 'Data Visualization Matplotlib and Seaborn'],
+      ['06', 'APIs and Real Data'],
+      ['07', 'Statistics and Probability'],
+      ['08', 'Feature Engineering'],
+      ['09', 'Intro to Machine Learning'],
+      ['10', 'Regression Models Predict Any Number'],
+      ['11', 'Classification Random Forest and Evaluation'],
+      ['12', 'Neural Networks and Deep Learning'],
+      ['13', 'LSTM and Time Series Sequential Learning'],
+      ['14', 'Vibe Coding - Building with AI'],
+      ['15', 'Project Planning and Capstone Execution']
+    ];
+
+    const courses = [
+      {
+        id: PYTHON_BOOTCAMP,
+        icon: 'PY',
+        title: 'Python Programming Bootcamp',
+        subtitle: 'Seven lessons covering Python setup, control flow, reusable functions, data wrangling, visualization, APIs, and statistics. ',
+        about: 'This bootcamp builds the Python foundation students need before machine learning. Lessons cover environment setup, variables, decisions, loops, functions, modules, NumPy, pandas, visualization, APIs, and core statistics.',
+        aboutExtra: 'Students enrolled in this course can access Sessions 01-07.',
+        sessionStart: 1,
+        sessionEnd: 7
+      },
+      {
+        id: ML_FUNDAMENTALS,
+        icon: 'ML',
+        title: 'Machine Learning Fundamentals',
+        subtitle: 'Eight lessons covering feature engineering, ML modelling, regression, classification, neural networks, LSTM, AI-assisted coding, and capstone execution.',
+        about: 'This course takes students from machine learning preparation into practical model building. Lessons cover feature engineering, introductory ML, regression, classification, model evaluation, neural networks, LSTM time series learning, AI-assisted coding, and capstone execution.',
+        aboutExtra: 'Students enrolled in this course can access Sessions 08-15.',
+        sessionStart: 8,
+        sessionEnd: 15
+      },
+      {
+        id: AI_WORKPLACE,
+        icon: 'AI',
+        title: 'AI for Workplace',
+        subtitle: 'Two lessons focused on AI-assisted building, workplace productivity, and capstone-style project execution.',
+        about: 'This short course introduces students to practical AI workflows for workplace tasks. Students learn how to use AI-assisted coding and structured project planning to move from idea to execution.',
+        aboutExtra: 'Students enrolled in this course can access Sessions 14-15.',
+        sessionStart: 14,
+        sessionEnd: 15
+      },
+      {
+        id: PYTHON_ML,
+        icon: 'P+',
+        title: 'Python and Machine Learning',
+        subtitle: 'The complete fifteen-lesson pathway combining Python foundations and machine learning fundamentals.',
+        about: 'This combined course covers practical Python and machine learning skills from the ground up. Students move from setup, control flow, functions, NumPy, pandas, visualization, APIs, and probability into core machine learning workflows.',
+        aboutExtra: 'Students enrolled in this full pathway can access Sessions 01-15.',
+        sessionStart: 1,
+        sessionEnd: 15
+      }
+    ];
+
+    function parseList(value) {
+      return (value || '')
+        .split(',')
+        .map((item) => item.trim().toLowerCase())
+        .filter(Boolean);
+    }
+
+    function normalizeCourseId(value) {
+      const lowered = String(value || '').trim().toLowerCase();
+      if (['python', 'python-bootcamp', 'python_programming_bootcamp', 'python-programming-bootcamp'].includes(lowered)) {
+        return PYTHON_BOOTCAMP;
+      }
+      if (['ml', 'machine-learning', 'machine_learning', 'ml-fundamentals', 'machine-learning-fundamentals'].includes(lowered)) {
+        return ML_FUNDAMENTALS;
+      }
+      if (['ai', 'ai-workplace', 'ai_for_workplace', 'ai-for-workplace', 'workplace-ai'].includes(lowered)) {
+        return AI_WORKPLACE;
+      }
+      if (['python-ml', 'python_machine_learning', 'python-machine-learning', 'python+ml', 'full'].includes(lowered)) {
+        return PYTHON_ML;
+      }
+      return lowered;
+    }
+
+    function readStoredAccess() {
+      try {
+        const stored = JSON.parse(localStorage.getItem(ACCESS_KEY) || '{}');
+        if (!stored.expires || Date.now() > stored.expires) return [];
+        return Array.isArray(stored.courses) ? stored.courses : [];
+      } catch (error) {
+        return [];
+      }
+    }
+
+    function writeStoredAccess(courseIds) {
+      try {
+        localStorage.setItem(ACCESS_KEY, JSON.stringify({
+          courses: courseIds,
+          expires: Date.now() + ACCESS_TTL_MS
+        }));
+      } catch (error) {}
+    }
+
+    function accessFromParams() {
+      const params = new URLSearchParams(window.location.search);
+      const values = [
+        ...parseList(params.get('access')),
+        ...parseList(params.get('allowed')),
+        ...parseList(params.get('enrolled'))
+      ].map(normalizeCourseId);
+
+      const course = normalizeCourseId(params.get('course'));
+      if (course && ['1', 'true', 'yes'].includes((params.get('enrolled') || '').toLowerCase())) {
+        values.push(course);
+      }
+
+      if (values.includes('all')) {
+        return courses.map((courseItem) => courseItem.id);
+      }
+      return [...new Set(values)];
+    }
+
+    const paramAccess = accessFromParams();
+    if (paramAccess.length) writeStoredAccess(paramAccess);
+    const allowedCourses = new Set([...readStoredAccess(), ...paramAccess]);
+
+    function isUnlocked(courseId) {
+      return allowedCourses.has(courseId);
+    }
+
+    function courseUrl(courseId) {
+      return `#course/${courseId}`;
+    }
+
+    function renderCourses() {
+      const container = document.getElementById('course-list');
+      container.innerHTML = courses.map((course) => {
+        const unlocked = isUnlocked(course.id);
+        return `
+          <article class="course-card ${unlocked ? 'unlocked' : 'locked'}">
+            <div class="course-icon" aria-hidden="true">${course.icon}</div>
+            <div>
+              <h2 class="course-title">${course.title}</h2>
+              <p class="course-desc">${course.subtitle}</p>
+            </div>
+            <div class="course-action">
+              <span class="pill ${unlocked ? 'ok' : 'locked'}">${unlocked ? 'Enrolled' : 'Locked'}</span>
+              ${unlocked
+                ? `<a class="primary-btn" href="${courseUrl(course.id)}">Open Course</a>`
+                : `<button class="locked-btn" type="button" disabled>Locked</button>`}
+            </div>
+          </article>`;
+      }).join('');
+    }
+
+    function renderSessions(course) {
+      const grid = document.getElementById('session-grid');
+      const visibleSessions = sessions.filter(([num]) => {
+        const n = parseInt(num, 10);
+        return n >= course.sessionStart && n <= course.sessionEnd;
+      });
+      grid.innerHTML = visibleSessions.map(([num, title]) => {
+        const folder = `session-${num}`;
+        const file = `${folder}/index.html`;
+        const accessQuery = `?access=${course.id}`;
+        return `
+          <article class="session-card">
+            <div>
+              <div class="session-num">Session ${num}</div>
+              <div class="session-title">${title}</div>
+            </div>
+            <div class="session-actions">
+              <a class="secondary-btn" href="${file}${accessQuery}">Open</a>
+              <button class="download-btn" type="button" data-file="${file}${accessQuery}" data-name="Codencode_Session_${num}.html">Download</button>
+            </div>
+          </article>`;
+      }).join('');
+    }
+
+    function renderCourse(courseId) {
+      const course = courses.find((item) => item.id === courseId) || courses[0];
+      const unlocked = isUnlocked(course.id);
+
+      document.getElementById('catalog-view').classList.add('hidden');
+      document.getElementById('course-view').classList.remove('hidden');
+      document.getElementById('back-to-courses').classList.remove('hidden');
+      document.getElementById('course-heading').textContent = course.title === 'Python and Machine Learning'
+        ? 'Python and Machine Learning Slides'
+        : course.title;
+      document.getElementById('course-subtitle').textContent = course.subtitle;
+      document.getElementById('course-status').innerHTML = `<strong>${unlocked ? 'Enrolled' : 'Locked'}</strong>${unlocked ? 'You can open and download the available session materials for this course.' : 'This course title is visible, but the session materials are locked because this student is not enrolled.'}`;
+
+      const lockedMessage = document.getElementById('locked-course-message');
+      const unlockedContent = document.getElementById('unlocked-course-content');
+      if (!unlocked) {
+        lockedMessage.textContent = 'This course is locked for this student. Please enroll in the relevant course from the LMS before opening the slides.';
+        lockedMessage.classList.remove('hidden');
+        unlockedContent.classList.add('hidden');
+        return;
+      }
+
+      lockedMessage.classList.add('hidden');
+      unlockedContent.classList.remove('hidden');
+      document.getElementById('course-about').textContent = course.about;
+      document.getElementById('course-about-extra').textContent = course.aboutExtra;
+      const count = course.sessionEnd - course.sessionStart + 1;
+      document.getElementById('session-count').textContent = count;
+      renderSessions(course);
+    }
+
+    function renderRoute() {
+      const match = window.location.hash.match(/^#course\/([a-z0-9-]+)/);
+      if (match) {
+        renderCourse(match[1]);
+        return;
+      }
+      document.getElementById('catalog-view').classList.remove('hidden');
+      document.getElementById('course-view').classList.add('hidden');
+      document.getElementById('back-to-courses').classList.add('hidden');
+      renderCourses();
+    }
+
+    document.getElementById('back-to-courses').addEventListener('click', () => {
+      history.pushState('', document.title, window.location.pathname + window.location.search);
+      renderRoute();
+    });
+
+    document.addEventListener('click', async (event) => {
+      const btn = event.target.closest('.download-btn');
+      if (!btn) return;
+      event.preventDefault();
+      const file = btn.dataset.file;
+      const name = btn.dataset.name || 'codencode-slides.html';
+      try {
+        const response = await fetch(file, { cache: 'no-store' });
+        if (!response.ok) throw new Error('Download failed');
+        const blob = await response.blob();
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = name;
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        URL.revokeObjectURL(url);
+      } catch (error) {
+        const link = document.createElement('a');
+        link.href = file;
+        link.download = name;
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+      }
+    });
+
+    window.addEventListener('hashchange', renderRoute);
+    renderRoute();
+  </script>
+</body>
+</html>
