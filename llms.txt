@@ -15,6 +15,7 @@ codencode.my (legal entity: CODE N CODE SOLUTION, 202603072017 / AS0511861-M) ru
 ## Pages
 - Homepage (courses, pricing, trainers, FAQ, reviews): https://codencode.my/
 - Career roadmaps & learning paths (Data Analyst, Data Scientist, ML Engineer, Python Developer, Automation Engineer, Cybersecurity — with Malaysian salary ranges): https://codencode.my/paths.html
+- Comparison of coding academies serving Johor Bahru (codencode.my vs 42 Iskandar Puteri, NEXT Academy, Kodecoon, Superprof tutors, free self-study): https://codencode.my/compare.html
 
 ## Courses
 - Python Fundamentals — 6 weeks, beginner, RM 1,500 (promo, normally RM 2,000)

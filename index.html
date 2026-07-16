@@ -719,10 +719,11 @@ footer{background:#050709;border-top:1px solid var(--b);padding:56px 0 28px}
       <aside class="review-score">
         <div>
           <div class="google-line"><span class="google-mark">G</span> Google Reviews</div>
-          <div class="score-big">4.7</div>
-          <div class="score-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
-          <p style="font-size:11px;color:var(--mu);margin-top:4px">Based on 12 Google reviews</p>
+          <div class="score-big" id="gr-score">4.7</div>
+          <div class="score-stars" id="gr-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+          <p style="font-size:11px;color:var(--mu);margin-top:4px" id="gr-count">Based on 12 Google reviews</p>
           <p class="score-copy">Students mention clear teaching, beginner-friendly pacing, and practical projects they can actually build on.</p>
+          <p style="font-size:9px;color:var(--mu2);margin-top:8px">Ratings &amp; reviews powered by Google</p>
         </div>
         <div class="review-actions">
           <a class="review-action" href="https://share.google/zRqjHddN39P0KPhgs" target="_blank" rel="noopener">
@@ -734,7 +735,7 @@ footer{background:#050709;border-top:1px solid var(--b);padding:56px 0 28px}
         </div>
       </aside>
 
-      <div class="review-highlights">
+      <div class="review-highlights" id="gr-cards">
         <article class="review-card">
           <div class="review-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
           <h3>Beginner-friendly</h3>
@@ -886,6 +887,7 @@ footer{background:#050709;border-top:1px solid var(--b);padding:56px 0 28px}
         <ul>
           <li><a href="#trainer">Trainer</a></li>
           <li><a href="paths.html">Your Learning Path</a></li>
+          <li><a href="compare.html">Compare Academies</a></li>
           <li><a href="#faq">FAQ</a></li>
           <li><a href="https://wa.me/601131652854?text=Hi%20codencode!%20I'm%20interested%20👋" target="_blank" rel="noopener">Free Trial</a></li>
         </ul>
@@ -952,5 +954,59 @@ document.querySelectorAll('.faq-q').forEach(q=>{
   };
 });
 </script>
+
+<!-- Live Google Reviews via Places API -->
+<script>
+function starString(r){
+  const full=Math.round(r);
+  return '★★★★★'.slice(0,full)+'☆☆☆☆☆'.slice(0,5-full);
+}
+function initGoogleReviews(){
+  try{
+    const svc=new google.maps.places.PlacesService(document.createElement('div'));
+    svc.findPlaceFromQuery({query:'CodenCode Academy, Bandar Johor Bahru, 81300 Johor Bahru, Malaysia',fields:['place_id']},(results,status)=>{
+      if(status!==google.maps.places.PlacesServiceStatus.OK||!results||!results[0])return;
+      svc.getDetails({placeId:results[0].place_id,fields:['rating','user_ratings_total','reviews']},(place,status2)=>{
+        if(status2!==google.maps.places.PlacesServiceStatus.OK||!place)return;
+        const scoreEl=document.getElementById('gr-score');
+        const countEl=document.getElementById('gr-count');
+        const starsEl=document.getElementById('gr-stars');
+        if(typeof place.rating==='number'){
+          if(scoreEl)scoreEl.textContent=place.rating.toFixed(1);
+          if(starsEl)starsEl.textContent=starString(place.rating);
+        }
+        if(typeof place.user_ratings_total==='number'&&countEl){
+          countEl.textContent=`Based on ${place.user_ratings_total} Google review${place.user_ratings_total===1?'':'s'}`;
+        }
+        if(place.reviews&&place.reviews.length){
+          const wrap=document.getElementById('gr-cards');
+          if(!wrap)return;
+          wrap.innerHTML='';
+          place.reviews.slice(0,3).forEach(rv=>{
+            const art=document.createElement('article');
+            art.className='review-card';
+            const starsDiv=document.createElement('div');
+            starsDiv.className='review-stars';
+            starsDiv.textContent=starString(rv.rating||5);
+            const h3=document.createElement('h3');
+            h3.textContent=rv.author_name||'Google user';
+            const p=document.createElement('p');
+            p.textContent=rv.text||'';
+            const src=document.createElement('div');
+            src.className='review-source';
+            const icon=document.createElement('i');
+            icon.className='fab fa-google';
+            src.appendChild(icon);
+            src.appendChild(document.createTextNode(' '+(rv.relative_time_description||'Google review')));
+            art.append(starsDiv,h3,p,src);
+            wrap.appendChild(art);
+          });
+        }
+      });
+    });
+  }catch(e){/* API unavailable — static fallback content stays as-is */}
+}
+</script>
+<script async src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBudw6Nadw97TSlHfkmnmE-PlrCvgXbqVE&libraries=places&callback=initGoogleReviews"></script>
 </body>
 </html>
