@@ -955,56 +955,56 @@ document.querySelectorAll('.faq-q').forEach(q=>{
 });
 </script>
 
-<!-- Live Google Reviews via Places API -->
+<!-- Live Google Reviews via Places API (New) -->
 <script>
 function starString(r){
   const full=Math.round(r);
   return '★★★★★'.slice(0,full)+'☆☆☆☆☆'.slice(0,5-full);
 }
-function initGoogleReviews(){
+async function initGoogleReviews(){
   try{
-    const svc=new google.maps.places.PlacesService(document.createElement('div'));
-    svc.findPlaceFromQuery({query:'CodenCode Academy, Bandar Johor Bahru, 81300 Johor Bahru, Malaysia',fields:['place_id']},(results,status)=>{
-      if(status!==google.maps.places.PlacesServiceStatus.OK||!results||!results[0])return;
-      svc.getDetails({placeId:results[0].place_id,fields:['rating','user_ratings_total','reviews']},(place,status2)=>{
-        if(status2!==google.maps.places.PlacesServiceStatus.OK||!place)return;
-        const scoreEl=document.getElementById('gr-score');
-        const countEl=document.getElementById('gr-count');
-        const starsEl=document.getElementById('gr-stars');
-        if(typeof place.rating==='number'){
-          if(scoreEl)scoreEl.textContent=place.rating.toFixed(1);
-          if(starsEl)starsEl.textContent=starString(place.rating);
-        }
-        if(typeof place.user_ratings_total==='number'&&countEl){
-          countEl.textContent=`Based on ${place.user_ratings_total} Google review${place.user_ratings_total===1?'':'s'}`;
-        }
-        if(place.reviews&&place.reviews.length){
-          const wrap=document.getElementById('gr-cards');
-          if(!wrap)return;
-          wrap.innerHTML='';
-          place.reviews.slice(0,3).forEach(rv=>{
-            const art=document.createElement('article');
-            art.className='review-card';
-            const starsDiv=document.createElement('div');
-            starsDiv.className='review-stars';
-            starsDiv.textContent=starString(rv.rating||5);
-            const h3=document.createElement('h3');
-            h3.textContent=rv.author_name||'Google user';
-            const p=document.createElement('p');
-            p.textContent=rv.text||'';
-            const src=document.createElement('div');
-            src.className='review-source';
-            const icon=document.createElement('i');
-            icon.className='fab fa-google';
-            src.appendChild(icon);
-            src.appendChild(document.createTextNode(' '+(rv.relative_time_description||'Google review')));
-            art.append(starsDiv,h3,p,src);
-            wrap.appendChild(art);
-          });
-        }
-      });
+    const {Place} = await google.maps.importLibrary('places');
+    const {places} = await Place.searchByText({
+      textQuery:'CodenCode Academy, Bandar Johor Bahru, 81300 Johor Bahru, Malaysia',
+      fields:['rating','userRatingCount','reviews']
     });
-  }catch(e){/* API unavailable — static fallback content stays as-is */}
+    if(!places||!places.length){console.warn('[gr] no place found');return;}
+    const place=places[0];
+    const scoreEl=document.getElementById('gr-score');
+    const countEl=document.getElementById('gr-count');
+    const starsEl=document.getElementById('gr-stars');
+    if(typeof place.rating==='number'){
+      if(scoreEl)scoreEl.textContent=place.rating.toFixed(1);
+      if(starsEl)starsEl.textContent=starString(place.rating);
+    }
+    if(typeof place.userRatingCount==='number'&&countEl){
+      countEl.textContent=`Based on ${place.userRatingCount} Google review${place.userRatingCount===1?'':'s'}`;
+    }
+    if(place.reviews&&place.reviews.length){
+      const wrap=document.getElementById('gr-cards');
+      if(!wrap)return;
+      wrap.innerHTML='';
+      place.reviews.slice(0,3).forEach(rv=>{
+        const art=document.createElement('article');
+        art.className='review-card';
+        const starsDiv=document.createElement('div');
+        starsDiv.className='review-stars';
+        starsDiv.textContent=starString(rv.rating||5);
+        const h3=document.createElement('h3');
+        h3.textContent=(rv.authorAttribution&&rv.authorAttribution.displayName)||'Google user';
+        const p=document.createElement('p');
+        p.textContent=(typeof rv.text==='string'?rv.text:(rv.text&&rv.text.text))||'';
+        const src=document.createElement('div');
+        src.className='review-source';
+        const icon=document.createElement('i');
+        icon.className='fab fa-google';
+        src.appendChild(icon);
+        src.appendChild(document.createTextNode(' '+(rv.relativePublishTimeDescription||'Google review')));
+        art.append(starsDiv,h3,p,src);
+        wrap.appendChild(art);
+      });
+    }
+  }catch(e){console.error('[gr] Google Reviews fetch failed, showing static fallback:',e);}
 }
 </script>
 <script async src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBudw6Nadw97TSlHfkmnmE-PlrCvgXbqVE&libraries=places&callback=initGoogleReviews"></script>
