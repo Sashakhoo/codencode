@@ -301,19 +301,32 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 /* REVIEWS */
 .google-mark{width:30px;height:30px;display:grid;place-items:center;border:1px solid var(--b);background:#fff;color:#4285f4;font-family:Arial,sans-serif;font-weight:800;font-size:17px;flex-shrink:0}
 .gr-top{margin-top:48px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;padding:20px 24px;border:1px solid var(--bs);background:linear-gradient(180deg,rgba(0,220,180,.06),rgba(8,12,16,.2))}
-.gr-badge{display:flex;align-items:center;gap:12px;font-family:var(--mono);font-size:12px;color:var(--mu)}
+.gr-badge{display:flex;align-items:center;gap:12px;font-family:var(--mono);font-size:12px;color:var(--mu);flex-wrap:wrap}
 .gr-badge strong{font-size:20px;color:var(--w);font-family:var(--disp);font-weight:800}
 .gr-badge-stars{color:var(--gold);letter-spacing:1px;font-size:11px}
+.gr-live{display:inline-flex;align-items:center;gap:8px;font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--cyan);padding-left:12px;border-left:1px solid var(--bs)}
+.gr-live-dot{position:relative;width:6px;height:6px;border-radius:50%;background:var(--cyan);flex-shrink:0}
+.gr-live-ping{position:absolute;inset:0;border-radius:50%;background:var(--cyan);animation:ping 2s ease-out infinite}
 .review-actions{display:flex;gap:10px;flex-wrap:wrap}
 .review-action{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--bs);color:var(--cyan);font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;padding:11px 14px;text-decoration:none;transition:all .2s}
 .review-action:hover{background:var(--cdim);border-color:var(--cyan)}
 .review-action.write{background:#fff;color:#111;border-color:#fff}
 .review-action.write:hover{background:#e8edf3;border-color:#e8edf3}
+.gr-cards-head{display:flex;align-items:baseline;justify-content:space-between;flex-wrap:wrap;gap:8px 20px;margin-top:40px;padding-bottom:14px;border-bottom:1px solid var(--b)}
+.gr-cards-eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--cyan)}
+.gr-cards-eyebrow::before{content:'// ';color:var(--mu2)}
+.gr-cards-note{font-family:var(--mono);font-size:11px;color:var(--mu2);line-height:1.6}
 .gr-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;margin-top:20px}
-.gr-card{background:var(--surf);border:1px solid var(--b);padding:24px;display:flex;flex-direction:column;gap:16px;transition:border-color .2s}
+.gr-card{background:var(--surf);border:1px solid var(--b);padding:24px;display:flex;flex-direction:column;gap:16px;transition:border-color .2s;position:relative}
 .gr-card:hover{border-color:var(--bs)}
+.gr-card--sample::after{content:'EX. ' attr(data-n);position:absolute;top:16px;right:18px;font-family:var(--mono);font-size:10px;letter-spacing:.1em;color:var(--mu2)}
 .gr-stars-row{font-size:13px;letter-spacing:2px}
 .gr-quote{font-family:var(--mono);font-size:12.5px;color:var(--w);line-height:1.8;font-style:italic;flex:1}
+.gr-theme{display:flex;flex-direction:column;align-items:flex-start;gap:9px;border-top:1px solid var(--b);padding-top:14px}
+.gr-theme-tag{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--bs);font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:6px 10px}
+.gr-theme-tag i{font-size:8px}
+.gr-theme-note{font-family:var(--mono);font-size:10px;color:var(--mu2)}
+.gr-theme-note i{color:var(--mu2);margin-right:4px}
 .gr-person{display:flex;align-items:center;gap:10px;border-top:1px solid var(--b);padding-top:14px}
 .gr-avatar{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--disp);font-weight:800;font-size:13px;color:#080c10;flex-shrink:0;background-size:cover;background-position:center}
 .gr-name{font-size:12.5px;font-weight:700;color:var(--w)}
@@ -418,6 +431,8 @@ footer{background:#050709;border-top:1px solid var(--b);padding:56px 0 28px}
   .trainer-body{padding:24px}
   .gr-top{flex-direction:column;align-items:flex-start;padding:18px}
   .gr-badge strong{font-size:17px}
+  .gr-live{border-left:none;padding-left:0}
+  .gr-cards-head{flex-direction:column;align-items:flex-start}
   .review-actions{flex-direction:column;width:100%}
   .review-action{justify-content:center}
   .rev-grid{grid-template-columns:1fr}
@@ -713,7 +728,8 @@ footer{background:#050709;border-top:1px solid var(--b);padding:56px 0 28px}
     <div class="gr-top">
       <div class="gr-badge">
         <span class="google-mark">G</span>
-        <span><strong id="gr-score">4.7</strong> <span id="gr-stars" class="gr-badge-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</span> &middot; <span id="gr-count">Based on 12 Google reviews</span></span>
+        <span class="gr-badge-main"><strong id="gr-score">4.7</strong> <span id="gr-stars" class="gr-badge-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</span> &middot; <span id="gr-count">Based on 12 Google reviews</span></span>
+        <span class="gr-live"><span class="gr-live-dot"><span class="gr-live-ping"></span></span>Live from Google</span>
       </div>
       <div class="review-actions">
         <a class="review-action" href="https://share.google/zRqjHddN39P0KPhgs" target="_blank" rel="noopener">
@@ -725,29 +741,33 @@ footer{background:#050709;border-top:1px solid var(--b);padding:56px 0 28px}
       </div>
     </div>
 
+    <div class="gr-cards-head">
+      <span class="gr-cards-eyebrow" id="gr-cards-eyebrow">Common feedback themes</span>
+      <span class="gr-cards-note" id="gr-cards-note">Illustrative examples of what students say &mdash; swaps in real written reviews automatically when Google returns them</span>
+    </div>
     <div class="gr-grid" id="gr-cards">
-      <article class="gr-card">
+      <article class="gr-card gr-card--sample" data-n="01">
         <div class="gr-stars-row" style="color:var(--cyan)">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
         <p class="gr-quote">&ldquo;Lessons are paced for students who are new to coding, with patient explanation and enough structure to keep everyone moving.&rdquo;</p>
-        <div class="gr-person">
-          <div class="gr-avatar" style="background:var(--cyan)">B</div>
-          <div><div class="gr-name">Beginner-friendly</div><div class="gr-when"><i class="fab fa-google"></i> From Google feedback</div></div>
+        <div class="gr-theme">
+          <span class="gr-theme-tag" style="color:var(--cyan);border-color:var(--cyan)"><i class="fas fa-tag"></i> Beginner-friendly</span>
+          <span class="gr-theme-note"><i class="fab fa-google"></i> Common theme in Google feedback</span>
         </div>
       </article>
-      <article class="gr-card">
+      <article class="gr-card gr-card--sample" data-n="02">
         <div class="gr-stars-row" style="color:var(--gold)">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
         <p class="gr-quote">&ldquo;Students appreciate being able to ask questions, revisit recordings, and understand the why behind each Python or AI concept.&rdquo;</p>
-        <div class="gr-person">
-          <div class="gr-avatar" style="background:var(--gold)">C</div>
-          <div><div class="gr-name">Clear teaching</div><div class="gr-when"><i class="fab fa-google"></i> From Google feedback</div></div>
+        <div class="gr-theme">
+          <span class="gr-theme-tag" style="color:var(--gold);border-color:var(--gold)"><i class="fas fa-tag"></i> Clear teaching</span>
+          <span class="gr-theme-note"><i class="fab fa-google"></i> Common theme in Google feedback</span>
         </div>
       </article>
-      <article class="gr-card">
+      <article class="gr-card gr-card--sample" data-n="03">
         <div class="gr-stars-row" style="color:var(--elec)">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
         <p class="gr-quote">&ldquo;Every course points toward useful work: data analysis, automation, AI tools, apps, dashboards, and portfolio-ready outcomes.&rdquo;</p>
-        <div class="gr-person">
-          <div class="gr-avatar" style="background:var(--elec)">P</div>
-          <div><div class="gr-name">Practical projects</div><div class="gr-when"><i class="fab fa-google"></i> From Google feedback</div></div>
+        <div class="gr-theme">
+          <span class="gr-theme-tag" style="color:var(--elec);border-color:var(--elec)"><i class="fas fa-tag"></i> Practical projects</span>
+          <span class="gr-theme-note"><i class="fab fa-google"></i> Common theme in Google feedback</span>
         </div>
       </article>
     </div>
@@ -980,6 +1000,10 @@ async function initGoogleReviews(){
     if(place.reviews&&place.reviews.length){
       const wrap=document.getElementById('gr-cards');
       if(!wrap)return;
+      const eyebrowEl=document.getElementById('gr-cards-eyebrow');
+      const noteEl=document.getElementById('gr-cards-note');
+      if(eyebrowEl)eyebrowEl.textContent='Recent Google reviews';
+      if(noteEl)noteEl.textContent='Real written reviews, pulled live from Google.';
       wrap.innerHTML='';
       place.reviews.slice(0,3).forEach((rv,i)=>{
         const color=GR_COLORS[i%GR_COLORS.length];
