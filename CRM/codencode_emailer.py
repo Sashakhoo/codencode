@@ -39,7 +39,7 @@ Would you be the right person to talk to about this, or should I reach out to so
 Thanks for reading,
 Sasha Khoo
 Founder, codencode Academy
-+601131652854
++60196811628
 codencode.my
 JB-based | Classes online via Zoom
 
@@ -74,7 +74,7 @@ Sekian, terima kasih atas masa tuan/puan.
 
 Sasha Khoo
 Pengasas, codencode Academy
-+601131652854
++60196811628
 codencode.my
 Johor Bahru, Malaysia"""
     },
@@ -108,7 +108,7 @@ Johor Bahru, Malaysia"""
 
 Sasha Khoo（许娜塔莎）
 codencode Academy 创办人
-+601131652854
++60196811628
 codencode.my
 柔佛新山 | Zoom线上授课
 
@@ -135,7 +135,7 @@ Just a one-line reply is all I need to know if this is something worth exploring
 Thanks for your time,
 Sasha
 codencode Academy | codencode.my
-+601131652854"""
++60196811628"""
     },
 
     # ── Follow-up Chinese ─────────────────────────────────────────
@@ -158,7 +158,7 @@ codencode Academy | codencode.my
 
 Sasha Khoo
 codencode Academy
-+601131652854 | codencode.my"""
++60196811628 | codencode.my"""
     },
 }
 

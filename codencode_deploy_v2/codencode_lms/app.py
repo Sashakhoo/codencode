@@ -88,7 +88,7 @@ SLIDE_MATERIALS = [
     (11, 'Session 11: Classification Random Forest and Evaluation', 'Session_11_Student_Classification Random Forest and Evaluation.html'),
     (12, 'Session 12: Neural Networks and Deep Learning', 'Session_12_Student_Neural Networks and Deep Learning.html'),
     (13, 'Session 13: LSTM and Time Series Sequential Learning', 'Session_13_Student_LSTM and Time Series Sequential Learning.html'),
-    (14, 'Session 14: Vibe Coding - Building with AI', 'Session_14_Student_Vibe Coding \u2014 Building with AI.html'),
+    (14, 'Session 14: Vibe Coding - Building with AI', 'Session_14_Student_Vibe Coding — Building with AI.html'),
     (15, 'Session 15: Project Planning and Capstone Execution', 'Session_15_Student_Project Planning and Capstone Execution.html'),
 ]
 
@@ -860,7 +860,7 @@ def public_register():
                 <p><strong>Course:</strong> {reg.course or 'Python / ML'}<br>
                 <strong>Format:</strong> {reg.class_format}<br>
                 <strong>Timing:</strong> {reg.timing}</p>
-                <p>Questions? Just reply to this email or WhatsApp us at +601131652854.</p>
+                <p>Questions? Just reply to this email or WhatsApp us at +60196811628.</p>
             ''')
         )
     except Exception as exc:
@@ -1063,7 +1063,7 @@ def serve_video(filename):
 # ─────────────────────────────────────────────
 
 def _slide_materials_for_course(course):
-    title = (course.title or '').lower()
+    title = f'{course.title or ""} {course.programme or ""}'.lower()
     has_python = 'python' in title
     has_ml = 'machine learning' in title or 'ml' in title
     has_ai_workplace = 'ai' in title and 'workplace' in title
@@ -1194,6 +1194,10 @@ def api_delete_material(mid):
 @login_required
 def serve_material(filename):
     mats = Material.query.filter_by(filename=filename).all()
+    if not mats and filename in {item[2] for item in SLIDE_MATERIALS}:
+        for course in Course.query.all():
+            _ensure_slide_materials(course)
+        mats = Material.query.filter_by(filename=filename).all()
     if not mats:
         return jsonify({'error': 'Material not found'}), 404
     if current_user.role == 'student':
