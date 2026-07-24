@@ -158,30 +158,33 @@ def send_email_bulk(recipients: list[str], subject: str, html_body: str):
 
 def send_email_with_attachment(to: str, subject: str, html_body: str,
                                 attachment_bytes: bytes, attachment_filename: str) -> bool:
-    """Send an HTML email with a single binary attachment (e.g. PDF receipt)."""
-    if not _EMAIL_USER or not _EMAIL_PASS:
-        app.logger.warning('Email not configured — skipping send to %s', to)
+    """Send an HTML email with a single binary attachment (e.g. PDF receipt) via Brevo API."""
+    if not _BREVO_API_KEY:
+        app.logger.warning('BREVO_API_KEY not set — skipping email to %s', to)
         return False
     try:
-        from email.mime.base import MIMEBase
-        from email import encoders as _enc
-
-        msg = MIMEMultipart('mixed')
-        msg['Subject'] = subject
-        msg['From']    = f'codencode.my <{_EMAIL_FROM}>'
-        msg['To']      = to
-        msg.attach(MIMEText(html_body, 'html', 'utf-8'))
-
-        part = MIMEBase('application', 'octet-stream')
-        part.set_payload(attachment_bytes)
-        _enc.encode_base64(part)
-        part.add_header('Content-Disposition', 'attachment', filename=attachment_filename)
-        msg.attach(part)
-
-        ctx = ssl.create_default_context()
-        with smtplib.SMTP_SSL(_SMTP_HOST, _SMTP_PORT, context=ctx) as server:
-            server.login(_EMAIL_USER, _EMAIL_PASS)
-            server.sendmail(_EMAIL_FROM, to, msg.as_string())
+        payload = _json_mod.dumps({
+            'sender':      {'name': _BUSINESS_NAME, 'email': _EMAIL_FROM},
+            'to':          [{'email': to}],
+            'subject':     subject,
+            'htmlContent': html_body,
+            'attachment':  [{
+                'content': base64.b64encode(attachment_bytes).decode('ascii'),
+                'name':    attachment_filename,
+            }],
+        }).encode('utf-8')
+        req = urllib.request.Request(
+            'https://api.brevo.com/v3/smtp/email',
+            data    = payload,
+            headers = {
+                'api-key':      _BREVO_API_KEY,
+                'Content-Type': 'application/json',
+                'Accept':       'application/json',
+            },
+            method = 'POST'
+        )
+        with urllib.request.urlopen(req, timeout=20) as resp:
+            resp.read()
         return True
     except Exception as exc:
         app.logger.error('Email (with attachment) failed to %s: %s', to, exc)
@@ -1669,6 +1672,25 @@ def serve_receipt(filename):
     return send_from_directory(
         os.path.join(app.config['UPLOAD_FOLDER'], 'receipts'),
         filename, as_attachment=True)
+
+
+@app.route('/api/admin/enrollments/<int:eid>/receipt/pdf')
+@admin_required
+def admin_receipt_pdf(eid):
+    """Generate the official PDF receipt on demand (does not depend on any uploaded file)."""
+    e = Enrollment.query.get_or_404(eid)
+    if e.payment_status != 'paid':
+        return jsonify({'error': 'Enrollment is not marked as paid'}), 400
+    try:
+        pdf_bytes = generate_receipt_pdf(e)
+    except Exception as exc:
+        app.logger.error('Receipt PDF generation failed for enrollment %s: %s', eid, exc)
+        return jsonify({'error': 'Could not generate receipt PDF'}), 500
+    from flask import Response
+    return Response(
+        pdf_bytes,
+        mimetype='application/pdf',
+        headers={'Content-Disposition': f'inline; filename=Receipt-RCP-{e.id:05d}.pdf'})
 
 
 @app.route('/api/admin/enrollments/<int:eid>/invoice')
