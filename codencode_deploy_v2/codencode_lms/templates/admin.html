@@ -2924,7 +2924,7 @@ async function savePayment() {
   try {
     // 1) Update status, amount, method + remarks
     const amtVal = document.getElementById('pay-amount').value;
-    await PUT(`/api/admin/enrollments/${eid}/payment`, {
+    const payResult = await PUT(`/api/admin/enrollments/${eid}/payment`, {
       payment_status:  document.getElementById('pay-status-select').value,
       payment_remarks: document.getElementById('pay-remarks').value,
       payment_amount:  amtVal !== '' ? parseFloat(amtVal) : null,
@@ -2941,7 +2941,19 @@ async function savePayment() {
         throw new Error(err.error || 'Receipt upload failed');
       }
     }
-    toast('Payment updated');
+    if (payResult.just_paid && payResult.email_status) {
+      const st = payResult.email_status;
+      if (st.receipt_sent) {
+        toast('Payment updated — receipt emailed to student');
+      } else {
+        toast(`Payment updated, but receipt email FAILED${st.receipt_error ? ': ' + st.receipt_error : ''}`, true);
+      }
+      if (st.confirmation_sent === false) {
+        toast(`Enrolment confirmation email FAILED${st.confirmation_error ? ': ' + st.confirmation_error : ''}`, true);
+      }
+    } else {
+      toast('Payment updated');
+    }
     closeModal('modal-payment');
     // Reload data and re-render
     await loadStudents();
