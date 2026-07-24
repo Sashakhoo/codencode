@@ -70,8 +70,8 @@ class Course(db.Model):
     id           = db.Column(db.Integer, primary_key=True)
     title        = db.Column(db.String(200), nullable=False)
     description  = db.Column(db.Text)
-    weeks        = db.Column(db.Integer, default=6)
-    current_week = db.Column(db.Integer, default=1)   # controls student visibility
+    total_sessions  = db.Column(db.Integer, default=6)
+    current_session = db.Column(db.Integer, default=1)   # controls student visibility
     start_date   = db.Column(db.Date)
     programme    = db.Column(db.String(100))   # e.g. "Python Bootcamp", "Machine Learning"
     language     = db.Column(db.String(5), default='en')   # 'en', 'zh', 'bm'
@@ -84,8 +84,8 @@ class Course(db.Model):
     enrollments  = db.relationship('Enrollment', back_populates='course')
     cohorts      = db.relationship('Cohort', back_populates='course', cascade='all, delete-orphan', order_by='Cohort.start_date')
     recordings   = db.relationship('Recording', back_populates='course', order_by='Recording.week, Recording.session_num')
-    materials    = db.relationship('Material', back_populates='course', order_by='Material.week')
-    assignments  = db.relationship('Assignment', back_populates='course', order_by='Assignment.week')
+    materials    = db.relationship('Material', back_populates='course', order_by='Material.session')
+    assignments  = db.relationship('Assignment', back_populates='course', order_by='Assignment.session')
     attendances  = db.relationship('Attendance', back_populates='course')
     timetable_sessions = db.relationship('TimetableSession', back_populates='course', cascade='all, delete-orphan')
     sessions     = db.relationship('Session', back_populates='course', cascade='all, delete-orphan')
@@ -95,7 +95,7 @@ class Course(db.Model):
         t = self.teacher
         return {
             'id': self.id, 'title': self.title, 'description': self.description,
-            'weeks': self.weeks, 'current_week': self.current_week,
+            'total_sessions': self.total_sessions, 'current_session': self.current_session,
             'start_date': self.start_date.strftime('%Y-%m-%d') if self.start_date else None,
             'programme': self.programme or '',
             'language': self.language or 'en',
@@ -122,10 +122,10 @@ class Cohort(db.Model):
     name         = db.Column(db.String(100), nullable=False)   # e.g. "Jan 2026", "Cohort 2"
     start_date   = db.Column(db.Date)
     end_date     = db.Column(db.Date)
-    current_week = db.Column(db.Integer, default=1)
+    current_session = db.Column(db.Integer, default=1)
     # JSON array: [{"day":"Friday","start":"20:00","end":"22:00"}, ...]
     schedule     = db.Column(db.Text)
-    notes        = db.Column(db.Text)   # free-form notes (e.g. "CNY break week 5")
+    notes        = db.Column(db.Text)   # free-form notes (e.g. "CNY break session 5")
     teacher_id   = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)
     created_at   = db.Column(db.DateTime, default=datetime.utcnow)
 
@@ -141,7 +141,7 @@ class Cohort(db.Model):
             'name': self.name,
             'start_date': self.start_date.strftime('%Y-%m-%d') if self.start_date else None,
             'end_date': self.end_date.strftime('%Y-%m-%d') if self.end_date else None,
-            'current_week': self.current_week,
+            'current_session': self.current_session,
             'schedule': _json.loads(self.schedule) if self.schedule else [],
             'notes': self.notes or '',
             'teacher_id': self.teacher_id,
@@ -202,8 +202,8 @@ class Recording(db.Model):
     id          = db.Column(db.Integer, primary_key=True)
     course_id   = db.Column(db.Integer, db.ForeignKey('courses.id'), nullable=False)
     cohort_id   = db.Column(db.Integer, db.ForeignKey('cohorts.id'), nullable=True)
-    week        = db.Column(db.Integer, nullable=False)
-    session_num = db.Column(db.Integer, nullable=False)
+    week        = db.Column(db.Integer, nullable=False)  # calendar week within the schedule
+    session_num = db.Column(db.Integer, nullable=False)  # which meeting within that week
     title       = db.Column(db.String(200), nullable=False)
     description = db.Column(db.Text)
     filename    = db.Column(db.String(300))
@@ -247,7 +247,7 @@ class Material(db.Model):
     __tablename__ = 'materials'
     id           = db.Column(db.Integer, primary_key=True)
     course_id    = db.Column(db.Integer, db.ForeignKey('courses.id'), nullable=False)
-    week         = db.Column(db.Integer, default=0)   # 0 = general (always visible)
+    session      = db.Column(db.Integer, default=0)   # 0 = general (always visible)
     title        = db.Column(db.String(200), nullable=False)
     description  = db.Column(db.Text)
     filename     = db.Column(db.String(300), nullable=False)
@@ -262,7 +262,7 @@ class Material(db.Model):
 
     def to_dict(self):
         return {
-            'id': self.id, 'week': self.week, 'title': self.title,
+            'id': self.id, 'session': self.session, 'title': self.title,
             'description': self.description, 'filename': self.filename,
             'file_type': self.file_type, 'file_size': self.file_size,
             'uploaded_at': self.uploaded_at.strftime('%b %d, %Y'),
@@ -276,7 +276,7 @@ class Assignment(db.Model):
     __tablename__ = 'assignments'
     id          = db.Column(db.Integer, primary_key=True)
     course_id   = db.Column(db.Integer, db.ForeignKey('courses.id'), nullable=False)
-    week        = db.Column(db.Integer, nullable=False)
+    session     = db.Column(db.Integer, nullable=False)
     title       = db.Column(db.String(200), nullable=False)
     description = db.Column(db.Text)
     due_date    = db.Column(db.DateTime)
@@ -289,7 +289,7 @@ class Assignment(db.Model):
 
     def to_dict(self, submission=None):
         d = {
-            'id': self.id, 'week': self.week, 'title': self.title,
+            'id': self.id, 'session': self.session, 'title': self.title,
             'description': self.description,
             'due_date': self.due_date.strftime('%b %d, %Y · %I:%M %p') if self.due_date else None,
             'max_points': self.max_points,
@@ -344,14 +344,14 @@ class Attendance(db.Model):
     id          = db.Column(db.Integer, primary_key=True)
     student_id  = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     course_id   = db.Column(db.Integer, db.ForeignKey('courses.id'), nullable=False)
-    week        = db.Column(db.Integer, nullable=False)
+    session     = db.Column(db.Integer, nullable=False)
     status      = db.Column(db.String(10), nullable=False, default='absent')  # present | absent | late
     notes       = db.Column(db.Text)
     recorded_at = db.Column(db.DateTime, default=datetime.utcnow)
 
     student = db.relationship('User', back_populates='attendances')
     course  = db.relationship('Course', back_populates='attendances')
-    __table_args__ = (db.UniqueConstraint('student_id', 'course_id', 'week'),)
+    __table_args__ = (db.UniqueConstraint('student_id', 'course_id', 'session'),)
 
     def to_dict(self):
         return {
@@ -359,7 +359,7 @@ class Attendance(db.Model):
             'student_id': self.student_id,
             'student_name': self.student.name,
             'course_id': self.course_id,
-            'week': self.week,
+            'session': self.session,
             'status': self.status,
             'notes': self.notes or '',
             'recorded_at': self.recorded_at.strftime('%b %d, %Y')
@@ -371,7 +371,7 @@ class TimetableSession(db.Model):
     id          = db.Column(db.Integer, primary_key=True)
     course_id   = db.Column(db.Integer, db.ForeignKey('courses.id'), nullable=False)
     cohort_id   = db.Column(db.Integer, db.ForeignKey('cohorts.id'), nullable=True)
-    week        = db.Column(db.Integer, nullable=False)
+    week        = db.Column(db.Integer, nullable=False)  # calendar week within the schedule
     session_num = db.Column(db.Integer, nullable=False)  # 1=Fri  2=Sat  3=Sun
     day_name    = db.Column(db.String(20))
     time_start  = db.Column(db.String(5))
@@ -556,7 +556,7 @@ class Quiz(db.Model):
     course_id       = db.Column(db.Integer, db.ForeignKey('courses.id'))
     title           = db.Column(db.String(200), nullable=False)
     description     = db.Column(db.Text)
-    week            = db.Column(db.Integer)
+    session         = db.Column(db.Integer)
     pass_score      = db.Column(db.Integer, default=70)  # percentage
     max_attempts    = db.Column(db.Integer, default=2)
     time_limit_mins = db.Column(db.Integer)  # NULL = no limit
@@ -574,7 +574,7 @@ class Quiz(db.Model):
             'course_id': self.course_id,
             'title': self.title,
             'description': self.description or '',
-            'week': self.week,
+            'session': self.session,
             'pass_score': self.pass_score,
             'max_attempts': self.max_attempts,
             'time_limit_mins': self.time_limit_mins,
@@ -687,7 +687,7 @@ class DiscussionPost(db.Model):
     __tablename__ = 'discussion_posts'
     id          = db.Column(db.Integer, primary_key=True)
     course_id   = db.Column(db.Integer, db.ForeignKey('courses.id'))
-    week        = db.Column(db.Integer)
+    session     = db.Column(db.Integer)
     author_id   = db.Column(db.Integer, db.ForeignKey('users.id'))
     title       = db.Column(db.String(300))
     body        = db.Column(db.Text, nullable=False)
@@ -712,7 +712,7 @@ class DiscussionPost(db.Model):
         return {
             'id': self.id,
             'course_id': self.course_id,
-            'week': self.week,
+            'session': self.session,
             'author_id': self.author_id,
             'author_name': self.author.name if self.author else '',
             'author_initials': self.author.initials() if self.author else '',

@@ -322,11 +322,11 @@ def email_certificate_issued(student_name: str, email: str, course_title: str, c
     return send_email(email, f'Your Certificate for {course_title} is Ready!', _email_wrapper('Certificate Issued 🎓', body))
 
 
-def email_new_material(student_name: str, email: str, course_title: str, material_title: str, week: int):
+def email_new_material(student_name: str, email: str, course_title: str, material_title: str, session: int):
     body = f"""
     <p>Hi <strong>{student_name}</strong>,</p>
     <p>New content is available in <strong>{course_title}</strong>:</p>
-    <p><strong>Session {week} - {material_title}</strong></p>
+    <p><strong>Session {session} - {material_title}</strong></p>
     <a class="btn" href="https://learn.codencode.my">View Material →</a>
     """
     return send_email(email, f'New material: {material_title} — codencode.my', _email_wrapper('New Content Available', body))
@@ -901,7 +901,7 @@ def api_recordings(cid):
     for r in data:
         w = r['week']
         weeks.setdefault(w, []).append(r)
-    current_week = _student_week(cid) if current_user.role == 'student' else course.current_week
+    current_week = _student_week(cid) if current_user.role == 'student' else course.current_session
     return jsonify({'weeks': weeks, 'current_week': current_week})
 
 
@@ -1034,7 +1034,7 @@ def _ensure_slide_materials(course):
             continue
         values = {
             'course_id': course.id,
-            'week': 0,
+            'session': 0,
             'title': title,
             'description': 'Student HTML slides',
             'filename': filename,
@@ -1061,13 +1061,13 @@ def api_materials(cid):
     _ensure_slide_materials(course)
     now = datetime.utcnow()
     mats = Material.query.filter_by(course_id=cid).order_by(
-        Material.week, Material.order_index, Material.uploaded_at).all()
+        Material.session, Material.order_index, Material.uploaded_at).all()
 
     if current_user.role == 'student':
-        # Gate by cohort week (or course week as fallback) and publish state
+        # Gate by cohort session progress (or course session as fallback) and publish state
         visible_week = _student_week(cid)
         mats = [m for m in mats
-                if (m.week == 0 or m.week <= visible_week)
+                if (m.session == 0 or m.session <= visible_week)
                 and (m.is_published if m.is_published is not None else True)
                 and (m.publish_at is None or m.publish_at <= now)]
     # teachers/admins see all materials including unpublished
@@ -1089,7 +1089,7 @@ def api_upload_material(cid):
 
     mat = Material(
         course_id   = cid,
-        week        = int(request.form.get('week', 0)),
+        session     = int(request.form.get('session', 0)),
         title       = request.form.get('title', original),
         description = request.form.get('description', ''),
         filename    = stored,
@@ -1151,12 +1151,12 @@ def api_assignments(cid):
 
     course = Course.query.get_or_404(cid)
     assignments = Assignment.query.filter_by(course_id=cid).order_by(
-        Assignment.week).all()
+        Assignment.session).all()
 
-    # Gate by cohort week (or course week as fallback) for students
+    # Gate by cohort session progress (or course session as fallback) for students
     if current_user.role == 'student':
         visible_week = _student_week(cid)
-        assignments = [a for a in assignments if a.week <= visible_week]
+        assignments = [a for a in assignments if a.session <= visible_week]
         result = []
         for a in assignments:
             sub = Submission.query.filter_by(
@@ -1192,7 +1192,7 @@ def api_create_assignment(cid):
 
     a = Assignment(
         course_id   = cid,
-        week        = int(request.form.get('week', 1)),
+        session     = int(request.form.get('session', 1)),
         title       = request.form.get('title', 'Untitled Assignment'),
         description = request.form.get('description', ''),
         due_date    = due_date,
@@ -1364,7 +1364,7 @@ def api_dashboard(cid):
             'recent_activity': activity[:5],
             'programme': course.programme or course.title or '',
             'current_week': _student_week(cid),
-            'weeks': course.weeks,
+            'weeks': course.total_sessions,
         })
     else:
         enrolled_count = Enrollment.query.filter_by(course_id=cid).count()
@@ -1748,7 +1748,7 @@ def admin_invoice(eid):
     <div class="section">
       <div class="section-title">Course</div>
       <p><strong>{c.title}</strong></p>
-      <p>Duration: {c.weeks} sessions</p>
+      <p>Duration: {c.total_sessions} sessions</p>
       <p>Enrolled: {enr_date}</p>
     </div>
   </div>
@@ -1918,10 +1918,10 @@ def admin_courses():
     seat_cap_val = data.get('seat_cap')
     tid = data.get('teacher_id')
     c = Course(
-        title        = data['title'].strip(),
-        description  = data.get('description', ''),
-        weeks        = int(data.get('weeks', 6)),
-        current_week = 1,
+        title           = data['title'].strip(),
+        description     = data.get('description', ''),
+        total_sessions  = int(data.get('total_sessions', 6)),
+        current_session = 1,
         start_date   = datetime.strptime(data['start_date'], '%Y-%m-%d').date() if data.get('start_date') else None,
         programme    = data.get('programme', '').strip(),
         language     = data.get('language', 'en'),
@@ -1955,21 +1955,21 @@ def api_cohorts(cid):
     if data.get('end_date'):
         ed = datetime.strptime(data['end_date'], '%Y-%m-%d').date()
     tid = data.get('teacher_id')
-    c = Cohort(course_id=cid, name=name, start_date=sd, end_date=ed, current_week=1,
+    c = Cohort(course_id=cid, name=name, start_date=sd, end_date=ed, current_session=1,
                teacher_id=int(tid) if tid else None)
     db.session.add(c)
     db.session.commit()
     return jsonify({'cohort': c.to_dict()}), 201
 
-@app.route('/api/admin/cohorts/<int:cohort_id>/week', methods=['PUT'])
+@app.route('/api/admin/cohorts/<int:cohort_id>/session', methods=['PUT'])
 @admin_required
-def admin_set_cohort_week(cohort_id):
+def admin_set_cohort_session(cohort_id):
     cohort  = Cohort.query.get_or_404(cohort_id)
     course  = cohort.course
     data    = request.get_json()
-    week    = int(data.get('current_week', cohort.current_week))
-    week    = max(1, min(week, course.weeks))
-    cohort.current_week = week
+    session_num = int(data.get('current_session', cohort.current_session))
+    session_num = max(1, min(session_num, course.total_sessions))
+    cohort.current_session = session_num
     db.session.commit()
     return jsonify({'cohort': cohort.to_dict()})
 
@@ -1992,8 +1992,8 @@ def admin_cohort_detail(cohort_id):
         cohort.start_date = datetime.strptime(data['start_date'], '%Y-%m-%d').date() if data['start_date'] else None
     if 'end_date' in data:
         cohort.end_date = datetime.strptime(data['end_date'], '%Y-%m-%d').date() if data['end_date'] else None
-    if 'current_week' in data:
-        cohort.current_week = max(1, min(cohort.course.weeks, int(data['current_week'])))
+    if 'current_session' in data:
+        cohort.current_session = max(1, min(cohort.course.total_sessions, int(data['current_session'])))
     if 'schedule' in data:
         cohort.schedule = _json.dumps(data['schedule']) if data['schedule'] else None
     if 'notes' in data:
@@ -2006,23 +2006,23 @@ def admin_cohort_detail(cohort_id):
 
 
 def _student_week(course_id):
-    """Return the current_week applicable to the logged-in student for this course.
-    Uses the student's cohort week if assigned, otherwise falls back to course week."""
+    """Return the current_session applicable to the logged-in student for this course.
+    Uses the student's cohort progress if assigned, otherwise falls back to the course."""
     enrollment = Enrollment.query.filter_by(
         course_id=course_id, student_id=current_user.id).first()
     if enrollment and enrollment.cohort:
-        return enrollment.cohort.current_week
-    return Course.query.get(course_id).current_week
+        return enrollment.cohort.current_session
+    return Course.query.get(course_id).current_session
 
 
-@app.route('/api/admin/courses/<int:cid>/week', methods=['PUT'])
+@app.route('/api/admin/courses/<int:cid>/session', methods=['PUT'])
 @admin_required
-def admin_set_week(cid):
+def admin_set_session(cid):
     c    = Course.query.get_or_404(cid)
     data = request.get_json()
-    week = int(data.get('current_week', c.current_week))
-    week = max(1, min(week, c.weeks))
-    c.current_week = week
+    session_num = int(data.get('current_session', c.current_session))
+    session_num = max(1, min(session_num, c.total_sessions))
+    c.current_session = session_num
     db.session.commit()
     return jsonify({'course': c.to_dict()})
 
@@ -2040,7 +2040,7 @@ def admin_course_detail(cid):
     data = request.get_json()
     if 'title'       in data: c.title       = data['title'].strip()
     if 'description' in data: c.description = data['description'].strip()
-    if 'weeks'       in data: c.weeks       = int(data['weeks'])
+    if 'total_sessions' in data: c.total_sessions = int(data['total_sessions'])
     if 'programme'   in data: c.programme   = data['programme'].strip()
     if 'language'    in data: c.language    = data['language']
     if 'seat_cap'    in data:
@@ -2081,7 +2081,7 @@ def admin_upload_material(cid):
 
     mat = Material(
         course_id   = cid,
-        week        = int(request.form.get('week', 0)),
+        session     = int(request.form.get('session', 0)),
         title       = request.form.get('title', original),
         description = request.form.get('description', ''),
         filename    = stored,
@@ -2106,8 +2106,8 @@ def admin_material_detail(mid):
         return jsonify({'ok': True})
     # PUT
     data = request.get_json()
-    if 'week' in data:
-        mat.week = max(0, int(data['week']))
+    if 'session' in data:
+        mat.session = max(0, int(data['session']))
     if data.get('title'):
         mat.title = data['title'].strip()
     db.session.commit()
@@ -2122,12 +2122,12 @@ def admin_attendance(cid):
         course      = Course.query.get_or_404(cid)
         enrollments = Enrollment.query.filter_by(course_id=cid).all()
         records     = Attendance.query.filter_by(course_id=cid).all()
-        att_map = {(a.student_id, a.week): a for a in records}
+        att_map = {(a.student_id, a.session): a for a in records}
         students_data = []
         for e in enrollments:
             s = e.student
             weeks_data = {}
-            for w in range(1, course.current_week + 1):
+            for w in range(1, course.current_session + 1):
                 att = att_map.get((s.id, w))
                 weeks_data[str(w)] = att.status if att else 'absent'
             students_data.append({
@@ -2137,57 +2137,57 @@ def admin_attendance(cid):
             })
         return jsonify({
             'course_id':    cid,
-            'current_week': course.current_week,
+            'current_week': course.current_session,
             'students':     students_data
         })
     # POST
     data       = request.get_json()
     student_id = data.get('student_id')
-    week       = data.get('week')
+    session_num = data.get('session')
     status     = data.get('status', 'present')
     notes      = data.get('notes', '')
-    if not student_id or not week:
-        return jsonify({'error': 'student_id and week required'}), 400
+    if not student_id or not session_num:
+        return jsonify({'error': 'student_id and session required'}), 400
     if status not in ('present', 'absent', 'late'):
         return jsonify({'error': 'status must be present/absent/late'}), 400
     att = Attendance.query.filter_by(
-        student_id=student_id, course_id=cid, week=week).first()
+        student_id=student_id, course_id=cid, session=session_num).first()
     if att:
         att.status      = status
         att.notes       = notes
         att.recorded_at = datetime.utcnow()
     else:
         att = Attendance(student_id=student_id, course_id=cid,
-                         week=week, status=status, notes=notes)
+                         session=session_num, status=status, notes=notes)
         db.session.add(att)
     db.session.commit()
     return jsonify({'attendance': att.to_dict()})
 
 
-# ── Bulk attendance (whole week at once) ──────
+# ── Bulk attendance (whole session at once) ──────
 @app.route('/api/admin/courses/<int:cid>/attendance/bulk', methods=['POST'])
 @admin_required
 def admin_bulk_attendance(cid):
-    """Expects { week: int, records: [{student_id, status, notes}] }"""
+    """Expects { session: int, records: [{student_id, status, notes}] }"""
     data    = request.get_json()
-    week    = data.get('week')
+    session_num = data.get('session')
     records = data.get('records', [])
-    if not week:
-        return jsonify({'error': 'week required'}), 400
+    if not session_num:
+        return jsonify({'error': 'session required'}), 400
 
     for r in records:
         sid    = r.get('student_id')
         status = r.get('status', 'absent')
         notes  = r.get('notes', '')
         att    = Attendance.query.filter_by(
-            student_id=sid, course_id=cid, week=week).first()
+            student_id=sid, course_id=cid, session=session_num).first()
         if att:
             att.status      = status
             att.notes       = notes
             att.recorded_at = datetime.utcnow()
         else:
             att = Attendance(student_id=sid, course_id=cid,
-                             week=week, status=status, notes=notes)
+                             session=session_num, status=status, notes=notes)
             db.session.add(att)
     db.session.commit()
     return jsonify({'ok': True, 'updated': len(records)})
@@ -2424,13 +2424,13 @@ def _seed_demo_old():
     # ── Courses ────────────────────────────────
     python_course = Course(
         title='Python Programming Bootcamp',
-        description='6-week hands-on Python course from beginner to advanced.',
-        weeks=6, current_week=3, programme='Python Bootcamp')
+        description='6-session hands-on Python course from beginner to advanced.',
+        total_sessions=6, current_session=3, programme='Python Bootcamp')
     python_course.start_date = datetime(2026, 5, 8).date()
     ml_course = Course(
         title='Machine Learning Fundamentals',
         description='Practical ML: NumPy, Pandas, scikit-learn, and real projects.',
-        weeks=6, current_week=2, programme='Machine Learning')
+        total_sessions=6, current_session=2, programme='Machine Learning')
     db.session.add_all([python_course, ml_course])
     db.session.flush()
 
@@ -2506,7 +2506,7 @@ def _seed_demo_old():
         (6, 'Session 6 — Mini Project Starter', 'py_week6_project_starter.py','py','6.9 KB'),
     ]
     for wk, title, fname, ftype, fsize in py_materials:
-        db.session.add(Material(course_id=python_course.id, week=wk,
+        db.session.add(Material(course_id=python_course.id, session=wk,
             title=title, filename=fname, file_type=ftype, file_size=fsize))
 
     ml_materials = [
@@ -2521,7 +2521,7 @@ def _seed_demo_old():
         (6, 'Session 6 — Capstone Starter',       'ml_week6_capstone.py',          'py',  '7.6 KB'),
     ]
     for wk, title, fname, ftype, fsize in ml_materials:
-        db.session.add(Material(course_id=ml_course.id, week=wk,
+        db.session.add(Material(course_id=ml_course.id, session=wk,
             title=title, filename=fname, file_type=ftype, file_size=fsize))
     db.session.flush()
 
@@ -2536,7 +2536,7 @@ def _seed_demo_old():
     ]
     asgn_objs = []
     for wk, title, desc, brief, due in py_assignments:
-        a = Assignment(course_id=python_course.id, week=wk, title=title,
+        a = Assignment(course_id=python_course.id, session=wk, title=title,
                        description=desc, brief_file=brief, due_date=due, max_points=100)
         db.session.add(a)
         asgn_objs.append(a)
@@ -2551,7 +2551,7 @@ def _seed_demo_old():
     ]
     ml_asgn_objs = []
     for wk, title, desc, brief, due in ml_assignments:
-        a = Assignment(course_id=ml_course.id, week=wk, title=title,
+        a = Assignment(course_id=ml_course.id, session=wk, title=title,
                        description=desc, brief_file=brief, due_date=due, max_points=100)
         db.session.add(a)
         ml_asgn_objs.append(a)
@@ -2605,7 +2605,7 @@ def _seed_demo_old():
     for si, wk, status in py_att:
         db.session.add(Attendance(
             student_id=students[si].id, course_id=python_course.id,
-            week=wk, status=status))
+            session=wk, status=status))
 
     ml_att = [
         (0,1,'present'),(0,2,'present'),
@@ -2618,7 +2618,7 @@ def _seed_demo_old():
     for si, wk, status in ml_att:
         db.session.add(Attendance(
             student_id=students[si].id, course_id=ml_course.id,
-            week=wk, status=status))
+            session=wk, status=status))
 
     db.session.commit()
     print('✓ Demo data seeded (unused)')
@@ -2829,7 +2829,7 @@ def api_sessions_timetable():
         for e in enrollments:
             if not e.course:
                 continue
-            current_week = e.cohort.current_week if e.cohort else e.course.current_week
+            current_week = e.cohort.current_session if e.cohort else e.course.current_session
             data = _build_timetable(
                 e.course,
                 cohort_id=e.cohort_id,
@@ -2975,7 +2975,7 @@ def admin_calendar():
     for course in courses:
         scopes = [None] + list(course.cohorts)
         for cohort in scopes:
-            current_week = cohort.current_week if cohort else course.current_week
+            current_week = cohort.current_session if cohort else course.current_session
             data = _build_timetable(
                 course,
                 cohort_id=cohort.id if cohort else None,
@@ -3160,7 +3160,7 @@ def _scope_for_timetable(course, cohort_id=None):
     return {
         'cohort': cohort,
         'start_date': cohort.start_date if cohort and cohort.start_date else course.start_date,
-        'current_week': cohort.current_week if cohort else course.current_week,
+        'current_week': cohort.current_session if cohort else course.current_session,
     }
 
 
@@ -3190,7 +3190,7 @@ def _build_timetable(course, cohort_id=None, weeks=None, start_week=1, include_b
     cohort = scope['cohort']
     start_date = scope['start_date']
     current_week = scope['current_week']
-    max_week = course.weeks
+    max_week = course.total_sessions
     end_week = min(max_week, start_week + weeks - 1) if weeks else max_week
     start_week = max(1, min(start_week, max_week))
     slots = _cohort_schedule_slots(cohort) or _DEFAULT_TIMETABLE_SLOTS
@@ -3420,7 +3420,7 @@ def admin_analytics_export():
         for sub in q.all():
             writer.writerow([
                 sub.student.name, sub.student.email,
-                sub.assignment.title, sub.assignment.week,
+                sub.assignment.title, sub.assignment.session,
                 sub.submitted_at.strftime('%Y-%m-%d %H:%M'),
                 sub.score or '', sub.assignment.max_points,
                 sub.feedback or ''
@@ -3429,14 +3429,14 @@ def admin_analytics_export():
         if not course_id:
             return jsonify({'error': 'course_id required for attendance export'}), 400
         course = Course.query.get_or_404(course_id)
-        week_headers = [f'Session {w}' for w in range(1, course.current_week + 1)]
+        week_headers = [f'Session {w}' for w in range(1, course.current_session + 1)]
         writer.writerow(['Student', 'Email'] + week_headers + ['Present', 'Absent', 'Late'])
         enrollments = Enrollment.query.filter_by(course_id=course_id).all()
         att_records = Attendance.query.filter_by(course_id=course_id).all()
-        att_map = {(a.student_id, a.week): a.status for a in att_records}
+        att_map = {(a.student_id, a.session): a.status for a in att_records}
         for e in enrollments:
             s = e.student
-            week_statuses = [att_map.get((s.id, w), 'absent') for w in range(1, course.current_week + 1)]
+            week_statuses = [att_map.get((s.id, w), 'absent') for w in range(1, course.current_session + 1)]
             present = week_statuses.count('present')
             absent  = week_statuses.count('absent')
             late    = week_statuses.count('late')
@@ -3774,7 +3774,7 @@ def api_create_quiz():
         course_id       = data['course_id'],
         title           = data['title'].strip(),
         description     = data.get('description', ''),
-        week            = data.get('week'),
+        session         = data.get('session'),
         pass_score      = int(data.get('pass_score', 70)),
         max_attempts    = int(data.get('max_attempts', 2)),
         time_limit_mins = int(data['time_limit_mins']) if data.get('time_limit_mins') else None,
@@ -3797,7 +3797,7 @@ def api_quiz_detail(qid):
     data = request.get_json()
     if 'title'           in data: q.title           = data['title'].strip()
     if 'description'     in data: q.description     = data['description']
-    if 'week'            in data: q.week             = data['week']
+    if 'session'         in data: q.session          = data['session']
     if 'pass_score'      in data: q.pass_score       = int(data['pass_score'])
     if 'max_attempts'    in data: q.max_attempts     = int(data['max_attempts'])
     if 'time_limit_mins' in data:
@@ -3980,10 +3980,10 @@ def api_quiz_attempts(qid):
 def api_list_discussions(cid):
     if not enrolled_or_staff(cid):
         return jsonify({'error': 'Not enrolled'}), 403
-    week = request.args.get('week', type=int)
+    session_num = request.args.get('session', type=int)
     q = DiscussionPost.query.filter_by(course_id=cid)
-    if week:
-        q = q.filter_by(week=week)
+    if session_num:
+        q = q.filter_by(session=session_num)
     posts = q.all()
     # Sort: pinned first, then by upvotes desc, then by created_at desc
     posts.sort(key=lambda p: (not p.is_pinned, -len(p.upvotes), -p.created_at.timestamp()))
@@ -4000,7 +4000,7 @@ def api_create_discussion(cid):
         return jsonify({'error': 'body required'}), 400
     post = DiscussionPost(
         course_id = cid,
-        week      = data.get('week'),
+        session   = data.get('session'),
         author_id = current_user.id,
         title     = data.get('title', ''),
         body      = data['body']
@@ -4204,7 +4204,7 @@ def api_search():
     ).limit(10).all()
     for m in mats:
         results.append({'type': 'material', 'id': m.id, 'title': m.title,
-                        'course': m.course.title if m.course else '', 'week': m.week})
+                        'course': m.course.title if m.course else '', 'session': m.session})
 
     # Search assignments
     assignments = Assignment.query.filter(
@@ -4397,6 +4397,31 @@ with app.app_context():
                 conn.commit()
     except Exception:
         pass
+
+    # ── "week" → "session" terminology rename ──────────────────────────────────
+    # Renames columns in place (data preserved) rather than add+backfill+drop,
+    # since this is a straight 1:1 rename with no data reshaping needed.
+    # RENAME COLUMN is supported by both Postgres and modern SQLite (3.25+).
+    _week_to_session_renames = [
+        ('courses',           'weeks',        'total_sessions'),
+        ('courses',           'current_week', 'current_session'),
+        ('cohorts',           'current_week', 'current_session'),
+        ('materials',         'week',         'session'),
+        ('assignments',       'week',         'session'),
+        ('attendance',        'week',         'session'),
+        ('quizzes',           'week',         'session'),
+        ('discussion_posts',  'week',         'session'),
+    ]
+    for table, old_col, new_col in _week_to_session_renames:
+        try:
+            insp_r = sa_inspect(db.engine)
+            cols = {c['name'] for c in insp_r.get_columns(table)}
+            if old_col in cols and new_col not in cols:
+                with db.engine.connect() as conn:
+                    conn.execute(text(f'ALTER TABLE {table} RENAME COLUMN {old_col} TO {new_col}'))
+                    conn.commit()
+        except Exception:
+            pass
 
     # ── Teacher profile columns migration ────────────────────────────────────────
     try:

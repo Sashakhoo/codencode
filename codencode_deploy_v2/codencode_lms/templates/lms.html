@@ -1595,7 +1595,7 @@
                 </div>
                 <div class="form-group">
                   <label class="form-label">Session</label>
-                  <select class="form-input" name="week">
+                  <select class="form-input" name="session">
                     <option value="0">General (All Sessions)</option>
                     <option value="1">Session 1</option><option value="2">Session 2</option><option value="3">Session 3</option>
                     <option value="4" selected>Session 4</option><option value="5">Session 5</option><option value="6">Session 6</option>
@@ -1684,7 +1684,7 @@
               <div class="grid-3">
                 <div class="form-group">
                   <label class="form-label">Session</label>
-                  <select class="form-input" name="week">
+                  <select class="form-input" name="session">
                     <option value="1">Session 1</option><option value="2">Session 2</option><option value="3">Session 3</option>
                     <option value="4">Session 4</option><option value="5" selected>Session 5</option><option value="6">Session 6</option>
                   </select>
@@ -2015,7 +2015,7 @@
                 <div class="grid-2" style="gap:12px">
                   <div class="form-group">
                     <label class="form-label">Session</label>
-                    <input class="form-input" type="number" id="quiz-week-input" placeholder="1" min="1" />
+                    <input class="form-input" type="number" id="quiz-session-input" placeholder="1" min="1" />
                   </div>
                   <div class="form-group">
                     <label class="form-label">Pass Score (%)</label>
@@ -2857,7 +2857,7 @@ function materialLocalUrl(m, download=false) {
 function materialGroupLabel(m) {
   const slideNum = slideNumberForMaterial(m);
   if (slideNum) return `Session ${parseInt(slideNum, 10)}`;
-  return m.week === 0 ? 'General Resources' : `Session ${m.week}`;
+  return m.session === 0 ? 'General Resources' : `Session ${m.session}`;
 }
 
 function materialActions(m) {
@@ -2940,7 +2940,7 @@ async function loadAssignments() {
   container.innerHTML = asgns.map(a => `
     <div class="assignment-card">
       <div class="assignment-card-top">
-        <span class="asgn-num">${String(a.week).padStart(2,'0')}</span>
+        <span class="asgn-num">${String(a.session).padStart(2,'0')}</span>
         <div style="flex:1">
           <div class="asgn-title">${a.title}</div>
           <div class="asgn-desc">${a.description || ''}</div>
@@ -3099,7 +3099,7 @@ async function loadTeacherMaterials() {
           ${fileIcon(m.file_type)}
           <div style="flex:1">
             <div class="file-name" style="font-size:12px">${m.orig_name||m.title}</div>
-            <div class="file-sub">${m.week===0?'General':'Session '+m.week} · ${m.file_size||''}</div>
+            <div class="file-sub">${m.session===0?'General':'Session '+m.session} · ${m.file_size||''}</div>
           </div>
           <button class="btn-action red" onclick="deleteMaterial(${m.id})"><i class="fas fa-trash"></i></button>
         </div>`).join('');
@@ -3114,7 +3114,7 @@ async function loadTeacherAssignments() {
     : asgns.map(a => `
         <div class="assignment-card" id="asgn-row-${a.id}">
           <div class="assignment-card-top">
-            <span class="asgn-num">${String(a.week).padStart(2,'0')}</span>
+            <span class="asgn-num">${String(a.session).padStart(2,'0')}</span>
             <div style="flex:1">
               <div class="asgn-title">${a.title}</div>
               <div class="asgn-desc">Due ${a.due_date||'—'} · ${a.max_points} pts</div>
@@ -3227,7 +3227,7 @@ async function loadStudents() {
         ${s.submissions} / ${s.total_assignments} submitted
       </td>
       <td><span style="color:${s.avg_grade>=80?'var(--green)':s.avg_grade>=60?'var(--cyan)':'var(--orange)'};font-weight:700">
-        ${s.avg_grade ?? '�'}
+        ${s.avg_grade ?? '�'}
       </span></td>
       <td style="min-width:100px">${progressBar(s.progress_pct, s.progress_pct>=80?'green':s.progress_pct>=50?'':'orange')}</td>
       <td style="min-width:130px">
@@ -3397,7 +3397,7 @@ async function teacherIssueCertificateFromSection() {
   }
 }
 // -------------------------------------------------------
-//  ACTIONS � uploads, grading, deletes
+//  ACTIONS � uploads, grading, deletes
 // -------------------------------------------------------
 async function uploadRecording() {
   const btn  = document.getElementById('upload-rec-btn');
@@ -3445,9 +3445,9 @@ async function uploadMaterial() {
     if (!fileInput?.files[0]) { showToast('Please select a file first', true); btn.innerHTML = '<i class="fas fa-upload"></i> Publish Material'; return; }
     fd.append('file', fileInput.files[0]);
     const titleEl = document.querySelector('#view-t-materials [name="title"]');
-    const weekEl  = document.querySelector('#view-t-materials [name="week"]');
+    const sessionEl  = document.querySelector('#view-t-materials [name="session"]');
     fd.append('title', titleEl?.value || fileInput.files[0].name);
-    fd.append('week',  weekEl?.value || 0);
+    fd.append('session',  sessionEl?.value || 0);
     await POST(`/api/courses/${STATE.courseId}/materials`, fd);
     showToast('Material published!');
     if (titleEl) titleEl.value = '';
@@ -3474,13 +3474,13 @@ async function createAssignment() {
     const fd = new FormData();
     const titleEl = document.querySelector('#view-t-assignments [name="title"]');
     const descEl  = document.querySelector('#view-t-assignments [name="description"]');
-    const weekEl  = document.querySelector('#view-t-assignments [name="week"]');
+    const sessionEl  = document.querySelector('#view-t-assignments [name="session"]');
     const dueEl   = document.querySelector('#view-t-assignments [name="due_date"]');
     const maxEl   = document.querySelector('#view-t-assignments [name="max_points"]');
     const fileInput = document.getElementById('asgn-file');
     fd.append('title',       titleEl?.value || 'Untitled');
     fd.append('description', descEl?.value  || '');
-    fd.append('week',        weekEl?.value  || 1);
+    fd.append('session',        sessionEl?.value  || 1);
     fd.append('due_date',    dueEl?.value   || '');
     fd.append('max_points',  maxEl?.value   || 100);
     if (fileInput?.files[0]) fd.append('file', fileInput.files[0]);
@@ -4036,7 +4036,7 @@ async function saveTeacherPlanStartDate() {
       name: h?.name || 'Cohort',
       start_date: val,
       end_date: h?.end_date || null,
-      current_week: h?.current_week || 1,
+      current_session: h?.current_session || 1,
       schedule: h?.schedule || [],
       teacher_id: h?.teacher_id || null,
       notes: h?.notes || ''
@@ -4396,7 +4396,7 @@ async function loadQuizzes() {
           <div>
             <div style="font-family:var(--font-d);font-size:15px;font-weight:700;margin-bottom:4px">${q.title} ${badge}</div>
             <div style="font-family:var(--font-c);font-size:10px;color:var(--muted)">
-              ${q.week ? 'Session ' + q.week + ' · ' : ''}
+              ${q.session ? 'Session ' + q.session + ' · ' : ''}
               Pass: ${q.pass_score}% ·
               ${q.time_limit_mins ? q.time_limit_mins + ' min · ' : ''}
               ${attLeft > 0 ? attLeft + ' attempt(s) left' : '<span style="color:var(--red)">No attempts left</span>'}
@@ -4510,7 +4510,7 @@ async function loadTeacherQuizzes() {
       : arr.map(q => `<div class="file-row" id="tq-row-${q.id}">
           <div style="flex:1">
             <div class="file-name">${q.title}</div>
-            <div class="file-sub">${q.week ? 'Session '+q.week+' · ' : ''}${q.question_count} questions · Pass: ${q.pass_score}%</div>
+            <div class="file-sub">${q.session ? 'Session '+q.session+' · ' : ''}${q.question_count} questions · Pass: ${q.pass_score}%</div>
           </div>
           <button class="btn-action ghost" style="font-size:10px;padding:5px 10px;margin-right:4px" onclick="toggleQuizPublish(${q.id},${q.is_published})">
             <i class="fas fa-${q.is_published ? 'eye-slash' : 'eye'}"></i> ${q.is_published ? 'Unpublish' : 'Publish'}
@@ -4530,7 +4530,7 @@ async function createQuiz() {
     await POST('/api/quizzes', {
       course_id: STATE.courseId,
       title,
-      week: parseInt(document.getElementById('quiz-week-input')?.value) || null,
+      session: parseInt(document.getElementById('quiz-session-input')?.value) || null,
       pass_score: parseInt(document.getElementById('quiz-pass-score-input')?.value) || 70,
       max_attempts: parseInt(document.getElementById('quiz-max-attempts-input')?.value) || 2,
       time_limit_mins: parseInt(document.getElementById('quiz-time-limit-input')?.value) || null
@@ -4642,7 +4642,7 @@ async function loadTeacherDiscussion() {
 
 async function renderDiscussionWeekTabs(containerId, isTeacher) {
   const course = STATE.courses.find(c => c.id === STATE.courseId);
-  const weeks = course ? course.weeks : 6;
+  const weeks = course ? course.total_sessions : 6;
   const el = document.getElementById(containerId);
   if (!el) return;
   const tabs = [{ label: 'All', val: null }];
@@ -4676,7 +4676,7 @@ async function renderDiscussionList(containerId, isTeacher) {
 
   try {
     let url = `/api/courses/${STATE.courseId}/discussions`;
-    if (_discWeek) url += `?week=${_discWeek}`;
+    if (_discWeek) url += `?session=${_discWeek}`;
     const posts = await GET(url);
     const arr = Array.isArray(posts) ? posts : [];
     el.style.display = '';
@@ -4706,7 +4706,7 @@ async function renderDiscussionList(containerId, isTeacher) {
           </div>
         </div>
         <div style="font-family:var(--font-m);font-size:11px;color:var(--muted);margin-top:6px">
-          ${p.author_name} · ${p.time_ago}${p.week ? ' · Session '+p.week : ''} · <i class="fas fa-comment"></i> ${p.reply_count}
+          ${p.author_name} · ${p.time_ago}${p.session ? ' · Session '+p.session : ''} · <i class="fas fa-comment"></i> ${p.reply_count}
         </div>
       </div>`;
     }).join('');
@@ -4744,7 +4744,7 @@ async function openDiscussionPost(pid, isTeacher) {
         <div style="padding:20px 24px">
           <div style="font-family:var(--font-d);font-size:18px;font-weight:700;margin-bottom:8px">${p.title || ''}</div>
           <div style="font-family:var(--font-m);font-size:12px;line-height:1.7;margin-bottom:12px">${p.body}</div>
-          <div style="font-family:var(--font-c);font-size:10px;color:var(--muted)">${p.author_name} · ${p.time_ago}${p.week ? ' · Session '+p.week : ''}</div>
+          <div style="font-family:var(--font-c);font-size:10px;color:var(--muted)">${p.author_name} · ${p.time_ago}${p.session ? ' · Session '+p.session : ''}</div>
         </div>
         <div style="padding:0 24px 20px">
           <div style="font-family:var(--font-c);font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);margin-bottom:12px">${p.reply_count} Replies</div>
@@ -4823,10 +4823,10 @@ function openNewPostModal() {
 async function submitNewPost() {
   const title = document.getElementById('new-post-title')?.value.trim();
   const body  = document.getElementById('new-post-body')?.value.trim();
-  const week  = document.getElementById('new-post-week')?.value || null;
+  const session  = document.getElementById('new-post-week')?.value || null;
   if (!body) { showToast('Post body is required', true); return; }
   try {
-    await POST(`/api/courses/${STATE.courseId}/discussions`, { title, body, week: week ? parseInt(week) : null });
+    await POST(`/api/courses/${STATE.courseId}/discussions`, { title, body, session: session ? parseInt(session) : null });
     closeModal('new-post-modal');
     showToast('Post created!');
     await renderDiscussionList('discussion-list', false);
