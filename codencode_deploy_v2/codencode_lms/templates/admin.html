@@ -906,7 +906,7 @@
             <div id="dash-payment-list"></div>
           </div>
           <div class="card">
-            <div class="card-title"><i class="fas fa-layer-group" style="color:var(--cyan);margin-right:8px"></i>Courses & Current Week</div>
+            <div class="card-title"><i class="fas fa-layer-group" style="color:var(--cyan);margin-right:8px"></i>Courses & Current Session</div>
             <div id="dash-courses-list"></div>
           </div>
         </div>
@@ -1005,11 +1005,11 @@
           <div class="form-grid" style="margin-bottom:16px">
             <div class="form-group">
               <label class="form-label">Title</label>
-              <input class="form-input" id="mat-title" placeholder="Week 3 — OOP Exercises" />
+              <input class="form-input" id="mat-title" placeholder="Session 3 — OOP Exercises" />
             </div>
             <div class="form-group">
-              <label class="form-label">Week (0 = always visible)</label>
-              <input class="form-input" type="number" id="mat-week" min="0" max="12" value="1" style="width:100px" />
+              <label class="form-label">Session (0 = always visible)</label>
+              <input class="form-input" type="number" id="mat-session" min="0" max="12" value="1" style="width:100px" />
             </div>
           </div>
           <div class="drop-zone" id="mat-drop" onclick="document.getElementById('mat-file').click()"
@@ -1533,7 +1533,7 @@
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px">
       <div class="form-group">
-        <label class="form-label">Start Date <span style="color:var(--text-dim);font-size:10px">(Week 1)</span></label>
+        <label class="form-label">Start Date <span style="color:var(--text-dim);font-size:10px">(Session 1)</span></label>
         <input class="form-input" type="date" id="add-cohort-start" />
       </div>
       <div class="form-group">
@@ -1576,8 +1576,8 @@
         <input class="form-input" type="date" id="edit-cohort-end" />
       </div>
       <div class="form-group">
-        <label class="form-label">Current Week</label>
-        <input class="form-input" type="number" id="edit-cohort-week" min="1" max="20" value="1" />
+        <label class="form-label">Current Session</label>
+        <input class="form-input" type="number" id="edit-cohort-session" min="1" max="20" value="1" />
       </div>
     </div>
 
@@ -1598,7 +1598,7 @@
 
     <div class="form-group" style="margin-bottom:14px">
       <label class="form-label">Notes <span style="color:var(--text-dim);font-size:10px">(breaks, makeup sessions, etc.)</span></label>
-      <textarea class="form-textarea" id="edit-cohort-notes" placeholder="e.g. CNY break Week 5, makeup session Mar 28" style="min-height:60px"></textarea>
+      <textarea class="form-textarea" id="edit-cohort-notes" placeholder="e.g. CNY break Session 5, makeup session Mar 28" style="min-height:60px"></textarea>
     </div>
 
     <div class="modal-footer">
@@ -1628,11 +1628,11 @@
         <textarea class="form-textarea" id="c-description" placeholder="Short description of this cohort..."></textarea>
       </div>
       <div class="form-group">
-        <label class="form-label">Number of Weeks</label>
-        <input class="form-input" type="number" id="c-weeks" min="1" max="52" value="6" style="width:100px" />
+        <label class="form-label">Number of Sessions</label>
+        <input class="form-input" type="number" id="c-sessions" min="1" max="52" value="6" style="width:100px" />
       </div>
       <div class="form-group">
-        <label class="form-label">Week 1 Start Date (Friday)</label>
+        <label class="form-label">Session 1 Start Date (Friday)</label>
         <input class="form-input" type="date" id="c-start-date" />
       </div>
       <div class="form-group">
@@ -1669,7 +1669,7 @@
     <div class="modal-title">New Announcement</div>
     <div class="form-group" style="margin-bottom:14px">
       <label class="form-label">Title *</label>
-      <input class="form-input" id="ann-title" placeholder="e.g. Week 5 starts Monday" />
+      <input class="form-input" id="ann-title" placeholder="e.g. Session 5 starts Monday" />
     </div>
     <div class="form-group" style="margin-bottom:14px">
       <label class="form-label">Content *</label>
@@ -1913,9 +1913,9 @@ const VIEW_TITLES = {
   dashboard:     ['Dashboard',        'Overview & quick stats'],
   students:      ['Students',         'Manage student profiles'],
   teachers:      ['Teachers',         'Manage teacher accounts'],
-  courses:       ['Courses',          'Manage courses & current week'],
+  courses:       ['Courses',          'Manage courses & current session'],
   attendance:    ['Attendance',       'Mark & review attendance'],
-  materials:     ['Upload Materials', 'Add materials per week'],
+  materials:     ['Upload Materials', 'Add materials per session'],
   payments:      ['Payment Tracker',  'Monitor payment status'],
   timetable:     ['Timetable',        'Set topics & schedule per course'],
   announcements: ['Announcements',    'Send announcements to students'],
@@ -2028,7 +2028,7 @@ async function loadDashboard() {
         <div style="font-size:13px">${c.title}</div>
         <div style="font-size:11px;color:var(--text-muted)">${c.enrolled_count} students enrolled</div>
       </div>
-      <span style="color:var(--cyan);font-family:'Syne',sans-serif;font-weight:700">Wk ${c.current_week}/${c.weeks}</span>
+      <span style="color:var(--cyan);font-family:'Syne',sans-serif;font-weight:700">S${c.current_session}/${c.total_sessions}</span>
     </div>
   `).join('');
 }
@@ -2436,12 +2436,12 @@ function renderCourses() {
 async function advanceWeek(cid, delta) {
   const c = S.courses.find(x => x.id === cid);
   if (!c) return;
-  const newWeek = Math.max(1, Math.min(c.weeks, c.current_week + delta));
+  const newSession = Math.max(1, Math.min(c.total_sessions, c.current_session + delta));
   try {
-    const res = await PUT(`/api/admin/courses/${cid}/week`, { current_week: newWeek });
-    c.current_week = res.course.current_week;
+    const res = await PUT(`/api/admin/courses/${cid}/session`, { current_session: newSession });
+    c.current_session = res.course.current_session;
     renderCourses();
-    toast(`${c.title}: now on Week ${c.current_week}`);
+    toast(`${c.title}: now on Session ${c.current_session}`);
   } catch(e) { toast(e.message, true); }
 }
 
@@ -2468,7 +2468,7 @@ async function loadCohortsForCourse(cid) {
             <div style="font-size:10px;color:var(--text-muted);margin-top:1px">
               ${h.start_date ? h.start_date : ''}${h.end_date ? ' → ' + h.end_date : ''}
               ${(h.start_date||h.end_date) ? ' · ' : ''}
-              Week <span style="color:var(--cyan);font-weight:700">${h.current_week}</span> of ${course?.weeks||6}
+              Session <span style="color:var(--cyan);font-weight:700">${h.current_session}</span> of ${course?.total_sessions||6}
               · ${h.enrollment_count} student${h.enrollment_count!==1?'s':''}
             </div>
             ${h.teacher_name ? `<div style="font-size:10px;color:var(--text-muted);margin-top:2px"><i class="fas fa-chalkboard-teacher" style="color:var(--purple);margin-right:3px"></i>${h.teacher_name}${h.teacher_title ? ' · ' + h.teacher_title : ''}</div>` : ''}
@@ -2477,11 +2477,11 @@ async function loadCohortsForCourse(cid) {
             </div>
             ${h.notes ? `<div style="font-size:10px;color:var(--text-dim);margin-top:2px"><i class="fas fa-sticky-note" style="margin-right:3px"></i>${h.notes}</div>` : ''}
           </div>
-          <button class="btn btn-secondary btn-sm" onclick="advanceCohortWeek(${h.id},-1,${cid})" ${h.current_week<=1?'disabled':''} title="Previous week" style="padding:3px 7px">
+          <button class="btn btn-secondary btn-sm" onclick="advanceCohortWeek(${h.id},-1,${cid})" ${h.current_session<=1?'disabled':''} title="Previous session" style="padding:3px 7px">
             <i class="fas fa-chevron-left"></i>
           </button>
-          <span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--cyan);min-width:24px;text-align:center">W${h.current_week}</span>
-          <button class="btn btn-primary btn-sm" onclick="advanceCohortWeek(${h.id},1,${cid})" ${h.current_week>=(course?.weeks||6)?'disabled':''} title="Next week" style="padding:3px 7px">
+          <span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--cyan);min-width:24px;text-align:center">S${h.current_session}</span>
+          <button class="btn btn-primary btn-sm" onclick="advanceCohortWeek(${h.id},1,${cid})" ${h.current_session>=(course?.total_sessions||6)?'disabled':''} title="Next session" style="padding:3px 7px">
             <i class="fas fa-chevron-right"></i>
           </button>
           <button class="btn btn-secondary btn-sm" onclick="openEditCohortModal(${h.id},${cid})" title="Edit cohort" style="padding:3px 7px">
@@ -2504,9 +2504,9 @@ async function advanceCohortWeek(cohortId, delta, cid) {
     const h       = cohorts.find(x => x.id === cohortId);
     if (!h) return;
     const course  = S.courses.find(x => x.id === cid);
-    const newWeek = Math.max(1, Math.min(course?.weeks || 6, h.current_week + delta));
-    await PUT(`/api/admin/cohorts/${cohortId}/week`, { current_week: newWeek });
-    toast(`${h.name}: now on Week ${newWeek}`);
+    const newSession = Math.max(1, Math.min(course?.total_sessions || 6, h.current_session + delta));
+    await PUT(`/api/admin/cohorts/${cohortId}/session`, { current_session: newSession });
+    toast(`${h.name}: now on Session ${newSession}`);
     loadCohortsForCourse(cid);
   } catch(e) { toast(e.message, true); }
 }
@@ -2558,7 +2558,7 @@ function openEditCohortModal(cohortId, cid) {
     document.getElementById('edit-cohort-name').value     = h.name;
     document.getElementById('edit-cohort-start').value    = h.start_date || '';
     document.getElementById('edit-cohort-end').value      = h.end_date   || '';
-    document.getElementById('edit-cohort-week').value     = h.current_week;
+    document.getElementById('edit-cohort-session').value     = h.current_session;
     document.getElementById('edit-cohort-notes').value    = h.notes || '';
     _populateTeacherDropdown('edit-cohort-teacher', h.teacher_id || null);
     // Render schedule slots
@@ -2604,7 +2604,7 @@ async function saveCohortEdit() {
     name,
     start_date:   document.getElementById('edit-cohort-start').value || null,
     end_date:     document.getElementById('edit-cohort-end').value   || null,
-    current_week: parseInt(document.getElementById('edit-cohort-week').value) || 1,
+    current_session: parseInt(document.getElementById('edit-cohort-session').value) || 1,
     schedule: slots,
     teacher_id: document.getElementById('edit-cohort-teacher')?.value
       ? parseInt(document.getElementById('edit-cohort-teacher').value)
@@ -2648,19 +2648,19 @@ async function loadAttendance() {
 
 function renderAttendanceGrid(cid, data) {
   const course = S.courses.find(c => c.id === parseInt(cid));
-  const weeks  = Array.from({length: data.current_week}, (_,i) => i+1);
+  const sessions = Array.from({length: data.current_week}, (_,i) => i+1);
   const area   = document.getElementById('attendance-area');
 
   area.innerHTML = `
     <div class="card">
       <div class="card-title">
         <i class="fas fa-clipboard-check" style="color:var(--cyan);margin-right:8px"></i>
-        Attendance — ${course?.title || ''} (Weeks 1–${data.current_week})
+        Attendance — ${course?.title || ''} (Sessions 1–${data.current_week})
       </div>
       <div style="margin-bottom:16px;display:flex;gap:8px;flex-wrap:wrap;align-items:center">
-        <label class="form-label">Take attendance for week:</label>
+        <label class="form-label">Take attendance for session:</label>
         <select class="form-select" id="bulk-week-select" style="width:120px">
-          ${weeks.map(w=>`<option value="${w}">Week ${w}</option>`).join('')}
+          ${sessions.map(w=>`<option value="${w}">Session ${w}</option>`).join('')}
         </select>
         <button class="btn btn-primary btn-sm" onclick="saveBulkAttendance(${cid})">
           <i class="fas fa-save"></i> Save All
@@ -2671,14 +2671,14 @@ function renderAttendanceGrid(cid, data) {
           <thead>
             <tr>
               <th>Student</th>
-              ${weeks.map(w=>`<th>Week ${w}</th>`).join('')}
+              ${sessions.map(w=>`<th>Session ${w}</th>`).join('')}
             </tr>
           </thead>
           <tbody>
             ${data.students.map(row => `
               <tr>
                 <td>${row.student_name}</td>
-                ${weeks.map(w => {
+                ${sessions.map(w => {
                   const st = row.weeks[w] || 'absent';
                   return `<td>
                     <select class="att-select s-${st}" id="att-${cid}-${row.student_id}-${w}"
@@ -2700,24 +2700,24 @@ function renderAttendanceGrid(cid, data) {
 
 async function saveAttCell(sel) {
   const sid  = parseInt(sel.dataset.sid);
-  const week = parseInt(sel.dataset.week);
+  const session_num = parseInt(sel.dataset.week);
   const cid  = parseInt(sel.dataset.cid);
   try {
-    await POST(`/api/admin/courses/${cid}/attendance`, { student_id:sid, week, status:sel.value });
+    await POST(`/api/admin/courses/${cid}/attendance`, { student_id:sid, session:session_num, status:sel.value });
   } catch(e) { toast(e.message, true); }
 }
 
 async function saveBulkAttendance(cid) {
-  const week    = parseInt(document.getElementById('bulk-week-select').value);
-  const selects = document.querySelectorAll(`[id^="att-${cid}-"][id$="-${week}"]`);
+  const session_num = parseInt(document.getElementById('bulk-week-select').value);
+  const selects = document.querySelectorAll(`[id^="att-${cid}-"][id$="-${session_num}"]`);
   const records = Array.from(selects).map(s => ({
     student_id: parseInt(s.dataset.sid),
     status:     s.value,
     notes:      ''
   }));
   try {
-    const res = await POST(`/api/admin/courses/${cid}/attendance/bulk`, { week, records });
-    toast(`Saved attendance for Week ${week} (${res.updated} students)`);
+    const res = await POST(`/api/admin/courses/${cid}/attendance/bulk`, { session: session_num, records });
+    toast(`Saved attendance for Session ${session_num} (${res.updated} students)`);
   } catch(e) { toast(e.message, true); }
 }
 
@@ -2743,13 +2743,13 @@ function renderMatList(cid, mats) {
     body.innerHTML = '<div style="color:var(--text-muted);padding:8px 0">No materials uploaded yet.</div>';
     return;
   }
-  // Group by week
+  // Group by session
   const grouped = {};
-  mats.forEach(m => { grouped[m.week] = grouped[m.week] || []; grouped[m.week].push(m); });
+  mats.forEach(m => { grouped[m.session] = grouped[m.session] || []; grouped[m.session].push(m); });
   body.innerHTML = Object.keys(grouped).sort((a,b)=>a-b).map(w => `
     <div style="margin-bottom:16px">
       <div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">
-        ${w==='0'?'General / Always Visible':`Week ${w}`}
+        ${w==='0'?'General / Always Visible':`Session ${w}`}
       </div>
       ${grouped[w].map(m => `
         <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)">
@@ -2758,8 +2758,8 @@ function renderMatList(cid, mats) {
             <div style="font-size:13px">${m.title}</div>
             <div style="font-size:11px;color:var(--text-muted)">${m.file_size} · ${m.uploaded_at}</div>
           </div>
-          <button class="btn btn-secondary btn-sm" onclick="editMaterialWeek(${m.id},'${cid}',${m.week})" title="Change week" style="font-size:10px;padding:3px 8px">
-            <i class="fas fa-calendar-alt"></i> Wk ${m.week===0?'—':m.week}
+          <button class="btn btn-secondary btn-sm" onclick="editMaterialWeek(${m.id},'${cid}',${m.session})" title="Change session" style="font-size:10px;padding:3px 8px">
+            <i class="fas fa-calendar-alt"></i> S${m.session===0?'—':m.session}
           </button>
           <button class="btn btn-danger btn-sm btn-icon" onclick="deleteMaterial(${m.id},'${cid}')">
             <i class="fas fa-trash"></i>
@@ -2806,7 +2806,7 @@ async function uploadMaterial() {
   const fd = new FormData();
   fd.append('file',  file);
   fd.append('title', document.getElementById('mat-title').value || file.name);
-  fd.append('week',  document.getElementById('mat-week').value);
+  fd.append('session',  document.getElementById('mat-session').value);
 
   try {
     await POSTFD(`/api/admin/courses/${cid}/materials`, fd);
@@ -2814,7 +2814,7 @@ async function uploadMaterial() {
     document.getElementById('mat-file').value    = '';
     document.getElementById('mat-file-label').textContent = 'Click or drag file here';
     document.getElementById('mat-title').value   = '';
-    document.getElementById('mat-week').value    = '1';
+    document.getElementById('mat-session').value    = '1';
     loadMaterialsList();
   } catch(e) { toast(e.message, true); }
 }
@@ -2828,17 +2828,17 @@ async function deleteMaterial(mid, cid) {
   } catch(e) { toast(e.message, true); }
 }
 
-async function editMaterialWeek(mid, cid, currentWeek) {
+async function editMaterialWeek(mid, cid, currentSession) {
   const input = prompt(
-    `Change week for this material.\n0 = Always visible (General Resources)\n1–20 = Visible from that week onwards\n\nCurrent week: ${currentWeek}`,
-    currentWeek
+    `Change session for this material.\n0 = Always visible (General Resources)\n1–20 = Visible from that session onwards\n\nCurrent session: ${currentSession}`,
+    currentSession
   );
   if (input === null) return;
-  const week = parseInt(input);
-  if (isNaN(week) || week < 0) { toast('Enter a valid week number (0 or above)', true); return; }
+  const session = parseInt(input);
+  if (isNaN(session) || session < 0) { toast('Enter a valid session number (0 or above)', true); return; }
   try {
-    await PUT(`/api/admin/materials/${mid}`, { week });
-    toast(`Material moved to ${week === 0 ? 'General Resources' : 'Week ' + week}`);
+    await PUT(`/api/admin/materials/${mid}`, { session });
+    toast(`Material moved to ${session === 0 ? 'General Resources' : 'Session ' + session}`);
     loadMaterialsList();
   } catch(e) { toast(e.message, true); }
 }
@@ -3022,7 +3022,7 @@ function openAddCourse() {
   document.getElementById('c-title').value       = '';
   document.getElementById('c-programme').value   = '';
   document.getElementById('c-description').value = '';
-  document.getElementById('c-weeks').value       = '6';
+  document.getElementById('c-sessions').value       = '6';
   document.getElementById('c-start-date').value  = '';
   const langEl = document.getElementById('c-language');
   if (langEl) langEl.value = 'en';
@@ -3040,7 +3040,7 @@ function openEditCourse(cid) {
   document.getElementById('c-title').value       = c.title;
   document.getElementById('c-programme').value   = c.programme || '';
   document.getElementById('c-description').value = c.description || '';
-  document.getElementById('c-weeks').value       = c.weeks;
+  document.getElementById('c-sessions').value       = c.total_sessions;
   document.getElementById('c-start-date').value  = c.start_date || '';
   const langEl = document.getElementById('c-language');
   if (langEl) langEl.value = c.language || 'en';
@@ -3059,7 +3059,7 @@ async function saveCourse() {
     title:       document.getElementById('c-title').value.trim(),
     programme:   document.getElementById('c-programme').value.trim(),
     description: document.getElementById('c-description').value.trim(),
-    weeks:       parseInt(document.getElementById('c-weeks').value) || 6,
+    total_sessions:       parseInt(document.getElementById('c-sessions').value) || 6,
     start_date:  document.getElementById('c-start-date').value || null,
     language:    langEl ? (langEl.value || 'en') : 'en',
     seat_cap:    capEl && capEl.value ? parseInt(capEl.value) : null,
@@ -3222,7 +3222,7 @@ async function saveAdminStartDate() {
         name: h?.name || 'Cohort',
         start_date: val,
         end_date: h?.end_date || null,
-        current_week: h?.current_week || 1,
+        current_session: h?.current_session || 1,
         schedule: h?.schedule || [],
         teacher_id: h?.teacher_id || null,
         notes: h?.notes || ''
