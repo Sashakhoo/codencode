@@ -1552,17 +1552,23 @@ def admin_update_payment(eid):
     db.session.commit()
 
     # Fire receipt PDF + enrollment confirmation when first marked as paid
+    email_status = None
     if just_paid:
+        email_status = {}
         try:
-            email_payment_receipt(e)
+            email_status['receipt_sent'] = email_payment_receipt(e)
         except Exception as exc:
             app.logger.error('Receipt email failed for enrollment %s: %s', eid, exc)
+            email_status['receipt_sent'] = False
+            email_status['receipt_error'] = str(exc)
         try:
-            email_enrollment_confirmation(e)
+            email_status['confirmation_sent'] = email_enrollment_confirmation(e)
         except Exception as exc:
             app.logger.error('Enrolment confirmation email failed for enrollment %s: %s', eid, exc)
+            email_status['confirmation_sent'] = False
+            email_status['confirmation_error'] = str(exc)
 
-    return jsonify({'enrollment': e.to_dict()})
+    return jsonify({'enrollment': e.to_dict(), 'just_paid': just_paid, 'email_status': email_status})
 
 
 @app.route('/api/admin/enrollments/<int:eid>/receipt', methods=['POST'])
@@ -1604,7 +1610,12 @@ def admin_receipt_view(eid):
     if e.payment_status != 'paid':
         return jsonify({'error': 'Enrollment is not marked as paid'}), 400
     from flask import Response
-    return Response(generate_receipt_html(e), mimetype='text/html')
+    try:
+        html = generate_receipt_html(e)
+    except Exception as exc:
+        app.logger.error('Receipt HTML generation failed for enrollment %s: %s', eid, exc)
+        return jsonify({'error': f'Could not generate receipt: {exc}'}), 500
+    return Response(html, mimetype='text/html')
 
 
 @app.route('/api/enrollments/<int:eid>/receipt/view')
@@ -1617,7 +1628,12 @@ def student_receipt_view(eid):
     if e.payment_status != 'paid':
         return jsonify({'error': 'Enrollment is not marked as paid'}), 400
     from flask import Response
-    return Response(generate_receipt_html(e), mimetype='text/html')
+    try:
+        html = generate_receipt_html(e)
+    except Exception as exc:
+        app.logger.error('Receipt HTML generation failed for enrollment %s: %s', eid, exc)
+        return jsonify({'error': f'Could not generate receipt: {exc}'}), 500
+    return Response(html, mimetype='text/html')
 
 
 @app.route('/api/admin/email-diagnostics')
