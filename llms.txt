@@ -2,6 +2,8 @@
 
 > Affordable coding, AI and cybersecurity academy based in Johor Bahru, Malaysia. Two offering types: fully online multi-week Core Subjects (Python, Machine Learning, Cybersecurity, Vibe Coding) and half-day in-person AI workshops at Mount Austin, Johor Bahru. Taught in English, Mandarin (中文) and Bahasa Melayu.
 
+Last updated: 2026-07-24
+
 codencode.my (legal entity: CODE N CODE SOLUTION, 202603072017 / AS0511861-M) runs live, instructor-led online courses for beginners through career changers. No prior experience required. Every session is recorded and uploaded within 24 hours. First class is free.
 
 ## Contact & registration
@@ -16,6 +18,7 @@ codencode.my (legal entity: CODE N CODE SOLUTION, 202603072017 / AS0511861-M) ru
 - Homepage (courses, pricing, trainers, FAQ, reviews): https://codencode.my/
 - Career roadmaps & learning paths (Data Analyst, Data Scientist, ML Engineer, Python Developer, Automation Engineer, Cybersecurity — with Malaysian salary ranges): https://codencode.my/paths.html
 - Comparison of coding academies serving Johor Bahru (codencode.my vs 42 Iskandar Puteri, NEXT Academy, Kodecoon, Superprof tutors, free self-study): https://codencode.my/compare.html
+- Workshop materials portal (registration + slides/code access for past one-day tech workshops, separate from the AI for ___ corporate workshops below): https://codencode.my/workshop/
 
 ## Core Subjects (fully online, multi-week, delivered live via Zoom)
 - Python Fundamentals — 6 weeks + 1 week project, beginner, RM 1,500, 100% online.
