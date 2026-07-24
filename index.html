@@ -72,6 +72,7 @@ html[data-theme="light"]{
   --nav-bg:rgba(246,248,250,.88);--photo-ov:rgba(246,248,250,.9);--photo-ov2:rgba(246,248,250,.85);--avatar-bg:rgba(246,248,250,.9);--footer-bg:#eef1f4;
 }
 html{scroll-behavior:smooth}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);clip-path:inset(50%);white-space:nowrap;border:0}
 body{font-family:var(--disp);background:var(--bg);color:var(--w);overflow-x:hidden;transition:background .25s,color .25s}
 body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(var(--b) 1px,transparent 1px),linear-gradient(90deg,var(--b) 1px,transparent 1px);background-size:60px 60px;pointer-events:none;z-index:0}
 ::-webkit-scrollbar{width:4px}::-webkit-scrollbar-track{background:var(--bg)}::-webkit-scrollbar-thumb{background:var(--cyan);border-radius:2px}
@@ -780,10 +781,9 @@ src="https://www.facebook.com/tr?id=YOUR_PIXEL_ID&ev=PageView&noscript=1"
 </section>
 
 <!-- AT A GLANCE (dense, extractable fact table for search snippets & AI answer engines) -->
-<section id="at-a-glance" class="sec alt" style="padding-top:56px;padding-bottom:56px;">
+<section id="at-a-glance" class="sr-only" aria-hidden="false">
   <div class="container">
-    <div class="lbl">At a Glance</div>
-    <h2 class="h2">All 7 offerings,<br>one table.</h2>
+    <h2>codencode.my — all courses and workshops at a glance</h2>
     <div style="overflow-x:auto;margin-top:32px;border:1px solid var(--b)">
       <table style="width:100%;border-collapse:collapse;font-family:var(--mono);font-size:12.5px">
         <thead>
