@@ -2117,9 +2117,13 @@ function renderStudentDetail(s) {
             <button class="btn btn-secondary btn-sm" onclick="openPaymentModal(${e.id})" title="Edit payment">
               <i class="fas fa-edit"></i>
             </button>
+            ${e.payment_status === 'paid' ? `
+            <button class="btn btn-secondary btn-sm" onclick="window.open('/api/admin/enrollments/${e.id}/receipt/view','_blank')" title="View receipt" style="color:var(--green)">
+              <i class="fas fa-receipt"></i>
+            </button>` : `
             <button class="btn btn-secondary btn-sm" onclick="window.open('/api/admin/enrollments/${e.id}/invoice','_blank')" title="View invoice" style="color:var(--cyan)">
               <i class="fas fa-file-invoice"></i>
-            </button>
+            </button>`}
             <button class="btn btn-danger btn-sm btn-icon" onclick="unenroll(${e.id},${s.id})" title="Unenroll">
               <i class="fas fa-times"></i>
             </button>

@@ -188,8 +188,7 @@ def generate_receipt_html(enrollment) -> str:
     * {{ box-sizing:border-box; margin:0; padding:0; }}
     body {{ font-family:'Space Mono',monospace; background:#fff; color:#111; font-size:13px; padding:40px; max-width:720px; margin:auto; }}
     .header {{ display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:40px; border-bottom:3px solid #00dcb4; padding-bottom:24px; }}
-    .brand {{ font-family:'Syne',sans-serif; font-size:28px; font-weight:800; color:#080c10; letter-spacing:-1px; }}
-    .brand span {{ color:#00dcb4; }}
+    .brand-logo {{ height:28px; display:block; }}
     .inv-meta {{ text-align:right; }}
     .inv-num {{ font-size:18px; font-weight:700; color:#080c10; }}
     .inv-date {{ color:#555; margin-top:4px; }}
@@ -210,7 +209,7 @@ def generate_receipt_html(enrollment) -> str:
 <body>
   <div class="header">
     <div>
-      <div class="brand">code<span>ncode</span>.my</div>
+      <img src="https://learn.codencode.my/static/img/logo.png" alt="codencode.my" class="brand-logo">
       <div style="color:#555;margin-top:4px;font-size:12px">Official Receipt · SSM No. {_BUSINESS_SSM}</div>
     </div>
     <div class="inv-meta">
@@ -1709,8 +1708,7 @@ def admin_invoice(eid):
     * {{ box-sizing:border-box; margin:0; padding:0; }}
     body {{ font-family:'Space Mono',monospace; background:#fff; color:#111; font-size:13px; padding:40px; max-width:720px; margin:auto; }}
     .header {{ display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:40px; border-bottom:3px solid #00dcb4; padding-bottom:24px; }}
-    .brand {{ font-family:'Syne',sans-serif; font-size:28px; font-weight:800; color:#080c10; letter-spacing:-1px; }}
-    .brand span {{ color:#00dcb4; }}
+    .brand-logo {{ height:28px; display:block; }}
     .inv-meta {{ text-align:right; }}
     .inv-num {{ font-size:18px; font-weight:700; color:#080c10; }}
     .inv-date {{ color:#555; margin-top:4px; }}
@@ -1730,7 +1728,7 @@ def admin_invoice(eid):
 <body>
   <div class="header">
     <div>
-      <div class="brand">code<span>ncode</span>.my</div>
+      <img src="https://learn.codencode.my/static/img/logo.png" alt="codencode.my" class="brand-logo">
       <div style="color:#555;margin-top:4px;font-size:12px">Learning Management System</div>
     </div>
     <div class="inv-meta">
