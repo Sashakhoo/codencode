@@ -287,7 +287,7 @@ def _email_wrapper(title: str, body_html: str) -> str:
   <div class="logo">codencode<span>.my</span></div>
   <h2>{title}</h2>
   {body_html}
-  <div class="footer">learn.codencode.my &nbsp;·&nbsp; This is an automated message, please do not reply.</div>
+  <div class="footer">learn.codencode.my &nbsp;·&nbsp; This is an automated message, please do not reply.<br>For any matters, WhatsApp us at +60 19-861 1628.</div>
 </div></body></html>"""
 
 
