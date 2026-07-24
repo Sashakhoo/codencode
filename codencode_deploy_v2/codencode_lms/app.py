@@ -120,6 +120,16 @@ def send_whatsapp(to_phone: str, body: str) -> bool:
     return False
 
 
+def _brevo_error_detail(exc) -> str:
+    """Extract the actual reason Brevo rejected a request (its body has the real cause)."""
+    if isinstance(exc, urllib.error.HTTPError):
+        try:
+            return f'HTTP {exc.code}: {exc.read().decode("utf-8", "replace")}'
+        except Exception:
+            return f'HTTP {exc.code}'
+    return str(exc)
+
+
 def send_email(to: str, subject: str, html_body: str):
     """Send email via Brevo HTTP API. Returns True on success, False on failure."""
     if not _BREVO_API_KEY:
@@ -146,7 +156,7 @@ def send_email(to: str, subject: str, html_body: str):
             resp.read()
         return True
     except Exception as exc:
-        app.logger.error('Email send failed to %s: %s', to, exc)
+        app.logger.error('Email send failed to %s: %s', to, _brevo_error_detail(exc))
         return False
 
 
@@ -187,7 +197,7 @@ def send_email_with_attachment(to: str, subject: str, html_body: str,
             resp.read()
         return True
     except Exception as exc:
-        app.logger.error('Email (with attachment) failed to %s: %s', to, exc)
+        app.logger.error('Email (with attachment) failed to %s: %s', to, _brevo_error_detail(exc))
         return False
 
 
@@ -1691,6 +1701,50 @@ def admin_receipt_pdf(eid):
         pdf_bytes,
         mimetype='application/pdf',
         headers={'Content-Disposition': f'inline; filename=Receipt-RCP-{e.id:05d}.pdf'})
+
+
+@app.route('/api/admin/email-diagnostics')
+@admin_required
+def admin_email_diagnostics():
+    """Report exactly why an email send is failing, without needing server log access."""
+    to = request.args.get('to')
+    info = {
+        'brevo_api_key_present': bool(_BREVO_API_KEY),
+        'brevo_api_key_length':  len(_BREVO_API_KEY) if _BREVO_API_KEY else 0,
+        'email_from':            _EMAIL_FROM,
+    }
+    if not to:
+        info['note'] = 'Pass ?to=someone@example.com to send a real test email and see the result.'
+        return jsonify(info)
+    if not _BREVO_API_KEY:
+        info['sent'] = False
+        info['error'] = 'BREVO_API_KEY is not set in this environment.'
+        return jsonify(info)
+    try:
+        payload = _json_mod.dumps({
+            'sender':      {'name': _BUSINESS_NAME, 'email': _EMAIL_FROM},
+            'to':          [{'email': to}],
+            'subject':     'codencode.my — test email',
+            'htmlContent': '<p>This is a diagnostic test email from the LMS.</p>',
+        }).encode('utf-8')
+        req = urllib.request.Request(
+            'https://api.brevo.com/v3/smtp/email',
+            data    = payload,
+            headers = {
+                'api-key':      _BREVO_API_KEY,
+                'Content-Type': 'application/json',
+                'Accept':       'application/json',
+            },
+            method = 'POST'
+        )
+        with urllib.request.urlopen(req, timeout=15) as resp:
+            body = resp.read().decode('utf-8', 'replace')
+        info['sent'] = True
+        info['brevo_response'] = body
+    except Exception as exc:
+        info['sent'] = False
+        info['error'] = _brevo_error_detail(exc)
+    return jsonify(info)
 
 
 @app.route('/api/admin/enrollments/<int:eid>/invoice')
