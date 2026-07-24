@@ -166,192 +166,100 @@ def send_email_bulk(recipients: list[str], subject: str, html_body: str):
     return results
 
 
-def send_email_with_attachment(to: str, subject: str, html_body: str,
-                                attachment_bytes: bytes, attachment_filename: str) -> bool:
-    """Send an HTML email with a single binary attachment (e.g. PDF receipt) via Brevo API."""
-    if not _BREVO_API_KEY:
-        app.logger.warning('BREVO_API_KEY not set — skipping email to %s', to)
-        return False
-    try:
-        payload = _json_mod.dumps({
-            'sender':      {'name': _BUSINESS_NAME, 'email': _EMAIL_FROM},
-            'to':          [{'email': to}],
-            'subject':     subject,
-            'htmlContent': html_body,
-            'attachment':  [{
-                'content': base64.b64encode(attachment_bytes).decode('ascii'),
-                'name':    attachment_filename,
-            }],
-        }).encode('utf-8')
-        req = urllib.request.Request(
-            'https://api.brevo.com/v3/smtp/email',
-            data    = payload,
-            headers = {
-                'api-key':      _BREVO_API_KEY,
-                'Content-Type': 'application/json',
-                'Accept':       'application/json',
-            },
-            method = 'POST'
-        )
-        with urllib.request.urlopen(req, timeout=20) as resp:
-            resp.read()
-        return True
-    except Exception as exc:
-        app.logger.error('Email (with attachment) failed to %s: %s', to, _brevo_error_detail(exc))
-        return False
-
-
-def generate_receipt_pdf(enrollment) -> bytes:
-    """Return bytes of an A4 PDF official receipt for a paid enrollment."""
-    from reportlab.lib.pagesizes import A4
-    from reportlab.lib.units import mm
-    from reportlab.pdfgen import canvas as _cv
-    from reportlab.lib.colors import HexColor, white
-    import io as _io
-
-    buf  = _io.BytesIO()
-    c    = _cv.Canvas(buf, pagesize=A4)
-    W, H = A4
-
-    green    = HexColor('#00c485')
-    dk      = HexColor('#0a3d2a')
-    muted   = HexColor('#666666')
-    body    = HexColor('#222222')
-    pale    = HexColor('#f0fdf4')
-
+def generate_receipt_html(enrollment) -> str:
+    """Render the official receipt as a printable HTML page — same template as the
+    invoice, rendered fresh from the database every time (nothing stored on disk).
+    Assigns a permanent sequential receipt number (RCP-<year>-111, 112, …) the
+    first time a paid enrollment's receipt is viewed."""
     s      = enrollment.student
     course = enrollment.course
-    rcpt   = f'RCP-{enrollment.id:05d}'
-    paid_d = (enrollment.paid_at or datetime.utcnow()).strftime('%d %B %Y')
-    now_d  = datetime.utcnow().strftime('%d %B %Y')
-    amt    = enrollment.payment_amount
-    method = enrollment.payment_method or 'N/A'
+    rcpt_no = f'RCP-{get_or_assign_document_number(enrollment):03d}'
+    paid_d  = (enrollment.paid_at or datetime.utcnow()).strftime('%d %B %Y')
+    issued  = datetime.utcnow().strftime('%d %B %Y')
+    amt_str = f'RM {enrollment.payment_amount:,.2f}' if enrollment.payment_amount else '—'
 
-    # ── Header ────────────────────────────────────────────────────────────────
-    c.setFillColor(dk)
-    c.rect(0, H - 52*mm, W, 52*mm, fill=1, stroke=0)
+    return f"""<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <title>{rcpt_no} — codencode.my</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=Space+Mono:wght@400;700&display=swap');
+    * {{ box-sizing:border-box; margin:0; padding:0; }}
+    body {{ font-family:'Space Mono',monospace; background:#fff; color:#111; font-size:13px; padding:40px; max-width:720px; margin:auto; }}
+    .header {{ display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:40px; border-bottom:3px solid #00dcb4; padding-bottom:24px; }}
+    .brand {{ font-family:'Syne',sans-serif; font-size:28px; font-weight:800; color:#080c10; letter-spacing:-1px; }}
+    .brand span {{ color:#00dcb4; }}
+    .inv-meta {{ text-align:right; }}
+    .inv-num {{ font-size:18px; font-weight:700; color:#080c10; }}
+    .inv-date {{ color:#555; margin-top:4px; }}
+    .section {{ margin-bottom:28px; }}
+    .section-title {{ font-size:11px; text-transform:uppercase; letter-spacing:1px; color:#888; margin-bottom:10px; border-bottom:1px solid #eee; padding-bottom:6px; }}
+    .grid-2 {{ display:grid; grid-template-columns:1fr 1fr; gap:20px; }}
+    p {{ margin:5px 0; line-height:1.6; }}
+    strong {{ color:#080c10; }}
+    .status-badge {{ display:inline-block; padding:4px 14px; border-radius:999px; font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:.5px; color:#fff; background:#28ca41; }}
+    .amount-paid {{ font-size:26px; font-weight:700; color:#00a382; }}
+    .footer {{ margin-top:48px; padding-top:20px; border-top:1px solid #eee; font-size:11px; color:#888; text-align:center; }}
+    @media print {{
+      body {{ padding:20px; }}
+      .no-print {{ display:none !important; }}
+    }}
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div>
+      <div class="brand">code<span>ncode</span>.my</div>
+      <div style="color:#555;margin-top:4px;font-size:12px">Official Receipt · SSM No. {_BUSINESS_SSM}</div>
+    </div>
+    <div class="inv-meta">
+      <div class="inv-num">{rcpt_no}</div>
+      <div class="inv-date">Issued: {issued}</div>
+    </div>
+  </div>
 
-    c.setFillColor(white)
-    c.setFont('Helvetica-Bold', 20)
-    c.drawString(20*mm, H - 20*mm, _BUSINESS_NAME)
-    c.setFont('Helvetica', 8)
-    c.setFillColor(HexColor('#7ec8a0'))
-    c.drawString(20*mm, H - 27*mm, 'OFFICIAL RECEIPT  ·  SSM NO. ' + _BUSINESS_SSM)
-    c.setFillColor(white)
-    c.setFont('Helvetica-Bold', 14)
-    c.drawRightString(W - 20*mm, H - 20*mm, rcpt)
-    c.setFont('Helvetica', 8)
-    c.setFillColor(HexColor('#7ec8a0'))
-    c.drawRightString(W - 20*mm, H - 27*mm, f'Issued: {now_d}')
+  <div class="grid-2">
+    <div class="section">
+      <div class="section-title">Received From</div>
+      <p><strong>{s.name}</strong></p>
+      <p>{s.email}</p>
+      {'<p>' + s.phone + '</p>' if s.phone else ''}
+      {'<p>IC/Passport: ' + s.ic_number + '</p>' if s.ic_number else ''}
+    </div>
+    <div class="section">
+      <div class="section-title">Course</div>
+      <p><strong>{course.title}</strong></p>
+      {'<p>Format: ' + enrollment.class_format.upper() + '</p>' if enrollment.class_format else ''}
+      {'<p>Schedule: ' + enrollment.class_timing + '</p>' if enrollment.class_timing else ''}
+    </div>
+  </div>
 
-    # Green divider
-    c.setStrokeColor(green)
-    c.setLineWidth(2)
-    c.line(0, H - 55*mm, W, H - 55*mm)
+  <div class="section">
+    <div class="section-title">Payment Details</div>
+    <p><strong>Status:</strong> <span class="status-badge">PAID</span></p>
+    <p style="margin-top:12px"><strong>Amount Paid:</strong></p>
+    <p class="amount-paid">{amt_str}</p>
+    <p style="margin-top:12px"><strong>Payment Method:</strong> {enrollment.payment_method or '—'}</p>
+    <p><strong>Date Paid:</strong> {paid_d}</p>
+  </div>
 
-    # ── Bill To ───────────────────────────────────────────────────────────────
-    y = H - 72*mm
-    c.setFillColor(pale)
-    c.setStrokeColor(green)
-    c.setLineWidth(0.5)
-    c.roundRect(15*mm, y - 42*mm, 83*mm, 43*mm, 3, fill=1, stroke=1)
+  <div class="footer">
+    <p><strong>{_BUSINESS_NAME}</strong> · SSM No. {_BUSINESS_SSM}</p>
+    <p style="margin-top:8px">codencode.my · {rcpt_no} · Generated {issued}</p>
+    <p style="margin-top:4px">This is an official receipt. Please retain for your records.</p>
+  </div>
 
-    c.setFillColor(dk)
-    c.setFont('Helvetica-Bold', 8)
-    c.drawString(20*mm, y - 5*mm, 'BILL TO')
-    c.setFillColor(body)
-    c.setFont('Helvetica-Bold', 12)
-    c.drawString(20*mm, y - 13*mm, s.name)
-    c.setFont('Helvetica', 9)
-    c.setFillColor(muted)
-    c.drawString(20*mm, y - 20*mm, s.email)
-    if s.phone:
-        c.drawString(20*mm, y - 27*mm, s.phone)
-    if s.ic_number:
-        c.drawString(20*mm, y - 34*mm, f'IC / Passport: {s.ic_number}')
-
-    # ── Course Details ────────────────────────────────────────────────────────
-    c.setFillColor(pale)
-    c.setStrokeColor(green)
-    c.roundRect(103*mm, y - 42*mm, 92*mm, 43*mm, 3, fill=1, stroke=1)
-
-    c.setFillColor(dk)
-    c.setFont('Helvetica-Bold', 8)
-    c.drawString(108*mm, y - 5*mm, 'COURSE')
-    c.setFillColor(body)
-    c.setFont('Helvetica-Bold', 11)
-    title = course.title
-    if len(title) > 26:
-        c.drawString(108*mm, y - 13*mm, title[:26])
-        c.setFont('Helvetica', 9)
-        c.drawString(108*mm, y - 19*mm, title[26:52])
-        nr = y - 26*mm
-    else:
-        c.drawString(108*mm, y - 13*mm, title)
-        nr = y - 20*mm
-    c.setFont('Helvetica', 9)
-    c.setFillColor(muted)
-    if enrollment.class_format:
-        c.drawString(108*mm, nr, f'Format: {enrollment.class_format.upper()}')
-        nr -= 7*mm
-    if enrollment.class_timing:
-        c.drawString(108*mm, nr, ('Schedule: ' + enrollment.class_timing)[:38])
-
-    # ── Payment Details ───────────────────────────────────────────────────────
-    y2 = y - 58*mm
-    c.setFillColor(HexColor('#f8f8f8'))
-    c.setStrokeColor(HexColor('#dddddd'))
-    c.roundRect(15*mm, y2 - 46*mm, 180*mm, 47*mm, 3, fill=1, stroke=1)
-
-    c.setFillColor(dk)
-    c.setFont('Helvetica-Bold', 8)
-    c.drawString(20*mm, y2 - 5*mm, 'PAYMENT DETAILS')
-
-    c.setFillColor(muted)
-    c.setFont('Helvetica', 7)
-    c.drawString(20*mm, y2 - 13*mm, 'AMOUNT PAID')
-    c.setFillColor(green)
-    c.setFont('Helvetica-Bold', 24)
-    amt_str = f'RM {amt:,.2f}' if amt is not None else 'RM  —'
-    c.drawString(20*mm, y2 - 25*mm, amt_str)
-
-    c.setFillColor(muted)
-    c.setFont('Helvetica', 7)
-    c.drawString(110*mm, y2 - 13*mm, 'PAYMENT METHOD')
-    c.setFillColor(body)
-    c.setFont('Helvetica-Bold', 11)
-    c.drawString(110*mm, y2 - 21*mm, method)
-
-    c.setFillColor(muted)
-    c.setFont('Helvetica', 7)
-    c.drawString(110*mm, y2 - 30*mm, 'DATE PAID')
-    c.setFillColor(body)
-    c.setFont('Helvetica-Bold', 11)
-    c.drawString(110*mm, y2 - 38*mm, paid_d)
-
-    # PAID badge
-    c.setFillColor(green)
-    c.roundRect(148*mm, y2 - 30*mm, 42*mm, 14*mm, 4, fill=1, stroke=0)
-    c.setFillColor(white)
-    c.setFont('Helvetica-Bold', 13)
-    c.drawCentredString(169*mm, y2 - 23*mm, 'PAID')
-
-    # ── Footer ────────────────────────────────────────────────────────────────
-    c.setFillColor(HexColor('#eeeeee'))
-    c.rect(0, 0, W, 22*mm, fill=1, stroke=0)
-    c.setFillColor(muted)
-    c.setFont('Helvetica', 7.5)
-    c.drawCentredString(W / 2, 14*mm,
-        f'{_BUSINESS_NAME}   ·   SSM: {_BUSINESS_SSM}   ·   learn.codencode.my')
-    c.setFont('Helvetica', 7)
-    c.setFillColor(HexColor('#aaaaaa'))
-    c.drawCentredString(W / 2, 8*mm,
-        'This is an official receipt. Please retain for your records.')
-
-    c.showPage()
-    c.save()
-    buf.seek(0)
-    return buf.read()
+  <div class="no-print" style="margin-top:32px;text-align:center">
+    <button onclick="window.print()" style="background:#00dcb4;color:#080c10;border:none;padding:10px 28px;border-radius:6px;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;">
+      🖨 Print / Save as PDF
+    </button>
+    <button onclick="window.close()" style="background:#eee;color:#333;border:none;padding:10px 24px;border-radius:6px;font-family:inherit;font-size:13px;cursor:pointer;margin-left:8px;">
+      Close
+    </button>
+  </div>
+</body>
+</html>"""
 
 
 # ── Email templates ───────────────────────────────────────────────────────────
@@ -446,17 +354,11 @@ def email_announcement(student_name: str, email: str, announcement_title: str, a
 
 
 def email_payment_receipt(enrollment) -> bool:
-    """Generate PDF receipt and send it to the student by email."""
+    """Assign/persist the receipt number and email the student a link to view it."""
     s = enrollment.student
     if not s or not s.email:
         return False
-    try:
-        pdf_bytes = generate_receipt_pdf(enrollment)
-    except Exception as exc:
-        app.logger.error('Receipt PDF generation failed for enrollment %s: %s', enrollment.id, exc)
-        return False
-
-    rcpt_no  = f'RCP-{enrollment.id:05d}'
+    rcpt_no  = f'RCP-{get_or_assign_document_number(enrollment):03d}'
     amt_str  = f'RM {enrollment.payment_amount:,.2f}' if enrollment.payment_amount else '—'
     paid_d   = (enrollment.paid_at or datetime.utcnow()).strftime('%d %B %Y')
     body = f"""
@@ -466,16 +368,13 @@ def email_payment_receipt(enrollment) -> bool:
       <span class="badge">{rcpt_no}</span>&nbsp;
       <span class="badge">{amt_str}</span>
     </p>
-    <p>Your official receipt is attached to this email. Please keep it for your records.</p>
     <p style="color:#A4B4A4;font-size:13px">Payment date: {paid_d}</p>
-    <a class="btn" href="https://learn.codencode.my">Go to Student Portal →</a>
+    <a class="btn" href="https://learn.codencode.my/api/enrollments/{enrollment.id}/receipt/view">View Your Receipt →</a>
     """
-    return send_email_with_attachment(
+    return send_email(
         s.email,
         f'Payment Confirmed — {enrollment.course.title} | codencode.my',
-        _email_wrapper('Payment Received! 🎉', body),
-        pdf_bytes,
-        f'{rcpt_no}.pdf'
+        _email_wrapper('Payment Received! 🎉', body)
     )
 
 
@@ -484,7 +383,7 @@ def email_invoice(enrollment) -> bool:
     s = enrollment.student
     if not s or not s.email:
         return False
-    inv_num  = f'INV-{1110 + enrollment.id}'
+    inv_num  = f'INV-{get_or_assign_document_number(enrollment):03d}'
     amt_str  = f'RM {enrollment.payment_amount:,.2f}' if enrollment.payment_amount else '—'
     issued   = datetime.utcnow().strftime('%d %B %Y')
     body = f"""
@@ -709,18 +608,28 @@ def teacher_manageable_course_ids():
     return sorted(ids)
 
 
-def next_certificate_number():
-    """Generate the next public certificate number. First suffix is 111."""
-    year = datetime.utcnow().year
-    existing_numbers = Certificate.query.filter(
-        Certificate.cert_number.ilike(f'CC-{year}-%')
-    ).with_entities(Certificate.cert_number).all()
+def next_document_number():
+    """Next number in the single shared serial used for invoices, receipts, and
+    certificates. First number is 111. All three document types for the same
+    enrollment share one number (e.g. INV-111 / RCP-111 / CC-111)."""
     last_number = 110
-    for (cert_no,) in existing_numbers:
-        match = re.search(rf'^CC-{year}-(\d+)$', cert_no or '', re.IGNORECASE)
+    for (doc_no,) in Enrollment.query.filter(Enrollment.document_number.isnot(None)) \
+                                      .with_entities(Enrollment.document_number).all():
+        last_number = max(last_number, doc_no)
+    for (cert_no,) in Certificate.query.filter(Certificate.cert_number.isnot(None)) \
+                                        .with_entities(Certificate.cert_number).all():
+        match = re.search(r'(\d+)$', cert_no or '')
         if match:
             last_number = max(last_number, int(match.group(1)))
-    return f'CC-{year}-{last_number + 1:03d}'
+    return last_number + 1
+
+
+def get_or_assign_document_number(enrollment) -> int:
+    """Return this enrollment's shared document number, assigning one on first use."""
+    if not enrollment.document_number:
+        enrollment.document_number = next_document_number()
+        db.session.commit()
+    return enrollment.document_number
 
 
 def send_certificate_email(cert):
@@ -739,7 +648,8 @@ def issue_certificate_for(student_id, course_id, send_email_now=True):
     course = Course.query.get(course_id)
     if not student or student.role != 'student' or not course:
         return None, ('student/course not found', 404)
-    if not Enrollment.query.filter_by(student_id=student_id, course_id=course_id).first():
+    enrollment = Enrollment.query.filter_by(student_id=student_id, course_id=course_id).first()
+    if not enrollment:
         return None, ('Student is not enrolled in this course', 400)
     existing = Certificate.query.filter_by(student_id=student_id, course_id=course_id).first()
     if existing:
@@ -747,11 +657,12 @@ def issue_certificate_for(student_id, course_id, send_email_now=True):
 
     cert = None
     for _ in range(5):
+        doc_num = get_or_assign_document_number(enrollment)
         cert = Certificate(
             student_id=student_id,
             course_id=course_id,
             issued_by=current_user.id,
-            cert_number=next_certificate_number()
+            cert_number=f'CC-{doc_num:03d}'
         )
         db.session.add(cert)
         try:
@@ -783,7 +694,7 @@ def issue_blank_name_certificate_for(course_id):
             student_id=None,
             course_id=course_id,
             issued_by=current_user.id,
-            cert_number=next_certificate_number()
+            cert_number=f'CC-{next_document_number():03d}'
         )
         db.session.add(cert)
         try:
@@ -1684,23 +1595,29 @@ def serve_receipt(filename):
         filename, as_attachment=True)
 
 
-@app.route('/api/admin/enrollments/<int:eid>/receipt/pdf')
+@app.route('/api/admin/enrollments/<int:eid>/receipt/view')
 @admin_required
-def admin_receipt_pdf(eid):
-    """Generate the official PDF receipt on demand (does not depend on any uploaded file)."""
+def admin_receipt_view(eid):
+    """Render the official receipt as printable HTML, generated fresh from the
+    database every time — same template as the invoice, no file on disk involved."""
     e = Enrollment.query.get_or_404(eid)
     if e.payment_status != 'paid':
         return jsonify({'error': 'Enrollment is not marked as paid'}), 400
-    try:
-        pdf_bytes = generate_receipt_pdf(e)
-    except Exception as exc:
-        app.logger.error('Receipt PDF generation failed for enrollment %s: %s', eid, exc)
-        return jsonify({'error': 'Could not generate receipt PDF'}), 500
     from flask import Response
-    return Response(
-        pdf_bytes,
-        mimetype='application/pdf',
-        headers={'Content-Disposition': f'inline; filename=Receipt-RCP-{e.id:05d}.pdf'})
+    return Response(generate_receipt_html(e), mimetype='text/html')
+
+
+@app.route('/api/enrollments/<int:eid>/receipt/view')
+@login_required
+def student_receipt_view(eid):
+    """Student-facing version of the same receipt page — own enrollment only."""
+    e = Enrollment.query.get_or_404(eid)
+    if current_user.role == 'student' and e.student_id != current_user.id:
+        return jsonify({'error': 'Forbidden'}), 403
+    if e.payment_status != 'paid':
+        return jsonify({'error': 'Enrollment is not marked as paid'}), 400
+    from flask import Response
+    return Response(generate_receipt_html(e), mimetype='text/html')
 
 
 @app.route('/api/admin/email-diagnostics')
@@ -1754,7 +1671,7 @@ def admin_invoice(eid):
     e = Enrollment.query.get_or_404(eid)
     s = e.student
     c = e.course
-    inv_num  = f'INV-{e.id:05d}'
+    inv_num  = f'INV-{get_or_assign_document_number(e):03d}'
     issued   = datetime.utcnow().strftime('%d %B %Y')
     enr_date = e.enrolled_at.strftime('%d %B %Y') if e.enrolled_at else issued
     pay_status = (e.payment_status or 'pending').lower()
@@ -2484,10 +2401,10 @@ def seed_demo():
 
 @app.cli.command('reset-certificates')
 def reset_certificates_command():
-    """Delete all certificate records. Next issued cert starts at CC-YYYY-111."""
+    """Delete all certificate records. Next issued cert starts at CC-111."""
     deleted = Certificate.query.delete()
     db.session.commit()
-    print(f'Deleted {deleted} certificate record(s). Next certificate starts at {next_certificate_number()}.')
+    print(f'Deleted {deleted} certificate record(s). Next document number is {next_document_number()}.')
 
 def _seed_demo_old():
     # ── Courses ────────────────────────────────
@@ -3606,7 +3523,7 @@ def admin_reset_certificates():
     db.session.commit()
     return jsonify({
         'deleted': deleted,
-        'next_cert_number': next_certificate_number()
+        'next_document_number': next_document_number()
     })
 
 
@@ -4460,6 +4377,9 @@ with app.app_context():
                 conn.commit()
             if 'paid_at' not in pay_cols:
                 conn.execute(text('ALTER TABLE enrollments ADD COLUMN paid_at DATETIME'))
+                conn.commit()
+            if 'document_number' not in pay_cols:
+                conn.execute(text('ALTER TABLE enrollments ADD COLUMN document_number INTEGER'))
                 conn.commit()
     except Exception:
         pass

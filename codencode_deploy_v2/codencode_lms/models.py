@@ -161,6 +161,7 @@ class Enrollment(db.Model):
     payment_status   = db.Column(db.String(20), default='pending')  # pending | paid | overdue
     payment_remarks  = db.Column(db.Text)
     receipt_file     = db.Column(db.String(300))   # stored filename of uploaded receipt
+    document_number  = db.Column(db.Integer)       # shared serial for invoice/receipt/certificate, e.g. 111
     class_timing     = db.Column(db.String(300))   # e.g. "Friday 20:00-22:00, Saturday 09:00-11:00"
     class_format     = db.Column(db.String(20))    # e.g. "1v1", "2v1", "5v1", "cohort"
     cohort_id        = db.Column(db.Integer, db.ForeignKey('cohorts.id'), nullable=True)
@@ -185,6 +186,7 @@ class Enrollment(db.Model):
             'payment_status': self.payment_status or 'pending',
             'payment_remarks': self.payment_remarks or '',
             'receipt_file': self.receipt_file or '',
+            'document_number': self.document_number,
             'class_timing': self.class_timing or '',
             'class_format': self.class_format or '',
             'cohort_id':    self.cohort_id,

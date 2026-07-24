@@ -2872,7 +2872,7 @@ function filterPayments() {
             <i class="fas fa-file-invoice"></i>
           </button>
           ${e.payment_status === 'paid' ? `
-          <button class="btn btn-secondary btn-sm" onclick="window.open('/api/admin/enrollments/${e.id}/receipt/pdf','_blank')" style="color:var(--green)" title="View official receipt (PDF)">
+          <button class="btn btn-secondary btn-sm" onclick="window.open('/api/admin/enrollments/${e.id}/receipt/view','_blank')" style="color:var(--green)" title="View official receipt">
             <i class="fas fa-receipt"></i>
           </button>` : ''}
         </div>
@@ -2903,7 +2903,7 @@ function openPaymentModal(eid) {
     ? `<i class="fas fa-paperclip"></i> Uploaded proof on file — <a href="/uploads/receipts/${e.receipt_file}" target="_blank" style="color:var(--cyan)">view</a> (uploading a new file will replace it)`
     : '';
   if (e.payment_status === 'paid') {
-    receiptHtml += `${receiptHtml ? '<br>' : ''}<i class="fas fa-receipt"></i> <a href="/api/admin/enrollments/${eid}/receipt/pdf" target="_blank" style="color:var(--green)">View official PDF receipt</a>`;
+    receiptHtml += `${receiptHtml ? '<br>' : ''}<i class="fas fa-receipt"></i> <a href="/api/admin/enrollments/${eid}/receipt/view" target="_blank" style="color:var(--green)">View official receipt</a>`;
   }
   existingDiv.innerHTML = receiptHtml;
   openModal('modal-payment');
