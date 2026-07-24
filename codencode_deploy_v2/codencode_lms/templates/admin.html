@@ -2871,6 +2871,10 @@ function filterPayments() {
           <button class="btn btn-secondary btn-sm" onclick="window.open('/api/admin/enrollments/${e.id}/invoice','_blank')" style="color:var(--cyan)" title="Download invoice">
             <i class="fas fa-file-invoice"></i>
           </button>
+          ${e.payment_status === 'paid' ? `
+          <button class="btn btn-secondary btn-sm" onclick="window.open('/api/admin/enrollments/${e.id}/receipt/pdf','_blank')" style="color:var(--green)" title="View official receipt (PDF)">
+            <i class="fas fa-receipt"></i>
+          </button>` : ''}
         </div>
       </td>
     </tr>
@@ -2895,9 +2899,13 @@ function openPaymentModal(eid) {
   };
   // Show existing receipt link
   const existingDiv = document.getElementById('pay-existing-receipt');
-  existingDiv.innerHTML = e.receipt_file
-    ? `<i class="fas fa-paperclip"></i> Receipt on file — <a href="/uploads/receipts/${e.receipt_file}" target="_blank" style="color:var(--cyan)">view</a> (uploading a new file will replace it)`
+  let receiptHtml = e.receipt_file
+    ? `<i class="fas fa-paperclip"></i> Uploaded proof on file — <a href="/uploads/receipts/${e.receipt_file}" target="_blank" style="color:var(--cyan)">view</a> (uploading a new file will replace it)`
     : '';
+  if (e.payment_status === 'paid') {
+    receiptHtml += `${receiptHtml ? '<br>' : ''}<i class="fas fa-receipt"></i> <a href="/api/admin/enrollments/${eid}/receipt/pdf" target="_blank" style="color:var(--green)">View official PDF receipt</a>`;
+  }
+  existingDiv.innerHTML = receiptHtml;
   openModal('modal-payment');
 }
 
