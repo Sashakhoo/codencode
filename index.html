@@ -220,26 +220,25 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 .tri-item.zh{border-top:2px solid var(--gold)}
 .tri-item.bm{border-top:2px solid var(--org)}
 
-/* COURSES */
-.course-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:48px}
-.ccard{border:1px solid var(--b);background:var(--bg);overflow:hidden;transition:border-color .25s,transform .2s;display:flex;flex-direction:column}
-.ccard:hover{border-color:var(--bs);transform:translateY(-3px)}
-.ctop{height:130px;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}
-.cgrid2{position:absolute;inset:0;background-image:linear-gradient(rgba(0,220,180,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(0,220,180,.05) 1px,transparent 1px);background-size:24px 24px}
-.cbig{font-size:52px;position:relative;z-index:2}
-.cbadge{position:absolute;top:10px;right:10px;font-family:var(--mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;padding:3px 9px;z-index:3}
-.bb{background:var(--cyan);color:#080c10}.bo{background:var(--org);color:#fff}.bg2{background:var(--gold);color:#080c10}.bp{background:#7f77dd;color:#fff}
-.cbody{padding:22px;flex:1;display:flex;flex-direction:column}
-.cbody h3{font-size:16px;font-weight:800;letter-spacing:-.01em;margin-bottom:6px}
-.cbody p{font-family:var(--mono);font-size:12px;color:var(--mu);line-height:1.7;margin-bottom:16px;flex:1}
-.cmeta{display:flex;gap:16px;margin-bottom:18px}
+/* COURSES — premium dark photo cards, matching the site theme */
+.course-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-top:48px}
+.ccard{background:var(--surf);border:1px solid var(--b);border-radius:20px;overflow:hidden;transition:transform .25s,box-shadow .25s,border-color .25s;display:flex;flex-direction:column;box-shadow:0 14px 32px -10px rgba(0,0,0,.6)}
+.ccard:hover{transform:translateY(-5px);border-color:var(--bs);box-shadow:0 22px 44px -10px rgba(0,0,0,.7)}
+.ctop{height:190px;position:relative;overflow:hidden;background:var(--surf2)}
+.ctop img{width:100%;height:100%;object-fit:cover;display:block;filter:brightness(.92)}
+.cbadge{position:absolute;top:14px;left:14px;font-family:var(--mono);font-size:10px;letter-spacing:.06em;text-transform:uppercase;padding:6px 12px;border-radius:999px;z-index:3;box-shadow:0 2px 10px rgba(0,0,0,.4)}
+.bb{background:var(--cyan);color:#04120d}.bo{background:var(--org);color:#fff}.bg2{background:var(--gold);color:#1a1300}.bp{background:#7f77dd;color:#fff}
+.cbody{padding:20px 22px 22px;flex:1;display:flex;flex-direction:column}
+.ctitle-row{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:8px}
+.cbody h3{font-size:17px;font-weight:800;letter-spacing:-.01em;color:var(--w)}
+.cbody p{font-family:var(--mono);font-size:12px;color:var(--mu);line-height:1.7;margin-bottom:16px}
+.cmeta{display:flex;gap:16px;padding-top:14px;margin-top:auto;margin-bottom:16px;border-top:1px solid var(--b)}
 .cmi{display:flex;align-items:center;gap:5px;font-family:var(--mono);font-size:11px;color:var(--mu)}
 .cmi i{color:var(--cyan);font-size:10px}
-.cfooter{display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--b);padding-top:16px;margin-top:auto}
-.price-n{font-size:22px;font-weight:800}
+.price-n{font-size:16px;font-weight:800;color:var(--w);white-space:nowrap;flex-shrink:0}
 .price-o{font-family:var(--mono);font-size:12px;color:var(--mu2);text-decoration:line-through;margin-left:6px}
-.btn-out{display:inline-flex;align-items:center;gap:5px;border:1px solid var(--bs);color:var(--cyan);font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;padding:8px 14px;text-decoration:none;transition:all .2s}
-.btn-out:hover{background:var(--cdim)}
+.btn-out{display:flex;align-items:center;justify-content:center;gap:6px;background:var(--cyan);color:#04120d;font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;padding:13px;border-radius:999px;text-decoration:none;transition:background .2s,opacity .2s;border:none;font-weight:700}
+.btn-out:hover{opacity:.88}
 .courses-note{margin-top:20px;padding:16px 20px;background:var(--cdim);border:1px solid var(--bs);border-left:3px solid var(--cyan);display:flex;align-items:center;gap:14px;font-family:var(--mono);font-size:12px;color:var(--mu)}
 .courses-note i{color:var(--cyan);font-size:14px;flex-shrink:0}
 .courses-note a{color:var(--cyan);text-decoration:none;font-weight:700}
@@ -477,7 +476,7 @@ n.queue=[];t=b.createElement(e);t.async=!0;
 t.src=v;s=b.getElementsByTagName(e)[0];
 s.parentNode.insertBefore(t,s)}(window, document,'script',
 'https://connect.facebook.net/en_US/fbevents.js');
-fbq('init', 'YOUR_PIXEL_ID'); // TODO: replace with real Meta Pixel ID from Business Manager
+fbq('init', '1615909506909427');
 fbq('track', 'PageView');
 </script>
 <!-- End Meta Pixel Code -->
@@ -485,7 +484,7 @@ fbq('track', 'PageView');
 <body>
 <!-- Meta Pixel Code (noscript fallback) -->
 <noscript><img height="1" width="1" style="display:none"
-src="https://www.facebook.com/tr?id=YOUR_PIXEL_ID&ev=PageView&noscript=1"
+src="https://www.facebook.com/tr?id=1615909506909427&ev=PageView&noscript=1"
 /></noscript>
 <!-- End Meta Pixel Code (noscript fallback) -->
 
@@ -505,7 +504,6 @@ src="https://www.facebook.com/tr?id=YOUR_PIXEL_ID&ev=PageView&noscript=1"
     <ul class="nav-links">
       <li><a href="#courses">Courses</a></li>
       <li><a href="#workshops">Workshops</a></li>
-      <li><a href="#reviews">Reviews</a></li>
       <li><a href="#trainer">Trainer</a></li>
       <li><a href="paths.html">Your Path</a></li>
       <li><a href="https://wa.me/60196811628?text=Hi%20codencode!%20I'm%20interested%20👋" target="_blank" rel="noopener">Contact</a></li>
@@ -519,7 +517,6 @@ src="https://www.facebook.com/tr?id=YOUR_PIXEL_ID&ev=PageView&noscript=1"
   <div class="mob-nav" id="mob-menu">
     <a href="#courses">Courses</a>
     <a href="#workshops">Workshops</a>
-    <a href="#reviews">Reviews</a>
     <a href="#trainer">Trainer</a>
     <a href="paths.html">Your Path</a>
     <a href="https://wa.me/60196811628?text=Hi%20codencode!%20I'm%20interested%20👋" target="_blank" rel="noopener">Free Trial → WhatsApp</a>
@@ -685,45 +682,57 @@ src="https://www.facebook.com/tr?id=YOUR_PIXEL_ID&ev=PageView&noscript=1"
 
       <div class="ccard" itemscope itemtype="https://schema.org/Course">
         <meta itemprop="provider" content="codencode.my"/>
-        <div class="ctop" style="background:linear-gradient(135deg,#080c10,#1a0808)"><div class="cgrid2"></div><div class="cbig">🔒</div><span class="cbadge" style="background:#ff4d4d;color:#fff">New</span></div>
+        <div class="ctop">
+          <img itemprop="image" src="https://images.unsplash.com/photo-1614064548237-096f735f344f?fm=jpg&amp;q=80&amp;w=900&amp;auto=format&amp;fit=crop" alt="Padlock securing a laptop, representing cybersecurity fundamentals" loading="lazy">
+          <span class="cbadge" style="background:#ff4d4d;color:#fff">New</span>
+        </div>
         <div class="cbody">
-          <h3 itemprop="name">Cybersecurity Fundamentals</h3>
+          <div class="ctitle-row"><h3 itemprop="name">Cybersecurity Fundamentals</h3><span class="price-n">RM 1,500</span></div>
           <p itemprop="description">Online cybersecurity course for total beginners. Phishing, password hygiene, network basics, intro pentesting. For anyone who touches a work laptop.</p>
           <div class="cmeta"><div class="cmi"><i class="fas fa-clock"></i><span>6 weeks + 1 week project</span></div><div class="cmi"><i class="fas fa-signal"></i><span>Beginner</span></div></div>
-          <div class="cfooter"><div><span class="price-n">RM 1,500</span></div><a class="btn-out" href="https://wa.me/60196811628?text=Hi%20codencode!%20I'm%20interested%20👋" target="_blank" rel="noopener">Enrol <i class="fas fa-arrow-right"></i></a></div>
+          <a class="btn-out" href="https://wa.me/60196811628?text=Hi%20codencode!%20I'm%20interested%20👋" target="_blank" rel="noopener">Enrol <i class="fas fa-arrow-right"></i></a>
         </div>
       </div>
 
       <div class="ccard" itemscope itemtype="https://schema.org/Course">
         <meta itemprop="provider" content="codencode.my"/>
-        <div class="ctop" style="background:linear-gradient(135deg,#080c10,#0a1628)"><div class="cgrid2"></div><div class="cbig">🐍</div><span class="cbadge bb">Most Popular</span></div>
+        <div class="ctop">
+          <img itemprop="image" src="https://images.unsplash.com/photo-1742072594003-abf6ca86e154?fm=jpg&amp;q=80&amp;w=900&amp;auto=format&amp;fit=crop" alt="Python code displayed on a computer screen" loading="lazy">
+          <span class="cbadge bb">Most Popular</span>
+        </div>
         <div class="cbody">
-          <h3 itemprop="name">Python Fundamentals</h3>
+          <div class="ctitle-row"><h3 itemprop="name">Python Fundamentals</h3><span class="price-n">RM 1,500</span></div>
           <p itemprop="description">Online Python course for total beginners. From zero to automating spreadsheets, scraping the web &amp; analysing data — the most in-demand skill in Malaysia right now.</p>
           <div class="cmeta"><div class="cmi"><i class="fas fa-clock"></i><span>6 weeks + 1 week project</span></div><div class="cmi"><i class="fas fa-signal"></i><span>Beginner</span></div></div>
-          <div class="cfooter"><div><span class="price-n">RM 1,500</span></div><a class="btn-out" href="https://wa.me/60196811628?text=Hi%20codencode!%20I'm%20interested%20👋" target="_blank" rel="noopener">Enrol <i class="fas fa-arrow-right"></i></a></div>
+          <a class="btn-out" href="https://wa.me/60196811628?text=Hi%20codencode!%20I'm%20interested%20👋" target="_blank" rel="noopener">Enrol <i class="fas fa-arrow-right"></i></a>
         </div>
       </div>
 
       <div class="ccard" itemscope itemtype="https://schema.org/Course">
         <meta itemprop="provider" content="codencode.my"/>
-        <div class="ctop" style="background:linear-gradient(135deg,#080c10,#160c24)"><div class="cgrid2"></div><div class="cbig">🤖</div><span class="cbadge bo">Hot</span></div>
+        <div class="ctop">
+          <img itemprop="image" src="https://images.unsplash.com/photo-1674027444485-cec3da58eef4?fm=jpg&amp;q=80&amp;w=900&amp;auto=format&amp;fit=crop" alt="Abstract visualization of connected data points, representing machine learning" loading="lazy">
+          <span class="cbadge bo">Hot</span>
+        </div>
         <div class="cbody">
-          <h3 itemprop="name">Machine Learning Fundamentals</h3>
+          <div class="ctitle-row"><h3 itemprop="name">Machine Learning Fundamentals</h3><span class="price-n">RM 1,800</span></div>
           <p itemprop="description">Online machine learning course for learners with some Python background. Train real ML models, understand the math that matters, build projects you can show employers.</p>
           <div class="cmeta"><div class="cmi"><i class="fas fa-clock"></i><span>10 weeks</span></div><div class="cmi"><i class="fas fa-signal"></i><span>Intermediate</span></div></div>
-          <div class="cfooter"><div><span class="price-n">RM 1,800</span></div><a class="btn-out" href="https://wa.me/60196811628?text=Hi%20codencode!%20I'm%20interested%20👋" target="_blank" rel="noopener">Enrol <i class="fas fa-arrow-right"></i></a></div>
+          <a class="btn-out" href="https://wa.me/60196811628?text=Hi%20codencode!%20I'm%20interested%20👋" target="_blank" rel="noopener">Enrol <i class="fas fa-arrow-right"></i></a>
         </div>
       </div>
 
       <div class="ccard" itemscope itemtype="https://schema.org/Course">
         <meta itemprop="provider" content="codencode.my"/>
-        <div class="ctop" style="background:linear-gradient(135deg,#080c10,#0c1a10)"><div class="cgrid2"></div><div class="cbig">⚡</div><span class="cbadge bg2">Fast Track</span></div>
+        <div class="ctop">
+          <img itemprop="image" src="https://images.unsplash.com/photo-1517134062979-e1234be8a085?fm=jpg&amp;q=80&amp;w=900&amp;auto=format&amp;fit=crop" alt="Colorful source code on a screen, representing AI-assisted app building" loading="lazy">
+          <span class="cbadge bg2">Fast Track</span>
+        </div>
         <div class="cbody">
-          <h3 itemprop="name">Vibe Coding</h3>
+          <div class="ctitle-row"><h3 itemprop="name">Vibe Coding</h3><span class="price-n">RM 800</span></div>
           <p itemprop="description">Online course building real apps with AI tools — Cursor, GitHub Copilot, Claude. No deep CS background needed. Ship something in week one.</p>
           <div class="cmeta"><div class="cmi"><i class="fas fa-clock"></i><span>4 weeks</span></div><div class="cmi"><i class="fas fa-signal"></i><span>Beginner</span></div></div>
-          <div class="cfooter"><div><span class="price-n">RM 800</span></div><a class="btn-out" href="https://wa.me/60196811628?text=Hi%20codencode!%20I'm%20interested%20👋" target="_blank" rel="noopener">Enrol <i class="fas fa-arrow-right"></i></a></div>
+          <a class="btn-out" href="https://wa.me/60196811628?text=Hi%20codencode!%20I'm%20interested%20👋" target="_blank" rel="noopener">Enrol <i class="fas fa-arrow-right"></i></a>
         </div>
       </div>
 
@@ -745,59 +754,70 @@ src="https://www.facebook.com/tr?id=YOUR_PIXEL_ID&ev=PageView&noscript=1"
     <div class="course-grid">
 
       <div class="ccard" itemscope itemtype="https://schema.org/Event">
-        <div class="ctop" style="background:linear-gradient(135deg,#080c10,#0a1628)"><div class="cgrid2"></div><div class="cbig">💼</div><span class="cbadge bb">In-Person</span></div>
+        <div class="ctop">
+          <img itemprop="image" src="https://images.unsplash.com/photo-1758691737083-0e7fdbde0f05?fm=jpg&amp;q=80&amp;w=900&amp;auto=format&amp;fit=crop" alt="Two colleagues collaborating on a laptop in an office" loading="lazy">
+          <span class="cbadge bb">For Any Team</span>
+        </div>
         <div class="cbody">
-          <h3 itemprop="name">AI for Workplace</h3>
+          <div class="ctitle-row"><h3 itemprop="name">AI for Workplace</h3><span class="price-n" itemprop="offers" itemscope itemtype="https://schema.org/Offer"><meta itemprop="price" content="388"/><meta itemprop="priceCurrency" content="MYR"/>RM 388</span></div>
           <p itemprop="description">Practical AI tools for general workplace productivity — for any employee who wants to save time on daily tasks.</p>
           <div class="cmeta"><div class="cmi"><i class="fas fa-clock"></i><span>4 hours</span></div><div class="cmi"><i class="fas fa-map-marker-alt"></i><span itemprop="location">Mount Austin, JB</span></div></div>
-          <div class="cfooter"><div><span class="price-n" itemprop="offers" itemscope itemtype="https://schema.org/Offer"><meta itemprop="price" content="388"/><meta itemprop="priceCurrency" content="MYR"/>RM 388</span></div><a class="btn-out" href="https://wa.me/60196811628?text=Hi%20codencode!%20I'm%20interested%20in%20the%20AI%20for%20Workplace%20workshop%20👋" target="_blank" rel="noopener">Register <i class="fas fa-arrow-right"></i></a></div>
+          <a class="btn-out" href="https://wa.me/60196811628?text=Hi%20codencode!%20I'm%20interested%20in%20the%20AI%20for%20Workplace%20workshop%20👋" target="_blank" rel="noopener">Register <i class="fas fa-arrow-right"></i></a>
         </div>
       </div>
 
       <div class="ccard" itemscope itemtype="https://schema.org/Event">
-        <div class="ctop" style="background:linear-gradient(135deg,#080c10,#160c24)"><div class="cgrid2"></div><div class="cbig">📈</div><span class="cbadge bo">In-Person</span></div>
+        <div class="ctop">
+          <img itemprop="image" src="https://images.unsplash.com/photo-1686061593213-98dad7c599b9?fm=jpg&amp;q=80&amp;w=900&amp;auto=format&amp;fit=crop" alt="Computer screen showing a marketing analytics dashboard" loading="lazy">
+          <span class="cbadge bo">For Marketing</span>
+        </div>
         <div class="cbody">
-          <h3 itemprop="name">AI for Marketing</h3>
+          <div class="ctitle-row"><h3 itemprop="name">AI for Marketing</h3><span class="price-n" itemprop="offers" itemscope itemtype="https://schema.org/Offer"><meta itemprop="price" content="388"/><meta itemprop="priceCurrency" content="MYR"/>RM 388</span></div>
           <p itemprop="description">Practical AI tools for content, campaigns and analytics — built for marketing teams.</p>
           <div class="cmeta"><div class="cmi"><i class="fas fa-clock"></i><span>4 hours</span></div><div class="cmi"><i class="fas fa-map-marker-alt"></i><span itemprop="location">Mount Austin, JB</span></div></div>
-          <div class="cfooter"><div><span class="price-n" itemprop="offers" itemscope itemtype="https://schema.org/Offer"><meta itemprop="price" content="388"/><meta itemprop="priceCurrency" content="MYR"/>RM 388</span></div><a class="btn-out" href="https://wa.me/60196811628?text=Hi%20codencode!%20I'm%20interested%20in%20the%20AI%20for%20Marketing%20workshop%20👋" target="_blank" rel="noopener">Register <i class="fas fa-arrow-right"></i></a></div>
+          <a class="btn-out" href="https://wa.me/60196811628?text=Hi%20codencode!%20I'm%20interested%20in%20the%20AI%20for%20Marketing%20workshop%20👋" target="_blank" rel="noopener">Register <i class="fas fa-arrow-right"></i></a>
         </div>
       </div>
 
       <div class="ccard" itemscope itemtype="https://schema.org/Event">
-        <div class="ctop" style="background:linear-gradient(135deg,#080c10,#0c1a10)"><div class="cgrid2"></div><div class="cbig">🎉</div><span class="cbadge bg2">In-Person</span></div>
+        <div class="ctop">
+          <img itemprop="image" src="https://images.unsplash.com/photo-1768055105012-4c53791b2877?fm=jpg&amp;q=80&amp;w=900&amp;auto=format&amp;fit=crop" alt="Hand checking off items on an event planning checklist" loading="lazy">
+          <span class="cbadge bg2">For Events</span>
+        </div>
         <div class="cbody">
-          <h3 itemprop="name">AI for Event Management</h3>
+          <div class="ctitle-row"><h3 itemprop="name">AI for Event Management</h3><span class="price-n" itemprop="offers" itemscope itemtype="https://schema.org/Offer"><meta itemprop="price" content="388"/><meta itemprop="priceCurrency" content="MYR"/>RM 388</span></div>
           <p itemprop="description">Practical AI tools for planning, logistics and vendor coordination — built for event professionals.</p>
           <div class="cmeta"><div class="cmi"><i class="fas fa-clock"></i><span>4 hours</span></div><div class="cmi"><i class="fas fa-map-marker-alt"></i><span itemprop="location">Mount Austin, JB</span></div></div>
-          <div class="cfooter"><div><span class="price-n" itemprop="offers" itemscope itemtype="https://schema.org/Offer"><meta itemprop="price" content="388"/><meta itemprop="priceCurrency" content="MYR"/>RM 388</span></div><a class="btn-out" href="https://wa.me/60196811628?text=Hi%20codencode!%20I'm%20interested%20in%20the%20AI%20for%20Event%20Management%20workshop%20👋" target="_blank" rel="noopener">Register <i class="fas fa-arrow-right"></i></a></div>
+          <a class="btn-out" href="https://wa.me/60196811628?text=Hi%20codencode!%20I'm%20interested%20in%20the%20AI%20for%20Event%20Management%20workshop%20👋" target="_blank" rel="noopener">Register <i class="fas fa-arrow-right"></i></a>
         </div>
       </div>
 
       <div class="ccard" itemscope itemtype="https://schema.org/Event">
-        <div class="ctop" style="background:linear-gradient(135deg,#080c10,#1c0c1a)"><div class="cgrid2"></div><div class="cbig">🧑‍🤝‍🧑</div><span class="cbadge bb">In-Person</span></div>
+        <div class="ctop">
+          <img itemprop="image" src="https://images.unsplash.com/photo-1758518730384-be3d205838e8?fm=jpg&amp;q=80&amp;w=900&amp;auto=format&amp;fit=crop" alt="Two HR professionals shaking hands across a table after an interview" loading="lazy">
+          <span class="cbadge bb">For HR</span>
+        </div>
         <div class="cbody">
-          <h3 itemprop="name">AI for HR</h3>
+          <div class="ctitle-row"><h3 itemprop="name">AI for HR</h3><span class="price-n" itemprop="offers" itemscope itemtype="https://schema.org/Offer"><meta itemprop="price" content="388"/><meta itemprop="priceCurrency" content="MYR"/>RM 388</span></div>
           <p itemprop="description">Practical AI tools for hiring, onboarding and people operations — built for HR teams.</p>
           <div class="cmeta"><div class="cmi"><i class="fas fa-clock"></i><span>4 hours</span></div><div class="cmi"><i class="fas fa-map-marker-alt"></i><span itemprop="location">Mount Austin, JB</span></div></div>
-          <div class="cfooter"><div><span class="price-n" itemprop="offers" itemscope itemtype="https://schema.org/Offer"><meta itemprop="price" content="388"/><meta itemprop="priceCurrency" content="MYR"/>RM 388</span></div><a class="btn-out" href="https://wa.me/60196811628?text=Hi%20codencode!%20I'm%20interested%20in%20the%20AI%20for%20HR%20workshop%20👋" target="_blank" rel="noopener">Register <i class="fas fa-arrow-right"></i></a></div>
+          <a class="btn-out" href="https://wa.me/60196811628?text=Hi%20codencode!%20I'm%20interested%20in%20the%20AI%20for%20HR%20workshop%20👋" target="_blank" rel="noopener">Register <i class="fas fa-arrow-right"></i></a>
         </div>
       </div>
 
       <div class="ccard" itemscope itemtype="https://schema.org/Event">
-        <div class="ctop" style="background:linear-gradient(135deg,#080c10,#1a1c0c)"><div class="cgrid2"></div><div class="cbig">📊</div><span class="cbadge bo">In-Person</span></div>
+        <div class="ctop">
+          <img itemprop="image" src="https://images.unsplash.com/photo-1707902665498-a202981fb5ac?fm=jpg&amp;q=80&amp;w=900&amp;auto=format&amp;fit=crop" alt="Person at a desk using a calculator and notebook for bookkeeping" loading="lazy">
+          <span class="cbadge bo">For Finance</span>
+        </div>
         <div class="cbody">
-          <h3 itemprop="name">AI for Accounting</h3>
+          <div class="ctitle-row"><h3 itemprop="name">AI for Accounting</h3><span class="price-n" itemprop="offers" itemscope itemtype="https://schema.org/Offer"><meta itemprop="price" content="388"/><meta itemprop="priceCurrency" content="MYR"/>RM 388</span></div>
           <p itemprop="description">Practical AI tools for bookkeeping, reporting and reconciliation — built for finance teams.</p>
           <div class="cmeta"><div class="cmi"><i class="fas fa-clock"></i><span>4 hours</span></div><div class="cmi"><i class="fas fa-map-marker-alt"></i><span itemprop="location">Mount Austin, JB</span></div></div>
-          <div class="cfooter"><div><span class="price-n" itemprop="offers" itemscope itemtype="https://schema.org/Offer"><meta itemprop="price" content="388"/><meta itemprop="priceCurrency" content="MYR"/>RM 388</span></div><a class="btn-out" href="https://wa.me/60196811628?text=Hi%20codencode!%20I'm%20interested%20in%20the%20AI%20for%20Accounting%20workshop%20👋" target="_blank" rel="noopener">Register <i class="fas fa-arrow-right"></i></a></div>
+          <a class="btn-out" href="https://wa.me/60196811628?text=Hi%20codencode!%20I'm%20interested%20in%20the%20AI%20for%20Accounting%20workshop%20👋" target="_blank" rel="noopener">Register <i class="fas fa-arrow-right"></i></a>
         </div>
       </div>
 
-    </div>
-    <div class="courses-note">
-      <i class="fas fa-map-marker-alt"></i>
-      <span>All workshops held in person at Mount Austin, Johor Bahru. Exact venue address confirmed on booking.</span>
     </div>
   </div>
 </section>
@@ -832,70 +852,6 @@ src="https://www.facebook.com/tr?id=YOUR_PIXEL_ID&ev=PageView&noscript=1"
       </table>
     </div>
     <p class="sub" style="margin-top:16px;max-width:640px">All Core Subjects are live, instructor-led and taught in English, Mandarin and Bahasa Melayu. All AI for ___ Workshops are half-day, in-person, fixed-format sessions at Mount Austin, Johor Bahru — not enrolled courses.</p>
-  </div>
-</section>
-
-<!-- GOOGLE REVIEWS -->
-<section id="reviews" class="sec">
-  <div class="container">
-    <div class="lbl">Google Reviews</div>
-    <h2 class="h2">Loved by<br>our students.</h2>
-    <p class="sub">Real social proof for parents, students and career changers deciding whether codencode is the right place to start.</p>
-
-    <div class="gr-top">
-      <div class="gr-badge">
-        <span class="google-mark">
-          <svg width="18" height="18" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-            <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
-            <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
-            <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
-            <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
-          </svg>
-        </span>
-        <span class="gr-badge-main"><strong id="gr-score">4.7</strong> <span id="gr-stars" class="gr-badge-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</span> &middot; <span id="gr-count">Based on 12 Google reviews</span></span>
-        <span class="gr-live"><span class="gr-live-dot"><span class="gr-live-ping"></span></span>Live from Google</span>
-      </div>
-      <div class="review-actions">
-        <a class="review-action" href="https://share.google/zRqjHddN39P0KPhgs" target="_blank" rel="noopener">
-          <i class="fab fa-google"></i> Read Reviews
-        </a>
-        <a class="review-action write" href="https://share.google/zRqjHddN39P0KPhgs" target="_blank" rel="noopener">
-          <i class="fas fa-pen"></i> Write Review
-        </a>
-      </div>
-    </div>
-
-    <div class="gr-cards-head">
-      <span class="gr-cards-eyebrow" id="gr-cards-eyebrow">Common feedback themes</span>
-      <span class="gr-cards-note" id="gr-cards-note">Illustrative examples of what students say &mdash; swaps in real written reviews automatically when Google returns them</span>
-    </div>
-    <div class="gr-grid" id="gr-cards">
-      <article class="gr-card gr-card--sample" data-n="01">
-        <div class="gr-stars-row" style="color:var(--cyan)">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
-        <p class="gr-quote">&ldquo;Lessons are paced for students who are new to coding, with patient explanation and enough structure to keep everyone moving.&rdquo;</p>
-        <div class="gr-theme">
-          <span class="gr-theme-tag" style="color:var(--cyan);border-color:var(--cyan)"><i class="fas fa-tag"></i> Beginner-friendly</span>
-          <span class="gr-theme-note"><i class="fab fa-google"></i> Common theme in Google feedback</span>
-        </div>
-      </article>
-      <article class="gr-card gr-card--sample" data-n="02">
-        <div class="gr-stars-row" style="color:var(--gold)">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
-        <p class="gr-quote">&ldquo;Students appreciate being able to ask questions, revisit recordings, and understand the why behind each Python or AI concept.&rdquo;</p>
-        <div class="gr-theme">
-          <span class="gr-theme-tag" style="color:var(--gold);border-color:var(--gold)"><i class="fas fa-tag"></i> Clear teaching</span>
-          <span class="gr-theme-note"><i class="fab fa-google"></i> Common theme in Google feedback</span>
-        </div>
-      </article>
-      <article class="gr-card gr-card--sample" data-n="03">
-        <div class="gr-stars-row" style="color:var(--elec)">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
-        <p class="gr-quote">&ldquo;Every course points toward useful work: data analysis, automation, AI tools, apps, dashboards, and portfolio-ready outcomes.&rdquo;</p>
-        <div class="gr-theme">
-          <span class="gr-theme-tag" style="color:var(--elec);border-color:var(--elec)"><i class="fas fa-tag"></i> Practical projects</span>
-          <span class="gr-theme-note"><i class="fab fa-google"></i> Common theme in Google feedback</span>
-        </div>
-      </article>
-    </div>
-    <p style="font-size:9px;color:var(--mu2);margin-top:16px;text-align:center">Ratings &amp; reviews powered by Google</p>
   </div>
 </section>
 
@@ -1122,84 +1078,5 @@ document.querySelectorAll('.faq-q').forEach(q=>{
 });
 </script>
 
-<!-- Live Google Reviews via Places API (New) -->
-<script>
-function starString(r){
-  const full=Math.round(r);
-  return '★★★★★'.slice(0,full)+'☆☆☆☆☆'.slice(0,5-full);
-}
-const GR_COLORS=['var(--cyan)','var(--gold)','var(--elec)','var(--org)'];
-const GR_PLACE_ID='ChIJccq5h39z2jER7qUaAf0WgsU';
-async function initGoogleReviews(){
-  try{
-    const {Place} = await google.maps.importLibrary('places');
-    const place=new Place({id:GR_PLACE_ID});
-    await place.fetchFields({fields:['rating','userRatingCount','reviews']});
-    const scoreEl=document.getElementById('gr-score');
-    const countEl=document.getElementById('gr-count');
-    const starsEl=document.getElementById('gr-stars');
-    if(typeof place.rating==='number'){
-      if(scoreEl)scoreEl.textContent=place.rating.toFixed(1);
-      if(starsEl)starsEl.textContent=starString(place.rating);
-    }
-    if(typeof place.userRatingCount==='number'&&countEl){
-      countEl.textContent=`Based on ${place.userRatingCount} Google review${place.userRatingCount===1?'':'s'}`;
-    }
-    if(place.reviews&&place.reviews.length){
-      const wrap=document.getElementById('gr-cards');
-      if(!wrap)return;
-      const eyebrowEl=document.getElementById('gr-cards-eyebrow');
-      const noteEl=document.getElementById('gr-cards-note');
-      if(eyebrowEl)eyebrowEl.textContent='Recent Google reviews';
-      if(noteEl)noteEl.textContent='Real written reviews, pulled live from Google.';
-      wrap.innerHTML='';
-      place.reviews.slice(0,3).forEach((rv,i)=>{
-        const color=GR_COLORS[i%GR_COLORS.length];
-        const name=(rv.authorAttribution&&rv.authorAttribution.displayName)||'Google user';
-        const photo=rv.authorAttribution&&rv.authorAttribution.photoURI;
-
-        const art=document.createElement('article');
-        art.className='gr-card';
-
-        const starsDiv=document.createElement('div');
-        starsDiv.className='gr-stars-row';
-        starsDiv.style.color=color;
-        starsDiv.textContent=starString(rv.rating||5);
-
-        const quote=document.createElement('p');
-        quote.className='gr-quote';
-        quote.textContent='“'+((typeof rv.text==='string'?rv.text:(rv.text&&rv.text.text))||'')+'”';
-
-        const person=document.createElement('div');
-        person.className='gr-person';
-        const avatar=document.createElement('div');
-        avatar.className='gr-avatar';
-        if(photo){
-          avatar.style.backgroundImage=`url(${photo})`;
-        }else{
-          avatar.style.background=color;
-          avatar.textContent=name.charAt(0).toUpperCase();
-        }
-        const meta=document.createElement('div');
-        const nameDiv=document.createElement('div');
-        nameDiv.className='gr-name';
-        nameDiv.textContent=name;
-        const whenDiv=document.createElement('div');
-        whenDiv.className='gr-when';
-        const icon=document.createElement('i');
-        icon.className='fab fa-google';
-        whenDiv.appendChild(icon);
-        whenDiv.appendChild(document.createTextNode(' '+(rv.relativePublishTimeDescription||'Google review')));
-        meta.append(nameDiv,whenDiv);
-        person.append(avatar,meta);
-
-        art.append(starsDiv,quote,person);
-        wrap.appendChild(art);
-      });
-    }
-  }catch(e){console.error('[gr] Google Reviews fetch failed, showing static fallback:',e);}
-}
-</script>
-<script async src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBRHyNAA5bQh5iy4Jntg0DlOA_8Xj8boHc&libraries=places&callback=initGoogleReviews"></script>
 </body>
 </html>
