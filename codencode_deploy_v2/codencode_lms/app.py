@@ -40,7 +40,8 @@ from models import (db, User, Course, Enrollment, Recording,
                     LoginLog, Certificate,
                     Quiz, QuizQuestion, QuizChoice, QuizAttempt, QuizAnswer,
                     DiscussionPost, DiscussionReply, PostUpvote,
-                    LastLesson, Cohort, Registration)
+                    LastLesson, Cohort, Registration,
+                    Workshop, WorkshopRun, WorkshopAttendee, WorkshopFeedback)
 
 # ─────────────────────────────────────────────
 # App setup
@@ -3714,6 +3715,300 @@ def verify_certificate_public(cert_number):
     cert = Certificate.query.filter_by(cert_number=cert_number).first()
     return render_template('verify.html', cert=cert, cert_number=cert_number), \
            (200 if cert else 404)
+
+
+# ─────────────────────────────────────────────
+# WORKSHOPS — one-off in-person events (Mount Austin etc.)
+# ─────────────────────────────────────────────
+_GOOGLE_REVIEW_URL = os.environ.get('GOOGLE_REVIEW_URL', '')
+
+
+def _qr_png_base64(data: str, fill='#0a3d2a') -> str:
+    """Generate a QR code PNG as a base64 data string. Same helper used for
+    certificate verification QR codes."""
+    import qrcode, base64 as _b64, io as _io
+    qr = qrcode.QRCode(version=1, error_correction=qrcode.constants.ERROR_CORRECT_M,
+                        box_size=6, border=3)
+    qr.add_data(data)
+    qr.make(fit=True)
+    img = qr.make_image(fill_color=fill, back_color='white')
+    buf = _io.BytesIO()
+    img.save(buf, format='PNG')
+    return _b64.b64encode(buf.getvalue()).decode()
+
+
+def _find_or_create_client(name, email, phone=None):
+    """Find an existing User by email, or create a minimal student-role User
+    for a workshop attendee who has never touched the LMS before."""
+    email = (email or '').strip().lower()
+    if not email:
+        return None, 'email is required'
+    user = User.query.filter_by(email=email).first()
+    if user:
+        return user, None
+    user = User(name=(name or email).strip(), email=email, role='student', phone=(phone or '').strip())
+    user.set_password(uuid.uuid4().hex)  # unusable random password; workshop attendees don't need LMS login
+    db.session.add(user)
+    db.session.flush()
+    return user, None
+
+
+@app.route('/api/admin/workshops', methods=['GET', 'POST'])
+@admin_required
+def admin_workshops():
+    if request.method == 'GET':
+        workshops = Workshop.query.order_by(Workshop.title).all()
+        return jsonify([w.to_dict() for w in workshops])
+    data = request.get_json()
+    if not data.get('title'):
+        return jsonify({'error': 'title is required'}), 400
+    w = Workshop(
+        title=data['title'].strip(),
+        description=data.get('description', ''),
+        duration_hours=float(data.get('duration_hours', 4)),
+        price_per_pax=float(data['price_per_pax']) if data.get('price_per_pax') not in (None, '') else None,
+    )
+    db.session.add(w)
+    db.session.commit()
+    return jsonify({'workshop': w.to_dict()}), 201
+
+
+@app.route('/api/admin/workshops/<int:wid>', methods=['PUT', 'DELETE'])
+@admin_required
+def admin_workshop_detail(wid):
+    w = Workshop.query.get_or_404(wid)
+    if request.method == 'DELETE':
+        db.session.delete(w)
+        db.session.commit()
+        return jsonify({'ok': True})
+    data = request.get_json()
+    if data.get('title'): w.title = data['title'].strip()
+    if 'description' in data: w.description = data['description']
+    if 'duration_hours' in data: w.duration_hours = float(data['duration_hours'])
+    if 'price_per_pax' in data:
+        w.price_per_pax = float(data['price_per_pax']) if data['price_per_pax'] not in (None, '') else None
+    db.session.commit()
+    return jsonify({'workshop': w.to_dict()})
+
+
+@app.route('/api/admin/workshop-runs', methods=['GET'])
+@admin_required
+def admin_list_workshop_runs():
+    """All runs, most recent first — used for the Upcoming Runs view."""
+    upcoming_only = request.args.get('upcoming') == '1'
+    q = WorkshopRun.query
+    if upcoming_only:
+        q = q.filter(WorkshopRun.start_datetime >= datetime.utcnow())
+    runs = q.order_by(WorkshopRun.start_datetime).all()
+    return jsonify([r.to_dict() for r in runs])
+
+
+@app.route('/api/admin/workshops/<int:wid>/runs', methods=['POST'])
+@admin_required
+def admin_create_workshop_run(wid):
+    Workshop.query.get_or_404(wid)
+    data = request.get_json()
+    if not data.get('start_datetime'):
+        return jsonify({'error': 'start_datetime is required'}), 400
+    run = WorkshopRun(
+        workshop_id=wid,
+        start_datetime=datetime.strptime(data['start_datetime'], '%Y-%m-%dT%H:%M'),
+        end_datetime=datetime.strptime(data['end_datetime'], '%Y-%m-%dT%H:%M') if data.get('end_datetime') else None,
+        venue=data.get('venue', '').strip(),
+        capacity=int(data['capacity']) if data.get('capacity') else None,
+        price_per_pax=float(data['price_per_pax']) if data.get('price_per_pax') not in (None, '') else None,
+        teacher_id=int(data['teacher_id']) if data.get('teacher_id') else None,
+        google_review_url=data.get('google_review_url', '').strip(),
+        feedback_token=uuid.uuid4().hex[:20],
+    )
+    db.session.add(run)
+    db.session.commit()
+    return jsonify({'run': run.to_dict()}), 201
+
+
+@app.route('/api/admin/workshop-runs/<int:rid>', methods=['GET', 'PUT', 'DELETE'])
+@admin_required
+def admin_workshop_run_detail(rid):
+    run = WorkshopRun.query.get_or_404(rid)
+    if request.method == 'DELETE':
+        db.session.delete(run)
+        db.session.commit()
+        return jsonify({'ok': True})
+    if request.method == 'GET':
+        d = run.to_dict()
+        d['attendees'] = [a.to_dict() for a in run.attendees]
+        d['feedback'] = [f.to_dict() for f in run.feedback]
+        return jsonify(d)
+    # PUT
+    data = request.get_json()
+    if data.get('start_datetime'):
+        run.start_datetime = datetime.strptime(data['start_datetime'], '%Y-%m-%dT%H:%M')
+    if 'end_datetime' in data:
+        run.end_datetime = datetime.strptime(data['end_datetime'], '%Y-%m-%dT%H:%M') if data['end_datetime'] else None
+    if 'venue' in data: run.venue = data['venue'].strip()
+    if 'capacity' in data: run.capacity = int(data['capacity']) if data['capacity'] else None
+    if 'price_per_pax' in data:
+        run.price_per_pax = float(data['price_per_pax']) if data['price_per_pax'] not in (None, '') else None
+    if 'teacher_id' in data: run.teacher_id = int(data['teacher_id']) if data['teacher_id'] else None
+    if 'google_review_url' in data: run.google_review_url = data['google_review_url'].strip()
+    db.session.commit()
+    return jsonify({'run': run.to_dict()})
+
+
+@app.route('/api/admin/workshop-runs/<int:rid>/attendees', methods=['POST'])
+@admin_required
+def admin_add_workshop_attendee(rid):
+    run = WorkshopRun.query.get_or_404(rid)
+    data = request.get_json()
+    client_id = data.get('client_id')
+    if client_id:
+        client = User.query.get_or_404(int(client_id))
+    else:
+        client, err = _find_or_create_client(data.get('name'), data.get('email'), data.get('phone'))
+        if err:
+            return jsonify({'error': err}), 400
+    existing = WorkshopAttendee.query.filter_by(run_id=rid, client_id=client.id).first()
+    if existing:
+        return jsonify({'error': f'{client.name} is already registered for this run'}), 409
+    price = run.effective_price()
+    att = WorkshopAttendee(
+        run_id=rid, client_id=client.id,
+        payment_amount=price,
+    )
+    db.session.add(att)
+    db.session.commit()
+    return jsonify({'attendee': att.to_dict()}), 201
+
+
+@app.route('/api/admin/workshop-runs/<int:rid>/attendees/<int:aid>', methods=['PUT', 'DELETE'])
+@admin_required
+def admin_workshop_attendee_detail(rid, aid):
+    att = WorkshopAttendee.query.filter_by(id=aid, run_id=rid).first_or_404()
+    if request.method == 'DELETE':
+        db.session.delete(att)
+        db.session.commit()
+        return jsonify({'ok': True})
+    data = request.get_json()
+    if 'attended' in data: att.attended = bool(data['attended'])
+    old_status = att.payment_status
+    if 'payment_status' in data: att.payment_status = data['payment_status']
+    if 'payment_amount' in data and data['payment_amount'] not in (None, ''):
+        att.payment_amount = float(data['payment_amount'])
+    if 'payment_method' in data: att.payment_method = data['payment_method'] or None
+    if old_status != 'paid' and att.payment_status == 'paid':
+        att.paid_at = att.paid_at or datetime.utcnow()
+        if not att.document_number:
+            att.document_number = next_document_number()
+    db.session.commit()
+    return jsonify({'attendee': att.to_dict()})
+
+
+@app.route('/api/admin/workshop-runs/<int:rid>/qr')
+@admin_required
+def admin_workshop_run_qr(rid):
+    """Two QR codes for a run: one to the public feedback form, one to the
+    Google Business review link (per-run override, else the business default)."""
+    run = WorkshopRun.query.get_or_404(rid)
+    feedback_url = f'https://learn.codencode.my/feedback/{run.feedback_token}'
+    review_url = run.google_review_url or _GOOGLE_REVIEW_URL
+    return jsonify({
+        'feedback_url': feedback_url,
+        'feedback_qr_png_base64': _qr_png_base64(feedback_url),
+        'review_url': review_url or None,
+        'review_qr_png_base64': _qr_png_base64(review_url) if review_url else None,
+    })
+
+
+@app.route('/api/admin/workshop-runs/classify-existing-students', methods=['POST'])
+@admin_required
+def admin_classify_existing_students_workshop():
+    """One-time utility: create the 'AI for Workplace' workshop + its run
+    (16 Jun - 7 Aug 2026, Foon Yew School), then register every current
+    student as an attendee EXCEPT the named Core Subjects students, who
+    keep their existing course enrollments untouched. Safe to run more than
+    once — skips students already registered and reuses the existing
+    workshop/run if already created."""
+    core_subject_names = {'ban soon', 'vanessa', 'henry', 'sya sya', 'buan jeng', 'jaylene'}
+
+    workshop = Workshop.query.filter_by(title='AI for Workplace').first()
+    if not workshop:
+        workshop = Workshop(title='AI for Workplace', duration_hours=2)
+        db.session.add(workshop)
+        db.session.flush()
+
+    run = WorkshopRun.query.filter_by(workshop_id=workshop.id, venue='Foon Yew School').first()
+    if not run:
+        run = WorkshopRun(
+            workshop_id=workshop.id,
+            start_datetime=datetime(2026, 6, 16, 19, 30),
+            end_datetime=datetime(2026, 8, 7, 21, 30),
+            venue='Foon Yew School',
+            feedback_token=uuid.uuid4().hex[:20],
+        )
+        db.session.add(run)
+        db.session.flush()
+
+    added, already_registered, skipped_core = [], [], []
+    for s in User.query.filter_by(role='student').all():
+        name_lower = (s.name or '').strip().lower()
+        if any(core in name_lower for core in core_subject_names):
+            skipped_core.append(s.name)
+            continue
+        if WorkshopAttendee.query.filter_by(run_id=run.id, client_id=s.id).first():
+            already_registered.append(s.name)
+            continue
+        db.session.add(WorkshopAttendee(run_id=run.id, client_id=s.id))
+        added.append(s.name)
+    db.session.commit()
+
+    return jsonify({
+        'workshop_id': workshop.id,
+        'run_id': run.id,
+        'added': added,
+        'already_registered': already_registered,
+        'skipped_as_core_subjects': skipped_core,
+    })
+
+
+@app.route('/feedback/<token>')
+def public_workshop_feedback_page(token):
+    """Public, no-login feedback form for a workshop run — reached via QR code."""
+    from flask import render_template
+    run = WorkshopRun.query.filter_by(feedback_token=token).first()
+    if not run:
+        return render_template('workshop_feedback.html', run=None), 404
+    review_url = run.google_review_url or _GOOGLE_REVIEW_URL
+    return render_template('workshop_feedback.html', run=run, review_url=review_url)
+
+
+@app.route('/api/public/workshop-feedback/<token>', methods=['POST'])
+def submit_workshop_feedback(token):
+    run = WorkshopRun.query.filter_by(feedback_token=token).first()
+    if not run:
+        return jsonify({'error': 'Invalid feedback link'}), 404
+    data = request.get_json()
+    event_rating = data.get('event_rating')
+    teacher_rating = data.get('teacher_rating')
+    if not event_rating:
+        return jsonify({'error': 'An event rating is required'}), 400
+    attendee_id = None
+    email = (data.get('email') or '').strip().lower()
+    if email:
+        client = User.query.filter_by(email=email).first()
+        if client:
+            att = WorkshopAttendee.query.filter_by(run_id=run.id, client_id=client.id).first()
+            if att:
+                attendee_id = att.id
+    fb = WorkshopFeedback(
+        run_id=run.id,
+        attendee_id=attendee_id,
+        event_rating=int(event_rating),
+        teacher_rating=int(teacher_rating) if teacher_rating else None,
+        comment=(data.get('comment') or '').strip(),
+    )
+    db.session.add(fb)
+    db.session.commit()
+    return jsonify({'ok': True})
 
 
 # ─────────────────────────────────────────────

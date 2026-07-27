@@ -842,3 +842,153 @@ class LastLesson(db.Model):
             'material_filename': self.material.filename if self.material else '',
             'updated_at': self.updated_at.strftime('%b %d, %Y · %I:%M %p') if self.updated_at else ''
         }
+
+
+# ─────────────────────────────────────────────
+# Workshops — one-off in-person events (distinct from multi-session Courses)
+# ─────────────────────────────────────────────
+class Workshop(db.Model):
+    """The catalogue entry, e.g. 'AI for Marketing'. A Workshop can run many times
+    (WorkshopRun) on different dates/venues with different attendees."""
+    __tablename__ = 'workshops'
+    id             = db.Column(db.Integer, primary_key=True)
+    title          = db.Column(db.String(200), nullable=False)
+    description    = db.Column(db.Text)
+    duration_hours = db.Column(db.Float, default=4)
+    price_per_pax  = db.Column(db.Float)  # default rate; a run can override it
+    created_at     = db.Column(db.DateTime, default=datetime.utcnow)
+
+    runs = db.relationship('WorkshopRun', back_populates='workshop', cascade='all, delete-orphan',
+                            order_by='WorkshopRun.start_datetime')
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'title': self.title,
+            'description': self.description or '',
+            'duration_hours': self.duration_hours,
+            'price_per_pax': self.price_per_pax,
+            'run_count': len(self.runs),
+            'created_at': self.created_at.strftime('%b %d, %Y'),
+        }
+
+
+class WorkshopRun(db.Model):
+    """One scheduled occurrence of a Workshop — a specific date/time/venue/teacher."""
+    __tablename__ = 'workshop_runs'
+    id                 = db.Column(db.Integer, primary_key=True)
+    workshop_id        = db.Column(db.Integer, db.ForeignKey('workshops.id'), nullable=False)
+    start_datetime     = db.Column(db.DateTime, nullable=False)
+    end_datetime       = db.Column(db.DateTime)
+    venue              = db.Column(db.String(300))   # free text — changes per run
+    capacity           = db.Column(db.Integer)
+    price_per_pax      = db.Column(db.Float)          # overrides Workshop.price_per_pax when set
+    teacher_id         = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)
+    google_review_url  = db.Column(db.String(500))    # overrides the business-wide default when set
+    feedback_token     = db.Column(db.String(32), unique=True)  # public feedback-form link, not a guessable ID
+    created_at         = db.Column(db.DateTime, default=datetime.utcnow)
+
+    workshop  = db.relationship('Workshop', back_populates='runs')
+    teacher   = db.relationship('User', foreign_keys=[teacher_id])
+    attendees = db.relationship('WorkshopAttendee', back_populates='run', cascade='all, delete-orphan')
+    feedback  = db.relationship('WorkshopFeedback', back_populates='run', cascade='all, delete-orphan')
+
+    def effective_price(self):
+        return self.price_per_pax if self.price_per_pax is not None else (self.workshop.price_per_pax if self.workshop else None)
+
+    def to_dict(self):
+        attended_count = sum(1 for a in self.attendees if a.attended)
+        ratings = [f for f in self.feedback if f.event_rating is not None]
+        avg_event = round(sum(f.event_rating for f in ratings) / len(ratings), 1) if ratings else None
+        t_ratings = [f.teacher_rating for f in self.feedback if f.teacher_rating is not None]
+        avg_teacher = round(sum(t_ratings) / len(t_ratings), 1) if t_ratings else None
+        paid_count = sum(1 for a in self.attendees if a.payment_status == 'paid')
+        price = self.effective_price()
+        return {
+            'id': self.id,
+            'workshop_id': self.workshop_id,
+            'workshop_title': self.workshop.title if self.workshop else '',
+            'start_datetime': self.start_datetime.strftime('%Y-%m-%dT%H:%M') if self.start_datetime else None,
+            'start_display': self.start_datetime.strftime('%a, %d %b %Y · %I:%M %p') if self.start_datetime else '',
+            'end_datetime': self.end_datetime.strftime('%Y-%m-%dT%H:%M') if self.end_datetime else None,
+            'venue': self.venue or '',
+            'capacity': self.capacity,
+            'price_per_pax': price,
+            'teacher_id': self.teacher_id,
+            'teacher_name': self.teacher.name if self.teacher else '',
+            'google_review_url': self.google_review_url or '',
+            'feedback_token': self.feedback_token,
+            'attendee_count': len(self.attendees),
+            'attended_count': attended_count,
+            'paid_count': paid_count,
+            'feedback_count': len(self.feedback),
+            'avg_event_rating': avg_event,
+            'avg_teacher_rating': avg_teacher,
+            'revenue': round(paid_count * price, 2) if price is not None else None,
+        }
+
+
+class WorkshopAttendee(db.Model):
+    """A person registered for a specific WorkshopRun. Reuses the existing User
+    table (no duplicate client records) — attendees may or may not have an LMS
+    student login; either way they're just a User row."""
+    __tablename__ = 'workshop_attendees'
+    id              = db.Column(db.Integer, primary_key=True)
+    run_id          = db.Column(db.Integer, db.ForeignKey('workshop_runs.id'), nullable=False)
+    client_id       = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    attended        = db.Column(db.Boolean, default=False)
+    payment_status  = db.Column(db.String(20), default='pending')  # pending | paid | overdue
+    payment_amount  = db.Column(db.Float)
+    payment_method  = db.Column(db.String(50))
+    paid_at         = db.Column(db.DateTime)
+    document_number = db.Column(db.Integer)  # shared serial with invoices/receipts/certificates
+    registered_at   = db.Column(db.DateTime, default=datetime.utcnow)
+
+    run    = db.relationship('WorkshopRun', back_populates='attendees')
+    client = db.relationship('User')
+    __table_args__ = (db.UniqueConstraint('run_id', 'client_id'),)
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'run_id': self.run_id,
+            'client_id': self.client_id,
+            'client_name': self.client.name if self.client else '(deleted)',
+            'client_email': self.client.email if self.client else '',
+            'client_phone': self.client.phone if self.client else '',
+            'attended': self.attended,
+            'payment_status': self.payment_status or 'pending',
+            'payment_amount': self.payment_amount,
+            'payment_method': self.payment_method or '',
+            'paid_at': self.paid_at.strftime('%b %d, %Y') if self.paid_at else None,
+            'document_number': self.document_number,
+            'registered_at': self.registered_at.strftime('%b %d, %Y'),
+        }
+
+
+class WorkshopFeedback(db.Model):
+    """Post-workshop feedback — event rating + teacher rating, submitted via a
+    public no-login form. attendee_id is nullable to allow anonymous feedback."""
+    __tablename__ = 'workshop_feedback'
+    id             = db.Column(db.Integer, primary_key=True)
+    run_id         = db.Column(db.Integer, db.ForeignKey('workshop_runs.id'), nullable=False)
+    attendee_id    = db.Column(db.Integer, db.ForeignKey('workshop_attendees.id'), nullable=True)
+    event_rating   = db.Column(db.Integer)    # 1-5
+    teacher_rating = db.Column(db.Integer)    # 1-5
+    comment        = db.Column(db.Text)
+    submitted_at   = db.Column(db.DateTime, default=datetime.utcnow)
+
+    run      = db.relationship('WorkshopRun', back_populates='feedback')
+    attendee = db.relationship('WorkshopAttendee')
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'run_id': self.run_id,
+            'attendee_id': self.attendee_id,
+            'attendee_name': self.attendee.client.name if self.attendee and self.attendee.client else 'Anonymous',
+            'event_rating': self.event_rating,
+            'teacher_rating': self.teacher_rating,
+            'comment': self.comment or '',
+            'submitted_at': self.submitted_at.strftime('%b %d, %Y · %I:%M %p'),
+        }
