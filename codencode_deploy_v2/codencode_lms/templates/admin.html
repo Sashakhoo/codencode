@@ -836,6 +836,16 @@
     </div>
 
     <div class="sidebar-section">
+      <div class="sidebar-section-label">Workshops</div>
+      <div class="nav-item" onclick="showView('workshops')">
+        <i class="fas fa-chalkboard"></i> Catalogue
+      </div>
+      <div class="nav-item" onclick="showView('workshop-runs')">
+        <i class="fas fa-calendar-day"></i> Upcoming Runs
+      </div>
+    </div>
+
+    <div class="sidebar-section">
       <div class="sidebar-section-label">Comms</div>
       <div class="nav-item" onclick="showView('announcements')">
         <i class="fas fa-bullhorn"></i> Announcements
@@ -1097,6 +1107,28 @@
         <div id="tt-save-bar" style="display:none;margin-top:16px">
           <button class="btn btn-primary" onclick="saveAdminAllTopics()"><i class="fas fa-paper-plane"></i> Save All Topics</button>
         </div>
+      </div>
+
+      <!-- ── WORKSHOP CATALOGUE ───────────────── -->
+      <div id="view-workshops" class="view">
+        <div style="margin-bottom:16px;display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn btn-primary btn-sm" onclick="openAddWorkshopModal()"><i class="fas fa-plus"></i> Add Workshop</button>
+          <button class="btn btn-secondary btn-sm" onclick="runClassifyExistingStudents()" title="One-time: register all current non-Core-Subjects students into AI for Workplace">
+            <i class="fas fa-magic"></i> Classify Existing Students → AI for Workplace
+          </button>
+        </div>
+        <div class="grid-cards" id="workshop-catalogue" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px"></div>
+      </div>
+
+      <!-- ── UPCOMING WORKSHOP RUNS ──────────── -->
+      <div id="view-workshop-runs" class="view">
+        <div class="card" id="workshop-runs-list"></div>
+      </div>
+
+      <!-- ── WORKSHOP RUN DETAIL ─────────────── -->
+      <div id="view-workshop-run-detail" class="view">
+        <button class="btn btn-secondary btn-sm" style="margin-bottom:16px" onclick="showView('workshop-runs')"><i class="fas fa-arrow-left"></i> Back to Upcoming Runs</button>
+        <div id="workshop-run-detail-body"></div>
       </div>
 
       <!-- ── ANNOUNCEMENTS ───────────────────── -->
@@ -1521,6 +1553,144 @@
   </div>
 </div>
 
+<!-- Add / Edit Workshop -->
+<div class="modal-overlay" id="modal-workshop" onclick="if(event.target===this)closeModal('modal-workshop')">
+  <div class="modal-box">
+    <div class="modal-title" id="workshop-modal-title">Add Workshop</div>
+    <input type="hidden" id="workshop-id" value="" />
+    <div class="form-group" style="margin-bottom:14px">
+      <label class="form-label">Title *</label>
+      <input class="form-input" id="workshop-title" placeholder="e.g. AI for Marketing" />
+    </div>
+    <div class="form-group" style="margin-bottom:14px">
+      <label class="form-label">Description</label>
+      <textarea class="form-textarea" id="workshop-description" placeholder="What this workshop covers..."></textarea>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px">
+      <div class="form-group">
+        <label class="form-label">Duration (hours)</label>
+        <input class="form-input" type="number" id="workshop-duration" value="4" min="0.5" step="0.5" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Default Price / Pax (RM)</label>
+        <input class="form-input" type="number" id="workshop-price" placeholder="optional" min="0" step="0.01" />
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('modal-workshop')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveWorkshop()"><i class="fas fa-save"></i> Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Schedule a Run -->
+<div class="modal-overlay" id="modal-schedule-run" onclick="if(event.target===this)closeModal('modal-schedule-run')">
+  <div class="modal-box">
+    <div class="modal-title">Schedule a Run</div>
+    <input type="hidden" id="run-workshop-id" value="" />
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px">
+      <div class="form-group">
+        <label class="form-label">Start Date & Time *</label>
+        <input class="form-input" type="datetime-local" id="run-start" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">End Date & Time</label>
+        <input class="form-input" type="datetime-local" id="run-end" />
+      </div>
+    </div>
+    <div class="form-group" style="margin-bottom:14px">
+      <label class="form-label">Venue</label>
+      <input class="form-input" id="run-venue" placeholder="e.g. Mount Austin, JB" />
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px">
+      <div class="form-group">
+        <label class="form-label">Capacity</label>
+        <input class="form-input" type="number" id="run-capacity" placeholder="e.g. 20" min="1" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Price / Pax (RM) <span style="color:var(--text-dim);font-size:10px">(overrides default)</span></label>
+        <input class="form-input" type="number" id="run-price" placeholder="optional" min="0" step="0.01" />
+      </div>
+    </div>
+    <div class="form-group" style="margin-bottom:14px">
+      <label class="form-label">Facilitator</label>
+      <select class="form-select" id="run-teacher"><option value="">— none —</option></select>
+    </div>
+    <div class="form-group" style="margin-bottom:14px">
+      <label class="form-label">Google Review Link <span style="color:var(--text-dim);font-size:10px">(optional, overrides business default)</span></label>
+      <input class="form-input" id="run-google-review" placeholder="https://g.page/r/..." />
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('modal-schedule-run')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveScheduleRun()"><i class="fas fa-calendar-plus"></i> Schedule</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add Attendee to Run -->
+<div class="modal-overlay" id="modal-add-attendee" onclick="if(event.target===this)closeModal('modal-add-attendee')">
+  <div class="modal-box">
+    <div class="modal-title">Register Attendee</div>
+    <input type="hidden" id="att-run-id" value="" />
+    <div class="form-group" style="margin-bottom:14px">
+      <label class="form-label">Name *</label>
+      <input class="form-input" id="att-name" placeholder="Full name" />
+    </div>
+    <div class="form-group" style="margin-bottom:14px">
+      <label class="form-label">Email *</label>
+      <input class="form-input" type="email" id="att-email" placeholder="you@example.com" />
+      <div style="font-size:10px;color:var(--text-dim);margin-top:4px">If this email already exists in the system, we'll link to that person instead of creating a duplicate.</div>
+    </div>
+    <div class="form-group" style="margin-bottom:14px">
+      <label class="form-label">Phone</label>
+      <input class="form-input" id="att-phone" placeholder="optional" />
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('modal-add-attendee')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveAddAttendee()"><i class="fas fa-user-plus"></i> Register</button>
+    </div>
+  </div>
+</div>
+
+<!-- Attendee Payment -->
+<div class="modal-overlay" id="modal-attendee-payment" onclick="if(event.target===this)closeModal('modal-attendee-payment')">
+  <div class="modal-box">
+    <div class="modal-title">Update Payment</div>
+    <input type="hidden" id="ap-run-id" value="" />
+    <input type="hidden" id="ap-attendee-id" value="" />
+    <div class="form-group" style="margin-bottom:14px">
+      <label class="form-label">Status</label>
+      <select class="form-select" id="ap-status">
+        <option value="pending">Pending</option>
+        <option value="paid">Paid</option>
+        <option value="overdue">Overdue</option>
+      </select>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">
+      <div class="form-group">
+        <label class="form-label">Amount (RM)</label>
+        <input class="form-input" type="number" id="ap-amount" step="0.01" min="0" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Payment Method</label>
+        <select class="form-select" id="ap-method">
+          <option value="">— select —</option>
+          <option value="Bank Transfer">Bank Transfer</option>
+          <option value="FPX">FPX</option>
+          <option value="Cash">Cash</option>
+          <option value="Credit Card">Credit Card</option>
+          <option value="Debit Card">Debit Card</option>
+          <option value="Other">Other</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('modal-attendee-payment')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveAttendeePayment()"><i class="fas fa-save"></i> Save</button>
+    </div>
+  </div>
+</div>
+
 <!-- Create / Edit Course -->
 <!-- Add Cohort Modal -->
 <div class="modal-overlay" id="modal-add-cohort" onclick="if(event.target===this)closeModal('modal-add-cohort')">
@@ -1918,6 +2088,9 @@ const VIEW_TITLES = {
   materials:     ['Upload Materials', 'Add materials per session'],
   payments:      ['Payment Tracker',  'Monitor payment status'],
   timetable:     ['Timetable',        'Set topics & schedule per course'],
+  workshops:      ['Workshop Catalogue', 'One-off in-person workshops'],
+  'workshop-runs': ['Upcoming Runs',     'Scheduled workshop sessions'],
+  'workshop-run-detail': ['Run Detail',  'Attendees, payments & feedback'],
   announcements: ['Announcements',    'Send announcements to students'],
   sessions:      ['Sessions',         'View all scheduled sessions'],
   certificates:  ['Certificates',     'Issue & manage student certificates'],
@@ -1957,6 +2130,8 @@ function showView(name) {
   if (name === 'sessions')      loadAdminSessions();
   if (name === 'certificates')  loadAdminCertificates();
   if (name === 'analytics')     loadAdminAnalytics();
+  if (name === 'workshops')     loadWorkshopCatalogue();
+  if (name === 'workshop-runs') loadUpcomingRuns();
 }
 
 // ═══════════════════════════════════════════════════════
@@ -2979,6 +3154,326 @@ async function savePayment() {
     btn.disabled  = false;
     btn.innerHTML = '<i class="fas fa-save"></i> Save';
   }
+}
+
+// ═══════════════════════════════════════════════════════
+// WORKSHOPS
+// ═══════════════════════════════════════════════════════
+async function loadWorkshopCatalogue() {
+  S.workshops = await GET('/api/admin/workshops');
+  const el = document.getElementById('workshop-catalogue');
+  if (!S.workshops.length) {
+    el.innerHTML = '<div class="empty-state"><i class="fas fa-chalkboard"></i><p>No workshops yet. Click "Add Workshop" to create your first one.</p></div>';
+    return;
+  }
+  el.innerHTML = S.workshops.map(w => `
+    <div class="card">
+      <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:15px;margin-bottom:4px">${w.title}</div>
+      <div style="font-size:11px;color:var(--text-muted);margin-bottom:12px">${w.duration_hours}h · ${w.run_count} run${w.run_count!==1?'s':''} scheduled</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn btn-primary btn-sm" onclick="openScheduleRunModal(${w.id})"><i class="fas fa-calendar-plus"></i> Schedule a run</button>
+        <button class="btn btn-secondary btn-sm" onclick="openEditWorkshopModal(${w.id})"><i class="fas fa-edit"></i></button>
+        <button class="btn btn-danger btn-sm" onclick="deleteWorkshop(${w.id})"><i class="fas fa-trash"></i></button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function openAddWorkshopModal() {
+  document.getElementById('workshop-modal-title').textContent = 'Add Workshop';
+  document.getElementById('workshop-id').value = '';
+  document.getElementById('workshop-title').value = '';
+  document.getElementById('workshop-description').value = '';
+  document.getElementById('workshop-duration').value = '4';
+  document.getElementById('workshop-price').value = '';
+  openModal('modal-workshop');
+}
+
+function openEditWorkshopModal(wid) {
+  const w = (S.workshops || []).find(x => x.id === wid);
+  if (!w) return;
+  document.getElementById('workshop-modal-title').textContent = 'Edit Workshop';
+  document.getElementById('workshop-id').value = w.id;
+  document.getElementById('workshop-title').value = w.title;
+  document.getElementById('workshop-description').value = w.description || '';
+  document.getElementById('workshop-duration').value = w.duration_hours;
+  document.getElementById('workshop-price').value = w.price_per_pax ?? '';
+  openModal('modal-workshop');
+}
+
+async function saveWorkshop() {
+  const id = document.getElementById('workshop-id').value;
+  const payload = {
+    title: document.getElementById('workshop-title').value.trim(),
+    description: document.getElementById('workshop-description').value,
+    duration_hours: parseFloat(document.getElementById('workshop-duration').value) || 4,
+    price_per_pax: document.getElementById('workshop-price').value || null,
+  };
+  if (!payload.title) { toast('Title is required', true); return; }
+  try {
+    if (id) await PUT(`/api/admin/workshops/${id}`, payload);
+    else    await POST('/api/admin/workshops', payload);
+    toast('Workshop saved');
+    closeModal('modal-workshop');
+    await loadWorkshopCatalogue();
+  } catch(e) { toast(e.message, true); }
+}
+
+async function deleteWorkshop(wid) {
+  if (!confirm('Delete this workshop and all its runs, attendees & feedback?')) return;
+  try {
+    await DELETE(`/api/admin/workshops/${wid}`);
+    toast('Workshop deleted');
+    await loadWorkshopCatalogue();
+  } catch(e) { toast(e.message, true); }
+}
+
+function openScheduleRunModal(wid) {
+  document.getElementById('run-workshop-id').value = wid;
+  document.getElementById('run-start').value = '';
+  document.getElementById('run-end').value = '';
+  document.getElementById('run-venue').value = '';
+  document.getElementById('run-capacity').value = '';
+  document.getElementById('run-price').value = '';
+  document.getElementById('run-google-review').value = '';
+  const sel = document.getElementById('run-teacher');
+  sel.innerHTML = '<option value="">— none —</option>' +
+    (S.teachers || []).map(t => `<option value="${t.id}">${t.name}</option>`).join('');
+  openModal('modal-schedule-run');
+}
+
+async function saveScheduleRun() {
+  const wid = document.getElementById('run-workshop-id').value;
+  const start = document.getElementById('run-start').value;
+  if (!start) { toast('Start date & time is required', true); return; }
+  try {
+    await POST(`/api/admin/workshops/${wid}/runs`, {
+      start_datetime: start,
+      end_datetime: document.getElementById('run-end').value || null,
+      venue: document.getElementById('run-venue').value,
+      capacity: document.getElementById('run-capacity').value || null,
+      price_per_pax: document.getElementById('run-price').value || null,
+      teacher_id: document.getElementById('run-teacher').value || null,
+      google_review_url: document.getElementById('run-google-review').value,
+    });
+    toast('Run scheduled');
+    closeModal('modal-schedule-run');
+    await loadWorkshopCatalogue();
+  } catch(e) { toast(e.message, true); }
+}
+
+async function runClassifyExistingStudents() {
+  if (!confirm('This will create/reuse the "AI for Workplace" workshop run (16 Jun - 7 Aug 2026, Foon Yew School) and register every current student as an attendee, except Ban Soon, Vanessa, Henry, Sya Sya, Buan Jeng, and Jaylene. Safe to run more than once. Continue?')) return;
+  try {
+    const res = await POST('/api/admin/workshop-runs/classify-existing-students', {});
+    const msg = `Added ${res.added.length} attendee(s).\n\n` +
+      `Skipped as Core Subjects (${res.skipped_as_core_subjects.length}): ${res.skipped_as_core_subjects.join(', ') || '(none matched — check spelling!)'}\n\n` +
+      (res.already_registered.length ? `Already registered (${res.already_registered.length}): ${res.already_registered.join(', ')}\n\n` : '') +
+      `Please review the run detail page to confirm the right people were added.`;
+    alert(msg);
+    await loadWorkshopCatalogue();
+  } catch(e) { toast(e.message, true); }
+}
+
+async function loadUpcomingRuns() {
+  const runs = await GET('/api/admin/workshop-runs?upcoming=1');
+  const el = document.getElementById('workshop-runs-list');
+  if (!runs.length) {
+    el.innerHTML = '<div class="empty-state"><i class="fas fa-calendar-day"></i><p>No upcoming runs scheduled.</p></div>';
+    return;
+  }
+  el.innerHTML = runs.map(r => {
+    const dt = new Date(r.start_datetime);
+    const day = dt.toLocaleDateString('en-GB', { day: '2-digit' });
+    const mon = dt.toLocaleDateString('en-GB', { month: 'short' });
+    const capPct = r.capacity ? Math.min(100, Math.round(r.attendee_count / r.capacity * 100)) : 0;
+    return `
+    <div style="display:flex;align-items:center;gap:14px;padding:12px 0;border-bottom:1px solid var(--border);cursor:pointer" onclick="openRunDetail(${r.id})">
+      <div style="font-family:'JetBrains Mono',monospace;font-size:11px;background:var(--surface2);border:1px solid var(--border2);border-radius:7px;padding:8px 10px;text-align:center;min-width:54px">
+        <div style="font-size:16px;font-weight:700;color:var(--cyan);line-height:1">${day}</div>
+        <div style="font-size:9px;color:var(--text-muted);text-transform:uppercase">${mon}</div>
+      </div>
+      <div style="flex:1">
+        <div style="font-weight:700">${r.workshop_title}</div>
+        <div style="font-size:11px;color:var(--text-muted)"><i class="fas fa-map-marker-alt" style="margin-right:4px"></i>${r.venue || 'No venue set'} · ${r.start_display}</div>
+      </div>
+      <div style="text-align:right">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:12px">${r.attendee_count}${r.capacity ? ' / ' + r.capacity : ''}</div>
+        ${r.capacity ? `<div style="width:90px;height:5px;background:var(--surface2);border-radius:3px;overflow:hidden;margin-top:4px"><div style="height:100%;width:${capPct}%;background:${capPct>=100?'var(--gold)':'var(--cyan)'}"></div></div>` : ''}
+      </div>
+      <button class="btn btn-secondary btn-sm" onclick="event.stopPropagation();openRunDetail(${r.id})">View</button>
+    </div>`;
+  }).join('');
+}
+
+async function openRunDetail(rid) {
+  showView('workshop-run-detail');
+  const body = document.getElementById('workshop-run-detail-body');
+  body.innerHTML = '<div style="color:var(--text-muted);padding:20px">Loading...</div>';
+  const run = await GET(`/api/admin/workshop-runs/${rid}`);
+  S.currentRun = run;
+  renderRunDetail(run);
+}
+
+function renderRunDetail(run) {
+  const body = document.getElementById('workshop-run-detail-body');
+  body.innerHTML = `
+    <h2 style="font-family:'Syne',sans-serif;font-weight:700;font-size:19px;margin-bottom:4px">${run.workshop_title} — ${run.start_display}</h2>
+    <div style="font-size:12px;color:var(--text-muted);margin-bottom:18px">
+      <i class="fas fa-map-marker-alt"></i> ${run.venue || 'No venue set'}
+      ${run.teacher_name ? ' · Facilitated by ' + run.teacher_name : ''}
+      ${run.price_per_pax != null ? ' · RM ' + run.price_per_pax.toFixed(2) + '/pax' : ''}
+    </div>
+
+    <div style="display:flex;gap:14px;flex-wrap:wrap;margin-bottom:18px">
+      <div class="card" style="flex:1;min-width:120px"><div style="font-family:'Syne',sans-serif;font-size:22px;font-weight:800;color:var(--cyan)">${run.attendee_count}</div><div style="font-size:11px;color:var(--text-muted)">Attendees</div></div>
+      <div class="card" style="flex:1;min-width:120px"><div style="font-family:'Syne',sans-serif;font-size:22px;font-weight:800;color:var(--cyan)">${run.attended_count}</div><div style="font-size:11px;color:var(--text-muted)">Marked Present</div></div>
+      <div class="card" style="flex:1;min-width:120px"><div style="font-family:'Syne',sans-serif;font-size:22px;font-weight:800;color:var(--cyan)">${run.feedback_count}</div><div style="font-size:11px;color:var(--text-muted)">Feedback Submitted</div></div>
+      <div class="card" style="flex:1;min-width:120px"><div style="font-family:'Syne',sans-serif;font-size:22px;font-weight:800;color:var(--gold)">${run.avg_event_rating ?? '—'}${run.avg_event_rating ? '★' : ''}</div><div style="font-size:11px;color:var(--text-muted)">Avg. Event Rating</div></div>
+      <div class="card" style="flex:1;min-width:120px"><div style="font-family:'Syne',sans-serif;font-size:22px;font-weight:800;color:var(--gold)">${run.avg_teacher_rating ?? '—'}${run.avg_teacher_rating ? '★' : ''}</div><div style="font-size:11px;color:var(--text-muted)">Avg. Facilitator Rating</div></div>
+      ${run.revenue != null ? `<div class="card" style="flex:1;min-width:120px"><div style="font-family:'Syne',sans-serif;font-size:22px;font-weight:800;color:var(--green2)">RM ${run.revenue.toFixed(0)}</div><div style="font-size:11px;color:var(--text-muted)">Revenue (paid)</div></div>` : ''}
+    </div>
+
+    <div style="display:grid;grid-template-columns:1.3fr 1fr;gap:16px">
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+          <div style="font-weight:700">Attendees</div>
+          <button class="btn btn-primary btn-sm" onclick="openAddAttendeeModal(${run.id})"><i class="fas fa-user-plus"></i> Add</button>
+        </div>
+        <div id="run-attendee-list">${renderAttendeeRows(run)}</div>
+      </div>
+
+      <div>
+        <div class="card" style="margin-bottom:14px">
+          <div style="font-weight:700;margin-bottom:10px">QR Codes</div>
+          <div id="run-qr-area" style="color:var(--text-muted);font-size:12px">Loading QR codes...</div>
+        </div>
+        <div class="card">
+          <div style="font-weight:700;margin-bottom:10px">Feedback</div>
+          <div id="run-feedback-list">${renderFeedbackItems(run.feedback)}</div>
+        </div>
+      </div>
+    </div>
+  `;
+  loadRunQr(run.id);
+}
+
+function renderAttendeeRows(run) {
+  if (!run.attendees.length) return '<div style="color:var(--text-muted);font-size:12px;padding:8px 0">No attendees registered yet.</div>';
+  return run.attendees.map(a => `
+    <div style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--border)">
+      <div style="width:28px;height:28px;border-radius:50%;background:var(--purple-dim);color:var(--purple);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700">${(a.client_name||'?').split(' ').map(n=>n[0]).slice(0,2).join('').toUpperCase()}</div>
+      <div style="flex:1">
+        <div style="font-weight:600;font-size:12px">${a.client_name}</div>
+        <div style="font-size:10px;color:var(--text-muted)">${a.client_email} · <span class="badge badge-${a.payment_status}">${a.payment_status}</span></div>
+      </div>
+      <div onclick="toggleAttendance(${run.id},${a.id},${!a.attended})" style="width:36px;height:20px;border-radius:10px;cursor:pointer;position:relative;background:${a.attended?'var(--cyan-dim)':'var(--surface2)'};border:1px solid ${a.attended?'var(--cyan)':'var(--border3)'}" title="Mark present/absent">
+        <div style="position:absolute;top:1px;left:${a.attended?'17px':'1px'};width:16px;height:16px;border-radius:50%;background:${a.attended?'var(--cyan)':'var(--text-dim)'};transition:left .15s"></div>
+      </div>
+      <button class="btn btn-secondary btn-sm" onclick="openAttendeePaymentModal(${run.id},${a.id})" title="Payment"><i class="fas fa-credit-card"></i></button>
+      <button class="btn btn-danger btn-sm btn-icon" onclick="deleteAttendee(${run.id},${a.id})" title="Remove"><i class="fas fa-times"></i></button>
+    </div>
+  `).join('');
+}
+
+function renderFeedbackItems(feedback) {
+  if (!feedback.length) return '<div style="color:var(--text-muted);font-size:12px">No feedback submitted yet.</div>';
+  return feedback.map(f => `
+    <div style="padding:9px 0;border-bottom:1px solid var(--border)">
+      <div style="color:var(--gold);font-size:12px">${'★'.repeat(f.event_rating)}${'☆'.repeat(5-f.event_rating)}${f.teacher_rating ? ' · Facilitator: ' + '★'.repeat(f.teacher_rating) : ''}</div>
+      ${f.comment ? `<div style="font-size:11px;color:var(--text-muted);font-style:italic;margin-top:3px">"${f.comment}"</div>` : ''}
+      <div style="font-size:10px;color:var(--text-dim);margin-top:3px">${f.attendee_name}</div>
+    </div>
+  `).join('');
+}
+
+async function loadRunQr(rid) {
+  try {
+    const qr = await GET(`/api/admin/workshop-runs/${rid}/qr`);
+    document.getElementById('run-qr-area').innerHTML = `
+      <div style="display:flex;gap:16px;flex-wrap:wrap">
+        <div style="text-align:center">
+          <img src="data:image/png;base64,${qr.feedback_qr_png_base64}" style="width:120px;height:120px;border-radius:6px;background:#fff;padding:6px" />
+          <div style="font-size:10px;color:var(--text-muted);margin-top:6px">Feedback Form</div>
+        </div>
+        ${qr.review_qr_png_base64 ? `
+        <div style="text-align:center">
+          <img src="data:image/png;base64,${qr.review_qr_png_base64}" style="width:120px;height:120px;border-radius:6px;background:#fff;padding:6px" />
+          <div style="font-size:10px;color:var(--text-muted);margin-top:6px">Google Review</div>
+        </div>` : '<div style="font-size:11px;color:var(--text-dim)">No Google review link set for this run.</div>'}
+      </div>
+      <div style="font-size:10px;color:var(--text-dim);margin-top:10px;word-break:break-all">${qr.feedback_url}</div>
+    `;
+  } catch(e) {
+    document.getElementById('run-qr-area').innerHTML = `<span style="color:var(--red)">${e.message}</span>`;
+  }
+}
+
+function openAddAttendeeModal(rid) {
+  document.getElementById('att-run-id').value = rid;
+  document.getElementById('att-name').value = '';
+  document.getElementById('att-email').value = '';
+  document.getElementById('att-phone').value = '';
+  openModal('modal-add-attendee');
+}
+
+async function saveAddAttendee() {
+  const rid = document.getElementById('att-run-id').value;
+  const email = document.getElementById('att-email').value.trim();
+  if (!email) { toast('Email is required', true); return; }
+  try {
+    await POST(`/api/admin/workshop-runs/${rid}/attendees`, {
+      name: document.getElementById('att-name').value,
+      email,
+      phone: document.getElementById('att-phone').value,
+    });
+    toast('Attendee registered');
+    closeModal('modal-add-attendee');
+    await openRunDetail(parseInt(rid));
+  } catch(e) { toast(e.message, true); }
+}
+
+async function toggleAttendance(rid, aid, attended) {
+  try {
+    await PUT(`/api/admin/workshop-runs/${rid}/attendees/${aid}`, { attended });
+    await openRunDetail(rid);
+  } catch(e) { toast(e.message, true); }
+}
+
+async function deleteAttendee(rid, aid) {
+  if (!confirm('Remove this attendee from the run?')) return;
+  try {
+    await DELETE(`/api/admin/workshop-runs/${rid}/attendees/${aid}`);
+    toast('Attendee removed');
+    await openRunDetail(rid);
+  } catch(e) { toast(e.message, true); }
+}
+
+function openAttendeePaymentModal(rid, aid) {
+  const run = S.currentRun;
+  const a = run.attendees.find(x => x.id === aid);
+  if (!a) return;
+  document.getElementById('ap-run-id').value = rid;
+  document.getElementById('ap-attendee-id').value = aid;
+  document.getElementById('ap-status').value = a.payment_status || 'pending';
+  document.getElementById('ap-amount').value = a.payment_amount ?? '';
+  document.getElementById('ap-method').value = a.payment_method || '';
+  openModal('modal-attendee-payment');
+}
+
+async function saveAttendeePayment() {
+  const rid = document.getElementById('ap-run-id').value;
+  const aid = document.getElementById('ap-attendee-id').value;
+  try {
+    await PUT(`/api/admin/workshop-runs/${rid}/attendees/${aid}`, {
+      payment_status: document.getElementById('ap-status').value,
+      payment_amount: document.getElementById('ap-amount').value || null,
+      payment_method: document.getElementById('ap-method').value || null,
+    });
+    toast('Payment updated');
+    closeModal('modal-attendee-payment');
+    await openRunDetail(parseInt(rid));
+  } catch(e) { toast(e.message, true); }
 }
 
 // ═══════════════════════════════════════════════════════
