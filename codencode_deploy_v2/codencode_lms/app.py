@@ -30,6 +30,7 @@ from flask_login import (LoginManager, login_user, logout_user,
                          login_required, current_user)
 from sqlalchemy import text
 from sqlalchemy.exc import IntegrityError
+from itsdangerous import BadSignature, URLSafeSerializer
 from werkzeug.utils import secure_filename
 
 import io
@@ -109,6 +110,7 @@ _BREVO_API_KEY  = os.environ.get('BREVO_API_KEY', '')
 _BUSINESS_NAME  = os.environ.get('BUSINESS_NAME',    'CODE N CODE SOLUTION')
 _BUSINESS_SSM   = os.environ.get('BUSINESS_SSM',     '202603072017 (AS0511861-M)')
 _BUSINESS_ADDR  = os.environ.get('BUSINESS_ADDRESS', '')
+_DEFAULT_STUDENT_PASSWORD = os.environ.get('DEFAULT_STUDENT_PASSWORD', 'codencode123')
 
 # ─────────────────────────────────────────────
 # WhatsApp notifications disabled for now
@@ -375,6 +377,45 @@ def email_payment_receipt(enrollment) -> bool:
     return send_email(
         s.email,
         f'Payment Confirmed — {enrollment.course.title} | codencode.my',
+        _email_wrapper('Payment Received! 🎉', body)
+    )
+
+
+def _workshop_receipt_serializer():
+    return URLSafeSerializer(app.config['SECRET_KEY'], salt='workshop-receipt')
+
+
+def _workshop_receipt_token(attendee) -> str:
+    return _workshop_receipt_serializer().dumps({'rid': attendee.run_id, 'aid': attendee.id})
+
+
+def email_workshop_payment_receipt(attendee) -> bool:
+    """Assign/persist the workshop receipt number and email the attendee a receipt link."""
+    client = attendee.client
+    run = attendee.run
+    workshop = run.workshop if run else None
+    if not client or not client.email or not workshop:
+        return False
+    doc_no = f'RCP-{get_or_assign_attendee_document_number(attendee):03d}'
+    amount = attendee.payment_amount
+    if amount is None and run:
+        amount = run.effective_price()
+    amt_str = f'RM {amount:,.2f}' if amount is not None else '—'
+    paid_d = (attendee.paid_at or datetime.utcnow()).strftime('%d %B %Y')
+    receipt_url = f'https://learn.codencode.my/api/workshop-attendees/receipt/{_workshop_receipt_token(attendee)}'
+    body = f"""
+    <p>Hi <strong>{client.name}</strong>,</p>
+    <p>Thank you! Your payment for <strong>{workshop.title}</strong> has been received and confirmed.</p>
+    <p>
+      <span class="badge">{doc_no}</span>&nbsp;
+      <span class="badge">{amt_str}</span>
+    </p>
+    <p style="color:#A4B4A4;font-size:13px">Payment date: {paid_d}</p>
+    <a class="btn" href="{receipt_url}">View Your Receipt →</a>
+    """
+    return send_email(
+        client.email,
+        f'Payment Confirmed — {workshop.title} | codencode.my',
         _email_wrapper('Payment Received! 🎉', body)
     )
 
@@ -1432,17 +1473,43 @@ def api_dashboard(cid):
 # ═════════════════════════════════════════════
 
 # ── Students ──────────────────────────────────
+def _admin_student_payload(student):
+    d = student.to_dict()
+    d['enrollments'] = [e.to_dict() for e in student.enrollments]
+    workshop_attendances = WorkshopAttendee.query.filter_by(client_id=student.id) \
+        .join(WorkshopRun, WorkshopAttendee.run_id == WorkshopRun.id) \
+        .order_by(WorkshopRun.start_datetime.desc()) \
+        .all()
+    d['workshop_attendances'] = []
+    for att in workshop_attendances:
+        run = att.run
+        workshop = run.workshop if run else None
+        d['workshop_attendances'].append({
+            'id': att.id,
+            'run_id': att.run_id,
+            'workshop_title': workshop.title if workshop else '',
+            'start_display': run.start_datetime.strftime('%a, %d %b %Y · %I:%M %p') if run and run.start_datetime else '',
+            'venue': (run.venue or '') if run else '',
+            'attended': bool(att.attended),
+            'payment_status': att.payment_status or 'pending',
+            'payment_amount': att.payment_amount,
+            'payment_method': att.payment_method or '',
+            'paid_at': att.paid_at.strftime('%b %d, %Y') if att.paid_at else None,
+            'document_number': att.document_number,
+        })
+    return d
+
+
 @app.route('/api/admin/students', methods=['GET', 'POST'])
 @admin_required
 def admin_students():
     if request.method == 'GET':
-        students = User.query.filter_by(role='student').order_by(User.name).all()
-        result = []
-        for s in students:
-            d = s.to_dict()
-            d['enrollments'] = [e.to_dict() for e in s.enrollments]
-            result.append(d)
-        return jsonify(result)
+        student_ids = {uid for (uid,) in User.query.filter_by(role='student').with_entities(User.id).all()}
+        student_ids.update(
+            uid for (uid,) in WorkshopAttendee.query.with_entities(WorkshopAttendee.client_id).distinct().all()
+        )
+        students = User.query.filter(User.id.in_(student_ids)).order_by(User.name).all() if student_ids else []
+        return jsonify([_admin_student_payload(s) for s in students])
     # POST
     data = request.get_json()
     email = data.get('email', '').strip().lower()
@@ -1463,7 +1530,7 @@ def admin_students():
     u.temp_password = plain_pw
     db.session.add(u)
     db.session.commit()
-    return jsonify({'student': u.to_dict()}), 201
+    return jsonify({'student': _admin_student_payload(u)}), 201
 
 
 @app.route('/api/admin/students/<int:uid>', methods=['GET', 'PUT', 'DELETE'])
@@ -1472,9 +1539,7 @@ def admin_student_detail(uid):
     s = User.query.get_or_404(uid)
 
     if request.method == 'GET':
-        d = s.to_dict()
-        d['enrollments'] = [e.to_dict() for e in s.enrollments]
-        return jsonify(d)
+        return jsonify(_admin_student_payload(s))
 
     if request.method == 'DELETE':
         if s.role == 'admin':
@@ -3764,15 +3829,81 @@ def _find_or_create_client(name, email, phone=None):
     for a workshop attendee who has never touched the LMS before."""
     email = (email or '').strip().lower()
     if not email:
-        return None, 'email is required'
+        return None, 'email is required', None
     user = User.query.filter_by(email=email).first()
     if user:
-        return user, None
-    user = User(name=(name or email).strip(), email=email, role='student', phone=(phone or '').strip())
-    user.set_password(uuid.uuid4().hex)  # unusable random password; workshop attendees don't need LMS login
+        repaired = False
+        if user.role == 'student' and not user.temp_password and not user.last_login:
+            user.set_password(_DEFAULT_STUDENT_PASSWORD)
+            user.temp_password = _DEFAULT_STUDENT_PASSWORD
+            repaired = True
+        if phone and not user.phone:
+            user.phone = phone.strip()
+        return user, None, {
+            'created': False,
+            'repaired_login': repaired,
+            'login_email': user.email,
+            'login_password': user.temp_password if repaired else None,
+        }
+    user = User(
+        name=(name or email).strip(),
+        email=email,
+        role='student',
+        phone=(phone or '').strip(),
+        language_pref='en',
+    )
+    user.set_password(_DEFAULT_STUDENT_PASSWORD)
+    user.temp_password = _DEFAULT_STUDENT_PASSWORD
     db.session.add(user)
     db.session.flush()
-    return user, None
+    return user, None, {
+        'created': True,
+        'repaired_login': False,
+        'login_email': user.email,
+        'login_password': _DEFAULT_STUDENT_PASSWORD,
+    }
+
+
+def _ensure_workshop_client_login(user):
+    """Give older never-logged-in workshop student accounts a known LMS password."""
+    if not user or user.role != 'student':
+        return {
+            'created': False,
+            'repaired_login': False,
+            'login_email': user.email if user else '',
+            'login_password': None,
+        }
+    repaired = False
+    if not user.temp_password and not user.last_login:
+        user.set_password(_DEFAULT_STUDENT_PASSWORD)
+        user.temp_password = _DEFAULT_STUDENT_PASSWORD
+        repaired = True
+    return {
+        'created': False,
+        'repaired_login': repaired,
+        'login_email': user.email,
+        'login_password': user.temp_password if repaired else None,
+    }
+
+
+def repair_workshop_attendee_logins():
+    """Repair legacy workshop attendees created before workshop logins were enabled."""
+    repaired = 0
+    attendee_user_ids = [
+        uid for (uid,) in WorkshopAttendee.query.with_entities(WorkshopAttendee.client_id).distinct().all()
+    ]
+    if not attendee_user_ids:
+        return 0
+    users = User.query.filter(User.id.in_(attendee_user_ids), User.role == 'student').all()
+    for user in users:
+        if not user.temp_password and not user.last_login:
+            user.set_password(_DEFAULT_STUDENT_PASSWORD)
+            user.temp_password = _DEFAULT_STUDENT_PASSWORD
+            repaired += 1
+    if repaired:
+        db.session.commit()
+        app.logger.info('Repaired LMS login for %d legacy workshop attendee account(s)', repaired)
+    return repaired
 
 
 def _create_workshop(data):
@@ -3968,10 +4099,12 @@ def admin_add_workshop_attendee(rid):
     run = WorkshopRun.query.get_or_404(rid)
     data = request.get_json()
     client_id = data.get('client_id')
+    account = None
     if client_id:
         client = User.query.get_or_404(int(client_id))
+        account = _ensure_workshop_client_login(client)
     else:
-        client, err = _find_or_create_client(data.get('name'), data.get('email'), data.get('phone'))
+        client, err, account = _find_or_create_client(data.get('name'), data.get('email'), data.get('phone'))
         if err:
             return jsonify({'error': err}), 400
     existing = WorkshopAttendee.query.filter_by(run_id=rid, client_id=client.id).first()
@@ -3984,7 +4117,7 @@ def admin_add_workshop_attendee(rid):
     )
     db.session.add(att)
     db.session.commit()
-    return jsonify({'attendee': att.to_dict()}), 201
+    return jsonify({'attendee': att.to_dict(), 'account': account}), 201
 
 
 @app.route('/api/admin/workshop-runs/<int:rid>/attendees/<int:aid>', methods=['PUT', 'DELETE'])
@@ -4002,23 +4135,33 @@ def admin_workshop_attendee_detail(rid, aid):
     if 'payment_amount' in data and data['payment_amount'] not in (None, ''):
         att.payment_amount = float(data['payment_amount'])
     if 'payment_method' in data: att.payment_method = data['payment_method'] or None
-    if old_status != 'paid' and att.payment_status == 'paid':
+    just_paid = old_status != 'paid' and att.payment_status == 'paid'
+    if just_paid:
         att.paid_at = att.paid_at or datetime.utcnow()
         if not att.document_number:
             att.document_number = next_document_number()
     db.session.commit()
-    return jsonify({'attendee': att.to_dict()})
+
+    email_status = None
+    if just_paid:
+        email_status = {}
+        try:
+            email_status['receipt_sent'] = email_workshop_payment_receipt(att)
+        except Exception as exc:
+            app.logger.error('Workshop receipt email failed for attendee %s: %s', aid, exc)
+            email_status['receipt_sent'] = False
+            email_status['receipt_error'] = str(exc)
+
+    return jsonify({'attendee': att.to_dict(), 'just_paid': just_paid, 'email_status': email_status})
 
 
-@app.route('/api/admin/workshop-runs/<int:rid>/attendees/<int:aid>/invoice')
-@admin_required
-def admin_workshop_attendee_invoice(rid, aid):
-    """Return a printable HTML invoice page for a workshop attendee."""
-    att = WorkshopAttendee.query.filter_by(id=aid, run_id=rid).first_or_404()
+def render_workshop_attendee_invoice_html(attendee):
+    """Render the printable workshop receipt/invoice HTML for admin and emailed links."""
+    att = attendee
     run = att.run
     workshop = run.workshop if run else None
     client = att.client
-    inv_num = f'INV-{get_or_assign_attendee_document_number(att):03d}'
+    inv_num = f'RCP-{get_or_assign_attendee_document_number(att):03d}' if (att.payment_status or '').lower() == 'paid' else f'INV-{get_or_assign_attendee_document_number(att):03d}'
     issued = datetime.utcnow().strftime('%d %B %Y')
     pay_status = (att.payment_status or 'pending').lower()
     status_colour = {'paid': '#28ca41', 'pending': '#e3b341', 'overdue': '#f85149'}.get(
@@ -4067,7 +4210,7 @@ def admin_workshop_attendee_invoice(rid, aid):
   <div class="header">
     <div>
       <img src="https://learn.codencode.my/static/img/logo.png" alt="codencode.my" class="brand-logo">
-      <div style="color:#555;margin-top:4px;font-size:12px">Workshop Invoice</div>
+      <div style="color:#555;margin-top:4px;font-size:12px">Workshop {'Receipt' if pay_status == 'paid' else 'Invoice'}</div>
     </div>
     <div class="inv-meta">
       <div class="inv-num">{inv_num}</div>
@@ -4117,6 +4260,28 @@ def admin_workshop_attendee_invoice(rid, aid):
   </div>
 </body>
 </html>"""
+    return html
+
+
+@app.route('/api/admin/workshop-runs/<int:rid>/attendees/<int:aid>/invoice')
+@admin_required
+def admin_workshop_attendee_invoice(rid, aid):
+    """Return a printable HTML invoice page for a workshop attendee."""
+    att = WorkshopAttendee.query.filter_by(id=aid, run_id=rid).first_or_404()
+    html = render_workshop_attendee_invoice_html(att)
+    from flask import Response
+    return Response(html, mimetype='text/html')
+
+
+@app.route('/api/workshop-attendees/receipt/<token>')
+def public_workshop_attendee_receipt(token):
+    """Signed public workshop receipt link for attendees who do not use LMS login."""
+    try:
+        data = _workshop_receipt_serializer().loads(token)
+    except BadSignature:
+        return 'Invalid receipt link', 404
+    att = WorkshopAttendee.query.filter_by(id=data.get('aid'), run_id=data.get('rid')).first_or_404()
+    html = render_workshop_attendee_invoice_html(att)
     from flask import Response
     return Response(html, mimetype='text/html')
 
@@ -5051,6 +5216,12 @@ with app.app_context():
                         conn.commit()
     except Exception:
         app.logger.exception('Workshop schema migration failed')
+
+    try:
+        repair_workshop_attendee_logins()
+    except Exception:
+        db.session.rollback()
+        app.logger.exception('Workshop attendee login repair failed')
 
     # Existing installs may have courses from before teacher assignment existed.
     # When there is only one teacher, make that teacher the owner so their portal

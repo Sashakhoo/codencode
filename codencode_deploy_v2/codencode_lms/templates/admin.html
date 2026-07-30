@@ -1645,7 +1645,7 @@
     <div class="form-group" style="margin-bottom:14px">
       <label class="form-label">Email *</label>
       <input class="form-input" type="email" id="att-email" placeholder="you@example.com" />
-      <div style="font-size:10px;color:var(--text-dim);margin-top:4px">If this email already exists in the system, we'll link to that person instead of creating a duplicate.</div>
+      <div style="font-size:10px;color:var(--text-dim);margin-top:4px">New workshop attendees get LMS login access. Default password: codencode123. If this email already exists, we'll link to that person instead of creating a duplicate.</div>
     </div>
     <div class="form-group" style="margin-bottom:14px">
       <label class="form-label">Phone</label>
@@ -2245,10 +2245,12 @@ function selectStudent(uid) {
 }
 
 function renderStudentDetail(s) {
-  const enrolledCourseIds = new Set(s.enrollments.map(e => e.course_id));
+  const enrollments = Array.isArray(s.enrollments) ? s.enrollments : [];
+  const workshopAttendances = Array.isArray(s.workshop_attendances) ? s.workshop_attendances : [];
+  const enrolledCourseIds = new Set(enrollments.map(e => e.course_id));
   const availableCourses  = S.courses.filter(c => !enrolledCourseIds.has(c.id));
   // Store enrollment data in map so buttons can safely reference by ID
-  s.enrollments.forEach(e => { S.enrollMap = S.enrollMap || {}; S.enrollMap[e.id] = e; });
+  enrollments.forEach(e => { S.enrollMap = S.enrollMap || {}; S.enrollMap[e.id] = e; });
 
   document.getElementById('student-detail').innerHTML = `
     <div class="card">
@@ -2268,7 +2270,7 @@ function renderStudentDetail(s) {
 
       <div class="detail-tabs">
         <div class="detail-tab active" onclick="switchDetailTab(this,'dt-info-${s.id}')">Profile</div>
-        <div class="detail-tab" onclick="switchDetailTab(this,'dt-enroll-${s.id}')">Courses & Payment</div>
+        <div class="detail-tab" onclick="switchDetailTab(this,'dt-enroll-${s.id}')">Courses, Workshops & Payment</div>
         <div class="detail-tab" onclick="switchDetailTab(this,'dt-att-${s.id}');loadStudentAttendance(${s.id})">Attendance</div>
       </div>
 
@@ -2278,13 +2280,15 @@ function renderStudentDetail(s) {
           <div><div class="form-label">Phone</div><div style="margin-top:4px">${s.phone || '—'}</div></div>
           <div><div class="form-label">IC / Passport</div><div style="margin-top:4px">${s.ic_number || '—'}</div></div>
           <div><div class="form-label">Joined</div><div style="margin-top:4px">${s.created_at}</div></div>
-          <div><div class="form-label">Enrolled Courses</div><div style="margin-top:4px">${s.enrollments.length}</div></div>
+          <div><div class="form-label">Enrolled Courses</div><div style="margin-top:4px">${enrollments.length}</div></div>
+          <div><div class="form-label">Workshop Registrations</div><div style="margin-top:4px">${workshopAttendances.length}</div></div>
         </div>
       </div>
 
       <!-- Courses & Payment tab -->
       <div id="dt-enroll-${s.id}" class="detail-tab-content">
-        ${s.enrollments.length ? s.enrollments.map(e => `
+        <div class="form-label" style="margin-bottom:8px">Course Enrollments</div>
+        ${enrollments.length ? enrollments.map(e => `
           <div class="enroll-row">
             <div class="enroll-course">
               <div style="display:flex;align-items:center;gap:6px">
@@ -2317,6 +2321,24 @@ function renderStudentDetail(s) {
               <i class="fas fa-plus"></i> Assign Course
             </button>
           </div>` : ''}
+
+        <div class="form-label" style="margin:18px 0 8px">Workshop Registrations</div>
+        ${workshopAttendances.length ? workshopAttendances.map(w => `
+          <div class="enroll-row">
+            <div class="enroll-course">
+              <div style="display:flex;align-items:center;gap:6px">
+                ${w.workshop_title || 'Workshop'}
+                ${w.attended ? `<span style="background:var(--green-dim);color:var(--green);border:1px solid var(--green);font-family:'JetBrains Mono',monospace;font-size:9px;padding:1px 7px;border-radius:20px;letter-spacing:.5px">ATTENDED</span>` : ''}
+              </div>
+              <small>${w.start_display || 'Date TBC'}${w.venue ? ' · <span style="color:var(--gold)">' + w.venue + '</span>' : ''}</small>
+              ${w.payment_method ? `<small style="color:var(--cyan)"><i class="fas fa-credit-card" style="margin-right:3px"></i>${w.payment_method}${w.paid_at ? ' · Paid ' + w.paid_at : ''}</small>` : ''}
+            </div>
+            <span class="badge badge-${w.payment_status}">${w.payment_status}</span>
+            <button class="btn btn-secondary btn-sm" onclick="window.open('/api/admin/workshop-runs/${w.run_id}/attendees/${w.id}/invoice','_blank')" title="View workshop ${w.payment_status === 'paid' ? 'receipt' : 'invoice'}" style="color:${w.payment_status === 'paid' ? 'var(--green)' : 'var(--cyan)'}">
+              <i class="fas ${w.payment_status === 'paid' ? 'fa-receipt' : 'fa-file-invoice'}"></i>
+            </button>
+          </div>
+        `).join('') : '<div style="color:var(--text-muted);padding:8px 0">No workshop registrations.</div>'}
       </div>
 
       <!-- Attendance tab -->
@@ -3456,8 +3478,14 @@ async function saveAddAttendee() {
           email,
           phone: document.getElementById('att-phone').value,
         };
-    await POST(`/api/admin/workshop-runs/${rid}/attendees`, payload);
-    toast('Attendee registered');
+    const res = await POST(`/api/admin/workshop-runs/${rid}/attendees`, payload);
+    if (res.account?.created) {
+      toast(`Attendee registered — LMS login: ${res.account.login_email} / ${res.account.login_password}`);
+    } else if (res.account?.repaired_login) {
+      toast(`Attendee registered — LMS login repaired: ${res.account.login_email} / ${res.account.login_password}`);
+    } else {
+      toast('Attendee registered');
+    }
     closeModal('modal-add-attendee');
     await openRunDetail(parseInt(rid));
   } catch(e) { toast(e.message, true); }
@@ -3495,12 +3523,21 @@ async function saveAttendeePayment() {
   const rid = document.getElementById('ap-run-id').value;
   const aid = document.getElementById('ap-attendee-id').value;
   try {
-    await PUT(`/api/admin/workshop-runs/${rid}/attendees/${aid}`, {
+    const payResult = await PUT(`/api/admin/workshop-runs/${rid}/attendees/${aid}`, {
       payment_status: document.getElementById('ap-status').value,
       payment_amount: document.getElementById('ap-amount').value || null,
       payment_method: document.getElementById('ap-method').value || null,
     });
-    toast('Payment updated');
+    if (payResult.just_paid && payResult.email_status) {
+      const st = payResult.email_status;
+      if (st.receipt_sent) {
+        toast('Payment updated — workshop receipt emailed');
+      } else {
+        toast(`Payment updated, but workshop receipt email FAILED${st.receipt_error ? ': ' + st.receipt_error : ''}`, true);
+      }
+    } else {
+      toast('Payment updated');
+    }
     closeModal('modal-attendee-payment');
     await openRunDetail(parseInt(rid));
   } catch(e) { toast(e.message, true); }
