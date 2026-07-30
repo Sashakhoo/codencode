@@ -19,7 +19,6 @@ import urllib.error
 import urllib.parse
 import json as _json_mod
 from datetime import datetime, timedelta
-from datetime import date, time as dt_time
 from functools import wraps
 
 from dotenv import load_dotenv
@@ -3782,9 +3781,9 @@ def _create_workshop(data):
         legacy_defaults = {
             'title': title,
             'description': description,
-            'workshop_date': date.today(),
-            'start_time': dt_time(9, 0),
-            'end_time': dt_time(17, 0),
+            'workshop_date': None,
+            'start_time': None,
+            'end_time': None,
             'format': 'physical',
             'language': 'English',
             'category': 'python',
@@ -3813,6 +3812,39 @@ def _create_workshop(data):
     db.session.add(w)
     db.session.commit()
     return w
+
+
+PREDEFINED_WORKSHOPS = [
+    'AI for Automation',
+    'AI for HR',
+    'AI for Event Management',
+    'AI for Workplace',
+    'AI for Marketing',
+]
+
+
+def seed_predefined_workshops():
+    created, updated = [], []
+    for title in PREDEFINED_WORKSHOPS:
+        workshop = Workshop.query.filter_by(title=title).first()
+        if workshop:
+            if workshop.duration_hours != 4:
+                workshop.duration_hours = 4
+                updated.append(title)
+            continue
+        _create_workshop({
+            'title': title,
+            'description': '',
+            'duration_hours': 4,
+            'price_per_pax': None,
+        })
+        created.append(title)
+    if created or updated:
+        db.session.commit()
+    if created:
+        print(f'Predefined workshops seeded: {", ".join(created)}')
+    if updated:
+        print(f'Predefined workshops updated to 4 hours: {", ".join(updated)}')
 
 
 @app.route('/api/admin/workshops', methods=['GET', 'POST'])
@@ -4846,6 +4878,11 @@ with app.app_context():
                     if col not in workshop_cols:
                         conn.execute(text(f'ALTER TABLE workshops ADD COLUMN {col} {ddl}'))
                         conn.commit()
+                if db.engine.dialect.name == 'postgresql':
+                    for col in ['workshop_date', 'start_time', 'end_time']:
+                        if col in workshop_cols:
+                            conn.execute(text(f'ALTER TABLE workshops ALTER COLUMN {col} DROP NOT NULL'))
+                            conn.commit()
 
             if insp_ws.has_table('workshop_runs'):
                 run_cols = {c['name'] for c in insp_ws.get_columns('workshop_runs')}
@@ -4908,6 +4945,7 @@ with app.app_context():
         db.session.rollback()
 
     seed_demo()
+    seed_predefined_workshops()
     _start_scheduler()
 
 if __name__ == '__main__':
