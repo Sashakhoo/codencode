@@ -2395,24 +2395,34 @@ def trigger_welcome_reminders():
 # SEED
 # ─────────────────────────────────────────────
 def seed_demo():
-    if User.query.first():
-        return
+    created = []
 
-    admin = User(name='Admin', email='admin@codencode.my', role='admin',
-                 phone='010-0000000', ic_number='')
-    admin.set_password('admin1234')
+    admin = User.query.filter_by(email='admin@codencode.my').first()
+    if not admin:
+        admin = User(name='Admin', email='admin@codencode.my', role='admin',
+                     phone='010-0000000', ic_number='')
+        admin.set_password('admin1234')
+        db.session.add(admin)
+        created.append('admin')
 
-    teacher = User(name='Teacher', email='teacher@codencode.my', role='teacher',
-                   phone='011-2345678', ic_number='')
-    teacher.set_password('demo1234')
+    teacher = User.query.filter_by(email='teacher@codencode.my').first()
+    if not teacher:
+        teacher = User(name='Teacher', email='teacher@codencode.my', role='teacher',
+                       phone='011-2345678', ic_number='')
+        teacher.set_password('demo1234')
+        db.session.add(teacher)
+        created.append('teacher')
 
-    student = User(name='Student', email='student@codencode.my', role='student',
-                   phone='012-3456789', ic_number='')
-    student.set_password('demo1234')
+    if not User.query.filter_by(email='student@codencode.my').first():
+        student = User(name='Student', email='student@codencode.my', role='student',
+                       phone='012-3456789', ic_number='')
+        student.set_password('demo1234')
+        db.session.add(student)
+        created.append('student')
 
-    db.session.add_all([admin, teacher, student])
-    db.session.commit()
-    print('✓ Default accounts seeded')
+    if created:
+        db.session.commit()
+        print(f'Default accounts seeded: {", ".join(created)}')
 
 @app.cli.command('reset-certificates')
 def reset_certificates_command():
@@ -3768,8 +3778,13 @@ def admin_workshops():
         duration_hours=float(data.get('duration_hours', 4)),
         price_per_pax=float(data['price_per_pax']) if data.get('price_per_pax') not in (None, '') else None,
     )
-    db.session.add(w)
-    db.session.commit()
+    try:
+        db.session.add(w)
+        db.session.commit()
+    except Exception as exc:
+        db.session.rollback()
+        app.logger.exception('Create workshop failed')
+        return jsonify({'error': f'Could not save workshop: {exc}'}), 500
     return jsonify({'workshop': w.to_dict()}), 201
 
 
@@ -3798,7 +3813,11 @@ def admin_list_workshop_runs():
     upcoming_only = request.args.get('upcoming') == '1'
     q = WorkshopRun.query
     if upcoming_only:
-        q = q.filter(WorkshopRun.start_datetime >= datetime.utcnow())
+        now = datetime.utcnow()
+        q = q.filter(db.or_(
+            WorkshopRun.start_datetime >= now,
+            WorkshopRun.end_datetime >= now
+        ))
     runs = q.order_by(WorkshopRun.start_datetime).all()
     return jsonify([r.to_dict() for r in runs])
 
@@ -3930,36 +3949,50 @@ def admin_classify_existing_students_workshop():
     workshop/run if already created."""
     core_subject_names = {'ban soon', 'vanessa', 'henry', 'sya sya', 'buan jeng', 'jaylene'}
 
-    workshop = Workshop.query.filter_by(title='AI for Workplace').first()
-    if not workshop:
-        workshop = Workshop(title='AI for Workplace', duration_hours=2)
-        db.session.add(workshop)
-        db.session.flush()
+    try:
+        workshop = Workshop.query.filter_by(title='AI for Workplace').first()
+        if not workshop:
+            workshop = Workshop(title='AI for Workplace', duration_hours=2)
+            db.session.add(workshop)
+            db.session.flush()
+        elif not workshop.duration_hours:
+            workshop.duration_hours = 2
 
-    run = WorkshopRun.query.filter_by(workshop_id=workshop.id, venue='Foon Yew School').first()
-    if not run:
-        run = WorkshopRun(
-            workshop_id=workshop.id,
-            start_datetime=datetime(2026, 6, 16, 19, 30),
-            end_datetime=datetime(2026, 8, 7, 21, 30),
-            venue='Foon Yew School',
-            feedback_token=uuid.uuid4().hex[:20],
-        )
-        db.session.add(run)
-        db.session.flush()
+        run = WorkshopRun.query.filter_by(workshop_id=workshop.id, venue='Foon Yew School').first()
+        if not run:
+            run = WorkshopRun(
+                workshop_id=workshop.id,
+                start_datetime=datetime(2026, 6, 16, 19, 30),
+                end_datetime=datetime(2026, 8, 7, 21, 30),
+                venue='Foon Yew School',
+                feedback_token=uuid.uuid4().hex[:20],
+            )
+            db.session.add(run)
+            db.session.flush()
+        else:
+            if not run.start_datetime:
+                run.start_datetime = datetime(2026, 6, 16, 19, 30)
+            if not run.end_datetime:
+                run.end_datetime = datetime(2026, 8, 7, 21, 30)
+            if not run.feedback_token:
+                run.feedback_token = uuid.uuid4().hex[:20]
 
-    added, already_registered, skipped_core = [], [], []
-    for s in User.query.filter_by(role='student').all():
-        name_lower = (s.name or '').strip().lower()
-        if any(core in name_lower for core in core_subject_names):
-            skipped_core.append(s.name)
-            continue
-        if WorkshopAttendee.query.filter_by(run_id=run.id, client_id=s.id).first():
-            already_registered.append(s.name)
-            continue
-        db.session.add(WorkshopAttendee(run_id=run.id, client_id=s.id))
-        added.append(s.name)
-    db.session.commit()
+        added, already_registered, skipped_core = [], [], []
+        for s in User.query.filter_by(role='student').all():
+            name_lower = (s.name or '').strip().lower()
+            if any(core in name_lower for core in core_subject_names):
+                skipped_core.append(s.name)
+                continue
+            if WorkshopAttendee.query.filter_by(run_id=run.id, client_id=s.id).first():
+                already_registered.append(s.name)
+                continue
+            db.session.add(WorkshopAttendee(run_id=run.id, client_id=s.id))
+            added.append(s.name)
+        db.session.commit()
+    except Exception as exc:
+        db.session.rollback()
+        app.logger.exception('Classify existing students for workshop failed')
+        return jsonify({'error': f'Could not classify existing students: {exc}'}), 500
 
     return jsonify({
         'workshop_id': workshop.id,
@@ -4749,6 +4782,71 @@ with app.app_context():
                 conn.commit()
     except Exception:
         pass
+
+    # Workshop feature columns. Existing deployed databases may already have
+    # early workshop tables, and create_all() will not add missing columns.
+    try:
+        insp_ws = sa_inspect(db.engine)
+        timestamp_ddl = 'TIMESTAMP' if db.engine.dialect.name == 'postgresql' else 'DATETIME'
+        bool_default_ddl = 'BOOLEAN DEFAULT FALSE' if db.engine.dialect.name == 'postgresql' else 'BOOLEAN DEFAULT 0'
+        with db.engine.connect() as conn:
+            if insp_ws.has_table('workshops'):
+                workshop_cols = {c['name'] for c in insp_ws.get_columns('workshops')}
+                for col, ddl in [
+                    ('description',    'TEXT'),
+                    ('duration_hours', 'FLOAT DEFAULT 4'),
+                    ('price_per_pax',  'FLOAT'),
+                    ('created_at',     timestamp_ddl),
+                ]:
+                    if col not in workshop_cols:
+                        conn.execute(text(f'ALTER TABLE workshops ADD COLUMN {col} {ddl}'))
+                        conn.commit()
+
+            if insp_ws.has_table('workshop_runs'):
+                run_cols = {c['name'] for c in insp_ws.get_columns('workshop_runs')}
+                for col, ddl in [
+                    ('end_datetime',      timestamp_ddl),
+                    ('venue',             'VARCHAR(300)'),
+                    ('capacity',          'INTEGER'),
+                    ('price_per_pax',     'FLOAT'),
+                    ('teacher_id',        'INTEGER'),
+                    ('google_review_url', 'VARCHAR(500)'),
+                    ('feedback_token',    'VARCHAR(32)'),
+                    ('created_at',        timestamp_ddl),
+                ]:
+                    if col not in run_cols:
+                        conn.execute(text(f'ALTER TABLE workshop_runs ADD COLUMN {col} {ddl}'))
+                        conn.commit()
+
+            if insp_ws.has_table('workshop_attendees'):
+                attendee_cols = {c['name'] for c in insp_ws.get_columns('workshop_attendees')}
+                for col, ddl in [
+                    ('attended',        bool_default_ddl),
+                    ('payment_status',  "VARCHAR(20) DEFAULT 'pending'"),
+                    ('payment_amount',  'FLOAT'),
+                    ('payment_method',  'VARCHAR(50)'),
+                    ('paid_at',         timestamp_ddl),
+                    ('document_number', 'INTEGER'),
+                    ('registered_at',   timestamp_ddl),
+                ]:
+                    if col not in attendee_cols:
+                        conn.execute(text(f'ALTER TABLE workshop_attendees ADD COLUMN {col} {ddl}'))
+                        conn.commit()
+
+            if insp_ws.has_table('workshop_feedback'):
+                feedback_cols = {c['name'] for c in insp_ws.get_columns('workshop_feedback')}
+                for col, ddl in [
+                    ('attendee_id',     'INTEGER'),
+                    ('event_rating',    'INTEGER'),
+                    ('teacher_rating',  'INTEGER'),
+                    ('comment',         'TEXT'),
+                    ('submitted_at',    timestamp_ddl),
+                ]:
+                    if col not in feedback_cols:
+                        conn.execute(text(f'ALTER TABLE workshop_feedback ADD COLUMN {col} {ddl}'))
+                        conn.commit()
+    except Exception:
+        app.logger.exception('Workshop schema migration failed')
 
     # Existing installs may have courses from before teacher assignment existed.
     # When there is only one teacher, make that teacher the owner so their portal
