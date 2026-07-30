@@ -622,6 +622,9 @@ def next_document_number():
         match = re.search(r'(\d+)$', cert_no or '')
         if match:
             last_number = max(last_number, int(match.group(1)))
+    for (doc_no,) in WorkshopAttendee.query.filter(WorkshopAttendee.document_number.isnot(None)) \
+                                           .with_entities(WorkshopAttendee.document_number).all():
+        last_number = max(last_number, doc_no)
     return last_number + 1
 
 
@@ -631,6 +634,14 @@ def get_or_assign_document_number(enrollment) -> int:
         enrollment.document_number = next_document_number()
         db.session.commit()
     return enrollment.document_number
+
+
+def get_or_assign_attendee_document_number(attendee) -> int:
+    """Return this workshop attendee's shared document number, assigning one on first use."""
+    if not attendee.document_number:
+        attendee.document_number = next_document_number()
+        db.session.commit()
+    return attendee.document_number
 
 
 def send_certificate_email(cert):
@@ -3997,6 +4008,117 @@ def admin_workshop_attendee_detail(rid, aid):
             att.document_number = next_document_number()
     db.session.commit()
     return jsonify({'attendee': att.to_dict()})
+
+
+@app.route('/api/admin/workshop-runs/<int:rid>/attendees/<int:aid>/invoice')
+@admin_required
+def admin_workshop_attendee_invoice(rid, aid):
+    """Return a printable HTML invoice page for a workshop attendee."""
+    att = WorkshopAttendee.query.filter_by(id=aid, run_id=rid).first_or_404()
+    run = att.run
+    workshop = run.workshop if run else None
+    client = att.client
+    inv_num = f'INV-{get_or_assign_attendee_document_number(att):03d}'
+    issued = datetime.utcnow().strftime('%d %B %Y')
+    pay_status = (att.payment_status or 'pending').lower()
+    status_colour = {'paid': '#28ca41', 'pending': '#e3b341', 'overdue': '#f85149'}.get(
+        pay_status, '#7d8590')
+    amount = att.payment_amount
+    if amount is None and run:
+        amount = run.effective_price()
+    amount_str = f'RM {amount:,.2f}' if amount is not None else '—'
+    date_str = run.start_datetime.strftime('%d %B %Y') if run and run.start_datetime else 'TBC'
+    time_str = ''
+    if run and run.start_datetime:
+        time_str = run.start_datetime.strftime('%I:%M %p')
+        if run.end_datetime:
+            time_str += ' - ' + run.end_datetime.strftime('%I:%M %p')
+    duration_hours = workshop.duration_hours if workshop and workshop.duration_hours else 4
+
+    html = f"""<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <title>{inv_num} - codencode.my</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=Space+Mono:wght@400;700&display=swap');
+    * {{ box-sizing:border-box; margin:0; padding:0; }}
+    body {{ font-family:'Space Mono',monospace; background:#fff; color:#111; font-size:13px; padding:40px; max-width:720px; margin:auto; }}
+    .header {{ display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:40px; border-bottom:3px solid #00dcb4; padding-bottom:24px; }}
+    .brand-logo {{ height:28px; display:block; }}
+    .inv-meta {{ text-align:right; }}
+    .inv-num {{ font-size:18px; font-weight:700; color:#080c10; }}
+    .inv-date {{ color:#555; margin-top:4px; }}
+    .section {{ margin-bottom:28px; }}
+    .section-title {{ font-size:11px; text-transform:uppercase; letter-spacing:1px; color:#888; margin-bottom:10px; border-bottom:1px solid #eee; padding-bottom:6px; }}
+    .grid-2 {{ display:grid; grid-template-columns:1fr 1fr; gap:20px; }}
+    p {{ margin:5px 0; line-height:1.6; }}
+    strong {{ color:#080c10; }}
+    .status-badge {{ display:inline-block; padding:4px 14px; border-radius:999px; font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:.5px; color:#fff; background:{status_colour}; }}
+    .amount {{ font-size:24px; font-weight:700; color:#00a382; margin-top:8px; }}
+    .footer {{ margin-top:48px; padding-top:20px; border-top:1px solid #eee; font-size:11px; color:#888; text-align:center; }}
+    @media print {{
+      body {{ padding:20px; }}
+      .no-print {{ display:none !important; }}
+    }}
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div>
+      <img src="https://learn.codencode.my/static/img/logo.png" alt="codencode.my" class="brand-logo">
+      <div style="color:#555;margin-top:4px;font-size:12px">Workshop Invoice</div>
+    </div>
+    <div class="inv-meta">
+      <div class="inv-num">{inv_num}</div>
+      <div class="inv-date">Issued: {issued}</div>
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <div class="section">
+      <div class="section-title">Bill To</div>
+      <p><strong>{client.name if client else '(deleted)'}</strong></p>
+      <p>{client.email if client else ''}</p>
+      {'<p>' + client.phone + '</p>' if client and client.phone else ''}
+      {'<p>IC/Passport: ' + client.ic_number + '</p>' if client and client.ic_number else ''}
+    </div>
+    <div class="section">
+      <div class="section-title">Workshop</div>
+      <p><strong>{workshop.title if workshop else ''}</strong></p>
+      <p>Duration: {duration_hours:g} hours</p>
+      <p>Date: {date_str}</p>
+      {'<p>Time: ' + time_str + '</p>' if time_str else ''}
+      {'<p>Venue: ' + run.venue + '</p>' if run and run.venue else ''}
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Payment Details</div>
+    <p><strong>Status:</strong> <span class="status-badge">{pay_status.upper()}</span></p>
+    <p><strong>Amount:</strong></p>
+    <p class="amount">{amount_str}</p>
+    <p><strong>Method:</strong> {att.payment_method or '—'}</p>
+  </div>
+
+  <div class="footer">
+    <p><strong>{_BUSINESS_NAME}</strong> · SSM No. {_BUSINESS_SSM}</p>
+    <p style="margin-top:8px">codencode.my · {inv_num} · Generated {issued}</p>
+    <p style="margin-top:4px">Thank you for learning with us!</p>
+  </div>
+
+  <div class="no-print" style="margin-top:32px;text-align:center">
+    <button onclick="window.print()" style="background:#00dcb4;color:#080c10;border:none;padding:10px 28px;border-radius:6px;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;">
+      Print / Save as PDF
+    </button>
+    <button onclick="window.close()" style="background:#eee;color:#333;border:none;padding:10px 24px;border-radius:6px;font-family:inherit;font-size:13px;cursor:pointer;margin-left:8px;">
+      Close
+    </button>
+  </div>
+</body>
+</html>"""
+    from flask import Response
+    return Response(html, mimetype='text/html')
 
 
 @app.route('/api/admin/workshop-runs/<int:rid>/qr')
