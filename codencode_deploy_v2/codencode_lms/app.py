@@ -3907,9 +3907,13 @@ def repair_workshop_attendee_logins():
 
 
 def mark_foon_yew_evening_workshop_paid():
-    """Mark attendees for the Foon Yew evening workshop as paid."""
+    """Mark Foon Yew AI for Workplace workshop/enrollment payments as paid."""
     runs = WorkshopRun.query.filter(WorkshopRun.venue.ilike('%Foon%Yew%')).all()
-    if not runs:
+    ai_workplace_enrollments = Enrollment.query.join(Course).filter(
+        Course.title == 'AI for Workplace',
+        Enrollment.payment_status != 'paid',
+    ).all()
+    if not runs and not ai_workplace_enrollments:
         return 0
     paid_at = datetime.utcnow()
     updated = 0
@@ -3923,9 +3927,16 @@ def mark_foon_yew_evening_workshop_paid():
                     attendee.document_number = next_doc_no
                     next_doc_no += 1
                 updated += 1
+    for enrollment in ai_workplace_enrollments:
+        enrollment.payment_status = 'paid'
+        enrollment.paid_at = enrollment.paid_at or paid_at
+        if not enrollment.document_number:
+            enrollment.document_number = next_doc_no
+            next_doc_no += 1
+        updated += 1
     if updated:
         db.session.commit()
-        app.logger.info('Marked %d Foon Yew evening workshop attendee(s) as paid', updated)
+        app.logger.info('Marked %d Foon Yew AI for Workplace payment record(s) as paid', updated)
     return updated
 
 
