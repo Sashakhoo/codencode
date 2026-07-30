@@ -19,6 +19,7 @@ import urllib.error
 import urllib.parse
 import json as _json_mod
 from datetime import datetime, timedelta
+from datetime import date, time as dt_time
 from functools import wraps
 
 from dotenv import load_dotenv
@@ -28,6 +29,7 @@ from flask import (Flask, request, jsonify, send_from_directory,
                    session, g)
 from flask_login import (LoginManager, login_user, logout_user,
                          login_required, current_user)
+from sqlalchemy import text
 from sqlalchemy.exc import IntegrityError
 from werkzeug.utils import secure_filename
 
@@ -3763,6 +3765,56 @@ def _find_or_create_client(name, email, phone=None):
     return user, None
 
 
+def _create_workshop(data):
+    title = data['title'].strip()
+    description = data.get('description', '')
+    duration_hours = float(data.get('duration_hours', 4))
+    price_per_pax = float(data['price_per_pax']) if data.get('price_per_pax') not in (None, '') else None
+
+    from sqlalchemy import inspect as _sa_inspect
+    insp = _sa_inspect(db.engine)
+    workshop_cols = {c['name'] for c in insp.get_columns('workshops')}
+
+    # Production may still have the first workshop schema. It has required
+    # columns such as workshop_date that are not part of the current catalogue
+    # model, so ORM inserts cannot satisfy its NOT NULL constraints.
+    if 'workshop_date' in workshop_cols:
+        legacy_defaults = {
+            'title': title,
+            'description': description,
+            'workshop_date': date.today(),
+            'start_time': dt_time(9, 0),
+            'end_time': dt_time(17, 0),
+            'format': 'physical',
+            'language': 'English',
+            'category': 'python',
+            'is_active': False,
+            'created_at': datetime.utcnow(),
+            'updated_at': datetime.utcnow(),
+            'duration_hours': duration_hours,
+            'price_per_pax': price_per_pax,
+        }
+        insert_values = {k: v for k, v in legacy_defaults.items() if k in workshop_cols}
+        col_sql = ', '.join(insert_values.keys())
+        val_sql = ', '.join(f':{k}' for k in insert_values)
+        result = db.session.execute(
+            text(f'INSERT INTO workshops ({col_sql}) VALUES ({val_sql}) RETURNING id'),
+            insert_values
+        )
+        db.session.commit()
+        return Workshop.query.get(result.scalar_one())
+
+    w = Workshop(
+        title=title,
+        description=description,
+        duration_hours=duration_hours,
+        price_per_pax=price_per_pax,
+    )
+    db.session.add(w)
+    db.session.commit()
+    return w
+
+
 @app.route('/api/admin/workshops', methods=['GET', 'POST'])
 @admin_required
 def admin_workshops():
@@ -3772,15 +3824,8 @@ def admin_workshops():
     data = request.get_json()
     if not data.get('title'):
         return jsonify({'error': 'title is required'}), 400
-    w = Workshop(
-        title=data['title'].strip(),
-        description=data.get('description', ''),
-        duration_hours=float(data.get('duration_hours', 4)),
-        price_per_pax=float(data['price_per_pax']) if data.get('price_per_pax') not in (None, '') else None,
-    )
     try:
-        db.session.add(w)
-        db.session.commit()
+        w = _create_workshop(data)
     except Exception as exc:
         db.session.rollback()
         app.logger.exception('Create workshop failed')
