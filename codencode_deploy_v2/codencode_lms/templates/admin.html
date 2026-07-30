@@ -3371,6 +3371,7 @@ function renderAttendeeRows(run) {
         <div style="position:absolute;top:1px;left:${a.attended?'17px':'1px'};width:16px;height:16px;border-radius:50%;background:${a.attended?'var(--cyan)':'var(--text-dim)'};transition:left .15s"></div>
       </div>
       <button class="btn btn-secondary btn-sm" onclick="openAttendeePaymentModal(${run.id},${a.id})" title="Payment"><i class="fas fa-credit-card"></i></button>
+      <button class="btn btn-secondary btn-sm" onclick="window.open('/api/admin/workshop-runs/${run.id}/attendees/${a.id}/invoice','_blank')" title="View invoice" style="color:var(--cyan)"><i class="fas fa-file-invoice"></i></button>
       <button class="btn btn-danger btn-sm btn-icon" onclick="deleteAttendee(${run.id},${a.id})" title="Remove"><i class="fas fa-times"></i></button>
     </div>
   `).join('');
