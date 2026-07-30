@@ -1627,6 +1627,25 @@
   </div>
 </div>
 
+<!-- Assign Workshop from Student Detail -->
+<div class="modal-overlay" id="modal-assign-workshop" onclick="if(event.target===this)closeModal('modal-assign-workshop')">
+  <div class="modal-box">
+    <div class="modal-title">Assign Workshop</div>
+    <input type="hidden" id="assign-workshop-student-id" value="" />
+    <div class="form-group" style="margin-bottom:14px">
+      <label class="form-label">Workshop Run</label>
+      <select class="form-select" id="assign-workshop-run"></select>
+      <div id="assign-workshop-note" style="font-size:10px;color:var(--text-dim);margin-top:4px"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('modal-assign-workshop')">Cancel</button>
+      <button class="btn btn-primary" id="assign-workshop-save" onclick="saveAssignWorkshop()">
+        <i class="fas fa-plus"></i> Assign
+      </button>
+    </div>
+  </div>
+</div>
+
 <!-- Add Attendee to Run -->
 <div class="modal-overlay" id="modal-add-attendee" onclick="if(event.target===this)closeModal('modal-add-attendee')">
   <div class="modal-box">
@@ -2339,6 +2358,12 @@ function renderStudentDetail(s) {
             </button>
           </div>
         `).join('') : '<div style="color:var(--text-muted);padding:8px 0">No workshop registrations.</div>'}
+
+        <div style="margin-top:14px">
+          <button class="btn btn-primary btn-sm" onclick="openAssignWorkshopModal(${s.id})">
+            <i class="fas fa-plus"></i> Assign Workshop
+          </button>
+        </div>
       </div>
 
       <!-- Attendance tab -->
@@ -3301,6 +3326,64 @@ async function runClassifyExistingStudents() {
     alert(msg);
     await loadWorkshopCatalogue();
   } catch(e) { toast(e.message, true); }
+}
+
+async function openAssignWorkshopModal(uid) {
+  const student = (S.students || []).find(s => s.id === uid);
+  if (!student) { toast('Student not found', true); return; }
+  document.getElementById('assign-workshop-student-id').value = uid;
+  const select = document.getElementById('assign-workshop-run');
+  const note = document.getElementById('assign-workshop-note');
+  const saveBtn = document.getElementById('assign-workshop-save');
+  select.innerHTML = '<option value="">Loading workshop runs...</option>';
+  note.textContent = '';
+  saveBtn.disabled = true;
+  openModal('modal-assign-workshop');
+
+  try {
+    const runs = await GET('/api/admin/workshop-runs');
+    const registeredRunIds = new Set((student.workshop_attendances || []).map(w => parseInt(w.run_id)));
+    const availableRuns = runs.filter(r => !registeredRunIds.has(parseInt(r.id)));
+    if (!availableRuns.length) {
+      select.innerHTML = '<option value="">No available workshop runs</option>';
+      note.textContent = 'This student is already registered for every scheduled workshop run.';
+      saveBtn.disabled = true;
+      return;
+    }
+    select.innerHTML = availableRuns.map(r => {
+      const bits = [r.workshop_title, r.start_display || 'Date TBC'];
+      if (r.venue) bits.push(r.venue);
+      return `<option value="${r.id}">${bits.join(' · ')}</option>`;
+    }).join('');
+    note.textContent = `Assigning workshop for ${student.name}.`;
+    saveBtn.disabled = false;
+  } catch(e) {
+    select.innerHTML = '<option value="">Could not load workshop runs</option>';
+    note.textContent = e.message;
+    saveBtn.disabled = true;
+  }
+}
+
+async function saveAssignWorkshop() {
+  const uid = parseInt(document.getElementById('assign-workshop-student-id').value || '0');
+  const rid = document.getElementById('assign-workshop-run').value;
+  if (!uid || !rid) { toast('Select a workshop run', true); return; }
+  const btn = document.getElementById('assign-workshop-save');
+  btn.disabled = true;
+  btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Assigning...';
+  try {
+    await POST(`/api/admin/workshop-runs/${rid}/attendees`, { client_id: uid });
+    toast('Workshop assigned');
+    closeModal('modal-assign-workshop');
+    await loadStudents();
+    renderStudentList();
+    selectStudent(uid);
+  } catch(e) {
+    toast(e.message, true);
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '<i class="fas fa-plus"></i> Assign';
+  }
 }
 
 async function loadUpcomingRuns() {

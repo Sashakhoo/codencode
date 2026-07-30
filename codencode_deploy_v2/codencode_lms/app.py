@@ -3906,6 +3906,29 @@ def repair_workshop_attendee_logins():
     return repaired
 
 
+def mark_foon_yew_evening_workshop_paid():
+    """Mark attendees for the Foon Yew evening workshop as paid."""
+    runs = WorkshopRun.query.filter(WorkshopRun.venue.ilike('%Foon%Yew%')).all()
+    if not runs:
+        return 0
+    paid_at = datetime.utcnow()
+    updated = 0
+    next_doc_no = next_document_number()
+    for run in runs:
+        for attendee in run.attendees:
+            if attendee.payment_status != 'paid':
+                attendee.payment_status = 'paid'
+                attendee.paid_at = attendee.paid_at or paid_at
+                if not attendee.document_number:
+                    attendee.document_number = next_doc_no
+                    next_doc_no += 1
+                updated += 1
+    if updated:
+        db.session.commit()
+        app.logger.info('Marked %d Foon Yew evening workshop attendee(s) as paid', updated)
+    return updated
+
+
 def _create_workshop(data):
     title = data['title'].strip()
     description = data.get('description', '')
@@ -5239,6 +5262,11 @@ with app.app_context():
 
     seed_demo()
     seed_predefined_workshops()
+    try:
+        mark_foon_yew_evening_workshop_paid()
+    except Exception:
+        db.session.rollback()
+        app.logger.exception('Foon Yew evening workshop payment update failed')
     _start_scheduler()
 
 if __name__ == '__main__':
