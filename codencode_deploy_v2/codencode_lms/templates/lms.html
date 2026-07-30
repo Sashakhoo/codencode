@@ -203,37 +203,11 @@
       border-bottom: 1px solid var(--border);
     }
     .login-logo { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; }
-    .logo-mark {
-      width: 36px; height: 36px;
-      border: 1.5px solid var(--cyan);
-      display: grid; place-items: center;
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 10px; color: var(--cyan);
-      position: relative;
-    }
-    .logo-mark::before {
-      content: '';
-      position: absolute; top: 3px; left: 3px; right: 3px; bottom: 3px;
-      background: var(--cyan-dim);
-    }
     .logo-text { font-family: 'Outfit', sans-serif; font-weight: 800; font-size: 15px; }
     .logo-text span { color: var(--cyan); }
     .login-title { font-family: 'Outfit', sans-serif; font-size: 22px; font-weight: 800; letter-spacing: -0.02em; }
     .login-sub { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--muted); margin-top: 4px; }
     .login-body { padding: 28px 36px 36px; }
-    .role-tabs {
-      display: grid; grid-template-columns: 1fr 1fr;
-      border: 1px solid var(--border); border-radius: var(--radius);
-      margin-bottom: 24px; overflow: hidden;
-    }
-    .role-tab {
-      padding: 10px; text-align: center; cursor: pointer;
-      font-family: 'JetBrains Mono', monospace; font-size: 11px;
-      letter-spacing: 0.08em; text-transform: uppercase;
-      color: var(--muted); transition: all 0.2s;
-      border: none; background: none;
-    }
-    .role-tab.active { background: var(--cyan-dim); color: var(--cyan); }
     .form-group { margin-bottom: 16px; }
     .form-label {
       display: block; font-family: 'JetBrains Mono', monospace; font-size: 10px;
@@ -260,12 +234,6 @@
       display: flex; align-items: center; justify-content: center; gap: 8px;
     }
     .btn-login:hover { opacity: 0.85; }
-    .demo-hint {
-      font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--muted2);
-      text-align: center; margin-top: 16px; line-height: 1.6;
-    }
-    .demo-hint span { color: var(--cyan); cursor: pointer; }
-
     /* ═══════════════════════════════════
        APP SHELL
     ═══════════════════════════════════ */
@@ -1037,24 +1005,12 @@
   <div class="login-wrap">
     <div class="login-header">
       <div class="login-logo">
-        <div class="logo-mark">CE</div>
         <span class="logo-text">code<span>ncode</span>.my</span>
       </div>
       <div class="login-title">Learning Portal</div>
       <div class="login-sub">// sign in to access your classroom</div>
     </div>
     <div class="login-body">
-      <div class="role-tabs">
-        <button class="role-tab active" data-role="student" onclick="selectRole('student')">
-          <i class="fas fa-user-graduate" style="margin-right:6px"></i> Student
-        </button>
-        <button class="role-tab" data-role="teacher" onclick="selectRole('teacher')">
-          <i class="fas fa-chalkboard-teacher" style="margin-right:6px"></i> Teacher
-        </button>
-        <button class="role-tab" data-role="admin" onclick="selectRole('admin')">
-          <i class="fas fa-shield-alt" style="margin-right:6px"></i> Admin
-        </button>
-      </div>
       <div class="form-group">
         <label class="form-label">Email</label>
         <input class="form-input" type="email" id="login-email" placeholder="you@codencode.my" autocomplete="email" />
@@ -2522,11 +2478,6 @@ function renderCourseSelector() {
 }
 
 // ── Auth ──────────────────────────────────────────────
-
-function selectRole(role) {
-  document.querySelectorAll('.role-tab').forEach(t => t.classList.remove('active'));
-  document.querySelector(`[data-role="${role}"]`).classList.add('active');
-}
 
 async function doLogin() {
   const email = document.getElementById('login-email').value.trim();
