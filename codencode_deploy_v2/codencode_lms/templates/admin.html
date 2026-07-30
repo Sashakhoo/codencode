@@ -1633,6 +1633,12 @@
     <div class="modal-title">Register Attendee</div>
     <input type="hidden" id="att-run-id" value="" />
     <div class="form-group" style="margin-bottom:14px">
+      <label class="form-label">Existing Student</label>
+      <select class="form-select" id="att-existing-student" onchange="fillAttendeeFromStudent()">
+        <option value="">— new / type manually —</option>
+      </select>
+    </div>
+    <div class="form-group" style="margin-bottom:14px">
       <label class="form-label">Name *</label>
       <input class="form-input" id="att-name" placeholder="Full name" />
     </div>
@@ -3412,22 +3418,45 @@ async function loadRunQr(rid) {
 
 function openAddAttendeeModal(rid) {
   document.getElementById('att-run-id').value = rid;
+  populateAttendeeStudentSelect();
+  document.getElementById('att-existing-student').value = '';
   document.getElementById('att-name').value = '';
   document.getElementById('att-email').value = '';
   document.getElementById('att-phone').value = '';
   openModal('modal-add-attendee');
 }
 
+function populateAttendeeStudentSelect() {
+  const select = document.getElementById('att-existing-student');
+  const students = [...(S.students || [])].sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+  select.innerHTML = '<option value="">— new / type manually —</option>' + students.map(s =>
+    `<option value="${s.id}">${s.name} · ${s.email}</option>`
+  ).join('');
+}
+
+function fillAttendeeFromStudent() {
+  const sid = parseInt(document.getElementById('att-existing-student').value || '0');
+  const student = (S.students || []).find(s => s.id === sid);
+  if (!student) return;
+  document.getElementById('att-name').value = student.name || '';
+  document.getElementById('att-email').value = student.email || '';
+  document.getElementById('att-phone').value = student.phone || '';
+}
+
 async function saveAddAttendee() {
   const rid = document.getElementById('att-run-id').value;
+  const clientId = document.getElementById('att-existing-student').value;
   const email = document.getElementById('att-email').value.trim();
-  if (!email) { toast('Email is required', true); return; }
+  if (!clientId && !email) { toast('Email is required', true); return; }
   try {
-    await POST(`/api/admin/workshop-runs/${rid}/attendees`, {
-      name: document.getElementById('att-name').value,
-      email,
-      phone: document.getElementById('att-phone').value,
-    });
+    const payload = clientId
+      ? { client_id: parseInt(clientId) }
+      : {
+          name: document.getElementById('att-name').value,
+          email,
+          phone: document.getElementById('att-phone').value,
+        };
+    await POST(`/api/admin/workshop-runs/${rid}/attendees`, payload);
     toast('Attendee registered');
     closeModal('modal-add-attendee');
     await openRunDetail(parseInt(rid));
