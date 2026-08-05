@@ -3603,6 +3603,17 @@ def admin_certificates():
     return jsonify({'certificate': cert.to_dict()}), 201
 
 
+@app.route('/api/admin/certificates/<int:cert_id>', methods=['DELETE'])
+@teacher_required
+def admin_delete_certificate(cert_id):
+    cert = Certificate.query.get_or_404(cert_id)
+    if not teacher_can_manage_course(cert.course_id):
+        return jsonify({'error': 'Forbidden'}), 403
+    db.session.delete(cert)
+    db.session.commit()
+    return jsonify({'ok': True, 'deleted': cert_id})
+
+
 @app.route('/api/admin/certificates/<int:cert_id>/send', methods=['POST'])
 @teacher_required
 def admin_send_certificate_email(cert_id):
