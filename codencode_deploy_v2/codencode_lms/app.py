@@ -761,6 +761,91 @@ def issue_blank_name_certificate_for(course_id):
     return cert, None
 
 
+def teacher_can_manage_workshop(workshop_id):
+    if current_user.role == 'admin':
+        return True
+    if current_user.role != 'teacher':
+        return False
+    workshop = Workshop.query.get(workshop_id)
+    if not workshop:
+        return False
+    if WorkshopRun.query.filter_by(workshop_id=workshop_id, teacher_id=current_user.id).first():
+        return True
+    return not workshop.runs and User.query.filter_by(role='teacher').count() == 1
+
+
+def certificate_course_for_workshop(workshop):
+    course = Course.query.filter_by(title=workshop.title).first()
+    if course:
+        return course
+    course = Course(
+        title=workshop.title,
+        description=workshop.description or '',
+        total_sessions=1,
+        programme='Workshop',
+        language='en',
+        teacher_id=current_user.id if current_user.role == 'teacher' else None,
+    )
+    db.session.add(course)
+    db.session.flush()
+    return course
+
+
+def issue_workshop_certificate_for(student_id, workshop_id, send_email_now=True):
+    student = User.query.get(student_id)
+    workshop = Workshop.query.get(workshop_id)
+    if not student or student.role != 'student' or not workshop:
+        return None, ('student/workshop not found', 404)
+
+    course = certificate_course_for_workshop(workshop)
+    enrollment = Enrollment.query.filter_by(student_id=student.id, course_id=course.id).first()
+    if not enrollment:
+        enrollment = Enrollment(
+            student_id=student.id,
+            course_id=course.id,
+            payment_status='paid',
+            class_format='workshop',
+        )
+        attendee = WorkshopAttendee.query.join(WorkshopRun).filter(
+            WorkshopRun.workshop_id == workshop.id,
+            WorkshopAttendee.client_id == student.id
+        ).order_by(WorkshopAttendee.registered_at.desc()).first()
+        if attendee and attendee.document_number:
+            enrollment.document_number = attendee.document_number
+        db.session.add(enrollment)
+        db.session.flush()
+
+    existing = Certificate.query.filter_by(student_id=student.id, course_id=course.id).first()
+    if existing:
+        return existing, None
+
+    cert = None
+    for _ in range(5):
+        doc_num = get_or_assign_document_number(enrollment)
+        cert = Certificate(
+            student_id=student.id,
+            course_id=course.id,
+            issued_by=current_user.id,
+            cert_number=f'CC-{doc_num:03d}'
+        )
+        db.session.add(cert)
+        try:
+            db.session.commit()
+            break
+        except IntegrityError:
+            db.session.rollback()
+            existing = Certificate.query.filter_by(student_id=student.id, course_id=course.id).first()
+            if existing:
+                return existing, None
+            cert = None
+    if cert is None:
+        return None, ('Could not generate a unique certificate number. Please try again.', 409)
+
+    if send_email_now:
+        send_certificate_email(cert)
+    return cert, None
+
+
 def _certificate_quantity(data):
     try:
         qty = int(data.get('quantity') or 1)
@@ -3572,12 +3657,22 @@ def admin_certificates():
     data       = request.get_json()
     student_id = data.get('student_id')
     course_id  = data.get('course_id')
+    workshop_id = data.get('workshop_id')
+    target_type = data.get('target_type') or ('workshop' if workshop_id else 'course')
     blank_name = bool(data.get('blank_name'))
     send_email_now = bool(data.get('send_email', True))
-    if not course_id or (not blank_name and not student_id):
-        return jsonify({'error': 'course_id required; student_id required unless blank_name is true'}), 400
-    if not teacher_can_manage_course(course_id):
-        return jsonify({'error': 'Forbidden'}), 403
+    if target_type == 'workshop':
+        if not workshop_id or (not blank_name and not student_id):
+            return jsonify({'error': 'workshop_id required; student_id required unless blank_name is true'}), 400
+        if not teacher_can_manage_workshop(workshop_id):
+            return jsonify({'error': 'Forbidden'}), 403
+        workshop = Workshop.query.get_or_404(workshop_id)
+        course_id = certificate_course_for_workshop(workshop).id
+    else:
+        if not course_id or (not blank_name and not student_id):
+            return jsonify({'error': 'course_id required; student_id required unless blank_name is true'}), 400
+        if not teacher_can_manage_course(course_id):
+            return jsonify({'error': 'Forbidden'}), 403
     if blank_name:
         qty, qty_err = _certificate_quantity(data)
         if qty_err:
@@ -3596,7 +3691,10 @@ def admin_certificates():
             'count': len(certs)
         }), 201
 
-    cert, err = issue_certificate_for(student_id, course_id, send_email_now=send_email_now)
+    if target_type == 'workshop':
+        cert, err = issue_workshop_certificate_for(student_id, workshop_id, send_email_now=send_email_now)
+    else:
+        cert, err = issue_certificate_for(student_id, course_id, send_email_now=send_email_now)
     if err:
         msg, status = err
         return jsonify({'error': msg}), status
@@ -3646,6 +3744,7 @@ def teacher_certificate_options():
     course_ids = teacher_manageable_course_ids()
     courses = Course.query.filter(Course.id.in_(course_ids)).order_by(Course.title).all() if course_ids else []
     enrollments = Enrollment.query.filter(Enrollment.course_id.in_(course_ids)).all() if course_ids else []
+    workshops = Workshop.query.order_by(Workshop.title).all()
 
     student_map = {}
     option_rows = []
@@ -3660,8 +3759,35 @@ def teacher_certificate_options():
             'course_title': enrollment.course.title if enrollment.course else ''
         })
 
+    for attendee in WorkshopAttendee.query.join(WorkshopRun).all():
+        if not attendee.client or attendee.client.role != 'student':
+            continue
+        student_map[attendee.client.id] = attendee.client
+        if attendee.run and attendee.run.workshop:
+            option_rows.append({
+                'student_id': attendee.client.id,
+                'student_name': attendee.client.name,
+                'course_id': f'workshop:{attendee.run.workshop.id}',
+                'course_title': attendee.run.workshop.title
+            })
+
+    course_options = []
+    for c in courses:
+        row = c.to_dict()
+        row.update({'target_type': 'course', 'target_id': c.id, 'option_value': f'course:{c.id}'})
+        course_options.append(row)
+    for w in workshops:
+        course_options.append({
+            'id': f'workshop:{w.id}',
+            'title': w.title,
+            'description': w.description or '',
+            'target_type': 'workshop',
+            'target_id': w.id,
+            'option_value': f'workshop:{w.id}',
+        })
+
     return jsonify({
-        'courses': [c.to_dict() for c in courses],
+        'courses': sorted(course_options, key=lambda row: row['title'].lower()),
         'students': [s.to_dict() for s in sorted(student_map.values(), key=lambda u: u.name.lower())],
         'enrollments': sorted(option_rows, key=lambda row: (row['course_title'].lower(), row['student_name'].lower()))
     })
