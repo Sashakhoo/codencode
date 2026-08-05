@@ -465,18 +465,16 @@
     .form-select option { background: var(--bg); }
     .autocomplete-wrap { position: relative; }
     .autocomplete-menu {
-      position: absolute;
-      left: 0;
-      right: 0;
-      top: calc(100% + 6px);
-      z-index: 20;
+      position: static;
+      width: 100%;
       max-height: 220px;
       overflow-y: auto;
-      background: var(--surface2);
-      border: 1px solid var(--border);
+      background: var(--bg-raised);
+      border: 1px solid var(--border2);
       border-radius: var(--radius);
       box-shadow: var(--glass-shadow);
       display: none;
+      margin-top: 8px;
     }
     .autocomplete-menu.open { display: block; }
     .autocomplete-option {
@@ -4165,7 +4163,11 @@ function populateCertificateCourses() {
   const cSel = document.getElementById('cert-course-select');
   if (!cSel) return;
   cSel.innerHTML = '<option value="">Select course...</option>' +
-    S.certOptions.courses.map(c => `<option value="${c.id}">${c.title}</option>`).join('');
+    S.certOptions.courses.map(c => {
+      const value = c.option_value || (c.target_type ? `${c.target_type}:${c.target_id}` : `course:${c.id}`);
+      const label = c.target_type === 'workshop' ? `${c.title} (Workshop/Event)` : c.title;
+      return `<option value="${value}">${label}</option>`;
+    }).join('');
 }
 
 function populateCertificateStudents() {
@@ -4195,12 +4197,12 @@ function populateCertificateStudents() {
 
 function certificateStudentCandidates() {
   const cSel = document.getElementById('cert-course-select');
-  const courseId = parseInt(cSel?.value || '0');
+  const targetValue = cSel?.value || '';
   let students = S.certOptions.students;
-  if (courseId && S.certOptions.enrollments.length) {
+  if (targetValue && S.certOptions.enrollments.length) {
     const allowedStudentIds = new Set(
       S.certOptions.enrollments
-        .filter(e => parseInt(e.course_id) === courseId)
+        .filter(e => String(e.course_id) === targetValue || String(e.course_id) === targetValue.replace(/^course:/, ''))
         .map(e => parseInt(e.student_id))
     );
     students = students.filter(s => allowedStudentIds.has(parseInt(s.id)));
@@ -4378,18 +4380,21 @@ async function openIssueCertModal() {
 
 async function issueCertificate() {
   const studentId = resolveCertificateStudentId();
-  const courseId  = document.getElementById('cert-course-select')?.value;
+  const targetValue = document.getElementById('cert-course-select')?.value || '';
+  const [targetType, rawTargetId] = targetValue.includes(':') ? targetValue.split(':') : ['course', targetValue];
   const blankName = document.getElementById('cert-blank-name')?.checked;
   const sendEmail = document.getElementById('cert-send-email')?.checked;
   const quantity = parseInt(document.getElementById('cert-blank-quantity')?.value || '1');
-  if (!courseId || (!blankName && !studentId)) { toast(blankName ? 'Select course' : 'Select student and course', true); return; }
+  if (!rawTargetId || (!blankName && !studentId)) { toast(blankName ? 'Select course' : 'Select student and course', true); return; }
   if (blankName && (!quantity || quantity < 1 || quantity > 200)) { toast('Enter a quantity between 1 and 200', true); return; }
   const btn = document.getElementById('issue-cert-btn');
   if (btn) btn.disabled = true;
   try {
     const r = await POST('/api/admin/certificates', {
       student_id: blankName ? null : parseInt(studentId),
-      course_id: parseInt(courseId),
+      target_type: targetType,
+      course_id: targetType === 'course' ? parseInt(rawTargetId) : null,
+      workshop_id: targetType === 'workshop' ? parseInt(rawTargetId) : null,
       blank_name: !!blankName,
       quantity: blankName ? quantity : 1,
       send_email: blankName ? false : !!sendEmail
