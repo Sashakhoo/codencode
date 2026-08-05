@@ -463,6 +463,36 @@
     }
     .form-textarea { resize: vertical; min-height: 70px; }
     .form-select option { background: var(--bg); }
+    .autocomplete-wrap { position: relative; }
+    .autocomplete-menu {
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: calc(100% + 6px);
+      z-index: 20;
+      max-height: 220px;
+      overflow-y: auto;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--glass-shadow);
+      display: none;
+    }
+    .autocomplete-menu.open { display: block; }
+    .autocomplete-option {
+      padding: 10px 12px;
+      cursor: pointer;
+      border-bottom: 1px solid var(--border);
+    }
+    .autocomplete-option:last-child { border-bottom: 0; }
+    .autocomplete-option:hover { background: var(--surface); }
+    .autocomplete-name { font-weight: 700; font-size: 12px; color: var(--text); }
+    .autocomplete-meta { margin-top: 2px; font-size: 10px; color: var(--text-muted); }
+    .autocomplete-empty {
+      padding: 12px;
+      font-size: 12px;
+      color: var(--text-muted);
+    }
 
     /* ── Card panel ─────────────────────────────────── */
     .card {
@@ -1189,6 +1219,9 @@
         <div class="section-header" style="margin-bottom:20px">
           <div class="section-title">Certificates</div>
           <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <button class="btn btn-danger btn-sm" id="delete-selected-certs-btn" onclick="deleteSelectedCertificates()" disabled>
+              <i class="fas fa-trash"></i> Delete Selected
+            </button>
             <button class="btn btn-secondary btn-sm admin-only" onclick="resetCertificates()">
               <i class="fas fa-trash"></i> Clear Certificates
             </button>
@@ -1201,10 +1234,13 @@
           <div class="table-wrap">
             <table>
               <thead>
-                <tr><th>Cert No.</th><th>Student</th><th>Course</th><th>Issued</th><th>Action</th></tr>
+                <tr>
+                  <th style="width:36px"><input type="checkbox" id="cert-select-all" onchange="toggleAllCertificates(this.checked)" /></th>
+                  <th>Cert No.</th><th>Student</th><th>Course</th><th>Issued</th><th>Action</th>
+                </tr>
               </thead>
               <tbody id="certs-tbody">
-                <tr><td colspan="5" style="color:var(--text-muted);text-align:center;padding:24px">Loading...</td></tr>
+                <tr><td colspan="6" style="color:var(--text-muted);text-align:center;padding:24px">Loading...</td></tr>
               </tbody>
             </table>
           </div>
@@ -1285,10 +1321,6 @@
       <div class="form-group">
         <label class="form-label">Phone Number</label>
         <input class="form-input" id="s-phone" placeholder="012-3456789" />
-      </div>
-      <div class="form-group">
-        <label class="form-label">IC / Passport No.</label>
-        <input class="form-input" id="s-ic" placeholder="900101-14-1234" />
       </div>
       <div class="form-group">
         <label class="form-label">Preferred Language</label>
@@ -1384,10 +1416,6 @@
       <div class="form-group">
         <label class="form-label">Phone Number</label>
         <input class="form-input" id="t-phone" placeholder="011-2345678" />
-      </div>
-      <div class="form-group">
-        <label class="form-label">IC / Passport No.</label>
-        <input class="form-input" id="t-ic" placeholder="900101-14-1234" />
       </div>
       <div class="form-group">
         <label class="form-label">Preferred Language</label>
@@ -1891,9 +1919,12 @@
     <div class="modal-title">Issue Certificate</div>
     <div class="form-group">
       <label class="form-label">Student</label>
-      <select class="form-input" id="cert-student-select">
-        <option value="">Select student...</option>
-      </select>
+      <div class="autocomplete-wrap">
+        <input class="form-input" id="cert-student-search" placeholder="Type student name..." autocomplete="off"
+               oninput="handleCertificateStudentSearch()" onfocus="renderCertificateStudentMatches()" />
+        <input type="hidden" id="cert-student-select" value="" />
+        <div class="autocomplete-menu" id="cert-student-results"></div>
+      </div>
     </div>
     <div class="form-group">
       <label style="display:flex;align-items:flex-start;gap:10px;color:var(--text-muted);font-size:13px;line-height:1.5">
@@ -2297,7 +2328,6 @@ function renderStudentDetail(s) {
       <div id="dt-info-${s.id}" class="detail-tab-content active">
         <div class="form-grid">
           <div><div class="form-label">Phone</div><div style="margin-top:4px">${s.phone || '—'}</div></div>
-          <div><div class="form-label">IC / Passport</div><div style="margin-top:4px">${s.ic_number || '—'}</div></div>
           <div><div class="form-label">Joined</div><div style="margin-top:4px">${s.created_at}</div></div>
           <div><div class="form-label">Enrolled Courses</div><div style="margin-top:4px">${enrollments.length}</div></div>
           <div><div class="form-label">Workshop Registrations</div><div style="margin-top:4px">${workshopAttendances.length}</div></div>
@@ -2426,7 +2456,7 @@ function openAddStudent() {
   }
   document.getElementById('student-modal-title').textContent = 'Add Student';
   document.getElementById('edit-student-id').value = '';
-  ['s-name','s-email','s-phone','s-ic','s-password'].forEach(id => {
+  ['s-name','s-email','s-phone','s-password'].forEach(id => {
     document.getElementById(id).value = '';
   });
   document.getElementById('s-language').value = 'en';
@@ -2452,7 +2482,6 @@ function openEditStudent(uid) {
   document.getElementById('s-name').value          = s.name;
   document.getElementById('s-email').value         = s.email;
   document.getElementById('s-phone').value         = s.phone;
-  document.getElementById('s-ic').value            = s.ic_number;
   document.getElementById('s-language').value      = s.language_pref || 'en';
   document.getElementById('s-password').value      = '';
   document.getElementById('s-pass-group').style.display   = 'flex';
@@ -2467,7 +2496,6 @@ async function saveStudent() {
     name:          document.getElementById('s-name').value.trim(),
     email:         document.getElementById('s-email').value.trim(),
     phone:         document.getElementById('s-phone').value.trim(),
-    ic_number:     document.getElementById('s-ic').value.trim(),
     password:      document.getElementById('s-password').value,
     language_pref: document.getElementById('s-language').value,
   };
@@ -4142,14 +4170,31 @@ function populateCertificateCourses() {
 
 function populateCertificateStudents() {
   const stuSel = document.getElementById('cert-student-select');
+  const search = document.getElementById('cert-student-search');
+  const menu = document.getElementById('cert-student-results');
   const cSel   = document.getElementById('cert-course-select');
   const blankName = document.getElementById('cert-blank-name')?.checked;
-  if (!stuSel) return;
-  stuSel.disabled = !!blankName;
+  if (!stuSel || !search) return;
+  stuSel.value = '';
   if (blankName) {
-    stuSel.innerHTML = '<option value="">No name on certificate</option>';
+    search.value = 'No name on certificate';
+    search.disabled = true;
+    if (menu) {
+      menu.classList.remove('open');
+      menu.innerHTML = '';
+    }
     return;
   }
+  search.disabled = false;
+  search.value = '';
+  if (menu) {
+    menu.classList.remove('open');
+    menu.innerHTML = '';
+  }
+}
+
+function certificateStudentCandidates() {
+  const cSel = document.getElementById('cert-course-select');
   const courseId = parseInt(cSel?.value || '0');
   let students = S.certOptions.students;
   if (courseId && S.certOptions.enrollments.length) {
@@ -4160,8 +4205,68 @@ function populateCertificateStudents() {
     );
     students = students.filter(s => allowedStudentIds.has(parseInt(s.id)));
   }
-  stuSel.innerHTML = '<option value="">Select student...</option>' +
-    students.map(s => `<option value="${s.id}">${s.name}</option>`).join('');
+  return students;
+}
+
+function certText(value) {
+  return String(value || '').replace(/[&<>"']/g, ch => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+  }[ch]));
+}
+
+function handleCertificateStudentSearch() {
+  const selected = document.getElementById('cert-student-select');
+  if (selected) selected.value = '';
+  renderCertificateStudentMatches();
+}
+
+function renderCertificateStudentMatches() {
+  const search = document.getElementById('cert-student-search');
+  const menu = document.getElementById('cert-student-results');
+  const blankName = document.getElementById('cert-blank-name')?.checked;
+  if (!search || !menu || blankName || search.disabled) return;
+  const query = search.value.trim().toLowerCase();
+  if (!query) {
+    menu.innerHTML = '<div class="autocomplete-empty">Type a student name to search.</div>';
+    menu.classList.add('open');
+    return;
+  }
+  const matches = certificateStudentCandidates()
+    .filter(s => `${s.name || ''} ${s.email || ''}`.toLowerCase().includes(query))
+    .slice(0, 8);
+  if (!matches.length) {
+    const courseSelected = !!document.getElementById('cert-course-select')?.value;
+    menu.innerHTML = `<div class="autocomplete-empty">${courseSelected ? 'No matching enrolled student found for this course.' : 'No matching enrolled student found.'}</div>`;
+    menu.classList.add('open');
+    return;
+  }
+  menu.innerHTML = matches.map(s => `
+    <div class="autocomplete-option" onclick="selectCertificateStudent(${s.id})">
+      <div class="autocomplete-name">${certText(s.name)}</div>
+      <div class="autocomplete-meta">${certText(s.email || '')}</div>
+    </div>
+  `).join('');
+  menu.classList.add('open');
+}
+
+function selectCertificateStudent(studentId) {
+  const student = certificateStudentCandidates().find(s => parseInt(s.id) === parseInt(studentId));
+  if (!student) return;
+  document.getElementById('cert-student-select').value = student.id;
+  document.getElementById('cert-student-search').value = student.name || '';
+  document.getElementById('cert-student-results')?.classList.remove('open');
+}
+
+function resolveCertificateStudentId() {
+  const selected = document.getElementById('cert-student-select')?.value;
+  if (selected) return selected;
+  const query = document.getElementById('cert-student-search')?.value.trim().toLowerCase();
+  if (!query) return '';
+  const candidates = certificateStudentCandidates();
+  const exact = candidates.find(s => (s.name || '').trim().toLowerCase() === query);
+  if (exact) return exact.id;
+  const matches = candidates.filter(s => `${s.name || ''} ${s.email || ''}`.toLowerCase().includes(query));
+  return matches.length === 1 ? matches[0].id : '';
 }
 
 function toggleBlankCertificateName() {
@@ -4198,12 +4303,16 @@ async function loadAdminCertificates() {
     const arr   = Array.isArray(certs) ? certs : [];
     const tbody = document.getElementById('certs-tbody');
     if (!tbody) return;
+    const selectAll = document.getElementById('cert-select-all');
+    if (selectAll) selectAll.checked = false;
+    updateSelectedCertificatesButton();
     if (arr.length === 0) {
-      tbody.innerHTML = `<tr><td colspan="5" style="color:var(--text-muted);text-align:center;padding:24px">No certificates issued yet.</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="6" style="color:var(--text-muted);text-align:center;padding:24px">No certificates issued yet.</td></tr>`;
       return;
     }
     tbody.innerHTML = arr.map(c => `
       <tr>
+        <td><input type="checkbox" class="cert-select" value="${c.id}" onchange="updateSelectedCertificatesButton()" /></td>
         <td><span style="font-family:'JetBrains Mono',monospace;font-size:12px;background:var(--surface);border:1px solid var(--border);padding:3px 8px;border-radius:4px">${c.cert_number}</span></td>
         <td style="font-weight:600">${c.student_name || '—'}</td>
         <td style="color:var(--text-muted)">${c.course_title || '—'}</td>
@@ -4218,7 +4327,29 @@ async function loadAdminCertificates() {
             </button>` : ''}
         </td>
       </tr>`).join('');
+    updateSelectedCertificatesButton();
   } catch(e) { toast('Error loading certificates: ' + e.message, true); }
+}
+
+function selectedCertificateIds() {
+  return [...document.querySelectorAll('.cert-select:checked')].map(cb => parseInt(cb.value));
+}
+
+function updateSelectedCertificatesButton() {
+  const ids = selectedCertificateIds();
+  const btn = document.getElementById('delete-selected-certs-btn');
+  if (btn) btn.disabled = ids.length === 0;
+  const selectAll = document.getElementById('cert-select-all');
+  const boxes = [...document.querySelectorAll('.cert-select')];
+  if (selectAll) {
+    selectAll.checked = boxes.length > 0 && boxes.every(cb => cb.checked);
+    selectAll.indeterminate = boxes.some(cb => cb.checked) && !selectAll.checked;
+  }
+}
+
+function toggleAllCertificates(checked) {
+  document.querySelectorAll('.cert-select').forEach(cb => { cb.checked = checked; });
+  updateSelectedCertificatesButton();
 }
 
 async function openIssueCertModal() {
@@ -4246,7 +4377,7 @@ async function openIssueCertModal() {
 }
 
 async function issueCertificate() {
-  const studentId = document.getElementById('cert-student-select')?.value;
+  const studentId = resolveCertificateStudentId();
   const courseId  = document.getElementById('cert-course-select')?.value;
   const blankName = document.getElementById('cert-blank-name')?.checked;
   const sendEmail = document.getElementById('cert-send-email')?.checked;
@@ -4276,6 +4407,25 @@ async function sendCertificateEmail(certId) {
     toast('Certificate email sent!');
   } catch(e) {
     toast('Error sending certificate email: ' + e.message, true);
+  }
+}
+
+async function deleteSelectedCertificates() {
+  const ids = selectedCertificateIds();
+  if (!ids.length) return;
+  const label = ids.length === 1 ? 'this certificate' : `${ids.length} certificates`;
+  if (!confirm(`Delete ${label}? This cannot be undone.`)) return;
+  const btn = document.getElementById('delete-selected-certs-btn');
+  if (btn) btn.disabled = true;
+  try {
+    for (const id of ids) {
+      await DELETE(`/api/admin/certificates/${id}`);
+    }
+    toast(ids.length === 1 ? 'Certificate deleted' : `${ids.length} certificates deleted`);
+    await loadAdminCertificates();
+  } catch(e) {
+    toast('Error deleting certificates: ' + e.message, true);
+    updateSelectedCertificatesButton();
   }
 }
 
@@ -4338,7 +4488,7 @@ const _TEACHER_PROFILE_FIELDS = ['t-title','t-specializations','t-bio','t-educat
 function openAddTeacher() {
   document.getElementById('edit-teacher-id').value = '';
   document.getElementById('teacher-modal-title').textContent = 'Add Teacher';
-  ['t-name','t-email','t-phone','t-ic','t-password'].forEach(id => {
+  ['t-name','t-email','t-phone','t-password'].forEach(id => {
     document.getElementById(id).value = '';
   });
   document.getElementById('t-language').value = 'en';
@@ -4352,7 +4502,6 @@ function openEditTeacher(t) {
   document.getElementById('t-name').value     = t.name;
   document.getElementById('t-email').value    = t.email;
   document.getElementById('t-phone').value    = t.phone || '';
-  document.getElementById('t-ic').value       = t.ic_number || '';
   document.getElementById('t-language').value = t.language_pref || 'en';
   document.getElementById('t-password').value = '';
   // profile fields
@@ -4372,7 +4521,6 @@ async function saveTeacher() {
     name:            document.getElementById('t-name').value.trim(),
     email:           document.getElementById('t-email').value.trim(),
     phone:           document.getElementById('t-phone').value.trim(),
-    ic_number:       document.getElementById('t-ic').value.trim(),
     password:        document.getElementById('t-password').value,
     language_pref:   document.getElementById('t-language').value,
     title:           document.getElementById('t-title').value.trim(),
@@ -4475,7 +4623,6 @@ async function showTeacherDetail(id) {
 
       <div class="info-grid" style="grid-template-columns:1fr 1fr;gap:12px;display:grid;margin-bottom:16px">
         <div class="info-cell"><div class="info-label">Phone</div><div class="info-val">${t.phone||'—'}</div></div>
-        <div class="info-cell"><div class="info-label">IC / Passport</div><div class="info-val">${t.ic_number||'—'}</div></div>
         <div class="info-cell"><div class="info-label">Language</div><div class="info-val">${{en:'English',bm:'Malay',zh:'Chinese'}[t.language_pref]||'English'}</div></div>
         <div class="info-cell"><div class="info-label">Last Login</div><div class="info-val">${t.last_login||'Never'}</div></div>
         <div class="info-cell"><div class="info-label">Joined</div><div class="info-val">${t.created_at||'—'}</div></div>
