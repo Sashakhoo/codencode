@@ -110,7 +110,19 @@ _EMAIL_FROM     = os.environ.get('EMAIL_FROM', 'codencodemy@gmail.com')
 _BREVO_API_KEY  = os.environ.get('BREVO_API_KEY', '')
 _BUSINESS_NAME  = os.environ.get('BUSINESS_NAME',    'CODE N CODE SOLUTION')
 _BUSINESS_SSM   = os.environ.get('BUSINESS_SSM',     '202603072017 (AS0511861-M)')
-_BUSINESS_ADDR  = os.environ.get('BUSINESS_ADDRESS', '')
+_BUSINESS_ADDR  = os.environ.get(
+    'BUSINESS_ADDRESS',
+    "1st Floor - Room 16, 117, Jalan Mutiara Emas 10/19, Taman Mount Austin, "
+    "81100 Johor Bahru, Johor Darul Ta'zim, Malaysia"
+)
+_BUSINESS_PHONE = os.environ.get('BUSINESS_PHONE', '0196811628')
+_BUSINESS_EMAIL = os.environ.get('BUSINESS_EMAIL', 'codencodemy@gmail.com')
+_BUSINESS_WEBSITE = os.environ.get('BUSINESS_WEBSITE', 'codencode.my')
+_INVOICE_DUE_DAYS = int(os.environ.get('INVOICE_DUE_DAYS', '7'))
+_BANK_NAME = os.environ.get('BANK_NAME', 'MAYBANK')
+_BANK_ACCOUNT_NAME = os.environ.get('BANK_ACCOUNT_NAME', 'CODE N CODE SOLUTION')
+_BANK_ACCOUNT_NO = os.environ.get('BANK_ACCOUNT_NO', '5512 7610 6077')
+_DUITNOW_QR_PATH = os.environ.get('DUITNOW_QR_PATH', '/static/img/duitnow-qr.jpg')
 _DEFAULT_STUDENT_PASSWORD = os.environ.get('DEFAULT_STUDENT_PASSWORD', 'codencode123')
 
 # ─────────────────────────────────────────────
@@ -205,6 +217,194 @@ def _bill_to_section_html(user, heading='Bill To') -> str:
       {f'<p>{html_escape(user.phone)}</p>' if user.phone else ''}
       {f'<p>IC/Passport: {html_escape(user.ic_number)}</p>' if user.ic_number else ''}
     </div>'''
+
+
+def _fmt_money(amount) -> str:
+    return f'RM{float(amount or 0):,.2f}'
+
+
+def _invoice_due_date(issue_dt=None):
+    return (issue_dt or datetime.utcnow()) + timedelta(days=_INVOICE_DUE_DAYS)
+
+
+def _invoice_business_html() -> str:
+    addr_html = '<br>'.join(html_escape(line.strip()) for line in _BUSINESS_ADDR.split(', ') if line.strip())
+    return f'''
+    <div class="business">
+      <img src="https://learn.codencode.my/static/img/logo.png" alt="{html_escape(_BUSINESS_NAME)}" class="brand-logo">
+      <div class="business-name">{html_escape(_BUSINESS_NAME)}</div>
+      <p>SSM / Business Registration No.: {html_escape(_BUSINESS_SSM)}</p>
+      <p>{addr_html}</p>
+      <p>{html_escape(_BUSINESS_PHONE)} &bull; {html_escape(_BUSINESS_EMAIL)}</p>
+      <p>{html_escape(_BUSINESS_WEBSITE)}</p>
+    </div>'''
+
+
+def _invoice_meta_html(doc_no, issue_dt, status, title='INVOICE') -> str:
+    due_dt = _invoice_due_date(issue_dt)
+    return f'''
+    <div class="inv-meta">
+      <div class="doc-title">{html_escape(title)}</div>
+      <div class="inv-num">{html_escape(doc_no)}</div>
+      <p>Issued: {issue_dt.strftime('%d %B %Y')}</p>
+      <p>Due: {due_dt.strftime('%d %B %Y')}</p>
+      <p>Status: <span class="status-badge">{html_escape((status or 'pending').upper())}</span></p>
+    </div>'''
+
+
+def _invoice_line_items_html(description, qty, unit_price, details=None) -> str:
+    qty = int(qty or 1)
+    unit_price = float(unit_price or 0)
+    amount = qty * unit_price
+    detail_html = ''.join(f'<p>{html_escape(label)}: {html_escape(value)}</p>' for label, value in (details or []) if value)
+    return f'''
+  <div class="section">
+    <div class="section-title">Course / Service</div>
+    <table class="items">
+      <thead><tr><th>Description</th><th>Qty</th><th>Unit Price</th><th>Amount</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>{html_escape(description)}</td>
+          <td class="num">{qty}</td>
+          <td class="num">{_fmt_money(unit_price)}</td>
+          <td class="num">{_fmt_money(amount)}</td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="item-details">{detail_html}</div>
+  </div>'''
+
+
+def _payment_summary_html(total, status) -> str:
+    total = float(total or 0)
+    paid = total if (status or '').lower() == 'paid' else 0
+    balance = max(total - paid, 0)
+    return f'''
+  <div class="section totals">
+    <div class="section-title">Amount</div>
+    <p><span>Subtotal:</span><strong>{_fmt_money(total)}</strong></p>
+    <p><span>Discount:</span><strong>{_fmt_money(0)}</strong></p>
+    <p><span>Total:</span><strong>{_fmt_money(total)}</strong></p>
+    <p><span>Amount Paid:</span><strong>{_fmt_money(paid)}</strong></p>
+    <div class="balance">BALANCE DUE: {_fmt_money(balance)}</div>
+  </div>'''
+
+
+def _payment_instructions_html(doc_no) -> str:
+    qr_fs_path = os.path.join(app.static_folder or '', _DUITNOW_QR_PATH.replace('/static/', '').replace('/', os.sep))
+    qr_html = ''
+    if os.path.exists(qr_fs_path):
+        qr_html = f'''
+      <div class="qr-box">
+        <div class="qr-title">SCAN TO PAY</div>
+        <img src="{html_escape(_DUITNOW_QR_PATH)}" alt="DuitNow QR" class="duitnow-qr">
+        <p>Account Name: {html_escape(_BANK_ACCOUNT_NAME)}</p>
+      </div>'''
+    return f'''
+  <div class="section payment-grid">
+    <div>
+      <div class="section-title">Payment</div>
+      <p><strong>Bank:</strong> {html_escape(_BANK_NAME)}</p>
+      <p><strong>Account Name:</strong> {html_escape(_BANK_ACCOUNT_NAME)}</p>
+      <p><strong>Account No.:</strong> {html_escape(_BANK_ACCOUNT_NO)}</p>
+      <p><strong>Reference:</strong> {html_escape(doc_no)}</p>
+      <p class="terms"><strong>Payment Terms:</strong> Payment is due by the due date stated on this invoice.</p>
+      <p class="terms"><strong>Proof of Payment:</strong> Kindly send your payment receipt via WhatsApp or email after payment.</p>
+    </div>
+    {qr_html}
+  </div>'''
+
+
+def _invoice_footer_html(doc_no, issue_dt) -> str:
+    due_dt = _invoice_due_date(issue_dt)
+    return f'''
+  <div class="footer">
+    <p><strong>{html_escape(_BUSINESS_NAME)}</strong> &bull; SSM No.: {html_escape(_BUSINESS_SSM)}</p>
+    <p>{html_escape(_BUSINESS_WEBSITE)} &bull; {html_escape(_BUSINESS_EMAIL)} &bull; {html_escape(_BUSINESS_PHONE)}</p>
+    <p>Payment due by {due_dt.strftime('%d %B %Y')}.</p>
+    <p>Thank you for learning with us!</p>
+    <p><em>This is a computer-generated invoice. No signature is required.</em></p>
+    <p style="margin-top:8px">{html_escape(doc_no)} &bull; Generated {issue_dt.strftime('%d %B %Y')}</p>
+  </div>'''
+
+
+def _invoice_page_html(doc_no, status, bill_to_user, description, unit_price, details=None, doc_label='INVOICE') -> str:
+    issue_dt = datetime.utcnow()
+    status_colour = {'paid': '#28ca41', 'pending': '#e3b341', 'overdue': '#f85149', 'partially paid': '#2f81f7'}.get(
+        (status or 'pending').lower(), '#7d8590')
+    total = float(unit_price or 0)
+    return f"""<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <title>{html_escape(doc_no)} - codencode.my</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=Space+Mono:wght@400;700&display=swap');
+    * {{ box-sizing:border-box; margin:0; padding:0; }}
+    body {{ font-family:'Space Mono',monospace; background:#fff; color:#111; font-size:13px; padding:40px; max-width:820px; margin:auto; }}
+    .header {{ display:flex; justify-content:space-between; align-items:flex-start; gap:28px; margin-bottom:34px; border-bottom:3px solid #00dcb4; padding-bottom:24px; }}
+    .brand-logo {{ height:34px; display:block; margin-bottom:10px; }}
+    .business {{ max-width:470px; }}
+    .business-name {{ font-family:'Syne',sans-serif; font-size:20px; font-weight:800; margin-bottom:6px; }}
+    .inv-meta {{ text-align:right; min-width:220px; }}
+    .doc-title {{ font-family:'Syne',sans-serif; font-size:34px; font-weight:800; color:#080c10; line-height:1; margin-bottom:8px; }}
+    .inv-num {{ font-size:18px; font-weight:700; color:#080c10; margin-bottom:8px; }}
+    .section {{ margin-bottom:26px; }}
+    .section-title {{ font-size:11px; text-transform:uppercase; letter-spacing:1px; color:#888; margin-bottom:10px; border-bottom:1px solid #eee; padding-bottom:6px; }}
+    .grid-2 {{ display:grid; grid-template-columns:1fr 1fr; gap:24px; }}
+    p {{ margin:5px 0; line-height:1.6; }}
+    strong {{ color:#080c10; }}
+    .status-badge {{ display:inline-block; padding:4px 12px; border-radius:999px; font-size:11px; font-weight:700; color:#fff; background:{status_colour}; }}
+    .items {{ width:100%; border-collapse:collapse; margin-top:4px; }}
+    .items th {{ text-align:left; font-size:11px; color:#666; border-bottom:1px solid #ddd; padding:9px 8px; }}
+    .items td {{ border-bottom:1px solid #eee; padding:12px 8px; vertical-align:top; }}
+    .items .num {{ text-align:right; white-space:nowrap; }}
+    .item-details {{ margin-top:12px; color:#333; }}
+    .totals {{ max-width:360px; margin-left:auto; }}
+    .totals p {{ display:flex; justify-content:space-between; gap:18px; }}
+    .balance {{ margin-top:10px; padding:12px 14px; background:#eafbf6; border:1px solid #00dcb4; border-radius:6px; font-family:'Syne',sans-serif; font-size:20px; font-weight:800; color:#008a6d; text-align:right; }}
+    .payment-grid {{ display:grid; grid-template-columns:1fr 230px; gap:24px; align-items:start; }}
+    .terms {{ margin-top:10px; }}
+    .qr-box {{ text-align:center; border:1px solid #eee; border-radius:8px; padding:14px; }}
+    .qr-title {{ font-family:'Syne',sans-serif; font-weight:800; margin-bottom:8px; }}
+    .duitnow-qr {{ width:190px; height:auto; display:block; margin:0 auto 8px; }}
+    .footer {{ margin-top:42px; padding-top:20px; border-top:1px solid #eee; font-size:11px; color:#777; text-align:center; }}
+    @media print {{
+      body {{ padding:20px; }}
+      .no-print {{ display:none !important; }}
+    }}
+  </style>
+</head>
+<body>
+  <div class="header">
+    {_invoice_business_html()}
+    {_invoice_meta_html(doc_no, issue_dt, status, doc_label)}
+  </div>
+
+  <div class="grid-2">
+    {_bill_to_section_html(bill_to_user)}
+    <div class="section">
+      <div class="section-title">Invoice Details</div>
+      <p><strong>Payment Reference:</strong> {html_escape(doc_no)}</p>
+      <p><strong>Due Date:</strong> {_invoice_due_date(issue_dt).strftime('%d %B %Y')}</p>
+    </div>
+  </div>
+
+  {_invoice_line_items_html(description, 1, total, details)}
+  {_payment_summary_html(total, status)}
+  {_payment_instructions_html(doc_no)}
+  {_invoice_footer_html(doc_no, issue_dt)}
+
+  <div class="no-print" style="margin-top:32px;text-align:center">
+    <button onclick="window.print()" style="background:#00dcb4;color:#080c10;border:none;padding:10px 28px;border-radius:6px;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;">
+      Print / Save as PDF
+    </button>
+    <button onclick="window.close()" style="background:#eee;color:#333;border:none;padding:10px 24px;border-radius:6px;font-family:inherit;font-size:13px;cursor:pointer;margin-left:8px;">
+      Close
+    </button>
+  </div>
+</body>
+</html>"""
 
 
 def generate_receipt_html(enrollment) -> str:
@@ -1972,6 +2172,19 @@ def admin_invoice(eid):
   </div>
 </body>
 </html>"""
+    service_details = [
+        ('Duration', f'{c.total_sessions} sessions'),
+        ('Enrolled', enr_date),
+        ('Schedule', e.class_timing or ''),
+    ]
+    html = _invoice_page_html(
+        inv_num,
+        pay_status,
+        s,
+        f'{c.title} - {c.total_sessions} Sessions',
+        e.payment_amount or 0,
+        service_details
+    )
     # Send invoice email to student
     try:
         email_invoice(e)
@@ -4456,6 +4669,21 @@ def render_workshop_attendee_invoice_html(attendee):
   </div>
 </body>
 </html>"""
+    service_details = [
+        ('Duration', f'{duration_hours:g} hours'),
+        ('Date', date_str),
+        ('Time', time_str),
+        ('Venue', run.venue if run and run.venue else ''),
+    ]
+    html = _invoice_page_html(
+        inv_num,
+        pay_status,
+        client,
+        f'{workshop.title if workshop else "Workshop"} - {duration_hours:g} Hours',
+        amount or 0,
+        service_details,
+        'RECEIPT' if pay_status == 'paid' else 'INVOICE'
+    )
     return html
 
 
