@@ -1609,6 +1609,9 @@ def admin_students():
         phone         = data.get('phone', '').strip(),
         ic_number     = data.get('ic_number', '').strip(),
         language_pref = data.get('language_pref', 'en'),
+        bill_company_name = data.get('bill_company_name', '').strip(),
+        bill_business_reg_number = data.get('bill_business_reg_number', '').strip(),
+        bill_company_address = data.get('bill_company_address', '').strip(),
     )
     plain_pw = data.get('password') or 'codencode123'
     u.set_password(plain_pw)
@@ -1640,6 +1643,9 @@ def admin_student_detail(uid):
     if 'phone'         in data: s.phone         = data['phone'].strip()
     if 'ic_number'     in data: s.ic_number     = data['ic_number'].strip()
     if 'language_pref' in data: s.language_pref = data['language_pref']
+    if 'bill_company_name' in data: s.bill_company_name = data['bill_company_name'].strip()
+    if 'bill_business_reg_number' in data: s.bill_business_reg_number = data['bill_business_reg_number'].strip()
+    if 'bill_company_address' in data: s.bill_company_address = data['bill_company_address'].strip()
     if 'email'         in data:
         new_email = data['email'].strip().lower()
         existing  = User.query.filter_by(email=new_email).first()
@@ -5153,6 +5159,15 @@ with app.app_context():
                 conn.commit()
             if 'temp_password' not in user_cols:
                 conn.execute(text('ALTER TABLE users ADD COLUMN temp_password VARCHAR(100)'))
+                conn.commit()
+            if 'bill_company_name' not in user_cols:
+                conn.execute(text('ALTER TABLE users ADD COLUMN bill_company_name VARCHAR(200)'))
+                conn.commit()
+            if 'bill_business_reg_number' not in user_cols:
+                conn.execute(text('ALTER TABLE users ADD COLUMN bill_business_reg_number VARCHAR(100)'))
+                conn.commit()
+            if 'bill_company_address' not in user_cols:
+                conn.execute(text('ALTER TABLE users ADD COLUMN bill_company_address TEXT'))
                 conn.commit()
     except Exception:
         pass

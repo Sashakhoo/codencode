@@ -1407,6 +1407,26 @@
       </div>
     </div>
 
+    <!-- Billing Info -->
+    <div style="border-top:1px solid var(--border);margin:16px 0 14px"></div>
+    <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;color:var(--cyan);margin-bottom:12px">
+      <i class="fas fa-building" style="margin-right:6px"></i>Bill To Company
+    </div>
+    <div class="form-grid">
+      <div class="form-group">
+        <label class="form-label">Company Name</label>
+        <input class="form-input" id="s-bill-company-name" placeholder="Company Sdn Bhd" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Business Reg Number</label>
+        <input class="form-input" id="s-bill-business-reg-number" placeholder="202601234567" />
+      </div>
+      <div class="form-group" style="grid-column:span 2">
+        <label class="form-label">Address</label>
+        <textarea class="form-textarea" id="s-bill-company-address" rows="3" placeholder="Billing address"></textarea>
+      </div>
+    </div>
+
     <!-- Enrolment (Add only) -->
     <div id="s-enrol-section">
       <div style="border-top:1px solid var(--border);margin:16px 0 14px"></div>
@@ -1685,8 +1705,9 @@
 <!-- Schedule a Run -->
 <div class="modal-overlay" id="modal-schedule-run" onclick="if(event.target===this)closeModal('modal-schedule-run')">
   <div class="modal-box">
-    <div class="modal-title">Schedule a Run</div>
+    <div class="modal-title" id="run-modal-title">Schedule a Run</div>
     <input type="hidden" id="run-workshop-id" value="" />
+    <input type="hidden" id="run-id" value="" />
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px">
       <div class="form-group">
         <label class="form-label">Start Date & Time *</label>
@@ -1721,7 +1742,7 @@
     </div>
     <div class="modal-footer">
       <button class="btn btn-secondary" onclick="closeModal('modal-schedule-run')">Cancel</button>
-      <button class="btn btn-primary" onclick="saveScheduleRun()"><i class="fas fa-calendar-plus"></i> Schedule</button>
+      <button class="btn btn-primary" id="run-save-btn" onclick="saveScheduleRun()"><i class="fas fa-calendar-plus"></i> Schedule</button>
     </div>
   </div>
 </div>
@@ -2365,11 +2386,26 @@ function selectStudent(uid) {
   renderStudentDetail(s);
 }
 
+function escHtml(value) {
+  return String(value ?? '').replace(/[&<>"']/g, ch => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+  }[ch]));
+}
+
 function renderStudentDetail(s) {
   const enrollments = Array.isArray(s.enrollments) ? s.enrollments : [];
   const workshopAttendances = Array.isArray(s.workshop_attendances) ? s.workshop_attendances : [];
   const enrolledCourseIds = new Set(enrollments.map(e => e.course_id));
   const availableCourses  = S.courses.filter(c => !enrolledCourseIds.has(c.id));
+  const billingHtml = (s.bill_company_name || s.bill_business_reg_number || s.bill_company_address) ? `
+    <div style="border-top:1px solid var(--border);margin:18px 0 14px"></div>
+    <div class="form-label" style="margin-bottom:8px">Bill To Company</div>
+    <div class="form-grid">
+      <div><div class="form-label">Company Name</div><div style="margin-top:4px">${escHtml(s.bill_company_name) || '&mdash;'}</div></div>
+      <div><div class="form-label">Business Reg Number</div><div style="margin-top:4px">${escHtml(s.bill_business_reg_number) || '&mdash;'}</div></div>
+      <div style="grid-column:span 2"><div class="form-label">Address</div><div style="margin-top:4px;white-space:pre-wrap">${escHtml(s.bill_company_address) || '&mdash;'}</div></div>
+    </div>
+  ` : '';
   // Store enrollment data in map so buttons can safely reference by ID
   enrollments.forEach(e => { S.enrollMap = S.enrollMap || {}; S.enrollMap[e.id] = e; });
 
@@ -2403,6 +2439,7 @@ function renderStudentDetail(s) {
           <div><div class="form-label">Enrolled Courses</div><div style="margin-top:4px">${enrollments.length}</div></div>
           <div><div class="form-label">Workshop Registrations</div><div style="margin-top:4px">${workshopAttendances.length}</div></div>
         </div>
+        ${billingHtml}
       </div>
 
       <!-- Courses & Payment tab -->
@@ -2456,6 +2493,9 @@ function renderStudentDetail(s) {
             <span class="badge badge-${w.payment_status}">${w.payment_status}</span>
             <button class="btn btn-secondary btn-sm" onclick="window.open('/api/admin/workshop-runs/${w.run_id}/attendees/${w.id}/invoice','_blank')" title="View workshop ${w.payment_status === 'paid' ? 'receipt' : 'invoice'}" style="color:${w.payment_status === 'paid' ? 'var(--green)' : 'var(--cyan)'}">
               <i class="fas ${w.payment_status === 'paid' ? 'fa-receipt' : 'fa-file-invoice'}"></i>
+            </button>
+            <button class="btn btn-danger btn-sm btn-icon" onclick="deleteWorkshopRegistration(${w.run_id},${w.id},${s.id})" title="Delete workshop registration">
+              <i class="fas fa-times"></i>
             </button>
           </div>
         `).join('') : '<div style="color:var(--text-muted);padding:8px 0">No workshop registrations.</div>'}
@@ -2527,7 +2567,7 @@ function openAddStudent() {
   }
   document.getElementById('student-modal-title').textContent = 'Add Student';
   document.getElementById('edit-student-id').value = '';
-  ['s-name','s-email','s-phone','s-password'].forEach(id => {
+  ['s-name','s-email','s-phone','s-password','s-bill-company-name','s-bill-business-reg-number','s-bill-company-address'].forEach(id => {
     document.getElementById(id).value = '';
   });
   document.getElementById('s-language').value = 'en';
@@ -2555,6 +2595,9 @@ function openEditStudent(uid) {
   document.getElementById('s-phone').value         = s.phone;
   document.getElementById('s-language').value      = s.language_pref || 'en';
   document.getElementById('s-password').value      = '';
+  document.getElementById('s-bill-company-name').value = s.bill_company_name || '';
+  document.getElementById('s-bill-business-reg-number').value = s.bill_business_reg_number || '';
+  document.getElementById('s-bill-company-address').value = s.bill_company_address || '';
   document.getElementById('s-pass-group').style.display   = 'flex';
   // Hide enrolment section on edit (use Assign Course button instead)
   document.getElementById('s-enrol-section').style.display = 'none';
@@ -2569,6 +2612,9 @@ async function saveStudent() {
     phone:         document.getElementById('s-phone').value.trim(),
     password:      document.getElementById('s-password').value,
     language_pref: document.getElementById('s-language').value,
+    bill_company_name: document.getElementById('s-bill-company-name').value.trim(),
+    bill_business_reg_number: document.getElementById('s-bill-business-reg-number').value.trim(),
+    bill_company_address: document.getElementById('s-bill-company-address').value.trim(),
   };
   if (!data.name || !data.email) { toast('Name and email are required', true); return; }
   try {
@@ -2599,6 +2645,7 @@ async function saveStudent() {
     closeModal('modal-student');
     await loadStudents();
     renderStudentList();
+    if (uid) selectStudent(parseInt(uid));
   } catch(e) { toast(e.message, true); }
 }
 
@@ -2685,6 +2732,16 @@ async function unenroll(eid, uid) {
   try {
     await DELETE(`/api/admin/enrollments/${eid}`);
     toast('Student unenrolled');
+    await loadStudents();
+    selectStudent(uid);
+  } catch(e) { toast(e.message, true); }
+}
+
+async function deleteWorkshopRegistration(runId, attendeeId, uid) {
+  if (!confirm('Delete this workshop registration?')) return;
+  try {
+    await DELETE(`/api/admin/workshop-runs/${runId}/attendees/${attendeeId}`);
+    toast('Workshop registration deleted');
     await loadStudents();
     selectStudent(uid);
   } catch(e) { toast(e.message, true); }
@@ -3381,36 +3438,63 @@ async function deleteWorkshop(wid) {
 }
 
 function openScheduleRunModal(wid) {
+  document.getElementById('run-modal-title').textContent = 'Schedule a Run';
   document.getElementById('run-workshop-id').value = wid;
+  document.getElementById('run-id').value = '';
   document.getElementById('run-start').value = '';
   document.getElementById('run-end').value = '';
   document.getElementById('run-venue').value = '';
   document.getElementById('run-capacity').value = '';
   document.getElementById('run-price').value = '';
   document.getElementById('run-google-review').value = '';
+  document.getElementById('run-save-btn').innerHTML = '<i class="fas fa-calendar-plus"></i> Schedule';
   const sel = document.getElementById('run-teacher');
   sel.innerHTML = '<option value="">— none —</option>' +
     (S.teachers || []).map(t => `<option value="${t.id}">${t.name}</option>`).join('');
   openModal('modal-schedule-run');
 }
 
+function openEditRunModal(rid) {
+  const run = S.currentRun && parseInt(S.currentRun.id) === parseInt(rid) ? S.currentRun : null;
+  if (!run) { toast('Run details are still loading', true); return; }
+  document.getElementById('run-modal-title').textContent = 'Edit Run';
+  document.getElementById('run-workshop-id').value = run.workshop_id;
+  document.getElementById('run-id').value = run.id;
+  document.getElementById('run-start').value = run.start_datetime || '';
+  document.getElementById('run-end').value = run.end_datetime || '';
+  document.getElementById('run-venue').value = run.venue || '';
+  document.getElementById('run-capacity').value = run.capacity ?? '';
+  document.getElementById('run-price').value = run.price_per_pax ?? '';
+  document.getElementById('run-google-review').value = run.google_review_url || '';
+  document.getElementById('run-save-btn').innerHTML = '<i class="fas fa-save"></i> Save';
+  const sel = document.getElementById('run-teacher');
+  sel.innerHTML = '<option value="">-- none --</option>' +
+    (S.teachers || []).map(t => `<option value="${t.id}">${t.name}</option>`).join('');
+  sel.value = run.teacher_id || '';
+  openModal('modal-schedule-run');
+}
+
 async function saveScheduleRun() {
   const wid = document.getElementById('run-workshop-id').value;
+  const rid = document.getElementById('run-id').value;
   const start = document.getElementById('run-start').value;
   if (!start) { toast('Start date & time is required', true); return; }
+  const payload = {
+    start_datetime: start,
+    end_datetime: document.getElementById('run-end').value || null,
+    venue: document.getElementById('run-venue').value,
+    capacity: document.getElementById('run-capacity').value || null,
+    price_per_pax: document.getElementById('run-price').value || null,
+    teacher_id: document.getElementById('run-teacher').value || null,
+    google_review_url: document.getElementById('run-google-review').value,
+  };
   try {
-    await POST(`/api/admin/workshops/${wid}/runs`, {
-      start_datetime: start,
-      end_datetime: document.getElementById('run-end').value || null,
-      venue: document.getElementById('run-venue').value,
-      capacity: document.getElementById('run-capacity').value || null,
-      price_per_pax: document.getElementById('run-price').value || null,
-      teacher_id: document.getElementById('run-teacher').value || null,
-      google_review_url: document.getElementById('run-google-review').value,
-    });
-    toast('Run scheduled');
+    if (rid) await PUT(`/api/admin/workshop-runs/${rid}`, payload);
+    else await POST(`/api/admin/workshops/${wid}/runs`, payload);
+    toast(rid ? 'Run updated' : 'Run scheduled');
     closeModal('modal-schedule-run');
-    await loadWorkshopCatalogue();
+    if (rid) await openRunDetail(parseInt(rid));
+    else await loadWorkshopCatalogue();
   } catch(e) { toast(e.message, true); }
 }
 
@@ -3533,6 +3617,10 @@ function renderRunDetail(run) {
       <i class="fas fa-map-marker-alt"></i> ${run.venue || 'No venue set'}
       ${run.teacher_name ? ' · Facilitated by ' + run.teacher_name : ''}
       ${run.price_per_pax != null ? ' · RM ' + run.price_per_pax.toFixed(2) + '/pax' : ''}
+    </div>
+
+    <div style="margin-bottom:18px">
+      <button class="btn btn-secondary btn-sm" onclick="openEditRunModal(${run.id})"><i class="fas fa-edit"></i> Edit Run</button>
     </div>
 
     <div style="display:flex;gap:14px;flex-wrap:wrap;margin-bottom:18px">

@@ -20,6 +20,9 @@ class User(UserMixin, db.Model):
     is_active     = db.Column(db.Boolean, default=True)
     last_login    = db.Column(db.DateTime)
     temp_password = db.Column(db.String(100), nullable=True)   # plain-text, stored for welcome email only
+    bill_company_name = db.Column(db.String(200))
+    bill_business_reg_number = db.Column(db.String(100))
+    bill_company_address = db.Column(db.Text)
 
     # ── Teacher profile fields ──────────────────────────────────
     title            = db.Column(db.String(120))   # e.g. "Lead Instructor", "Senior Data Scientist"
@@ -53,6 +56,9 @@ class User(UserMixin, db.Model):
             'created_at': self.created_at.strftime('%b %d, %Y'),
             'last_login': self.last_login.strftime('%b %d, %Y · %I:%M %p') if self.last_login else None,
             'language_pref': self.language_pref or 'en',
+            'bill_company_name': self.bill_company_name or '',
+            'bill_business_reg_number': self.bill_business_reg_number or '',
+            'bill_company_address': self.bill_company_address or '',
             # profile fields (relevant for teachers, present for all users)
             'title':           self.title or '',
             'bio':             self.bio or '',
