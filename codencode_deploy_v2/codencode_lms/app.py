@@ -194,6 +194,7 @@ def _bill_to_section_html(user, heading='Bill To') -> str:
 
     company_name = (getattr(user, 'bill_company_name', '') or '').strip()
     business_reg = (getattr(user, 'bill_business_reg_number', '') or '').strip()
+    sst_number = (getattr(user, 'bill_sst_number', '') or '').strip()
     company_address = (getattr(user, 'bill_company_address', '') or '').strip()
 
     if company_name:
@@ -203,6 +204,7 @@ def _bill_to_section_html(user, heading='Bill To') -> str:
       <div class="section-title">{html_escape(heading)}</div>
       <p><strong>{html_escape(company_name)}</strong></p>
       {f'<p>Business Reg No: {html_escape(business_reg)}</p>' if business_reg else ''}
+      {f'<p>SST Registration No: {html_escape(sst_number)}</p>' if sst_number else ''}
       {f'<p>{address_html}</p>' if address_html else ''}
       <p>Attention: {html_escape(user.name or '')}</p>
       <p>{html_escape(user.email or '')}</p>
@@ -1842,6 +1844,7 @@ def admin_students():
         language_pref = data.get('language_pref', 'en'),
         bill_company_name = data.get('bill_company_name', '').strip(),
         bill_business_reg_number = data.get('bill_business_reg_number', '').strip(),
+        bill_sst_number = data.get('bill_sst_number', '').strip(),
         bill_company_address = data.get('bill_company_address', '').strip(),
     )
     plain_pw = data.get('password') or 'codencode123'
@@ -1876,6 +1879,7 @@ def admin_student_detail(uid):
     if 'language_pref' in data: s.language_pref = data['language_pref']
     if 'bill_company_name' in data: s.bill_company_name = data['bill_company_name'].strip()
     if 'bill_business_reg_number' in data: s.bill_business_reg_number = data['bill_business_reg_number'].strip()
+    if 'bill_sst_number' in data: s.bill_sst_number = data['bill_sst_number'].strip()
     if 'bill_company_address' in data: s.bill_company_address = data['bill_company_address'].strip()
     if 'email'         in data:
         new_email = data['email'].strip().lower()
@@ -5412,6 +5416,9 @@ with app.app_context():
                 conn.commit()
             if 'bill_business_reg_number' not in user_cols:
                 conn.execute(text('ALTER TABLE users ADD COLUMN bill_business_reg_number VARCHAR(100)'))
+                conn.commit()
+            if 'bill_sst_number' not in user_cols:
+                conn.execute(text('ALTER TABLE users ADD COLUMN bill_sst_number VARCHAR(100)'))
                 conn.commit()
             if 'bill_company_address' not in user_cols:
                 conn.execute(text('ALTER TABLE users ADD COLUMN bill_company_address TEXT'))

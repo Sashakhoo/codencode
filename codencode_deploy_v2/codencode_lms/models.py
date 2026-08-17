@@ -22,6 +22,7 @@ class User(UserMixin, db.Model):
     temp_password = db.Column(db.String(100), nullable=True)   # plain-text, stored for welcome email only
     bill_company_name = db.Column(db.String(200))
     bill_business_reg_number = db.Column(db.String(100))
+    bill_sst_number = db.Column(db.String(100))
     bill_company_address = db.Column(db.Text)
 
     # ── Teacher profile fields ──────────────────────────────────
@@ -58,6 +59,7 @@ class User(UserMixin, db.Model):
             'language_pref': self.language_pref or 'en',
             'bill_company_name': self.bill_company_name or '',
             'bill_business_reg_number': self.bill_business_reg_number or '',
+            'bill_sst_number': self.bill_sst_number or '',
             'bill_company_address': self.bill_company_address or '',
             # profile fields (relevant for teachers, present for all users)
             'title':           self.title or '',
