@@ -1421,6 +1421,10 @@
         <label class="form-label">Business Reg Number</label>
         <input class="form-input" id="s-bill-business-reg-number" placeholder="202601234567" />
       </div>
+      <div class="form-group">
+        <label class="form-label">SST Registration No.</label>
+        <input class="form-input" id="s-bill-sst-number" placeholder="optional" />
+      </div>
       <div class="form-group" style="grid-column:span 2">
         <label class="form-label">Address</label>
         <textarea class="form-textarea" id="s-bill-company-address" rows="3" placeholder="Billing address"></textarea>
@@ -2397,12 +2401,13 @@ function renderStudentDetail(s) {
   const workshopAttendances = Array.isArray(s.workshop_attendances) ? s.workshop_attendances : [];
   const enrolledCourseIds = new Set(enrollments.map(e => e.course_id));
   const availableCourses  = S.courses.filter(c => !enrolledCourseIds.has(c.id));
-  const billingHtml = (s.bill_company_name || s.bill_business_reg_number || s.bill_company_address) ? `
+  const billingHtml = (s.bill_company_name || s.bill_business_reg_number || s.bill_sst_number || s.bill_company_address) ? `
     <div style="border-top:1px solid var(--border);margin:18px 0 14px"></div>
     <div class="form-label" style="margin-bottom:8px">Bill To Company</div>
     <div class="form-grid">
       <div><div class="form-label">Company Name</div><div style="margin-top:4px">${escHtml(s.bill_company_name) || '&mdash;'}</div></div>
       <div><div class="form-label">Business Reg Number</div><div style="margin-top:4px">${escHtml(s.bill_business_reg_number) || '&mdash;'}</div></div>
+      <div><div class="form-label">SST Registration No.</div><div style="margin-top:4px">${escHtml(s.bill_sst_number) || '&mdash;'}</div></div>
       <div style="grid-column:span 2"><div class="form-label">Address</div><div style="margin-top:4px;white-space:pre-wrap">${escHtml(s.bill_company_address) || '&mdash;'}</div></div>
     </div>
   ` : '';
@@ -2567,7 +2572,7 @@ function openAddStudent() {
   }
   document.getElementById('student-modal-title').textContent = 'Add Student';
   document.getElementById('edit-student-id').value = '';
-  ['s-name','s-email','s-phone','s-password','s-bill-company-name','s-bill-business-reg-number','s-bill-company-address'].forEach(id => {
+  ['s-name','s-email','s-phone','s-password','s-bill-company-name','s-bill-business-reg-number','s-bill-sst-number','s-bill-company-address'].forEach(id => {
     document.getElementById(id).value = '';
   });
   document.getElementById('s-language').value = 'en';
@@ -2597,6 +2602,7 @@ function openEditStudent(uid) {
   document.getElementById('s-password').value      = '';
   document.getElementById('s-bill-company-name').value = s.bill_company_name || '';
   document.getElementById('s-bill-business-reg-number').value = s.bill_business_reg_number || '';
+  document.getElementById('s-bill-sst-number').value = s.bill_sst_number || '';
   document.getElementById('s-bill-company-address').value = s.bill_company_address || '';
   document.getElementById('s-pass-group').style.display   = 'flex';
   // Hide enrolment section on edit (use Assign Course button instead)
@@ -2614,6 +2620,7 @@ async function saveStudent() {
     language_pref: document.getElementById('s-language').value,
     bill_company_name: document.getElementById('s-bill-company-name').value.trim(),
     bill_business_reg_number: document.getElementById('s-bill-business-reg-number').value.trim(),
+    bill_sst_number: document.getElementById('s-bill-sst-number').value.trim(),
     bill_company_address: document.getElementById('s-bill-company-address').value.trim(),
   };
   if (!data.name || !data.email) { toast('Name and email are required', true); return; }
