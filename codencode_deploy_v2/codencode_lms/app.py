@@ -18,6 +18,7 @@ import urllib.request
 import urllib.error
 import urllib.parse
 import json as _json_mod
+from html import escape as html_escape
 from datetime import datetime, timedelta
 from functools import wraps
 
@@ -170,6 +171,42 @@ def send_email_bulk(recipients: list[str], subject: str, html_body: str):
     return results
 
 
+def _bill_to_section_html(user, heading='Bill To') -> str:
+    """Render invoice/receipt billing details, preferring company billing info."""
+    if not user:
+        return f'''
+    <div class="section">
+      <div class="section-title">{html_escape(heading)}</div>
+      <p><strong>(deleted)</strong></p>
+    </div>'''
+
+    company_name = (getattr(user, 'bill_company_name', '') or '').strip()
+    business_reg = (getattr(user, 'bill_business_reg_number', '') or '').strip()
+    company_address = (getattr(user, 'bill_company_address', '') or '').strip()
+
+    if company_name:
+        address_html = '<br>'.join(html_escape(line) for line in company_address.splitlines() if line.strip())
+        return f'''
+    <div class="section">
+      <div class="section-title">{html_escape(heading)}</div>
+      <p><strong>{html_escape(company_name)}</strong></p>
+      {f'<p>Business Reg No: {html_escape(business_reg)}</p>' if business_reg else ''}
+      {f'<p>{address_html}</p>' if address_html else ''}
+      <p>Attention: {html_escape(user.name or '')}</p>
+      <p>{html_escape(user.email or '')}</p>
+      {f'<p>{html_escape(user.phone)}</p>' if user.phone else ''}
+    </div>'''
+
+    return f'''
+    <div class="section">
+      <div class="section-title">{html_escape(heading)}</div>
+      <p><strong>{html_escape(user.name or '')}</strong></p>
+      <p>{html_escape(user.email or '')}</p>
+      {f'<p>{html_escape(user.phone)}</p>' if user.phone else ''}
+      {f'<p>IC/Passport: {html_escape(user.ic_number)}</p>' if user.ic_number else ''}
+    </div>'''
+
+
 def generate_receipt_html(enrollment) -> str:
     """Render the official receipt as a printable HTML page — same template as the
     invoice, rendered fresh from the database every time (nothing stored on disk).
@@ -223,13 +260,7 @@ def generate_receipt_html(enrollment) -> str:
   </div>
 
   <div class="grid-2">
-    <div class="section">
-      <div class="section-title">Received From</div>
-      <p><strong>{s.name}</strong></p>
-      <p>{s.email}</p>
-      {'<p>' + s.phone + '</p>' if s.phone else ''}
-      {'<p>IC/Passport: ' + s.ic_number + '</p>' if s.ic_number else ''}
-    </div>
+    {_bill_to_section_html(s, 'Received From')}
     <div class="section">
       <div class="section-title">Course</div>
       <p><strong>{course.title}</strong></p>
@@ -1907,13 +1938,7 @@ def admin_invoice(eid):
   </div>
 
   <div class="grid-2">
-    <div class="section">
-      <div class="section-title">Bill To</div>
-      <p><strong>{s.name}</strong></p>
-      <p>{s.email}</p>
-      {'<p>' + s.phone + '</p>' if s.phone else ''}
-      {'<p>IC/Passport: ' + s.ic_number + '</p>' if s.ic_number else ''}
-    </div>
+    {_bill_to_section_html(s)}
     <div class="section">
       <div class="section-title">Course</div>
       <p><strong>{c.title}</strong></p>
@@ -4396,13 +4421,7 @@ def render_workshop_attendee_invoice_html(attendee):
   </div>
 
   <div class="grid-2">
-    <div class="section">
-      <div class="section-title">Bill To</div>
-      <p><strong>{client.name if client else '(deleted)'}</strong></p>
-      <p>{client.email if client else ''}</p>
-      {'<p>' + client.phone + '</p>' if client and client.phone else ''}
-      {'<p>IC/Passport: ' + client.ic_number + '</p>' if client and client.ic_number else ''}
-    </div>
+    {_bill_to_section_html(client)}
     <div class="section">
       <div class="section-title">Workshop</div>
       <p><strong>{workshop.title if workshop else ''}</strong></p>
