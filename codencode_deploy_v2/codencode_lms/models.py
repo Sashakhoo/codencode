@@ -166,7 +166,7 @@ class Enrollment(db.Model):
     student_id       = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     course_id        = db.Column(db.Integer, db.ForeignKey('courses.id'), nullable=False)
     enrolled_at      = db.Column(db.DateTime, default=datetime.utcnow)
-    payment_status   = db.Column(db.String(20), default='pending')  # pending | paid | overdue
+    payment_status   = db.Column(db.String(20), default='pending')  # pending | paid | overdue | cancelled
     payment_remarks  = db.Column(db.Text)
     receipt_file     = db.Column(db.String(300))   # stored filename of uploaded receipt
     document_number  = db.Column(db.Integer)       # shared serial for invoice/receipt/certificate, e.g. 111
@@ -949,7 +949,7 @@ class WorkshopAttendee(db.Model):
     run_id          = db.Column(db.Integer, db.ForeignKey('workshop_runs.id'), nullable=False)
     client_id       = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     attended        = db.Column(db.Boolean, default=False)
-    payment_status  = db.Column(db.String(20), default='pending')  # pending | paid | overdue
+    payment_status  = db.Column(db.String(20), default='pending')  # pending | paid | overdue | cancelled
     payment_amount  = db.Column(db.Float)
     payment_method  = db.Column(db.String(50))
     paid_at         = db.Column(db.DateTime)

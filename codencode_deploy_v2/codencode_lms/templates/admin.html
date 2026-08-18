@@ -434,6 +434,7 @@
     .badge-paid    { background: var(--green-dim);  color: var(--green);  border: 1px solid var(--green); }
     .badge-pending { background: var(--yellow-dim); color: var(--yellow); border: 1px solid var(--yellow); }
     .badge-overdue { background: var(--red-dim);    color: var(--red);    border: 1px solid var(--red); }
+    .badge-cancelled, .badge-void { background: rgba(164,180,164,.12); color: var(--text-muted); border: 1px solid rgba(164,180,164,.35); }
     .badge-present { background: var(--green-dim);  color: var(--green); }
     .badge-absent  { background: var(--red-dim);    color: var(--red); }
     .badge-late    { background: var(--yellow-dim); color: var(--yellow); }
@@ -1156,6 +1157,7 @@
             <option value="pending">Pending</option>
             <option value="overdue">Overdue</option>
             <option value="paid">Paid</option>
+            <option value="cancelled">Cancelled</option>
           </select>
         </div>
         <div class="card">
@@ -1470,6 +1472,7 @@
             <option value="pending">Pending</option>
             <option value="paid">Paid</option>
             <option value="overdue">Overdue</option>
+            <option value="cancelled">Cancelled</option>
           </select>
         </div>
       </div>
@@ -1608,6 +1611,7 @@
         <option value="pending">Pending</option>
         <option value="paid">Paid</option>
         <option value="overdue">Overdue</option>
+        <option value="cancelled">Cancelled</option>
       </select>
     </div>
     <div class="form-group">
@@ -1634,6 +1638,7 @@
         <option value="pending">Pending</option>
         <option value="paid">Paid</option>
         <option value="overdue">Overdue</option>
+        <option value="cancelled">Cancelled</option>
       </select>
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">
@@ -1825,6 +1830,7 @@
         <option value="pending">Pending</option>
         <option value="paid">Paid</option>
         <option value="overdue">Overdue</option>
+        <option value="cancelled">Cancelled</option>
       </select>
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">
@@ -2324,6 +2330,7 @@ async function loadDashboard() {
   const paid          = S.allPayments.filter(e => e.payment_status === 'paid').length;
   const pending       = S.allPayments.filter(e => e.payment_status === 'pending').length;
   const overdue       = S.allPayments.filter(e => e.payment_status === 'overdue').length;
+  const cancelled     = S.allPayments.filter(e => e.payment_status === 'cancelled' || e.payment_status === 'void').length;
 
   document.getElementById('dash-stats').innerHTML = `
     <div class="stat-card">
@@ -2346,10 +2353,14 @@ async function loadDashboard() {
       <div class="stat-value" style="color:var(--red)">${overdue}</div>
       <div class="stat-label">Overdue Payments</div>
     </div>
+    <div class="stat-card">
+      <div class="stat-value" style="color:var(--text-muted)">${cancelled}</div>
+      <div class="stat-label">Cancelled Invoices</div>
+    </div>
   `;
 
   // Pending/overdue payment list
-  const alerts = S.allPayments.filter(e => e.payment_status !== 'paid').slice(0, 8);
+  const alerts = S.allPayments.filter(e => !['paid', 'cancelled', 'void'].includes(e.payment_status)).slice(0, 8);
   document.getElementById('dash-payment-list').innerHTML = alerts.length ? alerts.map(e => `
     <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)">
       <div style="flex:1">
