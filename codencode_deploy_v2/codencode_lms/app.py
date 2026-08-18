@@ -366,7 +366,7 @@ def _invoice_page_html(doc_no, status, bill_to_user, description, unit_price, de
     .header {{ display:flex; justify-content:space-between; align-items:flex-start; gap:36px; margin-bottom:24px; }}
     .brand-logo {{ height:38px; display:block; margin-bottom:10px; }}
     .business {{ max-width:520px; color:#666; }}
-    .business-name {{ font-family:'Syne',sans-serif; font-size:18px; font-weight:800; color:#080c10; line-height:1.3; margin-bottom:8px; }}
+    .business-name {{ font-family:'Space Mono',monospace; font-size:18px; font-weight:700; color:#080c10; line-height:1.35; margin-bottom:8px; white-space:nowrap; }}
     .inv-meta {{ text-align:right; min-width:280px; color:#666; padding-top:2px; }}
     .doc-title {{ font-family:'Syne',sans-serif; font-size:25px; font-weight:800; color:#080c10; line-height:1; margin-bottom:12px; letter-spacing:0; }}
     .inv-num {{ font-size:13px; font-weight:700; color:#2d2d2d; margin-bottom:6px; }}
@@ -386,7 +386,7 @@ def _invoice_page_html(doc_no, status, bill_to_user, description, unit_price, de
     .item-details {{ margin-top:12px; color:#333; font-size:12px; }}
     .totals {{ max-width:420px; margin:8px 0 26px auto; }}
     .totals p {{ display:flex; justify-content:space-between; gap:24px; padding:5px 18px; font-size:14px; }}
-    .balance {{ margin-top:8px; padding:13px 18px; background:#080c10; font-family:'Syne',sans-serif; font-size:21px; font-weight:800; color:#00dcb4; text-align:right; }}
+    .balance {{ margin-top:8px; padding:13px 18px; background:#080c10; font-family:'Syne',sans-serif; font-size:21px; font-weight:800; color:#00dcb4; text-align:right; white-space:nowrap; }}
     .payment-grid {{ display:grid; grid-template-columns:1fr 210px; gap:26px; align-items:start; margin-top:2px; }}
     .terms {{ margin-top:10px; color:#666; font-size:11px; }}
     .qr-box {{ text-align:center; padding:4px 0 0; }}
@@ -395,6 +395,9 @@ def _invoice_page_html(doc_no, status, bill_to_user, description, unit_price, de
     .footer {{ margin-top:28px; padding-top:22px; border-top:1px solid #d6d6d6; font-size:11px; color:#999; text-align:center; }}
     @media print {{
       body {{ padding:20px; }}
+      .business {{ max-width:60%; }}
+      .business-name {{ white-space:nowrap; }}
+      .balance {{ font-size:16px; white-space:nowrap; }}
       .no-print {{ display:none !important; }}
     }}
   </style>
