@@ -350,7 +350,7 @@ def _invoice_footer_html(doc_no, issue_dt) -> str:
 
 def _invoice_page_html(doc_no, status, bill_to_user, description, unit_price, details=None, doc_label='INVOICE', discount_percent=0, discount_reason=None) -> str:
     issue_dt = datetime.utcnow()
-    status_colour = {'paid': '#28ca41', 'pending': '#e3b341', 'overdue': '#f85149', 'partially paid': '#2f81f7'}.get(
+    status_colour = {'paid': '#28ca41', 'pending': '#e3b341', 'overdue': '#f85149', 'cancelled': '#7d8590', 'void': '#7d8590', 'partially paid': '#2f81f7'}.get(
         (status or 'pending').lower(), '#7d8590')
     subtotal = float(unit_price or 0)
     discount_percent = _discount_percent(discount_percent)
@@ -2011,6 +2011,8 @@ def admin_update_payment(eid):
     just_paid = (old_status != 'paid' and e.payment_status == 'paid')
     if just_paid and not e.paid_at:
         e.paid_at = datetime.utcnow()
+    if e.payment_status in ('cancelled', 'void'):
+        e.paid_at = None
 
     db.session.commit()
 
@@ -2155,7 +2157,7 @@ def admin_invoice(eid):
     enr_date = e.enrolled_at.strftime('%d %B %Y') if e.enrolled_at else issued
     pay_status = (e.payment_status or 'pending').lower()
 
-    status_colour = {'paid': '#28ca41', 'pending': '#e3b341', 'overdue': '#f85149'}.get(
+    status_colour = {'paid': '#28ca41', 'pending': '#e3b341', 'overdue': '#f85149', 'cancelled': '#7d8590', 'void': '#7d8590'}.get(
         pay_status, '#7d8590')
 
     receipt_html = ''
@@ -4621,6 +4623,8 @@ def admin_workshop_attendee_detail(rid, aid):
         att.paid_at = att.paid_at or datetime.utcnow()
         if not att.document_number:
             att.document_number = next_document_number()
+    if att.payment_status in ('cancelled', 'void'):
+        att.paid_at = None
     db.session.commit()
 
     email_status = None
@@ -4645,7 +4649,7 @@ def render_workshop_attendee_invoice_html(attendee):
     inv_num = f'RCP-{get_or_assign_attendee_document_number(att):03d}' if (att.payment_status or '').lower() == 'paid' else f'INV-{get_or_assign_attendee_document_number(att):03d}'
     issued = datetime.utcnow().strftime('%d %B %Y')
     pay_status = (att.payment_status or 'pending').lower()
-    status_colour = {'paid': '#28ca41', 'pending': '#e3b341', 'overdue': '#f85149'}.get(
+    status_colour = {'paid': '#28ca41', 'pending': '#e3b341', 'overdue': '#f85149', 'cancelled': '#7d8590', 'void': '#7d8590'}.get(
         pay_status, '#7d8590')
     amount = att.payment_amount
     if amount is None and run:
