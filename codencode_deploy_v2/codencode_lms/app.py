@@ -222,7 +222,7 @@ def _bill_to_section_html(user, heading='Bill To') -> str:
 
 
 def _fmt_money(amount) -> str:
-    return f'RM{float(amount or 0):,.2f}'
+    return f'RM {float(amount or 0):,.2f}'
 
 
 def _invoice_due_date(issue_dt=None):
@@ -277,15 +277,23 @@ def _invoice_line_items_html(description, qty, unit_price, details=None) -> str:
   </div>'''
 
 
-def _payment_summary_html(total, status) -> str:
+def _payment_summary_html(total, status, discount_amount=0, discount_reason=None) -> str:
     total = float(total or 0)
+    discount_amount = max(float(discount_amount or 0), 0)
+    subtotal = total + discount_amount
     paid = total if (status or '').lower() == 'paid' else 0
     balance = max(total - paid, 0)
+    discount_label = 'Discount'
+    if discount_reason:
+        discount_label += f' ({html_escape(discount_reason)})'
+    discount_row = ''
+    if discount_amount > 0:
+        discount_row = f'<p><span>{discount_label}:</span><strong>-{_fmt_money(discount_amount)}</strong></p>'
     return f'''
   <div class="section totals">
     <div class="section-title">Amount</div>
-    <p><span>Subtotal:</span><strong>{_fmt_money(total)}</strong></p>
-    <p><span>Discount:</span><strong>{_fmt_money(0)}</strong></p>
+    <p><span>Subtotal:</span><strong>{_fmt_money(subtotal)}</strong></p>
+    {discount_row}
     <p><span>Total:</span><strong>{_fmt_money(total)}</strong></p>
     <p><span>Amount Paid:</span><strong>{_fmt_money(paid)}</strong></p>
     <div class="balance">BALANCE DUE: {_fmt_money(balance)}</div>
@@ -330,11 +338,13 @@ def _invoice_footer_html(doc_no, issue_dt) -> str:
   </div>'''
 
 
-def _invoice_page_html(doc_no, status, bill_to_user, description, unit_price, details=None, doc_label='INVOICE') -> str:
+def _invoice_page_html(doc_no, status, bill_to_user, description, unit_price, details=None, doc_label='INVOICE', discount_amount=0, discount_reason=None) -> str:
     issue_dt = datetime.utcnow()
     status_colour = {'paid': '#28ca41', 'pending': '#e3b341', 'overdue': '#f85149', 'partially paid': '#2f81f7'}.get(
         (status or 'pending').lower(), '#7d8590')
     total = float(unit_price or 0)
+    discount_amount = max(float(discount_amount or 0), 0)
+    subtotal = total + discount_amount
     return f"""<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -343,34 +353,37 @@ def _invoice_page_html(doc_no, status, bill_to_user, description, unit_price, de
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=Space+Mono:wght@400;700&display=swap');
     * {{ box-sizing:border-box; margin:0; padding:0; }}
-    body {{ font-family:'Space Mono',monospace; background:#fff; color:#111; font-size:13px; padding:40px; max-width:820px; margin:auto; }}
-    .header {{ display:flex; justify-content:space-between; align-items:flex-start; gap:28px; margin-bottom:34px; border-bottom:3px solid #00dcb4; padding-bottom:24px; }}
-    .brand-logo {{ height:34px; display:block; margin-bottom:10px; }}
-    .business {{ max-width:470px; }}
-    .business-name {{ font-family:'Syne',sans-serif; font-size:20px; font-weight:800; margin-bottom:6px; }}
-    .inv-meta {{ text-align:right; min-width:220px; }}
-    .doc-title {{ font-family:'Syne',sans-serif; font-size:34px; font-weight:800; color:#080c10; line-height:1; margin-bottom:8px; }}
-    .inv-num {{ font-size:18px; font-weight:700; color:#080c10; margin-bottom:8px; }}
-    .section {{ margin-bottom:26px; }}
-    .section-title {{ font-size:11px; text-transform:uppercase; letter-spacing:1px; color:#888; margin-bottom:10px; border-bottom:1px solid #eee; padding-bottom:6px; }}
+    body {{ font-family:'Space Mono',monospace; background:#fff; color:#2d2d2d; font-size:13px; padding:54px 58px; max-width:920px; margin:auto; }}
+    .header {{ display:flex; justify-content:space-between; align-items:flex-start; gap:36px; margin-bottom:24px; }}
+    .brand-logo {{ height:38px; display:block; margin-bottom:10px; }}
+    .business {{ max-width:520px; color:#666; }}
+    .business-name {{ font-family:'Syne',sans-serif; font-size:31px; font-weight:800; color:#163a5f; line-height:1.05; margin-bottom:7px; }}
+    .inv-meta {{ text-align:right; min-width:280px; color:#666; padding-top:2px; }}
+    .doc-title {{ font-family:'Syne',sans-serif; font-size:40px; font-weight:800; color:#163a5f; line-height:1; margin-bottom:12px; letter-spacing:0; }}
+    .inv-num {{ font-size:13px; font-weight:700; color:#2d2d2d; margin-bottom:6px; }}
+    .top-rule {{ border-top:7px solid #163a5f; border-bottom:2px solid #1f8eb5; height:12px; margin-bottom:18px; }}
+    .section {{ margin-bottom:28px; }}
+    .section-title {{ font-size:12px; text-transform:uppercase; letter-spacing:0; color:#163a5f; font-weight:700; margin-bottom:10px; border-bottom:1px solid #1f8eb5; padding-bottom:5px; }}
+    .bill-section {{ max-width:100%; margin-bottom:34px; }}
+    .bill-section p:first-of-type {{ font-size:16px; font-weight:700; color:#2d2d2d; }}
     .grid-2 {{ display:grid; grid-template-columns:1fr 1fr; gap:24px; }}
-    p {{ margin:5px 0; line-height:1.6; }}
+    p {{ margin:4px 0; line-height:1.45; }}
     strong {{ color:#080c10; }}
     .status-badge {{ display:inline-block; padding:4px 12px; border-radius:999px; font-size:11px; font-weight:700; color:#fff; background:{status_colour}; }}
     .items {{ width:100%; border-collapse:collapse; margin-top:4px; }}
-    .items th {{ text-align:left; font-size:11px; color:#666; border-bottom:1px solid #ddd; padding:9px 8px; }}
-    .items td {{ border-bottom:1px solid #eee; padding:12px 8px; vertical-align:top; }}
+    .items th {{ text-align:left; font-size:13px; color:#fff; background:#163a5f; padding:11px 10px; font-weight:700; }}
+    .items td {{ border-bottom:1px solid #d6d6d6; padding:13px 10px; vertical-align:top; }}
     .items .num {{ text-align:right; white-space:nowrap; }}
-    .item-details {{ margin-top:12px; color:#333; }}
-    .totals {{ max-width:360px; margin-left:auto; }}
-    .totals p {{ display:flex; justify-content:space-between; gap:18px; }}
-    .balance {{ margin-top:10px; padding:12px 14px; background:#eafbf6; border:1px solid #00dcb4; border-radius:6px; font-family:'Syne',sans-serif; font-size:20px; font-weight:800; color:#008a6d; text-align:right; }}
-    .payment-grid {{ display:grid; grid-template-columns:1fr 230px; gap:24px; align-items:start; }}
-    .terms {{ margin-top:10px; }}
-    .qr-box {{ text-align:center; border:1px solid #eee; border-radius:8px; padding:14px; }}
+    .item-details {{ margin-top:12px; color:#333; font-size:12px; }}
+    .totals {{ max-width:420px; margin:8px 0 26px auto; }}
+    .totals p {{ display:flex; justify-content:space-between; gap:24px; padding:5px 18px; font-size:14px; }}
+    .balance {{ margin-top:8px; padding:13px 18px; background:#163a5f; font-family:'Syne',sans-serif; font-size:21px; font-weight:800; color:#fff; text-align:right; }}
+    .payment-grid {{ display:grid; grid-template-columns:1fr 210px; gap:26px; align-items:start; margin-top:2px; }}
+    .terms {{ margin-top:10px; color:#666; font-size:11px; }}
+    .qr-box {{ text-align:center; padding:4px 0 0; }}
     .qr-title {{ font-family:'Syne',sans-serif; font-weight:800; margin-bottom:8px; }}
-    .duitnow-qr {{ width:190px; height:auto; display:block; margin:0 auto 8px; }}
-    .footer {{ margin-top:42px; padding-top:20px; border-top:1px solid #eee; font-size:11px; color:#777; text-align:center; }}
+    .duitnow-qr {{ width:150px; height:auto; display:block; margin:0 0 8px auto; }}
+    .footer {{ margin-top:28px; padding-top:22px; border-top:1px solid #d6d6d6; font-size:11px; color:#999; text-align:center; }}
     @media print {{
       body {{ padding:20px; }}
       .no-print {{ display:none !important; }}
@@ -382,18 +395,14 @@ def _invoice_page_html(doc_no, status, bill_to_user, description, unit_price, de
     {_invoice_business_html()}
     {_invoice_meta_html(doc_no, issue_dt, status, doc_label)}
   </div>
+  <div class="top-rule"></div>
 
-  <div class="grid-2">
+  <div class="bill-section">
     {_bill_to_section_html(bill_to_user)}
-    <div class="section">
-      <div class="section-title">Invoice Details</div>
-      <p><strong>Payment Reference:</strong> {html_escape(doc_no)}</p>
-      <p><strong>Due Date:</strong> {_invoice_due_date(issue_dt).strftime('%d %B %Y')}</p>
-    </div>
   </div>
 
-  {_invoice_line_items_html(description, 1, total, details)}
-  {_payment_summary_html(total, status)}
+  {_invoice_line_items_html(description, 1, subtotal, details)}
+  {_payment_summary_html(total, status, discount_amount, discount_reason)}
   {_payment_instructions_html(doc_no)}
   {_invoice_footer_html(doc_no, issue_dt)}
 
@@ -420,6 +429,14 @@ def generate_receipt_html(enrollment) -> str:
     paid_d  = (enrollment.paid_at or datetime.utcnow()).strftime('%d %B %Y')
     issued  = datetime.utcnow().strftime('%d %B %Y')
     amt_str = f'RM {enrollment.payment_amount:,.2f}' if enrollment.payment_amount else '—'
+    discount = float(enrollment.payment_discount_amount or 0)
+    subtotal = float(enrollment.payment_amount or 0) + discount
+    discount_html = ''
+    if discount > 0:
+        reason = f' ({html_escape(enrollment.payment_discount_reason)})' if enrollment.payment_discount_reason else ''
+        discount_html = f'''
+    <p><strong>Original Amount:</strong> {_fmt_money(subtotal)}</p>
+    <p><strong>Discount{reason}:</strong> -{_fmt_money(discount)}</p>'''
 
     return f"""<!DOCTYPE html>
 <html lang="en">
@@ -476,6 +493,7 @@ def generate_receipt_html(enrollment) -> str:
     <p><strong>Status:</strong> <span class="status-badge">PAID</span></p>
     <p style="margin-top:12px"><strong>Amount Paid:</strong></p>
     <p class="amount-paid">{amt_str}</p>
+    {discount_html}
     <p style="margin-top:12px"><strong>Payment Method:</strong> {enrollment.payment_method or '—'}</p>
     <p><strong>Date Paid:</strong> {paid_d}</p>
   </div>
@@ -1942,6 +1960,12 @@ def admin_update_payment(eid):
     if 'class_timing'    in data: e.class_timing    = data['class_timing']
     if 'class_format'    in data: e.class_format    = data['class_format']
     if 'payment_method'  in data: e.payment_method  = data['payment_method'] or None
+    if 'payment_discount_reason' in data: e.payment_discount_reason = data['payment_discount_reason'] or None
+    if 'payment_discount_amount' in data:
+        try:
+            e.payment_discount_amount = float(data['payment_discount_amount'] or 0) or None
+        except (ValueError, TypeError):
+            pass
     if 'payment_amount'  in data and data['payment_amount'] not in (None, '', 0, '0'):
         try:
             e.payment_amount = float(data['payment_amount'])
@@ -2187,7 +2211,9 @@ def admin_invoice(eid):
         s,
         f'{c.title} - {c.total_sessions} Sessions',
         e.payment_amount or 0,
-        service_details
+        service_details,
+        discount_amount=e.payment_discount_amount or 0,
+        discount_reason=e.payment_discount_reason
     )
     # Send invoice email to student
     try:
@@ -5517,6 +5543,12 @@ with app.app_context():
         with db.engine.connect() as conn:
             if 'payment_amount' not in pay_cols:
                 conn.execute(text('ALTER TABLE enrollments ADD COLUMN payment_amount REAL'))
+                conn.commit()
+            if 'payment_discount_amount' not in pay_cols:
+                conn.execute(text('ALTER TABLE enrollments ADD COLUMN payment_discount_amount REAL'))
+                conn.commit()
+            if 'payment_discount_reason' not in pay_cols:
+                conn.execute(text('ALTER TABLE enrollments ADD COLUMN payment_discount_reason VARCHAR(200)'))
                 conn.commit()
             if 'payment_method' not in pay_cols:
                 conn.execute(text('ALTER TABLE enrollments ADD COLUMN payment_method VARCHAR(50)'))

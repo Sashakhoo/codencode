@@ -174,6 +174,8 @@ class Enrollment(db.Model):
     class_format     = db.Column(db.String(20))    # e.g. "1v1", "2v1", "5v1", "cohort"
     cohort_id        = db.Column(db.Integer, db.ForeignKey('cohorts.id'), nullable=True)
     payment_amount   = db.Column(db.Float,   nullable=True)   # e.g. 1200.00
+    payment_discount_amount = db.Column(db.Float, nullable=True)
+    payment_discount_reason = db.Column(db.String(200), nullable=True)
     payment_method   = db.Column(db.String(50), nullable=True) # e.g. "Bank Transfer"
     paid_at          = db.Column(db.DateTime, nullable=True)   # timestamp when marked paid
 
@@ -200,6 +202,8 @@ class Enrollment(db.Model):
             'cohort_id':    self.cohort_id,
             'cohort_name':  self.cohort.name if self.cohort else None,
             'payment_amount': self.payment_amount,
+            'payment_discount_amount': self.payment_discount_amount,
+            'payment_discount_reason': self.payment_discount_reason or '',
             'payment_method': self.payment_method or '',
             'paid_at': self.paid_at.strftime('%b %d, %Y') if self.paid_at else None,
         }

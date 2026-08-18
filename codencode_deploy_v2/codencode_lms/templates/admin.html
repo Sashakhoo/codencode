@@ -1654,6 +1654,16 @@
         </select>
       </div>
     </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">
+      <div class="form-group">
+        <label class="form-label">Discount (RM)</label>
+        <input type="number" class="form-input" id="pay-discount-amount" placeholder="e.g. 200.00" step="0.01" min="0" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Discount Reason</label>
+        <input type="text" class="form-input" id="pay-discount-reason" placeholder="e.g. Early bird" maxlength="200" />
+      </div>
+    </div>
     <div id="pay-email-note" style="display:none;background:rgba(0,196,133,.08);border:1px solid rgba(0,196,133,.3);border-radius:6px;padding:9px 12px;font-size:11px;color:var(--cyan);margin-bottom:14px">
       <i class="fas fa-paper-plane" style="margin-right:6px"></i>
       Setting to <strong>Paid</strong> will automatically email the student a PDF receipt and enrolment confirmation.
@@ -1808,6 +1818,7 @@
     <div class="modal-title">Update Payment</div>
     <input type="hidden" id="ap-run-id" value="" />
     <input type="hidden" id="ap-attendee-id" value="" />
+    <input type="hidden" id="ap-student-id" value="" />
     <div class="form-group" style="margin-bottom:14px">
       <label class="form-label">Status</label>
       <select class="form-select" id="ap-status">
@@ -2497,6 +2508,9 @@ function renderStudentDetail(s) {
               ${w.payment_method ? `<small style="color:var(--cyan)"><i class="fas fa-credit-card" style="margin-right:3px"></i>${w.payment_method}${w.paid_at ? ' · Paid ' + w.paid_at : ''}</small>` : ''}
             </div>
             <span class="badge badge-${w.payment_status}">${w.payment_status}</span>
+            <button class="btn btn-secondary btn-sm" onclick="openAttendeePaymentModal(${w.run_id},${w.id},${s.id})" title="Edit workshop payment">
+              <i class="fas fa-edit"></i>
+            </button>
             <button class="btn btn-secondary btn-sm" onclick="window.open('/api/admin/workshop-runs/${w.run_id}/attendees/${w.id}/invoice','_blank')" title="View workshop ${w.payment_status === 'paid' ? 'receipt' : 'invoice'}" style="color:${w.payment_status === 'paid' ? 'var(--green)' : 'var(--cyan)'}">
               <i class="fas ${w.payment_status === 'paid' ? 'fa-receipt' : 'fa-file-invoice'}"></i>
             </button>
@@ -3284,6 +3298,8 @@ function openPaymentModal(eid) {
   document.getElementById('pay-enrollment-id').value = eid;
   document.getElementById('pay-status-select').value = e.payment_status || 'pending';
   document.getElementById('pay-amount').value         = e.payment_amount != null ? e.payment_amount : '';
+  document.getElementById('pay-discount-amount').value = e.payment_discount_amount != null ? e.payment_discount_amount : '';
+  document.getElementById('pay-discount-reason').value = e.payment_discount_reason || '';
   document.getElementById('pay-method').value         = e.payment_method || '';
   document.getElementById('pay-remarks').value        = e.payment_remarks || '';
   document.getElementById('pay-receipt-file').value   = '';
@@ -3320,10 +3336,13 @@ async function savePayment() {
   try {
     // 1) Update status, amount, method + remarks
     const amtVal = document.getElementById('pay-amount').value;
+    const discountVal = document.getElementById('pay-discount-amount').value;
     const payResult = await PUT(`/api/admin/enrollments/${eid}/payment`, {
       payment_status:  document.getElementById('pay-status-select').value,
       payment_remarks: document.getElementById('pay-remarks').value,
       payment_amount:  amtVal !== '' ? parseFloat(amtVal) : null,
+      payment_discount_amount: discountVal !== '' ? parseFloat(discountVal) : null,
+      payment_discount_reason: document.getElementById('pay-discount-reason').value,
       payment_method:  document.getElementById('pay-method').value || null,
     });
     // 2) Upload receipt file if selected
@@ -3785,12 +3804,17 @@ async function deleteAttendee(rid, aid) {
   } catch(e) { toast(e.message, true); }
 }
 
-function openAttendeePaymentModal(rid, aid) {
+function openAttendeePaymentModal(rid, aid, uid = null) {
   const run = S.currentRun;
-  const a = run.attendees.find(x => x.id === aid);
+  let a = run?.attendees?.find(x => x.id === aid);
+  if (!a && uid) {
+    const student = (S.students || []).find(s => parseInt(s.id) === parseInt(uid));
+    a = student?.workshop_attendances?.find(x => parseInt(x.id) === parseInt(aid) && parseInt(x.run_id) === parseInt(rid));
+  }
   if (!a) return;
   document.getElementById('ap-run-id').value = rid;
   document.getElementById('ap-attendee-id').value = aid;
+  document.getElementById('ap-student-id').value = uid || '';
   document.getElementById('ap-status').value = a.payment_status || 'pending';
   document.getElementById('ap-amount').value = a.payment_amount ?? '';
   document.getElementById('ap-method').value = a.payment_method || '';
@@ -3800,6 +3824,7 @@ function openAttendeePaymentModal(rid, aid) {
 async function saveAttendeePayment() {
   const rid = document.getElementById('ap-run-id').value;
   const aid = document.getElementById('ap-attendee-id').value;
+  const uid = document.getElementById('ap-student-id').value;
   try {
     const payResult = await PUT(`/api/admin/workshop-runs/${rid}/attendees/${aid}`, {
       payment_status: document.getElementById('ap-status').value,
@@ -3817,7 +3842,13 @@ async function saveAttendeePayment() {
       toast('Payment updated');
     }
     closeModal('modal-attendee-payment');
-    await openRunDetail(parseInt(rid));
+    if (uid) {
+      await loadStudents();
+      renderStudentList();
+      selectStudent(parseInt(uid));
+    } else {
+      await openRunDetail(parseInt(rid));
+    }
   } catch(e) { toast(e.message, true); }
 }
 
