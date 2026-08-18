@@ -357,9 +357,9 @@ def _invoice_page_html(doc_no, status, bill_to_user, description, unit_price, de
     .header {{ display:flex; justify-content:space-between; align-items:flex-start; gap:36px; margin-bottom:24px; }}
     .brand-logo {{ height:38px; display:block; margin-bottom:10px; }}
     .business {{ max-width:520px; color:#666; }}
-    .business-name {{ font-family:'Syne',sans-serif; font-size:31px; font-weight:800; color:#080c10; line-height:1.05; margin-bottom:7px; }}
+    .business-name {{ font-family:'Syne',sans-serif; font-size:25px; font-weight:800; color:#080c10; line-height:1.08; margin-bottom:7px; }}
     .inv-meta {{ text-align:right; min-width:280px; color:#666; padding-top:2px; }}
-    .doc-title {{ font-family:'Syne',sans-serif; font-size:40px; font-weight:800; color:#080c10; line-height:1; margin-bottom:12px; letter-spacing:0; }}
+    .doc-title {{ font-family:'Syne',sans-serif; font-size:25px; font-weight:800; color:#080c10; line-height:1; margin-bottom:12px; letter-spacing:0; }}
     .inv-num {{ font-size:13px; font-weight:700; color:#2d2d2d; margin-bottom:6px; }}
     .top-rule {{ border-top:7px solid #080c10; border-bottom:2px solid #00dcb4; height:12px; margin-bottom:18px; }}
     .section {{ margin-bottom:28px; }}
