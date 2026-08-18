@@ -277,18 +277,28 @@ def _invoice_line_items_html(description, qty, unit_price, details=None) -> str:
   </div>'''
 
 
-def _payment_summary_html(total, status, discount_amount=0, discount_reason=None) -> str:
-    total = float(total or 0)
-    discount_amount = max(float(discount_amount or 0), 0)
-    subtotal = total + discount_amount
+def _discount_percent(value) -> float:
+    return min(max(float(value or 0), 0), 100)
+
+
+def _discounted_total(amount, discount_percent=0) -> float:
+    amount = float(amount or 0)
+    return max(amount - (amount * _discount_percent(discount_percent) / 100), 0)
+
+
+def _payment_summary_html(subtotal, status, discount_percent=0, discount_reason=None) -> str:
+    subtotal = float(subtotal or 0)
+    discount_percent = _discount_percent(discount_percent)
+    discount_amount = subtotal * discount_percent / 100
+    total = _discounted_total(subtotal, discount_percent)
     paid = total if (status or '').lower() == 'paid' else 0
     balance = max(total - paid, 0)
     discount_label = 'Discount'
     if discount_reason:
         discount_label += f' ({html_escape(discount_reason)})'
     discount_row = ''
-    if discount_amount > 0:
-        discount_row = f'<p><span>{discount_label}:</span><strong>-{_fmt_money(discount_amount)}</strong></p>'
+    if discount_percent > 0:
+        discount_row = f'<p><span>{discount_label} {discount_percent:g}%:</span><strong>-{_fmt_money(discount_amount)}</strong></p>'
     return f'''
   <div class="section totals">
     <div class="section-title">Amount</div>
@@ -338,13 +348,12 @@ def _invoice_footer_html(doc_no, issue_dt) -> str:
   </div>'''
 
 
-def _invoice_page_html(doc_no, status, bill_to_user, description, unit_price, details=None, doc_label='INVOICE', discount_amount=0, discount_reason=None) -> str:
+def _invoice_page_html(doc_no, status, bill_to_user, description, unit_price, details=None, doc_label='INVOICE', discount_percent=0, discount_reason=None) -> str:
     issue_dt = datetime.utcnow()
     status_colour = {'paid': '#28ca41', 'pending': '#e3b341', 'overdue': '#f85149', 'partially paid': '#2f81f7'}.get(
         (status or 'pending').lower(), '#7d8590')
-    total = float(unit_price or 0)
-    discount_amount = max(float(discount_amount or 0), 0)
-    subtotal = total + discount_amount
+    subtotal = float(unit_price or 0)
+    discount_percent = _discount_percent(discount_percent)
     return f"""<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -402,7 +411,7 @@ def _invoice_page_html(doc_no, status, bill_to_user, description, unit_price, de
   </div>
 
   {_invoice_line_items_html(description, 1, subtotal, details)}
-  {_payment_summary_html(total, status, discount_amount, discount_reason)}
+  {_payment_summary_html(subtotal, status, discount_percent, discount_reason)}
   {_payment_instructions_html(doc_no)}
   {_invoice_footer_html(doc_no, issue_dt)}
 
@@ -428,15 +437,16 @@ def generate_receipt_html(enrollment) -> str:
     rcpt_no = f'RCP-{get_or_assign_document_number(enrollment):03d}'
     paid_d  = (enrollment.paid_at or datetime.utcnow()).strftime('%d %B %Y')
     issued  = datetime.utcnow().strftime('%d %B %Y')
-    amt_str = f'RM {enrollment.payment_amount:,.2f}' if enrollment.payment_amount else '—'
-    discount = float(enrollment.payment_discount_amount or 0)
-    subtotal = float(enrollment.payment_amount or 0) + discount
+    discount_percent = _discount_percent(enrollment.payment_discount_amount)
+    paid_amount = _discounted_total(enrollment.payment_amount, discount_percent)
+    amt_str = _fmt_money(paid_amount) if enrollment.payment_amount else '—'
     discount_html = ''
-    if discount > 0:
+    if discount_percent > 0:
+        discount_amount = float(enrollment.payment_amount or 0) * discount_percent / 100
         reason = f' ({html_escape(enrollment.payment_discount_reason)})' if enrollment.payment_discount_reason else ''
         discount_html = f'''
-    <p><strong>Original Amount:</strong> {_fmt_money(subtotal)}</p>
-    <p><strong>Discount{reason}:</strong> -{_fmt_money(discount)}</p>'''
+    <p><strong>Original Amount:</strong> {_fmt_money(enrollment.payment_amount)}</p>
+    <p><strong>Discount{reason} {discount_percent:g}%:</strong> -{_fmt_money(discount_amount)}</p>'''
 
     return f"""<!DOCTYPE html>
 <html lang="en">
@@ -613,7 +623,7 @@ def email_payment_receipt(enrollment) -> bool:
     if not s or not s.email:
         return False
     rcpt_no  = f'RCP-{get_or_assign_document_number(enrollment):03d}'
-    amt_str  = f'RM {enrollment.payment_amount:,.2f}' if enrollment.payment_amount else '—'
+    amt_str  = _fmt_money(_discounted_total(enrollment.payment_amount, enrollment.payment_discount_amount)) if enrollment.payment_amount else '—'
     paid_d   = (enrollment.paid_at or datetime.utcnow()).strftime('%d %B %Y')
     body = f"""
     <p>Hi <strong>{s.name}</strong>,</p>
@@ -677,7 +687,7 @@ def email_invoice(enrollment) -> bool:
     if not s or not s.email:
         return False
     inv_num  = f'INV-{get_or_assign_document_number(enrollment):03d}'
-    amt_str  = f'RM {enrollment.payment_amount:,.2f}' if enrollment.payment_amount else '—'
+    amt_str  = _fmt_money(_discounted_total(enrollment.payment_amount, enrollment.payment_discount_amount)) if enrollment.payment_amount else '—'
     issued   = datetime.utcnow().strftime('%d %B %Y')
     body = f"""
     <p>Hi <strong>{s.name}</strong>,</p>
@@ -1963,7 +1973,7 @@ def admin_update_payment(eid):
     if 'payment_discount_reason' in data: e.payment_discount_reason = data['payment_discount_reason'] or None
     if 'payment_discount_amount' in data:
         try:
-            e.payment_discount_amount = float(data['payment_discount_amount'] or 0) or None
+            e.payment_discount_amount = _discount_percent(data['payment_discount_amount']) or None
         except (ValueError, TypeError):
             pass
     if 'payment_amount'  in data and data['payment_amount'] not in (None, '', 0, '0'):
@@ -2212,7 +2222,7 @@ def admin_invoice(eid):
         f'{c.title} - {c.total_sessions} Sessions',
         e.payment_amount or 0,
         service_details,
-        discount_amount=e.payment_discount_amount or 0,
+        discount_percent=e.payment_discount_amount or 0,
         discount_reason=e.payment_discount_reason
     )
     # Send invoice email to student
