@@ -357,13 +357,13 @@ def _invoice_page_html(doc_no, status, bill_to_user, description, unit_price, de
     .header {{ display:flex; justify-content:space-between; align-items:flex-start; gap:36px; margin-bottom:24px; }}
     .brand-logo {{ height:38px; display:block; margin-bottom:10px; }}
     .business {{ max-width:520px; color:#666; }}
-    .business-name {{ font-family:'Syne',sans-serif; font-size:31px; font-weight:800; color:#163a5f; line-height:1.05; margin-bottom:7px; }}
+    .business-name {{ font-family:'Syne',sans-serif; font-size:31px; font-weight:800; color:#080c10; line-height:1.05; margin-bottom:7px; }}
     .inv-meta {{ text-align:right; min-width:280px; color:#666; padding-top:2px; }}
-    .doc-title {{ font-family:'Syne',sans-serif; font-size:40px; font-weight:800; color:#163a5f; line-height:1; margin-bottom:12px; letter-spacing:0; }}
+    .doc-title {{ font-family:'Syne',sans-serif; font-size:40px; font-weight:800; color:#080c10; line-height:1; margin-bottom:12px; letter-spacing:0; }}
     .inv-num {{ font-size:13px; font-weight:700; color:#2d2d2d; margin-bottom:6px; }}
-    .top-rule {{ border-top:7px solid #163a5f; border-bottom:2px solid #1f8eb5; height:12px; margin-bottom:18px; }}
+    .top-rule {{ border-top:7px solid #080c10; border-bottom:2px solid #00dcb4; height:12px; margin-bottom:18px; }}
     .section {{ margin-bottom:28px; }}
-    .section-title {{ font-size:12px; text-transform:uppercase; letter-spacing:0; color:#163a5f; font-weight:700; margin-bottom:10px; border-bottom:1px solid #1f8eb5; padding-bottom:5px; }}
+    .section-title {{ font-size:12px; text-transform:uppercase; letter-spacing:0; color:#080c10; font-weight:700; margin-bottom:10px; border-bottom:1px solid #00dcb4; padding-bottom:5px; }}
     .bill-section {{ max-width:100%; margin-bottom:34px; }}
     .bill-section p:first-of-type {{ font-size:16px; font-weight:700; color:#2d2d2d; }}
     .grid-2 {{ display:grid; grid-template-columns:1fr 1fr; gap:24px; }}
@@ -371,13 +371,13 @@ def _invoice_page_html(doc_no, status, bill_to_user, description, unit_price, de
     strong {{ color:#080c10; }}
     .status-badge {{ display:inline-block; padding:4px 12px; border-radius:999px; font-size:11px; font-weight:700; color:#fff; background:{status_colour}; }}
     .items {{ width:100%; border-collapse:collapse; margin-top:4px; }}
-    .items th {{ text-align:left; font-size:13px; color:#fff; background:#163a5f; padding:11px 10px; font-weight:700; }}
+    .items th {{ text-align:left; font-size:13px; color:#080c10; background:#00dcb4; padding:11px 10px; font-weight:700; }}
     .items td {{ border-bottom:1px solid #d6d6d6; padding:13px 10px; vertical-align:top; }}
     .items .num {{ text-align:right; white-space:nowrap; }}
     .item-details {{ margin-top:12px; color:#333; font-size:12px; }}
     .totals {{ max-width:420px; margin:8px 0 26px auto; }}
     .totals p {{ display:flex; justify-content:space-between; gap:24px; padding:5px 18px; font-size:14px; }}
-    .balance {{ margin-top:8px; padding:13px 18px; background:#163a5f; font-family:'Syne',sans-serif; font-size:21px; font-weight:800; color:#fff; text-align:right; }}
+    .balance {{ margin-top:8px; padding:13px 18px; background:#080c10; font-family:'Syne',sans-serif; font-size:21px; font-weight:800; color:#00dcb4; text-align:right; }}
     .payment-grid {{ display:grid; grid-template-columns:1fr 210px; gap:26px; align-items:start; margin-top:2px; }}
     .terms {{ margin-top:10px; color:#666; font-size:11px; }}
     .qr-box {{ text-align:center; padding:4px 0 0; }}
