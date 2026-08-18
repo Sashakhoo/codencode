@@ -118,7 +118,7 @@ _BUSINESS_ADDR  = os.environ.get(
 _BUSINESS_PHONE = os.environ.get('BUSINESS_PHONE', '0196811628')
 _BUSINESS_EMAIL = os.environ.get('BUSINESS_EMAIL', 'codencodemy@gmail.com')
 _BUSINESS_WEBSITE = os.environ.get('BUSINESS_WEBSITE', 'codencode.my')
-_INVOICE_DUE_DAYS = int(os.environ.get('INVOICE_DUE_DAYS', '7'))
+_INVOICE_DUE_DAYS = int(os.environ.get('INVOICE_DUE_DAYS', '14'))
 _BANK_NAME = os.environ.get('BANK_NAME', 'MAYBANK')
 _BANK_ACCOUNT_NAME = os.environ.get('BANK_ACCOUNT_NAME', 'CODE N CODE SOLUTION')
 _BANK_ACCOUNT_NO = os.environ.get('BANK_ACCOUNT_NO', '5512 7610 6077')
@@ -318,7 +318,7 @@ def _payment_instructions_html(doc_no) -> str:
       <p><strong>Account Name:</strong> {html_escape(_BANK_ACCOUNT_NAME)}</p>
       <p><strong>Account No.:</strong> {html_escape(_BANK_ACCOUNT_NO)}</p>
       <p><strong>Reference:</strong> {html_escape(doc_no)}</p>
-      <p class="terms"><strong>Payment Terms:</strong> Payment is due by the due date stated on this invoice.</p>
+      <p class="terms"><strong>Payment Terms:</strong> Payment is due within 14 days from the invoice date.</p>
       <p class="terms"><strong>Proof of Payment:</strong> Kindly send your payment receipt via WhatsApp or email after payment.</p>
     </div>
     {qr_html}
@@ -357,7 +357,7 @@ def _invoice_page_html(doc_no, status, bill_to_user, description, unit_price, de
     .header {{ display:flex; justify-content:space-between; align-items:flex-start; gap:36px; margin-bottom:24px; }}
     .brand-logo {{ height:38px; display:block; margin-bottom:10px; }}
     .business {{ max-width:520px; color:#666; }}
-    .business-name {{ font-family:'Syne',sans-serif; font-size:25px; font-weight:800; color:#080c10; line-height:1.08; margin-bottom:7px; }}
+    .business-name {{ font-family:'Syne',sans-serif; font-size:18px; font-weight:800; color:#080c10; line-height:1.15; margin-bottom:7px; }}
     .inv-meta {{ text-align:right; min-width:280px; color:#666; padding-top:2px; }}
     .doc-title {{ font-family:'Syne',sans-serif; font-size:25px; font-weight:800; color:#080c10; line-height:1; margin-bottom:12px; letter-spacing:0; }}
     .inv-num {{ font-size:13px; font-weight:700; color:#2d2d2d; margin-bottom:6px; }}
