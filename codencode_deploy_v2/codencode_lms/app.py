@@ -306,7 +306,7 @@ def _payment_summary_html(subtotal, status, discount_percent=0, discount_reason=
     {discount_row}
     <p><span>Total:</span><strong>{_fmt_money(total)}</strong></p>
     <p><span>Amount Paid:</span><strong>{_fmt_money(paid)}</strong></p>
-    <div class="balance">BALANCE DUE: {_fmt_money(balance)}</div>
+    <div class="balance"><span>Balance Due:</span><strong>{_fmt_money(balance)}</strong></div>
   </div>'''
 
 
@@ -386,7 +386,8 @@ def _invoice_page_html(doc_no, status, bill_to_user, description, unit_price, de
     .item-details {{ margin-top:12px; color:#333; font-size:12px; }}
     .totals {{ max-width:420px; margin:8px 0 26px auto; }}
     .totals p {{ display:flex; justify-content:space-between; gap:24px; padding:5px 18px; font-size:14px; }}
-    .balance {{ margin-top:8px; padding:13px 18px; background:#080c10; font-family:'Syne',sans-serif; font-size:21px; font-weight:800; color:#00dcb4; text-align:right; white-space:nowrap; }}
+    .balance {{ margin-top:8px; padding:10px 18px; background:#080c10; font-family:'Space Mono',monospace; font-size:14px; font-weight:700; color:#00dcb4; display:flex; justify-content:space-between; gap:18px; white-space:nowrap; }}
+    .balance strong {{ color:#00dcb4; }}
     .payment-grid {{ display:grid; grid-template-columns:1fr 210px; gap:26px; align-items:start; margin-top:2px; }}
     .terms {{ margin-top:10px; color:#666; font-size:11px; }}
     .qr-box {{ text-align:center; padding:4px 0 0; }}
@@ -397,7 +398,11 @@ def _invoice_page_html(doc_no, status, bill_to_user, description, unit_price, de
       body {{ padding:20px; }}
       .business {{ max-width:60%; }}
       .business-name {{ white-space:nowrap; }}
-      .balance {{ font-size:16px; white-space:nowrap; }}
+      .section {{ margin-bottom:20px; }}
+      .bill-section {{ margin-bottom:24px; }}
+      .totals {{ max-width:100%; width:100%; margin:8px 0 20px auto; }}
+      .totals p {{ padding:4px 14px; font-size:12px; }}
+      .balance {{ font-size:12px; padding:8px 14px; white-space:nowrap; }}
       .no-print {{ display:none !important; }}
     }}
   </style>
@@ -438,6 +443,24 @@ def generate_receipt_html(enrollment) -> str:
     s      = enrollment.student
     course = enrollment.course
     rcpt_no = f'RCP-{get_or_assign_document_number(enrollment):03d}'
+    service_details = [
+        ('Duration', f'{course.total_sessions} sessions' if course else ''),
+        ('Enrolled', enrollment.enrolled_at.strftime('%d %B %Y') if getattr(enrollment, 'enrolled_at', None) else ''),
+        ('Schedule', enrollment.class_timing or ''),
+        ('Payment Method', enrollment.payment_method or ''),
+        ('Date Paid', enrollment.paid_at.strftime('%d %B %Y') if enrollment.paid_at else ''),
+    ]
+    return _invoice_page_html(
+        rcpt_no,
+        'paid',
+        s,
+        f'{course.title} - {course.total_sessions} Sessions' if course else 'Course',
+        enrollment.payment_amount or 0,
+        service_details,
+        doc_label='RECEIPT',
+        discount_percent=enrollment.payment_discount_amount or 0,
+        discount_reason=enrollment.payment_discount_reason
+    )
     paid_d  = (enrollment.paid_at or datetime.utcnow()).strftime('%d %B %Y')
     issued  = datetime.utcnow().strftime('%d %B %Y')
     discount_percent = _discount_percent(enrollment.payment_discount_amount)
