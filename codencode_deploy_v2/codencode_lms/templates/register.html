@@ -198,6 +198,46 @@ body::before{content:"";position:fixed;inset:0;background-image:linear-gradient(
 .submit-note{font-family:var(--mono);font-size:11px;color:var(--mu);line-height:1.8}
 .submit-note a{color:var(--cyan);text-decoration:none}
 
+/* Mobile hardening for LMS registration */
+@media(max-width:700px){
+  html{-webkit-text-size-adjust:100%;scroll-padding-top:70px}
+  img,svg{max-width:100%}
+  .nav-inner{height:56px;padding:0 16px}
+  .logo img{max-width:172px;height:auto!important}
+  .hamburger{min-width:44px;min-height:44px}
+  .mob-nav{padding:0 16px}
+  .mob-nav a{min-height:44px;display:flex;align-items:center}
+  .container{padding:0 16px}
+  .page-wrap{padding:84px 0 48px}
+  .pg-header{text-align:left;margin-bottom:24px}
+  .pg-eye{font-size:10px;letter-spacing:.1em}
+  .pg-eye::before,.pg-eye::after{width:18px}
+  .pg-h1{font-size:clamp(28px,9vw,38px);letter-spacing:-.02em}
+  .pg-sub{margin:0;font-size:11px;line-height:1.7}
+  .notice{padding:13px 14px;font-size:11px}
+  .card-grid.cols2,.card-grid.cols3{grid-template-columns:1fr}
+  .card-lbl{align-items:flex-start;text-align:left;min-height:44px}
+  .price-calc,.instal-panel{padding:16px 14px}
+  .price-row,.price-total-row{gap:12px}
+  .price-total-row .t-val{font-size:23px;text-align:right}
+  .toggle-opts,.timing-row,.lang-grid{display:grid;grid-template-columns:1fr;gap:8px}
+  .tog-lbl,.time-lbl,.lng-lbl{width:100%;justify-content:center;min-width:0;min-height:44px}
+  .reg-form{margin-top:22px}
+  .form-hd{padding:16px}
+  .form-body{padding:20px 16px}
+  .form-grid{gap:14px}
+  .form-input,.form-select,.form-textarea{min-height:44px;font-size:14px}
+  .form-submit-section{padding:20px 16px 24px;flex-direction:column}
+  .btn-submit{width:100%;justify-content:center;white-space:normal;padding:15px 18px}
+  .trust-row{justify-content:flex-start;margin-top:28px}
+}
+@media(max-width:480px){
+  .container{padding:0 14px}
+  .logo img{max-width:156px}
+  .form-hd-title{font-size:10px;overflow-wrap:anywhere}
+  .pay-step{min-width:0}
+}
+
 </style>
 </head>
 <body>
@@ -208,8 +248,8 @@ body::before{content:"";position:fixed;inset:0;background-image:linear-gradient(
     <ul class="nav-links">
       <li><a href="/#courses">Courses</a></li>
       <li><a href="/#pricing">Pricing</a></li>
-      <li><a href="about.html">About &amp; Reviews</a></li>
-      <li><a href="paths.html">Your Path</a></li>
+      <li><a href="/#trainer">About &amp; Reviews</a></li>
+      <li><a href="/paths.html">Your Path</a></li>
       <li><a href="https://wa.me/60196811628?text=Hi%20codencode!" target="_blank" rel="noopener">Contact</a></li>
     </ul>
     <a class="nav-cta" href="https://wa.me/60196811628?text=Hi%20codencode!" target="_blank" rel="noopener">Free Trial <i class="fab fa-whatsapp"></i></a>
@@ -218,8 +258,8 @@ body::before{content:"";position:fixed;inset:0;background-image:linear-gradient(
   <div class="mob-nav" id="mob-menu">
     <a href="/#courses">Courses</a>
     <a href="/#pricing">Pricing</a>
-    <a href="about.html">About &amp; Reviews</a>
-    <a href="paths.html">Your Path</a>
+    <a href="/#trainer">About &amp; Reviews</a>
+    <a href="/paths.html">Your Path</a>
     <a href="https://wa.me/60196811628?text=Hi%20codencode!" target="_blank" rel="noopener">Free Trial &#8594; WhatsApp</a>
   </div>
 </nav>
