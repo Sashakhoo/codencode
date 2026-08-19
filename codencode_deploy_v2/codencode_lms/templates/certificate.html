@@ -346,6 +346,42 @@
     }
     .btn-close:hover { border-color: #999; color: #333; }
 
+    @media screen and (max-width: 768px) {
+      html { -webkit-text-size-adjust: 100%; }
+      body {
+        justify-content: flex-start;
+        align-items: stretch;
+        padding: 14px;
+        overflow-x: hidden;
+      }
+      .cert-wrapper {
+        width: 100%;
+        height: auto;
+        aspect-ratio: 297 / 210;
+        overflow: auto;
+        -webkit-overflow-scrolling: touch;
+      }
+      .cert-outer {
+        min-width: 980px;
+        min-height: 693px;
+      }
+      .print-actions {
+        position: sticky;
+        bottom: 12px;
+        z-index: 10;
+        width: 100%;
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 8px;
+        margin-top: 14px;
+      }
+      .btn-print,
+      .btn-close {
+        width: 100%;
+        min-height: 44px;
+      }
+    }
+
     @media print {
       html,
       body {

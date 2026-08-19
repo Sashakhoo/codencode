@@ -192,6 +192,64 @@
     }
     .card-footer a { color: #00874a; text-decoration: none; }
     .card-footer a:hover { text-decoration: underline; }
+
+    @media (max-width: 560px) {
+      html { -webkit-text-size-adjust: 100%; }
+      body {
+        justify-content: flex-start;
+        padding: 18px 12px;
+      }
+      .card {
+        max-width: 100%;
+        border-radius: 14px;
+      }
+      .card-header {
+        padding: 26px 20px 22px;
+      }
+      .brand {
+        font-size: 20px;
+        overflow-wrap: anywhere;
+      }
+      .brand-sub {
+        font-size: 8px;
+        line-height: 1.5;
+      }
+      .verify-icon {
+        width: 56px;
+        height: 56px;
+        font-size: 24px;
+      }
+      .card-body {
+        padding: 24px 18px;
+      }
+      .status-valid h2,
+      .status-invalid h2 {
+        font-size: 20px;
+      }
+      .cert-number,
+      .cert-number-invalid {
+        max-width: 100%;
+        overflow-wrap: anywhere;
+        text-align: center;
+        line-height: 1.5;
+      }
+      .info-row {
+        grid-template-columns: 1fr;
+      }
+      .info-label {
+        border-right: 0;
+        border-bottom: 1px solid #eee;
+        padding: 11px 14px 8px;
+      }
+      .info-value {
+        padding: 12px 14px 14px;
+        overflow-wrap: anywhere;
+      }
+      .card-footer {
+        padding: 15px 18px;
+        line-height: 1.5;
+      }
+    }
   </style>
 </head>
 <body>

@@ -49,6 +49,19 @@ textarea{min-height:90px;resize:vertical}
 }
 .error-card{text-align:center;padding:20px 0}
 .error-card h1{color:var(--red)}
+@media(max-width:520px){
+  html{-webkit-text-size-adjust:100%}
+  body{align-items:flex-start;padding:14px}
+  .wrap{max-width:100%}
+  .card{border-radius:14px;padding:24px 18px}
+  .logo{font-size:17px;margin-bottom:16px}
+  h1{font-size:18px;overflow-wrap:anywhere}
+  .sub{font-size:10px}
+  .stars{justify-content:space-between;gap:4px;font-size:34px}
+  .stars span{min-width:44px;min-height:44px;display:grid;place-items:center}
+  input[type=email],textarea{min-height:44px;font-size:16px}
+  .submit-btn,.review-btn{min-height:44px;width:100%;justify-content:center}
+}
 </style>
 </head>
 <body>
