@@ -2558,6 +2558,112 @@
       }
       .wizard-step small { display: block; }
     }
+
+    /* Final mobile guardrails for pages with inline desktop sizing. */
+    @media (max-width: 768px) {
+      .content,
+      .view,
+      .card,
+      .card > *,
+      .section-header,
+      .filter-bar,
+      .week-control,
+      .modal-box,
+      .modal-box > *,
+      .student-form-panel,
+      .teacher-form-panel {
+        min-width: 0;
+        max-width: 100%;
+      }
+
+      .section-header {
+        align-items: stretch !important;
+      }
+
+      .section-header > div,
+      .filter-bar > div,
+      .week-control > div {
+        min-width: 0 !important;
+        max-width: 100% !important;
+      }
+
+      .content .form-select[style*="width:"],
+      .content .form-input[style*="width:"],
+      .content .filter-field[style*="min-width:"],
+      .content [style*="max-width:180px"],
+      .modal-box .form-select[style*="width:"],
+      .modal-box .form-input[style*="width:"],
+      .modal-box [style*="grid-template-columns:1fr 1fr"],
+      .modal-box [style*="grid-template-columns:1fr 1fr 1fr"],
+      .content [style*="grid-template-columns:1fr 1fr"],
+      .content [style*="grid-template-columns:1.3fr 1fr"],
+      .content [style*="grid-template-columns:repeat(auto-fill,minmax(260px,1fr))"],
+      .content [style*="grid-template-columns:repeat(auto-fill,minmax(340px,1fr))"] {
+        width: 100% !important;
+        min-width: 0 !important;
+        max-width: 100% !important;
+        grid-template-columns: 1fr !important;
+      }
+
+      .content [style*="min-width:220px"],
+      .content [style*="min-width:180px"],
+      .content [style*="min-width:120px"] {
+        min-width: 0 !important;
+        width: 100% !important;
+      }
+
+      .topbar-actions,
+      .global-search {
+        min-width: 0;
+      }
+
+      .global-search {
+        flex: 1 1 100%;
+      }
+
+      .section-header .btn,
+      .filter-bar .btn,
+      .week-control .btn {
+        min-width: 0;
+        white-space: normal;
+      }
+
+      #modal-student.open .modal-box,
+      #modal-teacher.open .modal-box {
+        height: auto;
+        min-height: calc(100dvh - 24px);
+      }
+
+      #modal-student.open .student-wizard,
+      #modal-teacher.open .teacher-wizard {
+        overflow: visible;
+      }
+
+      #modal-student.open .student-modal-footer,
+      #modal-teacher.open .teacher-modal-footer {
+        flex-direction: column-reverse;
+        align-items: stretch;
+      }
+
+      #modal-student.open .student-modal-footer .btn,
+      #modal-teacher.open .teacher-modal-footer .btn {
+        width: 100%;
+      }
+    }
+
+    @media (max-width: 520px) {
+      .section-header .btn,
+      .filter-bar .btn,
+      .week-control .btn {
+        width: 100%;
+        justify-content: center;
+      }
+
+      #modal-student.open .wizard-rail,
+      #modal-teacher.open .wizard-rail {
+        grid-template-columns: 1fr;
+      }
+    }
   </style>
 </head>
 <body>
