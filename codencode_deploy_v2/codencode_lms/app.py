@@ -4039,6 +4039,17 @@ def admin_send_certificate_email(cert_id):
     return jsonify({'ok': True, 'certificate': cert.to_dict()})
 
 
+def _static_image_data_url(relative_path, mime='image/png'):
+    try:
+        path = os.path.join(app.static_folder or '', relative_path.replace('/', os.sep))
+        with open(path, 'rb') as f:
+            encoded = base64.b64encode(f.read()).decode('ascii')
+        return f'data:{mime};base64,{encoded}'
+    except Exception as exc:
+        app.logger.warning('Could not inline static image %s: %s', relative_path, exc)
+        return ''
+
+
 @app.route('/api/admin/certificates/download', methods=['POST'])
 @teacher_required
 def admin_download_certificates_bulk():
@@ -4067,6 +4078,9 @@ def admin_download_certificates_bulk():
     if missing:
         return jsonify({'error': 'One or more selected certificates no longer exist'}), 404
 
+    logo_src = _static_image_data_url('img/logo_full.png')
+    signature_src = _static_image_data_url('img/signature.png')
+
     buf = io.BytesIO()
     with zipfile.ZipFile(buf, 'w', zipfile.ZIP_DEFLATED) as zf:
         for cert_id in ids:
@@ -4082,7 +4096,9 @@ def admin_download_certificates_bulk():
                 app.logger.warning('QR generation failed for cert %s: %s', cert.id, exc)
 
             html = render_template('certificate.html', cert=cert,
-                                   qr_b64=qr_b64, verify_url=verify_url)
+                                   qr_b64=qr_b64, verify_url=verify_url,
+                                   logo_src=logo_src,
+                                   signature_src=signature_src)
             parts = [cert.cert_number or f'certificate-{cert.id}']
             if cert.student and cert.student.name:
                 parts.append(cert.student.name)
