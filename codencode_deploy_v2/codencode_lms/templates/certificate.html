@@ -417,7 +417,7 @@
         <div class="corner corner-br"></div>
 
         <div class="cert-content{% if not cert.student %} no-recipient{% endif %}">
-          <img class="brand-logo" src="{{ url_for('static', filename='img/logo_full.png') }}" alt="codencode.my" />
+          <img class="brand-logo" src="{{ logo_src or url_for('static', filename='img/logo_full.png') }}" alt="codencode.my" />
           <div class="divider"></div>
 
           <div class="cert-heading">Certificate</div>
@@ -448,7 +448,7 @@
             <div class="cert-meta-item">
               <div class="signature-area">
                 <div class="signature-line">
-                  <img class="signature-image" src="{{ url_for('static', filename='img/signature.png') }}" alt="Natasya Khoo signature" />
+                  <img class="signature-image" src="{{ signature_src or url_for('static', filename='img/signature.png') }}" alt="Natasya Khoo signature" />
                 </div>
                 <div class="signature-name">Natasya Khoo</div>
                 <div class="signature-title">Managing Director</div>
