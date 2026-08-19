@@ -11,6 +11,7 @@
 
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    img, video, canvas, svg { max-width: 100%; }
 
     :root {
       /* backgrounds */
@@ -863,7 +864,7 @@
     }
 
     /* ── Responsive ── */
-    @media (max-width: 768px) {
+    @media (max-width: 1180px) {
       html, body { overflow: hidden; }
       #login-screen { padding: 16px; align-items: flex-start; overflow-y: auto; }
       .login-wrap { width: min(100%, 440px); margin-top: 24px; }
@@ -871,15 +872,22 @@
       .login-body { padding: 22px; }
       .sidebar { width: min(84vw, var(--sidebar-w)); min-width: 0; position: fixed; left: 0; top: 0; bottom: 0; z-index: 40; transform: translateX(-100%); transition: transform 0.2s; }
       .sidebar.mobile-open { transform: translateX(0); }
+      .main-area,
+      .main-content,
+      .view,
+      .card,
+      .card-body,
+      .month-block { min-width: 0; }
       .stats-row { grid-template-columns: 1fr 1fr; }
       .grid-2 { grid-template-columns: 1fr; }
       .grid-3 { grid-template-columns: 1fr; }
       .video-grid { grid-template-columns: 1fr; }
       .topbar { padding: 12px 14px; gap: 10px; }
+      .topbar > div:first-child { min-width: 0; }
       .topbar-title { font-size: 16px; }
       .topbar-subtitle { max-width: 58vw; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-      .topbar-actions { gap: 6px; }
-      .main-content { padding: 18px 14px 28px; gap: 18px; }
+      .topbar-actions { gap: 6px; flex-shrink: 0; }
+      .main-content { padding: 20px 16px 28px; gap: 18px; }
       .view.active { gap: 18px; }
       .page-title { font-size: 22px; line-height: 1.1; }
       .page-sub { font-size: 11px; line-height: 1.5; }
@@ -892,12 +900,43 @@
       .assignment-card-top,
       .asgn-meta,
       .modal-footer { flex-wrap: wrap; }
+      .modal-footer {
+        align-items: stretch;
+        flex-direction: column;
+      }
       .file-size,
       .material-actions,
       .btn-action { margin-left: 0; }
       .material-actions,
       .btn-action,
-      .btn-dl { width: 100%; justify-content: center; }
+      .btn-dl,
+      .modal-footer .btn-action { width: 100%; justify-content: center; }
+      .form-input[style*="width:"],
+      .form-select[style*="width:"],
+      .tt-session [style*="width:"],
+      [style*="max-width:900px"],
+      [style*="grid-template-columns:1fr 1fr"] {
+        width: 100% !important;
+        max-width: 100% !important;
+      }
+      [style*="grid-template-columns:1fr 1fr"],
+      [style*="grid-template-columns:160px 250px 1fr"] {
+        grid-template-columns: 1fr !important;
+      }
+      .card-header > [style*="display:flex"],
+      .page-header > [style*="display:flex"] {
+        width: 100%;
+      }
+      .card-header > [style*="display:flex"] .btn-action,
+      .page-header > [style*="display:flex"] .btn-action {
+        flex: 1 1 180px;
+        justify-content: center;
+      }
+      #notif-dropdown {
+        right: 14px !important;
+        width: calc(100vw - 28px) !important;
+        max-width: 360px;
+      }
       .slide-preview-panel iframe { height: 60vh; }
       .grade-table { min-width: 620px; }
       .card:has(.grade-table) { overflow-x: auto; }
@@ -914,6 +953,9 @@
         font-size: 11px;
         z-index: 25;
       }
+    }
+    @media (max-width: 768px) {
+      .main-content { padding: 18px 14px 28px; }
     }
     @media (max-width: 560px) {
       .stats-row { grid-template-columns: 1fr; }
@@ -1058,12 +1100,19 @@
     @media (max-width: 768px) {
       .tt-week-header { padding: 10px 14px; flex-wrap: wrap; }
       .tt-week-badge { margin-left: 0; }
+      .tt-week-header .btn-action { margin-left: 0 !important; }
       .tt-session,
       .tt-session[style] {
         grid-template-columns: 1fr !important;
         align-items: start;
         gap: 8px;
         padding: 13px 14px;
+      }
+      .tt-session .form-input,
+      .tt-session .form-select,
+      .tt-session [style*="width:"] {
+        width: 100% !important;
+        max-width: 100% !important;
       }
       .tt-time { width: fit-content; }
       .month-block { overflow: hidden; }
