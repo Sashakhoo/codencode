@@ -2399,6 +2399,8 @@
       #modal-student.open .modal-box,
       #modal-teacher.open .modal-box {
         min-height: 100%;
+        display: block !important;
+        overflow-y: auto !important;
         border-radius: 20px;
       }
       #modal-student.open .modal-title,
@@ -2415,7 +2417,7 @@
       #modal-teacher.open .teacher-wizard {
         grid-template-columns: 1fr;
         gap: 18px;
-        padding: 18px;
+        padding: 18px 18px 22px;
         border-radius: 16px 16px 0 0;
       }
       #modal-student.open .wizard-rail,
@@ -2447,8 +2449,13 @@
       }
       #modal-student.open .student-modal-footer,
       #modal-teacher.open .teacher-modal-footer {
+        position: static;
+        bottom: auto;
+        z-index: auto;
+        margin-top: 0;
         padding: 14px 18px 18px;
         border-radius: 0 0 20px 20px;
+        box-shadow: none;
       }
       .modal-box {
         width: 100%;
