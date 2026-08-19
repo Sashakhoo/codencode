@@ -1862,8 +1862,11 @@
     #modal-student.open .modal-box {
       width: 100% !important;
       max-width: none;
-      min-height: min(650px, calc(100dvh - 160px));
+      min-height: 100%;
       max-height: none !important;
+      overflow: visible !important;
+      display: grid !important;
+      grid-template-rows: auto 1fr auto;
       padding: 0;
       border-radius: 0;
       border: 0;
@@ -1874,8 +1877,11 @@
     #modal-teacher.open .modal-box {
       width: 100% !important;
       max-width: none;
-      min-height: min(650px, calc(100dvh - 160px));
+      min-height: 100%;
       max-height: none !important;
+      overflow: visible !important;
+      display: grid !important;
+      grid-template-rows: auto 1fr auto;
       padding: 0;
       border-radius: 0;
       border: 0;
@@ -1884,36 +1890,24 @@
       transform: none;
     }
     #modal-student.open .modal-title {
-      position: fixed;
-      left: calc(var(--sidebar-w) + 56px);
-      top: 244px;
-      padding: 0;
+      position: static;
+      padding: 28px 40px 22px;
       font-family: var(--font-d);
       font-size: 34px;
       line-height: 1.05;
       font-weight: 800;
       color: var(--text);
       letter-spacing: -0.4px;
-      z-index: 45;
-    }
-    body.student-form-open.sidebar-expanded #modal-student.open .modal-title {
-      left: 316px;
     }
     #modal-teacher.open .modal-title {
-      position: fixed;
-      left: calc(var(--sidebar-w) + 56px);
-      top: 244px;
-      padding: 0;
+      position: static;
+      padding: 28px 40px 22px;
       font-family: var(--font-d);
       font-size: 34px;
       line-height: 1.05;
       font-weight: 800;
       color: var(--text);
       letter-spacing: -0.4px;
-      z-index: 45;
-    }
-    body.teacher-form-open.sidebar-expanded #modal-teacher.open .modal-title {
-      left: 316px;
     }
     #modal-teacher.open .modal-title::after {
       content: "Dashboard / Teachers / Add Teacher";
@@ -1941,23 +1935,25 @@
       text-transform: uppercase;
     }
     #modal-student.open .student-wizard {
-      margin-top: 254px;
+      margin-top: 0;
       grid-template-columns: 240px minmax(0, 1fr);
       gap: 48px;
-      padding: 40px 40px 0;
+      padding: 34px 40px 36px;
       background: #ffffff;
       border-radius: 20px 20px 0 0;
       box-shadow: 0 2px 10px rgba(20,24,27,.03);
+      min-height: 0;
     }
     #modal-teacher.open .teacher-wizard {
       display: grid;
-      margin-top: 254px;
+      margin-top: 0;
       grid-template-columns: 240px minmax(0, 1fr);
       gap: 48px;
-      padding: 40px 40px 0;
+      padding: 34px 40px 36px;
       background: #ffffff;
       border-radius: 20px 20px 0 0;
       box-shadow: 0 2px 10px rgba(20,24,27,.03);
+      min-height: 0;
     }
     #modal-student.open .wizard-rail {
       position: sticky;
@@ -2149,21 +2145,27 @@
     }
     #modal-student.open .student-modal-footer {
       margin-top: 0;
-      padding: 48px 40px 40px;
+      padding: 18px 40px 28px;
       border-top: 1px solid var(--border);
       border-radius: 0 0 20px 20px;
       background: #ffffff;
       box-shadow: 0 2px 10px rgba(20,24,27,.03);
       justify-content: flex-end;
+      position: sticky;
+      bottom: 0;
+      z-index: 2;
     }
     #modal-teacher.open .teacher-modal-footer {
       margin-top: 0 !important;
-      padding: 48px 40px 40px;
+      padding: 18px 40px 28px;
       border-top: 1px solid var(--border);
       border-radius: 0 0 20px 20px;
       background: #ffffff;
       box-shadow: 0 2px 10px rgba(20,24,27,.03);
       justify-content: flex-end;
+      position: sticky;
+      bottom: 0;
+      z-index: 2;
     }
     #modal-student.open .student-modal-footer .btn {
       min-height: 48px;
@@ -2384,6 +2386,66 @@
       .modal-overlay {
         align-items: flex-start;
         padding: 14px 10px;
+      }
+      #modal-student.open,
+      #modal-teacher.open {
+        inset: 12px;
+        z-index: 45;
+        border-radius: 20px;
+      }
+      #modal-student.open .modal-box,
+      #modal-teacher.open .modal-box {
+        min-height: 100%;
+        border-radius: 20px;
+      }
+      #modal-student.open .modal-title,
+      #modal-teacher.open .modal-title {
+        padding: 22px 18px 16px;
+        font-size: 25px;
+      }
+      #modal-student.open .modal-title::after,
+      #modal-teacher.open .modal-title::after {
+        margin-top: 8px;
+        font-size: 12px;
+      }
+      #modal-student.open .student-wizard,
+      #modal-teacher.open .teacher-wizard {
+        grid-template-columns: 1fr;
+        gap: 18px;
+        padding: 18px;
+        border-radius: 16px 16px 0 0;
+      }
+      #modal-student.open .wizard-rail,
+      #modal-teacher.open .wizard-rail {
+        position: static;
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 8px;
+      }
+      #modal-student.open .wizard-step,
+      #modal-teacher.open .wizard-step {
+        min-height: 64px;
+        padding: 10px;
+        align-items: flex-start;
+      }
+      #modal-student.open .wizard-step strong,
+      #modal-teacher.open .wizard-step strong {
+        font-size: 11px;
+        line-height: 1.2;
+      }
+      #modal-student.open .form-grid,
+      #modal-teacher.open .form-grid {
+        grid-template-columns: 1fr;
+        gap: 14px;
+      }
+      #modal-student.open [style*="grid-column:span 2"],
+      #modal-teacher.open [style*="grid-column:span 2"] {
+        grid-column: auto !important;
+      }
+      #modal-student.open .student-modal-footer,
+      #modal-teacher.open .teacher-modal-footer {
+        padding: 14px 18px 18px;
+        border-radius: 0 0 20px 20px;
       }
       .modal-box {
         width: 100%;
