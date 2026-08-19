@@ -25,7 +25,7 @@ from functools import wraps
 from dotenv import load_dotenv
 load_dotenv()
 
-from flask import (Flask, request, jsonify, send_from_directory,
+from flask import (Flask, request, jsonify, send_from_directory, send_file,
                    session, g)
 from flask_login import (LoginManager, login_user, logout_user,
                          login_required, current_user)
@@ -4037,6 +4037,68 @@ def admin_send_certificate_email(cert_id):
     if not send_certificate_email(cert):
         return jsonify({'error': 'Email could not be sent. Check email configuration.'}), 500
     return jsonify({'ok': True, 'certificate': cert.to_dict()})
+
+
+@app.route('/api/admin/certificates/download', methods=['POST'])
+@teacher_required
+def admin_download_certificates_bulk():
+    from flask import render_template
+    import zipfile
+
+    data = request.get_json(silent=True) or {}
+    raw_ids = data.get('ids') or []
+    ids = []
+    for raw_id in raw_ids:
+        try:
+            cert_id = int(raw_id)
+        except (TypeError, ValueError):
+            continue
+        if cert_id not in ids:
+            ids.append(cert_id)
+
+    if not ids:
+        return jsonify({'error': 'Select at least one certificate'}), 400
+    if len(ids) > 200:
+        return jsonify({'error': 'Bulk download is limited to 200 certificates at a time'}), 400
+
+    certs = Certificate.query.filter(Certificate.id.in_(ids)).all()
+    cert_by_id = {cert.id: cert for cert in certs}
+    missing = [cert_id for cert_id in ids if cert_id not in cert_by_id]
+    if missing:
+        return jsonify({'error': 'One or more selected certificates no longer exist'}), 404
+
+    buf = io.BytesIO()
+    with zipfile.ZipFile(buf, 'w', zipfile.ZIP_DEFLATED) as zf:
+        for cert_id in ids:
+            cert = cert_by_id[cert_id]
+            if not teacher_can_manage_course(cert.course_id):
+                return jsonify({'error': 'Forbidden'}), 403
+
+            verify_url = f'https://learn.codencode.my/verify/{cert.cert_number}'
+            qr_b64 = ''
+            try:
+                qr_b64 = _qr_png_base64(verify_url, fill='#0a3d2a')
+            except Exception as exc:
+                app.logger.warning('QR generation failed for cert %s: %s', cert.id, exc)
+
+            html = render_template('certificate.html', cert=cert,
+                                   qr_b64=qr_b64, verify_url=verify_url)
+            parts = [cert.cert_number or f'certificate-{cert.id}']
+            if cert.student and cert.student.name:
+                parts.append(cert.student.name)
+            elif cert.course and cert.course.title:
+                parts.append(cert.course.title)
+            filename = secure_filename(' - '.join(parts)) or f'certificate-{cert.id}'
+            zf.writestr(f'{filename}.html', html)
+
+    buf.seek(0)
+    stamp = datetime.utcnow().strftime('%Y%m%d-%H%M%S')
+    return send_file(
+        buf,
+        mimetype='application/zip',
+        as_attachment=True,
+        download_name=f'codencode-certificates-{stamp}.zip'
+    )
 
 
 @app.route('/api/admin/certificates/reset', methods=['POST'])
