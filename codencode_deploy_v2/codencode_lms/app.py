@@ -31,6 +31,7 @@ from flask_login import (LoginManager, login_user, logout_user,
                          login_required, current_user)
 from sqlalchemy import text
 from sqlalchemy.exc import IntegrityError
+from sqlalchemy.orm import joinedload
 from itsdangerous import BadSignature, URLSafeSerializer
 from werkzeug.utils import secure_filename
 
@@ -4100,9 +4101,21 @@ def _paste_center(base, img, center, max_size):
     base.alpha_composite(img, (x, y))
 
 
-def _certificate_png_bytes(cert, verify_url):
+def _certificate_png_bytes(cert, verify_url, cert_data=None):
     from PIL import Image, ImageDraw
     import qrcode
+
+    cert_data = cert_data or cert.to_dict()
+    cert_number = cert_data.get('cert_number') or getattr(cert, 'cert_number', '') or ''
+    student_name = (cert_data.get('student_name') or '').strip()
+    course_title = (cert_data.get('course_title') or '').strip()
+    if not course_title and getattr(cert, 'course', None):
+        course_title = cert.course.title or ''
+    issued_label = ''
+    if getattr(cert, 'issued_at', None):
+        issued_label = cert.issued_at.strftime('%d %B %Y')
+    elif cert_data.get('issued_at'):
+        issued_label = str(cert_data['issued_at'])
 
     w, h = 1754, 1240
     green = '#0a3d2a'
@@ -4138,9 +4151,9 @@ def _certificate_png_bytes(cert, verify_url):
     _draw_center(draw, (w // 2, 270), 'C E R T I F I C A T E', _font(23), muted)
     _draw_center(draw, (w // 2, 345), 'of Achievement', _font(64, bold=True), green)
 
-    if cert.student:
+    if student_name:
         _draw_center(draw, (w // 2, 430), 'This certifies that', _font(25, italic=True), '#666666')
-        name = cert.student.name
+        name = student_name
         _draw_center(draw, (w // 2, 525), name, _fit_font(name, 72, 760, italic=True), green)
         draw.line((w // 2 - 340, 590, w // 2 + 340, 590), fill='#dddddd', width=1)
         _draw_center(draw, (w // 2, 640), 'has successfully completed the course', _font(26), '#555555')
@@ -4148,16 +4161,14 @@ def _certificate_png_bytes(cert, verify_url):
         _draw_center(draw, (w // 2, 510), 'For successful completion of', _font(28), '#555555')
 
     _draw_center(draw, (w // 2, 690), 'C O U R S E', _font(18), muted)
-    course_title = cert.course.title if cert.course else ''
-    _draw_center(draw, (w // 2, 760), course_title, _fit_font(course_title, 44, 760, bold=True), green)
+    _draw_center(draw, (w // 2, 760), course_title or 'Course', _fit_font(course_title or 'Course', 44, 760, bold=True), green)
 
     draw.line((260, 890, w - 260, 890), fill='#e6e6e6', width=1)
-    issued = cert.issued_at.strftime('%d %B %Y') if cert.issued_at else ''
     draw.text((275, 925), 'D A T E   I S S U E D', font=_font(15), fill=muted)
-    draw.text((275, 960), issued, font=_font(22, bold=True), fill=text)
+    draw.text((275, 960), issued_label, font=_font(22, bold=True), fill=text)
     draw.text((275, 1008), 'C E R T I F I C A T E   N O .', font=_font(15), fill=muted)
     draw.rectangle((275, 1040, 405, 1082), outline=cyan, width=1)
-    _draw_center(draw, (340, 1062), cert.cert_number, _font(18), green)
+    _draw_center(draw, (340, 1062), cert_number, _font(18), green)
 
     try:
         sig_path = os.path.join(app.static_folder or '', 'img', 'signature.png')
@@ -4176,7 +4187,7 @@ def _certificate_png_bytes(cert, verify_url):
     qr_img = qr.make_image(fill_color=green, back_color='white').convert('RGBA')
     _draw_center(draw, (w - 310, 925), 'S C A N   T O   V E R I F Y', _font(13), muted)
     _paste_center(img, qr_img, (w - 310, 1012), (98, 98))
-    _draw_center(draw, (w - 310, 1084), f'learn.codencode.my/verify/{cert.cert_number}', _font(12), green)
+    _draw_center(draw, (w - 310, 1084), f'learn.codencode.my/verify/{cert_number}', _font(12), green)
 
     out = io.BytesIO()
     img.convert('RGB').save(out, format='PNG', optimize=True)
@@ -4205,7 +4216,10 @@ def admin_download_certificates_bulk():
     if len(ids) > 200:
         return jsonify({'error': 'Bulk download is limited to 200 certificates at a time'}), 400
 
-    certs = Certificate.query.filter(Certificate.id.in_(ids)).all()
+    certs = Certificate.query.options(
+        joinedload(Certificate.student),
+        joinedload(Certificate.course)
+    ).filter(Certificate.id.in_(ids)).all()
     cert_by_id = {cert.id: cert for cert in certs}
     missing = [cert_id for cert_id in ids if cert_id not in cert_by_id]
     if missing:
@@ -4218,14 +4232,17 @@ def admin_download_certificates_bulk():
             if not teacher_can_manage_course(cert.course_id):
                 return jsonify({'error': 'Forbidden'}), 403
 
-            verify_url = f'https://learn.codencode.my/verify/{cert.cert_number}'
-            parts = [cert.cert_number or f'certificate-{cert.id}']
-            if cert.student and cert.student.name:
-                parts.append(cert.student.name)
-            elif cert.course and cert.course.title:
-                parts.append(cert.course.title)
+            cert_data = cert.to_dict()
+            cert_number = cert_data.get('cert_number') or f'certificate-{cert.id}'
+            verify_url = f'https://learn.codencode.my/verify/{cert_number}'
+            parts = [cert_number]
+            if cert_data.get('student_name'):
+                parts.append(cert_data['student_name'])
+            elif cert_data.get('course_title'):
+                parts.append(cert_data['course_title'])
             filename = secure_filename(' - '.join(parts)) or f'certificate-{cert.id}'
-            zf.writestr(f'{filename}.png', _certificate_png_bytes(cert, verify_url))
+            png = _certificate_png_bytes(cert, verify_url, cert_data=cert_data)
+            zf.writestr(f'{filename}.png', png)
 
     buf.seek(0)
     stamp = datetime.utcnow().strftime('%Y%m%d-%H%M%S')
