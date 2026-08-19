@@ -4050,10 +4050,143 @@ def _static_image_data_url(relative_path, mime='image/png'):
         return ''
 
 
+def _font(size, bold=False, italic=False):
+    from PIL import ImageFont
+
+    candidates = []
+    if bold:
+        candidates += [
+            '/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf',
+            'C:/Windows/Fonts/arialbd.ttf',
+        ]
+    elif italic:
+        candidates += [
+            '/usr/share/fonts/truetype/dejavu/DejaVuSerif-Italic.ttf',
+            'C:/Windows/Fonts/georgiai.ttf',
+        ]
+    else:
+        candidates += [
+            '/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf',
+            'C:/Windows/Fonts/arial.ttf',
+        ]
+    for path in candidates:
+        try:
+            return ImageFont.truetype(path, size)
+        except Exception:
+            continue
+    return ImageFont.load_default()
+
+
+def _draw_center(draw, xy, text, font, fill, anchor='mm'):
+    draw.text(xy, text or '', font=font, fill=fill, anchor=anchor)
+
+
+def _fit_font(text, size, max_width, bold=False, italic=False, min_size=32):
+    font = _font(size, bold=bold, italic=italic)
+    while size > min_size:
+        bbox = font.getbbox(text or '')
+        if bbox[2] - bbox[0] <= max_width:
+            return font
+        size -= 4
+        font = _font(size, bold=bold, italic=italic)
+    return font
+
+
+def _paste_center(base, img, center, max_size):
+    img = img.convert('RGBA')
+    img.thumbnail(max_size, resample=1)
+    x = int(center[0] - img.width / 2)
+    y = int(center[1] - img.height / 2)
+    base.alpha_composite(img, (x, y))
+
+
+def _certificate_png_bytes(cert, verify_url):
+    from PIL import Image, ImageDraw
+    import qrcode
+
+    w, h = 1754, 1240
+    green = '#0a3d2a'
+    cyan = '#00c485'
+    muted = '#7f8790'
+    text = '#14181b'
+
+    img = Image.new('RGBA', (w, h), '#f5f0e8')
+    draw = ImageDraw.Draw(img)
+    draw.rectangle((135, 70, w - 135, h - 70), fill='#0a3d2a')
+    draw.rectangle((165, 102, w - 165, h - 102), fill='white', outline=cyan, width=4)
+    draw.rectangle((195, 140, w - 195, h - 140), outline=cyan, width=3)
+    for x1, y1, x2, y2 in [(195, 140, 270, 215), (w - 270, 140, w - 195, 215),
+                           (195, h - 215, 270, h - 140), (w - 270, h - 215, w - 195, h - 140)]:
+        draw.rectangle((x1, y1, x2, y2), outline='white', width=4)
+
+    watermark = Image.new('RGBA', (w, h), (255, 255, 255, 0))
+    wdraw = ImageDraw.Draw(watermark)
+    wdraw.text((w // 2, h // 2 + 185), 'codencode.my', font=_font(125, bold=True),
+               fill=(0, 196, 133, 8), anchor='mm')
+    watermark = watermark.rotate(-28, center=(w // 2, h // 2), resample=3)
+    img.alpha_composite(watermark)
+
+    try:
+        logo_path = os.path.join(app.static_folder or '', 'img', 'logo_full.png')
+        logo = Image.open(logo_path)
+        _paste_center(img, logo, (w // 2, 170), (230, 75))
+    except Exception as exc:
+        app.logger.warning('Could not render certificate logo: %s', exc)
+        _draw_center(draw, (w // 2, 170), 'codencode.my', _font(34, bold=True), green)
+
+    draw.line((w // 2 - 180, 218, w // 2 + 180, 218), fill=cyan, width=2)
+    _draw_center(draw, (w // 2, 270), 'C E R T I F I C A T E', _font(23), muted)
+    _draw_center(draw, (w // 2, 345), 'of Achievement', _font(64, bold=True), green)
+
+    if cert.student:
+        _draw_center(draw, (w // 2, 430), 'This certifies that', _font(25, italic=True), '#666666')
+        name = cert.student.name
+        _draw_center(draw, (w // 2, 525), name, _fit_font(name, 72, 760, italic=True), green)
+        draw.line((w // 2 - 340, 590, w // 2 + 340, 590), fill='#dddddd', width=1)
+        _draw_center(draw, (w // 2, 640), 'has successfully completed the course', _font(26), '#555555')
+    else:
+        _draw_center(draw, (w // 2, 510), 'For successful completion of', _font(28), '#555555')
+
+    _draw_center(draw, (w // 2, 690), 'C O U R S E', _font(18), muted)
+    course_title = cert.course.title if cert.course else ''
+    _draw_center(draw, (w // 2, 760), course_title, _fit_font(course_title, 44, 760, bold=True), green)
+
+    draw.line((260, 890, w - 260, 890), fill='#e6e6e6', width=1)
+    issued = cert.issued_at.strftime('%d %B %Y') if cert.issued_at else ''
+    draw.text((275, 925), 'D A T E   I S S U E D', font=_font(15), fill=muted)
+    draw.text((275, 960), issued, font=_font(22, bold=True), fill=text)
+    draw.text((275, 1008), 'C E R T I F I C A T E   N O .', font=_font(15), fill=muted)
+    draw.rectangle((275, 1040, 405, 1082), outline=cyan, width=1)
+    _draw_center(draw, (340, 1062), cert.cert_number, _font(18), green)
+
+    try:
+        sig_path = os.path.join(app.static_folder or '', 'img', 'signature.png')
+        sig = Image.open(sig_path)
+        _paste_center(img, sig, (w // 2, 920), (290, 84))
+    except Exception as exc:
+        app.logger.warning('Could not render certificate signature: %s', exc)
+    draw.line((w // 2 - 190, 990, w // 2 + 190, 990), fill=green, width=4)
+    _draw_center(draw, (w // 2, 1028), 'Natasya Khoo', _font(25, bold=True), green)
+    _draw_center(draw, (w // 2, 1060), 'Managing Director', _font(18, bold=True), muted)
+
+    qr = qrcode.QRCode(version=1, error_correction=qrcode.constants.ERROR_CORRECT_M,
+                       box_size=8, border=2)
+    qr.add_data(verify_url)
+    qr.make(fit=True)
+    qr_img = qr.make_image(fill_color=green, back_color='white').convert('RGBA')
+    _draw_center(draw, (w - 310, 925), 'S C A N   T O   V E R I F Y', _font(13), muted)
+    _paste_center(img, qr_img, (w - 310, 1012), (98, 98))
+    _draw_center(draw, (w - 310, 1084), f'learn.codencode.my/verify/{cert.cert_number}', _font(12), green)
+
+    out = io.BytesIO()
+    img.convert('RGB').save(out, format='PNG', optimize=True)
+    out.seek(0)
+    return out.getvalue()
+
+
 @app.route('/api/admin/certificates/download', methods=['POST'])
 @teacher_required
 def admin_download_certificates_bulk():
-    from flask import render_template
     import zipfile
 
     data = request.get_json(silent=True) or {}
@@ -4078,9 +4211,6 @@ def admin_download_certificates_bulk():
     if missing:
         return jsonify({'error': 'One or more selected certificates no longer exist'}), 404
 
-    logo_src = _static_image_data_url('img/logo_full.png')
-    signature_src = _static_image_data_url('img/signature.png')
-
     buf = io.BytesIO()
     with zipfile.ZipFile(buf, 'w', zipfile.ZIP_DEFLATED) as zf:
         for cert_id in ids:
@@ -4089,23 +4219,13 @@ def admin_download_certificates_bulk():
                 return jsonify({'error': 'Forbidden'}), 403
 
             verify_url = f'https://learn.codencode.my/verify/{cert.cert_number}'
-            qr_b64 = ''
-            try:
-                qr_b64 = _qr_png_base64(verify_url, fill='#0a3d2a')
-            except Exception as exc:
-                app.logger.warning('QR generation failed for cert %s: %s', cert.id, exc)
-
-            html = render_template('certificate.html', cert=cert,
-                                   qr_b64=qr_b64, verify_url=verify_url,
-                                   logo_src=logo_src,
-                                   signature_src=signature_src)
             parts = [cert.cert_number or f'certificate-{cert.id}']
             if cert.student and cert.student.name:
                 parts.append(cert.student.name)
             elif cert.course and cert.course.title:
                 parts.append(cert.course.title)
             filename = secure_filename(' - '.join(parts)) or f'certificate-{cert.id}'
-            zf.writestr(f'{filename}.html', html)
+            zf.writestr(f'{filename}.png', _certificate_png_bytes(cert, verify_url))
 
     buf.seek(0)
     stamp = datetime.utcnow().strftime('%Y%m%d-%H%M%S')
