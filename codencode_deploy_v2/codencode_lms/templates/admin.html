@@ -1931,6 +1931,9 @@
       letter-spacing: 0;
       color: var(--text-dim);
     }
+    #modal-student[data-mode="edit"].open .modal-title::after {
+      content: "Dashboard / Students / Edit Student";
+    }
     #modal-student.open .modal-title::first-letter {
       text-transform: uppercase;
     }
@@ -4072,10 +4075,18 @@ function toggleSidebarCollapse() {
 })();
 
 function setStudentFormOpen(open) {
+  if (open && window.innerWidth > 768) {
+    const expanded = document.getElementById('sidebar')?.classList.contains('is-expanded');
+    document.body.classList.toggle('sidebar-expanded', !!expanded);
+  }
   document.body.classList.toggle('student-form-open', open);
 }
 
 function setTeacherFormOpen(open) {
+  if (open && window.innerWidth > 768) {
+    const expanded = document.getElementById('sidebar')?.classList.contains('is-expanded');
+    document.body.classList.toggle('sidebar-expanded', !!expanded);
+  }
   document.body.classList.toggle('teacher-form-open', open);
 }
 
@@ -4552,6 +4563,7 @@ function openAddStudent() {
     document.getElementById('sidebar-backdrop').classList.remove('active');
   }
   document.getElementById('student-modal-title').textContent = 'Add New Student';
+  document.getElementById('modal-student').dataset.mode = 'add';
   document.getElementById('edit-student-id').value = '';
   ['s-name','s-email','s-phone','s-password','s-bill-company-name','s-bill-business-reg-number','s-bill-sst-number','s-bill-company-address'].forEach(id => {
     document.getElementById(id).value = '';
@@ -4575,7 +4587,15 @@ function openAddStudent() {
 function openEditStudent(uid) {
   const s = S.students.find(x => x.id === uid);
   if (!s) return;
+  setStudentFormOpen(true);
+  document.querySelectorAll('[data-view-link]').forEach(n => n.classList.remove('active'));
+  document.querySelector('[data-view-link="students"]')?.classList.add('active');
+  if (window.innerWidth <= 768) {
+    document.getElementById('sidebar').classList.remove('mobile-open');
+    document.getElementById('sidebar-backdrop').classList.remove('active');
+  }
   document.getElementById('student-modal-title').textContent = 'Edit Student';
+  document.getElementById('modal-student').dataset.mode = 'edit';
   document.getElementById('edit-student-id').value = uid;
   document.getElementById('s-name').value          = s.name;
   document.getElementById('s-email').value         = s.email;
