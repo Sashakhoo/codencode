@@ -973,7 +973,9 @@
       border: 0;
       border-radius: 26px;
       box-shadow: 0 24px 60px rgba(28, 66, 55, .10);
-      overflow: hidden;
+      overflow-y: auto;
+      overflow-x: hidden;
+      transition: width .18s ease, min-width .18s ease;
     }
     .sidebar-logo {
       padding: 22px 20px 18px;
@@ -1039,6 +1041,51 @@
       border: 0;
       border-radius: 18px;
       background: var(--green-dim);
+    }
+    .sidebar-collapse-btn {
+      width: 34px;
+      height: 34px;
+      display: grid;
+      place-items: center;
+      border: 0;
+      border-radius: 12px;
+      background: var(--green-dim);
+      color: var(--green3);
+      cursor: pointer;
+      flex: 0 0 auto;
+    }
+    .sidebar.is-collapsed {
+      width: 76px;
+      min-width: 76px;
+    }
+    .sidebar.is-collapsed .sidebar-logo {
+      justify-content: center;
+      padding-inline: 12px;
+    }
+    .sidebar.is-collapsed .sidebar-logo > div,
+    .sidebar.is-collapsed .sidebar-section-label,
+    .sidebar.is-collapsed .nav-item span,
+    .sidebar.is-collapsed .sidebar-footer > div,
+    .sidebar.is-collapsed .logout-btn {
+      display: none;
+    }
+    .sidebar.is-collapsed .sidebar-section {
+      padding-inline: 10px;
+    }
+    .sidebar.is-collapsed .nav-item {
+      justify-content: center;
+      padding: 11px 0;
+    }
+    .sidebar.is-collapsed .nav-item i {
+      margin: 0;
+    }
+    .sidebar.is-collapsed .sidebar-footer {
+      justify-content: center;
+      margin-inline: 10px;
+      padding-inline: 0;
+    }
+    .sidebar.is-collapsed .sidebar-collapse-btn i {
+      transform: rotate(180deg);
     }
     .avatar-sm {
       background: var(--cyan);
@@ -1645,7 +1692,23 @@
       }
       .sidebar {
         width: min(86vw, 320px);
+        min-width: 0;
         border-radius: 0 24px 24px 0;
+      }
+      .sidebar.is-collapsed {
+        width: min(86vw, 320px);
+        min-width: 0;
+      }
+      .sidebar.is-collapsed .sidebar-logo > div,
+      .sidebar.is-collapsed .sidebar-section-label,
+      .sidebar.is-collapsed .nav-item span,
+      .sidebar.is-collapsed .sidebar-footer > div,
+      .sidebar.is-collapsed .logout-btn {
+        display: block;
+      }
+      .sidebar.is-collapsed .nav-item {
+        justify-content: flex-start;
+        padding: 11px 12px;
       }
       #sidebar-backdrop {
         background: rgba(12,24,20,.46);
@@ -1826,6 +1889,9 @@
         <div class="brand">code<span>ncode</span>.my</div>
         <span class="admin-badge">ADMIN</span>
       </div>
+      <button class="sidebar-collapse-btn" onclick="toggleSidebarCollapse()" title="Collapse sidebar">
+        <i class="fas fa-chevron-left"></i>
+      </button>
       <button id="sidebar-close" onclick="toggleSidebar()" title="Close menu">
         <i class="fas fa-times"></i>
       </button>
@@ -1834,76 +1900,76 @@
     <div class="sidebar-section">
       <div class="sidebar-section-label">Overview</div>
       <div class="nav-item active" onclick="showView('dashboard')">
-        <i class="fas fa-tachometer-alt"></i> Dashboard
+        <i class="fas fa-tachometer-alt"></i> <span>Dashboard</span>
       </div>
     </div>
 
     <div class="sidebar-section">
       <div class="sidebar-section-label">People</div>
       <div class="nav-item" onclick="showView('students')">
-        <i class="fas fa-users"></i> All Students
+        <i class="fas fa-users"></i> <span>All Students</span>
       </div>
       <div class="nav-item" onclick="openAddStudent()">
-        <i class="fas fa-user-plus"></i> Add Student
+        <i class="fas fa-user-plus"></i> <span>Add Student</span>
       </div>
       <div class="nav-item" onclick="showView('teachers')">
-        <i class="fas fa-chalkboard-teacher"></i> Teachers
+        <i class="fas fa-chalkboard-teacher"></i> <span>Teachers</span>
       </div>
       <div class="nav-item" onclick="openAddTeacher()">
-        <i class="fas fa-user-tie"></i> Add Teacher
+        <i class="fas fa-user-tie"></i> <span>Add Teacher</span>
       </div>
     </div>
 
     <div class="sidebar-section">
       <div class="sidebar-section-label">Courses</div>
       <div class="nav-item" onclick="showView('courses')">
-        <i class="fas fa-layer-group"></i> Manage Courses
+        <i class="fas fa-layer-group"></i> <span>Manage Courses</span>
       </div>
       <div class="nav-item" onclick="showView('attendance')">
-        <i class="fas fa-clipboard-check"></i> Attendance
+        <i class="fas fa-clipboard-check"></i> <span>Attendance</span>
       </div>
       <div class="nav-item" onclick="showView('materials')">
-        <i class="fas fa-file-upload"></i> Upload Materials
+        <i class="fas fa-file-upload"></i> <span>Upload Materials</span>
       </div>
       <div class="nav-item" onclick="showView('timetable')">
-        <i class="fas fa-calendar-alt"></i> Timetable
+        <i class="fas fa-calendar-alt"></i> <span>Timetable</span>
       </div>
     </div>
 
     <div class="sidebar-section">
       <div class="sidebar-section-label">Workshops</div>
       <div class="nav-item" onclick="showView('workshops')">
-        <i class="fas fa-chalkboard"></i> Catalogue
+        <i class="fas fa-chalkboard"></i> <span>Catalogue</span>
       </div>
       <div class="nav-item" onclick="showView('workshop-runs')">
-        <i class="fas fa-calendar-day"></i> Upcoming Runs
+        <i class="fas fa-calendar-day"></i> <span>Upcoming Runs</span>
       </div>
     </div>
 
     <div class="sidebar-section">
       <div class="sidebar-section-label">Comms</div>
       <div class="nav-item" onclick="showView('announcements')">
-        <i class="fas fa-bullhorn"></i> Announcements
+        <i class="fas fa-bullhorn"></i> <span>Announcements</span>
       </div>
       <div class="nav-item" onclick="showView('sessions')">
-        <i class="fas fa-calendar-check"></i> Sessions
+        <i class="fas fa-calendar-check"></i> <span>Sessions</span>
       </div>
     </div>
 
     <div class="sidebar-section">
       <div class="sidebar-section-label">Finance</div>
       <div class="nav-item" onclick="showView('payments')">
-        <i class="fas fa-credit-card"></i> Payment Tracker
+        <i class="fas fa-credit-card"></i> <span>Payment Tracker</span>
       </div>
     </div>
 
     <div class="sidebar-section">
       <div class="sidebar-section-label">Academic</div>
       <div class="nav-item" onclick="showView('certificates')">
-        <i class="fas fa-certificate"></i> Certificates
+        <i class="fas fa-certificate"></i> <span>Certificates</span>
       </div>
       <div class="nav-item" onclick="showView('analytics')">
-        <i class="fas fa-chart-line"></i> Analytics
+        <i class="fas fa-chart-line"></i> <span>Analytics</span>
       </div>
     </div>
 
@@ -3277,6 +3343,23 @@ function toggleSidebar() {
   sidebar.classList.toggle('mobile-open');
   backdrop.classList.toggle('active');
 }
+
+function toggleSidebarCollapse() {
+  const sidebar = document.getElementById('sidebar');
+  if (!sidebar) return;
+  if (window.innerWidth <= 768) {
+    toggleSidebar();
+    return;
+  }
+  sidebar.classList.toggle('is-collapsed');
+  localStorage.setItem('sidebarCollapsed', sidebar.classList.contains('is-collapsed') ? '1' : '0');
+}
+
+(function restoreSidebarCollapse(){
+  if (localStorage.getItem('sidebarCollapsed') === '1' && window.innerWidth > 768) {
+    document.getElementById('sidebar')?.classList.add('is-collapsed');
+  }
+})();
 
 function showView(name) {
   document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
