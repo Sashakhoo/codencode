@@ -2938,6 +2938,9 @@
         <div class="section-header" style="margin-bottom:20px">
           <div class="section-title">Certificates</div>
           <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <button class="btn btn-secondary btn-sm" id="download-selected-certs-btn" onclick="downloadSelectedCertificates()" disabled>
+              <i class="fas fa-download"></i> Download Selected
+            </button>
             <button class="btn btn-danger btn-sm" id="delete-selected-certs-btn" onclick="deleteSelectedCertificates()" disabled>
               <i class="fas fa-trash"></i> Delete Selected
             </button>
@@ -6453,8 +6456,10 @@ function selectedCertificateIds() {
 
 function updateSelectedCertificatesButton() {
   const ids = selectedCertificateIds();
-  const btn = document.getElementById('delete-selected-certs-btn');
-  if (btn) btn.disabled = ids.length === 0;
+  const deleteBtn = document.getElementById('delete-selected-certs-btn');
+  const downloadBtn = document.getElementById('download-selected-certs-btn');
+  if (deleteBtn) deleteBtn.disabled = ids.length === 0;
+  if (downloadBtn) downloadBtn.disabled = ids.length === 0;
   const selectAll = document.getElementById('cert-select-all');
   const boxes = [...document.querySelectorAll('.cert-select')];
   if (selectAll) {
@@ -6466,6 +6471,46 @@ function updateSelectedCertificatesButton() {
 function toggleAllCertificates(checked) {
   document.querySelectorAll('.cert-select').forEach(cb => { cb.checked = checked; });
   updateSelectedCertificatesButton();
+}
+
+async function downloadSelectedCertificates() {
+  const ids = selectedCertificateIds();
+  if (!ids.length) return;
+  const btn = document.getElementById('download-selected-certs-btn');
+  if (btn) {
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Preparing...';
+  }
+  try {
+    const res = await fetch('/api/admin/certificates/download', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ids })
+    });
+    if (!res.ok) {
+      const json = await res.json().catch(() => ({}));
+      throw new Error(json.error || `HTTP ${res.status}`);
+    }
+    const blob = await res.blob();
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    const cd = res.headers.get('Content-Disposition') || '';
+    const match = cd.match(/filename\*=UTF-8''([^;]+)|filename="?([^"]+)"?/i);
+    link.href = url;
+    link.download = decodeURIComponent(match?.[1] || match?.[2] || `codencode-certificates-${Date.now()}.zip`);
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
+    toast(ids.length === 1 ? 'Certificate download started' : `${ids.length} certificates download started`);
+  } catch(e) {
+    toast('Error downloading certificates: ' + e.message, true);
+  } finally {
+    if (btn) {
+      btn.innerHTML = '<i class="fas fa-download"></i> Download Selected';
+      updateSelectedCertificatesButton();
+    }
+  }
 }
 
 async function openIssueCertModal() {
