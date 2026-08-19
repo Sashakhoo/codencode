@@ -884,49 +884,49 @@
     /* Soft LMS dashboard revamp */
     :root,
     [data-theme="light"] {
-      --bg-page: #dfece8;
-      --bg: #f3f6f5;
-      --bg-base: #eef5f2;
-      --bg-grad: #eef5f2;
+      --bg-page: #F0F1F3;
+      --bg: #F0F1F3;
+      --bg-base: #F0F1F3;
+      --bg-grad: #F0F1F3;
       --bg-raised: #ffffff;
-      --bg-hover: #f5fbf8;
-      --bg-active: #e7f7f1;
+      --bg-hover: #F7FAF8;
+      --bg-active: #E6F6EC;
       --surface: #ffffff;
-      --surface2: #f6fbf8;
-      --surface3: #edf7f2;
+      --surface2: #FAFCFB;
+      --surface3: #E6F6EC;
       --surface-solid: #ffffff;
-      --border: #e3eee9;
-      --border2: #d4e8df;
-      --border3: #bfe0d4;
-      --border-strong: #aed8cb;
-      --text: #172522;
-      --text-1: #172522;
-      --text-muted: #6e7f79;
-      --text-2: #6e7f79;
-      --text-dim: #98a9a2;
-      --text-3: #98a9a2;
-      --text-faint: #b9c7c2;
-      --text-4: #b9c7c2;
-      --accent: #10cda7;
-      --accent-bright: #08b994;
-      --accent-mid: #069879;
-      --accent-dim: #e3f9f2;
-      --accent-glow: rgba(16, 205, 167, 0.10);
-      --cyan: #10cda7;
-      --cyan-dim: #e2faf3;
-      --cyan-glow: rgba(16, 205, 167, 0.12);
-      --green: #0aa174;
-      --green2: #24c89e;
-      --green3: #087c5b;
-      --green-dim: #e3f8ec;
-      --green-mid: #c9eedb;
-      --gold: #c58c16;
-      --gold2: #a87208;
+      --border: #ECEDEF;
+      --border2: #DDE9E3;
+      --border3: #C8DDD3;
+      --border-strong: #B8D2C7;
+      --text: #14181B;
+      --text-1: #14181B;
+      --text-muted: #8A8F98;
+      --text-2: #8A8F98;
+      --text-dim: #B7BBC2;
+      --text-3: #B7BBC2;
+      --text-faint: #CDD1D6;
+      --text-4: #CDD1D6;
+      --accent: #0F9D58;
+      --accent-bright: #0F9D58;
+      --accent-mid: #0B7A43;
+      --accent-dim: #E6F6EC;
+      --accent-glow: rgba(15, 157, 88, 0.10);
+      --cyan: #0F9D58;
+      --cyan-dim: #E6F6EC;
+      --cyan-glow: rgba(15, 157, 88, 0.12);
+      --green: #0F9D58;
+      --green2: #12A862;
+      --green3: #0B7A43;
+      --green-dim: #E6F6EC;
+      --green-mid: #CFEEDB;
+      --gold: #B9660B;
+      --gold2: #B9660B;
       --gold-dim: #fff2d7;
       --gold-mid: #ffe2a5;
-      --red: #d94f4f;
-      --red-dim: #ffe8e8;
-      --orange: #c58c16;
+      --red: #C0392B;
+      --red-dim: #FBEAE8;
+      --orange: #B9660B;
       --orange-dim: #fff2d7;
       --blue: #3197b6;
       --blue-dim: #e6f5fa;
@@ -935,10 +935,10 @@
       --glass-bg: #ffffff;
       --glass-border: 1px solid var(--border);
       --glass-blur: none;
-      --glass-shadow: 0 18px 46px rgba(30, 70, 58, 0.08), 0 2px 8px rgba(30, 70, 58, 0.04);
-      --white: #172522;
-      --muted: #81918c;
-      --muted2: #aab7b2;
+      --glass-shadow: 0 2px 10px rgba(20,24,27,0.03);
+      --white: #14181B;
+      --muted: #8A8F98;
+      --muted2: #B7BBC2;
       --radius: 18px;
       --sidebar-w: 260px;
       --topbar-h: 68px;
@@ -949,15 +949,15 @@
 
     body {
       background:
-        radial-gradient(circle at 10% -5%, rgba(16,205,167,.16), transparent 34%),
-        linear-gradient(135deg, #dfece8 0%, #eef5f2 42%, #f8fbfa 100%);
+        radial-gradient(circle at 10% -5%, rgba(15,157,88,.12), transparent 34%),
+        linear-gradient(135deg, #F0F1F3 0%, #F7FAF8 48%, #FFFFFF 100%);
       color: var(--text);
       font-family: var(--font-m);
       font-size: 14px;
       letter-spacing: 0;
     }
     body::before {
-      background-image: radial-gradient(circle, rgba(16, 205, 167, .10) 1px, transparent 1px);
+      background-image: radial-gradient(circle, rgba(15, 157, 88, .08) 1px, transparent 1px);
       background-size: 34px 34px;
       opacity: .45;
     }
@@ -1027,7 +1027,7 @@
     .nav-item.active {
       background: var(--cyan);
       color: #ffffff;
-      box-shadow: 0 12px 26px rgba(16, 205, 167, .26);
+      box-shadow: 0 12px 26px rgba(15, 157, 88, .20);
     }
     .nav-item.active i {
       background: rgba(255,255,255,.22);
@@ -1044,7 +1044,7 @@
       background: var(--cyan);
       border: 0;
       color: #ffffff;
-      box-shadow: 0 8px 18px rgba(16,205,167,.26);
+      box-shadow: 0 8px 18px rgba(15,157,88,.20);
     }
 
     .main {
@@ -1072,6 +1072,28 @@
       font-size: 12px;
       font-weight: 600;
     }
+    .global-search {
+      width: min(280px, 32vw);
+      min-height: 38px;
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      padding: 0 13px;
+      border-radius: 14px;
+      background: #f5fbf8;
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+    }
+    .global-search input {
+      width: 100%;
+      border: 0;
+      outline: 0;
+      background: transparent;
+      color: var(--text);
+      font-family: var(--font-m);
+      font-size: 13px;
+    }
+    .global-search input::placeholder { color: var(--text-dim); }
     .theme-toggle,
     #menu-toggle,
     #sidebar-close,
@@ -1147,7 +1169,7 @@
     .btn-primary {
       background: var(--cyan);
       color: #ffffff;
-      box-shadow: 0 12px 22px rgba(16,205,167,.22);
+      box-shadow: 0 12px 22px rgba(15,157,88,.18);
     }
     .btn-secondary {
       background: #f5fbf8;
@@ -1230,7 +1252,7 @@
     .att-select:focus,
     .tt-input:focus {
       border-color: var(--cyan);
-      box-shadow: 0 0 0 4px rgba(16,205,167,.12);
+      box-shadow: 0 0 0 4px rgba(15,157,88,.12);
     }
     .form-label {
       color: var(--text-muted);
@@ -1248,7 +1270,102 @@
       background: #ffffff;
       border-bottom-color: var(--border);
     }
+    .students-interactions {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border);
+      background: #fbfefd;
+    }
+    .student-filter-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+    }
+    .filter-chip {
+      border: 0;
+      border-radius: 12px;
+      padding: 8px 11px;
+      background: #f1f6f4;
+      color: var(--text-muted);
+      font-family: var(--font-m);
+      font-size: 11px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+    .filter-chip.active {
+      background: var(--cyan);
+      color: #fff;
+    }
+    .student-view-toggle {
+      display: flex;
+      gap: 3px;
+      padding: 4px;
+      border-radius: 12px;
+      background: #f1f6f4;
+      flex: 0 0 auto;
+    }
+    .student-view-toggle button {
+      width: 32px;
+      height: 30px;
+      display: grid;
+      place-items: center;
+      border: 0;
+      border-radius: 9px;
+      background: transparent;
+      color: var(--text-muted);
+      cursor: pointer;
+    }
+    .student-view-toggle button.active {
+      background: var(--cyan);
+      color: #fff;
+    }
     .pane-list-body { max-height: calc(100vh - 260px); }
+    .pane-list-body.grid-mode {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      padding: 12px;
+    }
+    .pane-list-body.grid-mode .student-item {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      min-height: 134px;
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      background: #fff;
+      box-shadow: 0 10px 22px rgba(30,70,58,.06);
+    }
+    .pane-list-body.grid-mode .student-avatar {
+      width: 42px;
+      height: 42px;
+      font-size: 13px;
+    }
+    .student-meta-line {
+      margin-top: 5px;
+      color: var(--text-muted);
+      font-size: 11px;
+      line-height: 1.35;
+    }
+    .student-status-chip {
+      display: inline-flex;
+      width: fit-content;
+      margin-top: 8px;
+      padding: 4px 8px;
+      border-radius: 999px;
+      background: var(--green-dim);
+      color: var(--green3);
+      font-family: var(--font-c);
+      font-size: 10px;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+    .student-status-chip.pending { background: var(--gold-dim); color: var(--gold2); }
+    .student-status-chip.overdue { background: var(--red-dim); color: var(--red); }
+    .student-status-chip.none { background: #edf1ef; color: var(--text-muted); }
     .student-item {
       padding: 13px 16px;
       border-bottom-color: var(--border);
@@ -1263,7 +1380,7 @@
       background: var(--cyan);
       border: 0;
       color: #ffffff;
-      box-shadow: 0 8px 16px rgba(16,205,167,.18);
+      box-shadow: 0 8px 16px rgba(15,157,88,.16);
     }
     .student-name { font-weight: 800; }
     .student-email { color: var(--text-muted); }
@@ -1327,7 +1444,7 @@
       border-radius: 26px;
       background:
         linear-gradient(135deg, rgba(255,255,255,.96), rgba(246,251,248,.92)),
-        radial-gradient(circle at 92% 18%, rgba(16,205,167,.18), transparent 34%);
+        radial-gradient(circle at 92% 18%, rgba(15,157,88,.14), transparent 34%);
       box-shadow: 0 18px 46px rgba(30,70,58,.08);
     }
     .dashboard-hero h1 {
@@ -1373,7 +1490,7 @@
       display: grid;
       place-items: center;
       border-radius: 14px;
-      background: rgba(16,205,167,.12);
+      background: rgba(15,157,88,.12);
       color: var(--green3);
       flex: 0 0 auto;
     }
@@ -1489,6 +1606,8 @@
       min-width: 0;
       padding: 4px 2px 0;
     }
+    .student-form-step { display: none; }
+    .student-form-step.active { display: block; }
     .modal-section-title {
       margin-bottom: 12px;
       color: var(--green3);
@@ -1547,6 +1666,11 @@
       .topbar-title { font-size: 20px; }
       .topbar-subtitle { max-width: 62vw; }
       .topbar-actions { gap: 6px !important; }
+      .global-search {
+        order: 3;
+        width: 100%;
+        flex-basis: 100%;
+      }
       .content { padding: 16px 0 28px; }
       .stats-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -1563,6 +1687,14 @@
       }
       .pane-list-body {
         max-height: 42vh;
+      }
+      .students-interactions {
+        align-items: stretch;
+        flex-direction: column;
+      }
+      .student-view-toggle { width: fit-content; }
+      .pane-list-body.grid-mode {
+        grid-template-columns: 1fr;
       }
       .card,
       .pane-list,
@@ -1636,6 +1768,7 @@
       #app { padding: 10px; }
       .topbar {
         align-items: flex-start;
+        flex-wrap: wrap;
       }
       .topbar-title { font-size: 18px; }
       .topbar-subtitle { max-width: 56vw; }
@@ -1801,6 +1934,10 @@
         </div>
       </div>
       <div class="topbar-actions" style="margin-left:auto;display:flex;align-items:center;gap:10px">
+        <div class="global-search">
+          <i class="fas fa-search"></i>
+          <input id="global-student-search" placeholder="Search students..." oninput="handleGlobalStudentSearch(this.value)" />
+        </div>
         <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme" style="width:32px;height:32px;background:none;border:1px solid var(--border);color:var(--text-muted);cursor:pointer;display:grid;place-items:center;border-radius:4px;transition:all 0.2s">
           <i class="fas fa-sun" id="theme-icon"></i>
         </button>
@@ -1863,10 +2000,27 @@
           <!-- Left: student list -->
           <div class="pane-list">
             <div class="pane-list-header">
-              <input class="pane-search" id="student-search" placeholder="Search students..." oninput="filterStudents()" />
+              <input class="pane-search" id="student-search" placeholder="Search students..." oninput="handleStudentSearch(this.value)" />
               <button class="btn btn-primary btn-sm" onclick="openAddStudent()" title="Add Student">
                 <i class="fas fa-plus"></i>
               </button>
+            </div>
+            <div class="students-interactions">
+              <div class="student-filter-chips">
+                <button class="filter-chip active" data-student-filter="all" onclick="setStudentFilter('all')">All</button>
+                <button class="filter-chip" data-student-filter="paid" onclick="setStudentFilter('paid')">Paid</button>
+                <button class="filter-chip" data-student-filter="pending" onclick="setStudentFilter('pending')">Pending</button>
+                <button class="filter-chip" data-student-filter="overdue" onclick="setStudentFilter('overdue')">Overdue</button>
+                <button class="filter-chip" data-student-filter="none" onclick="setStudentFilter('none')">No Course</button>
+              </div>
+              <div class="student-view-toggle">
+                <button class="active" data-student-view="list" onclick="setStudentViewMode('list')" title="List view">
+                  <i class="fas fa-list"></i>
+                </button>
+                <button data-student-view="grid" onclick="setStudentViewMode('grid')" title="Grid view">
+                  <i class="fas fa-th-large"></i>
+                </button>
+              </div>
             </div>
             <div class="pane-list-body" id="student-list-body">
               <div style="padding:20px;color:var(--text-muted);text-align:center">Loading...</div>
@@ -2190,21 +2344,21 @@
     <div class="student-wizard">
       <aside class="wizard-rail">
         <div class="wizard-rail-title">Student Setup</div>
-        <div class="wizard-step active">
+        <div class="wizard-step active" data-student-step-nav="1">
           <span>1</span>
           <div>
             <strong>Personal</strong>
             <small>Core contact details</small>
           </div>
         </div>
-        <div class="wizard-step">
+        <div class="wizard-step" data-student-step-nav="2">
           <span>2</span>
           <div>
             <strong>Billing</strong>
             <small>Invoice recipient info</small>
           </div>
         </div>
-        <div class="wizard-step">
+        <div class="wizard-step" data-student-step-nav="3">
           <span>3</span>
           <div>
             <strong>Enrolment</strong>
@@ -2215,6 +2369,7 @@
       <div class="student-form-panel">
 
     <!-- Personal Info -->
+    <div class="student-form-step" data-student-step="1">
     <div class="modal-section-title">
       <i class="fas fa-user" style="margin-right:6px"></i>Personal Info
     </div>
@@ -2246,6 +2401,8 @@
     </div>
 
     <!-- Billing Info -->
+    </div>
+    <div class="student-form-step" data-student-step="2">
     <div class="modal-divider"></div>
     <div class="modal-section-title">
       <i class="fas fa-building" style="margin-right:6px"></i>Bill To Company
@@ -2270,6 +2427,8 @@
     </div>
 
     <!-- Enrolment (Add only) -->
+    </div>
+    <div class="student-form-step" data-student-step="3">
     <div id="s-enrol-section">
       <div class="modal-divider"></div>
       <div class="modal-section-title">
@@ -2320,12 +2479,15 @@
         </div>
       </div>
     </div>
+    </div>
       </div>
     </div>
 
     <div class="modal-footer student-modal-footer">
       <button class="btn btn-secondary" onclick="closeModal('modal-student')">Cancel</button>
-      <button class="btn btn-primary" onclick="saveStudent()">
+      <button class="btn btn-secondary" id="student-wizard-back" onclick="studentWizardBack()" type="button">Back</button>
+      <button class="btn btn-primary" id="student-wizard-next" onclick="studentWizardNext()" type="button">Continue</button>
+      <button class="btn btn-primary" id="student-wizard-save" onclick="saveStudent()">
         <i class="fas fa-save"></i> Save
       </button>
     </div>
@@ -2945,6 +3107,10 @@ const S = {
   certOptions: { courses: [], students: [], enrollments: [] },
   allPayments: [],
   currentView: 'dashboard',
+  studentFilter: 'all',
+  studentViewMode: 'list',
+  studentSearch: '',
+  studentWizardStep: 1,
 };
 
 // ═══════════════════════════════════════════════════════
@@ -3259,24 +3425,93 @@ async function loadDashboard() {
 // ═══════════════════════════════════════════════════════
 // STUDENTS
 // ═══════════════════════════════════════════════════════
-function renderStudentList() {
-  const q = (document.getElementById('student-search')?.value || '').toLowerCase();
-  const filtered = S.students.filter(s =>
-    s.name.toLowerCase().includes(q) || s.email.toLowerCase().includes(q));
+function getStudentPaymentState(s) {
+  const enrollments = Array.isArray(s.enrollments) ? s.enrollments : [];
+  if (!enrollments.length) return 'none';
+  const statuses = enrollments.map(e => e.payment_status || 'pending');
+  if (statuses.includes('overdue')) return 'overdue';
+  if (statuses.includes('pending')) return 'pending';
+  if (statuses.every(st => st === 'paid')) return 'paid';
+  return statuses[0] || 'pending';
+}
 
-  document.getElementById('student-list-body').innerHTML = filtered.length
-    ? filtered.map(s => `
+function getFilteredStudents() {
+  const q = (S.studentSearch || '').toLowerCase();
+  return S.students.filter(s => {
+    const enrolText = (Array.isArray(s.enrollments) ? s.enrollments : [])
+      .map(e => `${e.course_title || ''} ${e.class_format || ''}`)
+      .join(' ')
+      .toLowerCase();
+    const matchesSearch =
+      (s.name || '').toLowerCase().includes(q) ||
+      (s.email || '').toLowerCase().includes(q) ||
+      enrolText.includes(q);
+    const paymentState = getStudentPaymentState(s);
+    const matchesFilter = S.studentFilter === 'all' || paymentState === S.studentFilter;
+    return matchesSearch && matchesFilter;
+  });
+}
+
+function renderStudentList() {
+  const listBody = document.getElementById('student-list-body');
+  const localSearch = document.getElementById('student-search');
+  const globalSearch = document.getElementById('global-student-search');
+  if (localSearch && localSearch.value !== S.studentSearch) localSearch.value = S.studentSearch;
+  if (globalSearch && globalSearch.value !== S.studentSearch) globalSearch.value = S.studentSearch;
+
+  document.querySelectorAll('[data-student-filter]').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.studentFilter === S.studentFilter);
+  });
+  document.querySelectorAll('[data-student-view]').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.studentView === S.studentViewMode);
+  });
+
+  const filtered = getFilteredStudents();
+  listBody.classList.toggle('grid-mode', S.studentViewMode === 'grid');
+  listBody.innerHTML = filtered.length
+    ? filtered.map(s => {
+        const paymentState = getStudentPaymentState(s);
+        const enrollments = Array.isArray(s.enrollments) ? s.enrollments : [];
+        const primaryCourse = enrollments[0]?.course_title || 'No course assigned';
+        return `
         <div class="student-item" id="si-${s.id}" onclick="selectStudent(${s.id})">
           <div class="student-avatar">${s.initials}</div>
           <div>
             <div class="student-name">${s.name}</div>
             <div class="student-email">${s.email}</div>
+            <div class="student-meta-line">${primaryCourse}</div>
+            <span class="student-status-chip ${paymentState}">${paymentState === 'none' ? 'No Course' : paymentState}</span>
           </div>
-        </div>`).join('')
+        </div>`;
+      }).join('')
     : '<div style="padding:20px;color:var(--text-muted);text-align:center">No students found</div>';
 }
 
-function filterStudents() { renderStudentList(); }
+function handleStudentSearch(value) {
+  S.studentSearch = value || '';
+  renderStudentList();
+}
+
+function handleGlobalStudentSearch(value) {
+  S.studentSearch = value || '';
+  if (S.currentView !== 'students') showView('students');
+  else renderStudentList();
+}
+
+function setStudentFilter(filter) {
+  S.studentFilter = filter;
+  renderStudentList();
+}
+
+function setStudentViewMode(mode) {
+  S.studentViewMode = mode;
+  renderStudentList();
+}
+
+function filterStudents() {
+  S.studentSearch = document.getElementById('student-search')?.value || '';
+  renderStudentList();
+}
 
 function selectStudent(uid) {
   document.querySelectorAll('.student-item').forEach(el => el.classList.remove('selected'));
@@ -3464,6 +3699,45 @@ async function loadStudentAttendance(uid) {
 }
 
 // ── Add / Edit Student Modal ───────────────────
+function setStudentWizardStep(step) {
+  const maxStep = document.getElementById('edit-student-id')?.value ? 2 : 3;
+  S.studentWizardStep = Math.max(1, Math.min(maxStep, step));
+  document.querySelectorAll('[data-student-step]').forEach(el => {
+    el.classList.toggle('active', parseInt(el.dataset.studentStep) === S.studentWizardStep);
+  });
+  document.querySelectorAll('[data-student-step-nav]').forEach(el => {
+    const navStep = parseInt(el.dataset.studentStepNav);
+    el.style.display = navStep > maxStep ? 'none' : '';
+    el.classList.toggle('active', navStep === S.studentWizardStep);
+    el.classList.toggle('done', navStep < S.studentWizardStep);
+  });
+  const backBtn = document.getElementById('student-wizard-back');
+  const nextBtn = document.getElementById('student-wizard-next');
+  const saveBtn = document.getElementById('student-wizard-save');
+  if (backBtn) backBtn.style.display = S.studentWizardStep > 1 ? 'inline-flex' : 'none';
+  if (nextBtn) nextBtn.style.display = S.studentWizardStep < maxStep ? 'inline-flex' : 'none';
+  if (saveBtn) saveBtn.style.display = S.studentWizardStep === maxStep ? 'inline-flex' : 'none';
+}
+
+function validateStudentWizardStep(step) {
+  const name = document.getElementById('s-name').value.trim();
+  const email = document.getElementById('s-email').value.trim();
+  if (step === 1 && (!name || !email)) {
+    toast('Name and email are required', true);
+    return false;
+  }
+  return true;
+}
+
+function studentWizardNext() {
+  if (!validateStudentWizardStep(S.studentWizardStep)) return;
+  setStudentWizardStep(S.studentWizardStep + 1);
+}
+
+function studentWizardBack() {
+  setStudentWizardStep(S.studentWizardStep - 1);
+}
+
 function openAddStudent() {
   if (window.innerWidth <= 768) {
     document.getElementById('sidebar').classList.remove('mobile-open');
@@ -3486,6 +3760,7 @@ function openAddStudent() {
   document.getElementById('s-payment-status').value  = 'pending';
   resetClassTimingRows('s');
   document.getElementById('s-enrol-section').style.display = 'block';
+  setStudentWizardStep(1);
   openModal('modal-student');
 }
 
@@ -3506,6 +3781,7 @@ function openEditStudent(uid) {
   document.getElementById('s-pass-group').style.display   = 'flex';
   // Hide enrolment section on edit (use Assign Course button instead)
   document.getElementById('s-enrol-section').style.display = 'none';
+  setStudentWizardStep(1);
   openModal('modal-student');
 }
 
@@ -3523,6 +3799,7 @@ async function saveStudent() {
     bill_company_address: document.getElementById('s-bill-company-address').value.trim(),
   };
   if (!data.name || !data.email) { toast('Name and email are required', true); return; }
+  if (!uid && !validateStudentWizardStep(1)) return;
   try {
     if (uid) {
       await PUT(`/api/admin/students/${uid}`, data);
