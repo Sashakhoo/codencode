@@ -4051,58 +4051,10 @@ def _static_image_data_url(relative_path, mime='image/png'):
         return ''
 
 
-def _font(size, bold=False, italic=False):
-    from PIL import ImageFont
-
-    candidates = []
-    if bold:
-        candidates += [
-            '/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf',
-            'C:/Windows/Fonts/arialbd.ttf',
-        ]
-    elif italic:
-        candidates += [
-            '/usr/share/fonts/truetype/dejavu/DejaVuSerif-Italic.ttf',
-            'C:/Windows/Fonts/georgiai.ttf',
-        ]
-    else:
-        candidates += [
-            '/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf',
-            'C:/Windows/Fonts/arial.ttf',
-        ]
-    for path in candidates:
-        try:
-            return ImageFont.truetype(path, size)
-        except Exception:
-            continue
-    return ImageFont.load_default()
-
-
-def _draw_center(draw, xy, text, font, fill, anchor='mm'):
-    draw.text(xy, text or '', font=font, fill=fill, anchor=anchor)
-
-
-def _fit_font(text, size, max_width, bold=False, italic=False, min_size=32):
-    font = _font(size, bold=bold, italic=italic)
-    while size > min_size:
-        bbox = font.getbbox(text or '')
-        if bbox[2] - bbox[0] <= max_width:
-            return font
-        size -= 4
-        font = _font(size, bold=bold, italic=italic)
-    return font
-
-
-def _paste_center(base, img, center, max_size):
-    img = img.convert('RGBA')
-    img.thumbnail(max_size, resample=1)
-    x = int(center[0] - img.width / 2)
-    y = int(center[1] - img.height / 2)
-    base.alpha_composite(img, (x, y))
-
-
-def _certificate_png_bytes(cert, verify_url, cert_data=None):
-    from PIL import Image, ImageDraw
+def _certificate_pdf_bytes(cert, verify_url, cert_data=None):
+    from reportlab.lib.pagesizes import landscape, A4
+    from reportlab.lib.utils import ImageReader
+    from reportlab.pdfgen import canvas
     import qrcode
 
     cert_data = cert_data or cert.to_dict()
@@ -4117,82 +4069,113 @@ def _certificate_png_bytes(cert, verify_url, cert_data=None):
     elif cert_data.get('issued_at'):
         issued_label = str(cert_data['issued_at'])
 
-    w, h = 1754, 1240
+    buf = io.BytesIO()
+    width, height = landscape(A4)
+    c = canvas.Canvas(buf, pagesize=(width, height))
     green = '#0a3d2a'
     cyan = '#00c485'
     muted = '#7f8790'
-    text = '#14181b'
 
-    img = Image.new('RGBA', (w, h), '#f5f0e8')
-    draw = ImageDraw.Draw(img)
-    draw.rectangle((135, 70, w - 135, h - 70), fill='#0a3d2a')
-    draw.rectangle((165, 102, w - 165, h - 102), fill='white', outline=cyan, width=4)
-    draw.rectangle((195, 140, w - 195, h - 140), outline=cyan, width=3)
-    for x1, y1, x2, y2 in [(195, 140, 270, 215), (w - 270, 140, w - 195, 215),
-                           (195, h - 215, 270, h - 140), (w - 270, h - 215, w - 195, h - 140)]:
-        draw.rectangle((x1, y1, x2, y2), outline='white', width=4)
+    c.setFillColor('#f5f0e8')
+    c.rect(0, 0, width, height, stroke=0, fill=1)
+    c.setFillColor(green)
+    c.rect(36, 32, width - 72, height - 64, stroke=0, fill=1)
+    c.setFillColor('white')
+    c.setStrokeColor(cyan)
+    c.setLineWidth(2)
+    c.rect(52, 48, width - 104, height - 96, stroke=1, fill=1)
+    c.setLineWidth(1.4)
+    c.rect(68, 64, width - 136, height - 128, stroke=1, fill=0)
 
-    watermark = Image.new('RGBA', (w, h), (255, 255, 255, 0))
-    wdraw = ImageDraw.Draw(watermark)
-    wdraw.text((w // 2, h // 2 + 185), 'codencode.my', font=_font(125, bold=True),
-               fill=(0, 196, 133, 8), anchor='mm')
-    watermark = watermark.rotate(-28, center=(w // 2, h // 2), resample=3)
-    img.alpha_composite(watermark)
+    c.saveState()
+    c.translate(width / 2, height / 2 - 20)
+    c.rotate(-28)
+    c.setFillColorRGB(0, 0.76, 0.52, alpha=0.045)
+    c.setFont('Helvetica-Bold', 74)
+    c.drawCentredString(0, 0, 'codencode.my')
+    c.restoreState()
+
+    def center_text(y, value, font='Helvetica', size=12, color=green):
+        c.setFillColor(color)
+        c.setFont(font, size)
+        c.drawCentredString(width / 2, y, value or '')
 
     try:
         logo_path = os.path.join(app.static_folder or '', 'img', 'logo_full.png')
-        logo = Image.open(logo_path)
-        _paste_center(img, logo, (w // 2, 170), (230, 75))
+        c.drawImage(logo_path, width / 2 - 55, height - 92, width=110, height=18,
+                    preserveAspectRatio=True, mask='auto')
     except Exception as exc:
         app.logger.warning('Could not render certificate logo: %s', exc)
-        _draw_center(draw, (w // 2, 170), 'codencode.my', _font(34, bold=True), green)
+        center_text(height - 86, 'codencode.my', 'Helvetica-Bold', 18)
 
-    draw.line((w // 2 - 180, 218, w // 2 + 180, 218), fill=cyan, width=2)
-    _draw_center(draw, (w // 2, 270), 'C E R T I F I C A T E', _font(23), muted)
-    _draw_center(draw, (w // 2, 345), 'of Achievement', _font(64, bold=True), green)
-
+    c.setStrokeColor(cyan)
+    c.setLineWidth(1)
+    c.line(width / 2 - 88, height - 108, width / 2 + 88, height - 108)
+    center_text(height - 136, 'C E R T I F I C A T E', 'Helvetica', 12, muted)
+    center_text(height - 178, 'of Achievement', 'Helvetica-Bold', 34, green)
     if student_name:
-        _draw_center(draw, (w // 2, 430), 'This certifies that', _font(25, italic=True), '#666666')
-        name = student_name
-        _draw_center(draw, (w // 2, 525), name, _fit_font(name, 72, 760, italic=True), green)
-        draw.line((w // 2 - 340, 590, w // 2 + 340, 590), fill='#dddddd', width=1)
-        _draw_center(draw, (w // 2, 640), 'has successfully completed the course', _font(26), '#555555')
+        center_text(height - 214, 'This certifies that', 'Times-Italic', 15, '#666666')
+        name_size = 40 if len(student_name) <= 22 else 34
+        center_text(height - 272, student_name, 'Times-Italic', name_size, green)
+        c.setStrokeColor('#dddddd')
+        c.line(width / 2 - 150, height - 292, width / 2 + 150, height - 292)
+        center_text(height - 322, 'has successfully completed the course', 'Helvetica', 15, '#555555')
     else:
-        _draw_center(draw, (w // 2, 510), 'For successful completion of', _font(28), '#555555')
+        center_text(height - 260, 'For successful completion of', 'Helvetica', 16, '#555555')
 
-    _draw_center(draw, (w // 2, 690), 'C O U R S E', _font(18), muted)
-    _draw_center(draw, (w // 2, 760), course_title or 'Course', _fit_font(course_title or 'Course', 44, 760, bold=True), green)
+    center_text(height - 350, 'C O U R S E', 'Helvetica', 10, muted)
+    course_size = 24 if len(course_title) <= 30 else 20
+    center_text(height - 386, course_title or 'Course', 'Helvetica-Bold', course_size, green)
 
-    draw.line((260, 890, w - 260, 890), fill='#e6e6e6', width=1)
-    draw.text((275, 925), 'D A T E   I S S U E D', font=_font(15), fill=muted)
-    draw.text((275, 960), issued_label, font=_font(22, bold=True), fill=text)
-    draw.text((275, 1008), 'C E R T I F I C A T E   N O .', font=_font(15), fill=muted)
-    draw.rectangle((275, 1040, 405, 1082), outline=cyan, width=1)
-    _draw_center(draw, (340, 1062), cert_number, _font(18), green)
+    c.setStrokeColor('#e6e6e6')
+    c.line(125, 174, width - 125, 174)
+    c.setFillColor(muted)
+    c.setFont('Helvetica', 7.5)
+    c.drawString(132, 148, 'D A T E   I S S U E D')
+    c.setFillColor('#14181b')
+    c.setFont('Helvetica-Bold', 11)
+    c.drawString(132, 130, issued_label)
+    c.setFillColor(muted)
+    c.setFont('Helvetica', 7.5)
+    c.drawString(132, 106, 'C E R T I F I C A T E   N O .')
+    c.setStrokeColor(cyan)
+    c.rect(132, 78, 66, 20, stroke=1, fill=0)
+    c.setFillColor(green)
+    c.setFont('Helvetica', 9.5)
+    c.drawCentredString(165, 84, cert_number)
 
     try:
         sig_path = os.path.join(app.static_folder or '', 'img', 'signature.png')
-        sig = Image.open(sig_path)
-        _paste_center(img, sig, (w // 2, 920), (290, 84))
+        c.drawImage(sig_path, width / 2 - 54, 130, width=108, height=46,
+                    preserveAspectRatio=True, mask='auto')
     except Exception as exc:
         app.logger.warning('Could not render certificate signature: %s', exc)
-    draw.line((w // 2 - 190, 990, w // 2 + 190, 990), fill=green, width=4)
-    _draw_center(draw, (w // 2, 1028), 'Natasya Khoo', _font(25, bold=True), green)
-    _draw_center(draw, (w // 2, 1060), 'Managing Director', _font(18, bold=True), muted)
+    c.setStrokeColor(green)
+    c.setLineWidth(2)
+    c.line(width / 2 - 88, 118, width / 2 + 88, 118)
+    center_text(100, 'Natasya Khoo', 'Helvetica-Bold', 12.5, green)
+    center_text(84, 'Managing Director', 'Helvetica-Bold', 9.5, muted)
 
     qr = qrcode.QRCode(version=1, error_correction=qrcode.constants.ERROR_CORRECT_M,
                        box_size=8, border=2)
     qr.add_data(verify_url)
     qr.make(fit=True)
-    qr_img = qr.make_image(fill_color=green, back_color='white').convert('RGBA')
-    _draw_center(draw, (w - 310, 925), 'S C A N   T O   V E R I F Y', _font(13), muted)
-    _paste_center(img, qr_img, (w - 310, 1012), (98, 98))
-    _draw_center(draw, (w - 310, 1084), f'learn.codencode.my/verify/{cert_number}', _font(12), green)
+    qr_img = qr.make_image(fill_color=green, back_color='white')
+    qr_buf = io.BytesIO()
+    qr_img.save(qr_buf, format='PNG')
+    qr_buf.seek(0)
+    c.setFillColor(muted)
+    c.setFont('Helvetica', 7.5)
+    c.drawCentredString(width - 150, 146, 'S C A N   T O   V E R I F Y')
+    c.drawImage(ImageReader(qr_buf), width - 176, 88, width=52, height=52, mask='auto')
+    c.setFillColor(green)
+    c.setFont('Helvetica', 6)
+    c.drawCentredString(width - 150, 76, f'learn.codencode.my/verify/{cert_number}')
 
-    out = io.BytesIO()
-    img.convert('RGB').save(out, format='PNG', optimize=True)
-    out.seek(0)
-    return out.getvalue()
+    c.showPage()
+    c.save()
+    buf.seek(0)
+    return buf.getvalue()
 
 
 @app.route('/api/admin/certificates/download', methods=['POST'])
@@ -4241,8 +4224,8 @@ def admin_download_certificates_bulk():
             elif cert_data.get('course_title'):
                 parts.append(cert_data['course_title'])
             filename = secure_filename(' - '.join(parts)) or f'certificate-{cert.id}'
-            png = _certificate_png_bytes(cert, verify_url, cert_data=cert_data)
-            zf.writestr(f'{filename}.png', png)
+            pdf = _certificate_pdf_bytes(cert, verify_url, cert_data=cert_data)
+            zf.writestr(f'{filename}.pdf', pdf)
 
     buf.seek(0)
     stamp = datetime.utcnow().strftime('%Y%m%d-%H%M%S')
