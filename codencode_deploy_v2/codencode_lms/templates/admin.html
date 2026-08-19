@@ -3004,7 +3004,7 @@
           <div class="section-title">Certificates</div>
           <div style="display:flex;gap:8px;flex-wrap:wrap">
             <button class="btn btn-secondary btn-sm" id="download-selected-certs-btn" onclick="downloadSelectedCertificates()" disabled>
-              <i class="fas fa-download"></i> Download PNGs
+              <i class="fas fa-download"></i> Download PDFs
             </button>
             <button class="btn btn-danger btn-sm" id="delete-selected-certs-btn" onclick="deleteSelectedCertificates()" disabled>
               <i class="fas fa-trash"></i> Delete Selected
@@ -6561,7 +6561,7 @@ async function downloadSelectedCertificates() {
   const btn = document.getElementById('download-selected-certs-btn');
   if (btn) {
     btn.disabled = true;
-      btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Preparing PNGs...';
+      btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Preparing PDFs...';
   }
   try {
     const res = await fetch('/api/admin/certificates/download', {
@@ -6584,12 +6584,12 @@ async function downloadSelectedCertificates() {
     link.click();
     link.remove();
     URL.revokeObjectURL(url);
-    toast(ids.length === 1 ? 'PNG certificate download started' : `${ids.length} PNG certificates download started`);
+    toast(ids.length === 1 ? 'PDF certificate download started' : `${ids.length} PDF certificates download started`);
   } catch(e) {
     toast('Error downloading certificates: ' + e.message, true);
   } finally {
     if (btn) {
-      btn.innerHTML = '<i class="fas fa-download"></i> Download PNGs';
+      btn.innerHTML = '<i class="fas fa-download"></i> Download PDFs';
       updateSelectedCertificatesButton();
     }
   }
