@@ -2150,6 +2150,9 @@
       grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 24px 28px;
     }
+    #modal-student.open [data-student-step="1"] .form-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
     #modal-teacher.open .form-grid {
       grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 24px 28px;
@@ -2239,6 +2242,9 @@
 
     @media (max-width: 1180px) {
       .stats-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      #modal-student.open [data-student-step="1"] .form-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
       #view-dashboard > div[style*="grid-template-columns:1fr 1fr"],
       .dashboard-panel-grid {
         grid-template-columns: 1fr !important;
@@ -2496,6 +2502,9 @@
       #modal-teacher.open .form-grid {
         grid-template-columns: 1fr;
         gap: 14px;
+      }
+      #modal-student.open [data-student-step="1"] .form-grid {
+        grid-template-columns: 1fr;
       }
       #modal-student.open [style*="grid-column:span 2"],
       #modal-teacher.open [style*="grid-column:span 2"] {
@@ -3299,6 +3308,10 @@
         <label class="form-label">Email *</label>
         <input class="form-input" id="s-email" type="email" placeholder="alex@codencode.my" />
       </div>
+      <div class="form-group" id="s-pass-group">
+        <label class="form-label">Password</label>
+        <input class="form-input" id="s-password" type="password" placeholder="codencode123" />
+      </div>
       <div class="form-group">
         <label class="form-label">Phone Number</label>
         <input class="form-input" id="s-phone" placeholder="012-3456789" />
@@ -3310,10 +3323,6 @@
           <option value="bm">Malay (BM)</option>
           <option value="zh">Chinese (中文)</option>
         </select>
-      </div>
-      <div class="form-group" id="s-pass-group">
-        <label class="form-label">Password</label>
-        <input class="form-input" id="s-password" type="password" placeholder="codencode123" />
       </div>
     </div>
 
