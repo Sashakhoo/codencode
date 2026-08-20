@@ -4960,6 +4960,7 @@ function openEditStudent(uid) {
 async function saveStudent() {
   const uid  = document.getElementById('edit-student-id').value;
   let addedStudentHasEnrollment = false;
+  let newStudentPaymentTarget = null;
   const data = {
     name:          document.getElementById('s-name').value.trim(),
     email:         document.getElementById('s-email').value.trim(),
@@ -4984,9 +4985,10 @@ async function saveStudent() {
       // Auto-enrol if a course was selected
       const courseId = document.getElementById('s-course-select').value;
       if (courseId) {
+        const numericCourseId = parseInt(courseId);
         const cohortVal = document.getElementById('s-cohort-select')?.value || '';
         await POST(`/api/admin/students/${newId}/enroll`, {
-          course_id:       parseInt(courseId),
+          course_id:       numericCourseId,
           cohort_id:       cohortVal ? parseInt(cohortVal) : null,
           class_format:    document.getElementById('s-class-format').value,
           class_timing:    collectClassTimings('s'),
@@ -4994,6 +4996,7 @@ async function saveStudent() {
           payment_remarks: '',
         });
         addedStudentHasEnrollment = true;
+        newStudentPaymentTarget = { studentId: newId, courseId: numericCourseId };
         toast('Student added and enrolled');
       } else {
         toast('Student added');
@@ -5006,11 +5009,33 @@ async function saveStudent() {
       selectStudent(parseInt(uid));
     } else {
       showView('payments');
-      if (!addedStudentHasEnrollment) {
+      if (addedStudentHasEnrollment) {
+        await renderPayments();
+        openPaymentForNewStudent(newStudentPaymentTarget);
+      } else {
         toast('Assign a course before generating an invoice', true);
       }
     }
   } catch(e) { toast(e.message, true); }
+}
+
+function openPaymentForNewStudent(target) {
+  if (!target) return;
+  const payment = (S.allPayments || []).find(e =>
+    parseInt(e.student_id) === parseInt(target.studentId) &&
+    parseInt(e.course_id) === parseInt(target.courseId)
+  );
+  if (!payment) {
+    toast('Student added. Payment row is loading; refresh Payment Tracker if it is not visible yet.', true);
+    return;
+  }
+  const filter = document.getElementById('pay-filter');
+  if (filter && filter.value !== 'all' && filter.value !== payment.payment_status) {
+    filter.value = 'all';
+    filterPayments();
+  }
+  openPaymentModal(payment.id);
+  setTimeout(() => document.getElementById('pay-amount')?.focus(), 100);
 }
 
 async function loadStudentFormCohorts() {
