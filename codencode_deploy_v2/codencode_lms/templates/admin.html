@@ -881,7 +881,19 @@
     .tt-input { background:var(--surface2); border:1px solid var(--border); color:var(--text); font-family:'Lato',sans-serif; font-size:11px; padding:5px 10px; border-radius:4px; width:100%; outline:none; transition:border-color .2s; }
     .tt-input:focus { border-color:var(--cyan); }
     .timing-builder { display:flex; flex-direction:column; gap:8px; margin-top:4px; }
-    .timing-row { display:grid; grid-template-columns:1fr 96px 96px 34px; gap:8px; align-items:center; }
+    .timing-row { display:grid; grid-template-columns:minmax(140px, 190px) minmax(150px, 170px) minmax(150px, 170px) 40px; gap:10px; align-items:center; }
+    .timing-row .timing-day,
+    .timing-row .timing-start,
+    .timing-row .timing-end {
+      width: 100%;
+      min-width: 0;
+    }
+    .timing-row .timing-start,
+    .timing-row .timing-end {
+      font-family: 'JetBrains Mono', monospace;
+      padding-left: 14px;
+      padding-right: 10px;
+    }
     .icon-btn { width:34px; height:34px; display:inline-grid; place-items:center; border-radius:6px; border:1px solid var(--border); background:var(--surface2); color:var(--text-muted); cursor:pointer; }
     .icon-btn:hover { color:var(--cyan); border-color:var(--cyan); }
     .cal-toolbar { display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:14px; }
