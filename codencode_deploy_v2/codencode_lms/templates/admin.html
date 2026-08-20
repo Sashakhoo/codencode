@@ -771,8 +771,8 @@
     /* ── Responsive adjustments ─────────────────────── */
     @media (max-width: 1180px) {
       html, body { overflow: hidden; }
-      .sidebar { width: min(84vw, var(--sidebar-w)); min-width: 0; position: fixed; left: 0; top: 0; bottom: 0; z-index: 40; transform: translateX(-100%); transition: transform 0.2s; }
-      .sidebar.mobile-open { transform: translateX(0); }
+      .sidebar { width: min(84vw, var(--sidebar-w)); min-width: 0; position: fixed; left: 0; top: 0; bottom: 0; z-index: 40; transform: translateX(-100%); visibility: hidden; pointer-events: none; transition: transform 0.2s; }
+      .sidebar.mobile-open { transform: translateX(0); visibility: visible; pointer-events: auto; }
       .main,
       .content,
       .view,
@@ -2304,11 +2304,15 @@
         -webkit-overflow-scrolling: touch;
         border-radius: 24px;
         transform: translateX(calc(-100% - 24px));
+        visibility: hidden;
+        pointer-events: none;
         transition: transform .22s ease;
         box-shadow: 0 24px 70px rgba(20,24,27,.22);
       }
       .sidebar.mobile-open {
         transform: translateX(0);
+        visibility: visible;
+        pointer-events: auto;
       }
       .sidebar.mobile-open .sidebar-logo {
         justify-content: flex-start;
@@ -2741,6 +2745,123 @@
       #modal-student.open .wizard-rail,
       #modal-teacher.open .wizard-rail {
         grid-template-columns: 1fr;
+      }
+    }
+
+    /* Final alignment guardrails: keep controls inside their columns on every screen. */
+    .btn,
+    .form-input,
+    .form-select,
+    .form-textarea,
+    .pane-search,
+    .global-search,
+    .topbar-actions,
+    .modal-footer,
+    .student-form-panel,
+    .teacher-form-panel {
+      min-width: 0;
+    }
+
+    .modal-footer {
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .modal-footer .btn {
+      white-space: normal;
+      text-align: center;
+    }
+
+    #modal-student.open .modal-box,
+    #modal-teacher.open .modal-box {
+      display: block !important;
+      height: auto !important;
+      grid-template-rows: auto auto auto !important;
+      align-content: start !important;
+      overflow: visible !important;
+    }
+
+    #modal-student.open .student-wizard,
+    #modal-teacher.open .teacher-wizard {
+      align-items: start;
+    }
+
+    #modal-student.open .student-modal-footer,
+    #modal-teacher.open .teacher-modal-footer {
+      position: static !important;
+      inset: auto !important;
+      z-index: auto !important;
+      background: transparent !important;
+      box-shadow: none !important;
+      margin: 0 40px 36px calc(40px + 240px + 48px) !important;
+      padding: 24px 0 0 !important;
+      border-top: 1px solid var(--border);
+      justify-content: flex-end;
+    }
+
+    @media (max-width: 1180px) {
+      #modal-student.open .modal-box,
+      #modal-teacher.open .modal-box {
+        display: block !important;
+        height: auto !important;
+        min-height: calc(100dvh - 24px) !important;
+        max-height: none !important;
+        overflow: visible !important;
+      }
+
+      #modal-student.open .student-wizard,
+      #modal-teacher.open .teacher-wizard {
+        display: flex !important;
+        flex-direction: column !important;
+        height: auto !important;
+        min-height: 0 !important;
+        max-height: none !important;
+        overflow: visible !important;
+        padding: 18px !important;
+      }
+
+      #modal-student.open .student-form-panel,
+      #modal-teacher.open .teacher-form-panel,
+      #modal-student.open .student-form-step.active {
+        height: auto !important;
+        max-height: none !important;
+        overflow: visible !important;
+      }
+
+      #modal-student.open .student-modal-footer,
+      #modal-teacher.open .teacher-modal-footer {
+        margin: 0 18px 18px !important;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .topbar,
+      .section-header,
+      .filter-bar,
+      .cal-toolbar,
+      .course-actions,
+      .modal-footer,
+      [style*="display:flex"] {
+        min-width: 0;
+      }
+
+      .modal-footer {
+        align-items: stretch !important;
+        flex-direction: column-reverse !important;
+      }
+
+      .modal-footer .btn {
+        width: 100% !important;
+        justify-content: center !important;
+      }
+
+      .timing-row,
+      .tt-row,
+      .cal-toolbar,
+      .section-header > [style*="display:flex"],
+      .filter-bar > [style*="display:flex"] {
+        grid-template-columns: 1fr !important;
+        flex-wrap: wrap !important;
       }
     }
   </style>
