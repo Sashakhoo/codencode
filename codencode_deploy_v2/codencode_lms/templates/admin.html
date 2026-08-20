@@ -4404,14 +4404,25 @@ function setTeacherFormOpen(open) {
   document.body.classList.toggle('teacher-form-open', open);
 }
 
-function showView(name) {
-  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+function setActiveNavigation(name) {
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
   document.querySelectorAll('[data-view-link]').forEach(n => n.classList.remove('active'));
+
+  const specialHandlers = {
+    'add-student': 'openAddStudent()',
+    'add-teacher': 'openAddTeacher()'
+  };
+  const handler = specialHandlers[name] || `showView('${name}')`;
+
+  document.querySelectorAll(`.nav-item[onclick="${handler}"]`).forEach(n => n.classList.add('active'));
+  document.querySelectorAll(`[data-view-link="${name}"]`).forEach(n => n.classList.add('active'));
+}
+
+function showView(name) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
   const el = document.getElementById(`view-${name}`);
   if (el) el.classList.add('active');
-  document.querySelector(`[onclick="showView('${name}')"]`)?.classList.add('active');
-  document.querySelector(`[data-view-link="${name}"]`)?.classList.add('active');
+  setActiveNavigation(name);
   const [title, sub] = VIEW_TITLES[name] || [name, ''];
   // Close sidebar on mobile after navigation
   if (window.innerWidth <= 768) {
@@ -4878,8 +4889,7 @@ function updateStudentEnrollmentFields() {
 
 function openAddStudent() {
   setStudentFormOpen(true);
-  document.querySelectorAll('[data-view-link]').forEach(n => n.classList.remove('active'));
-  document.querySelector('[data-view-link="add-student"]')?.classList.add('active');
+  setActiveNavigation('add-student');
   if (window.innerWidth <= 768) {
     document.getElementById('sidebar').classList.remove('mobile-open');
     document.getElementById('sidebar-backdrop').classList.remove('active');
@@ -4911,8 +4921,7 @@ function openEditStudent(uid) {
   const s = S.students.find(x => x.id === uid);
   if (!s) return;
   setStudentFormOpen(true);
-  document.querySelectorAll('[data-view-link]').forEach(n => n.classList.remove('active'));
-  document.querySelector('[data-view-link="students"]')?.classList.add('active');
+  setActiveNavigation('students');
   if (window.innerWidth <= 768) {
     document.getElementById('sidebar').classList.remove('mobile-open');
     document.getElementById('sidebar-backdrop').classList.remove('active');
@@ -7057,6 +7066,11 @@ const _TEACHER_PROFILE_FIELDS = ['t-title','t-specializations','t-bio','t-educat
 
 function openAddTeacher() {
   setTeacherFormOpen(true);
+  setActiveNavigation('add-teacher');
+  if (window.innerWidth <= 768) {
+    document.getElementById('sidebar').classList.remove('mobile-open');
+    document.getElementById('sidebar-backdrop').classList.remove('active');
+  }
   document.getElementById('edit-teacher-id').value = '';
   document.getElementById('teacher-modal-title').textContent = 'Add Teacher';
   ['t-name','t-email','t-phone','t-password'].forEach(id => {
@@ -7069,6 +7083,11 @@ function openAddTeacher() {
 
 function openEditTeacher(t) {
   setTeacherFormOpen(true);
+  setActiveNavigation('teachers');
+  if (window.innerWidth <= 768) {
+    document.getElementById('sidebar').classList.remove('mobile-open');
+    document.getElementById('sidebar-backdrop').classList.remove('active');
+  }
   document.getElementById('edit-teacher-id').value = t.id;
   document.getElementById('teacher-modal-title').textContent = 'Edit Teacher';
   document.getElementById('t-name').value     = t.name;
