@@ -1860,6 +1860,8 @@
     }
     .student-form-step { display: none; }
     .student-form-step.active { display: block; }
+    #s-enrol-extra-fields { display: none; }
+    #s-enrol-section.has-course #s-enrol-extra-fields { display: block; }
     .modal-section-title {
       margin-bottom: 12px;
       color: var(--green3);
@@ -2139,6 +2141,9 @@
       font-size: 15px;
       line-height: 1.35;
     }
+    #modal-student.open .student-form-step.active {
+      padding-bottom: 22px;
+    }
     #modal-student.open [data-student-step="1"].active::before {
       content: "Enter the student's personal details and contact information.";
     }
@@ -2206,15 +2211,16 @@
       display: none;
     }
     #modal-student.open .student-modal-footer {
-      margin-top: 0;
-      padding: 18px 40px 28px;
+      margin: 0 40px 36px calc(40px + 240px + 48px);
+      padding: 24px 0 0;
       border-top: 1px solid var(--border);
       border-radius: 0 0 20px 20px;
-      background: #ffffff;
-      box-shadow: 0 2px 10px rgba(20,24,27,.03);
+      background: transparent;
+      box-shadow: none;
       justify-content: flex-end;
-      position: static;
-      z-index: auto;
+      position: static !important;
+      inset: auto !important;
+      z-index: auto !important;
     }
     #modal-teacher.open .teacher-modal-footer {
       margin-top: 0 !important;
@@ -2519,6 +2525,9 @@
         padding: 14px 18px 18px;
         border-radius: 0 0 20px 20px;
         box-shadow: none;
+      }
+      #modal-student.open .student-modal-footer {
+        margin: 0 18px 18px;
       }
       .modal-box {
         width: 100%;
@@ -3369,13 +3378,13 @@
         </select>
       </div>
 
+      <div id="s-enrol-extra-fields">
       <div class="form-group" style="margin-bottom:14px">
         <label class="form-label">Cohort / Class <span style="color:var(--text-dim);font-size:10px">(teacher + timetable)</span></label>
         <select class="form-select" id="s-cohort-select" onchange="applySelectedCohortTiming('s')">
           <option value="">— choose course first —</option>
         </select>
       </div>
-
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">
         <div class="form-group">
           <label class="form-label">Class Format</label>
@@ -3404,6 +3413,7 @@
         <div style="margin-top:8px">
           <button class="btn btn-secondary btn-sm" onclick="addClassTimingRow('s')"><i class="fas fa-plus"></i> Add time</button>
         </div>
+      </div>
       </div>
     </div>
     </div>
@@ -4733,6 +4743,11 @@ function studentWizardBack() {
   setStudentWizardStep(S.studentWizardStep - 1);
 }
 
+function updateStudentEnrollmentFields() {
+  const hasCourse = !!document.getElementById('s-course-select')?.value;
+  document.getElementById('s-enrol-section')?.classList.toggle('has-course', hasCourse);
+}
+
 function openAddStudent() {
   setStudentFormOpen(true);
   document.querySelectorAll('[data-view-link]').forEach(n => n.classList.remove('active'));
@@ -4759,6 +4774,7 @@ function openAddStudent() {
   document.getElementById('s-payment-status').value  = 'pending';
   resetClassTimingRows('s');
   document.getElementById('s-enrol-section').style.display = 'block';
+  updateStudentEnrollmentFields();
   setStudentWizardStep(1);
   openModal('modal-student');
 }
@@ -4842,6 +4858,7 @@ async function saveStudent() {
 async function loadStudentFormCohorts() {
   const cid = document.getElementById('s-course-select')?.value;
   const sel = document.getElementById('s-cohort-select');
+  updateStudentEnrollmentFields();
   if (!sel) return;
   sel.innerHTML = '<option value="">— no cohort assigned —</option>';
   if (!cid) {
