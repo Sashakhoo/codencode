@@ -226,6 +226,40 @@ def _fmt_money(amount) -> str:
     return f'RM {float(amount or 0):,.2f}'
 
 
+def _is_python_fundamentals(course) -> bool:
+    title = (getattr(course, 'title', course) or '').strip().lower()
+    return title == 'python fundamentals'
+
+
+def _course_billing_session_count(course) -> int:
+    if _is_python_fundamentals(course):
+        return 7
+    return int(getattr(course, 'total_sessions', 0) or 0)
+
+
+def _course_billing_breakdown(course) -> str:
+    if _is_python_fundamentals(course):
+        return '6 theory classes + 1 project completion class'
+    return ''
+
+
+def _course_billing_description(course) -> str:
+    if not course:
+        return 'Course'
+    sessions = _course_billing_session_count(course)
+    breakdown = _course_billing_breakdown(course)
+    suffix = f' ({breakdown})' if breakdown else ''
+    return f'{course.title} - {sessions} Sessions{suffix}'
+
+
+def _course_billing_duration(course) -> str:
+    if not course:
+        return ''
+    sessions = _course_billing_session_count(course)
+    breakdown = _course_billing_breakdown(course)
+    return f'{sessions} sessions ({breakdown})' if breakdown else f'{sessions} sessions'
+
+
 def _invoice_due_date(issue_dt=None):
     return (issue_dt or datetime.utcnow()) + timedelta(days=_INVOICE_DUE_DAYS)
 
@@ -445,7 +479,7 @@ def generate_receipt_html(enrollment) -> str:
     course = enrollment.course
     rcpt_no = f'RCP-{get_or_assign_document_number(enrollment):03d}'
     service_details = [
-        ('Duration', f'{course.total_sessions} sessions' if course else ''),
+        ('Duration', _course_billing_duration(course)),
         ('Enrolled', enrollment.enrolled_at.strftime('%d %B %Y') if getattr(enrollment, 'enrolled_at', None) else ''),
         ('Schedule', enrollment.class_timing or ''),
         ('Payment Method', enrollment.payment_method or ''),
@@ -455,7 +489,7 @@ def generate_receipt_html(enrollment) -> str:
         rcpt_no,
         'paid',
         s,
-        f'{course.title} - {course.total_sessions} Sessions' if course else 'Course',
+        _course_billing_description(course),
         enrollment.payment_amount or 0,
         service_details,
         doc_label='RECEIPT',
@@ -2209,7 +2243,7 @@ def admin_invoice(eid):
     <div class="section">
       <div class="section-title">Course</div>
       <p><strong>{c.title}</strong></p>
-      <p>Duration: {c.total_sessions} sessions</p>
+      <p>Duration: {_course_billing_duration(c)}</p>
       <p>Enrolled: {enr_date}</p>
     </div>
   </div>
@@ -2240,7 +2274,7 @@ def admin_invoice(eid):
 </body>
 </html>"""
     service_details = [
-        ('Duration', f'{c.total_sessions} sessions'),
+        ('Duration', _course_billing_duration(c)),
         ('Enrolled', enr_date),
         ('Schedule', e.class_timing or ''),
     ]
@@ -2248,7 +2282,7 @@ def admin_invoice(eid):
         inv_num,
         pay_status,
         s,
-        f'{c.title} - {c.total_sessions} Sessions',
+        _course_billing_description(c),
         e.payment_amount or 0,
         service_details,
         discount_percent=e.payment_discount_amount or 0,
@@ -2909,9 +2943,9 @@ def reset_certificates_command():
 def _seed_demo_old():
     # ── Courses ────────────────────────────────
     python_course = Course(
-        title='Python Programming Bootcamp',
-        description='6-session hands-on Python course from beginner to advanced.',
-        total_sessions=6, current_session=3, programme='Python Bootcamp')
+        title='Python Fundamentals',
+        description='6 theory classes plus 1 project completion class for beginner-friendly Python.',
+        total_sessions=7, current_session=3, programme='Python Fundamentals')
     python_course.start_date = datetime(2026, 5, 8).date()
     ml_course = Course(
         title='Machine Learning Fundamentals',
@@ -2989,7 +3023,7 @@ def _seed_demo_old():
         (4, 'Session 4 — Files & Error Handling','py_week4_exercises.py',   'py',  '3.9 KB'),
         (5, 'Session 5 — Modules & Pythonic Code','py_week5_exercises.py',  'py',  '5.3 KB'),
         (6, 'Session 6 — Building Real Projects','py_week6_exercises.py',   'py',  '8.8 KB'),
-        (6, 'Session 6 — Mini Project Starter', 'py_week6_project_starter.py','py','6.9 KB'),
+        (7, 'Session 7 — Project Completion Class', 'py_week7_project_completion.py','py','6.9 KB'),
     ]
     for wk, title, fname, ftype, fsize in py_materials:
         db.session.add(Material(course_id=python_course.id, session=wk,
