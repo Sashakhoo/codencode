@@ -375,8 +375,8 @@ body::before{content:"";position:fixed;inset:0;background-image:linear-gradient(
     <div style="margin-top:36px;margin-bottom:28px">
       <div class="sec-lbl">Step 1 &#8212; Choose Your Course</div>
       <div class="card-grid cols2">
-        <input type="radio" name="course_ui" id="c_py"     class="card-radio" value="Python Fundamentals"     data-price="1350" data-sessions="6"  checked>
-        <label for="c_py"     class="card-lbl"><span class="card-icon">&#x1F40D;</span><span class="card-title">Python Fundamentals</span><span class="card-sub">6 weeks &middot; beginner-friendly</span></label>
+        <input type="radio" name="course_ui" id="c_py"     class="card-radio" value="Python Fundamentals"     data-price="1350" data-sessions="7"  checked>
+        <label for="c_py"     class="card-lbl"><span class="card-icon">&#x1F40D;</span><span class="card-title">Python Fundamentals</span><span class="card-sub">6 theory classes + 1 project completion class</span></label>
 
         <input type="radio" name="course_ui" id="c_ml"     class="card-radio" value="ML / AI for All"         data-price="1800" data-sessions="7">
         <label for="c_ml"     class="card-lbl"><span class="card-icon">&#x1F9E0;</span><span class="card-title">ML / AI for All</span><span class="card-sub">7 weeks &middot; intermediate</span></label>
@@ -407,7 +407,7 @@ body::before{content:"";position:fixed;inset:0;background-image:linear-gradient(
         <div class="price-calc-title">// Price Summary</div>
         <div class="price-row"><span class="label">Course</span><span class="val" id="calcCourse">Python Fundamentals</span></div>
         <div class="price-row"><span class="label">Class Format</span><span class="val" id="calcFormat">1-on-1 Private &#8212; RM 199/session</span></div>
-        <div class="price-row"><span class="label">Sessions</span><span class="val" id="calcSessions">6 sessions</span></div>
+        <div class="price-row"><span class="label">Sessions</span><span class="val" id="calcSessions">7 sessions — 6 theory + 1 project completion</span></div>
         <div class="price-total-row">
           <span class="t-lbl">Total (one-time)</span>
           <span class="t-val" id="calcTotal">RM 1,350</span>
@@ -510,7 +510,7 @@ body::before{content:"";position:fixed;inset:0;background-image:linear-gradient(
 <script>
 // ── DATA ──────────────────────────────────────────────────
 const COURSES = {
-  "Python Fundamentals":     { price: 1350, sessions: 6  },
+  "Python Fundamentals":     { price: 1350, sessions: 7, sessionLabel: "7 sessions — 6 theory + 1 project completion" },
   "ML / AI for All":         { price: 1800, sessions: 7  },
   "Vibe Coding":             { price: 800,  sessions: 4  },
   "Bundle (Python + ML/AI)": { price: 3000, sessions: 13 }
@@ -535,7 +535,7 @@ function updateCalc(){
 
   document.getElementById("calcCourse").textContent   = cName;
   document.getElementById("calcFormat").textContent   = FORMATS[fName];
-  document.getElementById("calcSessions").textContent = sess + " sessions";
+  document.getElementById("calcSessions").textContent = COURSES[cName].sessionLabel || (sess + " sessions");
   document.getElementById("calcTotal").textContent    = fmtRM(total);
   document.getElementById("payStep1").textContent     = fmtRM(half1);
   document.getElementById("payStep2").textContent     = fmtRM(half2);
