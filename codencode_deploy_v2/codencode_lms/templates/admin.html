@@ -4959,6 +4959,7 @@ function openEditStudent(uid) {
 
 async function saveStudent() {
   const uid  = document.getElementById('edit-student-id').value;
+  let addedStudentHasEnrollment = false;
   const data = {
     name:          document.getElementById('s-name').value.trim(),
     email:         document.getElementById('s-email').value.trim(),
@@ -4992,6 +4993,7 @@ async function saveStudent() {
           payment_status:  document.getElementById('s-payment-status').value,
           payment_remarks: '',
         });
+        addedStudentHasEnrollment = true;
         toast('Student added and enrolled');
       } else {
         toast('Student added');
@@ -4999,8 +5001,15 @@ async function saveStudent() {
     }
     closeModal('modal-student');
     await loadStudents();
-    renderStudentList();
-    if (uid) selectStudent(parseInt(uid));
+    if (uid) {
+      renderStudentList();
+      selectStudent(parseInt(uid));
+    } else {
+      showView('payments');
+      if (!addedStudentHasEnrollment) {
+        toast('Assign a course before generating an invoice', true);
+      }
+    }
   } catch(e) { toast(e.message, true); }
 }
 
