@@ -3,9 +3,10 @@
   "configurations": [
     {
       "name": "Flask Dev Server (app.py)",
-      "runtimeExecutable": "python",
+      "runtimeExecutable": "python3",
       "runtimeArgs": ["codencode_deploy_v2/codencode_lms/app.py"],
-      "port": 5000
+      "port": 5000,
+      "autoPort": true
     },
     {
       "name": "Waitress Production",

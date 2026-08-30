@@ -1,0 +1,544 @@
+/* ============================================================
+   codencode.my LMS — "admin-match" light skin
+   Loaded last; overrides the base <style> in lms.html so the
+   student + teacher portal shares the admin panel's look & feel.
+   ============================================================ */
+
+/* ---- 1. Design tokens (force light, admin palette) --------- */
+:root,
+[data-theme="dark"],
+[data-theme="light"] {
+  --bg-page: #F0F1F3;
+  --bg: #F0F1F3;
+  --bg-base: #F0F1F3;
+  --bg-grad: #F0F1F3;
+  --bg-raised: #ffffff;
+  --bg-hover: #F7FAF8;
+  --bg-active: #E6F6EC;
+  --surface: #ffffff;
+  --surface2: #FAFCFB;
+  --surface3: #E6F6EC;
+  --surface-solid: #ffffff;
+  --border: #ECEDEF;
+  --border2: #DDE9E3;
+  --border3: #C8DDD3;
+  --border-strong: #B8D2C7;
+  --text: #14181B;
+  --text-1: #14181B;
+  --text-muted: #8A8F98;
+  --text-2: #8A8F98;
+  --text-dim: #B7BBC2;
+  --text-3: #B7BBC2;
+  --text-faint: #CDD1D6;
+  --text-4: #CDD1D6;
+  --accent: #0F9D58;
+  --accent-bright: #0F9D58;
+  --accent-mid: #0B7A43;
+  --accent-dim: #E6F6EC;
+  --accent-glow: rgba(15, 157, 88, 0.12);
+  --cyan: #0F9D58;
+  --cyan-dim: #E6F6EC;
+  --cyan-glow: rgba(15, 157, 88, 0.14);
+  --green: #0F9D58;
+  --green2: #12A862;
+  --green3: #0B7A43;
+  --green-dim: #E6F6EC;
+  --green-mid: #CFEEDB;
+  --gold: #B9660B;
+  --gold2: #B9660B;
+  --gold-dim: #fff2d7;
+  --gold-mid: #ffe2a5;
+  --red: #C0392B;
+  --red-dim: #FBEAE8;
+  --orange: #B9660B;
+  --orange-dim: #fff2d7;
+  --blue: #3197b6;
+  --blue-dim: #e6f5fa;
+  --purple: #8368bd;
+  --purple-dim: #f0ebfb;
+  --glass-bg: #ffffff;
+  --glass-border: 1px solid var(--border);
+  --glass-blur: none;
+  --glass-shadow: 0 2px 10px rgba(20, 24, 27, 0.03);
+  --white: #14181B;
+  --muted: #8A8F98;
+  --muted2: #B7BBC2;
+  --radius: 18px;
+  --sidebar-w: 250px;
+  --topbar-h: 68px;
+  --font-d: 'Inter', 'Outfit', sans-serif;
+  --font-m: 'Inter', 'Lato', sans-serif;
+  --font-c: 'JetBrains Mono', monospace;
+}
+
+/* ---- 2. Page background ----------------------------------- */
+body {
+  font-family: var(--font-m);
+  color: var(--text);
+  background:
+    radial-gradient(circle at 10% -5%, rgba(15, 157, 88, .14), transparent 34%),
+    linear-gradient(135deg, #F0F1F3 0%, #F7FAF8 48%, #FFFFFF 100%) !important;
+}
+body::before {
+  background-image: radial-gradient(circle, rgba(15, 157, 88, .08) 1px, transparent 1px);
+  background-size: 34px 34px;
+  opacity: .45;
+}
+body::after { display: none !important; }
+
+::-webkit-scrollbar-thumb { background: var(--border2); }
+::-webkit-scrollbar-thumb:hover { background: var(--border3); }
+
+/* ---- 3. App shell / layout ------------------------------- */
+#app.visible { display: flex; gap: 20px; padding: 22px; }
+
+.sidebar {
+  border: 0 !important;
+  border-radius: 24px;
+  box-shadow: 0 14px 34px rgba(20, 24, 27, .06);
+  background: #ffffff !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  height: calc(100dvh - 44px);
+  padding: 6px 6px 10px;
+}
+.sidebar-logo {
+  padding: 14px 14px 14px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 4px;
+}
+.sidebar-logo .brand {
+  font-family: var(--font-d);
+  font-size: 19px;
+  font-weight: 800;
+  letter-spacing: -0.6px;
+}
+.role-badge-sidebar {
+  background: var(--green-dim);
+  color: var(--green3);
+  border: 0;
+  font-family: var(--font-c);
+  font-size: 10px;
+  font-weight: 800;
+  padding: 3px 9px;
+  border-radius: 999px;
+  letter-spacing: 1px;
+}
+.role-badge-sidebar.teacher { background: var(--gold-dim); color: var(--gold); }
+
+.sidebar-course-selector { padding: 12px 12px; border-bottom: 1px solid var(--border); }
+.course-select-label {
+  font-family: var(--font-c);
+  font-size: 10px;
+  letter-spacing: 1.3px;
+  color: var(--text-dim);
+}
+.course-select {
+  background: #f5fbf8;
+  border: 1px solid var(--border2);
+  border-radius: 12px;
+  font-family: var(--font-m);
+  padding: 9px 11px;
+}
+.course-select:focus { border-color: var(--cyan); box-shadow: 0 0 0 4px rgba(15, 157, 88, .12); }
+
+.sidebar-section { padding: 10px 0 2px; }
+.sidebar-label {
+  padding: 0 12px 8px;
+  color: var(--text-dim);
+  font-family: var(--font-c);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 1.3px;
+}
+.nav-item {
+  border-left: 0 !important;
+  border-radius: 12px;
+  min-height: 42px;
+  gap: 12px;
+  padding: 8px 11px;
+  margin: 1px 4px;
+  width: calc(100% - 8px);
+  color: var(--text-muted);
+  font-family: var(--font-m);
+  font-size: 13px;
+  font-weight: 600;
+}
+.nav-item i {
+  width: 20px;
+  text-align: center;
+  font-size: 15px;
+  color: var(--text-dim);
+}
+.nav-item:hover { background: var(--bg-hover); color: var(--text); }
+.nav-item:hover i { color: var(--text-muted); }
+.nav-item.active {
+  background: var(--cyan) !important;
+  color: #ffffff !important;
+  border-left-color: transparent !important;
+}
+.nav-item.active i { color: #ffffff; }
+.nav-badge {
+  background: var(--gold);
+  color: #fff;
+  font-family: var(--font-c);
+  border-radius: 999px;
+}
+.nav-item.active .nav-badge { background: rgba(255, 255, 255, .25); }
+
+.sidebar-footer {
+  margin: auto 6px 0;
+  padding: 12px 8px 4px;
+  border-top: 1px solid var(--border);
+  gap: 10px;
+}
+.user-avatar {
+  background: var(--green3) !important;
+  border: 0 !important;
+  color: #fff !important;
+  font-weight: 800;
+}
+.footer-name { font-family: var(--font-d); font-weight: 700; }
+.footer-role { font-family: var(--font-c); color: var(--text-muted); }
+.logout-btn {
+  border: 0;
+  border-radius: 11px;
+  background: var(--green-dim);
+  color: var(--green3);
+  font-weight: 700;
+  padding: 7px 11px;
+}
+.logout-btn:hover { background: #ffe6e6; color: var(--red); border: 0; }
+
+/* ---- 4. Main area + topbar ------------------------------- */
+.main-area {
+  gap: 18px;
+  overflow-y: auto;
+  padding-right: 2px;
+}
+.topbar {
+  min-height: var(--topbar-h);
+  border: 0 !important;
+  border-radius: 20px;
+  box-shadow: 0 2px 10px rgba(20, 24, 27, .03);
+  padding: 12px 22px;
+  background: #ffffff !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+.topbar-title { font-family: var(--font-d); font-size: 18px; font-weight: 800; letter-spacing: -0.4px; }
+.topbar-subtitle { font-family: var(--font-m); color: var(--text-muted); }
+.notif-btn {
+  width: 40px;
+  height: 40px;
+  border: 0;
+  border-radius: 13px;
+  background: var(--green-dim);
+  color: var(--green3);
+}
+.notif-btn:hover { background: var(--green-mid); color: var(--green3); border: 0; }
+.user-avatar, .notif-btn { flex: 0 0 auto; }
+
+.main-content { padding: 4px 4px 28px; gap: 20px; }
+
+/* ---- 5. Page headers ------------------------------------- */
+.page-label { color: var(--green3); font-family: var(--font-c); font-weight: 800; letter-spacing: 1.3px; }
+.page-label::before { background: var(--green3); }
+.page-title { font-family: var(--font-d); font-size: 25px; font-weight: 800; letter-spacing: -0.5px; }
+.page-sub { font-family: var(--font-m); color: var(--text-muted); }
+
+/* ---- 6. Cards + stat tiles ------------------------------- */
+.card,
+.material-card,
+.video-card,
+.assignment-card,
+.announcement-card,
+.grade-table-wrap,
+.table-wrap,
+.modal-box {
+  background: #ffffff !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 20px !important;
+  box-shadow: 0 18px 46px rgba(30, 70, 58, .08), 0 1px 0 rgba(255, 255, 255, .8) inset !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+/* Feeds/lists that live INSIDE a .card — keep them flat, no nested card */
+.activity-feed,
+.course-progress-card,
+.submission-detail,
+.file-list {
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+}
+.activity-item { border-bottom: 1px solid var(--border); padding: 12px 0; }
+.activity-item:last-child { border-bottom: 0; }
+.activity-text { font-family: var(--font-m); font-size: 12px; color: var(--text-muted); }
+.activity-text strong { color: var(--text); }
+.activity-time { font-family: var(--font-c); font-size: 10px; color: var(--text-dim); }
+.card-header { border-bottom: 1px solid var(--border); padding: 16px 20px; }
+.card-title { font-family: var(--font-d); font-size: 15px; font-weight: 700; }
+.card-body { padding: 20px; }
+
+.stats-row { gap: 16px; margin-bottom: 4px; }
+.stat-cell {
+  position: relative;
+  overflow: hidden;
+  min-height: 118px;
+  padding: 18px 20px;
+  background: #ffffff !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 20px !important;
+  box-shadow: 0 18px 46px rgba(30, 70, 58, .08) !important;
+  backdrop-filter: none !important;
+}
+.stat-cell::after {
+  content: '';
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  height: 30px;
+  background: var(--green-dim);
+  z-index: 0;
+}
+.stat-cell.orange::after { background: var(--gold-dim); }
+.stat-cell.purple::after { background: var(--purple-dim); }
+.stat-cell > * { position: relative; z-index: 1; }
+.stat-val { font-family: var(--font-d); font-size: 32px; font-weight: 800; letter-spacing: -0.6px; color: var(--text); }
+.stat-cell.orange .stat-val { color: var(--gold); }
+.stat-cell.green .stat-val { color: var(--green); }
+.stat-cell.purple .stat-val { color: var(--purple); }
+.stat-lbl { font-family: var(--font-c); font-size: 10px; letter-spacing: .9px; color: var(--text-muted); text-transform: uppercase; }
+
+.grid-2 { gap: 20px; }
+.grid-3 { gap: 20px; }
+
+/* ---- 7. Buttons ----------------------------------------- */
+.btn,
+.btn-action,
+.btn-dl,
+.btn-open,
+.btn-preview {
+  min-height: 38px;
+  border-radius: 12px;
+  font-family: var(--font-m);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0;
+  text-transform: none;
+  border: 0;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 9px 15px;
+  transition: all .15s;
+}
+.btn-primary,
+.btn-open {
+  background: var(--cyan);
+  color: #ffffff;
+  box-shadow: 0 12px 22px rgba(15, 157, 88, .18);
+}
+.btn-primary:hover,
+.btn-open:hover { background: var(--green3); }
+.btn-secondary,
+.btn-preview,
+.btn-dl,
+.btn-action {
+  background: #f5fbf8;
+  border: 1px solid var(--border2);
+  color: var(--text);
+}
+.btn-secondary:hover,
+.btn-preview:hover,
+.btn-dl:hover,
+.btn-action:hover { background: var(--green-dim); border-color: var(--cyan); color: var(--green3); }
+.btn-danger { background: var(--red-dim); border: 1px solid rgba(192, 57, 43, .3); color: var(--red); }
+.btn-login {
+  background: var(--cyan);
+  color: #fff;
+  border-radius: 13px;
+  text-transform: none;
+  letter-spacing: 0;
+  font-family: var(--font-m);
+  font-weight: 800;
+  box-shadow: 0 12px 22px rgba(15, 157, 88, .18);
+}
+.btn-login:hover { background: var(--green3); opacity: 1; }
+
+/* ---- 8. Forms ------------------------------------------- */
+.form-input,
+.form-select,
+.form-textarea,
+.grade-input,
+.feedback-input,
+.tt-topic-input,
+.upload-input {
+  background: #f8fcfa;
+  border: 1px solid var(--border2);
+  border-radius: 12px;
+  color: var(--text);
+  font-family: var(--font-m);
+  font-size: 13px;
+  padding: 11px 13px;
+  backdrop-filter: none;
+}
+.form-input:focus,
+.form-select:focus,
+.form-textarea:focus,
+.grade-input:focus,
+.feedback-input:focus,
+.tt-topic-input:focus {
+  border-color: var(--cyan);
+  box-shadow: 0 0 0 4px rgba(15, 157, 88, .12);
+}
+.form-label { font-family: var(--font-c); color: var(--text-muted); font-size: 10px; letter-spacing: 1.3px; }
+
+/* ---- 9. Tables ----------------------------------------- */
+.grade-table th,
+.grade-table thead td {
+  background: var(--green-dim);
+  color: var(--text);
+  border-bottom: 0;
+  padding: 13px 15px;
+  font-family: var(--font-c);
+  font-size: 10px;
+  letter-spacing: .8px;
+}
+.grade-table td { padding: 13px 15px; border-bottom: 1px solid var(--border); }
+.grade-table tr:hover td { background: #f8fcfa; }
+
+/* ---- 10. Badges ---------------------------------------- */
+.status-badge,
+.watched-badge,
+.week-count,
+.tt-week-badge {
+  border: 0;
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-family: var(--font-c);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .4px;
+}
+.status-graded, .status-submitted { background: #dff8ea; color: #07814f; }
+.status-pending, .status-open { background: #fff0c9; color: #9a6a05; }
+.status-late { background: #ffe6e6; color: #bf3838; }
+
+/* ---- 11. Modals --------------------------------------- */
+.modal-overlay { background: rgba(20, 24, 27, .45); }
+.modal-box { border-radius: 20px !important; padding: 24px; }
+.modal-header { border-bottom: 1px solid var(--border); padding-bottom: 14px; margin-bottom: 16px; }
+.modal-title { font-family: var(--font-d); font-size: 17px; font-weight: 700; }
+.modal-close {
+  background: var(--green-dim);
+  border: 0;
+  color: var(--green3);
+  border-radius: 10px;
+  width: 34px;
+  height: 34px;
+}
+.modal-footer { border-top: 1px solid var(--border); padding-top: 14px; margin-top: 16px; }
+
+/* ---- 12. Login screen --------------------------------- */
+#login-screen {
+  background: linear-gradient(135deg, #F0F1F3 0%, #F7FAF8 48%, #FFFFFF 100%);
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+.login-wrap {
+  border: 1px solid var(--border);
+  border-radius: 22px;
+  background: #ffffff;
+  box-shadow: 0 30px 60px rgba(30, 70, 58, .12);
+  margin: auto;
+}
+.login-header { text-align: center; }
+.login-logo { justify-content: center; margin-bottom: 16px; }
+.login-title { font-family: var(--font-d); font-weight: 800; }
+.login-sub { font-family: var(--font-c); color: var(--text-muted); }
+.logo-text { font-family: var(--font-d); font-weight: 800; }
+
+/* ---- 13. Misc component polish ------------------------ */
+.toast {
+  background: #ffffff;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  box-shadow: 0 18px 40px rgba(30, 70, 58, .16);
+  color: var(--text);
+}
+.file-row { border-bottom: 1px solid var(--border); }
+.file-row:hover { background: var(--bg-hover); }
+.video-thumb, .video-thumb-grid { border-radius: 14px; }
+.progress-bar { background: var(--border); border-radius: 999px; }
+.progress-fill { background: var(--cyan); border-radius: 999px; }
+.week-header { background: #f8fcfa; border-radius: 12px; }
+.week-header:hover { background: var(--green-dim); }
+
+/* ---- 13b. Brand logo -------------------------------- */
+.brand-img { height: 22px; width: auto; display: block; }
+.login-logo img { max-width: 170px; }
+@media (max-width: 1024px) { .brand-img { height: 20px; } }
+
+/* ---- 13c. Material preview modal -------------------- */
+.material-actions { display: flex; gap: 8px; flex-shrink: 0; }
+.material-preview-box {
+  width: min(960px, 94vw) !important;
+  max-width: 960px !important;
+  max-height: 92vh;
+  display: flex;
+  flex-direction: column;
+  padding: 18px !important;
+}
+.material-preview-body {
+  flex: 1;
+  min-height: 0;
+  margin-top: 14px;
+  overflow: auto;
+  border-radius: 12px;
+  background: #f6f8f7;
+  border: 1px solid var(--border);
+}
+.material-preview-body iframe {
+  width: 100%;
+  height: 74vh;
+  border: 0;
+  display: block;
+  background: #fff;
+}
+.material-preview-body img { display: block; margin: 0 auto; padding: 16px; }
+.preview-text {
+  margin: 0;
+  padding: 18px 20px;
+  font-family: var(--font-c);
+  font-size: 12.5px;
+  line-height: 1.6;
+  color: var(--text);
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* ---- 14. Mobile ------------------------------------- */
+@media (max-width: 1024px) {
+  #app.visible { padding: 0; gap: 0; }
+  .sidebar {
+    border-radius: 0;
+    height: 100dvh;
+    padding: 6px;
+  }
+  .main-area { padding: 12px; gap: 12px; }
+}
+
+@media (max-width: 720px) {
+  .stats-row { grid-template-columns: repeat(2, 1fr) !important; }
+  .stat-cell { min-height: 96px; padding: 14px 16px; }
+  .stat-cell::after { height: 0; }
+  .stat-val { font-size: 26px; }
+  .grid-2, .grid-3 { grid-template-columns: 1fr !important; }
+  .material-actions { flex-wrap: wrap; }
+}

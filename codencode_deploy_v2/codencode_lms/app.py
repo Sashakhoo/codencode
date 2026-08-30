@@ -1587,7 +1587,11 @@ def serve_material(filename):
     if current_user.role == 'student':
         if not any(enrolled_or_staff(m.course_id) for m in mats):
             return jsonify({'error': 'Not enrolled'}), 403
-    as_att = request.args.get('download') == '1' or not filename.lower().endswith('.html')
+    # Types the browser can render inline for in-app preview.
+    INLINE_EXT = {'html', 'htm', 'pdf', 'png', 'jpg', 'jpeg', 'gif', 'webp',
+                  'svg', 'txt', 'md', 'csv', 'json', 'py', 'ipynb'}
+    ext = filename.rsplit('.', 1)[-1].lower() if '.' in filename else ''
+    as_att = request.args.get('download') == '1' or ext not in INLINE_EXT
     return send_from_directory(
         os.path.join(app.config['UPLOAD_FOLDER'], 'materials'),
         filename, as_attachment=as_att)
