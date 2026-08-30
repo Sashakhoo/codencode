@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en" data-theme="light">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>codencode.my — LMS</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Lato:ital,wght@0,300;0,400;0,700;1,400&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@300;400;500;600;700;800&family=Lato:ital,wght@0,300;0,400;0,700;1,400&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
 
   <style>
@@ -1513,6 +1513,7 @@
       }
     }
   </style>
+  <link rel="stylesheet" href="/static/css/lms-skin.css?v=5" />
 </head>
 <body>
 
@@ -1522,11 +1523,10 @@
 <div id="login-screen">
   <div class="login-wrap">
     <div class="login-header">
-      <div class="login-logo">
-        <span class="logo-text">code<span>ncode</span>.my</span>
+      <div class="login-logo" style="justify-content:center">
+        <img src="/static/img/logo_full.png" alt="codencode.my" style="height:30px;width:auto" />
       </div>
       <div class="login-title">Learning Portal</div>
-      <div class="login-sub">// sign in to access your classroom</div>
     </div>
     <div class="login-body">
       <div class="form-group">
@@ -1556,11 +1556,11 @@
     <!-- Brand -->
     <div class="sidebar-logo" style="display:flex;align-items:center;justify-content:space-between">
       <div>
-        <div class="brand">code<span>ncode</span>.my</div>
+        <img class="brand-img" src="/static/img/logo_full.png" alt="codencode.my" />
         <span class="role-badge-sidebar" id="role-badge">STUDENT</span>
       </div>
       <button id="sidebar-close" onclick="toggleSidebar()" title="Close menu">
-        <i class="fas fa-xmark"></i>
+        <i class="fas fa-times"></i>
       </button>
     </div>
 
@@ -1690,10 +1690,6 @@
           <button onclick="setLanguage('zh')" id="lang-zh" style="padding:4px 7px;background:none;color:var(--muted);border:1px solid var(--border);border-radius:4px;cursor:pointer;letter-spacing:0.05em">中文</button>
           <button onclick="setLanguage('bm')" id="lang-bm" style="padding:4px 7px;background:none;color:var(--muted);border:1px solid var(--border);border-radius:4px;cursor:pointer;letter-spacing:0.05em">BM</button>
         </div>
-        <!-- Theme toggle -->
-        <button class="notif-btn" onclick="toggleTheme()" id="theme-toggle" title="Toggle theme">
-          <i class="fas fa-sun" id="theme-icon"></i>
-        </button>
         <!-- Notifications -->
         <button class="notif-btn" id="notif-btn" title="Notifications" onclick="toggleNotifDropdown()" style="position:relative">
           <i class="fas fa-bell"></i>
@@ -2682,6 +2678,22 @@
 </div>
 
 <!-- ══════════════════════════════
+     MATERIAL PREVIEW MODAL
+══════════════════════════════ -->
+<div class="modal-overlay" id="material-preview-modal">
+  <div class="modal-box material-preview-box">
+    <div class="modal-header">
+      <span class="modal-title" id="material-preview-title">Preview</span>
+      <div style="display:flex;gap:8px;align-items:center">
+        <a class="btn-action ghost" id="material-preview-open" href="#" target="_blank" rel="noopener"><i class="fas fa-external-link-alt"></i> Open in tab</a>
+        <button class="modal-close" onclick="closeModal('material-preview-modal')"><i class="fas fa-times"></i></button>
+      </div>
+    </div>
+    <div class="material-preview-body" id="material-preview-body"></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════
      SUBMIT ASSIGNMENT MODAL
 ══════════════════════════════ -->
 <div class="modal-overlay" id="submit-modal">
@@ -2800,22 +2812,11 @@
 
 
 <script>
-// ── Theme toggle ───────────────────────────────────────
-(function(){
-  const t = localStorage.getItem('theme') || 'dark';
-  document.documentElement.setAttribute('data-theme', t);
-  const icon = document.getElementById('theme-icon');
-  if (icon) icon.className = t === 'light' ? 'fas fa-moon' : 'fas fa-sun';
-})();
-
-function toggleTheme() {
-  const html = document.documentElement;
-  const isDark = html.getAttribute('data-theme') !== 'light';
-  html.setAttribute('data-theme', isDark ? 'light' : 'dark');
-  const icon = document.getElementById('theme-icon');
-  if (icon) icon.className = isDark ? 'fas fa-moon' : 'fas fa-sun';
-  localStorage.setItem('theme', isDark ? 'light' : 'dark');
-}
+// ── Theme ──────────────────────────────────────────────
+// The portal now ships a single polished light theme (matching the
+// admin panel). Force it regardless of any stale saved preference.
+document.documentElement.setAttribute('data-theme', 'light');
+function toggleTheme() { /* retained as a no-op for any legacy callers */ }
 
 // ═══════════════════════════════════════════════════════
 //  codencode.my LMS — API client
@@ -3032,6 +3033,7 @@ const VIEW_LOADERS = {
 };
 
 async function switchView(id) {
+  document.querySelectorAll('.modal-overlay.open').forEach(m => m.classList.remove('open'));
   document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
   const view = document.getElementById('view-' + id);
@@ -3297,29 +3299,50 @@ function materialGroupLabel(m) {
   return m.session === 0 ? 'General Resources' : `Session ${m.session}`;
 }
 
-function materialActions(m) {
-  const publicUrl = slidePublicUrl(m);
-  const downloadUrl = materialLocalUrl(m, true);
-  if (!publicUrl) {
-    return `<a class="btn-dl" href="${downloadUrl}" download="${m.orig_name||m.title}"><i class="fas fa-download"></i> Download</a>`;
-  }
-  const slideId = `session-${slideNumberForMaterial(m)}`;
-  return `
-    <div class="material-actions">
-      <button class="btn-preview" onclick="toggleSlidePreview('${slideId}')"><i class="fas fa-eye"></i> Preview</button>
-      <a class="btn-open" href="${publicUrl}" target="_blank" rel="noopener"><i class="fas fa-arrow-up-right-from-square"></i> Open</a>
-      <a class="btn-dl" href="${downloadUrl}" download="${m.orig_name||m.title}"><i class="fas fa-download"></i> Download</a>
-    </div>`;
+function materialPreviewKind(m) {
+  const ext = String(m.file_type || (m.filename || '').split('.').pop() || '').toLowerCase();
+  if (['html', 'htm', 'pdf'].includes(ext)) return 'frame';
+  if (['png', 'jpg', 'jpeg', 'gif', 'webp', 'svg'].includes(ext)) return 'image';
+  if (['txt', 'md', 'csv', 'json', 'py'].includes(ext)) return 'text';
+  return null;
 }
 
-function materialPreviewPanel(m) {
-  const publicUrl = slidePublicUrl(m);
-  if (!publicUrl) return '';
-  const slideId = `session-${slideNumberForMaterial(m)}`;
-  return `
-    <div id="slide-preview-${slideId}" class="slide-preview-panel">
-      <iframe src="${publicUrl}" frameborder="0" allowfullscreen loading="lazy"></iframe>
-    </div>`;
+function materialActions(m) {
+  const downloadUrl = materialLocalUrl(m, true);
+  const kind = materialPreviewKind(m);
+  const label = String(m.orig_name || m.title || 'Material').replace(/'/g, "\\'");
+  let btns = '';
+  if (kind) {
+    btns += `<button class="btn-preview" onclick="previewMaterial('${encodeURIComponent(m.filename)}','${label}','${kind}')"><i class="fas fa-eye"></i> Preview</button>`;
+  }
+  btns += `<a class="btn-dl" href="${downloadUrl}" download="${m.orig_name || m.title}"><i class="fas fa-download"></i> Download</a>`;
+  return `<div class="material-actions">${btns}</div>`;
+}
+
+// Inline panel replaced by the shared preview modal.
+function materialPreviewPanel(m) { return ''; }
+
+async function previewMaterial(encFilename, title, kind) {
+  const url = `/uploads/materials/${encFilename}`;
+  const body = document.getElementById('material-preview-body');
+  document.getElementById('material-preview-title').textContent = title;
+  document.getElementById('material-preview-open').href = url;
+  if (kind === 'image') {
+    body.innerHTML = `<img src="${url}" alt="${title.replace(/"/g, '&quot;')}" />`;
+  } else if (kind === 'text') {
+    body.innerHTML = `<pre class="preview-text">Loading…</pre>`;
+    try {
+      const r = await fetch(url);
+      if (!r.ok) throw new Error(r.status);
+      const t = await r.text();
+      body.querySelector('pre').textContent = t.length > 200000 ? t.slice(0, 200000) + '\n\n… (truncated — download for full file)' : t;
+    } catch (e) {
+      body.querySelector('pre').textContent = 'Could not load this file for preview.';
+    }
+  } else {
+    body.innerHTML = `<iframe src="${url}" title="${title.replace(/"/g, '&quot;')}"></iframe>`;
+  }
+  document.getElementById('material-preview-modal').classList.add('open');
 }
 
 async function loadMaterials() {
@@ -4080,8 +4103,14 @@ function handleFileSelect(input) {
 // ── Shared ────────────────────────────────────────────
 
 function closeModal(id) {
-  document.getElementById(id).classList.remove('open');
+  document.getElementById(id)?.classList.remove('open');
 }
+
+document.addEventListener('keydown', e => {
+  if (e.key !== 'Escape') return;
+  const open = [...document.querySelectorAll('.modal-overlay.open')].pop();
+  if (open) open.classList.remove('open');
+});
 
 let _toastTimer;
 function showToast(msg, isError = false) {
