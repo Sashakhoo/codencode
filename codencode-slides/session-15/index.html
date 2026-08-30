@@ -1,604 +1,213 @@
-<!DOCTYPE html>
-<html lang="en" style="height:100%;"><head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>codencode · Session 15 · Project Planning &amp; Capstone Execution</title>
-<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
-<style>
-:root{--navy:#003566;--blue:#0077B6;--cyan:#00B4D8;--gold:#FFD166;--dark:#1A1A1A;--offwhite:#FFFDF7;--gray:#64748B;--yellow:#FFF5D6;--lblue:#E0F4FF;--lgreen:#E0F5E8;--lpurp:#F0E8FF;--lpink:#FFE0F0;--lorange:#FFF0E0;--code-bg:#1A1A2E;}
-*{margin:0;padding:0;box-sizing:border-box;}
-body{font-family:'Nunito',sans-serif;background:var(--navy);overflow:hidden;height:100%;width:100%;}
-#slideshow{width:100%;height:100%;position:relative;overflow:hidden;}
-.slide{position:absolute;inset:0;height:100%;display:flex;flex-direction:column;opacity:0;pointer-events:none;transition:opacity 0.35s ease;}
-.slide.active{opacity:1;pointer-events:all;}
-.slide-inner{width:100%;height:100%;display:flex;flex-direction:column;overflow:hidden;}
-.top-bar{background:var(--navy);padding:10px 28px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;border-bottom:3px solid var(--gold);min-height:52px;}
-.brand{font-size:13px;font-weight:800;color:var(--gold);letter-spacing:.5px;}
-.slide-id{font-size:12px;font-weight:700;color:#90B4CE;}
-.progress-bar{height:4px;background:rgba(255,255,255,.1);flex-shrink:0;}
-.progress-fill{height:100%;background:var(--gold);transition:width .35s ease;}
-.slide-body{flex:1;display:flex;flex-direction:column;justify-content:center;padding:18px 52px;overflow:hidden;background:var(--offwhite);}
-.slide-title{font-family:'Fredoka One',cursive;font-size:clamp(22px,3.2vw,36px);color:var(--navy);margin-bottom:14px;line-height:1.15;}
-.two-col{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
-.three-col{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;}
-.concept-box{background:var(--lblue);border-left:4px solid var(--blue);border-radius:0 12px 12px 0;padding:12px 16px;font-size:13px;line-height:1.65;color:var(--dark);}
-.tip-box{background:var(--lgreen);border-left:4px solid #1A7A3C;border-radius:0 12px 12px 0;padding:10px 14px;font-size:12.5px;line-height:1.6;color:var(--dark);}
-.tip-t{font-weight:800;font-size:13px;margin-bottom:4px;color:#1A7A3C;}
-.warn-box{background:var(--lpink);border-left:4px solid #C0392B;border-radius:0 12px 12px 0;padding:10px 14px;font-size:12.5px;line-height:1.6;color:var(--dark);}
-.warn-t{font-weight:800;font-size:13px;margin-bottom:4px;color:#C0392B;}
-.gold-box{background:var(--yellow);border-left:4px solid #D4A000;border-radius:0 12px 12px 0;padding:10px 14px;font-size:12.5px;line-height:1.6;color:var(--dark);}
-.gold-t{font-weight:800;font-size:13px;margin-bottom:4px;color:#856A00;}
-.info-card{background:white;border:2px solid #E2E8F0;border-radius:12px;padding:12px 16px;}
-.info-card-title{font-weight:800;color:var(--navy);font-size:13px;margin-bottom:5px;}
-.info-card p{font-size:12px;color:var(--gray);line-height:1.65;}
-.code-block{background:var(--code-bg);border-radius:13px;border:2.5px solid var(--dark);padding:12px 16px;box-shadow:4px 4px 0 var(--dark);}
-.code-top{display:flex;align-items:center;gap:7px;margin-bottom:9px;}
-.cd{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
-.cd1{background:#FF5F57;}.cd2{background:#FFBD2E;}.cd3{background:#28C840;}
-.fname{font-size:10px;color:#aaa;font-family:'JetBrains Mono',monospace;margin-left:4px;}
-pre{font-family:'JetBrains Mono',monospace;font-size:clamp(9.5px,1.05vw,12px);color:#E8E8E8;line-height:1.72;white-space:pre-wrap;word-break:break-word;}
-.cm{color:#6272A4;}.kw{color:#FF79C6;}.fn{color:#50FA7B;}.st{color:#F1FA8C;}.nm{color:#BD93F9;}
-.m-card{border-radius:14px;overflow:hidden;border:2.5px solid;}
-.m-head{padding:10px 16px;display:flex;align-items:center;gap:10px;}
-.m-badge{font-family:'Fredoka One',cursive;font-size:18px;width:40px;height:40px;border-radius:10px;background:rgba(255,255,255,0.25);display:flex;align-items:center;justify-content:center;color:white;flex-shrink:0;}
-.m-title{font-family:'Fredoka One',cursive;font-size:17px;color:white;line-height:1.1;}
-.m-subtitle{font-size:10.5px;color:rgba(255,255,255,0.8);}
-.m-body{background:white;padding:12px 16px;font-size:11.5px;color:var(--dark);line-height:1.65;}
-.m-body li{margin-bottom:3px;}
-.session-pill{display:inline-flex;align-items:center;gap:6px;border-radius:30px;padding:5px 12px;font-size:11.5px;font-weight:800;border:2px solid;margin:3px;}
-.outro-body{flex:1;display:grid;grid-template-columns:1fr 1fr;gap:0;background:var(--offwhite);}
-.outro-left{padding:28px 36px;display:flex;flex-direction:column;justify-content:center;}
-.outro-left h2{font-family:'Fredoka One',cursive;font-size:clamp(22px,2.8vw,34px);color:var(--navy);margin-bottom:14px;}
-.learned-list{list-style:none;display:flex;flex-direction:column;gap:7px;}
-.learned-list li{display:flex;align-items:center;gap:10px;font-size:13px;font-weight:700;color:var(--dark);}
-.ck{font-size:16px;}
-.outro-right{background:var(--navy);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;}
-.outro-emoji{font-size:72px;}
-.contact-info{color:rgba(255,255,255,0.75);font-size:13px;line-height:2;text-align:center;}
-.contact-info strong{color:var(--gold);font-size:15px;}
-#nav-bar{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:10px;background:rgba(0,30,60,0.9);backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,0.15);border-radius:40px;padding:8px 18px;z-index:200;transition:opacity 0.4s;}
-#nav-bar.hidden{opacity:0;pointer-events:none;}
-.nav-btn{background:none;border:1.5px solid rgba(255,255,255,0.25);color:white;width:34px;height:34px;border-radius:50%;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.2s;}
-.nav-btn:hover:not(:disabled){background:var(--gold);color:var(--navy);border-color:var(--gold);}
-.nav-btn:disabled{opacity:0.3;cursor:not-allowed;}
-.icon-btn{background:none;border:1.5px solid rgba(255,255,255,0.25);color:white;width:34px;height:34px;border-radius:50%;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.2s;}
-.icon-btn:hover,.icon-btn.active{background:var(--gold);color:var(--navy);border-color:var(--gold);}
-#slide-counter{color:rgba(255,255,255,0.8);font-size:12px;font-weight:700;min-width:52px;text-align:center;}
-#notes-panel{position:fixed;right:0;top:0;bottom:0;width:320px;background:white;border-left:3px solid var(--gold);box-shadow:-4px 0 20px rgba(0,0,0,0.2);z-index:300;transform:translateX(100%);transition:transform 0.3s ease;display:flex;flex-direction:column;}
-#notes-panel.visible{transform:translateX(0);}
-.nh{background:var(--navy);padding:14px 18px;display:flex;align-items:center;justify-content:space-between;}
-.nt{color:var(--gold);font-weight:800;font-size:14px;}
-.nc{background:none;border:1.5px solid rgba(255,255,255,0.3);color:white;width:28px;height:28px;border-radius:50%;cursor:pointer;font-size:14px;}
-.nb{padding:16px;font-size:13px;line-height:1.7;color:var(--dark);overflow-y:auto;flex:1;}
-#kb-hint{position:fixed;bottom:12px;right:16px;font-size:10px;color:rgba(255,255,255,0.3);font-family:'JetBrains Mono',monospace;}
-@media(max-width:768px){
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Session 15 — Project Planning & Capstone Execution</title><style>
+:root{--accent:#f97583;--bg:#0f0f1a;--text:#e8e8f0;--muted:#8888aa;--code-bg:#0d1117;--card:#1e2240;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);height:100vh;overflow:hidden;user-select:none;}
+#deck{width:100%;height:100vh;display:flex;flex-direction:column;}
+#topbar{display:flex;align-items:center;justify-content:space-between;padding:10px 20px;background:rgba(255,255,255,0.03);border-bottom:1px solid rgba(255,255,255,0.06);flex-shrink:0;gap:12px;}
+#session-label{font-size:11px;font-weight:700;letter-spacing:2px;color:var(--accent);text-transform:uppercase;white-space:nowrap;}
+#slide-title-bar{font-size:12px;color:var(--muted);flex:1;text-align:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+#topbar-right{display:flex;gap:8px;align-items:center;flex-shrink:0;}
+#counter{font-size:12px;color:var(--muted);white-space:nowrap;}
+.btn{background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.12);color:var(--text);border-radius:6px;padding:5px 12px;font-size:12px;cursor:pointer;transition:all 0.15s;}
+.btn:hover{background:var(--accent);border-color:var(--accent);color:#000;}
+#progress-wrap{height:3px;background:rgba(255,255,255,0.05);flex-shrink:0;}
+#progress-bar{height:100%;background:var(--accent);transition:width 0.3s ease;}
+#slides-wrap{flex:1;position:relative;overflow:hidden;}
+.slide{position:absolute;inset:0;display:none;flex-direction:column;padding:32px 48px 24px;overflow-y:auto;animation:fadeIn 0.25s ease;}
+.slide.active{display:flex;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+#nav{display:flex;align-items:center;justify-content:center;gap:16px;padding:10px 24px;flex-shrink:0;border-top:1px solid rgba(255,255,255,0.06);}
+.nav-btn{background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);color:var(--text);padding:7px 26px;border-radius:8px;font-size:14px;cursor:pointer;transition:all 0.15s;}
+.nav-btn:hover:not(:disabled){background:var(--accent);border-color:var(--accent);color:#000;}
+.nav-btn:disabled{opacity:0.3;cursor:default;}
+#dots{display:flex;gap:5px;flex-wrap:wrap;justify-content:center;max-width:600px;}
+.dot{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,0.2);cursor:pointer;transition:all 0.2s;}
+.dot.active{background:var(--accent);transform:scale(1.5);}
+.slide-title{align-items:center;justify-content:center;text-align:center;background:radial-gradient(ellipse at 50% 40%,#1e2a4a 0%,#0f0f1a 70%);}
+.session-badge{font-size:11px;font-weight:800;letter-spacing:3px;color:var(--accent);text-transform:uppercase;margin-bottom:20px;padding:5px 16px;border:1px solid var(--accent);border-radius:20px;display:inline-block;}
+.slide-title h1{font-size:clamp(26px,3.4vw,46px);font-weight:800;line-height:1.15;margin-bottom:16px;background:linear-gradient(135deg,#fff 30%,var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;white-space:pre-line;}
+.slide-title .sub{font-size:14px;color:var(--muted);max-width:580px;line-height:1.6;margin-bottom:28px;}
+.academy-tag{font-size:12px;color:var(--muted);letter-spacing:1px;}
+.section-tag{font-size:10px;font-weight:700;letter-spacing:2.5px;color:var(--accent);text-transform:uppercase;margin-bottom:6px;}
+.slide-heading{font-size:clamp(17px,2.2vw,28px);font-weight:700;margin-bottom:14px;line-height:1.25;}
+.cards{display:grid;gap:11px;}
+.cards-2{grid-template-columns:1fr 1fr;}
+.cards-3{grid-template-columns:1fr 1fr 1fr;}
+.cards-4{grid-template-columns:1fr 1fr 1fr 1fr;}
+.card{background:var(--card);border:1px solid rgba(255,255,255,0.07);border-radius:12px;padding:14px 16px;}
+.card-accent{border-left:3px solid var(--accent);}
+.card-icon{font-size:22px;margin-bottom:6px;}
+.card h3{font-size:13px;font-weight:700;margin-bottom:4px;color:#fff;}
+.card p{font-size:12px;color:var(--muted);line-height:1.55;}
+.steps{display:flex;flex-direction:column;gap:9px;}
+.step{display:flex;gap:12px;align-items:flex-start;background:var(--card);border-radius:10px;padding:11px 14px;border:1px solid rgba(255,255,255,0.06);}
+.step-num{width:24px;height:24px;border-radius:50%;background:var(--accent);color:#000;font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.step-body h4{font-size:13px;font-weight:700;margin-bottom:2px;}
+.step-body p{font-size:12px;color:var(--muted);line-height:1.5;}
+.code-wrap{background:var(--code-bg);border-radius:10px;border:1px solid rgba(255,255,255,0.08);overflow:hidden;margin:8px 0;}
+.code-header{background:rgba(255,255,255,0.05);padding:5px 13px;font-size:11px;color:var(--muted);font-family:monospace;display:flex;justify-content:space-between;align-items:center;}
+pre{padding:11px 15px;overflow-x:auto;font-family:'Cascadia Code','Fira Code',Consolas,monospace;font-size:12px;line-height:1.7;color:#c9d1d9;}
+.kw{color:#ff7b72;}.fn{color:#d2a8ff;}.st{color:#a5d6ff;}.cm{color:#8b949e;font-style:italic;}.nm{color:#79c0ff;}.op{color:#ff9e64;}
+.highlight{background:rgba(255,255,255,0.04);border-left:4px solid var(--accent);border-radius:0 8px 8px 0;padding:10px 14px;margin:8px 0;font-size:13px;line-height:1.6;}
+.highlight strong{color:var(--accent);}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:20px;flex:1;}
+.warn{background:rgba(255,100,50,0.1);border:1px solid rgba(255,100,50,0.3);border-radius:8px;padding:9px 13px;font-size:12px;margin:6px 0;}
+.tip{background:rgba(80,220,100,0.1);border:1px solid rgba(80,220,100,0.3);border-radius:8px;padding:9px 13px;font-size:12px;margin:6px 0;}
+.roadmap{display:grid;grid-template-columns:1fr 1fr;gap:9px;flex:1;}
+.roadmap-item{background:var(--card);border-radius:12px;padding:12px;border:1px solid rgba(255,255,255,0.06);display:flex;gap:9px;align-items:flex-start;}
+.rm-num{font-size:18px;font-weight:900;color:var(--accent);opacity:0.4;line-height:1;flex-shrink:0;width:22px;}
+.rm-icon{font-size:17px;flex-shrink:0;}
+.rm-text h4{font-size:12px;font-weight:700;margin-bottom:2px;}
+.rm-text p{font-size:11px;color:var(--muted);line-height:1.5;}
+.recap-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;flex:1;}
+.recap-item{background:var(--card);border-radius:10px;padding:12px;border-left:3px solid var(--accent);display:flex;gap:8px;align-items:flex-start;}
+.recap-icon{font-size:17px;flex-shrink:0;}
+.recap-text h4{font-size:13px;font-weight:700;margin-bottom:2px;}
+.recap-text p{font-size:11px;color:var(--muted);line-height:1.5;}
+.e-list{display:flex;flex-direction:column;gap:8px;}
+.e-item{display:flex;gap:8px;align-items:flex-start;font-size:13px;line-height:1.55;}
+.e-icon{font-size:15px;flex-shrink:0;}
+table{width:100%;border-collapse:collapse;font-size:12px;margin:8px 0;}
+th{background:rgba(255,255,255,0.06);padding:7px 10px;text-align:left;font-weight:700;color:var(--accent);}
+td{padding:6px 10px;border-top:1px solid rgba(255,255,255,0.05);color:var(--muted);}
+.slide::-webkit-scrollbar{width:4px;}
+.slide::-webkit-scrollbar-track{background:transparent;}
+.slide::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.15);border-radius:2px;}
+.tag{display:inline-block;padding:2px 8px;border-radius:12px;font-size:10px;font-weight:700;margin:2px;}
+.tag-green{background:rgba(80,200,80,0.2);color:#50c850;border:1px solid rgba(80,200,80,0.3);}
+.tag-blue{background:rgba(80,150,255,0.2);color:#79c0ff;border:1px solid rgba(80,150,255,0.3);}
+.tag-orange{background:rgba(255,150,50,0.2);color:#ff9e64;border:1px solid rgba(255,150,50,0.3);}
+.big-concept{background:linear-gradient(135deg,#1e2a4a,#1e2240);border:1px solid rgba(249,117,131,0.3);border-radius:14px;padding:20px 24px;margin:10px 0;text-align:center;}
+.big-concept .bc-emoji{font-size:36px;margin-bottom:8px;}
+.big-concept h2{font-size:20px;font-weight:800;color:#fff;margin-bottom:6px;}
+.big-concept p{font-size:13px;color:var(--muted);line-height:1.6;}
+
+@media(max-width:700px){
   body{overflow:auto;}
-  #slideshow{height:auto;min-height:100vh;}
-  .slide{position:relative;inset:auto;height:auto;min-height:100vh;}
-  .slide-inner{height:auto;}
-  .slide-body{padding:14px 16px !important;overflow-y:auto;height:auto;}
-  .outro-body{grid-template-columns:1fr !important;}
-  .outro-right{padding:24px 16px;min-height:250px;}
-
-  /* Force all grids to single column */
-  .two-col,.three-col,.four-col{grid-template-columns:1fr !important;}
-  div[style*="grid-template-columns"]{grid-template-columns:1fr !important;}
-
-  /* Typography */
-  .slide-title{font-size:22px !important;}
-  .info-card p{font-size:11.5px;}
-  .concept-box,.tip-box,.warn-box,.gold-box{font-size:11.5px;}
-  .lc-step,.m-body{font-size:11.5px;}
-
-  /* Code */
-  pre{font-size:11.5px !important;line-height:1.65 !important;overflow-x:auto;}
-  .code-block{overflow:auto;}
-  .pr-val{font-size:11px;}
-
-  /* SVG cap */
-  svg{max-height:200px !important;width:100% !important;}
-
-  /* Nav */
-  #nav-bar{padding:6px 12px;gap:8px;}
-  .nav-btn,.icon-btn{width:38px;height:38px;}
-  #kb-hint{display:none;}
-
-  /* Session pills wrap */
-  .session-pill{font-size:10px;padding:4px 8px;}
-
-  /* Top bar */
-  .top-bar{padding:8px 14px;}
-  .brand{font-size:11px;}
+  #deck{height:auto;min-height:100vh;}
+  #slides-wrap{height:auto;min-height:60vh;}
+  .slide{position:relative;inset:auto;display:none;padding:16px 16px 12px;}
+  .slide.active{display:flex;}
+  .cards-2,.cards-3,.cards-4{grid-template-columns:1fr;}
+  .two-col,.roadmap,.recap-grid{grid-template-columns:1fr;}
+  #session-label{display:none;}
+  #slide-title-bar{display:none;}
+  pre{font-size:10px;line-height:1.6;}
+  .nav-btn{padding:6px 14px;font-size:13px;}
+  #dots{max-width:100%;}
+  .dot{width:5px;height:5px;}
+  .big-concept{padding:14px 16px;}
+  .big-concept h2{font-size:16px;}
+  .big-concept .bc-emoji{font-size:28px;}
+  .slide-heading{font-size:18px;}
+  #topbar{padding:8px 12px;gap:6px;}
+  #nav{padding:8px 12px;gap:10px;}
+  table{font-size:10px;}
+  th,td{padding:5px 6px;}
+  .card h3{font-size:12px;}
+  .card p{font-size:11px;}
+  .highlight,.tip,.warn{font-size:11px;}
+  .step-body h4{font-size:12px;}
+  .step-body p{font-size:11px;}
 }
+</style></head><body>
+<div id="deck">
+<div id="topbar"><div id="session-label">Session 15 · codencode Academy</div><div id="slide-title-bar"></div><div id="topbar-right"><span id="counter"></span><button class="btn" onclick="toggleFS()">⛶ Fullscreen</button></div></div>
+<div id="progress-wrap"><div id="progress-bar"></div></div>
+<div id="slides-wrap"></div>
+<div id="nav"><button class="nav-btn" id="prev-btn" onclick="go(-1)">← Prev</button><div id="dots"></div><button class="nav-btn" id="next-btn" onclick="go(1)">Next →</button></div>
+</div><script>
+const SLIDES_DATA = [{"label": "Title", "note": "Final session! Everything comes together into one real project. Open with energy — whatever they build today can go on their portfolio.", "html": "<div class=\"slide-title\" style=\"flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;\"><div class=\"session-badge\">Session 15 of 15</div><div style=\"font-size:46px;margin-bottom:10px;\">🏆🎓</div><h1>Project Planning<br>&amp; Capstone Execution</h1><p class=\"sub\">The final boss. You will plan, build, evaluate, and present a full end-to-end machine learning project from scratch. This goes on your portfolio. This is what gets you hired.</p><div style=\"display:flex;gap:8px;justify-content:center;margin-top:12px;flex-wrap:wrap;\"><span class=\"tag tag-blue\">Project Planning Framework</span><span class=\"tag tag-green\">Full ML Checklist</span><span class=\"tag tag-orange\">Project Ideas & Datasets</span><span class=\"tag tag-blue\">How to Present Results</span><span class=\"tag tag-green\">Your Learning Journey</span></div><div class=\"academy-tag\" style=\"margin-top:18px;\">codencode Academy · Python + Data Science</div></div>"}, {"label": "What Makes a Great ML Project", "note": "Not every idea is a good ML project. The most common mistake: picking a boring or impossible problem. The second: not having real data. Get them to articulate their idea before building anything.", "html": "<div class=\"section-tag\">Choose Well Before You Build</div><div class=\"slide-heading\">🎯 What Makes a Great ML Project?</div><div class=\"two-col\"><div><div class=\"card card-accent\"><div class=\"card-icon\">✅</div><h3>Signs of a GREAT project</h3><p>Real data you can download today · a clear prediction goal (one number or label) · a problem that matters to someone · enough rows (500+, ideally 5,000+) · a mix of numeric + categorical features · a baseline to beat.</p></div></div><div><div class=\"card card-accent\"><div class=\"card-icon\">❌</div><h3>Red flags to avoid</h3><p>\"Predict the stock market\" (too noisy) · \"I'll scrape Twitter\" (you won't finish) · \"95% accuracy from day 1\" (probably data leakage) · a dataset with 50 rows (too small to generalise).</p></div></div></div><div class=\"section-tag\">The 3-Question Project Test</div><div class=\"slide-heading\">🔑 Answer these before you touch code</div><div class=\"steps\"><div class=\"step\"><div class=\"step-num\">1</div><div class=\"step-body\"><h4>What am I predicting?</h4><p>\"I am predicting the [TARGET] from [FEATURES].\"</p></div></div><div class=\"step\"><div class=\"step-num\">2</div><div class=\"step-body\"><h4>Where is my data?</h4><p>\"My dataset is [SOURCE] and has [N] rows.\"</p></div></div><div class=\"step\"><div class=\"step-num\">3</div><div class=\"step-body\"><h4>How will I evaluate success?</h4><p>\"I will use [METRIC] because [REASON].\"</p></div></div></div><div class=\"tip\">💡 <strong>The \"explain to grandma\" rule:</strong> if you can't explain your project in 2 sentences a non-technical person understands, it's too complicated — or not clearly defined yet. Depth &gt; breadth for a capstone.</div>"}, {"label": "Capstone Roadmap", "note": "This is the project map — the exact same process every data scientist follows on the job. A checklist students can print and tick off as they build.", "html": "<div class=\"section-tag\">8 Milestones from Raw Data to Story</div><div class=\"slide-heading\">🗺️ Full ML Pipeline — Your Capstone Roadmap</div><div class=\"steps\"><div class=\"step\"><div class=\"step-num\">M1</div><div class=\"step-body\"><h4>Define the problem  <em>~15 min</em></h4><p>Write your 3-question test · choose regression or classification · pick your evaluation metric · identify your data source.</p></div></div><div class=\"step\"><div class=\"step-num\">M2</div><div class=\"step-body\"><h4>Load &amp; explore data  <em>~20 min</em></h4><p>Load CSV, check shape and dtypes · df.isnull().sum() · df.describe() for outliers · plot target distribution · correlation heatmap.</p></div></div><div class=\"step\"><div class=\"step-num\">M3</div><div class=\"step-body\"><h4>Clean &amp; preprocess  <em>~25 min</em></h4><p>Handle nulls · encode categoricals (LabelEncoder / get_dummies) · remove duplicates · cap or remove outliers · check df.isnull().sum() == 0.</p></div></div><div class=\"step\"><div class=\"step-num\">M4</div><div class=\"step-body\"><h4>Feature engineering  <em>~20 min</em></h4><p>Create 1–3 new features from existing cols · extract date parts · bin numerics if useful · drop redundant or low-importance cols.</p></div></div><div class=\"step\"><div class=\"step-num\">M5</div><div class=\"step-body\"><h4>Split &amp; scale  <em>~10 min</em></h4><p>train_test_split (80/20) · StandardScaler — fit on X_train ONLY, transform both · never touch X_test before this step.</p></div></div><div class=\"step\"><div class=\"step-num\">M6</div><div class=\"step-body\"><h4>Train models  <em>~20 min</em></h4><p>Start with a baseline (LogReg / Linear) · train Random Forest · train XGBoost · print the metric for each and compare.</p></div></div><div class=\"step\"><div class=\"step-num\">M7</div><div class=\"step-body\"><h4>Evaluate &amp; interpret  <em>~20 min</em></h4><p>classification_report or RMSE/R² · confusion matrix or actual-vs-predicted plot · feature importances bar chart · check for data leakage.</p></div></div><div class=\"step\"><div class=\"step-num\">M8</div><div class=\"step-body\"><h4>Present your story  <em>~15 min</em></h4><p>Problem → Data → Method → Result · state your best metric · explain 1 key insight · state 1 honest limitation · state 1 next step.</p></div></div></div>"}, {"label": "Project Ideas & Datasets", "note": "Stuck for ideas? These are proven starter projects with real downloadable data, all completable in a few hours. Pick the one that excites you most — motivation matters more than difficulty.", "html": "<div class=\"section-tag\">Pick What Excites You</div><div class=\"slide-heading\">💡 Project Ideas & Datasets</div><div class=\"cards cards-3\"><div class=\"card card-accent\"><div class=\"card-icon\">🚢</div><h3>Titanic Survival — ⭐</h3><p>Classification · target <em>survived</em> (0/1). Clean, famous, well-documented. Metric: Accuracy, F1. <em>kaggle.com/titanic</em></p></div><div class=\"card card-accent\"><div class=\"card-icon\">🏠</div><h3>House Price Prediction — ⭐⭐</h3><p>Regression · target <em>SalePrice</em>. Lots of features, great for feature engineering. Metric: RMSE, R². <em>kaggle.com/house-prices</em></p></div><div class=\"card card-accent\"><div class=\"card-icon\">😊</div><h3>Customer Churn — ⭐⭐</h3><p>Classification · target <em>Churn</em> (0/1). Business-relevant, imbalanced classes. Metric: F1, Precision/Recall. <em>kaggle telco churn</em></p></div><div class=\"card card-accent\"><div class=\"card-icon\">💳</div><h3>Credit Card Fraud — ⭐⭐⭐</h3><p>Classification · target <em>fraud</em> (0/1). 99.8% legit — teaches SMOTE, class_weight, threshold tuning. <em>kaggle credit card fraud</em></p></div><div class=\"card card-accent\"><div class=\"card-icon\">🌡️</div><h3>Energy Consumption Forecast — ⭐⭐⭐</h3><p>Regression / time series · target <em>power (kWh)</em>. Great for LSTM and lag features. <em>UCI Energy dataset</em></p></div><div class=\"card card-accent\"><div class=\"card-icon\">🏥</div><h3>Diabetes Risk — ⭐</h3><p>Classification · target <em>Outcome</em>. 8 clear features, 768 rows — perfect size, meaningful use case. <em>Pima Indians (UCI)</em></p></div></div><div class=\"tip\">🇲🇾 <strong>Local ideas:</strong> HDB resale price prediction (data.gov.sg) · Malaysia crime statistics by state (data.gov.my) · Grab/GOJEK demand forecast · PSLE score predictor. Government open data is great for local projects.</div>"}, {"label": "Structuring Your Notebook", "note": "How you go from 'homework' to 'portfolio project'. The storytelling matters as much as the code — recruiters and hiring managers read notebooks.", "html": "<div class=\"section-tag\">From Homework to Portfolio</div><div class=\"slide-heading\">📓 Structuring Your Notebook</div><div class=\"highlight\">📌 <strong>Key rule:</strong> every code cell is preceded by a markdown cell explaining WHAT you're doing and WHY. A recruiter should follow your logic without running anything.</div><div class=\"code-wrap\"><div class=\"code-header\"><span>notebook_skeleton.py</span><span>python</span></div><pre># Section 1  Problem Statement    - what we predict and why it matters\n# Section 2  Data Loading &amp; EDA    - what the data looks like, key observations\n# Section 3  Data Cleaning         - what we cleaned and why\n# Section 4  Feature Engineering   - new features created and the reasoning\n# Section 5  Modelling             - models tried, metrics, comparison\n# Section 6  Evaluation &amp; Insights - what the model learned, feature importances\n# Section 7  Conclusion            - key findings, limitations, next steps</pre></div><div class=\"two-col\"><div><div class=\"tip\">🏆 <strong>Portfolio-ready:</strong> clear problem statement at the top · dataset source &amp; description · every chart has a title and x/y labels · every metric interpreted, not just printed · honest limitations section · conclusion answers \"did we solve the problem?\"</div></div><div><div class=\"warn\">✗ <strong>Rookie mistakes:</strong> giant code cells with no explanation · printing raw 1000-row dataframes · no chart labels · metrics printed but not explained · no conclusion · variable names like df2, df3, df_final_final.</div></div></div><div class=\"highlight\">🚀 <strong>Ship it:</strong> push the finished notebook to GitHub, add a README with 3–5 sentences, and link it on LinkedIn. This is your first real portfolio piece.</div>"}, {"label": "Presenting Your Results", "note": "Most technical people can't communicate results. This teaches the most valuable non-technical skill: translating a number into a story. Role-play a presentation scenario.", "html": "<div class=\"section-tag\">Tell the Story, Not Just the Number</div><div class=\"slide-heading\">📊 Presenting Your Results</div><div class=\"two-col\"><div><div class=\"card card-accent\"><div class=\"card-icon\">❌</div><h3>Weak</h3><p>\"I trained a Random Forest. Accuracy is 82.5%. The confusion matrix shows 125 TP and 15 FP.\" → No context. What does 82.5% mean? Is that good? What does FP mean here?</p></div></div><div><div class=\"card card-accent\"><div class=\"card-icon\">✅</div><h3>Compelling</h3><p>\"I built a model to flag patients at risk of diabetes. It correctly identifies 82.5% of at-risk patients. The top predictor was glucose, then BMI. Out of 100 at-risk patients it flags 82 — missing 18.\" → A doctor, a manager, anyone understands this.</p></div></div></div><div class=\"section-tag\">The 5-Minute Presentation Structure</div><div class=\"slide-heading\">📐 Hook → Data → Method → Results → Reflection</div><div class=\"steps\"><div class=\"step\"><div class=\"step-num\">1</div><div class=\"step-body\"><h4>Hook  <em>30s</em></h4><p>What problem, why it matters.</p></div></div><div class=\"step\"><div class=\"step-num\">2</div><div class=\"step-body\"><h4>Data  <em>1 min</em></h4><p>Source, size, key features.</p></div></div><div class=\"step\"><div class=\"step-num\">3</div><div class=\"step-body\"><h4>Method  <em>1 min</em></h4><p>What model, why you chose it.</p></div></div><div class=\"step\"><div class=\"step-num\">4</div><div class=\"step-body\"><h4>Results  <em>1.5 min</em></h4><p>Best metric, what it means, one key insight.</p></div></div><div class=\"step\"><div class=\"step-num\">5</div><div class=\"step-body\"><h4>Reflection  <em>1 min</em></h4><p>One honest limitation + one next step.</p></div></div></div><div class=\"tip\">💬 <strong>Metrics in plain English:</strong> Accuracy 80% → \"8 of 10 predictions correct\" · R²=0.85 → \"85% of price variation explained\" · RMSE=25,000 → \"off by ~RM25k on average\" · F1=0.78 → \"balanced precision &amp; recall of 78%\". 🎙️ Record yourself once on your phone before the real thing.</div>"}, {"label": "Build Time", "note": "Hands-on building time — 60-90 minutes of uninterrupted project work. Walk around and help. Ask clarifying questions, don't write code for them. Check their problem definition before they touch data.", "html": "<div class=\"section-tag\">Your Capstone Starts Now</div><div class=\"slide-heading\">⚡ Build Time!</div><div class=\"highlight\">🏁 <strong>Your task:</strong> build milestones M1–M7 using the tools and knowledge from all 15 sessions. Use AI to accelerate — but understand every line. You have <strong>60–90 minutes</strong>.</div><div class=\"two-col\"><div><div class=\"card card-accent\"><div class=\"card-icon\">📋</div><h3>Before you write one line of code</h3><p>☐ I can complete the 3-question test ☐ I have downloaded the dataset and can open it in Jupyter ☐ I know if this is classification or regression ☐ I know which metric I'll use ☐ Trainer has approved my problem statement</p></div></div><div><div class=\"card card-accent\"><div class=\"card-icon\">⏱️</div><h3>Suggested time allocation</h3><p>Problem def + data load — 10 min · EDA — 20 min · cleaning + feature engineering — 20 min · modelling (2–3 models) — 20 min · evaluation + conclusion — 10 min</p></div></div></div><div class=\"code-wrap\"><div class=\"code-header\"><span>start_prompt.txt</span><span>prompt</span></div><pre>I am building an ML project to predict [TARGET] from [DATASET].\nGenerate a complete Jupyter notebook structure with section headers,\na skeleton for each stage (load, clean, model, evaluate), and comments\nexplaining what to fill in at each step.</pre></div><div class=\"warn\">⚠️ <strong>Stuck?</strong> Can you run df.head()? Does df.info() show the right dtypes? Does df.isnull().sum() show nulls you haven't handled? What do the last 3 lines of the traceback say?</div>"}, {"label": "Evaluation Quick Reference", "note": "Quick reference card for choosing the right metric. Students often use the wrong one. Classification = accuracy/F1, imbalanced = F1 or AUC, regression = RMSE/R².", "html": "<div class=\"section-tag\">Pick the Right Metric</div><div class=\"slide-heading\">📐 Evaluation Quick Reference</div><div class=\"two-col\"><div><div class=\"card card-accent\"><div class=\"card-icon\">📊</div><h3>Classification</h3><p><strong>Accuracy</strong> — balanced classes (Titanic, iris). <br><strong>F1 (macro)</strong> — imbalanced (fraud, churn); balances precision &amp; recall. <br><strong>Recall</strong> — when false negatives are costly (disease, fraud). <br><strong>ROC-AUC</strong> — threshold-independent ranking; great for imbalanced.</p></div></div><div><div class=\"card card-accent\"><div class=\"card-icon\">📉</div><h3>Regression</h3><p><strong>RMSE</strong> — average error in target units; penalises big errors (RMSE=25000 → ±$25k). <br><strong>R²</strong> — % of variance explained (0.85 great, 0.40 weak, 0.99 first try → check leakage). <br><strong>MAE</strong> — like RMSE but treats all errors equally; more honest average.</p></div></div></div><div class=\"highlight\">📌 <strong>Decision tree:</strong> Binary? → Accuracy (balanced) or F1 (imbalanced). Multi-class? → Macro F1. Regression? → RMSE + R² together. Health / fraud? → always add Recall.</div>"}, {"label": "Your Learning Journey", "note": "The emotional peak of the course. Walk through every session. Pause on each: 'Remember when you learned X?' Let students feel the weight of how much they covered.", "html": "<div class=\"section-tag\">All 15 Sessions</div><div class=\"slide-heading\">🗺️ Your Learning Journey</div><div class=\"cards cards-3\"><div class=\"card card-accent\"><div class=\"card-icon\">🐍</div><h3>Foundation · Sessions 1–5</h3><p>Python basics &amp; intermediate, Pandas, NumPy &amp; math, data wrangling, visualisation with Matplotlib &amp; Seaborn.</p></div><div class=\"card card-accent\"><div class=\"card-icon\">📊</div><h3>Data &amp; ML Basics · Sessions 6–9</h3><p>APIs &amp; real data, statistics &amp; probability, feature engineering, and your first ML models.</p></div><div class=\"card card-accent\"><div class=\"card-icon\">🤖</div><h3>Advanced ML · Sessions 10–15</h3><p>Regression, Random Forest, neural networks, LSTM &amp; time series, vibe coding, and the capstone.</p></div></div><div class=\"highlight\">🏆 <strong>What you have actually mastered:</strong> you went from \"how do I print hello world\" to building neural networks and LSTM models for time-series forecasting — with Python, real datasets, and real ML libraries. That is industry-relevant skill, not beginner knowledge.</div>"}, {"label": "What's Next", "note": "The 'now what?' slide. Give concrete next steps — specific resources, specific skills, specific career paths.", "html": "<div class=\"section-tag\">Your Path Forward</div><div class=\"slide-heading\">🚀 What's Next?</div><div class=\"cards cards-3\"><div class=\"card card-accent\"><div class=\"card-icon\">🐬</div><h3>SQL for Data Science</h3><p>90% of data jobs require it. Mode Analytics has a free course; practice at sql-practice.com.</p></div><div class=\"card card-accent\"><div class=\"card-icon\">📊</div><h3>Tableau / Power BI</h3><p>Employers love analysts who can visualise insights. Tableau Public is free — do the getting-started tutorial.</p></div><div class=\"card card-accent\"><div class=\"card-icon\">☁️</div><h3>Cloud ML (AWS / GCP / Azure)</h3><p>Deploying models to production is the next frontier. AWS SageMaker free tier and Google Colab are the easiest entry.</p></div></div><div class=\"cards cards-3\"><div class=\"card card-accent\"><div class=\"card-icon\">📈</div><h3>Data Analyst</h3><p>SQL + Tableau + Python EDA. Entry role at most companies. KL starting: RM3,500–6,500.</p></div><div class=\"card card-accent\"><div class=\"card-icon\">🤖</div><h3>ML Engineer</h3><p>Builds &amp; deploys models at scale. Deeper Python + cloud. Starting: RM5,000–9,000.</p></div><div class=\"card card-accent\"><div class=\"card-icon\">🧬</div><h3>Data Scientist</h3><p>EDA + modelling + storytelling + domain expertise. Starting: RM4,500–8,000.</p></div></div><div class=\"tip\">🏗️ <strong>Build your portfolio — 3 projects is enough:</strong> 1 classification (Titanic / churn) + 1 regression (house prices) + your capstone dataset. Upload all 3 to GitHub, write a LinkedIn post about each.</div>"}, {"label": "You Did It", "note": "The final slide. Celebrate! 15 sessions of Python and ML is a real accomplishment. End on energy and warmth; encourage them to share their capstone projects.", "html": "<div class=\"section-tag\">15 Sessions. One Real ML Engineer.</div><div class=\"slide-heading\">🎓 You Did It!</div><div class=\"recap-grid\"><div class=\"recap-item\"><div class=\"recap-icon\">🐍</div><div class=\"recap-text\"><h4>Python</h4><p>From scratch to advanced OOP.</p></div></div><div class=\"recap-item\"><div class=\"recap-icon\">🐼</div><div class=\"recap-text\"><h4>Pandas &amp; NumPy</h4><p>Data wrangling at speed.</p></div></div><div class=\"recap-item\"><div class=\"recap-icon\">📊</div><div class=\"recap-text\"><h4>Visualisation</h4><p>Matplotlib &amp; Seaborn.</p></div></div><div class=\"recap-item\"><div class=\"recap-icon\">🌐</div><div class=\"recap-text\"><h4>Real Data</h4><p>APIs, JSON parsing, messy datasets.</p></div></div><div class=\"recap-item\"><div class=\"recap-icon\">📈</div><div class=\"recap-text\"><h4>Statistics</h4><p>Probability, distributions, inference.</p></div></div><div class=\"recap-item\"><div class=\"recap-icon\">🔧</div><div class=\"recap-text\"><h4>Feature Engineering</h4><p>The secret sauce.</p></div></div><div class=\"recap-item\"><div class=\"recap-icon\">🤖</div><div class=\"recap-text\"><h4>Classical ML</h4><p>Regression, Random Forest, XGBoost.</p></div></div><div class=\"recap-item\"><div class=\"recap-icon\">🧠</div><div class=\"recap-text\"><h4>Deep Learning</h4><p>Neural networks, backprop, Keras, LSTM.</p></div></div></div><div class=\"highlight\">📣 <strong>Share your project!</strong> Tag <strong>@codencode</strong> and use <strong>#codencodeML</strong> — we'd love to feature your work. 🎓 Congratulations, Data Scientist!</div><div class=\"academy-tag\" style=\"margin-top:12px;\">codencode · codencode.my · hello@codencode.my · +60 19-681 1628 · KL · JB · Online · LinkedIn @codencode · IG @codencode.my</div>"}];
+
+
+let cur=0;
+const wrap=document.getElementById('slides-wrap');
+const dotsEl=document.getElementById('dots');
+function renderSlides(){
+  wrap.innerHTML='';dotsEl.innerHTML='';
+  SLIDES_DATA.forEach((s,i)=>{
+    const div=document.createElement('div');
+    div.className='slide'+(i===0?' active':'');
+    div.innerHTML=s.html;if(s.note)div.dataset.notes=s.note;
+    wrap.appendChild(div);
+    const dot=document.createElement('div');
+    dot.className='dot'+(i===0?' active':'');
+    dot.onclick=()=>jump(i);
+    dotsEl.appendChild(dot);
+  });
+  updateUI();
+}
+function updateUI(){
+  const t=SLIDES_DATA.length;
+  document.getElementById('counter').textContent=(cur+1)+' / '+t;
+  document.getElementById('progress-bar').style.width=((cur+1)/t*100)+'%';
+  document.getElementById('slide-title-bar').textContent=SLIDES_DATA[cur].label||'';
+  document.getElementById('prev-btn').disabled=cur===0;
+  document.getElementById('next-btn').disabled=cur===t-1;
+  document.querySelectorAll('.slide').forEach((el,i)=>el.classList.toggle('active',i===cur));
+  document.querySelectorAll('.dot').forEach((el,i)=>el.classList.toggle('active',i===cur));
+}
+function go(d){jump(cur+d);}
+function jump(i){if(i<0||i>=SLIDES_DATA.length)return;cur=i;updateUI();document.querySelectorAll('.slide')[cur].scrollTop=0;}
+document.addEventListener('keydown',e=>{
+  if(e.key==='ArrowRight'||e.key===' '){e.preventDefault();go(1);}
+  if(e.key==='ArrowLeft'){e.preventDefault();go(-1);}
+  if(e.key==='f'||e.key==='F')toggleFS();
+  if(e.key==='Home')jump(0);
+  if(e.key==='End')jump(SLIDES_DATA.length-1);
+});
+function toggleFS(){if(!document.fullscreenElement)document.documentElement.requestFullscreen().catch(()=>{});else document.exitFullscreen();}
+
+let _tx=0;
+document.addEventListener('touchstart',e=>{_tx=e.changedTouches[0].clientX;},{passive:true});
+document.addEventListener('touchend',e=>{
+  const dx=e.changedTouches[0].clientX-_tx;
+  if(Math.abs(dx)>50){go(dx<0?1:-1);}
+},{passive:true});
+renderSlides();
+</script><style id="codencode-copy-style">
+  body pre, body pre *{-webkit-user-select:text!important;user-select:text!important;}
+  .code-wrap{position:relative;}
+  .code-header{align-items:center;gap:10px;}
+  .code-header>span{white-space:nowrap;}
+  .code-header .copy-btn{margin-left:auto;cursor:pointer;background:rgba(255,255,255,0.08);color:#8b949e;border:1px solid rgba(255,255,255,0.14);border-radius:6px;padding:2px 10px;font:700 10px/1.4 'Segoe UI',system-ui,sans-serif;letter-spacing:.03em;transition:.15s;}
+  .code-header .copy-btn:hover{background:rgba(0,229,160,.15);color:#00e5a0;border-color:#00e5a0;}
+  .code-header .copy-btn.done{background:#00e5a0;color:#0f0f1a;border-color:#00e5a0;}
+  .slide{min-height:0;}
+  #slides-wrap{min-height:0;}
+  .code-wrap pre{max-height:calc(100vh - 230px);overflow:auto;}
+  .code-wrap pre::-webkit-scrollbar{width:7px;height:7px;}
+  .code-wrap pre::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.22);border-radius:4px;}
+  @media(max-width:700px){.code-wrap pre{max-height:none;}}
 </style>
-</head>
-<body>
-<div id="slideshow">
-
-<!-- SLIDE 1 — COVER -->
-<div class="slide active" data-notes="Final session! This is the capstone — everything we have learned comes together into one real project. Open with energy. Let the students know this is where the rubber meets the road. Whatever they build today, they can show on their portfolio.">
-<div class="slide-inner">
-<div class="top-bar"><span class="brand">🐧 codencode · Python & ML</span><span class="slide-id">Session 15 · Slide 1 / 11</span></div>
-<div class="progress-bar"><div class="progress-fill" style="width:9%"></div></div>
-<div class="slide-body" style="background:var(--navy);align-items:center;text-align:center;position:relative;overflow:hidden;">
-  <div style="position:absolute;inset:0;background-image:radial-gradient(rgba(255,209,102,0.12) 1px,transparent 1px);background-size:28px 28px;"></div>
-  <div style="position:absolute;width:500px;height:500px;border-radius:50%;background:radial-gradient(circle,rgba(0,180,216,0.12),transparent 70%);bottom:-150px;right:-150px;pointer-events:none;"></div>
-  <div style="position:relative;z-index:1;">
-    <div style="font-size:64px;margin-bottom:12px;">🏆🎓</div>
-    <div style="font-family:'Fredoka One',cursive;font-size:clamp(28px,5.5vw,54px);color:white;line-height:1.05;margin-bottom:12px;">PROJECT PLANNING<br><span style="color:var(--gold);">&amp; CAPSTONE EXECUTION</span></div>
-    <div style="font-size:14px;color:rgba(255,255,255,0.65);max-width:620px;line-height:1.8;margin:0 auto 22px;">Session 15 — the final boss. You will plan, build, evaluate, and present a full end-to-end machine learning project from scratch. This goes on your portfolio. This is what gets you hired.</div>
-    <div style="display:flex;flex-wrap:wrap;gap:10px;justify-content:center;">
-      <span style="background:#E0F4FF;color:#0077B6;font-size:12px;font-weight:800;padding:6px 16px;border-radius:20px;">📋 Project Planning Framework</span>
-      <span style="background:#FFF5D6;color:#856A00;font-size:12px;font-weight:800;padding:6px 16px;border-radius:20px;">🗺️ Full ML Checklist</span>
-      <span style="background:#E0F5E8;color:#1A7A3C;font-size:12px;font-weight:800;padding:6px 16px;border-radius:20px;">💡 Project Ideas &amp; Datasets</span>
-      <span style="background:#F0E8FF;color:#7C3AED;font-size:12px;font-weight:800;padding:6px 16px;border-radius:20px;">📊 How to Present Results</span>
-      <span style="background:#FFE0F0;color:#A0154A;font-size:12px;font-weight:800;padding:6px 16px;border-radius:20px;">🎓 Your Learning Journey</span>
-    </div>
-  </div>
-</div>
-</div></div>
-
-<!-- SLIDE 2 — WHAT MAKES A GREAT ML PROJECT -->
-<div class="slide" data-notes="Not every idea is a good ML project. Walk through the checklist. The most common mistake: picking a boring or impossible problem. The second most common: not having real data. Get them to articulate their project idea before building anything.">
-<div class="slide-inner">
-<div class="top-bar"><span class="brand">🐧 codencode · Session 15</span><span class="slide-id">Session 15 · Slide 2 / 11</span></div>
-<div class="progress-bar"><div class="progress-fill" style="width:18%"></div></div>
-<div class="slide-body">
-  <div class="slide-title">🎯 What Makes a Great ML Project?</div>
-  <div class="two-col">
-    <div style="display:flex;flex-direction:column;gap:9px;">
-      <div style="background:white;border:2px solid #1A7A3C;border-radius:12px;padding:12px 16px;">
-        <div style="font-weight:800;color:#1A7A3C;font-size:13px;margin-bottom:6px;">✅ Signs of a GREAT project</div>
-        <div style="font-size:12.5px;color:var(--dark);line-height:1.8;">
-          ✓ Real data you can download today<br>
-          ✓ A clear prediction goal (one number or label)<br>
-          ✓ Problem that matters to someone<br>
-          ✓ Enough rows (500+ ideally 5,000+)<br>
-          ✓ Mix of feature types (numeric + categorical)<br>
-          ✓ Baseline to beat (random guess isn't 99%)
-        </div>
-      </div>
-      <div class="warn-box">
-        <div class="warn-t">❌ Red flags to avoid</div>
-        "Predict the stock market" (too noisy, no edge),  "I'll scrape Twitter" (you won't finish),  "95% accuracy from day 1" (probably data leakage),  Dataset with 50 rows (too small to generalise)
-      </div>
-    </div>
-    <div style="display:flex;flex-direction:column;gap:9px;">
-      <div class="gold-box" style="margin-bottom:2px;">
-        <div class="gold-t">🔑 The 3-Question Project Test</div>
-        <div style="font-size:12.5px;color:var(--dark);line-height:1.8;">
-          <strong>1. What am I predicting?</strong><br>
-          <em>"I am predicting the [TARGET] from [FEATURES]."</em><br><br>
-          <strong>2. Where is my data?</strong><br>
-          <em>"My dataset is [SOURCE] and has [N] rows."</em><br><br>
-          <strong>3. How will I evaluate success?</strong><br>
-          <em>"I will use [METRIC] because [REASON]."</em>
-        </div>
-      </div>
-      <div class="concept-box">
-        <strong>📐 Scope it right:</strong> A project with 1 model, 1 clean dataset, and a clear story is better than a project with 5 models and messy, unclear results. Depth &gt; breadth for a capstone. A great 30-minute demo beats a rushed 3-hour one.
-      </div>
-      <div class="tip-box"><div class="tip-t">💡 The "explain to grandma" rule</div>If you can't explain your project in 2 sentences that a non-technical person understands, it's probably too complicated — or not clearly defined yet.</div>
-    </div>
-  </div>
-</div>
-</div></div>
-
-<!-- SLIDE 3 — FULL ML PIPELINE MILESTONES -->
-<div class="slide" data-notes="This is the project map. Walk through each milestone — this is the exact same process every data scientist follows on the job. Use this as a checklist the students can print out and tick off as they build.">
-<div class="slide-inner">
-<div class="top-bar"><span class="brand">🐧 codencode · Session 15</span><span class="slide-id">Session 15 · Slide 3 / 11</span></div>
-<div class="progress-bar"><div class="progress-fill" style="width:27%"></div></div>
-<div class="slide-body" style="padding:14px 40px;overflow-y:auto;">
-  <div class="slide-title">🗺️ Full ML Pipeline — Your Capstone Roadmap</div>
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
-    <div class="m-card" style="border-color:#003566;">
-      <div class="m-head" style="background:#003566;">
-        <div class="m-badge">M1</div>
-        <div><div class="m-title">Define the Problem</div><div class="m-subtitle">~15 mins</div></div>
-      </div>
-      <div class="m-body"><ul style="padding-left:14px;"><li>Write your 3-question test (slide 2)</li><li>Choose regression or classification</li><li>Pick your evaluation metric</li><li>Identify your data source</li></ul></div>
-    </div>
-    <div class="m-card" style="border-color:#0077B6;">
-      <div class="m-head" style="background:#0077B6;">
-        <div class="m-badge">M2</div>
-        <div><div class="m-title">Load &amp; Explore Data</div><div class="m-subtitle">~20 mins</div></div>
-      </div>
-      <div class="m-body"><ul style="padding-left:14px;"><li>Load CSV and check shape, dtypes</li><li>df.isnull().sum() — what's missing?</li><li>df.describe() — outliers?</li><li>Plot target distribution</li><li>Correlation heatmap</li></ul></div>
-    </div>
-    <div class="m-card" style="border-color:#00B4D8;">
-      <div class="m-head" style="background:#00B4D8;">
-        <div class="m-badge">M3</div>
-        <div><div class="m-title">Clean &amp; Preprocess</div><div class="m-subtitle">~25 mins</div></div>
-      </div>
-      <div class="m-body"><ul style="padding-left:14px;"><li>Handle nulls (fill or drop)</li><li>Encode categoricals (LabelEncoder / get_dummies)</li><li>Remove duplicates</li><li>Cap or remove outliers if needed</li><li>Final: check df.isnull().sum() == 0</li></ul></div>
-    </div>
-    <div class="m-card" style="border-color:#FFD166;">
-      <div class="m-head" style="background:#856A00;">
-        <div class="m-badge" style="color:#FFD166;">M4</div>
-        <div><div class="m-title">Feature Engineering</div><div class="m-subtitle">~20 mins</div></div>
-      </div>
-      <div class="m-body"><ul style="padding-left:14px;"><li>Create 1–3 new features from existing cols</li><li>Extract date parts (year, month, day)</li><li>Bin numeric into categories if useful</li><li>Drop low-importance or redundant cols</li></ul></div>
-    </div>
-    <div class="m-card" style="border-color:#1A7A3C;">
-      <div class="m-head" style="background:#1A7A3C;">
-        <div class="m-badge">M5</div>
-        <div><div class="m-title">Split &amp; Scale</div><div class="m-subtitle">~10 mins</div></div>
-      </div>
-      <div class="m-body"><ul style="padding-left:14px;"><li>train_test_split (80/20 or 70/30)</li><li>StandardScaler — fit on X_train ONLY</li><li>Transform X_train and X_test</li><li>Never touch X_test before this step</li></ul></div>
-    </div>
-    <div class="m-card" style="border-color:#7C3AED;">
-      <div class="m-head" style="background:#7C3AED;">
-        <div class="m-badge">M6</div>
-        <div><div class="m-title">Train Models</div><div class="m-subtitle">~20 mins</div></div>
-      </div>
-      <div class="m-body"><ul style="padding-left:14px;"><li>Start with a baseline (LogReg or Linear Reg)</li><li>Train Random Forest</li><li>Train XGBoost</li><li>Print metric for each — compare</li><li>Pick best performer for tuning</li></ul></div>
-    </div>
-    <div class="m-card" style="border-color:#E65C00;">
-      <div class="m-head" style="background:#E65C00;">
-        <div class="m-badge">M7</div>
-        <div><div class="m-title">Evaluate &amp; Interpret</div><div class="m-subtitle">~20 mins</div></div>
-      </div>
-      <div class="m-body"><ul style="padding-left:14px;"><li>Print classification report or RMSE/R²</li><li>Plot confusion matrix (classification)</li><li>Plot actual vs predicted (regression)</li><li>Feature importances bar chart</li><li>Check for data leakage</li></ul></div>
-    </div>
-    <div class="m-card" style="border-color:#C0392B;">
-      <div class="m-head" style="background:#C0392B;">
-        <div class="m-badge">M8</div>
-        <div><div class="m-title">Present Your Story</div><div class="m-subtitle">~15 mins</div></div>
-      </div>
-      <div class="m-body"><ul style="padding-left:14px;"><li>Problem → Data → Method → Result</li><li>State your best metric clearly</li><li>Explain 1 key insight from features</li><li>State 1 limitation honestly</li><li>State 1 next step if you had more time</li></ul></div>
-    </div>
-  </div>
-</div>
-</div></div>
-
-<!-- SLIDE 4 — PROJECT IDEAS AND DATASETS -->
-<div class="slide" data-notes="Stuck for ideas? These are proven starter projects with real downloadable data. All of them can be completed in a few hours. The student should pick the one that excites them most — motivation matters more than problem difficulty.">
-<div class="slide-inner">
-<div class="top-bar"><span class="brand">🐧 codencode · Session 15</span><span class="slide-id">Session 15 · Slide 4 / 11</span></div>
-<div class="progress-bar"><div class="progress-fill" style="width:36%"></div></div>
-<div class="slide-body" style="padding:14px 44px;overflow-y:auto;">
-  <div class="slide-title">💡 Project Ideas — Pick What Excites You</div>
-  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:10px;">
-    <div class="info-card" style="border-color:#C0392B;">
-      <div style="font-size:26px;margin-bottom:4px;">🚢</div>
-      <div class="info-card-title" style="color:#C0392B;">Titanic Survival</div>
-      <p><strong>Type:</strong> Classification<br><strong>Target:</strong> survived (0/1)<br><strong>Why:</strong> Clean, famous, well-documented. Perfect first project.<br><strong>Metric:</strong> Accuracy, F1<br><strong>Data:</strong> kaggle.com/titanic</p>
-      <span style="font-size:10px;font-weight:800;background:#FFE0E0;color:#C0392B;padding:2px 8px;border-radius:10px;display:inline-block;margin-top:6px;">Beginner-friendly ⭐</span>
-    </div>
-    <div class="info-card" style="border-color:#0077B6;">
-      <div style="font-size:26px;margin-bottom:4px;">🏠</div>
-      <div class="info-card-title" style="color:#0077B6;">House Price Prediction</div>
-      <p><strong>Type:</strong> Regression<br><strong>Target:</strong> SalePrice (RM)<br><strong>Why:</strong> Lots of features, good for feature engineering, real-world relevance.<br><strong>Metric:</strong> RMSE, R²<br><strong>Data:</strong> kaggle.com/house-prices</p>
-      <span style="font-size:10px;font-weight:800;background:#E0F4FF;color:#0077B6;padding:2px 8px;border-radius:10px;display:inline-block;margin-top:6px;">Intermediate ⭐⭐</span>
-    </div>
-    <div class="info-card" style="border-color:#1A7A3C;">
-      <div style="font-size:26px;margin-bottom:4px;">😊</div>
-      <div class="info-card-title" style="color:#1A7A3C;">Customer Churn</div>
-      <p><strong>Type:</strong> Classification<br><strong>Target:</strong> Churn (0/1)<br><strong>Why:</strong> Business-relevant, imbalanced classes — teaches real-world handling.<br><strong>Metric:</strong> F1, Precision/Recall<br><strong>Data:</strong> kaggle telco churn</p>
-      <span style="font-size:10px;font-weight:800;background:#E0F5E8;color:#1A7A3C;padding:2px 8px;border-radius:10px;display:inline-block;margin-top:6px;">Intermediate ⭐⭐</span>
-    </div>
-    <div class="info-card" style="border-color:#7C3AED;">
-      <div style="font-size:26px;margin-bottom:4px;">💳</div>
-      <div class="info-card-title" style="color:#7C3AED;">Credit Card Fraud</div>
-      <p><strong>Type:</strong> Classification<br><strong>Target:</strong> fraud (0/1)<br><strong>Why:</strong> Massively imbalanced (99.8% legit). Teaches SMOTE, class_weight, threshold tuning.<br><strong>Data:</strong> kaggle credit card fraud</p>
-      <span style="font-size:10px;font-weight:800;background:#F0E8FF;color:#7C3AED;padding:2px 8px;border-radius:10px;display:inline-block;margin-top:6px;">Advanced ⭐⭐⭐</span>
-    </div>
-    <div class="info-card" style="border-color:#E65C00;">
-      <div style="font-size:26px;margin-bottom:4px;">🌡️</div>
-      <div class="info-card-title" style="color:#E65C00;">Energy Consumption Forecast</div>
-      <p><strong>Type:</strong> Regression / Time Series<br><strong>Target:</strong> power usage (kWh)<br><strong>Why:</strong> Great for LSTM, relevant to sustainability. Uses lag features.<br><strong>Data:</strong> UCI Energy dataset</p>
-      <span style="font-size:10px;font-weight:800;background:#FFF0E0;color:#E65C00;padding:2px 8px;border-radius:10px;display:inline-block;margin-top:6px;">Advanced ⭐⭐⭐</span>
-    </div>
-    <div class="info-card" style="border-color:#856A00;">
-      <div style="font-size:26px;margin-bottom:4px;">🏥</div>
-      <div class="info-card-title" style="color:#856A00;">Diabetes Risk Prediction</div>
-      <p><strong>Type:</strong> Classification<br><strong>Target:</strong> Outcome (diabetic or not)<br><strong>Why:</strong> Meaningful healthcare use case, 8 clear features, 768 rows — perfect size.<br><strong>Data:</strong> Pima Indians (UCI)</p>
-      <span style="font-size:10px;font-weight:800;background:var(--yellow);color:#856A00;padding:2px 8px;border-radius:10px;display:inline-block;margin-top:6px;">Beginner-friendly ⭐</span>
-    </div>
-  </div>
-  <div class="tip-box"><div class="tip-t">🇲🇾 Singapore/Malaysia-flavoured ideas</div>HDB resale price prediction (data.gov.sg), Malaysia crime statistics by state (data.gov.my), Grab/GOJEK demand forecast, School PSLE score predictor — government open data is great for local projects.</div>
-</div>
-</div></div>
-
-<!-- SLIDE 5 — STRUCTURING YOUR NOTEBOOK -->
-<div class="slide" data-notes="Professional notebook structure. This is how you go from 'homework' to 'portfolio project'. The storytelling matters as much as the code. Recruiters and hiring managers read notebooks — make it readable, make it tell a story.">
-<div class="slide-inner">
-<div class="top-bar"><span class="brand">🐧 codencode · Session 15</span><span class="slide-id">Session 15 · Slide 5 / 11</span></div>
-<div class="progress-bar"><div class="progress-fill" style="width:45%"></div></div>
-<div class="slide-body" style="padding:16px 44px;">
-  <div class="slide-title">📓 Structuring Your Notebook — From Homework to Portfolio</div>
-  <div class="two-col">
-    <div style="display:flex;flex-direction:column;gap:8px;">
-      <div class="concept-box" style="margin-bottom:2px;"><strong>📌 Key rule:</strong> Every code cell should be preceded by a markdown cell explaining WHAT you're doing and WHY. A recruiter reading your notebook should understand your logic without running the code.</div>
-      <div class="code-block">
-        <div class="code-top"><div class="cd cd1"></div><div class="cd cd2"></div><div class="cd cd3"></div><span class="fname">✅ Professional notebook structure</span></div>
-        <pre><span class="cm"># 📌 Section 1 — Problem Statement</span>
-<span class="cm"># What we are predicting and why it matters</span>
-
-<span class="cm"># 📌 Section 2 — Data Loading &amp; EDA</span>
-<span class="cm"># What the data looks like and key observations</span>
-
-<span class="cm"># 📌 Section 3 — Data Cleaning</span>
-<span class="cm"># What we cleaned and why</span>
-
-<span class="cm"># 📌 Section 4 — Feature Engineering</span>
-<span class="cm"># What new features we created and the reasoning</span>
-
-<span class="cm"># 📌 Section 5 — Modelling</span>
-<span class="cm"># Models tried, metrics, comparison</span>
-
-<span class="cm"># 📌 Section 6 — Evaluation &amp; Insights</span>
-<span class="cm"># What the model learned. Feature importances.</span>
-
-<span class="cm"># 📌 Section 7 — Conclusion</span>
-<span class="cm"># Key findings, limitations, next steps</span></pre>
-      </div>
-    </div>
-    <div style="display:flex;flex-direction:column;gap:8px;">
-      <div class="info-card" style="border-color:#1A7A3C;">
-        <div class="info-card-title" style="color:#1A7A3C;">🏆 What makes a portfolio-ready project</div>
-        <p>✓ Clear problem statement at the top<br>✓ Dataset source and description<br>✓ Every chart has a title and x/y labels<br>✓ Every metric is interpreted (not just printed)<br>✓ Honest limitations section<br>✓ Conclusion answers: "Did we solve the problem?"</p>
-      </div>
-      <div class="info-card" style="border-color:#C0392B;">
-        <div class="info-card-title" style="color:#C0392B;">⚠️ Rookie mistakes to avoid</div>
-        <p>✗ Giant code cells with no explanation<br>✗ Printing raw dataframes with 1000 rows<br>✗ No chart labels or titles<br>✗ Metric printed but not explained<br>✗ No conclusion — just code that runs<br>✗ Variable names: df2, df3, df_final_final</p>
-      </div>
-      <div class="tip-box"><div class="tip-t">🚀 Upload to GitHub</div>Push your finished notebook to GitHub and add it to your LinkedIn profile. Include a README.md with 3–5 sentences describing the project. This is your first real portfolio piece.</div>
-    </div>
-  </div>
-</div>
-</div></div>
-
-<!-- SLIDE 6 — HOW TO PRESENT RESULTS -->
-<div class="slide" data-notes="Most technical people can't communicate results. This slide teaches the most valuable non-technical skill: translating a number into a story. Walk through each point. Role-play a presentation scenario.">
-<div class="slide-inner">
-<div class="top-bar"><span class="brand">🐧 codencode · Session 15</span><span class="slide-id">Session 15 · Slide 6 / 11</span></div>
-<div class="progress-bar"><div class="progress-fill" style="width:54%"></div></div>
-<div class="slide-body" style="padding:16px 44px;">
-  <div class="slide-title">📊 Presenting Your Results — Tell the Story, Not Just the Number</div>
-  <div class="two-col" style="margin-bottom:12px;">
-    <div style="display:flex;flex-direction:column;gap:10px;">
-      <div style="border-radius:14px;border:2.5px solid #C0392B;overflow:hidden;">
-        <div style="background:#C0392B;padding:8px 14px;font-weight:800;color:white;font-size:13px;">❌ Weak presentation</div>
-        <div style="background:white;padding:12px 14px;font-size:12.5px;color:var(--dark);line-height:1.7;">"I trained a Random Forest. My accuracy is 82.5%. The confusion matrix shows 125 TP and 15 FP."<br><br><em style="color:#C0392B;">→ No one cares about the number without context. What does 82.5% mean? Is that good? What does FP mean for this problem?</em></div>
-      </div>
-      <div style="border-radius:14px;border:2.5px solid #1A7A3C;overflow:hidden;">
-        <div style="background:#1A7A3C;padding:8px 14px;font-weight:800;color:white;font-size:13px;">✅ Compelling presentation</div>
-        <div style="background:white;padding:12px 14px;font-size:12.5px;color:var(--dark);line-height:1.7;">"I built a model to predict which patients are at risk of diabetes. It correctly identifies 82.5% of at-risk patients. The most important predictor was glucose level, followed by BMI. Out of 100 at-risk patients, it would correctly flag 82 — only missing 18."<br><br><em style="color:#1A7A3C;">→ A doctor understands this. A manager understands this. Anyone understands this.</em></div>
-      </div>
-    </div>
-    <div style="display:flex;flex-direction:column;gap:9px;">
-      <div class="gold-box">
-        <div class="gold-t">📐 The 5-Minute Presentation Structure</div>
-        <div style="font-size:12.5px;line-height:1.9;">
-          <strong>1. Hook (30s):</strong> What problem, why it matters<br>
-          <strong>2. Data (1min):</strong> Source, size, key features<br>
-          <strong>3. Method (1min):</strong> What model, why you chose it<br>
-          <strong>4. Results (1.5min):</strong> Best metric, what it means, key insight<br>
-          <strong>5. Reflection (1min):</strong> 1 limitation + 1 next step
-        </div>
-      </div>
-      <div class="concept-box"><strong>💬 Translating metrics to plain English:</strong><br>
-        Accuracy 80% → "8 out of 10 predictions are correct"<br>
-        R² = 0.85 → "85% of price variation explained by our features"<br>
-        RMSE = 25,000 → "predictions off by ~RM25,000 on average"<br>
-        F1 = 0.78 → "balanced precision and recall of 78%"
-      </div>
-      <div class="tip-box"><div class="tip-t">🎙️ Practice tip</div>Record yourself giving the 5-minute presentation to your phone camera once before the real thing. You will immediately notice what to improve. This is what professionals do before big pitches.</div>
-    </div>
-  </div>
-</div>
-</div></div>
-
-<!-- SLIDE 7 — BUILD TIME -->
-<div class="slide" data-notes="Hands-on building time. Give students 60-90 minutes of uninterrupted project work. Walk around and help. The role of the trainer: ask clarifying questions, don't write code for them. Let them use AI tools. Check their problem definition first before they touch any data.">
-<div class="slide-inner">
-<div class="top-bar"><span class="brand">🐧 codencode · Session 15</span><span class="slide-id">Session 15 · Slide 7 / 11</span></div>
-<div class="progress-bar"><div class="progress-fill" style="width:63%"></div></div>
-<div class="slide-body" style="padding:16px 44px;">
-  <div class="slide-title">⚡ Build Time — Your Capstone Starts Now!</div>
-  <div class="concept-box" style="margin-bottom:16px;">🏁 <strong>Your task:</strong> Build milestones M1–M7 of your capstone project using the tools and knowledge from all 15 sessions. Use AI to accelerate — but understand every line. You have <strong>60–90 minutes</strong>.</div>
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
-    <div style="display:flex;flex-direction:column;gap:8px;">
-      <div style="background:white;border:2px solid #E2E8F0;border-radius:12px;padding:12px 16px;">
-        <div style="font-weight:800;font-size:13px;color:var(--navy);margin-bottom:8px;">📋 Before you write one line of code:</div>
-        <div style="display:flex;flex-direction:column;gap:6px;">
-          <label style="display:flex;gap:10px;font-size:12.5px;color:var(--dark);align-items:center;cursor:pointer;"><input type="checkbox" style="width:16px;height:16px;flex-shrink:0;"> I can complete the 3-question test (slide 2)</label>
-          <label style="display:flex;gap:10px;font-size:12.5px;color:var(--dark);align-items:center;cursor:pointer;"><input type="checkbox" style="width:16px;height:16px;flex-shrink:0;"> I have downloaded the dataset and can open it in Jupyter</label>
-          <label style="display:flex;gap:10px;font-size:12.5px;color:var(--dark);align-items:center;cursor:pointer;"><input type="checkbox" style="width:16px;height:16px;flex-shrink:0;"> I know if this is classification or regression</label>
-          <label style="display:flex;gap:10px;font-size:12.5px;color:var(--dark);align-items:center;cursor:pointer;"><input type="checkbox" style="width:16px;height:16px;flex-shrink:0;"> I know which metric I will use (accuracy / R² / RMSE / F1)</label>
-          <label style="display:flex;gap:10px;font-size:12.5px;color:var(--dark);align-items:center;cursor:pointer;"><input type="checkbox" style="width:16px;height:16px;flex-shrink:0;"> Trainer has approved my problem statement</label>
-        </div>
-      </div>
-      <div class="tip-box"><div class="tip-t">🤖 Suggested AI prompt to start</div>"I am building an ML project to predict [TARGET] from [DATASET]. Generate a complete Jupyter notebook structure with section headers, a skeleton for each stage (load, clean, model, evaluate), and comments explaining what to fill in at each step."</div>
-    </div>
-    <div style="display:flex;flex-direction:column;gap:8px;">
-      <div style="background:white;border:2px solid #E2E8F0;border-radius:12px;padding:12px 16px;">
-        <div style="font-weight:800;font-size:13px;color:var(--navy);margin-bottom:8px;">⏱️ Suggested time allocation:</div>
-        <div style="display:flex;flex-direction:column;gap:5px;">
-          <div style="display:flex;justify-content:space-between;align-items:center;font-size:12px;padding:5px 8px;background:#E0F5E8;border-radius:8px;"><span>📋 Problem definition + data load</span><strong style="color:#1A7A3C;">10 min</strong></div>
-          <div style="display:flex;justify-content:space-between;align-items:center;font-size:12px;padding:5px 8px;background:#E0F4FF;border-radius:8px;"><span>🔍 EDA (explore, visualise, understand)</span><strong style="color:#0077B6;">20 min</strong></div>
-          <div style="display:flex;justify-content:space-between;align-items:center;font-size:12px;padding:5px 8px;background:#F0E8FF;border-radius:8px;"><span>🧹 Cleaning + feature engineering</span><strong style="color:#7C3AED;">20 min</strong></div>
-          <div style="display:flex;justify-content:space-between;align-items:center;font-size:12px;padding:5px 8px;background:#FFF0E0;border-radius:8px;"><span>🤖 Modelling (2–3 models)</span><strong style="color:#E65C00;">20 min</strong></div>
-          <div style="display:flex;justify-content:space-between;align-items:center;font-size:12px;padding:5px 8px;background:var(--yellow);border-radius:8px;"><span>📊 Evaluation + write conclusion</span><strong style="color:#856A00;">10 min</strong></div>
-        </div>
-      </div>
-      <div class="warn-box"><div class="warn-t">⚠️ Stuck? Ask these questions first:</div>Can you run df.head()? Does df.info() show the right dtypes? Does df.isnull().sum() show any nulls you haven't handled? What does the error traceback say on the last 3 lines?</div>
-    </div>
-  </div>
-</div>
-</div></div>
-
-<!-- SLIDE 8 — EVALUATION QUICK REFERENCE -->
-<div class="slide" data-notes="Quick reference card for choosing the right metric. Students often use the wrong one. Walk through the logic: classification = accuracy/F1, imbalanced = always F1 or AUC, regression = RMSE/R². This is something they will use every single project.">
-<div class="slide-inner">
-<div class="top-bar"><span class="brand">🐧 codencode · Session 15</span><span class="slide-id">Session 15 · Slide 8 / 11</span></div>
-<div class="progress-bar"><div class="progress-fill" style="width:72%"></div></div>
-<div class="slide-body" style="padding:16px 44px;">
-  <div class="slide-title">📐 Evaluation Quick Reference — Pick the Right Metric</div>
-  <div class="two-col" style="margin-bottom:14px;">
-    <div>
-      <div style="font-family:'Fredoka One',cursive;font-size:16px;color:var(--navy);margin-bottom:8px;">📊 Classification</div>
-      <div style="display:flex;flex-direction:column;gap:6px;">
-        <div style="display:flex;gap:10px;align-items:flex-start;background:white;border:2px solid #E2E8F0;border-radius:10px;padding:9px 12px;">
-          <span style="font-size:18px;flex-shrink:0;">🎯</span>
-          <div><div style="font-weight:800;font-size:12px;color:var(--navy);">Accuracy</div><div style="font-size:11.5px;color:var(--gray);">Use when classes are balanced. Titanic, iris. % predictions correct overall.</div></div>
-        </div>
-        <div style="display:flex;gap:10px;align-items:flex-start;background:white;border:2px solid #E2E8F0;border-radius:10px;padding:9px 12px;">
-          <span style="font-size:18px;flex-shrink:0;">⚖️</span>
-          <div><div style="font-weight:800;font-size:12px;color:var(--navy);">F1 Score (Macro)</div><div style="font-size:11.5px;color:var(--gray);">Use when classes are imbalanced (fraud, churn). Balances precision and recall.</div></div>
-        </div>
-        <div style="display:flex;gap:10px;align-items:flex-start;background:white;border:2px solid #E2E8F0;border-radius:10px;padding:9px 12px;">
-          <span style="font-size:18px;flex-shrink:0;">🏥</span>
-          <div><div style="font-weight:800;font-size:12px;color:var(--navy);">Recall (Sensitivity)</div><div style="font-size:11.5px;color:var(--gray);">Use when false negatives are costly — disease diagnosis, fraud detection. Don't miss positives!</div></div>
-        </div>
-        <div style="display:flex;gap:10px;align-items:flex-start;background:white;border:2px solid #E2E8F0;border-radius:10px;padding:9px 12px;">
-          <span style="font-size:18px;flex-shrink:0;">📈</span>
-          <div><div style="font-weight:800;font-size:12px;color:var(--navy);">ROC-AUC</div><div style="font-size:11.5px;color:var(--gray);">Measures how well model ranks positives above negatives regardless of threshold. Great for imbalanced.</div></div>
-        </div>
-      </div>
-    </div>
-    <div>
-      <div style="font-family:'Fredoka One',cursive;font-size:16px;color:var(--navy);margin-bottom:8px;">📉 Regression</div>
-      <div style="display:flex;flex-direction:column;gap:6px;">
-        <div style="display:flex;gap:10px;align-items:flex-start;background:white;border:2px solid #E2E8F0;border-radius:10px;padding:9px 12px;">
-          <span style="font-size:18px;flex-shrink:0;">📏</span>
-          <div><div style="font-weight:800;font-size:12px;color:var(--navy);">RMSE (Root Mean Squared Error)</div><div style="font-size:11.5px;color:var(--gray);">Average error in same units as target. House prices: RMSE=25000 = ±$25k average error. Penalises big errors.</div></div>
-        </div>
-        <div style="display:flex;gap:10px;align-items:flex-start;background:white;border:2px solid #E2E8F0;border-radius:10px;padding:9px 12px;">
-          <span style="font-size:18px;flex-shrink:0;">📊</span>
-          <div><div style="font-weight:800;font-size:12px;color:var(--navy);">R² (R-Squared)</div><div style="font-size:11.5px;color:var(--gray);">% of target variance explained. R²=0.85 = great. R²=0.40 = weak. R²=0.99 first try = check for leakage!</div></div>
-        </div>
-        <div style="display:flex;gap:10px;align-items:flex-start;background:white;border:2px solid #E2E8F0;border-radius:10px;padding:9px 12px;">
-          <span style="font-size:18px;flex-shrink:0;">🔢</span>
-          <div><div style="font-weight:800;font-size:12px;color:var(--navy);">MAE (Mean Absolute Error)</div><div style="font-size:11.5px;color:var(--gray);">Like RMSE but treats all errors equally. More interpretable. RMSE=harder to reach, MAE=more honest average.</div></div>
-        </div>
-      </div>
-      <div class="gold-box" style="margin-top:8px;"><div class="gold-t">📌 Decision tree for picking metric</div>Binary problem? → Accuracy (balanced) or F1 (imbalanced). Multi-class? → Macro F1. Regression? → RMSE + R² together. Health/fraud? → Always add Recall.</div>
-    </div>
-  </div>
-</div>
-</div></div>
-
-<!-- SLIDE 9 — THE JOURNEY — ALL 15 SESSIONS -->
-<div class="slide" data-notes="This is the emotional peak of the course. Walk through every session. Pause on each one and ask: 'Remember when you learned X?' Let the students feel the weight of how much they have covered. This is 15 weeks of real ML education.">
-<div class="slide-inner">
-<div class="top-bar"><span class="brand">🐧 codencode · Session 15</span><span class="slide-id">Session 15 · Slide 9 / 11</span></div>
-<div class="progress-bar"><div class="progress-fill" style="width:81%"></div></div>
-<div class="slide-body" style="padding:14px 44px;overflow-y:auto;">
-  <div class="slide-title">🗺️ Your Learning Journey — All 15 Sessions</div>
-  <div style="display:flex;flex-wrap:wrap;gap:7px;margin-bottom:12px;">
-    <span class="session-pill" style="background:#E0F4FF;border-color:#0077B6;color:#003566;">🐍 S1 Python Basics</span>
-    <span class="session-pill" style="background:#E0F5E8;border-color:#1A7A3C;color:#1A3A1A;">🔢 S2 Python Intermediate</span>
-    <span class="session-pill" style="background:#F0E8FF;border-color:#7C3AED;color:#3A1A7A;">🐼 S3 Pandas &amp; Data</span>
-    <span class="session-pill" style="background:#FFE0F0;border-color:#A0154A;color:#6A0A2A;">📊 S4 Visualisation</span>
-    <span class="session-pill" style="background:var(--yellow);border-color:#D4A000;color:#856A00;">⚙️ S5 Numpy &amp; Math</span>
-    <span class="session-pill" style="background:#E0F4FF;border-color:#00B4D8;color:#003566;">🌐 S6 APIs &amp; Real Data</span>
-    <span class="session-pill" style="background:#E0F5E8;border-color:#1A7A3C;color:#1A3A1A;">📈 S7 Statistics &amp; Prob</span>
-    <span class="session-pill" style="background:#F0E8FF;border-color:#7C3AED;color:#3A1A7A;">🔧 S8 Feature Engineering</span>
-    <span class="session-pill" style="background:#FFF0E0;border-color:#E65C00;color:#8A2A00;">🤖 S9 Intro to ML</span>
-    <span class="session-pill" style="background:#FFE0E0;border-color:#C0392B;color:#6A0A0A;">📉 S10 Regression</span>
-    <span class="session-pill" style="background:#E0F4FF;border-color:#0077B6;color:#003566;">🌲 S11 Random Forest</span>
-    <span class="session-pill" style="background:var(--yellow);border-color:#D4A000;color:#856A00;">🧠 S12 Neural Networks</span>
-    <span class="session-pill" style="background:#E0F5E8;border-color:#1A7A3C;color:#1A3A1A;">🔄 S13 LSTM &amp; Time Series</span>
-    <span class="session-pill" style="background:#F0E8FF;border-color:#7C3AED;color:#3A1A7A;">⚡ S14 Vibe Coding</span>
-    <span class="session-pill" style="background:#FFF5D6;border-color:#FFD166;color:#856A00;font-weight:900;">🏆 S15 CAPSTONE ← YOU ARE HERE</span>
-  </div>
-  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;">
-    <div style="background:white;border:2px solid #003566;border-radius:12px;padding:14px;text-align:center;">
-      <div style="font-size:32px;margin-bottom:6px;">🐍</div>
-      <div style="font-family:'Fredoka One',cursive;font-size:16px;color:#003566;margin-bottom:4px;">Foundation</div>
-      <div style="font-size:12px;color:var(--gray);line-height:1.7;">Sessions 1–5<br>Python, Pandas, NumPy, data wrangling, visualisation</div>
-    </div>
-    <div style="background:white;border:2px solid #0077B6;border-radius:12px;padding:14px;text-align:center;">
-      <div style="font-size:32px;margin-bottom:6px;">📊</div>
-      <div style="font-family:'Fredoka One',cursive;font-size:16px;color:#0077B6;margin-bottom:4px;">Data &amp; ML Basics</div>
-      <div style="font-size:12px;color:var(--gray);line-height:1.7;">Sessions 6–9<br>Real data, statistics, feature engineering, first ML models</div>
-    </div>
-    <div style="background:white;border:2px solid #7C3AED;border-radius:12px;padding:14px;text-align:center;">
-      <div style="font-size:32px;margin-bottom:6px;">🤖</div>
-      <div style="font-family:'Fredoka One',cursive;font-size:16px;color:#7C3AED;margin-bottom:4px;">Advanced ML</div>
-      <div style="font-size:12px;color:var(--gray);line-height:1.7;">Sessions 10–15<br>Regression, classification, neural networks, LSTM, AI-assisted coding</div>
-    </div>
-  </div>
-  <div class="gold-box" style="margin-top:10px;"><div class="gold-t">🏆 What you have actually mastered</div>You went from "how do I print hello world" to building neural networks and LSTM models for time series forecasting — and you did it using Python, real datasets, and real ML libraries. That is not beginner knowledge. That is industry-relevant skill.</div>
-</div>
-</div></div>
-
-<!-- SLIDE 10 — WHAT'S NEXT -->
-<div class="slide" data-notes="Where do they go from here? Give concrete next steps. This is the 'now what?' slide. Make it actionable — not 'keep learning Python' but specific resources, specific next skills, specific career paths.">
-<div class="slide-inner">
-<div class="top-bar"><span class="brand">🐧 codencode · Session 15</span><span class="slide-id">Session 15 · Slide 10 / 11</span></div>
-<div class="progress-bar"><div class="progress-fill" style="width:90%"></div></div>
-<div class="slide-body" style="padding:16px 44px;">
-  <div class="slide-title">🚀 What's Next? Your Path Forward</div>
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:12px;">
-    <div>
-      <div style="font-family:'Fredoka One',cursive;font-size:16px;color:var(--navy);margin-bottom:8px;">📚 Next Skills to Learn</div>
-      <div style="display:flex;flex-direction:column;gap:7px;">
-        <div class="info-card" style="border-color:#0077B6;"><div class="info-card-title" style="color:#0077B6;">🐧 SQL for Data Science</div><p>90% of data science jobs require SQL. Mode Analytics has a free course. Practice on real datasets at sql-practice.com.</p></div>
-        <div class="info-card" style="border-color:#7C3AED;"><div class="info-card-title" style="color:#7C3AED;">📊 Tableau / Power BI</div><p>Employers love analysts who can visualise insights, not just produce them. Tableau Public is free. Take the official getting started tutorial.</p></div>
-        <div class="info-card" style="border-color:#1A7A3C;"><div class="info-card-title" style="color:#1A7A3C;">☁️ Cloud ML (AWS/GCP/Azure)</div><p>Deploying models to production is the next frontier. AWS SageMaker free tier and Google Colab are the easiest entry points.</p></div>
-      </div>
-    </div>
-    <div>
-      <div style="font-family:'Fredoka One',cursive;font-size:16px;color:var(--navy);margin-bottom:8px;">💼 Career Paths in Data</div>
-      <div style="display:flex;flex-direction:column;gap:7px;">
-        <div class="info-card" style="border-color:#E65C00;"><div class="info-card-title" style="color:#E65C00;">📈 Data Analyst</div><p>SQL + Tableau + Python EDA skills. Entry role at most companies. Well-paid, high demand. Starting salary: RM3,500–RM6,500 in KL.</p></div>
-        <div class="info-card" style="border-color:#C0392B;"><div class="info-card-title" style="color:#C0392B;">🤖 Machine Learning Engineer</div><p>Builds and deploys ML models at scale. Requires deeper Python + cloud skills. Starting: RM5,000–RM9,000.</p></div>
-        <div class="info-card" style="border-color:#856A00;"><div class="info-card-title" style="color:#856A00;">🧬 Data Scientist</div><p>EDA + modelling + storytelling + domain expertise. Hybrid role. Starting: RM4,500–RM8,000. Your codencode training = strong foundation.</p></div>
-      </div>
-    </div>
-  </div>
-  <div class="tip-box"><div class="tip-t">🏗️ Build your portfolio — 3 projects is enough</div>1 classification project (Titanic / churn) + 1 regression project (house prices) + 1 that uses your capstone dataset = a portfolio that stands out. Upload all 3 to GitHub. Write a LinkedIn post about each one.</div>
-</div>
-</div></div>
-
-<!-- SLIDE 11 — YOU DID IT / OUTRO -->
-<div class="slide" data-notes="The final slide. Celebrate! This is a real accomplishment — 15 sessions of Python and ML is no small feat. End on energy and warmth. Share contact details for follow-up. Encourage them to stay in touch on LinkedIn and share their capstone projects.">
-<div class="slide-inner">
-<div class="outro-body">
-<div class="outro-left">
-<h2>🎓 You Did It!<br>15 Sessions. One Real ML Engineer.</h2>
-<ul class="learned-list">
-<li><span class="ck">🐍</span> Python from scratch to advanced OOP</li>
-<li><span class="ck">🐼</span> Pandas, NumPy — data wrangling at speed</li>
-<li><span class="ck">📊</span> Data visualisation with Matplotlib &amp; Seaborn</li>
-<li><span class="ck">🌐</span> APIs, real-world data, JSON parsing</li>
-<li><span class="ck">📈</span> Statistics, probability, distributions</li>
-<li><span class="ck">🔧</span> Feature engineering — the secret sauce</li>
-<li><span class="ck">🤖</span> Regression, classification, Random Forest, XGBoost</li>
-<li><span class="ck">🧠</span> Neural networks, backpropagation, Keras</li>
-<li><span class="ck">🔄</span> LSTM, time series forecasting</li>
-<li><span class="ck">⚡</span> Vibe Coding — building with AI tools</li>
-<li><span class="ck">🏆</span> A complete end-to-end capstone project</li>
-</ul>
-<div style="margin-top:14px;background:var(--yellow);border-radius:12px;padding:10px 16px;font-size:12.5px;font-weight:700;border:2px dashed var(--gold);">📣 Share your project! Tag <strong>@codencode</strong> and use <strong>#codencodeML</strong> — we'd love to feature your work!</div>
-</div>
-<div class="outro-right">
-<span class="outro-emoji">🎓</span>
-<div style="font-family:'Fredoka One',cursive;font-size:26px;color:var(--gold);text-align:center;line-height:1.3;margin-bottom:4px;">Congratulations,<br>Data Scientist!</div>
-<div class="contact-info"><strong>codencode</strong><br>🌐 codencode.my<br>✉️ hello@codencode.my<br>📱 +60 19-681 1628<br><br>KL · JB · Online<br><br>📲 LinkedIn: @codencode<br>📸 IG: @codencode.my</div>
-</div>
-</div>
-<div class="top-bar" style="position:absolute;bottom:0;top:auto;border-bottom:none;border-top:3px solid var(--gold)"><span class="brand">🐧 codencode · Session 15 Complete ✓ — Course Complete 🎉</span><span class="slide-id">End of Course</span></div>
-</div></div>
-
-</div>
-<div id="notes-panel"><div class="nh"><span class="nt">📋 TEACHER NOTES</span><button class="nc" onclick="toggleNotes()">✕</button></div><div class="nb" id="notes-content">No notes.</div></div>
-<div id="nav-bar"><button class="nav-btn" id="btn-prev" onclick="changeSlide(-1)" disabled>‹</button><span id="slide-counter">1 / 11</span><button class="nav-btn" id="btn-next" onclick="changeSlide(1)">›</button><button class="icon-btn" id="btn-notes" onclick="toggleNotes()" title="N">📋</button><button class="icon-btn" onclick="toggleFullscreen()" title="F">⛶</button></div>
-<div id="kb-hint">← → navigate | N notes | F fullscreen</div>
-<script>
-const slides=document.querySelectorAll('.slide'),total=slides.length;
-let current=0,notesVisible=false,navTimer;
-function showSlide(n){slides[current].classList.remove('active');current=Math.max(0,Math.min(n,total-1));slides[current].classList.add('active');document.getElementById('slide-counter').textContent=(current+1)+' / '+total;document.getElementById('btn-prev').disabled=current===0;document.getElementById('btn-next').disabled=current===total-1;const notes=slides[current].dataset.notes||'No notes.';document.getElementById('notes-content').innerHTML=notes;if(notesVisible){document.getElementById('notes-panel').classList.remove('visible');document.getElementById('btn-notes').classList.remove('active');notesVisible=false;}}
-function changeSlide(d){showSlide(current+d);}
-function toggleNotes(){notesVisible=!notesVisible;document.getElementById('notes-panel').classList.toggle('visible',notesVisible);document.getElementById('btn-notes').classList.toggle('active',notesVisible);}
-function toggleFullscreen(){if(!document.fullscreenElement)document.documentElement.requestFullscreen();else document.exitFullscreen();}
-document.addEventListener('keydown',e=>{if(e.target.tagName==='INPUT')return;if(e.key==='ArrowRight'||e.key===' '){e.preventDefault();changeSlide(1);}if(e.key==='ArrowLeft'){e.preventDefault();changeSlide(-1);}if(e.key==='n'||e.key==='N')toggleNotes();if(e.key==='f'||e.key==='F')toggleFullscreen();if(e.key==='Home')showSlide(0);if(e.key==='End')showSlide(total-1);});
-function resetNav(){document.getElementById('nav-bar').classList.remove('hidden');clearTimeout(navTimer);navTimer=setTimeout(()=>{if(!notesVisible)document.getElementById('nav-bar').classList.add('hidden');},3500);}
-document.addEventListener('mousemove',resetNav);document.addEventListener('click',resetNav);resetNav();
-let tx=0;document.addEventListener('touchstart',e=>{tx=e.touches[0].clientX;});
-document.addEventListener('touchend',e=>{const dx=e.changedTouches[0].clientX-tx;if(Math.abs(dx)>50)changeSlide(dx<0?1:-1);});
+<script id="codencode-copy-script">
+(function(){
+  function addCopy(){
+    document.querySelectorAll('.code-wrap').forEach(function(w){
+      var hdr=w.querySelector('.code-header'), pre=w.querySelector('pre');
+      if(!hdr||!pre||hdr.querySelector('.copy-btn'))return;
+      var b=document.createElement('button');
+      b.className='copy-btn';b.type='button';b.textContent='Copy';
+      b.addEventListener('click',function(ev){
+        ev.stopPropagation();
+        var t=pre.innerText.replace(/\u00a0/g,' ');
+        function ok(){b.textContent='Copied';b.classList.add('done');setTimeout(function(){b.textContent='Copy';b.classList.remove('done');},1400);}
+        if(navigator.clipboard&&navigator.clipboard.writeText){
+          navigator.clipboard.writeText(t).then(ok).catch(fallback);
+        }else{fallback();}
+        function fallback(){
+          var ta=document.createElement('textarea');ta.value=t;ta.style.position='fixed';ta.style.opacity='0';
+          document.body.appendChild(ta);ta.select();
+          try{document.execCommand('copy');ok();}catch(e){}
+          document.body.removeChild(ta);
+        }
+      });
+      hdr.appendChild(b);
+    });
+  }
+  if(document.readyState!=='loading')addCopy();
+  document.addEventListener('DOMContentLoaded',addCopy);
+  setTimeout(addCopy,400);
+})();
 </script>
-</body></html>
+<script src="../access-guard.js"></script></body></html>
