@@ -1454,12 +1454,10 @@ def _slide_materials_for_course(course):
 
     if has_ai_workplace:
         return [item for item in SLIDE_MATERIALS if item[0] in (14, 15)]
-    if has_python and has_ml:
-        return SLIDE_MATERIALS
-    if has_python:
-        return [item for item in SLIDE_MATERIALS if item[0] <= 7]
-    if has_ml:
+    if has_ml and not has_python:
         return [item for item in SLIDE_MATERIALS if item[0] >= 8]
+    # The Python Bootcamp now has its own curriculum uploaded through the admin
+    # panel, so no legacy decks are auto-seeded for Python / Python+ML courses.
     return []
 
 
