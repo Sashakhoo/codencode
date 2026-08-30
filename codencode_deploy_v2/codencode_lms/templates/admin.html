@@ -700,6 +700,8 @@
       transition: opacity .2s;
     }
     .modal-overlay.open { opacity: 1; pointer-events: all; }
+    .modal-overlay:not(.open) { visibility: hidden; transition: opacity .2s, visibility 0s .2s; }
+    .modal-overlay.instant, .modal-overlay.instant .modal-box { transition: none !important; }
     .modal-box {
       background: var(--glass-bg);
       backdrop-filter: var(--glass-blur);
@@ -786,7 +788,8 @@
       .topbar-actions { flex-shrink: 0; }
       .content { padding: 20px 16px 28px; }
       .stats-grid { grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 18px; }
-      .stat-card { padding: 16px 14px; }
+      .stat-card { padding: 16px 14px; min-height: 0; }
+      .stat-card::after { height: 0; }
       .stat-value { font-size: 26px; }
       .section-header,
       .filter-bar,
@@ -1063,7 +1066,7 @@
     .sidebar-logo .admin-badge,
     .sidebar-section-label,
     .nav-item span,
-    .sidebar-footer > div,
+    .sidebar-footer > div:not(.avatar-sm),
     .logout-btn {
       display: none;
     }
@@ -1255,10 +1258,11 @@
       padding: 14px 8px 4px;
       border-top: 1px solid var(--border);
     }
-    .sidebar.is-expanded .sidebar-footer > div,
+    .sidebar.is-expanded .sidebar-footer > div:not(.avatar-sm),
     .sidebar.is-expanded .logout-btn {
       display: block;
     }
+    .sidebar.is-expanded .avatar-sm { display: flex; }
     .sidebar.is-expanded .logout-btn {
       margin-left: auto;
     }
@@ -1397,6 +1401,11 @@
       z-index: 0;
     }
     .stat-card > * { position: relative; z-index: 1; }
+    /* Tighten stat cards below the sidebar breakpoint (2-col, no floating accent strip) */
+    @media (max-width: 1180px) {
+      .stat-card { min-height: 0; padding: 16px 14px; }
+      .stat-card::after { height: 0; }
+    }
     .stat-value {
       font-family: var(--font-d);
       font-size: 34px;
@@ -1872,6 +1881,8 @@
     }
     .student-form-step { display: none; }
     .student-form-step.active { display: block; }
+    .teacher-form-step { display: none; }
+    .teacher-form-step.active { display: block; }
     #s-enrol-extra-fields { display: none; }
     #s-enrol-section.has-course #s-enrol-extra-fields { display: block; }
     .modal-section-title {
@@ -2372,10 +2383,11 @@
         padding: 14px 8px 4px;
         border-top: 1px solid var(--border);
       }
-      .sidebar.mobile-open .sidebar-footer > div,
+      .sidebar.mobile-open .sidebar-footer > div:not(.avatar-sm),
       .sidebar.mobile-open .logout-btn {
         display: block;
       }
+      .sidebar.mobile-open .avatar-sm { display: flex; }
       .sidebar-collapse-btn {
         display: none;
       }
@@ -2875,6 +2887,152 @@
         grid-template-columns: 1fr !important;
         flex-wrap: wrap !important;
       }
+    }
+
+    /* ==========================================================
+       AUTHORITATIVE responsive overrides — must come last so they
+       beat the non-media rules in the light-revamp section above.
+       ========================================================== */
+    @media (max-width: 1180px) {
+      #app { padding: 14px !important; gap: 0 !important; }
+
+      /* Sidebar becomes an off-canvas drawer; take it out of flow entirely */
+      .sidebar {
+        position: fixed !important;
+        left: 0; top: 0; bottom: 0;
+        width: min(82vw, 300px) !important;
+        min-width: 0 !important;
+        height: 100dvh !important;
+        max-height: 100dvh !important;
+        border-radius: 0 !important;
+        z-index: 60 !important;
+        transform: translateX(-100%);
+        visibility: hidden;
+        pointer-events: none;
+        transition: transform .2s ease;
+      }
+      .sidebar.mobile-open {
+        transform: translateX(0);
+        visibility: visible;
+        pointer-events: auto;
+      }
+      .sidebar.is-expanded { width: min(82vw, 300px) !important; }
+      .sidebar .sidebar-collapse-btn { display: none !important; }
+
+      /* Main column fills the width */
+      .main { width: 100% !important; min-width: 0 !important; }
+
+      /* The in-topbar secondary nav is redundant with the drawer here */
+      .topbar-nav { display: none !important; }
+
+      /* Topbar: single tidy row */
+      .topbar {
+        flex-wrap: nowrap !important;
+        gap: 10px !important;
+        padding: 12px 14px !important;
+      }
+      .topbar-actions { margin-left: auto !important; }
+      .global-search { width: min(240px, 40vw) !important; }
+
+      /* Collapse every 2-pane / multi-column dashboard layout */
+      .two-pane,
+      .dashboard-panel-grid,
+      .dashboard-hero,
+      #view-dashboard > div[style*="grid-template-columns"] {
+        display: block !important;
+        grid-template-columns: 1fr !important;
+      }
+      .two-pane > * { width: 100% !important; margin-bottom: 14px; }
+      .detail-pane { margin-top: 14px; }
+      .dashboard-hero { display: flex !important; flex-direction: column; align-items: stretch; gap: 12px; }
+      .dashboard-hero .btn { width: 100%; justify-content: center; }
+
+      .stats-grid { grid-template-columns: 1fr 1fr !important; }
+
+      /* Student / Teacher "inline panel" wizards -> plain centered modal.
+         The desktop version positions itself beside the sidebar, which breaks
+         once the sidebar is an off-canvas drawer. */
+      #modal-student.open,
+      #modal-teacher.open {
+        inset: 0 !important;
+        left: 0 !important;
+        align-items: flex-start !important;
+        justify-content: center !important;
+        padding: 14px !important;
+        background: rgba(20, 24, 27, .45) !important;
+        z-index: 100 !important;
+        overflow-y: auto !important;
+      }
+      #modal-student.open .modal-box,
+      #modal-teacher.open .modal-box {
+        width: 100% !important;
+        max-width: 620px !important;
+        margin: auto !important;
+        max-height: none !important;
+        display: block !important;
+        padding: 0 !important;
+        background: #ffffff !important;
+        border: 1px solid var(--border) !important;
+        border-radius: 20px !important;
+        box-shadow: 0 24px 60px rgba(20, 24, 27, .28) !important;
+        overflow: hidden !important;
+      }
+      #modal-student.open .modal-title,
+      #modal-teacher.open .modal-title {
+        position: static !important;
+        padding: 20px 20px 14px !important;
+        margin: 0 !important;
+        font-size: 20px !important;
+        line-height: 1.2 !important;
+        border-bottom: 1px solid var(--border);
+      }
+      #modal-student.open .modal-title::after,
+      #modal-teacher.open .modal-title::after,
+      #modal-student.open .modal-title::before,
+      #modal-teacher.open .modal-title::before { display: none !important; }
+      #modal-student.open .student-form-panel,
+      #modal-teacher.open .teacher-form-panel { padding: 18px 20px !important; }
+      #modal-student.open .modal-footer,
+      #modal-teacher.open .modal-footer { padding: 14px 20px !important; }
+      body.student-form-open .content > .view.active,
+      body.teacher-form-open .content > .view.active { visibility: visible !important; }
+      #modal-student.open .student-wizard,
+      #modal-teacher.open .teacher-wizard {
+        display: block !important;
+        grid-template-columns: 1fr !important;
+      }
+      #modal-student.open .student-form-panel,
+      #modal-teacher.open .teacher-form-panel {
+        width: 100% !important;
+        max-width: 100% !important;
+        flex: 1 1 auto !important;
+      }
+      #modal-student.open .wizard-rail,
+      #modal-teacher.open .wizard-rail { display: none !important; }
+      #modal-student.open .form-grid,
+      #modal-teacher.open .form-grid,
+      #modal-student.open [data-student-step="1"] .form-grid {
+        grid-template-columns: 1fr !important;
+      }
+      #modal-student.open .modal-footer,
+      #modal-teacher.open .modal-footer {
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+      #modal-student.open .modal-footer .btn,
+      #modal-teacher.open .modal-footer .btn { flex: 1 1 auto; }
+    }
+
+    @media (max-width: 620px) {
+      .stats-grid { grid-template-columns: 1fr !important; }
+      /* Single tidy topbar row: menu · logo · spacer · bell · avatar.
+         The search field has no good home at phone width. */
+      .topbar { flex-wrap: nowrap !important; gap: 8px !important; padding: 10px 12px !important; }
+      .topbar-badge { display: none !important; }
+      .global-search { display: none !important; }
+      .topbar-actions { margin-left: auto !important; gap: 8px !important; }
+      .topbar-logo-img { width: 128px !important; }
+      .dashboard-hero h1 { font-size: 24px !important; }
     }
   </style>
 </head>
@@ -3573,35 +3731,29 @@
 
 <!-- Add / Edit Teacher -->
 <div class="modal-overlay" id="modal-teacher" onclick="if(event.target===this)closeModal('modal-teacher')">
-  <div class="modal-box">
+  <div class="modal-box" style="max-height:92vh;overflow-y:auto;display:flex;flex-direction:column;">
     <div class="modal-title" id="teacher-modal-title">Add Teacher</div>
     <input type="hidden" id="edit-teacher-id" value="" />
     <div class="teacher-wizard">
       <aside class="wizard-rail">
         <div class="wizard-rail-title">Teacher Setup</div>
-        <div class="wizard-step active">
+        <div class="wizard-step active" data-teacher-step-nav="1">
           <span>1</span>
           <div>
             <strong>Teacher Info</strong>
             <small>Account and contact details</small>
           </div>
         </div>
-        <div class="wizard-step">
+        <div class="wizard-step" data-teacher-step-nav="2">
           <span>2</span>
           <div>
             <strong>Profile</strong>
-            <small>Title and specializations</small>
-          </div>
-        </div>
-        <div class="wizard-step">
-          <span>3</span>
-          <div>
-            <strong>Portfolio</strong>
-            <small>Bio, links and experience</small>
+            <small>Title, bio, links and experience</small>
           </div>
         </div>
       </aside>
       <div class="teacher-form-panel">
+    <div class="teacher-form-step active" data-teacher-step="1">
     <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;color:var(--cyan);margin-bottom:12px">
       <i class="fas fa-user-tie" style="margin-right:6px"></i>Teacher Info
     </div>
@@ -3631,8 +3783,10 @@
         <input class="form-input" id="t-password" type="password" placeholder="codencode123" />
       </div>
     </div>
+    </div>
 
-    <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;color:var(--cyan);margin-bottom:12px;margin-top:18px">
+    <div class="teacher-form-step" data-teacher-step="2">
+    <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;color:var(--cyan);margin-bottom:12px">
       <i class="fas fa-id-card" style="margin-right:6px"></i>Profile / Portfolio <span style="color:var(--text-dim);font-weight:400">(optional — shown to students)</span>
     </div>
     <div class="form-grid">
@@ -3665,12 +3819,15 @@
         <input class="form-input" id="t-linkedin" type="url" placeholder="https://linkedin.com/in/name" />
       </div>
     </div>
+    </div>
       </div>
     </div>
 
     <div class="modal-footer teacher-modal-footer">
       <button class="btn btn-secondary" onclick="closeModal('modal-teacher')">Cancel</button>
-      <button class="btn btn-primary" onclick="saveTeacher()">
+      <button class="btn btn-secondary" id="teacher-wizard-back" onclick="teacherWizardBack()" type="button">Back</button>
+      <button class="btn btn-primary" id="teacher-wizard-next" onclick="teacherWizardNext()" type="button">Continue</button>
+      <button class="btn btn-primary" id="teacher-wizard-save" onclick="saveTeacher()">
         <i class="fas fa-save"></i> Save
       </button>
     </div>
@@ -4377,8 +4534,10 @@ const VIEW_TITLES = {
 function toggleSidebar() {
   const sidebar = document.getElementById('sidebar');
   const backdrop = document.getElementById('sidebar-backdrop');
-  sidebar.classList.toggle('mobile-open');
-  backdrop.classList.toggle('active');
+  const open = sidebar.classList.toggle('mobile-open');
+  backdrop.classList.toggle('active', open);
+  // The mobile drawer always shows full labels, never the icon rail.
+  sidebar.classList.toggle('is-expanded', open);
 }
 
 function toggleSidebarCollapse() {
@@ -4431,6 +4590,7 @@ function setActiveNavigation(name) {
 }
 
 function showView(name) {
+  closeAllOverlays();
   document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
   const el = document.getElementById(`view-${name}`);
   if (el) el.classList.add('active');
@@ -4894,12 +5054,48 @@ function studentWizardBack() {
   setStudentWizardStep(S.studentWizardStep - 1);
 }
 
+// ── Teacher wizard (Account → Profile) ──────────
+function setTeacherWizardStep(step) {
+  const maxStep = 2;
+  S.teacherWizardStep = Math.max(1, Math.min(maxStep, step || 1));
+  document.querySelectorAll('#modal-teacher [data-teacher-step]').forEach(el => {
+    el.classList.toggle('active', parseInt(el.dataset.teacherStep) === S.teacherWizardStep);
+  });
+  document.querySelectorAll('#modal-teacher [data-teacher-step-nav]').forEach(el => {
+    const navStep = parseInt(el.dataset.teacherStepNav);
+    el.classList.toggle('active', navStep === S.teacherWizardStep);
+    el.classList.toggle('done', navStep < S.teacherWizardStep);
+  });
+  const backBtn = document.getElementById('teacher-wizard-back');
+  const nextBtn = document.getElementById('teacher-wizard-next');
+  const saveBtn = document.getElementById('teacher-wizard-save');
+  if (backBtn) backBtn.style.display = S.teacherWizardStep > 1 ? 'inline-flex' : 'none';
+  if (nextBtn) nextBtn.style.display = S.teacherWizardStep < maxStep ? 'inline-flex' : 'none';
+  if (saveBtn) saveBtn.style.display = S.teacherWizardStep === maxStep ? 'inline-flex' : 'none';
+  document.querySelector('#modal-teacher .modal-box')?.scrollTo({ top: 0 });
+}
+
+function teacherWizardNext() {
+  const name = document.getElementById('t-name').value.trim();
+  const email = document.getElementById('t-email').value.trim();
+  if (S.teacherWizardStep === 1 && (!name || !email)) {
+    toast('Name and email are required', true);
+    return;
+  }
+  setTeacherWizardStep(S.teacherWizardStep + 1);
+}
+
+function teacherWizardBack() {
+  setTeacherWizardStep(S.teacherWizardStep - 1);
+}
+
 function updateStudentEnrollmentFields() {
   const hasCourse = !!document.getElementById('s-course-select')?.value;
   document.getElementById('s-enrol-section')?.classList.toggle('has-course', hasCourse);
 }
 
 function openAddStudent() {
+  closeAllOverlays('modal-student');
   setStudentFormOpen(true);
   setActiveNavigation('add-student');
   if (window.innerWidth <= 768) {
@@ -4932,6 +5128,7 @@ function openAddStudent() {
 function openEditStudent(uid) {
   const s = S.students.find(x => x.id === uid);
   if (!s) return;
+  closeAllOverlays('modal-student');
   setStudentFormOpen(true);
   setActiveNavigation('students');
   if (window.innerWidth <= 768) {
@@ -6223,9 +6420,9 @@ async function saveAttendeePayment() {
 // ═══════════════════════════════════════════════════════
 // UTILS
 // ═══════════════════════════════════════════════════════
-function openModal(id)  { document.getElementById(id).classList.add('open'); }
+function openModal(id)  { document.getElementById(id)?.classList.add('open'); }
 function closeModal(id) {
-  document.getElementById(id).classList.remove('open');
+  document.getElementById(id)?.classList.remove('open');
   if (id === 'modal-student') {
     setStudentFormOpen(false);
     document.querySelectorAll('[data-view-link]').forEach(n => n.classList.remove('active'));
@@ -6234,7 +6431,33 @@ function closeModal(id) {
   if (id === 'modal-teacher') {
     setTeacherFormOpen(false);
   }
+  if (id === 'modal-student' || id === 'modal-teacher') {
+    document.body.classList.remove('sidebar-expanded');
+  }
 }
+
+// Dismiss every open overlay/drawer so a freshly-opened view or panel is never
+// left sitting underneath a stale one (which also blocks clicks).
+function closeAllOverlays(except) {
+  document.querySelectorAll('.modal-overlay.open').forEach(m => {
+    if (m.id === except) return;
+    m.classList.add('instant');
+    m.classList.remove('open');
+    requestAnimationFrame(() => requestAnimationFrame(() => m.classList.remove('instant')));
+  });
+  if (except !== 'modal-student') document.body.classList.remove('student-form-open');
+  if (except !== 'modal-teacher') document.body.classList.remove('teacher-form-open');
+  if (!except) document.body.classList.remove('sidebar-expanded');
+  document.getElementById('sidebar')?.classList.remove('mobile-open');
+  document.getElementById('sidebar-backdrop')?.classList.remove('active');
+}
+
+// Close the top-most overlay on Escape.
+document.addEventListener('keydown', e => {
+  if (e.key !== 'Escape') return;
+  const open = [...document.querySelectorAll('.modal-overlay.open')].pop();
+  if (open) closeModal(open.id);
+});
 
 function toast(msg, isError=false) {
   const el = document.createElement('div');
@@ -7111,6 +7334,7 @@ function exportCSV(type) {
 const _TEACHER_PROFILE_FIELDS = ['t-title','t-specializations','t-bio','t-education','t-experience','t-website','t-linkedin'];
 
 function openAddTeacher() {
+  closeAllOverlays('modal-teacher');
   setTeacherFormOpen(true);
   setActiveNavigation('add-teacher');
   if (window.innerWidth <= 768) {
@@ -7124,10 +7348,12 @@ function openAddTeacher() {
   });
   document.getElementById('t-language').value = 'en';
   _TEACHER_PROFILE_FIELDS.forEach(id => { document.getElementById(id).value = ''; });
+  setTeacherWizardStep(1);
   openModal('modal-teacher');
 }
 
 function openEditTeacher(t) {
+  closeAllOverlays('modal-teacher');
   setTeacherFormOpen(true);
   setActiveNavigation('teachers');
   if (window.innerWidth <= 768) {
@@ -7149,6 +7375,7 @@ function openEditTeacher(t) {
   document.getElementById('t-experience').value      = t.experience      || '';
   document.getElementById('t-website').value         = t.website         || '';
   document.getElementById('t-linkedin').value        = t.linkedin        || '';
+  setTeacherWizardStep(1);
   openModal('modal-teacher');
 }
 
