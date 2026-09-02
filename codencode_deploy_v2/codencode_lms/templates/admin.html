@@ -3301,7 +3301,7 @@
         <div class="filter-bar">
           <label data-i18n="lbl.course">Course</label>
           <select class="form-select" id="att-course-select" onchange="loadAttendance()" style="width:280px">
-            <option value="">Select course...</option>
+            <option value="" data-i18n="aj.optSelCourse">Select course...</option>
           </select>
         </div>
         <div id="attendance-area">
@@ -3317,7 +3317,7 @@
         <div class="filter-bar">
           <label>Course</label>
           <select class="form-select" id="mat-course-select" onchange="loadMaterialsList()" style="width:280px">
-            <option value="">Select course...</option>
+            <option value="" data-i18n="aj.optSelCourse">Select course...</option>
           </select>
         </div>
 
@@ -3361,10 +3361,10 @@
           <label data-i18n="lbl.filter">Filter</label>
           <select class="form-select" id="pay-filter" onchange="filterPayments()" style="width:160px">
             <option value="all">All</option>
-            <option value="pending">Pending</option>
-            <option value="overdue">Overdue</option>
-            <option value="paid">Paid</option>
-            <option value="cancelled">Cancelled</option>
+            <option value="pending" data-i18n="st.pending">Pending</option>
+            <option value="overdue" data-i18n="st.overdue">Overdue</option>
+            <option value="paid" data-i18n="st.paid">Paid</option>
+            <option value="cancelled" data-i18n="st.cancelled">Cancelled</option>
           </select>
         </div>
         <div class="card">
@@ -3391,7 +3391,7 @@
           <div class="filter-field" style="min-width:320px">
             <label>Course</label>
             <select class="form-select" id="tt-course-select" onchange="loadAdminTimetable()">
-              <option value="">Select course...</option>
+              <option value="" data-i18n="aj.optSelCourse">Select course...</option>
             </select>
           </div>
           <div class="filter-field" style="min-width:280px">
@@ -3574,7 +3574,7 @@
 <!-- Add / Edit Student -->
 <div class="modal-overlay" id="modal-student" onclick="if(event.target===this)closeModal('modal-student')">
   <div class="modal-box" style="max-height:92vh;overflow-y:auto;display:flex;flex-direction:column;">
-    <div class="modal-title" id="student-modal-title" data-i18n="btn.addStudent">Add Student</div>
+    <div class="modal-title" id="student-modal-title" data-i18n="btn.addStudent" data-i18n="btn.addStudent">Add Student</div>
     <input type="hidden" id="edit-student-id" value="" />
     <div class="student-wizard">
       <aside class="wizard-rail">
@@ -3582,22 +3582,22 @@
         <div class="wizard-step active" data-student-step-nav="1">
           <span>1</span>
           <div>
-            <strong>Personal Info</strong>
-            <small>Student contact details</small>
+            <strong data-i18n="am.stPersonal">Personal Info</strong>
+            <small data-i18n="am.stepContact">Student contact details</small>
           </div>
         </div>
         <div class="wizard-step" data-student-step-nav="2">
           <span>2</span>
           <div>
-            <strong>Course & Batch</strong>
-            <small>Assign programme setup</small>
+            <strong data-i18n="am.stCourseBatch">Course & Batch</strong>
+            <small data-i18n="am.stepProgramme">Assign programme setup</small>
           </div>
         </div>
         <div class="wizard-step" data-student-step-nav="3">
           <span>3</span>
           <div>
-            <strong>Review & Confirm</strong>
-            <small>Billing and final details</small>
+            <strong data-i18n="am.stReview">Review & Confirm</strong>
+            <small data-i18n="am.stepBilling">Billing and final details</small>
           </div>
         </div>
       </aside>
@@ -3628,9 +3628,9 @@
       <div class="form-group">
         <label class="form-label" data-i18n="lbl.prefLang">Preferred Language</label>
         <select class="form-select" id="s-language">
-          <option value="en">English</option>
-          <option value="bm">Malay (BM)</option>
-          <option value="zh">Chinese (中文)</option>
+          <option value="en" data-i18n="am.langEng">English</option>
+          <option value="bm" data-i18n="am.langMalayBm">Malay (BM)</option>
+          <option value="zh" data-i18n="am.langChinese">Chinese (中文)</option>
         </select>
       </div>
     </div>
@@ -3654,11 +3654,11 @@
       </div>
       <div class="form-group">
         <label class="form-label" data-i18n="lbl.sstNo">SST Registration No.</label>
-        <input class="form-input" id="s-bill-sst-number" placeholder="optional" />
+        <input class="form-input" id="s-bill-sst-number" placeholder="optional" data-i18n-ph="am.phOptional" />
       </div>
       <div class="form-group" style="grid-column:span 2">
         <label class="form-label" data-i18n="lbl.address">Address</label>
-        <textarea class="form-textarea" id="s-bill-company-address" rows="3" placeholder="Billing address"></textarea>
+        <textarea class="form-textarea" id="s-bill-company-address" rows="3" placeholder="Billing address" data-i18n-ph="am.phBillAddr"></textarea>
       </div>
     </div>
 
@@ -3672,37 +3672,37 @@
       </div>
 
       <div class="form-group" style="margin-bottom:14px">
-        <label class="form-label">Course</label>
+        <label class="form-label" data-i18n="lbl.course">Course</label>
         <select class="form-select" id="s-course-select" onchange="loadStudentFormCohorts()">
-          <option value="">— skip enrolment for now —</option>
+          <option value="" data-i18n="aj.optSkipEnrol">— skip enrolment for now —</option>
         </select>
       </div>
 
       <div id="s-enrol-extra-fields">
       <div class="form-group" style="margin-bottom:14px">
-        <label class="form-label">Cohort / Class <span style="color:var(--text-dim);font-size:10px">(teacher + timetable)</span></label>
+        <label class="form-label" data-i18n="lbl.classCohort">Cohort / Class <span style="color:var(--text-dim);font-size:10px" data-i18n="am.hTeacherTt">(teacher + timetable)</span></label>
         <select class="form-select" id="s-cohort-select" onchange="applySelectedCohortTiming('s')">
-          <option value="">— choose course first —</option>
+          <option value="" data-i18n="aj.optChooseCourse">— choose course first —</option>
         </select>
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">
         <div class="form-group">
           <label class="form-label" data-i18n="lbl.classFormat">Class Format</label>
           <select class="form-select" id="s-class-format">
-            <option value="">— select —</option>
-            <option value="1v1">1 vs 1 &nbsp;(Private)</option>
-            <option value="2v1">2 vs 1 &nbsp;(Pair)</option>
-            <option value="5v1">5 vs 1 &nbsp;(Small Group)</option>
-            <option value="cohort">Cohort &nbsp;(Full Class)</option>
+            <option value="" data-i18n="am.optSelect">— select —</option>
+            <option value="1v1" data-i18n="am.fmt1v1">1 vs 1 &nbsp;(Private)</option>
+            <option value="2v1" data-i18n="am.fmt2v1">2 vs 1 &nbsp;(Pair)</option>
+            <option value="5v1" data-i18n="am.fmt5v1">5 vs 1 &nbsp;(Small Group)</option>
+            <option value="cohort" data-i18n="am.fmtCohort">Cohort &nbsp;(Full Class)</option>
           </select>
         </div>
         <div class="form-group">
           <label class="form-label" data-i18n="lbl.payStatus">Payment Status</label>
           <select class="form-select" id="s-payment-status">
-            <option value="pending">Pending</option>
-            <option value="paid">Paid</option>
-            <option value="overdue">Overdue</option>
-            <option value="cancelled">Cancelled</option>
+            <option value="pending" data-i18n="st.pending">Pending</option>
+            <option value="paid" data-i18n="st.paid">Paid</option>
+            <option value="overdue" data-i18n="st.overdue">Overdue</option>
+            <option value="cancelled" data-i18n="st.cancelled">Cancelled</option>
           </select>
         </div>
       </div>
@@ -3732,7 +3732,7 @@
 <!-- Add / Edit Teacher -->
 <div class="modal-overlay" id="modal-teacher" onclick="if(event.target===this)closeModal('modal-teacher')">
   <div class="modal-box" style="max-height:92vh;overflow-y:auto;display:flex;flex-direction:column;">
-    <div class="modal-title" id="teacher-modal-title">Add Teacher</div>
+    <div class="modal-title" id="teacher-modal-title" data-i18n="am.addTeacher">Add Teacher</div>
     <input type="hidden" id="edit-teacher-id" value="" />
     <div class="teacher-wizard">
       <aside class="wizard-rail">
@@ -3740,15 +3740,15 @@
         <div class="wizard-step active" data-teacher-step-nav="1">
           <span>1</span>
           <div>
-            <strong>Teacher Info</strong>
-            <small>Account and contact details</small>
+            <strong data-i18n="am.stTeacherInfo">Teacher Info</strong>
+            <small data-i18n="am.stepAccount">Account and contact details</small>
           </div>
         </div>
         <div class="wizard-step" data-teacher-step-nav="2">
           <span>2</span>
           <div>
-            <strong>Profile</strong>
-            <small>Title, bio, links and experience</small>
+            <strong data-i18n="am.stProfile">Profile</strong>
+            <small data-i18n="am.stepProfileBio">Title, bio, links and experience</small>
           </div>
         </div>
       </aside>
@@ -3759,27 +3759,27 @@
     </div>
     <div class="form-grid">
       <div class="form-group">
-        <label class="form-label">Full Name *</label>
+        <label class="form-label" data-i18n="lbl.fullName">Full Name *</label>
         <input class="form-input" id="t-name" placeholder="Michael Chang" />
       </div>
       <div class="form-group">
-        <label class="form-label">Email *</label>
+        <label class="form-label" data-i18n="lbl.emailReq">Email *</label>
         <input class="form-input" id="t-email" type="email" placeholder="teacher@codencode.my" />
       </div>
       <div class="form-group">
-        <label class="form-label">Phone Number</label>
+        <label class="form-label" data-i18n="lbl.phoneNumber">Phone Number</label>
         <input class="form-input" id="t-phone" placeholder="011-2345678" />
       </div>
       <div class="form-group">
-        <label class="form-label">Preferred Language</label>
+        <label class="form-label" data-i18n="lbl.prefLang">Preferred Language</label>
         <select class="form-select" id="t-language">
-          <option value="en">English</option>
-          <option value="bm">Malay (BM)</option>
-          <option value="zh">Chinese (中文)</option>
+          <option value="en" data-i18n="am.langEng">English</option>
+          <option value="bm" data-i18n="am.langMalayBm">Malay (BM)</option>
+          <option value="zh" data-i18n="am.langChinese">Chinese (中文)</option>
         </select>
       </div>
       <div class="form-group">
-        <label class="form-label">Password</label>
+        <label class="form-label" data-i18n="lbl.password">Password</label>
         <input class="form-input" id="t-password" type="password" placeholder="codencode123" />
       </div>
     </div>
@@ -3792,23 +3792,23 @@
     <div class="form-grid">
       <div class="form-group">
         <label class="form-label" data-i18n="lbl.displayTitle">Display Title</label>
-        <input class="form-input" id="t-title" placeholder="e.g. Lead Instructor, Senior Data Scientist" />
+        <input class="form-input" id="t-title" placeholder="e.g. Lead Instructor, Senior Data Scientist" data-i18n-ph="am.phRoleEg" />
       </div>
       <div class="form-group">
-        <label class="form-label">Specializations <span style="color:var(--text-dim);font-size:10px">(comma-separated)</span></label>
+        <label class="form-label" data-i18n="am.specializations">Specializations <span style="color:var(--text-dim);font-size:10px" data-i18n="am.hComma">(comma-separated)</span></label>
         <input class="form-input" id="t-specializations" placeholder="Python, Machine Learning, NLP" />
       </div>
       <div class="form-group" style="grid-column:span 2">
         <label class="form-label" data-i18n="lbl.shortBio">Short Bio</label>
-        <textarea class="form-textarea" id="t-bio" rows="2" placeholder="Brief intro shown to students on their dashboard..." data-i18n-ph="p.bioIntro"></textarea>
+        <textarea class="form-textarea" id="t-bio" rows="2" placeholder="Brief intro shown to students on their dashboard..." data-i18n-ph="am.phBioEg" data-i18n-ph="p.bioIntro"></textarea>
       </div>
       <div class="form-group" style="grid-column:span 2">
         <label class="form-label" data-i18n="lbl.education">Education</label>
-        <input class="form-input" id="t-education" placeholder="e.g. BSc CS, UPM · MSc AI, UM" />
+        <input class="form-input" id="t-education" placeholder="e.g. BSc CS, UPM · MSc AI, UM" data-i18n-ph="am.phEduEg" />
       </div>
       <div class="form-group" style="grid-column:span 2">
         <label class="form-label" data-i18n="lbl.experience">Experience</label>
-        <textarea class="form-textarea" id="t-experience" rows="2" placeholder="e.g. 5+ years in Python, data engineering and ML..."></textarea>
+        <textarea class="form-textarea" id="t-experience" rows="2" placeholder="e.g. 5+ years in Python, data engineering and ML..." data-i18n-ph="am.phExpEg"></textarea>
       </div>
       <div class="form-group">
         <label class="form-label" data-i18n="lbl.portfolio">Portfolio Website</label>
@@ -3835,26 +3835,26 @@
 <!-- Enroll Student in Course -->
 <div class="modal-overlay" id="modal-enroll" onclick="if(event.target===this)closeModal('modal-enroll')">
   <div class="modal-box">
-    <div class="modal-title">Assign Course</div>
+    <div class="modal-title" data-i18n="btn.assignCourse">Assign Course</div>
     <input type="hidden" id="enroll-student-id" value="" />
     <div class="form-group" style="margin-bottom:14px">
-      <label class="form-label">Course</label>
+      <label class="form-label" data-i18n="lbl.course">Course</label>
       <select class="form-select" id="enroll-course-select" onchange="loadEnrollCohorts()"></select>
     </div>
     <div class="form-group" style="margin-bottom:14px">
-      <label class="form-label">Cohort <span style="color:var(--text-dim);font-size:10px">(intake / semester)</span></label>
+      <label class="form-label" data-i18n="am.cohort">Cohort <span style="color:var(--text-dim);font-size:10px" data-i18n="am.hIntake">(intake / semester)</span></label>
       <select class="form-select" id="enroll-cohort-select" onchange="applySelectedCohortTiming('enroll')">
-        <option value="">— no cohort assigned —</option>
+        <option value="" data-i18n="aj.optNoCohort">— no cohort assigned —</option>
       </select>
     </div>
     <div class="form-group" style="margin-bottom:14px">
-      <label class="form-label">Class Format</label>
+      <label class="form-label" data-i18n="lbl.classFormat">Class Format</label>
       <select class="form-select" id="enroll-class-format">
-        <option value="">— select format —</option>
-        <option value="1v1">1 vs 1 &nbsp;(Private — student : teacher)</option>
-        <option value="2v1">2 vs 1 &nbsp;(Pair — 2 students : 1 teacher)</option>
-        <option value="5v1">5 vs 1 &nbsp;(Small group — 5 students : 1 teacher)</option>
-        <option value="cohort">Cohort &nbsp;(Full class)</option>
+        <option value="" data-i18n="am.optSelectFormat">— select format —</option>
+        <option value="1v1" data-i18n="am.fmt1v1L">1 vs 1 &nbsp;(Private — student : teacher)</option>
+        <option value="2v1" data-i18n="am.fmt2v1L">2 vs 1 &nbsp;(Pair — 2 students : 1 teacher)</option>
+        <option value="5v1" data-i18n="am.fmt5v1L">5 vs 1 &nbsp;(Small group — 5 students : 1 teacher)</option>
+        <option value="cohort" data-i18n="am.fmtCohortL">Cohort &nbsp;(Full class)</option>
       </select>
     </div>
     <div class="form-group" style="margin-bottom:14px">
@@ -3865,17 +3865,17 @@
       </div>
     </div>
     <div class="form-group" style="margin-bottom:14px">
-      <label class="form-label">Payment Status</label>
+      <label class="form-label" data-i18n="lbl.payStatus">Payment Status</label>
       <select class="form-select" id="enroll-payment-status">
-        <option value="pending">Pending</option>
-        <option value="paid">Paid</option>
-        <option value="overdue">Overdue</option>
-        <option value="cancelled">Cancelled</option>
+        <option value="pending" data-i18n="st.pending">Pending</option>
+        <option value="paid" data-i18n="st.paid">Paid</option>
+        <option value="overdue" data-i18n="st.overdue">Overdue</option>
+        <option value="cancelled" data-i18n="st.cancelled">Cancelled</option>
       </select>
     </div>
     <div class="form-group">
       <label class="form-label" data-i18n="lbl.remarks">Remarks</label>
-      <textarea class="form-textarea" id="enroll-remarks" placeholder="e.g. Full payment received"></textarea>
+      <textarea class="form-textarea" id="enroll-remarks" placeholder="e.g. Full payment received" data-i18n-ph="am.phPayReceived"></textarea>
     </div>
     <div class="modal-footer">
       <button class="btn btn-secondary" onclick="closeModal('modal-enroll')"><span data-i18n="btn.cancel">Cancel</span></button>
@@ -3887,15 +3887,15 @@
 <!-- Edit Payment -->
 <div class="modal-overlay" id="modal-payment" onclick="if(event.target===this)closeModal('modal-payment')">
   <div class="modal-box">
-    <div class="modal-title">Update Payment</div>
+    <div class="modal-title" data-i18n="am.updatePayment">Update Payment</div>
     <input type="hidden" id="pay-enrollment-id" value="" />
     <div class="form-group" style="margin-bottom:14px">
       <label class="form-label" data-i18n="lbl.status">Status</label>
       <select class="form-select" id="pay-status-select">
-        <option value="pending">Pending</option>
-        <option value="paid">Paid</option>
-        <option value="overdue">Overdue</option>
-        <option value="cancelled">Cancelled</option>
+        <option value="pending" data-i18n="st.pending">Pending</option>
+        <option value="paid" data-i18n="st.paid">Paid</option>
+        <option value="overdue" data-i18n="st.overdue">Overdue</option>
+        <option value="cancelled" data-i18n="st.cancelled">Cancelled</option>
       </select>
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">
@@ -3906,13 +3906,13 @@
       <div class="form-group">
         <label class="form-label" data-i18n="lbl.payMethod">Payment Method</label>
         <select class="form-select" id="pay-method">
-          <option value="">— select —</option>
-          <option value="Bank Transfer">Bank Transfer</option>
+          <option value="" data-i18n="am.optSelect">— select —</option>
+          <option value="Bank Transfer" data-i18n="am.pmBank">Bank Transfer</option>
           <option value="FPX">FPX</option>
-          <option value="Cash">Cash</option>
-          <option value="Credit Card">Credit Card</option>
-          <option value="Debit Card">Debit Card</option>
-          <option value="Other">Other</option>
+          <option value="Cash" data-i18n="am.pmCash">Cash</option>
+          <option value="Credit Card" data-i18n="am.pmCredit">Credit Card</option>
+          <option value="Debit Card" data-i18n="am.pmDebit">Debit Card</option>
+          <option value="Other" data-i18n="am.pmOther">Other</option>
         </select>
       </div>
     </div>
@@ -3923,7 +3923,7 @@
       </div>
       <div class="form-group">
         <label class="form-label" data-i18n="lbl.discountReason">Discount Reason</label>
-        <input type="text" class="form-input" id="pay-discount-reason" placeholder="e.g. Early bird" maxlength="200" />
+        <input type="text" class="form-input" id="pay-discount-reason" placeholder="e.g. Early bird" data-i18n-ph="am.phEarlyBird" maxlength="200" />
       </div>
     </div>
     <div id="pay-email-note" style="display:none;background:rgba(0,196,133,.08);border:1px solid rgba(0,196,133,.3);border-radius:6px;padding:9px 12px;font-size:11px;color:var(--cyan);margin-bottom:14px">
@@ -3931,8 +3931,8 @@
       Setting to <strong>Paid</strong> will automatically email the student a PDF receipt and enrolment confirmation.
     </div>
     <div class="form-group" style="margin-bottom:14px">
-      <label class="form-label">Remarks</label>
-      <textarea class="form-textarea" id="pay-remarks" placeholder="Notes about payment..." data-i18n-ph="p.payNotes"></textarea>
+      <label class="form-label" data-i18n="lbl.remarks">Remarks</label>
+      <textarea class="form-textarea" id="pay-remarks" placeholder="Notes about payment..." data-i18n-ph="am.phPayNotes" data-i18n-ph="p.payNotes"></textarea>
     </div>
     <div class="form-group" style="margin-bottom:14px">
       <label class="form-label" data-i18n="lbl.receiptOpt">Receipt (PDF / Image) — optional</label>
@@ -3950,15 +3950,15 @@
 <!-- Add / Edit Workshop -->
 <div class="modal-overlay" id="modal-workshop" onclick="if(event.target===this)closeModal('modal-workshop')">
   <div class="modal-box">
-    <div class="modal-title" id="workshop-modal-title">Add Workshop</div>
+    <div class="modal-title" id="workshop-modal-title" data-i18n="btn.addWorkshop">Add Workshop</div>
     <input type="hidden" id="workshop-id" value="" />
     <div class="form-group" style="margin-bottom:14px">
       <label class="form-label" data-i18n="lbl.titleReq">Title *</label>
-      <input class="form-input" id="workshop-title" placeholder="e.g. AI for Marketing" />
+      <input class="form-input" id="workshop-title" placeholder="e.g. AI for Marketing" data-i18n-ph="am.phWsEg" />
     </div>
     <div class="form-group" style="margin-bottom:14px">
       <label class="form-label" data-i18n="lbl.description">Description</label>
-      <textarea class="form-textarea" id="workshop-description" placeholder="What this workshop covers..." data-i18n-ph="p.wsCovers"></textarea>
+      <textarea class="form-textarea" id="workshop-description" placeholder="What this workshop covers..." data-i18n-ph="am.phWsCovers" data-i18n-ph="p.wsCovers"></textarea>
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px">
       <div class="form-group">
@@ -3967,7 +3967,7 @@
       </div>
       <div class="form-group">
         <label class="form-label" data-i18n="lbl.defaultPrice">Default Price / Pax (RM)</label>
-        <input class="form-input" type="number" id="workshop-price" placeholder="optional" min="0" step="0.01" />
+        <input class="form-input" type="number" id="workshop-price" placeholder="optional" data-i18n-ph="am.phOptional" min="0" step="0.01" />
       </div>
     </div>
     <div class="modal-footer">
@@ -3980,7 +3980,7 @@
 <!-- Schedule a Run -->
 <div class="modal-overlay" id="modal-schedule-run" onclick="if(event.target===this)closeModal('modal-schedule-run')">
   <div class="modal-box">
-    <div class="modal-title" id="run-modal-title">Schedule a Run</div>
+    <div class="modal-title" id="run-modal-title" data-i18n="btn.scheduleRun">Schedule a Run</div>
     <input type="hidden" id="run-workshop-id" value="" />
     <input type="hidden" id="run-id" value="" />
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px">
@@ -3995,7 +3995,7 @@
     </div>
     <div class="form-group" style="margin-bottom:14px">
       <label class="form-label" data-i18n="lbl.venue">Venue</label>
-      <input class="form-input" id="run-venue" placeholder="e.g. Mount Austin, JB" />
+      <input class="form-input" id="run-venue" placeholder="e.g. Mount Austin, JB" data-i18n-ph="am.phVenueEg" />
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px">
       <div class="form-group">
@@ -4003,16 +4003,16 @@
         <input class="form-input" type="number" id="run-capacity" placeholder="e.g. 20" min="1" />
       </div>
       <div class="form-group">
-        <label class="form-label">Price / Pax (RM) <span style="color:var(--text-dim);font-size:10px">(overrides default)</span></label>
-        <input class="form-input" type="number" id="run-price" placeholder="optional" min="0" step="0.01" />
+        <label class="form-label" data-i18n="am.pricePax">Price / Pax (RM) <span style="color:var(--text-dim);font-size:10px" data-i18n="am.hOverride">(overrides default)</span></label>
+        <input class="form-input" type="number" id="run-price" placeholder="optional" data-i18n-ph="am.phOptional" min="0" step="0.01" />
       </div>
     </div>
     <div class="form-group" style="margin-bottom:14px">
       <label class="form-label" data-i18n="lbl.facilitator">Facilitator</label>
-      <select class="form-select" id="run-teacher"><option value="">— none —</option></select>
+      <select class="form-select" id="run-teacher"><option value="" data-i18n="aj.optNoneDash">— none —</option></select>
     </div>
     <div class="form-group" style="margin-bottom:14px">
-      <label class="form-label">Google Review Link <span style="color:var(--text-dim);font-size:10px">(optional, overrides business default)</span></label>
+      <label class="form-label" data-i18n="am.gReviewLink">Google Review Link <span style="color:var(--text-dim);font-size:10px" data-i18n="am.hOverrideBiz">(optional, overrides business default)</span></label>
       <input class="form-input" id="run-google-review" placeholder="https://g.page/r/..." />
     </div>
     <div class="modal-footer">
@@ -4025,7 +4025,7 @@
 <!-- Assign Workshop from Student Detail -->
 <div class="modal-overlay" id="modal-assign-workshop" onclick="if(event.target===this)closeModal('modal-assign-workshop')">
   <div class="modal-box">
-    <div class="modal-title">Assign Workshop</div>
+    <div class="modal-title" data-i18n="btn.assignWorkshop">Assign Workshop</div>
     <input type="hidden" id="assign-workshop-student-id" value="" />
     <div class="form-group" style="margin-bottom:14px">
       <label class="form-label" data-i18n="lbl.wsRun">Workshop Run</label>
@@ -4042,26 +4042,26 @@
 <!-- Add Attendee to Run -->
 <div class="modal-overlay" id="modal-add-attendee" onclick="if(event.target===this)closeModal('modal-add-attendee')">
   <div class="modal-box">
-    <div class="modal-title">Register Attendee</div>
+    <div class="modal-title" data-i18n="btn.register">Register Attendee</div>
     <input type="hidden" id="att-run-id" value="" />
     <div class="form-group" style="margin-bottom:14px">
       <label class="form-label" data-i18n="lbl.existingStudent">Existing Student</label>
       <select class="form-select" id="att-existing-student" onchange="fillAttendeeFromStudent()">
-        <option value="">— new / type manually —</option>
+        <option value="" data-i18n="aj.optNewManual">— new / type manually —</option>
       </select>
     </div>
     <div class="form-group" style="margin-bottom:14px">
       <label class="form-label" data-i18n="lbl.nameReq">Name *</label>
-      <input class="form-input" id="att-name" placeholder="Full name" data-i18n-ph="p.fullName" />
+      <input class="form-input" id="att-name" placeholder="Full name" data-i18n-ph="am.phFullName" data-i18n-ph="p.fullName" />
     </div>
     <div class="form-group" style="margin-bottom:14px">
-      <label class="form-label">Email *</label>
+      <label class="form-label" data-i18n="lbl.emailReq">Email *</label>
       <input class="form-input" type="email" id="att-email" placeholder="you@example.com" data-i18n-ph="p.email" />
       <div style="font-size:10px;color:var(--text-dim);margin-top:4px">New workshop attendees get LMS login access. Default password: codencode123. If this email already exists, we'll link to that person instead of creating a duplicate.</div>
     </div>
     <div class="form-group" style="margin-bottom:14px">
       <label class="form-label" data-i18n="lbl.phone">Phone</label>
-      <input class="form-input" id="att-phone" placeholder="optional" />
+      <input class="form-input" id="att-phone" placeholder="optional" data-i18n-ph="am.phOptional" />
     </div>
     <div class="modal-footer">
       <button class="btn btn-secondary" onclick="closeModal('modal-add-attendee')"><span data-i18n="btn.cancel">Cancel</span></button>
@@ -4078,29 +4078,29 @@
     <input type="hidden" id="ap-attendee-id" value="" />
     <input type="hidden" id="ap-student-id" value="" />
     <div class="form-group" style="margin-bottom:14px">
-      <label class="form-label">Status</label>
+      <label class="form-label" data-i18n="lbl.status">Status</label>
       <select class="form-select" id="ap-status">
-        <option value="pending">Pending</option>
-        <option value="paid">Paid</option>
-        <option value="overdue">Overdue</option>
-        <option value="cancelled">Cancelled</option>
+        <option value="pending" data-i18n="st.pending">Pending</option>
+        <option value="paid" data-i18n="st.paid">Paid</option>
+        <option value="overdue" data-i18n="st.overdue">Overdue</option>
+        <option value="cancelled" data-i18n="st.cancelled">Cancelled</option>
       </select>
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">
       <div class="form-group">
-        <label class="form-label">Amount (RM)</label>
+        <label class="form-label" data-i18n="lbl.amountRM">Amount (RM)</label>
         <input class="form-input" type="number" id="ap-amount" step="0.01" min="0" />
       </div>
       <div class="form-group">
-        <label class="form-label">Payment Method</label>
+        <label class="form-label" data-i18n="lbl.payMethod">Payment Method</label>
         <select class="form-select" id="ap-method">
-          <option value="">— select —</option>
-          <option value="Bank Transfer">Bank Transfer</option>
+          <option value="" data-i18n="am.optSelect">— select —</option>
+          <option value="Bank Transfer" data-i18n="am.pmBank">Bank Transfer</option>
           <option value="FPX">FPX</option>
-          <option value="Cash">Cash</option>
-          <option value="Credit Card">Credit Card</option>
-          <option value="Debit Card">Debit Card</option>
-          <option value="Other">Other</option>
+          <option value="Cash" data-i18n="am.pmCash">Cash</option>
+          <option value="Credit Card" data-i18n="am.pmCredit">Credit Card</option>
+          <option value="Debit Card" data-i18n="am.pmDebit">Debit Card</option>
+          <option value="Other" data-i18n="am.pmOther">Other</option>
         </select>
       </div>
     </div>
@@ -4115,15 +4115,15 @@
 <!-- Add Cohort Modal -->
 <div class="modal-overlay" id="modal-add-cohort" onclick="if(event.target===this)closeModal('modal-add-cohort')">
   <div class="modal-box">
-    <div class="modal-title">New Cohort / Intake</div>
+    <div class="modal-title" data-i18n="am.newCohortIntake">New Cohort / Intake</div>
     <input type="hidden" id="add-cohort-course-id" value="" />
     <div class="form-group" style="margin-bottom:14px">
       <label class="form-label" data-i18n="lbl.cohortNameReq">Cohort Name *</label>
-      <input class="form-input" id="add-cohort-name" placeholder="e.g. Jan 2026, Cohort 2, May Intake" />
+      <input class="form-input" id="add-cohort-name" placeholder="e.g. Jan 2026, Cohort 2, May Intake" data-i18n-ph="am.phCohortEg" />
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px">
       <div class="form-group">
-        <label class="form-label">Start Date <span style="color:var(--text-dim);font-size:10px">(Session 1)</span></label>
+        <label class="form-label" data-i18n="lbl.startDate">Start Date <span style="color:var(--text-dim);font-size:10px" data-i18n="am.hSession1">(Session 1)</span></label>
         <input class="form-input" type="date" id="add-cohort-start" />
       </div>
       <div class="form-group">
@@ -4132,7 +4132,7 @@
       </div>
     </div>
     <div class="form-group" style="margin-bottom:14px">
-      <label class="form-label">Teacher <span style="color:var(--text-dim);font-size:10px">(optional, overrides course teacher)</span></label>
+      <label class="form-label" data-i18n="am.teacher">Teacher <span style="color:var(--text-dim);font-size:10px" data-i18n="am.hOverrideTeacher">(optional, overrides course teacher)</span></label>
       <select class="form-select" id="add-cohort-teacher"></select>
     </div>
     <div class="modal-footer">
@@ -4145,13 +4145,13 @@
 <!-- Edit Cohort Modal -->
 <div class="modal-overlay" id="modal-edit-cohort" onclick="if(event.target===this)closeModal('modal-edit-cohort')">
   <div class="modal-box" style="max-width:560px">
-    <div class="modal-title">Edit Cohort</div>
+    <div class="modal-title" data-i18n="am.editCohort">Edit Cohort</div>
     <input type="hidden" id="edit-cohort-id" value="" />
     <input type="hidden" id="edit-cohort-course-id" value="" />
 
     <div class="form-group" style="margin-bottom:14px">
-      <label class="form-label">Cohort Name *</label>
-      <input class="form-input" id="edit-cohort-name" placeholder="e.g. Jan 2026, Cohort 2" />
+      <label class="form-label" data-i18n="lbl.cohortNameReq">Cohort Name *</label>
+      <input class="form-input" id="edit-cohort-name" placeholder="e.g. Jan 2026, Cohort 2" data-i18n-ph="am.phCohortEg2" />
     </div>
 
     <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:14px">
@@ -4160,7 +4160,7 @@
         <input class="form-input" type="date" id="edit-cohort-start" />
       </div>
       <div class="form-group">
-        <label class="form-label">End Date</label>
+        <label class="form-label" data-i18n="lbl.endDate">End Date</label>
         <input class="form-input" type="date" id="edit-cohort-end" />
       </div>
       <div class="form-group">
@@ -4170,7 +4170,7 @@
     </div>
 
     <div class="form-group" style="margin-bottom:14px">
-      <label class="form-label">Teacher <span style="color:var(--text-dim);font-size:10px">(optional, overrides course teacher)</span></label>
+      <label class="form-label" data-i18n="am.teacher">Teacher <span style="color:var(--text-dim);font-size:10px" data-i18n="am.hOverrideTeacher">(optional, overrides course teacher)</span></label>
       <select class="form-select" id="edit-cohort-teacher"></select>
     </div>
 
@@ -4183,8 +4183,8 @@
     </div>
 
     <div class="form-group" style="margin-bottom:14px">
-      <label class="form-label">Notes <span style="color:var(--text-dim);font-size:10px">(breaks, makeup sessions, etc.)</span></label>
-      <textarea class="form-textarea" id="edit-cohort-notes" placeholder="e.g. CNY break Session 5, makeup session Mar 28" style="min-height:60px"></textarea>
+      <label class="form-label" data-i18n="am.notes">Notes <span style="color:var(--text-dim);font-size:10px" data-i18n="am.hBreaks">(breaks, makeup sessions, etc.)</span></label>
+      <textarea class="form-textarea" id="edit-cohort-notes" placeholder="e.g. CNY break Session 5, makeup session Mar 28" data-i18n-ph="am.phRemarksEg" style="min-height:60px"></textarea>
     </div>
 
     <div class="modal-footer">
@@ -4196,7 +4196,7 @@
 
 <div class="modal-overlay" id="modal-course" onclick="if(event.target===this)closeModal('modal-course')">
   <div class="modal-box">
-    <div class="modal-title" id="course-modal-title">New Course</div>
+    <div class="modal-title" id="course-modal-title" data-i18n="btn.newCourse">New Course</div>
     <input type="hidden" id="edit-course-id" value="" />
     <div class="form-grid">
       <div class="form-group">
@@ -4208,8 +4208,8 @@
         <input class="form-input" id="c-programme" placeholder="Python Bootcamp" />
       </div>
       <div class="form-group" style="grid-column:1/-1">
-        <label class="form-label">Description</label>
-        <textarea class="form-textarea" id="c-description" placeholder="Short description of this cohort..." data-i18n-ph="p.cohortDesc"></textarea>
+        <label class="form-label" data-i18n="lbl.description">Description</label>
+        <textarea class="form-textarea" id="c-description" placeholder="Short description of this cohort..." data-i18n-ph="am.phCohortDesc" data-i18n-ph="p.cohortDesc"></textarea>
       </div>
       <div class="form-group">
         <label class="form-label" data-i18n="lbl.numSessions">Number of Sessions</label>
@@ -4222,19 +4222,19 @@
       <div class="form-group">
         <label class="form-label" data-i18n="lbl.language">Language</label>
         <select class="form-input" id="c-language">
-          <option value="en">English (EN)</option>
-          <option value="zh">中文 (ZH)</option>
-          <option value="bm">Bahasa Melayu (BM)</option>
+          <option value="en" data-i18n="am.langEnEN">English (EN)</option>
+          <option value="zh" data-i18n="am.langZh">中文 (ZH)</option>
+          <option value="bm" data-i18n="am.langBm">Bahasa Melayu (BM)</option>
         </select>
       </div>
       <div class="form-group">
         <label class="form-label" data-i18n="lbl.seatCap">Seat Cap (optional)</label>
-        <input class="form-input" type="number" id="c-seat-cap" placeholder="Leave blank for unlimited" data-i18n-ph="p.blankUnlimited" min="1" />
+        <input class="form-input" type="number" id="c-seat-cap" placeholder="Leave blank for unlimited" data-i18n-ph="am.phUnlimited" data-i18n-ph="p.blankUnlimited" min="1" />
       </div>
       <div class="form-group">
         <label class="form-label" data-i18n="lbl.assignedTeacher">Assigned Teacher (optional)</label>
         <select class="form-input" id="c-teacher-id">
-          <option value="">— No teacher assigned —</option>
+          <option value="" data-i18n="am.optNoTeacher">— No teacher assigned —</option>
         </select>
       </div>
     </div>
@@ -4248,19 +4248,19 @@
 <!-- Announcement Modal -->
 <div class="modal-overlay" id="modal-announcement" onclick="if(event.target===this)closeModal('modal-announcement')">
   <div class="modal-box">
-    <div class="modal-title">New Announcement</div>
+    <div class="modal-title" data-i18n="btn.newAnn">New Announcement</div>
     <div class="form-group" style="margin-bottom:14px">
-      <label class="form-label">Title *</label>
-      <input class="form-input" id="ann-title" placeholder="e.g. Session 5 starts Monday" />
+      <label class="form-label" data-i18n="lbl.titleReq">Title *</label>
+      <input class="form-input" id="ann-title" placeholder="e.g. Session 5 starts Monday" data-i18n-ph="am.phSessionMon" />
     </div>
     <div class="form-group" style="margin-bottom:14px">
       <label class="form-label" data-i18n="lbl.contentReq">Content *</label>
-      <textarea class="form-textarea" id="ann-content" placeholder="Announcement details..." data-i18n-ph="p.annDetails" style="min-height:100px"></textarea>
+      <textarea class="form-textarea" id="ann-content" placeholder="Announcement details..." data-i18n-ph="am.phAnnDetails" data-i18n-ph="p.annDetails" style="min-height:100px"></textarea>
     </div>
     <div class="form-group" style="margin-bottom:14px">
       <label class="form-label" data-i18n="lbl.courseAllBlank">Course (leave blank for all courses)</label>
       <select class="form-select" id="ann-course-select">
-        <option value="">All Courses (Global)</option>
+        <option value="" data-i18n="aj.allCoursesGlobal">All Courses (Global)</option>
       </select>
     </div>
     <div class="modal-footer">
@@ -4273,11 +4273,11 @@
 <!-- Issue Certificate Modal -->
 <div class="modal-overlay" id="modal-issue-cert" onclick="if(event.target===this)closeModal('modal-issue-cert')">
   <div class="modal-box">
-    <div class="modal-title">Issue Certificate</div>
+    <div class="modal-title" data-i18n="btn.issueCert">Issue Certificate</div>
     <div class="form-group">
       <label class="form-label" data-i18n="lbl.student">Student</label>
       <div class="autocomplete-wrap">
-        <input class="form-input" id="cert-student-search" placeholder="Type student name..." data-i18n-ph="p.typeStudent" autocomplete="off"
+        <input class="form-input" id="cert-student-search" placeholder="Type student name..." data-i18n-ph="am.phTypeStudent" data-i18n-ph="p.typeStudent" autocomplete="off"
                oninput="handleCertificateStudentSearch()" onfocus="renderCertificateStudentMatches()" />
         <input type="hidden" id="cert-student-select" value="" />
         <div class="autocomplete-menu" id="cert-student-results"></div>
@@ -4305,9 +4305,9 @@
       </label>
     </div>
     <div class="form-group">
-      <label class="form-label">Course</label>
+      <label class="form-label" data-i18n="lbl.course">Course</label>
       <select class="form-input" id="cert-course-select" onchange="populateCertificateStudents()">
-        <option value="">Select course...</option>
+        <option value="" data-i18n="aj.optSelCourse">Select course...</option>
       </select>
     </div>
     <div class="modal-footer">
@@ -4323,6 +4323,85 @@
 <script>
 // ── i18n ──────────────────────────────────────────────
 const I18N = { en: {
+    "am.addNewStudent": "Add New Student",
+    "am.editStudent": "Edit Student",
+    "am.editWorkshop": "Edit Workshop",
+    "am.editRun": "Edit Run",
+    "am.editCourse": "Edit Course",
+    "am.editTeacher": "Edit Teacher",
+    "am.addTeacher": "Add Teacher",
+    "am.editCohort": "Edit Cohort",
+    "am.newCohortIntake": "New Cohort / Intake",
+    "am.updatePayment": "Update Payment",
+    "am.stepContact": "Student contact details",
+    "am.stepProgramme": "Assign programme setup",
+    "am.stepBilling": "Billing and final details",
+    "am.stepAccount": "Account and contact details",
+    "am.stepProfileBio": "Title, bio, links and experience",
+    "am.stPersonal": "Personal Info",
+    "am.stCourseBatch": "Course & Batch",
+    "am.stReview": "Review & Confirm",
+    "am.stTeacherInfo": "Teacher Info",
+    "am.stProfile": "Profile",
+    "am.timeOfClass": "Time of Class",
+    "am.specializations": "Specializations",
+    "am.portfolioWebsite": "Portfolio Website",
+    "am.cohort": "Cohort",
+    "am.notes": "Notes",
+    "am.teacher": "Teacher",
+    "am.gReviewLink": "Google Review Link",
+    "am.pricePax": "Price / Pax (RM)",
+    "am.hTeacherTt": "(teacher + timetable)",
+    "am.hComma": "(comma-separated)",
+    "am.hIntake": "(intake / semester)",
+    "am.hOverride": "(overrides default)",
+    "am.hOverrideBiz": "(optional, overrides business default)",
+    "am.hSession1": "(Session 1)",
+    "am.hOverrideTeacher": "(optional, overrides course teacher)",
+    "am.hBreaks": "(breaks, makeup sessions, etc.)",
+    "am.optSelect": "— select —",
+    "am.optSelectFormat": "— select format —",
+    "am.optNoTeacher": "— No teacher assigned —",
+    "am.fmt1v1": "1 vs 1  (Private)",
+    "am.fmt2v1": "2 vs 1  (Pair)",
+    "am.fmt5v1": "5 vs 1  (Small Group)",
+    "am.fmtCohort": "Cohort  (Full Class)",
+    "am.fmt1v1L": "1 vs 1  (Private — student : teacher)",
+    "am.fmt2v1L": "2 vs 1  (Pair — 2 students : 1 teacher)",
+    "am.fmt5v1L": "5 vs 1  (Small group — 5 students : 1 teacher)",
+    "am.fmtCohortL": "Cohort  (Full class)",
+    "am.langEnEN": "English (EN)",
+    "am.langZh": "中文 (ZH)",
+    "am.langBm": "Bahasa Melayu (BM)",
+    "am.langEng": "English",
+    "am.langMalayBm": "Malay (BM)",
+    "am.langChinese": "Chinese (中文)",
+    "am.pmBank": "Bank Transfer",
+    "am.pmCash": "Cash",
+    "am.pmCredit": "Credit Card",
+    "am.pmDebit": "Debit Card",
+    "am.pmOther": "Other",
+    "am.phBillAddr": "Billing address",
+    "am.phRoleEg": "e.g. Lead Instructor, Senior Data Scientist",
+    "am.phBioEg": "Brief intro shown to students on their dashboard...",
+    "am.phEduEg": "e.g. BSc CS, UPM · MSc AI, UM",
+    "am.phExpEg": "e.g. 5+ years in Python, data engineering and ML...",
+    "am.phPayReceived": "e.g. Full payment received",
+    "am.phEarlyBird": "e.g. Early bird",
+    "am.phPayNotes": "Notes about payment...",
+    "am.phWsEg": "e.g. AI for Marketing",
+    "am.phWsCovers": "What this workshop covers...",
+    "am.phVenueEg": "e.g. Mount Austin, JB",
+    "am.phCohortEg": "e.g. Jan 2026, Cohort 2, May Intake",
+    "am.phCohortEg2": "e.g. Jan 2026, Cohort 2",
+    "am.phRemarksEg": "e.g. CNY break Session 5, makeup session Mar 28",
+    "am.phCohortDesc": "Short description of this cohort...",
+    "am.phUnlimited": "Leave blank for unlimited",
+    "am.phSessionMon": "e.g. Session 5 starts Monday",
+    "am.phAnnDetails": "Announcement details...",
+    "am.phTypeStudent": "Type student name...",
+    "am.phOptional": "optional",
+    "am.phFullName": "Full name",
     "aj.noCohortsYet": "No cohorts yet — click",
     "aj.toCreateIntake": "to create the first intake.",
     "aj.noAnnYet": "No announcements yet. Click \"New Announcement\" to create one.",
@@ -4701,6 +4780,85 @@ const I18N = { en: {
     "common.loading": "Loading...",
     "common.error": "Error: ",
   }, zh: {
+    "am.addNewStudent": "添加新学生",
+    "am.editStudent": "编辑学生",
+    "am.editWorkshop": "编辑工作坊",
+    "am.editRun": "编辑场次",
+    "am.editCourse": "编辑课程",
+    "am.editTeacher": "编辑教师",
+    "am.addTeacher": "添加教师",
+    "am.editCohort": "编辑班级",
+    "am.newCohortIntake": "新建班级 / 期次",
+    "am.updatePayment": "更新付款",
+    "am.stepContact": "学生联系方式",
+    "am.stepProgramme": "分配项目设置",
+    "am.stepBilling": "账单与最终信息",
+    "am.stepAccount": "账户与联系方式",
+    "am.stepProfileBio": "头衔、简介、链接与经历",
+    "am.stPersonal": "个人信息",
+    "am.stCourseBatch": "课程与批次",
+    "am.stReview": "检查并确认",
+    "am.stTeacherInfo": "教师信息",
+    "am.stProfile": "资料",
+    "am.timeOfClass": "上课时间",
+    "am.specializations": "专长",
+    "am.portfolioWebsite": "作品集网站",
+    "am.cohort": "班级",
+    "am.notes": "备注",
+    "am.teacher": "教师",
+    "am.gReviewLink": "Google 评价链接",
+    "am.pricePax": "单价 / 人（RM）",
+    "am.hTeacherTt": "（教师 + 时间表）",
+    "am.hComma": "（用逗号分隔）",
+    "am.hIntake": "（期次 / 学期）",
+    "am.hOverride": "（覆盖默认值）",
+    "am.hOverrideBiz": "（可选，覆盖商户默认）",
+    "am.hSession1": "（第 1 节）",
+    "am.hOverrideTeacher": "（可选，覆盖课程教师）",
+    "am.hBreaks": "（假期、补课等）",
+    "am.optSelect": "— 选择 —",
+    "am.optSelectFormat": "— 选择形式 —",
+    "am.optNoTeacher": "— 未指派教师 —",
+    "am.fmt1v1": "一对一（私教）",
+    "am.fmt2v1": "二对一（结对）",
+    "am.fmt5v1": "五对一（小组）",
+    "am.fmtCohort": "班级（全班）",
+    "am.fmt1v1L": "一对一（私教 —— 学生：教师）",
+    "am.fmt2v1L": "二对一（结对 —— 2 名学生：1 名教师）",
+    "am.fmt5v1L": "五对一（小组 —— 5 名学生：1 名教师）",
+    "am.fmtCohortL": "班级（全班）",
+    "am.langEnEN": "英语（EN）",
+    "am.langZh": "中文（ZH）",
+    "am.langBm": "马来语（BM）",
+    "am.langEng": "英语",
+    "am.langMalayBm": "马来语（BM）",
+    "am.langChinese": "中文",
+    "am.pmBank": "银行转账",
+    "am.pmCash": "现金",
+    "am.pmCredit": "信用卡",
+    "am.pmDebit": "借记卡",
+    "am.pmOther": "其他",
+    "am.phBillAddr": "账单地址",
+    "am.phRoleEg": "例如：首席讲师、高级数据科学家",
+    "am.phBioEg": "显示在学生面板上的简短介绍……",
+    "am.phEduEg": "例如：UPM 计算机科学学士 · UM 人工智能硕士",
+    "am.phExpEg": "例如：5 年以上 Python、数据工程与机器学习经验……",
+    "am.phPayReceived": "例如：已收全款",
+    "am.phEarlyBird": "例如：早鸟优惠",
+    "am.phPayNotes": "付款备注……",
+    "am.phWsEg": "例如：AI 营销",
+    "am.phWsCovers": "此工作坊涵盖的内容……",
+    "am.phVenueEg": "例如：JB Mount Austin",
+    "am.phCohortEg": "例如：2026 年 1 月、第 2 期、5 月入学",
+    "am.phCohortEg2": "例如：2026 年 1 月、第 2 期",
+    "am.phRemarksEg": "例如：第 5 节春节假期，3 月 28 日补课",
+    "am.phCohortDesc": "此班级的简短描述……",
+    "am.phUnlimited": "留空表示无限制",
+    "am.phSessionMon": "例如：第 5 节周一开始",
+    "am.phAnnDetails": "公告详情……",
+    "am.phTypeStudent": "输入学生姓名……",
+    "am.phOptional": "可选",
+    "am.phFullName": "全名",
     "aj.noCohortsYet": "暂无班级 —— 点击",
     "aj.toCreateIntake": "以创建第一期。",
     "aj.noAnnYet": "暂无公告。点击「新建公告」以创建。",
@@ -5079,6 +5237,85 @@ const I18N = { en: {
     "common.loading": "加载中…",
     "common.error": "错误：",
   }, bm: {
+    "am.addNewStudent": "Tambah Pelajar Baharu",
+    "am.editStudent": "Sunting Pelajar",
+    "am.editWorkshop": "Sunting Bengkel",
+    "am.editRun": "Sunting Sesi",
+    "am.editCourse": "Sunting Kursus",
+    "am.editTeacher": "Sunting Pengajar",
+    "am.addTeacher": "Tambah Pengajar",
+    "am.editCohort": "Sunting Kohort",
+    "am.newCohortIntake": "Kohort / Ambilan Baharu",
+    "am.updatePayment": "Kemas Kini Bayaran",
+    "am.stepContact": "Butiran hubungan pelajar",
+    "am.stepProgramme": "Tetapan program",
+    "am.stepBilling": "Bil dan butiran akhir",
+    "am.stepAccount": "Butiran akaun dan hubungan",
+    "am.stepProfileBio": "Tajuk, bio, pautan dan pengalaman",
+    "am.stPersonal": "Maklumat Peribadi",
+    "am.stCourseBatch": "Kursus & Kumpulan",
+    "am.stReview": "Semak & Sahkan",
+    "am.stTeacherInfo": "Maklumat Pengajar",
+    "am.stProfile": "Profil",
+    "am.timeOfClass": "Masa Kelas",
+    "am.specializations": "Kepakaran",
+    "am.portfolioWebsite": "Laman Portfolio",
+    "am.cohort": "Kohort",
+    "am.notes": "Nota",
+    "am.teacher": "Pengajar",
+    "am.gReviewLink": "Pautan Ulasan Google",
+    "am.pricePax": "Harga / Pax (RM)",
+    "am.hTeacherTt": "(pengajar + jadual)",
+    "am.hComma": "(dipisahkan koma)",
+    "am.hIntake": "(ambilan / semester)",
+    "am.hOverride": "(mengatasi lalai)",
+    "am.hOverrideBiz": "(pilihan, mengatasi lalai perniagaan)",
+    "am.hSession1": "(Sesi 1)",
+    "am.hOverrideTeacher": "(pilihan, mengatasi pengajar kursus)",
+    "am.hBreaks": "(cuti, sesi ganti, dll.)",
+    "am.optSelect": "— pilih —",
+    "am.optSelectFormat": "— pilih format —",
+    "am.optNoTeacher": "— Tiada pengajar ditugaskan —",
+    "am.fmt1v1": "1 lwn 1  (Persendirian)",
+    "am.fmt2v1": "2 lwn 1  (Berpasangan)",
+    "am.fmt5v1": "5 lwn 1  (Kumpulan Kecil)",
+    "am.fmtCohort": "Kohort  (Kelas Penuh)",
+    "am.fmt1v1L": "1 lwn 1  (Persendirian — pelajar : pengajar)",
+    "am.fmt2v1L": "2 lwn 1  (Berpasangan — 2 pelajar : 1 pengajar)",
+    "am.fmt5v1L": "5 lwn 1  (Kumpulan kecil — 5 pelajar : 1 pengajar)",
+    "am.fmtCohortL": "Kohort  (Kelas penuh)",
+    "am.langEnEN": "Inggeris (EN)",
+    "am.langZh": "中文 (ZH)",
+    "am.langBm": "Bahasa Melayu (BM)",
+    "am.langEng": "Inggeris",
+    "am.langMalayBm": "Melayu (BM)",
+    "am.langChinese": "Cina (中文)",
+    "am.pmBank": "Pindahan Bank",
+    "am.pmCash": "Tunai",
+    "am.pmCredit": "Kad Kredit",
+    "am.pmDebit": "Kad Debit",
+    "am.pmOther": "Lain-lain",
+    "am.phBillAddr": "Alamat bil",
+    "am.phRoleEg": "cth. Instruktur Utama, Saintis Data Kanan",
+    "am.phBioEg": "Pengenalan ringkas yang ditunjuk kepada pelajar...",
+    "am.phEduEg": "cth. BSc CS, UPM · MSc AI, UM",
+    "am.phExpEg": "cth. 5+ tahun dalam Python, kejuruteraan data dan ML...",
+    "am.phPayReceived": "cth. Bayaran penuh diterima",
+    "am.phEarlyBird": "cth. Tempahan awal",
+    "am.phPayNotes": "Nota tentang bayaran...",
+    "am.phWsEg": "cth. AI untuk Pemasaran",
+    "am.phWsCovers": "Apa yang bengkel ini liputi...",
+    "am.phVenueEg": "cth. Mount Austin, JB",
+    "am.phCohortEg": "cth. Jan 2026, Kohort 2, Ambilan Mei",
+    "am.phCohortEg2": "cth. Jan 2026, Kohort 2",
+    "am.phRemarksEg": "cth. Cuti Tahun Baru Cina Sesi 5, sesi ganti 28 Mac",
+    "am.phCohortDesc": "Penerangan ringkas kohort ini...",
+    "am.phUnlimited": "Biar kosong untuk tanpa had",
+    "am.phSessionMon": "cth. Sesi 5 bermula Isnin",
+    "am.phAnnDetails": "Butiran pengumuman...",
+    "am.phTypeStudent": "Taip nama pelajar...",
+    "am.phOptional": "pilihan",
+    "am.phFullName": "Nama penuh",
     "aj.noCohortsYet": "Tiada kohort lagi — klik",
     "aj.toCreateIntake": "untuk cipta ambilan pertama.",
     "aj.noAnnYet": "Tiada pengumuman lagi. Klik \"Pengumuman Baharu\" untuk cipta satu.",
@@ -6239,7 +6476,7 @@ function openAddStudent() {
     document.getElementById('sidebar').classList.remove('mobile-open');
     document.getElementById('sidebar-backdrop').classList.remove('active');
   }
-  document.getElementById('student-modal-title').textContent = 'Add New Student';
+  document.getElementById('student-modal-title').textContent = T('am.addNewStudent');
   document.getElementById('modal-student').dataset.mode = 'add';
   document.getElementById('edit-student-id').value = '';
   ['s-name','s-email','s-phone','s-password','s-bill-company-name','s-bill-business-reg-number','s-bill-sst-number','s-bill-company-address'].forEach(id => {
@@ -6272,7 +6509,7 @@ function openEditStudent(uid) {
     document.getElementById('sidebar').classList.remove('mobile-open');
     document.getElementById('sidebar-backdrop').classList.remove('active');
   }
-  document.getElementById('student-modal-title').textContent = 'Edit Student';
+  document.getElementById('student-modal-title').textContent = T('am.editStudent');
   document.getElementById('modal-student').dataset.mode = 'edit';
   document.getElementById('edit-student-id').value = uid;
   document.getElementById('s-name').value          = s.name;
@@ -7112,7 +7349,7 @@ async function loadWorkshopCatalogue() {
 }
 
 function openAddWorkshopModal() {
-  document.getElementById('workshop-modal-title').textContent = 'Add Workshop';
+  document.getElementById('workshop-modal-title').textContent = T('btn.addWorkshop');
   document.getElementById('workshop-id').value = '';
   document.getElementById('workshop-title').value = '';
   document.getElementById('workshop-description').value = '';
@@ -7124,7 +7361,7 @@ function openAddWorkshopModal() {
 function openEditWorkshopModal(wid) {
   const w = (S.workshops || []).find(x => x.id === wid);
   if (!w) return;
-  document.getElementById('workshop-modal-title').textContent = 'Edit Workshop';
+  document.getElementById('workshop-modal-title').textContent = T('am.editWorkshop');
   document.getElementById('workshop-id').value = w.id;
   document.getElementById('workshop-title').value = w.title;
   document.getElementById('workshop-description').value = w.description || '';
@@ -7161,7 +7398,7 @@ async function deleteWorkshop(wid) {
 }
 
 function openScheduleRunModal(wid) {
-  document.getElementById('run-modal-title').textContent = 'Schedule a Run';
+  document.getElementById('run-modal-title').textContent = T('btn.scheduleRun');
   document.getElementById('run-workshop-id').value = wid;
   document.getElementById('run-id').value = '';
   document.getElementById('run-start').value = '';
@@ -7180,7 +7417,7 @@ function openScheduleRunModal(wid) {
 function openEditRunModal(rid) {
   const run = S.currentRun && parseInt(S.currentRun.id) === parseInt(rid) ? S.currentRun : null;
   if (!run) { toast(T('at.runLoading'), true); return; }
-  document.getElementById('run-modal-title').textContent = 'Edit Run';
+  document.getElementById('run-modal-title').textContent = T('am.editRun');
   document.getElementById('run-workshop-id').value = run.workshop_id;
   document.getElementById('run-id').value = run.id;
   document.getElementById('run-start').value = run.start_datetime || '';
@@ -7620,7 +7857,7 @@ function _populateTeacherDropdown(elementId, selectedId, emptyLabel='— Use cou
 }
 
 function openAddCourse() {
-  document.getElementById('course-modal-title').textContent = 'New Course';
+  document.getElementById('course-modal-title').textContent = T('btn.newCourse');
   document.getElementById('edit-course-id').value = '';
   document.getElementById('c-title').value       = '';
   document.getElementById('c-programme').value   = '';
@@ -7638,7 +7875,7 @@ function openAddCourse() {
 function openEditCourse(cid) {
   const c = S.courses.find(x => x.id === cid);
   if (!c) return;
-  document.getElementById('course-modal-title').textContent = 'Edit Course';
+  document.getElementById('course-modal-title').textContent = T('am.editCourse');
   document.getElementById('edit-course-id').value = cid;
   document.getElementById('c-title').value       = c.title;
   document.getElementById('c-programme').value   = c.programme || '';
@@ -8471,7 +8708,7 @@ function openAddTeacher() {
     document.getElementById('sidebar-backdrop').classList.remove('active');
   }
   document.getElementById('edit-teacher-id').value = '';
-  document.getElementById('teacher-modal-title').textContent = 'Add Teacher';
+  document.getElementById('teacher-modal-title').textContent = T('am.addTeacher');
   ['t-name','t-email','t-phone','t-password'].forEach(id => {
     document.getElementById(id).value = '';
   });
@@ -8490,7 +8727,7 @@ function openEditTeacher(t) {
     document.getElementById('sidebar-backdrop').classList.remove('active');
   }
   document.getElementById('edit-teacher-id').value = t.id;
-  document.getElementById('teacher-modal-title').textContent = 'Edit Teacher';
+  document.getElementById('teacher-modal-title').textContent = T('am.editTeacher');
   document.getElementById('t-name').value     = t.name;
   document.getElementById('t-email').value    = t.email;
   document.getElementById('t-phone').value    = t.phone || '';
