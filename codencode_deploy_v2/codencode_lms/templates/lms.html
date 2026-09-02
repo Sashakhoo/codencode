@@ -2651,19 +2651,19 @@
 <div class="modal-overlay" id="video-modal">
   <div class="modal-box">
     <div class="modal-header">
-      <span class="modal-title" id="video-modal-title">Session Recording</span>
+      <span class="modal-title" id="video-modal-title" data-i18n="md.sessionRecording">Session Recording</span>
       <button class="modal-close" onclick="closeModal('video-modal')"><i class="fas fa-times"></i></button>
     </div>
     <div class="video-player" id="video-modal-player">
       <div class="video-player-placeholder">
         <i class="fas fa-play-circle"></i>
-        <div style="margin-top:8px;font-size:11px">Select a video to play</div>
+        <div style="margin-top:8px;font-size:11px" data-i18n="md.selectVideo">Select a video to play</div>
       </div>
     </div>
     <div class="modal-footer">
       <span id="video-modal-duration" style="font-family:var(--font-m);font-size:11px;color:var(--muted)">45:12</span>
-      <button class="btn-action ghost" id="video-dl-btn"><i class="fas fa-download"></i> Download</button>
-      <button class="btn-action" onclick="markWatched()"><i class="fas fa-check"></i> Mark Watched</button>
+      <button class="btn-action ghost" id="video-dl-btn"><i class="fas fa-download"></i> <span data-i18n="md.download">Download</span></button>
+      <button class="btn-action" onclick="markWatched()"><i class="fas fa-check"></i> <span data-i18n="md.markWatched">Mark Watched</span></button>
     </div>
   </div>
 </div>
@@ -2674,9 +2674,9 @@
 <div class="modal-overlay" id="material-preview-modal">
   <div class="modal-box material-preview-box">
     <div class="modal-header">
-      <span class="modal-title" id="material-preview-title">Preview</span>
+      <span class="modal-title" id="material-preview-title" data-i18n="md.preview">Preview</span>
       <div style="display:flex;gap:8px;align-items:center">
-        <a class="btn-action ghost" id="material-preview-open" href="#" target="_blank" rel="noopener"><i class="fas fa-external-link-alt"></i> Open in tab</a>
+        <a class="btn-action ghost" id="material-preview-open" href="#" target="_blank" rel="noopener"><i class="fas fa-external-link-alt"></i> <span data-i18n="md.openInTab">Open in tab</span></a>
         <button class="modal-close" onclick="closeModal('material-preview-modal')"><i class="fas fa-times"></i></button>
       </div>
     </div>
@@ -2690,25 +2690,25 @@
 <div class="modal-overlay" id="submit-modal">
   <div class="modal-box" style="max-width:520px">
     <div class="modal-header">
-      <span class="modal-title" id="submit-modal-title">Submit Assignment</span>
+      <span class="modal-title" id="submit-modal-title" data-i18n="md.submitAssignment">Submit Assignment</span>
       <button class="modal-close" onclick="closeModal('submit-modal')"><i class="fas fa-times"></i></button>
     </div>
     <div style="padding:24px">
       <div class="form-group">
-        <label class="form-label">Your File</label>
+        <label class="form-label" data-i18n="md.yourFile">Your File</label>
         <div class="upload-zone" onclick="document.getElementById('sub-file').click()">
           <div class="upload-icon"><i class="fas fa-file-upload"></i></div>
-          <div class="upload-text" id="sub-file-name">Drop your file or click to browse</div>
-          <div class="upload-sub">.py, .ipynb, .zip — max 50MB</div>
+          <div class="upload-text" id="sub-file-name" data-i18n="md.dropFile">Drop your file or click to browse</div>
+          <div class="upload-sub" data-i18n="md.fileTypes50">.py, .ipynb, .zip — max 50MB</div>
         </div>
         <input type="file" id="sub-file" name="file" class="upload-input" onchange="handleSubFile(this)" />
       </div>
       <div class="form-group">
-        <label class="form-label">Notes to Instructor (Optional)</label>
-        <textarea class="feedback-input" id="sub-notes" placeholder="Any context about your submission..."></textarea>
+        <label class="form-label" data-i18n="md.notesInstructor">Notes to Instructor (Optional)</label>
+        <textarea class="feedback-input" id="sub-notes" placeholder="Any context about your submission..." data-i18n-ph="md.notesPh"></textarea>
       </div>
       <button class="btn-action" style="width:100%;justify-content:center;padding:14px" id="submit-btn" onclick="submitAssignment()">
-        <i class="fas fa-paper-plane"></i> Submit Assignment
+        <i class="fas fa-paper-plane"></i> <span data-i18n="md.submitAssignment">Submit Assignment</span>
       </button>
     </div>
   </div>
@@ -2720,28 +2720,28 @@
 <div class="modal-overlay" id="grade-modal">
   <div class="modal-box" style="max-width:560px">
     <div class="modal-header">
-      <span class="modal-title" id="grade-modal-title">Grade Submission</span>
+      <span class="modal-title" id="grade-modal-title" data-i18n="md.gradeSubmission">Grade Submission</span>
       <button class="modal-close" onclick="closeModal('grade-modal')"><i class="fas fa-times"></i></button>
     </div>
     <div class="submission-detail">
-      <div class="sub-info-row"><span class="sub-info-lbl">Student</span> <span id="grade-modal-student" style="font-weight:700">—</span></div>
-      <div class="sub-info-row"><span class="sub-info-lbl">Assignment</span> <span id="grade-modal-asgn">—</span></div>
-      <div class="sub-info-row"><span class="sub-info-lbl">File</span> <span style="color:var(--cyan)" id="grade-modal-file"><i class="fas fa-file-code"></i> —</span></div>
-      <div class="sub-info-row"><span class="sub-info-lbl">Submitted</span> <span id="grade-modal-submitted">—</span></div>
+      <div class="sub-info-row"><span class="sub-info-lbl" data-i18n="md.student">Student</span> <span id="grade-modal-student" style="font-weight:700">—</span></div>
+      <div class="sub-info-row"><span class="sub-info-lbl" data-i18n="md.assignment">Assignment</span> <span id="grade-modal-asgn">—</span></div>
+      <div class="sub-info-row"><span class="sub-info-lbl" data-i18n="md.file">File</span> <span style="color:var(--cyan)" id="grade-modal-file"><i class="fas fa-file-code"></i> —</span></div>
+      <div class="sub-info-row"><span class="sub-info-lbl" data-i18n="md.submitted">Submitted</span> <span id="grade-modal-submitted">—</span></div>
     </div>
     <div class="grade-form">
       <div class="grade-form-row">
         <div class="form-group">
-          <label class="form-label">Score (/100)</label>
+          <label class="form-label" data-i18n="md.score100">Score (/100)</label>
           <input class="form-input" id="quick-grade-score" type="number" min="0" max="100" placeholder="85" style="font-size:20px;padding:12px" />
         </div>
         <div class="form-group" style="flex:3">
-          <label class="form-label">Feedback</label>
-          <input class="form-input" id="quick-grade-feedback" type="text" placeholder="e.g. Great work! Watch your variable naming." />
+          <label class="form-label" data-i18n="md.feedback">Feedback</label>
+          <input class="form-input" id="quick-grade-feedback" type="text" placeholder="e.g. Great work! Watch your variable naming." data-i18n-ph="md.feedbackPh" />
         </div>
       </div>
       <button class="btn-action" style="width:100%;justify-content:center;padding:14px;margin-top:8px" onclick="showToast(T('toast.gradeSavedNotified'));closeModal('grade-modal')">
-        <i class="fas fa-check-double"></i> Save & Notify Student
+        <i class="fas fa-check-double"></i> <span data-i18n="md.saveNotify">Save & Notify Student</span>
       </button>
     </div>
   </div>
@@ -2751,16 +2751,16 @@
 <div class="modal-overlay" id="recording-url-modal">
   <div class="modal-box" style="max-width:480px">
     <div class="modal-header">
-      <span class="modal-title">Add Recording URL</span>
+      <span class="modal-title" data-i18n="md.addRecordingUrl">Add Recording URL</span>
       <button class="modal-close" onclick="closeModal('recording-url-modal')"><i class="fas fa-times"></i></button>
     </div>
     <div style="padding:24px">
       <div class="form-group">
-        <label class="form-label">Recording URL (Google Drive, YouTube, etc.)</label>
+        <label class="form-label" data-i18n="md.recUrlLabel">Recording URL (Google Drive, YouTube, etc.)</label>
         <input class="form-input" type="url" id="rec-url-input" placeholder="https://..." />
       </div>
       <button class="btn-action" style="width:100%;justify-content:center;padding:14px;margin-top:8px" onclick="saveRecordingUrl()">
-        <i class="fas fa-link"></i> Save Recording Link
+        <i class="fas fa-link"></i> <span data-i18n="md.saveRecLink">Save Recording Link</span>
       </button>
     </div>
   </div>
@@ -2770,26 +2770,26 @@
 <div class="modal-overlay" id="new-post-modal">
   <div class="modal-box" style="max-width:560px">
     <div class="modal-header">
-      <span class="modal-title">New Discussion Post</span>
+      <span class="modal-title" data-i18n="md.newPost">New Discussion Post</span>
       <button class="modal-close" onclick="closeModal('new-post-modal')"><i class="fas fa-times"></i></button>
     </div>
     <div style="padding:24px;display:flex;flex-direction:column;gap:14px">
       <div class="form-group">
-        <label class="form-label">Title (optional)</label>
-        <input class="form-input" type="text" id="new-post-title" placeholder="Summarize your question..." />
+        <label class="form-label" data-i18n="md.titleOpt">Title (optional)</label>
+        <input class="form-input" type="text" id="new-post-title" placeholder="Summarize your question..." data-i18n-ph="md.summarizeQ" />
       </div>
       <div class="form-group">
-        <label class="form-label">Session (optional)</label>
+        <label class="form-label" data-i18n="md.sessionOpt">Session (optional)</label>
         <select class="form-input" id="new-post-week">
           <option value="" data-i18n="tj.allSessions">All Sessions</option>
         </select>
       </div>
       <div class="form-group">
-        <label class="form-label">Your Post</label>
-        <textarea class="feedback-input" id="new-post-body" rows="4" placeholder="Ask your question or share something..."></textarea>
+        <label class="form-label" data-i18n="md.yourPost">Your Post</label>
+        <textarea class="feedback-input" id="new-post-body" rows="4" placeholder="Ask your question or share something..." data-i18n-ph="md.postPh"></textarea>
       </div>
       <button class="btn-action" style="width:100%;justify-content:center;padding:14px" onclick="submitNewPost()">
-        <i class="fas fa-paper-plane"></i> Post
+        <i class="fas fa-paper-plane"></i> <span data-i18n="md.post">Post</span>
       </button>
     </div>
   </div>
@@ -4062,7 +4062,7 @@ function exportGrades(aid) {
 // ── Grade modal (quick grade from dashboard) ──
 function openGradeModal(sid, studentName, asgnTitle) {
   STATE.activeSubmissionId = sid;
-  document.getElementById('grade-modal-title').textContent = 'Grade: ' + studentName;
+  document.getElementById('grade-modal-title').textContent = T('md.gradeName', {v: studentName});
   document.getElementById('grade-modal-student').textContent = studentName;
   document.getElementById('grade-modal-asgn').textContent   = asgnTitle;
   document.getElementById('quick-grade-score').value    = '';
@@ -4121,7 +4121,7 @@ async function markWatched() {
 
 // ── Submit modal ──
 function openSubmitModal(aid, title) {
-  document.getElementById('submit-modal-title').textContent = 'Submit: ' + title;
+  document.getElementById('submit-modal-title').textContent = T('md.submitTitle', {v: title});
   document.getElementById('submit-modal').dataset.assignmentId = aid;
   document.getElementById('sub-file-name').textContent = T('ph.dropFile');
   document.getElementById('sub-file').value = '';
@@ -4763,6 +4763,39 @@ async function watchRecording(sid) {
 
 const I18N = {
   en: {
+    "md.sessionRecording": "Session Recording",
+    "md.selectVideo": "Select a video to play",
+    "md.download": "Download",
+    "md.markWatched": "Mark Watched",
+    "md.preview": "Preview",
+    "md.openInTab": "Open in tab",
+    "md.submitAssignment": "Submit Assignment",
+    "md.yourFile": "Your File",
+    "md.dropFile": "Drop your file or click to browse",
+    "md.fileTypes50": ".py, .ipynb, .zip — max 50MB",
+    "md.notesInstructor": "Notes to Instructor (Optional)",
+    "md.notesPh": "Any context about your submission...",
+    "md.gradeSubmission": "Grade Submission",
+    "md.student": "Student",
+    "md.assignment": "Assignment",
+    "md.file": "File",
+    "md.submitted": "Submitted",
+    "md.score100": "Score (/100)",
+    "md.feedback": "Feedback",
+    "md.feedbackPh": "e.g. Great work! Watch your variable naming.",
+    "md.saveNotify": "Save & Notify Student",
+    "md.addRecordingUrl": "Add Recording URL",
+    "md.recUrlLabel": "Recording URL (Google Drive, YouTube, etc.)",
+    "md.saveRecLink": "Save Recording Link",
+    "md.newPost": "New Discussion Post",
+    "md.titleOpt": "Title (optional)",
+    "md.summarizeQ": "Summarize your question...",
+    "md.sessionOpt": "Session (optional)",
+    "md.yourPost": "Your Post",
+    "md.postPh": "Ask your question or share something...",
+    "md.post": "Post",
+    "md.gradeName": "Grade: {v}",
+    "md.submitTitle": "Submit: {v}",
     // sidebar
     dashboard:'Dashboard', recordings:'Recordings', materials:'Materials', learn:'Slides & Quiz',
     assignments:'Assignments', grades:'My Grades', timetable:'Timetable', discussion:'Discussion',
@@ -5098,6 +5131,39 @@ const I18N = {
     'err.invalidLang':'Invalid language',
   },
   zh: {
+    "md.sessionRecording": "课堂录像",
+    "md.selectVideo": "请选择要播放的视频",
+    "md.download": "下载",
+    "md.markWatched": "标记为已观看",
+    "md.preview": "预览",
+    "md.openInTab": "在新标签页打开",
+    "md.submitAssignment": "提交作业",
+    "md.yourFile": "你的文件",
+    "md.dropFile": "拖入文件或点击浏览",
+    "md.fileTypes50": ".py、.ipynb、.zip —— 最大 50MB",
+    "md.notesInstructor": "给导师的备注（可选）",
+    "md.notesPh": "关于此次提交的任何说明……",
+    "md.gradeSubmission": "批改提交",
+    "md.student": "学生",
+    "md.assignment": "作业",
+    "md.file": "文件",
+    "md.submitted": "提交时间",
+    "md.score100": "分数（/100）",
+    "md.feedback": "评语",
+    "md.feedbackPh": "例如：做得好！注意变量命名。",
+    "md.saveNotify": "保存并通知学生",
+    "md.addRecordingUrl": "添加录像链接",
+    "md.recUrlLabel": "录像链接（Google Drive、YouTube 等）",
+    "md.saveRecLink": "保存录像链接",
+    "md.newPost": "发布新讨论帖",
+    "md.titleOpt": "标题（可选）",
+    "md.summarizeQ": "简要概括你的问题……",
+    "md.sessionOpt": "课节（可选）",
+    "md.yourPost": "你的帖子",
+    "md.postPh": "提出你的问题或分享内容……",
+    "md.post": "发布",
+    "md.gradeName": "批改：{v}",
+    "md.submitTitle": "提交：{v}",
     dashboard:'学习面板', recordings:'课程录像', materials:'学习资料', learn:'幻灯片与测验',
     assignments:'作业', grades:'我的成绩', timetable:'课程时间表', discussion:'讨论区',
     quizzes:'测验', certificates:'证书', settings:'设置',
@@ -5427,6 +5493,39 @@ const I18N = {
     'err.invalidLang':'语言无效',
   },
   bm: {
+    "md.sessionRecording": "Rakaman Kelas",
+    "md.selectVideo": "Pilih video untuk dimainkan",
+    "md.download": "Muat Turun",
+    "md.markWatched": "Tandakan Ditonton",
+    "md.preview": "Pratonton",
+    "md.openInTab": "Buka dalam tab",
+    "md.submitAssignment": "Hantar Tugasan",
+    "md.yourFile": "Fail Anda",
+    "md.dropFile": "Lepaskan fail anda atau klik untuk semak",
+    "md.fileTypes50": ".py, .ipynb, .zip — maks 50MB",
+    "md.notesInstructor": "Nota kepada Pengajar (Pilihan)",
+    "md.notesPh": "Sebarang konteks tentang penghantaran anda...",
+    "md.gradeSubmission": "Nilai Penghantaran",
+    "md.student": "Pelajar",
+    "md.assignment": "Tugasan",
+    "md.file": "Fail",
+    "md.submitted": "Dihantar",
+    "md.score100": "Markah (/100)",
+    "md.feedback": "Maklum balas",
+    "md.feedbackPh": "cth. Kerja yang bagus! Perhatikan penamaan pemboleh ubah.",
+    "md.saveNotify": "Simpan & Maklum Pelajar",
+    "md.addRecordingUrl": "Tambah URL Rakaman",
+    "md.recUrlLabel": "URL Rakaman (Google Drive, YouTube, dll.)",
+    "md.saveRecLink": "Simpan Pautan Rakaman",
+    "md.newPost": "Kiriman Perbincangan Baharu",
+    "md.titleOpt": "Tajuk (pilihan)",
+    "md.summarizeQ": "Ringkaskan soalan anda...",
+    "md.sessionOpt": "Sesi (pilihan)",
+    "md.yourPost": "Kiriman Anda",
+    "md.postPh": "Tanya soalan anda atau kongsi sesuatu...",
+    "md.post": "Kirim",
+    "md.gradeName": "Nilai: {v}",
+    "md.submitTitle": "Hantar: {v}",
     dashboard:'Papan Pemuka', recordings:'Rakaman', materials:'Bahan', learn:'Slaid & Kuiz',
     assignments:'Tugasan', grades:'Gred Saya', timetable:'Jadual', discussion:'Perbincangan',
     quizzes:'Kuiz', certificates:'Sijil', settings:'Tetapan',
