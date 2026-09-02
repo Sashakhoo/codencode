@@ -1516,7 +1516,7 @@
     }
   </style>
   <link rel="stylesheet" href="/static/css/lms-skin.css?v=5" />
-  <link rel="stylesheet" href="/static/css/lms-learn.css?v=2" />
+  <link rel="stylesheet" href="/static/css/lms-learn.css?v=4" />
 </head>
 <body>
 
@@ -2675,8 +2675,8 @@
       <button id="lrn-nav-practice" onclick="learnGo('practice')">Practice</button>
     </div>
     <div class="lrn-topbar-right">
-      <button class="lrn-icon-btn" onclick="toggleTheme()" title="Toggle light / dark">
-        <i class="fas fa-moon" id="lrn-theme-icon"></i>
+      <button class="lrn-icon-btn lrn-theme-toggle" onclick="toggleTheme()" title="Switch between light and dark" aria-label="Switch between light and dark">
+        <i class="fas fa-moon" id="lrn-theme-icon"></i><span id="lrn-theme-label">Dark mode</span>
       </button>
       <div class="lrn-user"><span id="lrn-user-name">Student</span>
         <div class="lrn-avatar" id="lrn-avatar">S</div>
@@ -2859,6 +2859,8 @@ function applyLearnTheme() {
   if (shell) shell.setAttribute('data-theme', t);
   const ic = document.getElementById('lrn-theme-icon');
   if (ic) ic.className = 'fas ' + (t === 'dark' ? 'fa-sun' : 'fa-moon');
+  const lb = document.getElementById('lrn-theme-label');
+  if (lb) lb.textContent = t === 'dark' ? 'Light mode' : 'Dark mode';
 }
 function toggleTheme() {
   const next = learnTheme() === 'dark' ? 'light' : 'dark';
