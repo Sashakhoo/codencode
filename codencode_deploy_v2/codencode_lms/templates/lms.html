@@ -3266,7 +3266,7 @@ async function loadVideos() {
 
   const weekNums = Object.keys(weeks || {}).sort((a,b) => a-b);
   if (weekNums.length === 0) {
-    container.innerHTML = `<div style="color:var(--muted);font-family:var(--font-m);font-size:12px;padding:32px;text-align:center">No recordings uploaded yet.</div>`;
+    container.innerHTML = `<div style="color:var(--muted);font-family:var(--font-m);font-size:12px;padding:32px;text-align:center">${T('common.noRecordings')}</div>`;
     return;
   }
 
@@ -3284,7 +3284,7 @@ async function loadVideos() {
           <div class="video-title">${r.title}</div>
           <div class="video-meta">
             <span><i class="fas fa-calendar"></i> ${r.uploaded_at||''}</span>
-            ${r.watched ? `<span class="watched-badge">✓ Watched</span>` : `<span style="color:var(--orange);font-size:10px;font-family:var(--font-m)">Not watched</span>`}
+            ${r.watched ? `<span class="watched-badge">${T('vid.watched')}</span>` : `<span style="color:var(--orange);font-size:10px;font-family:var(--font-m)">${T('vid.notWatched')}</span>`}
           </div>
         </div>
       </div>`).join('');
@@ -3292,9 +3292,9 @@ async function loadVideos() {
     return `
       <div class="week-item">
         <button class="week-header open" onclick="toggleWeek(this)">
-          <span class="week-label"><i class="fas fa-layer-group"></i> Session ${wk}</span>
+          <span class="week-label"><i class="fas fa-layer-group"></i> ${T('vid.session',{n:wk})}</span>
           <span style="display:flex;align-items:center;gap:12px">
-            <span class="week-count">${recs.length} session${recs.length!==1?'s':''}</span>
+            <span class="week-count">${T('vid.count',{n:recs.length})}</span>
             <i class="fas fa-chevron-down week-chevron"></i>
           </span>
         </button>
@@ -3342,8 +3342,8 @@ function materialLocalUrl(m, download=false) {
 
 function materialGroupLabel(m) {
   const slideNum = slideNumberForMaterial(m);
-  if (slideNum) return `Session ${parseInt(slideNum, 10)}`;
-  return m.session === 0 ? 'General Resources' : `Session ${m.session}`;
+  if (slideNum) return T('mat.session', { n: parseInt(slideNum, 10) });
+  return m.session === 0 ? T('mat.general') : T('mat.session', { n: m.session });
 }
 
 function materialPreviewKind(m) {
@@ -3360,9 +3360,9 @@ function materialActions(m) {
   const label = String(m.orig_name || m.title || 'Material').replace(/'/g, "\\'");
   let btns = '';
   if (kind) {
-    btns += `<button class="btn-preview" onclick="previewMaterial('${encodeURIComponent(m.filename)}','${label}','${kind}')"><i class="fas fa-eye"></i> Preview</button>`;
+    btns += `<button class="btn-preview" onclick="previewMaterial('${encodeURIComponent(m.filename)}','${label}','${kind}')"><i class="fas fa-eye"></i> ${T('mat.preview')}</button>`;
   }
-  btns += `<a class="btn-dl" href="${downloadUrl}" download="${m.orig_name || m.title}"><i class="fas fa-download"></i> Download</a>`;
+  btns += `<a class="btn-dl" href="${downloadUrl}" download="${m.orig_name || m.title}"><i class="fas fa-download"></i> ${T('mat.download')}</a>`;
   return `<div class="material-actions">${btns}</div>`;
 }
 
@@ -3399,7 +3399,7 @@ async function loadMaterials() {
   if (!container) return;
 
   if (mats.length === 0) {
-    container.innerHTML = `<div style="color:var(--muted);font-family:var(--font-m);font-size:12px;padding:32px;text-align:center">No materials posted yet.</div>`;
+    container.innerHTML = `<div style="color:var(--muted);font-family:var(--font-m);font-size:12px;padding:32px;text-align:center">${T('common.noMaterials')}</div>`;
     return;
   }
 
@@ -4195,7 +4195,8 @@ function addMonths(date, amount) {
 }
 
 function monthLabel(date) {
-  return date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+  const loc = window.LANG === 'zh' ? 'zh-CN' : (window.LANG === 'bm' ? 'ms-MY' : 'en-US');
+  return date.toLocaleDateString(loc, { month: 'long', year: 'numeric' });
 }
 
 function localDateKey(date) {
@@ -4246,15 +4247,15 @@ function renderMonthGrid(events, startMonth, containerId, opts = {}) {
         const meta = [
           item.time_start && item.time_end ? `${item.time_start}-${item.time_end}` : '',
           item.course_title || '',
-          opts.showPeople && item.teacher_name ? `Teacher: ${item.teacher_name}` : '',
-          opts.showPeople && students.length ? `Students: ${students.slice(0, 3).join(', ')}${students.length > 3 ? ' +' + (students.length - 3) : ''}` : ''
+          opts.showPeople && item.teacher_name ? T('cal.teacher', { name: item.teacher_name }) : '',
+          opts.showPeople && students.length ? T('cal.students', { list: students.slice(0, 3).join(', ') + (students.length > 3 ? ' +' + (students.length - 3) : '') }) : ''
         ].filter(Boolean).map(esc).join('<br>');
         const zoom = item.zoom_link
-          ? `<a class="month-event-link" href="${esc(item.zoom_link)}" target="_blank" rel="noopener"><i class="fas fa-video"></i> Join Zoom</a>`
+          ? `<a class="month-event-link" href="${esc(item.zoom_link)}" target="_blank" rel="noopener"><i class="fas fa-video"></i> ${T('cal.joinZoom')}</a>`
           : '';
         const timeLabel = item.time_start ? `<span class="month-event-time">${esc(item.time_start)}</span>` : '';
         return `<div class="month-event ${kind}">
-          <div class="month-event-title">${timeLabel}<span>${esc(item.title || 'Class')}</span></div>
+          <div class="month-event-title">${timeLabel}<span>${esc(item.title || T('cal.class'))}</span></div>
           <div class="month-event-meta">${meta}</div>
           ${zoom}
         </div>`;
@@ -4266,7 +4267,7 @@ function renderMonthGrid(events, startMonth, containerId, opts = {}) {
     return `<section class="month-block">
       <h2 class="month-heading">${monthLabel(month)}</h2>
       <div class="month-grid">
-        ${['Mon','Tue','Wed','Thu','Fri','Sat','Sun'].map(d => `<div class="month-dow">${d}</div>`).join('')}
+        ${T('cal.dow').split(',').map(d => `<div class="month-dow">${d}</div>`).join('')}
         ${cells}
       </div>
     </section>`;
@@ -4413,7 +4414,7 @@ function renderTTTab(tab) {
 
   if (sessions.length === 0) {
     container.innerHTML = `<div style="color:var(--muted);font-family:var(--font-m);font-size:12px;padding:32px;text-align:center">
-      ${tab === 'upcoming' ? 'No upcoming sessions scheduled.' : 'No past sessions yet.'}
+      ${tab === 'upcoming' ? T('tt.noUpcoming') : T('tt.noPast')}
     </div>`;
     return;
   }
@@ -4800,7 +4801,17 @@ const I18N = {
     'common.noRecordings':'No recordings uploaded yet.', 'common.noMaterials':'No materials uploaded yet.',
     'common.noCerts':'No certificates yet — keep going!',
     'greet.student':'Good to see you, {name}. 👋', 'greet.teacher':'Welcome back, {name}. 🎓',
-    'role.student':'Student', 'role.teacher':'Teacher', 'role.studentUpper':'STUDENT', 'role.teacherUpper':'TEACHER'
+    'role.student':'Student', 'role.teacher':'Teacher', 'role.studentUpper':'STUDENT', 'role.teacherUpper':'TEACHER',
+    'vid.session':'Session {n}', 'vid.watched':'✓ Watched', 'vid.notWatched':'Not watched',
+    'vid.count':'{n} session(s)', 'mat.general':'General Resources', 'mat.session':'Session {n}',
+    'mat.preview':'Preview', 'mat.download':'Download', 'mat.loading':'Loading…',
+    'cert.loading':'Loading...', 'disc.noPosts':'No posts yet. Be the first to ask a question!',
+    'disc.reply':'Reply', 'disc.replies':'{n} replies', 'disc.by':'by {name}',
+    'tt.noUpcoming':'No upcoming sessions scheduled.', 'tt.noPast':'No past sessions yet.',
+    'cert.none':'No certificates yet', 'cert.noneSub':'Complete your courses to earn certificates!',
+    'cert.issued':'Issued: {date}', 'cert.download':'Download Certificate', 'cert.error':'Failed to load certificates.',
+    'cal.dow':'Mon,Tue,Wed,Thu,Fri,Sat,Sun', 'cal.joinZoom':'Join Zoom', 'cal.class':'Class',
+    'cal.teacher':'Teacher: {name}', 'cal.students':'Students: {list}'
   },
   zh: {
     dashboard:'学习面板', recordings:'课程录像', materials:'学习资料', learn:'幻灯片与测验',
@@ -4831,7 +4842,17 @@ const I18N = {
     'common.noRecordings':'尚未上传录像。', 'common.noMaterials':'尚未上传资料。',
     'common.noCerts':'暂无证书 —— 继续加油！',
     'greet.student':'很高兴见到你，{name}。👋', 'greet.teacher':'欢迎回来，{name}。🎓',
-    'role.student':'学生', 'role.teacher':'教师', 'role.studentUpper':'学生', 'role.teacherUpper':'教师'
+    'role.student':'学生', 'role.teacher':'教师', 'role.studentUpper':'学生', 'role.teacherUpper':'教师',
+    'vid.session':'第 {n} 节', 'vid.watched':'✓ 已观看', 'vid.notWatched':'未观看',
+    'vid.count':'{n} 节', 'mat.general':'通用资源', 'mat.session':'第 {n} 节',
+    'mat.preview':'预览', 'mat.download':'下载', 'mat.loading':'加载中…',
+    'cert.loading':'加载中…', 'disc.noPosts':'暂无帖子，来提出第一个问题吧！',
+    'disc.reply':'回复', 'disc.replies':'{n} 条回复', 'disc.by':'作者：{name}',
+    'tt.noUpcoming':'暂无排定的课程。', 'tt.noPast':'暂无已结束的课程。',
+    'cert.none':'暂无证书', 'cert.noneSub':'完成课程即可获得证书！',
+    'cert.issued':'颁发日期：{date}', 'cert.download':'下载证书', 'cert.error':'无法加载证书。',
+    'cal.dow':'一,二,三,四,五,六,日', 'cal.joinZoom':'加入 Zoom', 'cal.class':'课程',
+    'cal.teacher':'教师：{name}', 'cal.students':'学生：{list}'
   },
   bm: {
     dashboard:'Papan Pemuka', recordings:'Rakaman', materials:'Bahan', learn:'Slaid & Kuiz',
@@ -4862,7 +4883,17 @@ const I18N = {
     'common.noRecordings':'Tiada rakaman dimuat naik lagi.', 'common.noMaterials':'Tiada bahan dimuat naik lagi.',
     'common.noCerts':'Tiada sijil lagi — teruskan usaha!',
     'greet.student':'Selamat kembali, {name}. 👋', 'greet.teacher':'Selamat kembali, {name}. 🎓',
-    'role.student':'Pelajar', 'role.teacher':'Pengajar', 'role.studentUpper':'PELAJAR', 'role.teacherUpper':'PENGAJAR'
+    'role.student':'Pelajar', 'role.teacher':'Pengajar', 'role.studentUpper':'PELAJAR', 'role.teacherUpper':'PENGAJAR',
+    'vid.session':'Sesi {n}', 'vid.watched':'✓ Ditonton', 'vid.notWatched':'Belum ditonton',
+    'vid.count':'{n} sesi', 'mat.general':'Sumber Umum', 'mat.session':'Sesi {n}',
+    'mat.preview':'Pratonton', 'mat.download':'Muat Turun', 'mat.loading':'Memuatkan…',
+    'cert.loading':'Memuatkan...', 'disc.noPosts':'Tiada kiriman lagi. Jadilah yang pertama bertanya!',
+    'disc.reply':'Balas', 'disc.replies':'{n} balasan', 'disc.by':'oleh {name}',
+    'tt.noUpcoming':'Tiada sesi dijadualkan.', 'tt.noPast':'Tiada sesi lepas lagi.',
+    'cert.none':'Tiada sijil lagi', 'cert.noneSub':'Lengkapkan kursus anda untuk memperoleh sijil!',
+    'cert.issued':'Dikeluarkan: {date}', 'cert.download':'Muat Turun Sijil', 'cert.error':'Gagal memuatkan sijil.',
+    'cal.dow':'Isn,Sel,Rab,Kha,Jum,Sab,Ahd', 'cal.joinZoom':'Sertai Zoom', 'cal.class':'Kelas',
+    'cal.teacher':'Pengajar: {name}', 'cal.students':'Pelajar: {list}'
   }
 };
 
@@ -5343,7 +5374,7 @@ async function renderDiscussionList(containerId, isTeacher) {
     const arr = Array.isArray(posts) ? posts : [];
     el.style.display = '';
     if (arr.length === 0) {
-      el.innerHTML = `<div style="color:var(--muted);font-family:var(--font-m);font-size:12px;padding:32px;text-align:center">No posts yet. Be the first to ask a question!</div>`;
+      el.innerHTML = `<div style="color:var(--muted);font-family:var(--font-m);font-size:12px;padding:32px;text-align:center">${T('disc.noPosts')}</div>`;
       return;
     }
     el.innerHTML = arr.map(p => {
@@ -5507,8 +5538,8 @@ async function loadCertificates() {
     if (arr.length === 0) {
       el.innerHTML = `<div style="text-align:center;padding:48px 20px">
         <div style="font-size:40px;margin-bottom:12px">🎓</div>
-        <div style="font-family:var(--font-d);font-size:16px;font-weight:700;margin-bottom:6px">No certificates yet</div>
-        <div style="font-family:var(--font-m);font-size:12px;color:var(--muted)">Complete your courses to earn certificates!</div>
+        <div style="font-family:var(--font-d);font-size:16px;font-weight:700;margin-bottom:6px">${T('cert.none')}</div>
+        <div style="font-family:var(--font-m);font-size:12px;color:var(--muted)">${T('cert.noneSub')}</div>
       </div>`;
       return;
     }
@@ -5518,15 +5549,15 @@ async function loadCertificates() {
           <div>
             <div style="font-family:var(--font-d);font-size:16px;font-weight:700;margin-bottom:4px">${c.course_title}</div>
             <div style="font-family:var(--font-c);font-size:10px;color:var(--cyan);margin-bottom:4px">${c.cert_number}</div>
-            <div style="font-family:var(--font-m);font-size:11px;color:var(--muted)">Issued: ${c.issued_at}</div>
+            <div style="font-family:var(--font-m);font-size:11px;color:var(--muted)">${T('cert.issued',{date:c.issued_at})}</div>
           </div>
           <a href="/api/certificates/${c.id}/download" target="_blank" class="btn-action">
-            <i class="fas fa-download"></i> Download Certificate
+            <i class="fas fa-download"></i> ${T('cert.download')}
           </a>
         </div>
       </div>`).join('');
   } catch(e) {
-    el.innerHTML = `<div style="color:var(--red);font-family:var(--font-m);font-size:12px;padding:24px;text-align:center">Failed to load certificates.</div>`;
+    el.innerHTML = `<div style="color:var(--red);font-family:var(--font-m);font-size:12px;padding:24px;text-align:center">${T('cert.error')}</div>`;
   }
 }
 
