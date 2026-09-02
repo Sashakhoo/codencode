@@ -2112,7 +2112,7 @@
               <div class="form-group">
                 <label class="form-label" data-i18n="tf.attachOpt">Attach Files (Optional)</label>
                 <div class="upload-zone" onclick="document.getElementById('asgn-file').click()" style="padding:20px">
-                  <div class="upload-sub"><span>Browse</span> or drag starter code / brief (PDF, HTML, DOCX, PY, ZIP…)</div>
+                  <div class="upload-sub"><span data-i18n="tb.browse">Browse</span> or drag starter code / brief (PDF, HTML, DOCX, PY, ZIP…)</div>
                 </div>
                 <input type="file" id="asgn-file" name="file" class="upload-input" accept=".pdf,.html,.py,.ipynb,.zip,.csv,.txt,.docx,.pptx" />
               </div>
@@ -2202,7 +2202,7 @@
           <table class="grade-table">
             <thead>
               <tr>
-                <th>Student</th><th>Email</th><th>Videos Watched</th><th>Assignments</th><th>Avg Grade</th><th>Progress</th><th>Actions</th>
+                <th data-i18n="tth.student">Student</th><th data-i18n="tth.email">Email</th><th data-i18n="tth.videosWatched">Videos Watched</th><th data-i18n="tth.assignments">Assignments</th><th data-i18n="tth.avgGrade">Avg Grade</th><th data-i18n="tth.progress">Progress</th><th data-i18n="tth.actions">Actions</th>
               </tr>
             </thead>
             <tbody id="students-tbody">
@@ -2243,7 +2243,7 @@
                 <div class="form-group">
                   <label style="display:flex;align-items:flex-start;gap:10px;color:var(--muted);font-family:var(--font-m);font-size:12px;line-height:1.5">
                     <input type="checkbox" id="teacher-cert-blank-name" onchange="toggleTeacherBlankCertificateName()" style="margin-top:2px;accent-color:var(--cyan)" />
-                    <span>Workshop certificate without participant name</span>
+                    <span data-i18n="x.wsCertNoName">Workshop certificate without participant name</span>
                   </label>
                 </div>
                 <div class="form-group" id="teacher-cert-blank-quantity-group" style="display:none">
@@ -2259,7 +2259,7 @@
             <div class="card-header">
               <span class="card-title"><i class="fas fa-list-check"></i> <span data-i18n="t.card.issuedCertificates">Issued Certificates</span></span>
             </div>
-            <div class="card-body" id="teacher-cert-summary" style="font-family:var(--font-m);font-size:12px;color:var(--muted)" data-i18n="common.loading">
+            <div class="card-body" id="teacher-cert-summary" style="font-family:var(--font-m);font-size:12px;color:var(--muted)" data-i18n="x.loadingCertData">
               Loading certificate data...
             </div>
           </div>
@@ -2268,7 +2268,7 @@
           <table class="grade-table">
             <thead>
               <tr>
-                <th>Cert No.</th><th>Student</th><th>Course</th><th>Issued</th><th>Action</th>
+                <th data-i18n="tth.certNo">Cert No.</th><th data-i18n="tth.student">Student</th><th data-i18n="tth.course">Course</th><th data-i18n="tth.issued">Issued</th><th data-i18n="tth.action">Action</th>
               </tr>
             </thead>
             <tbody id="teacher-certs-tbody">
@@ -2326,7 +2326,7 @@
                 <div class="form-group" id="sess-participants-group" style="display:none">
                   <label class="form-label" data-i18n="tf.participants">Participants</label>
                   <div id="sess-participants-list" style="display:flex;flex-direction:column;gap:6px;max-height:160px;overflow-y:auto;border:1px solid var(--border);padding:8px">
-                    <span style="color:var(--muted);font-family:var(--font-m);font-size:11px">Select a course first</span>
+                    <span style="color:var(--muted);font-family:var(--font-m);font-size:11px" data-i18n="te.selCourseFirst">Select a course first</span>
                   </div>
                 </div>
                 <button class="btn-action" style="width:100%;justify-content:center;padding:14px" onclick="createSession()">
@@ -2340,7 +2340,7 @@
               <span class="card-title"><i class="fas fa-list"></i> <span data-i18n="t.card.scheduledSessions">Scheduled Sessions</span></span>
             </div>
             <div id="t-sessions-list" style="max-height:480px;overflow-y:auto">
-              <div style="padding:16px 20px;color:var(--muted);font-family:var(--font-m);font-size:11px">No sessions yet.</div>
+              <div style="padding:16px 20px;color:var(--muted);font-family:var(--font-m);font-size:11px" data-i18n="te.noSessions">No sessions yet.</div>
             </div>
           </div>
         </div>
@@ -2349,7 +2349,7 @@
             <span class="card-title"><i class="fas fa-calendar-alt"></i> <span data-i18n="t.card.allSchedule">All Teacher / Student Schedule</span></span>
             <div style="display:flex;gap:8px;flex-wrap:wrap">
               <button class="btn-action ghost" onclick="shiftTeacherCalMonth(-1)"><i class="fas fa-chevron-left"></i></button>
-              <button class="btn-action ghost" onclick="resetTeacherCalMonth()"><i class="fas fa-calendar-day"></i> Today</button>
+              <button class="btn-action ghost" onclick="resetTeacherCalMonth()"><i class="fas fa-calendar-day"></i> <span data-i18n="tb.today">Today</span></button>
               <button class="btn-action ghost" onclick="shiftTeacherCalMonth(1)"><i class="fas fa-chevron-right"></i></button>
             </div>
           </div>
@@ -2361,7 +2361,7 @@
               <span><i class="month-key avoid"></i> Avoid / Blocked</span>
             </div>
             <div id="teacher-calendar-months" class="month-stack">
-              <div style="padding:16px 20px;color:var(--muted);font-family:var(--font-m);font-size:11px">Loading monthly schedule...</div>
+              <div style="padding:16px 20px;color:var(--muted);font-family:var(--font-m);font-size:11px" data-i18n="te.loadingMonthly">Loading monthly schedule...</div>
             </div>
           </div>
         </div>
@@ -2393,7 +2393,7 @@
               <button class="btn-action ghost" onclick="saveTeacherPlanStartDate()"><i class="fas fa-calendar-check"></i> <span data-i18n="tfb.saveStartDate">Save Start Date</span></button>
             </div>
             <div id="t-plan-container">
-              <div style="padding:16px 20px;color:var(--muted);font-family:var(--font-m);font-size:11px">Select a course to edit the session timetable.</div>
+              <div style="padding:16px 20px;color:var(--muted);font-family:var(--font-m);font-size:11px" data-i18n="te.selCourseEdit">Select a course to edit the session timetable.</div>
             </div>
           </div>
         </div>
@@ -2449,7 +2449,7 @@
               <span class="card-title"><i class="fas fa-list"></i> <span data-i18n="t.card.yourQuizzes">Your Quizzes</span></span>
             </div>
             <div id="t-quiz-list">
-              <div style="padding:16px 20px;color:var(--muted);font-family:var(--font-m);font-size:11px">No quizzes yet.</div>
+              <div style="padding:16px 20px;color:var(--muted);font-family:var(--font-m);font-size:11px" data-i18n="te.noQuizzes">No quizzes yet.</div>
             </div>
           </div>
         </div>
@@ -2484,19 +2484,19 @@
                 <div id="aq-choices-list">
                   <div style="display:flex;gap:8px;margin-bottom:6px">
                     <input type="radio" name="aq-correct" value="0" style="margin-top:8px;accent-color:var(--cyan)" />
-                    <input class="form-input" type="text" placeholder="Choice A" style="flex:1" />
+                    <input class="form-input" type="text" placeholder="Choice A" data-i18n-ph="tf.choiceA" style="flex:1" />
                   </div>
                   <div style="display:flex;gap:8px;margin-bottom:6px">
                     <input type="radio" name="aq-correct" value="1" style="margin-top:8px;accent-color:var(--cyan)" />
-                    <input class="form-input" type="text" placeholder="Choice B" style="flex:1" />
+                    <input class="form-input" type="text" placeholder="Choice B" data-i18n-ph="tf.choiceB" style="flex:1" />
                   </div>
                   <div style="display:flex;gap:8px;margin-bottom:6px">
                     <input type="radio" name="aq-correct" value="2" style="margin-top:8px;accent-color:var(--cyan)" />
-                    <input class="form-input" type="text" placeholder="Choice C" style="flex:1" />
+                    <input class="form-input" type="text" placeholder="Choice C" data-i18n-ph="tf.choiceC" style="flex:1" />
                   </div>
                   <div style="display:flex;gap:8px;margin-bottom:6px">
                     <input type="radio" name="aq-correct" value="3" style="margin-top:8px;accent-color:var(--cyan)" />
-                    <input class="form-input" type="text" placeholder="Choice D" style="flex:1" />
+                    <input class="form-input" type="text" placeholder="Choice D" data-i18n-ph="tf.choiceD" style="flex:1" />
                   </div>
                 </div>
               </div>
@@ -2506,7 +2506,7 @@
               </div>
               <div style="display:flex;gap:8px">
                 <button class="btn-action" onclick="submitAddQuestion()"><i class="fas fa-check"></i> <span data-i18n="tfb.addQuestion">Add Question</span></button>
-                <button class="btn-action red" onclick="document.getElementById('t-add-question-form').style.display='none'">Cancel</button>
+                <button class="btn-action red" onclick="document.getElementById('t-add-question-form').style.display='none'"><span data-i18n="tb.cancel">Cancel</span></button>
               </div>
             </div>
           </div>
@@ -2570,12 +2570,12 @@
               </div>
 
               <div class="form-group">
-                <label class="form-label">Display Title <span style="color:var(--muted);font-size:10px">(e.g. Lead Instructor)</span></label>
+                <label class="form-label" data-i18n="tf.displayTitle2">Display Title <span style="color:var(--muted);font-size:10px">(e.g. Lead Instructor)</span></label>
                 <input class="form-input" id="prof-title" placeholder="e.g. Lead Python Instructor" data-i18n-ph="tfp.roleEg">
               </div>
 
               <div class="form-group">
-                <label class="form-label">Short Bio <span style="color:var(--muted);font-size:10px">(2–3 sentences)</span></label>
+                <label class="form-label" data-i18n="tf.shortBio2">Short Bio <span style="color:var(--muted);font-size:10px">(2–3 sentences)</span></label>
                 <textarea class="form-input" id="prof-bio" rows="3" placeholder="Tell students a bit about yourself..." data-i18n-ph="tfp.bioEg"></textarea>
               </div>
 
@@ -2590,7 +2590,7 @@
               </div>
 
               <div class="form-group">
-                <label class="form-label">Specializations <span style="color:var(--muted);font-size:10px">(comma-separated)</span></label>
+                <label class="form-label" data-i18n="tf.specializations2">Specializations <span style="color:var(--muted);font-size:10px">(comma-separated)</span></label>
                 <input class="form-input" id="prof-specializations" placeholder="Python, Machine Learning, Data Science" data-i18n-ph="tfp.specEg">
               </div>
 
@@ -3441,7 +3441,7 @@ async function loadAssignments() {
   if (!container) return;
 
   if (asgns.length === 0) {
-    container.innerHTML = `<div style="color:var(--muted);font-family:var(--font-m);font-size:12px;padding:32px;text-align:center">No assignments yet.</div>`;
+    container.innerHTML = `<div style="color:var(--muted);font-family:var(--font-m);font-size:12px;padding:32px;text-align:center">${T('x.noAssignments')}</div>`;
     return;
   }
 
@@ -3584,7 +3584,7 @@ async function loadTeacherVideos() {
   if (!list) return;
   const all = Object.values(weeks).flat();
   list.innerHTML = all.length === 0
-    ? `<div style="padding:16px 20px;color:var(--muted);font-family:var(--font-m);font-size:11px">No recordings yet.</div>`
+    ? `<div style="padding:16px 20px;color:var(--muted);font-family:var(--font-m);font-size:11px">${T('x.noRecordings')}</div>`
     : all.map(r => `
         <div class="file-row" id="rec-row-${r.id}">
           <div class="file-icon mp4"><i class="fas ${r.source_type === 'link' ? 'fa-link' : 'fa-film'}"></i></div>
@@ -3601,7 +3601,7 @@ async function loadTeacherMaterials() {
   const list = document.getElementById('t-materials-list');
   if (!list) return;
   list.innerHTML = mats.length === 0
-    ? `<div style="padding:16px 20px;color:var(--muted);font-family:var(--font-m);font-size:11px">No materials yet.</div>`
+    ? `<div style="padding:16px 20px;color:var(--muted);font-family:var(--font-m);font-size:11px">${T('x.noMaterials')}</div>`
     : mats.map(m => `
         <div class="file-row" id="mat-row-${m.id}">
           ${fileIcon(m.file_type)}
@@ -3618,7 +3618,7 @@ async function loadTeacherAssignments() {
   const list = document.getElementById('t-assignments-list');
   if (!list) return;
   list.innerHTML = asgns.length === 0
-    ? `<div style="padding:16px 20px;color:var(--muted);font-family:var(--font-m);font-size:11px">No assignments yet.</div>`
+    ? `<div style="padding:16px 20px;color:var(--muted);font-family:var(--font-m);font-size:11px">${T('x.noAssignments')}</div>`
     : asgns.map(a => `
         <div class="assignment-card" id="asgn-row-${a.id}">
           <div class="assignment-card-top">
@@ -3644,7 +3644,7 @@ async function loadTeacherGrading() {
   const asgns = await GET(`/api/courses/${STATE.courseId}/assignments`);
   if (!asgns.length) {
     document.getElementById('grading-container').innerHTML =
-      `<div style="color:var(--muted);font-family:var(--font-m);font-size:12px;padding:32px;text-align:center">No assignments yet.</div>`;
+      `<div style="color:var(--muted);font-family:var(--font-m);font-size:12px;padding:32px;text-align:center">${T('x.noAssignments')}</div>`;
     return;
   }
   // Pick first assignment that has submissions
@@ -3669,7 +3669,7 @@ async function renderGradingTable(aid, title, maxPoints) {
   document.getElementById('grading-ungraded').textContent = ungraded + ' ungraded';
 
   if (subs.length === 0) {
-    container.innerHTML = `<div style="color:var(--muted);font-family:var(--font-m);font-size:12px;padding:32px;text-align:center">No submissions yet.</div>`;
+    container.innerHTML = `<div style="color:var(--muted);font-family:var(--font-m);font-size:12px;padding:32px;text-align:center">${T('x.noSubmissions')}</div>`;
     return;
   }
 
@@ -3712,10 +3712,10 @@ async function renderGradingTable(aid, title, maxPoints) {
     </table>
     <div style="padding:16px 20px;border-top:1px solid var(--border);display:flex;gap:12px">
       <button class="btn-action" onclick="saveAllGrades(${aid},${maxPoints})">
-        <i class="fas fa-paper-plane"></i> Save All Grades
+        <i class="fas fa-paper-plane"></i> ${T('x.saveAllGrades')}
       </button>
       <button class="btn-action ghost" onclick="exportGrades(${aid})">
-        <i class="fas fa-file-csv"></i> Export CSV
+        <i class="fas fa-file-csv"></i> ${T('x.exportCsv')}
       </button>
     </div>`;
 }
@@ -3732,7 +3732,7 @@ async function loadStudents() {
       <td style="color:var(--muted);font-family:var(--font-m);font-size:11px">${s.email}</td>
       <td style="font-family:var(--font-m);font-size:11px">${s.videos_watched} / ${s.total_recordings}</td>
       <td style="font-family:var(--font-m);font-size:11px;color:${s.submissions===s.total_assignments?'var(--green)':'var(--orange)'}">
-        ${s.submissions} / ${s.total_assignments} submitted
+        ${T('tr.submitted', {n: s.submissions, t: s.total_assignments})}
       </td>
       <td><span style="color:${s.avg_grade>=80?'var(--green)':s.avg_grade>=60?'var(--cyan)':'var(--orange)'};font-weight:700">
         ${s.avg_grade ?? '�'}
@@ -3740,10 +3740,10 @@ async function loadStudents() {
       <td style="min-width:100px">${progressBar(s.progress_pct, s.progress_pct>=80?'green':s.progress_pct>=50?'':'orange')}</td>
       <td style="min-width:130px">
         <button class="btn-action" style="font-size:9px;padding:5px 8px" onclick="teacherIssueCertificate(${s.id}, '${(s.name||'').replace(/'/g,"\\'")}')">
-          <i class="fas fa-certificate"></i> Issue Cert
+          <i class="fas fa-certificate"></i> ${T('tr.issueCert')}
         </button>
       </td>
-    </tr>`).join('') || `<tr><td colspan="7" style="color:var(--muted);font-family:var(--font-m);font-size:12px;padding:24px;text-align:center">No students enrolled yet.</td></tr>`;
+    </tr>`).join('') || `<tr><td colspan="7" style="color:var(--muted);font-family:var(--font-m);font-size:12px;padding:24px;text-align:center">${T('tr.noStudentsEnrolled')}</td></tr>`;
   const sub = document.getElementById('students-sub');
   if (sub) { sub.removeAttribute('data-i18n'); sub.textContent = T('t.students.sub', { n: d.enrolled_students }); }
 }
@@ -3783,7 +3783,7 @@ async function teacherAddStudent() {
 
 async function teacherIssueCertificate(studentId, studentName) {
   if (!STATE.courseId) { showToast(T('toast.selectCourse'), true); return; }
-  if (!confirm(`Issue certificate to ${studentName || 'this student'}?`)) return;
+  if (!confirm(T('x.confIssueTo', {name: studentName || T('tj.selectCourseStudent')}))) return;
   try {
     const r = await POST('/api/teacher/certificates', {
       student_id: studentId,
@@ -3850,7 +3850,7 @@ function toggleTeacherBlankCertificateName() {
 async function loadTeacherCertificates() {
   const tbody = document.getElementById('teacher-certs-tbody');
   const summary = document.getElementById('teacher-cert-summary');
-  if (tbody) tbody.innerHTML = `<tr><td colspan="5" style="color:var(--muted);font-family:var(--font-m);font-size:12px;padding:24px;text-align:center">Loading certificates...</td></tr>`;
+  if (tbody) tbody.innerHTML = `<tr><td colspan="5" style="color:var(--muted);font-family:var(--font-m);font-size:12px;padding:24px;text-align:center">${T('x.loadingCerts')}</td></tr>`;
   try {
     await loadTeacherCertificateOptions();
     populateTeacherCertCourses();
@@ -3865,7 +3865,7 @@ async function loadTeacherCertificates() {
     }
     if (!tbody) return;
     if (!arr.length) {
-      tbody.innerHTML = `<tr><td colspan="5" style="color:var(--muted);font-family:var(--font-m);font-size:12px;padding:24px;text-align:center">No certificates issued yet.</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="5" style="color:var(--muted);font-family:var(--font-m);font-size:12px;padding:24px;text-align:center">${T('x.noCertsIssued')}</td></tr>`;
       return;
     }
     tbody.innerHTML = arr.map(c => `
@@ -3874,10 +3874,10 @@ async function loadTeacherCertificates() {
         <td style="font-weight:700">${c.student_name || '-'}</td>
         <td style="color:var(--muted);font-family:var(--font-m);font-size:11px">${c.course_title || '-'}</td>
         <td style="font-family:var(--font-m);font-size:11px">${c.issued_at || '-'}</td>
-        <td><a href="/api/certificates/${c.id}/download" target="_blank" class="btn-action ghost" style="font-size:9px;padding:5px 8px"><i class="fas fa-download"></i> View</a></td>
+        <td><a href="/api/certificates/${c.id}/download" target="_blank" class="btn-action ghost" style="font-size:9px;padding:5px 8px"><i class="fas fa-download"></i> ${T('x.viewCert')}</a></td>
       </tr>`).join('');
   } catch(e) {
-    if (tbody) tbody.innerHTML = `<tr><td colspan="5" style="color:var(--red);font-family:var(--font-m);font-size:12px;padding:24px;text-align:center">Failed to load certificates.</td></tr>`;
+    if (tbody) tbody.innerHTML = `<tr><td colspan="5" style="color:var(--red);font-family:var(--font-m);font-size:12px;padding:24px;text-align:center">${T('x.failLoadCerts')}</td></tr>`;
     showToast(T('toast.errLoadCerts') + e.message, true);
   }
 }
@@ -3890,7 +3890,7 @@ async function teacherIssueCertificateFromSection() {
   const studentName = document.getElementById('teacher-cert-student')?.selectedOptions?.[0]?.textContent || 'this student';
   if (!courseId || (!blankName && !studentId)) { showToast(blankName ? T('toast.selectCourse') : T('tj.selectCourseStudent'), true); return; }
   if (blankName && (!quantity || quantity < 1 || quantity > 200)) { showToast(T('toast.qtyRange'), true); return; }
-  if (!confirm(blankName ? `Issue ${quantity} workshop certificate${quantity === 1 ? '' : 's'} without participant name?` : `Issue certificate to ${studentName}?`)) return;
+  if (!confirm(blankName ? T('x.confIssueBlank', {n: quantity}) : T('x.confIssueTo', {name: studentName}))) return;
   try {
     const r = await POST('/api/teacher/certificates', {
       student_id: blankName ? null : studentId,
@@ -4098,9 +4098,9 @@ function openVideoModal(rid, title, duration) {
     document.getElementById('video-modal-player').innerHTML = `
       <div class="video-player-placeholder">
         <i class="fas fa-folder-open"></i>
-        <div style="margin-top:8px;font-size:13px">Recording is stored in Google Drive.</div>
+        <div style="margin-top:8px;font-size:13px">${T('x.recInDrive')}</div>
         <a class="btn-action" href="${rec.recording_url}" target="_blank" rel="noopener" style="margin-top:14px;display:inline-flex">
-          <i class="fas fa-external-link-alt"></i> Open Drive Folder
+          <i class="fas fa-external-link-alt"></i> ${T('x.openDriveFolder')}
         </a>
       </div>`;
   } else {
@@ -4290,7 +4290,7 @@ async function loadNotifications() {
     const list = document.getElementById('notif-list');
     if (list) {
       list.innerHTML = arr.length === 0
-        ? `<div style="padding:20px;text-align:center;color:var(--muted);font-family:var(--font-m);font-size:11px">No notifications</div>`
+        ? `<div style="padding:20px;text-align:center;color:var(--muted);font-family:var(--font-m);font-size:11px">${T('x.noNotifications')}</div>`
         : arr.map(n => `
           <div style="padding:12px 16px;border-bottom:1px solid var(--border);background:${n.read_at ? 'transparent' : 'rgba(0,220,180,0.04)'}">
             <div style="font-family:var(--font-m);font-size:11px;color:var(--white);margin-bottom:3px">${n.message}</div>
@@ -4423,7 +4423,7 @@ function renderTTTab(tab) {
   container.innerHTML = sessions.map(s => {
     const color = SESSION_TYPE_COLORS[s.session_type] || 'var(--cyan)';
     const recBtn = s.has_recording
-      ? `<button class="btn-action ghost" style="font-size:10px;padding:5px 10px" onclick="watchRecording(${s.id})"><i class="fas fa-video"></i> Watch Recording</button>`
+      ? `<button class="btn-action ghost" style="font-size:10px;padding:5px 10px" onclick="watchRecording(${s.id})"><i class="fas fa-video"></i> ${T('x.watchRecording')}</button>`
       : '';
     const zoomLink = s.zoom_link && tab === 'upcoming'
       ? `<a href="${s.zoom_link}" target="_blank" style="display:inline-flex;align-items:center;gap:6px;background:${color};color:#fff;font-family:var(--font-m);font-size:10px;padding:6px 12px;text-decoration:none"><i class="fas fa-video"></i> Join Zoom</a>`
@@ -4476,7 +4476,7 @@ async function loadTeacherMonthPlan() {
   const container = document.getElementById('t-plan-container');
   if (!container) return;
   if (!cid) {
-    container.innerHTML = `<div style="padding:16px 20px;color:var(--muted);font-family:var(--font-m);font-size:11px">Select a course to edit the session timetable.</div>`;
+    container.innerHTML = `<div style="padding:16px 20px;color:var(--muted);font-family:var(--font-m);font-size:11px">${T('te.selCourseEdit')}</div>`;
     if (cohortSel) cohortSel.innerHTML = `<option value="">Whole course / class</option>`;
     return;
   }
@@ -4596,7 +4596,7 @@ async function refreshSessionList() {
     if (!list) return;
     const now = new Date();
     list.innerHTML = arr.length === 0
-      ? `<div style="padding:16px 20px;color:var(--muted);font-family:var(--font-m);font-size:11px">No sessions yet.</div>`
+      ? `<div style="padding:16px 20px;color:var(--muted);font-family:var(--font-m);font-size:11px">${T('te.noSessions')}</div>`
       : arr.map(s => {
           const isPast = new Date(s.start_datetime) < now;
           const color  = SESSION_TYPE_COLORS[s.session_type] || 'var(--cyan)';
@@ -4609,7 +4609,7 @@ async function refreshSessionList() {
                 ${s.course_title ? `&nbsp;·&nbsp; ${s.course_title}` : ''}
               </div>
               ${s.zoom_link ? `<a href="${s.zoom_link}" target="_blank" rel="noopener" class="btn-action ghost" style="display:inline-flex;margin-top:8px;font-size:10px;padding:5px 10px"><i class="fas fa-video"></i> Join Zoom</a>` : ''}
-              ${s.recording_url ? `<div style="font-family:var(--font-m);font-size:10px;margin-top:2px"><i class="fas fa-video" style="color:var(--green)"></i> Recording linked</div>` : ''}
+              ${s.recording_url ? `<div style="font-family:var(--font-m);font-size:10px;margin-top:2px"><i class="fas fa-video" style="color:var(--green)"></i> ${T('x.recordingLinked')}</div>` : ''}
             </div>
             <button class="btn-action ghost" style="font-size:10px;padding:5px 10px;margin-right:4px" onclick="openAddRecordingModal(${s.id})">
               <i class="fas fa-link"></i> Rec
@@ -4649,7 +4649,7 @@ async function updateParticipantList() {
         ${e.student_name}
       </label>`).join('');
   } catch(e) {
-    container.innerHTML = `<span style="color:var(--muted);font-family:var(--font-m);font-size:11px">Could not load students</span>`;
+    container.innerHTML = `<span style="color:var(--muted);font-family:var(--font-m);font-size:11px">${T('x.cantLoadStudents')}</span>`;
   }
 }
 
@@ -4768,6 +4768,63 @@ async function watchRecording(sid) {
 
 const I18N = {
   en: {
+    "x.noNotifications": "No notifications",
+    "x.wsCertNoName": "Workshop certificate without participant name",
+    "x.loadingCertData": "Loading certificate data...",
+    "x.noAssignments": "No assignments yet.",
+    "x.noRecordings": "No recordings yet.",
+    "x.noMaterials": "No materials yet.",
+    "x.noSubmissions": "No submissions yet.",
+    "x.saveAllGrades": "Save All Grades",
+    "x.exportCsv": "Export CSV",
+    "x.confIssueTo": "Issue certificate to {name}?",
+    "x.confIssueBlank": "Issue {n} workshop certificate(s) without participant name?",
+    "x.noCertsIssued": "No certificates issued yet.",
+    "x.recInDrive": "Recording is stored in Google Drive.",
+    "x.openDriveFolder": "Open Drive Folder",
+    "x.watchRecording": "Watch Recording",
+    "x.recordingLinked": "Recording linked",
+    "x.cantLoadStudents": "Could not load students",
+    "x.noQuizzesAvail": "No quizzes available yet.",
+    "x.attemptsLeft": "{n} attempt(s) left",
+    "x.noAttemptsLeft": "No attempts left",
+    "x.failLoadQuizzes": "Failed to load quizzes.",
+    "x.noQuestionsAdd": "No questions yet. Add one below.",
+    "x.failLoadDisc": "Failed to load discussions.",
+    "x.noReplies": "No replies yet.",
+    "x.errLoadPost": "Error loading post.",
+    "x.viewCert": "View",
+    "x.loadingCerts": "Loading certificates...",
+    "x.failLoadCerts": "Failed to load certificates.",
+    "tr.submitted": "{n} / {t} submitted",
+    "tr.issueCert": "Issue Cert",
+    "tr.noStudentsEnrolled": "No students enrolled yet.",
+    "tth.student": "Student",
+    "tth.email": "Email",
+    "tth.videosWatched": "Videos Watched",
+    "tth.assignments": "Assignments",
+    "tth.avgGrade": "Avg Grade",
+    "tth.progress": "Progress",
+    "tth.actions": "Actions",
+    "tth.certNo": "Cert No.",
+    "tth.course": "Course",
+    "tth.issued": "Issued",
+    "tth.action": "Action",
+    "tf.displayTitle2": "Display Title",
+    "tf.shortBio2": "Short Bio",
+    "tf.specializations2": "Specializations",
+    "te.noSessions": "No sessions yet.",
+    "te.loadingMonthly": "Loading monthly schedule...",
+    "te.selCourseEdit": "Select a course to edit the session timetable.",
+    "te.noQuizzes": "No quizzes yet.",
+    "te.selCourseFirst": "Select a course first",
+    "tb.browse": "Browse",
+    "tb.today": "Today",
+    "tb.cancel": "Cancel",
+    "tf.choiceA": "Choice A",
+    "tf.choiceB": "Choice B",
+    "tf.choiceC": "Choice C",
+    "tf.choiceD": "Choice D",
     "banner.noCoursesTeacher": "<i class=\"fas fa-exclamation-triangle\"></i> &nbsp;No courses assigned to you yet. Ask your admin to assign a course to your account.",
     "banner.noCoursesOpt": "No courses assigned",
     "topbar.progress": "Your learning progress",
@@ -5139,6 +5196,63 @@ const I18N = {
     'err.invalidLang':'Invalid language',
   },
   zh: {
+    "x.noNotifications": "暂无通知",
+    "x.wsCertNoName": "无参与者姓名的工作坊证书",
+    "x.loadingCertData": "正在加载证书数据……",
+    "x.noAssignments": "暂无作业。",
+    "x.noRecordings": "暂无录像。",
+    "x.noMaterials": "暂无资料。",
+    "x.noSubmissions": "暂无提交。",
+    "x.saveAllGrades": "保存所有成绩",
+    "x.exportCsv": "导出 CSV",
+    "x.confIssueTo": "向 {name} 颁发证书？",
+    "x.confIssueBlank": "颁发 {n} 张无参与者姓名的工作坊证书？",
+    "x.noCertsIssued": "暂无已颁发的证书。",
+    "x.recInDrive": "录像存储在 Google Drive 中。",
+    "x.openDriveFolder": "打开 Drive 文件夹",
+    "x.watchRecording": "观看录像",
+    "x.recordingLinked": "已关联录像",
+    "x.cantLoadStudents": "无法加载学生",
+    "x.noQuizzesAvail": "暂无可用的测验。",
+    "x.attemptsLeft": "剩余 {n} 次尝试",
+    "x.noAttemptsLeft": "没有剩余尝试次数",
+    "x.failLoadQuizzes": "加载测验失败。",
+    "x.noQuestionsAdd": "暂无题目。在下方添加一个。",
+    "x.failLoadDisc": "加载讨论失败。",
+    "x.noReplies": "暂无回复。",
+    "x.errLoadPost": "加载帖子出错。",
+    "x.viewCert": "查看",
+    "x.loadingCerts": "正在加载证书……",
+    "x.failLoadCerts": "加载证书失败。",
+    "tr.submitted": "{n} / {t} 已提交",
+    "tr.issueCert": "颁发证书",
+    "tr.noStudentsEnrolled": "暂无学生报名。",
+    "tth.student": "学生",
+    "tth.email": "邮箱",
+    "tth.videosWatched": "已观看视频",
+    "tth.assignments": "作业",
+    "tth.avgGrade": "平均分",
+    "tth.progress": "进度",
+    "tth.actions": "操作",
+    "tth.certNo": "证书编号",
+    "tth.course": "课程",
+    "tth.issued": "颁发日期",
+    "tth.action": "操作",
+    "tf.displayTitle2": "显示头衔",
+    "tf.shortBio2": "简短介绍",
+    "tf.specializations2": "专长",
+    "te.noSessions": "暂无课程。",
+    "te.loadingMonthly": "正在加载每月日程……",
+    "te.selCourseEdit": "选择一门课程以编辑课程时间表。",
+    "te.noQuizzes": "暂无测验。",
+    "te.selCourseFirst": "请先选择一门课程",
+    "tb.browse": "浏览",
+    "tb.today": "今天",
+    "tb.cancel": "取消",
+    "tf.choiceA": "选项 A",
+    "tf.choiceB": "选项 B",
+    "tf.choiceC": "选项 C",
+    "tf.choiceD": "选项 D",
     "banner.noCoursesTeacher": "<i class=\"fas fa-exclamation-triangle\"></i> &nbsp;你的账户尚未分配任何课程。请联系管理员为你的账户分配课程。",
     "banner.noCoursesOpt": "尚未分配课程",
     "topbar.progress": "你的学习进度",
@@ -5504,6 +5618,63 @@ const I18N = {
     'err.invalidLang':'语言无效',
   },
   bm: {
+    "x.noNotifications": "Tiada pemberitahuan",
+    "x.wsCertNoName": "Sijil bengkel tanpa nama peserta",
+    "x.loadingCertData": "Memuatkan data sijil...",
+    "x.noAssignments": "Tiada tugasan lagi.",
+    "x.noRecordings": "Tiada rakaman lagi.",
+    "x.noMaterials": "Tiada bahan lagi.",
+    "x.noSubmissions": "Tiada penghantaran lagi.",
+    "x.saveAllGrades": "Simpan Semua Gred",
+    "x.exportCsv": "Eksport CSV",
+    "x.confIssueTo": "Keluarkan sijil kepada {name}?",
+    "x.confIssueBlank": "Keluarkan {n} sijil bengkel tanpa nama peserta?",
+    "x.noCertsIssued": "Tiada sijil dikeluarkan lagi.",
+    "x.recInDrive": "Rakaman disimpan dalam Google Drive.",
+    "x.openDriveFolder": "Buka Folder Drive",
+    "x.watchRecording": "Tonton Rakaman",
+    "x.recordingLinked": "Rakaman dipautkan",
+    "x.cantLoadStudents": "Tidak dapat memuatkan pelajar",
+    "x.noQuizzesAvail": "Tiada kuiz tersedia lagi.",
+    "x.attemptsLeft": "{n} percubaan lagi",
+    "x.noAttemptsLeft": "Tiada percubaan lagi",
+    "x.failLoadQuizzes": "Gagal memuatkan kuiz.",
+    "x.noQuestionsAdd": "Tiada soalan lagi. Tambah satu di bawah.",
+    "x.failLoadDisc": "Gagal memuatkan perbincangan.",
+    "x.noReplies": "Tiada balasan lagi.",
+    "x.errLoadPost": "Ralat memuatkan kiriman.",
+    "x.viewCert": "Lihat",
+    "x.loadingCerts": "Memuatkan sijil...",
+    "x.failLoadCerts": "Gagal memuatkan sijil.",
+    "tr.submitted": "{n} / {t} dihantar",
+    "tr.issueCert": "Keluarkan Sijil",
+    "tr.noStudentsEnrolled": "Tiada pelajar mendaftar lagi.",
+    "tth.student": "Pelajar",
+    "tth.email": "E-mel",
+    "tth.videosWatched": "Video Ditonton",
+    "tth.assignments": "Tugasan",
+    "tth.avgGrade": "Purata Gred",
+    "tth.progress": "Kemajuan",
+    "tth.actions": "Tindakan",
+    "tth.certNo": "No. Sijil",
+    "tth.course": "Kursus",
+    "tth.issued": "Dikeluarkan",
+    "tth.action": "Tindakan",
+    "tf.displayTitle2": "Tajuk Paparan",
+    "tf.shortBio2": "Bio Ringkas",
+    "tf.specializations2": "Kepakaran",
+    "te.noSessions": "Tiada sesi lagi.",
+    "te.loadingMonthly": "Memuatkan jadual bulanan...",
+    "te.selCourseEdit": "Pilih kursus untuk menyunting jadual sesi.",
+    "te.noQuizzes": "Tiada kuiz lagi.",
+    "te.selCourseFirst": "Pilih kursus dahulu",
+    "tb.browse": "Semak",
+    "tb.today": "Hari ini",
+    "tb.cancel": "Batal",
+    "tf.choiceA": "Pilihan A",
+    "tf.choiceB": "Pilihan B",
+    "tf.choiceC": "Pilihan C",
+    "tf.choiceD": "Pilihan D",
     "banner.noCoursesTeacher": "<i class=\"fas fa-exclamation-triangle\"></i> &nbsp;Tiada kursus ditugaskan kepada anda lagi. Minta pentadbir menugaskan kursus kepada akaun anda.",
     "banner.noCoursesOpt": "Tiada kursus ditugaskan",
     "topbar.progress": "Kemajuan pembelajaran anda",
@@ -6117,7 +6288,7 @@ async function loadQuizzes() {
     const quizzes = await GET(`/api/courses/${STATE.courseId}/quizzes`);
     const arr = Array.isArray(quizzes) ? quizzes : [];
     if (arr.length === 0) {
-      container.innerHTML = `<div style="color:var(--muted);font-family:var(--font-m);font-size:12px;padding:32px;text-align:center">No quizzes available yet.</div>`;
+      container.innerHTML = `<div style="color:var(--muted);font-family:var(--font-m);font-size:12px;padding:32px;text-align:center">${T('x.noQuizzesAvail')}</div>`;
       return;
     }
     container.innerHTML = arr.map(q => {
@@ -6132,7 +6303,7 @@ async function loadQuizzes() {
               ${q.session ? 'Session ' + q.session + ' · ' : ''}
               Pass: ${q.pass_score}% ·
               ${q.time_limit_mins ? q.time_limit_mins + ' min · ' : ''}
-              ${attLeft > 0 ? attLeft + ' attempt(s) left' : '<span style="color:var(--red)">No attempts left</span>'}
+              ${attLeft > 0 ? T('x.attemptsLeft', {n: attLeft}) : `<span style="color:var(--red)">${T('x.noAttemptsLeft')}</span>`}
               ${q.best_score !== null && q.best_score !== undefined ? ` · Best: ${q.best_score}%` : ''}
             </div>
           </div>
@@ -6141,7 +6312,7 @@ async function loadQuizzes() {
       </div>`;
     }).join('');
   } catch(e) {
-    container.innerHTML = `<div style="color:var(--red);font-family:var(--font-m);font-size:12px;padding:32px;text-align:center">Failed to load quizzes.</div>`;
+    container.innerHTML = `<div style="color:var(--red);font-family:var(--font-m);font-size:12px;padding:32px;text-align:center">${T('x.failLoadQuizzes')}</div>`;
   }
 }
 
@@ -6239,7 +6410,7 @@ async function loadTeacherQuizzes() {
     const arr = Array.isArray(quizzes) ? quizzes : [];
     const el = document.getElementById('t-quiz-list');
     el.innerHTML = arr.length === 0
-      ? `<div style="padding:16px 20px;color:var(--muted);font-family:var(--font-m);font-size:11px">No quizzes yet.</div>`
+      ? `<div style="padding:16px 20px;color:var(--muted);font-family:var(--font-m);font-size:11px">${T('te.noQuizzes')}</div>`
       : arr.map(q => `<div class="file-row" id="tq-row-${q.id}">
           <div style="flex:1">
             <div class="file-name">${q.title}</div>
@@ -6304,7 +6475,7 @@ async function loadQuizQuestions(qid) {
     const el = document.getElementById('t-question-list');
     const qs = q.questions || [];
     el.innerHTML = qs.length === 0
-      ? `<div style="color:var(--muted);font-family:var(--font-m);font-size:11px">No questions yet. Add one below.</div>`
+      ? `<div style="color:var(--muted);font-family:var(--font-m);font-size:11px">${T('x.noQuestionsAdd')}</div>`
       : qs.map((qq, i) => `<div style="border:1px solid var(--border);padding:12px 16px;margin-bottom:8px;display:flex;align-items:flex-start;gap:12px">
           <div style="flex:1">
             <div style="font-family:var(--font-m);font-size:12px;font-weight:600">${i+1}. ${qq.question_text}</div>
@@ -6444,7 +6615,7 @@ async function renderDiscussionList(containerId, isTeacher) {
       </div>`;
     }).join('');
   } catch(e) {
-    el.innerHTML = `<div style="color:var(--red);font-family:var(--font-m);font-size:12px;padding:32px;text-align:center">Failed to load discussions.</div>`;
+    el.innerHTML = `<div style="color:var(--red);font-family:var(--font-m);font-size:12px;padding:32px;text-align:center">${T('x.failLoadDisc')}</div>`;
   }
 }
 
@@ -6481,7 +6652,7 @@ async function openDiscussionPost(pid, isTeacher) {
         </div>
         <div style="padding:0 24px 20px">
           <div style="font-family:var(--font-c);font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);margin-bottom:12px">${p.reply_count} Replies</div>
-          ${replies || `<div style="color:var(--muted);font-family:var(--font-m);font-size:11px">No replies yet.</div>`}
+          ${replies || `<div style="color:var(--muted);font-family:var(--font-m);font-size:11px">${T('x.noReplies')}</div>`}
           <div style="margin-top:16px;display:flex;gap:10px;align-items:flex-start">
             <textarea class="feedback-input" id="reply-body-${pid}" rows="2" placeholder="${T('ph.writeReply')}" style="flex:1"></textarea>
             <button class="btn-action" style="flex-shrink:0" onclick="submitReply(${pid},${isTeacher})"><i class="fas fa-paper-plane"></i></button>
@@ -6489,7 +6660,7 @@ async function openDiscussionPost(pid, isTeacher) {
         </div>
       </div>`;
   } catch(e) {
-    viewEl.innerHTML = `<div style="color:var(--red);font-family:var(--font-m);font-size:12px;padding:20px">Error loading post.</div>`;
+    viewEl.innerHTML = `<div style="color:var(--red);font-family:var(--font-m);font-size:12px;padding:20px">${T('x.errLoadPost')}</div>`;
   }
 }
 
