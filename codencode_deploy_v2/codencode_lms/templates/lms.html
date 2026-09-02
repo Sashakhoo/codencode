@@ -1529,19 +1529,19 @@
       <div class="login-logo" style="justify-content:center">
         <img src="/static/img/logo_full.png" alt="codencode.my" style="height:30px;width:auto" />
       </div>
-      <div class="login-title">Learning Portal</div>
+      <div class="login-title" data-i18n="login.title">Learning Portal</div>
     </div>
     <div class="login-body">
       <div class="form-group">
-        <label class="form-label">Email</label>
+        <label class="form-label" data-i18n="login.email">Email</label>
         <input class="form-input" type="email" id="login-email" placeholder="you@codencode.my" autocomplete="email" />
       </div>
       <div class="form-group">
-        <label class="form-label">Password</label>
+        <label class="form-label" data-i18n="login.password">Password</label>
         <input class="form-input" type="password" id="login-pass" placeholder="••••••••" autocomplete="current-password" />
       </div>
       <button class="btn-login" onclick="doLogin()">
-        <i class="fas fa-sign-in-alt"></i> Access Portal
+        <i class="fas fa-sign-in-alt"></i> <span data-i18n="login.submit">Access Portal</span>
       </button>
     </div>
   </div>
@@ -2214,7 +2214,7 @@
             </tbody>
           </table>
           <div style="padding:14px 20px;border-top:1px solid var(--border)">
-            <button class="btn-action ghost" onclick="showToast('Student report exported')"><i class="fas fa-file-export"></i> Export Report</button>
+            <button class="btn-action ghost" onclick="showToast(T('toast.reportExported'))"><i class="fas fa-file-export"></i> Export Report</button>
           </div>
         </div>
       </div>
@@ -2749,7 +2749,7 @@
           <input class="form-input" id="quick-grade-feedback" type="text" placeholder="e.g. Great work! Watch your variable naming." />
         </div>
       </div>
-      <button class="btn-action" style="width:100%;justify-content:center;padding:14px;margin-top:8px" onclick="showToast('Grade saved & student notified!');closeModal('grade-modal')">
+      <button class="btn-action" style="width:100%;justify-content:center;padding:14px;margin-top:8px" onclick="showToast(T('toast.gradeSavedNotified'));closeModal('grade-modal')">
         <i class="fas fa-check-double"></i> Save & Notify Student
       </button>
     </div>
@@ -2872,7 +2872,7 @@ async function api(method, url, body = null) {
   }
   const res = await fetch(url, opts);
   const data = await res.json().catch(() => ({}));
-  if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
+  if (!res.ok) throw new Error((typeof tErr === 'function' ? tErr(data.error) : data.error) || `HTTP ${res.status}`);
   return data;
 }
 
@@ -2911,7 +2911,7 @@ window.addEventListener('DOMContentLoaded', async () => {
       zone.style.borderColor = '';
       zone.style.background  = '';
       const f = e.dataTransfer.files[0];
-      if (f) showToast('File dropped: ' + f.name);
+      if (f) showToast(T('toast.fileDropped', {v: f.name}));
     });
   });
 
@@ -2988,7 +2988,7 @@ async function doLogin() {
   const email = document.getElementById('login-email').value.trim();
   const pass  = document.getElementById('login-pass').value;
   const btn   = document.querySelector('.btn-login');
-  btn.textContent = 'Signing in...';
+  btn.textContent = T('login.signingIn');
   try {
     const res = await POST('/api/auth/login', { email, password: pass });
     STATE.user = res.user || res;
@@ -3000,7 +3000,7 @@ async function doLogin() {
   } catch (e) {
     showLoginScreen();
     showError('login-error', e.message);
-    btn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Access Portal';
+    btn.innerHTML = '<i class="fas fa-sign-in-alt"></i> ' + T('login.submit');
   }
 }
 
@@ -3101,7 +3101,7 @@ async function switchView(id) {
 
   if (VIEW_LOADERS[id] && STATE.courseId) {
     try { await VIEW_LOADERS[id](); }
-    catch(e) { showToast('Error loading: ' + e.message, true); }
+    catch(e) { showToast(T('toast.errLoading') + e.message, true); }
   }
 }
 
@@ -3111,7 +3111,7 @@ async function setCourse(val) {
   STATE.dashboard = STATE.recordings = STATE.materials = STATE.assignments = null;
   const course = STATE.courses.find(c => c.id === STATE.courseId);
   document.getElementById('topbar-subtitle').textContent = course?.title || '';
-  showToast('Switched to ' + (course?.title || ''));
+  showToast(T('toast.switchedTo', {v: course?.title || ''}));
   // Reload current view
   const activeView = document.querySelector('.view.active');
   if (activeView) {
@@ -3760,8 +3760,8 @@ async function teacherAddStudent() {
   const langEl = document.getElementById('teacher-student-language');
   const name = (nameEl?.value || '').trim();
   const email = (emailEl?.value || '').trim();
-  if (!STATE.courseId) { showToast('Select a course first', true); return; }
-  if (!name || !email) { showToast('Student name and email are required', true); return; }
+  if (!STATE.courseId) { showToast(T('toast.selectCourse'), true); return; }
+  if (!name || !email) { showToast(T('toast.studentNameEmail'), true); return; }
   try {
     await POST('/api/teacher/students', {
       course_id: STATE.courseId,
@@ -3779,14 +3779,14 @@ async function teacherAddStudent() {
     if (passEl) passEl.value = '';
     STATE.dashboard = null;
     await loadStudents();
-    showToast('Student added and assigned to this course');
+    showToast(T('toast.studentAdded'));
   } catch(e) {
-    showToast('Error: ' + e.message, true);
+    showToast(e.message, true);
   }
 }
 
 async function teacherIssueCertificate(studentId, studentName) {
-  if (!STATE.courseId) { showToast('Select a course first', true); return; }
+  if (!STATE.courseId) { showToast(T('toast.selectCourse'), true); return; }
   if (!confirm(`Issue certificate to ${studentName || 'this student'}?`)) return;
   try {
     const r = await POST('/api/teacher/certificates', {
@@ -3798,7 +3798,7 @@ async function teacherIssueCertificate(studentId, studentName) {
       await loadTeacherCertificates();
     }
   } catch(e) {
-    showToast('Error: ' + e.message, true);
+    showToast(e.message, true);
   }
 }
 
@@ -3882,7 +3882,7 @@ async function loadTeacherCertificates() {
       </tr>`).join('');
   } catch(e) {
     if (tbody) tbody.innerHTML = `<tr><td colspan="5" style="color:var(--red);font-family:var(--font-m);font-size:12px;padding:24px;text-align:center">Failed to load certificates.</td></tr>`;
-    showToast('Error loading certificates: ' + e.message, true);
+    showToast(T('toast.errLoadCerts') + e.message, true);
   }
 }
 
@@ -3893,7 +3893,7 @@ async function teacherIssueCertificateFromSection() {
   const quantity = parseInt(document.getElementById('teacher-cert-blank-quantity')?.value || '1');
   const studentName = document.getElementById('teacher-cert-student')?.selectedOptions?.[0]?.textContent || 'this student';
   if (!courseId || (!blankName && !studentId)) { showToast(blankName ? 'Select a course first' : 'Select a course and student first', true); return; }
-  if (blankName && (!quantity || quantity < 1 || quantity > 200)) { showToast('Enter a quantity between 1 and 200', true); return; }
+  if (blankName && (!quantity || quantity < 1 || quantity > 200)) { showToast(T('toast.qtyRange'), true); return; }
   if (!confirm(blankName ? `Issue ${quantity} workshop certificate${quantity === 1 ? '' : 's'} without participant name?` : `Issue certificate to ${studentName}?`)) return;
   try {
     const r = await POST('/api/teacher/certificates', {
@@ -3905,7 +3905,7 @@ async function teacherIssueCertificateFromSection() {
     showToast(blankName && r.count > 1 ? `${r.count} certificates issued!` : `Certificate issued: ${r.certificate?.cert_number || 'done'}`);
     await loadTeacherCertificates();
   } catch(e) {
-    showToast('Error: ' + e.message, true);
+    showToast(e.message, true);
   }
 }
 // -------------------------------------------------------
@@ -3919,7 +3919,7 @@ async function uploadRecording() {
     const fileInput = document.getElementById('vid-file');
     const linkInput = document.getElementById('recording-url');
     const recordingUrl = (linkInput?.value || '').trim();
-    if (!recordingUrl && !fileInput?.files[0]) { showToast('Please paste a Google Drive link first', true); btn.innerHTML = '<i class="fas fa-link"></i> Save Recording Link'; return; }
+    if (!recordingUrl && !fileInput?.files[0]) { showToast(T('toast.pasteDriveLink'), true); btn.innerHTML = '<i class="fas fa-link"></i> Save Recording Link'; return; }
     if (recordingUrl) fd.append('recording_url', recordingUrl);
     else fd.append('file', fileInput.files[0]);
     const cohortId = document.getElementById('recording-cohort-select')?.value || '';
@@ -3929,12 +3929,12 @@ async function uploadRecording() {
     fd.append('session_num', document.querySelector('[name="session_num"]')?.value || 1);
     fd.append('description', document.querySelector('[name="description"]')?.value || '');
     await POST(`/api/courses/${STATE.courseId}/recordings`, fd);
-    showToast('Recording saved!');
+    showToast(T('toast.recordingSaved'));
     document.getElementById('vid-title').value = '';
     if (linkInput) linkInput.value = '';
     fileInput.value = '';
     await loadTeacherVideos();
-  } catch(e) { showToast('Error: ' + e.message, true); }
+  } catch(e) { showToast(e.message, true); }
   btn.innerHTML = '<i class="fas fa-link"></i> Save Recording Link';
 }
 
@@ -3943,8 +3943,8 @@ async function deleteRecording(rid) {
   try {
     await DELETE(`/api/recordings/${rid}`);
     document.getElementById(`rec-row-${rid}`)?.remove();
-    showToast('Recording deleted');
-  } catch(e) { showToast('Error: ' + e.message, true); }
+    showToast(T('toast.recordingDeleted'));
+  } catch(e) { showToast(e.message, true); }
 }
 
 // ── Upload material ──
@@ -3954,18 +3954,18 @@ async function uploadMaterial() {
   try {
     const fd = new FormData();
     const fileInput = document.getElementById('mat-file');
-    if (!fileInput?.files[0]) { showToast('Please select a file first', true); btn.innerHTML = '<i class="fas fa-upload"></i> Publish Material'; return; }
+    if (!fileInput?.files[0]) { showToast(T('toast.selectFile'), true); btn.innerHTML = '<i class="fas fa-upload"></i> Publish Material'; return; }
     fd.append('file', fileInput.files[0]);
     const titleEl = document.querySelector('#view-t-materials [name="title"]');
     const sessionEl  = document.querySelector('#view-t-materials [name="session"]');
     fd.append('title', titleEl?.value || fileInput.files[0].name);
     fd.append('session',  sessionEl?.value || 0);
     await POST(`/api/courses/${STATE.courseId}/materials`, fd);
-    showToast('Material published!');
+    showToast(T('toast.materialPublished'));
     if (titleEl) titleEl.value = '';
     fileInput.value = '';
     await loadTeacherMaterials();
-  } catch(e) { showToast('Error: ' + e.message, true); }
+  } catch(e) { showToast(e.message, true); }
   btn.innerHTML = '<i class="fas fa-upload"></i> Publish Material';
 }
 
@@ -3974,8 +3974,8 @@ async function deleteMaterial(mid) {
   try {
     await DELETE(`/api/materials/${mid}`);
     document.getElementById(`mat-row-${mid}`)?.remove();
-    showToast('Material deleted');
-  } catch(e) { showToast('Error: ' + e.message, true); }
+    showToast(T('toast.materialDeleted'));
+  } catch(e) { showToast(e.message, true); }
 }
 
 // ── Create assignment ──
@@ -3997,11 +3997,11 @@ async function createAssignment() {
     fd.append('max_points',  maxEl?.value   || 100);
     if (fileInput?.files[0]) fd.append('file', fileInput.files[0]);
     await POST(`/api/courses/${STATE.courseId}/assignments`, fd);
-    showToast('Assignment published to students!');
+    showToast(T('toast.assignmentPublished'));
     if (titleEl) titleEl.value = '';
     if (descEl)  descEl.value  = '';
     await loadTeacherAssignments();
-  } catch(e) { showToast('Error: ' + e.message, true); }
+  } catch(e) { showToast(e.message, true); }
   btn.innerHTML = '<i class="fas fa-paper-plane"></i> Publish Assignment';
 }
 
@@ -4010,8 +4010,8 @@ async function deleteAssignment(aid) {
   try {
     await DELETE(`/api/assignments/${aid}`);
     document.getElementById(`asgn-row-${aid}`)?.remove();
-    showToast('Assignment deleted');
-  } catch(e) { showToast('Error: ' + e.message, true); }
+    showToast(T('toast.assignmentDeleted'));
+  } catch(e) { showToast(e.message, true); }
 }
 
 // ── Submit assignment (student) ──
@@ -4019,7 +4019,7 @@ async function submitAssignment() {
   const aid  = parseInt(document.getElementById('submit-modal').dataset.assignmentId);
   const file = document.getElementById('sub-file').files[0];
   const notes = document.getElementById('sub-notes').value;
-  if (!file) { showToast('Please attach a file first', true); return; }
+  if (!file) { showToast(T('toast.attachFile'), true); return; }
   const fd = new FormData();
   fd.append('file', file);
   fd.append('notes', notes);
@@ -4027,10 +4027,10 @@ async function submitAssignment() {
   btn.textContent = 'Submitting...';
   try {
     await POST(`/api/assignments/${aid}/submit`, fd);
-    showToast('Assignment submitted! 🎉');
+    showToast(T('toast.assignmentSubmitted'));
     closeModal('submit-modal');
     await loadAssignments();
-  } catch(e) { showToast('Error: ' + e.message, true); }
+  } catch(e) { showToast(e.message, true); }
   btn.innerHTML = '<i class="fas fa-paper-plane"></i> Submit Assignment';
 }
 
@@ -4038,14 +4038,14 @@ async function submitAssignment() {
 async function saveGrade(sid, maxPoints) {
   const score = document.getElementById(`score-${sid}`).value;
   const fb    = document.getElementById(`fb-${sid}`).value;
-  if (score === '' || isNaN(score)) { showToast('Enter a score first', true); return; }
+  if (score === '' || isNaN(score)) { showToast(T('toast.enterScoreFirst'), true); return; }
   try {
     await POST(`/api/submissions/${sid}/grade`, { score: parseInt(score), feedback: fb });
     const cell = document.getElementById(`grade-status-${sid}`)?.parentElement
                || document.querySelector(`#sub-row-${sid} td:last-child`);
     if (cell) cell.innerHTML = `<span class="status-badge status-graded">Graded</span>`;
-    showToast('Grade saved!');
-  } catch(e) { showToast('Error: ' + e.message, true); }
+    showToast(T('toast.gradeSaved'));
+  } catch(e) { showToast(e.message, true); }
 }
 
 async function saveAllGrades(aid, maxPoints) {
@@ -4083,13 +4083,13 @@ async function saveQuickGrade() {
   const sid   = STATE.activeSubmissionId;
   const score = parseInt(document.getElementById('quick-grade-score').value);
   const fb    = document.getElementById('quick-grade-feedback').value;
-  if (isNaN(score)) { showToast('Enter a score', true); return; }
+  if (isNaN(score)) { showToast(T('toast.enterScore'), true); return; }
   try {
     await POST(`/api/submissions/${sid}/grade`, { score, feedback: fb });
-    showToast('Grade saved & student notified!');
+    showToast(T('toast.gradeSavedNotified'));
     closeModal('grade-modal');
     await loadTeacherDashboard();
-  } catch(e) { showToast('Error: ' + e.message, true); }
+  } catch(e) { showToast(e.message, true); }
 }
 
 // ── Video modal ──
@@ -4122,10 +4122,10 @@ async function markWatched() {
   if (!rid) return;
   try {
     await POST(`/api/recordings/${rid}/watch`);
-    showToast('Marked as watched!');
+    showToast(T('toast.markedWatched'));
     closeModal('video-modal');
     await loadVideos();
-  } catch(e) { showToast('Error: ' + e.message, true); }
+  } catch(e) { showToast(e.message, true); }
 }
 
 // ── Submit modal ──
@@ -4148,7 +4148,7 @@ function handleFileSelect(input) {
     const zone = input.closest('.upload-zone') || input.previousElementSibling;
     const textEl = zone?.querySelector('.upload-text');
     if (textEl) textEl.textContent = input.files[0].name;
-    showToast('File selected: ' + input.files[0].name);
+    showToast(T('toast.fileSelected', {v: input.files[0].name}));
   }
 }
 
@@ -4316,7 +4316,7 @@ async function markAllNotificationsRead() {
   try {
     await PUT('/api/notifications/read-all', {});
     await loadNotifications();
-    showToast('All notifications marked read');
+    showToast(T('toast.allNotifsRead'));
   } catch(e) {}
 }
 
@@ -4546,8 +4546,8 @@ async function saveTeacherPlanStartDate() {
   const cid = document.getElementById('t-plan-course')?.value;
   const cohortId = document.getElementById('t-plan-cohort')?.value || '';
   const val = document.getElementById('t-plan-start-date')?.value;
-  if (!cid) { showToast('Select a course first', true); return; }
-  if (!val) { showToast('Pick a start date first', true); return; }
+  if (!cid) { showToast(T('toast.selectCourse'), true); return; }
+  if (!val) { showToast(T('toast.pickStartDate'), true); return; }
   if (cohortId) {
     const cohorts = await GET(`/api/courses/${cid}/cohorts`);
     const h = cohorts.find(x => x.id === parseInt(cohortId));
@@ -4563,14 +4563,14 @@ async function saveTeacherPlanStartDate() {
   } else {
     await PUT(`/api/courses/${cid}/start_date`, { start_date: val });
   }
-  showToast('Start date saved');
+  showToast(T('toast.startDateSaved'));
   await loadTeacherMonthPlan();
 }
 
 async function saveTeacherMonthPlan() {
   const cid = document.getElementById('t-plan-course')?.value;
   const cohortId = document.getElementById('t-plan-cohort')?.value || '';
-  if (!cid) { showToast('Select a course first', true); return; }
+  if (!cid) { showToast(T('toast.selectCourse'), true); return; }
   const inputs = document.querySelectorAll('#t-plan-container .tt-topic-input');
   const courseTitle = document.getElementById('t-plan-course')?.selectedOptions[0]?.textContent?.trim() || 'Class';
   let saved = 0;
@@ -4621,7 +4621,7 @@ async function refreshSessionList() {
             <button class="btn-action red" onclick="deleteSession(${s.id})"><i class="fas fa-trash"></i></button>
           </div>`;
         }).join('');
-  } catch(e) { showToast('Could not load sessions: ' + e.message, true); }
+  } catch(e) { showToast(T('toast.errLoadSessions') + e.message, true); }
 }
 
 function onSessTypeChange() {
@@ -4671,8 +4671,8 @@ async function createSession() {
   const dur      = document.getElementById('sess-duration')?.value;
   const zoom     = document.getElementById('sess-zoom')?.value.trim();
 
-  if (!title) { showToast('Title is required', true); return; }
-  if (!start) { showToast('Start date/time is required', true); return; }
+  if (!title) { showToast(T('toast.titleRequired'), true); return; }
+  if (!start) { showToast(T('toast.startDateTimeRequired'), true); return; }
 
   const participantIds = Array.from(
     document.querySelectorAll('#sess-participants-list input[name="participant"]:checked')
@@ -4687,11 +4687,11 @@ async function createSession() {
       zoom_link: zoom,
       participant_ids: participantIds
     });
-    showToast('Session scheduled!');
+    showToast(T('toast.sessionScheduled'));
     // Reset form
     ['sess-title','sess-zoom'].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
     await refreshSessionList();
-  } catch(e) { showToast('Error: ' + e.message, true); }
+  } catch(e) { showToast(e.message, true); }
 }
 
 async function deleteSession(sid) {
@@ -4699,8 +4699,8 @@ async function deleteSession(sid) {
   try {
     await DELETE(`/api/sessions/${sid}`);
     document.getElementById(`sess-row-${sid}`)?.remove();
-    showToast('Session deleted');
-  } catch(e) { showToast('Error: ' + e.message, true); }
+    showToast(T('toast.sessionDeleted'));
+  } catch(e) { showToast(e.message, true); }
 }
 
 let _recordingSessionId = null;
@@ -4712,13 +4712,13 @@ function openAddRecordingModal(sid) {
 
 async function saveRecordingUrl() {
   const url = document.getElementById('rec-url-input')?.value.trim();
-  if (!url) { showToast('Enter a URL', true); return; }
+  if (!url) { showToast(T('toast.enterUrl'), true); return; }
   try {
     await PUT(`/api/sessions/${_recordingSessionId}/recording`, { recording_url: url });
-    showToast('Recording URL saved!');
+    showToast(T('toast.recordingUrlSaved'));
     closeModal('recording-url-modal');
     await refreshSessionList();
-  } catch(e) { showToast('Error: ' + e.message, true); }
+  } catch(e) { showToast(e.message, true); }
 }
 
 // Legacy timetable functions (still used by old API if needed)
@@ -4740,9 +4740,9 @@ async function saveAllTopics() {
 
 async function saveStartDate() {
   const val = document.getElementById('tt-start-date-input')?.value;
-  if (!val) { showToast('Pick a date first', true); return; }
+  if (!val) { showToast(T('toast.pickDate'), true); return; }
   await PUT(`/api/courses/${STATE.courseId}/start_date`, { start_date: val });
-  showToast('Start date saved!');
+  showToast(T('toast.startDateSaved'));
 }
 
 // ══════════════════════════════════════════════════════
@@ -4755,13 +4755,13 @@ async function watchRecording(sid) {
     if (data.url) {
       window.open(data.url, '_blank');
     } else {
-      showToast('No recording URL available', true);
+      showToast(T('toast.noRecordingUrl'), true);
     }
   } catch(e) {
     if (e.message.includes('403') || e.message.toLowerCase().includes('denied')) {
-      showToast("You don't have access to this recording", true);
+      showToast(T('toast.noRecordingAccess'), true);
     } else {
-      showToast('Error: ' + e.message, true);
+      showToast(e.message, true);
     }
   }
 }
@@ -4862,7 +4862,95 @@ const I18N = {
     'lrn.noQuiz':'No quiz for your current session yet.', 'lrn.couldNotOpenQuiz':'Could not open this quiz.', 'lrn.noQuestion':'This quiz has no question yet.',
     'lrn.quizEyebrow':'required quiz · {title}', 'lrn.progOf':'{i} of {n}',
     'lrn.correct':'Correct — quiz passed.', 'lrn.notQuite':'Not quite — the right answer is highlighted.',
-    'lrn.submitAnswer':'Submit answer', 'lrn.nextQuiz':'Next quiz', 'lrn.backToLesson':'Back to lesson', 'lrn.skip':'Skip for now', 'lrn.couldNotSubmit':'Could not submit'
+    'lrn.submitAnswer':'Submit answer', 'lrn.nextQuiz':'Next quiz', 'lrn.backToLesson':'Back to lesson', 'lrn.skip':'Skip for now', 'lrn.couldNotSubmit':'Could not submit',
+    'login.title':'Learning Portal', 'login.email':'Email', 'login.password':'Password', 'login.submit':'Access Portal', 'login.signingIn':'Signing in...',
+    'toast.reportExported':'Student report exported',
+    'toast.gradeSavedNotified':'Grade saved & student notified!',
+    'toast.fileDropped':'File dropped: {v}',
+    'toast.errLoading':"Couldn't load: ",
+    'toast.switchedTo':'Switched to {v}',
+    'toast.selectCourse':'Select a course first',
+    'toast.studentNameEmail':'Student name and email are required',
+    'toast.studentAdded':'Student added and assigned to this course',
+    'toast.errLoadCerts':"Couldn't load certificates: ",
+    'toast.qtyRange':'Enter a quantity between 1 and 200',
+    'toast.pasteDriveLink':'Please paste a Google Drive link first',
+    'toast.recordingSaved':'Recording saved!',
+    'toast.recordingDeleted':'Recording deleted',
+    'toast.selectFile':'Please select a file first',
+    'toast.materialPublished':'Material published!',
+    'toast.materialDeleted':'Material deleted',
+    'toast.assignmentPublished':'Assignment published to students!',
+    'toast.assignmentDeleted':'Assignment deleted',
+    'toast.attachFile':'Please attach a file first',
+    'toast.assignmentSubmitted':'Assignment submitted! 🎉',
+    'toast.enterScoreFirst':'Enter a score first',
+    'toast.gradeSaved':'Grade saved!',
+    'toast.enterScore':'Enter a score',
+    'toast.markedWatched':'Marked as watched!',
+    'toast.fileSelected':'File selected: {v}',
+    'toast.allNotifsRead':'All notifications marked read',
+    'toast.pickStartDate':'Pick a start date first',
+    'toast.startDateSaved':'Start date saved',
+    'toast.errLoadSessions':"Couldn't load sessions: ",
+    'toast.titleRequired':'Title is required',
+    'toast.startDateTimeRequired':'Start date/time is required',
+    'toast.sessionScheduled':'Session scheduled!',
+    'toast.sessionDeleted':'Session deleted',
+    'toast.enterUrl':'Enter a URL',
+    'toast.recordingUrlSaved':'Recording URL saved!',
+    'toast.pickDate':'Pick a date first',
+    'toast.noRecordingUrl':'No recording URL available',
+    'toast.noRecordingAccess':"You don't have access to this recording",
+    'toast.resuming':'Resuming: {v}',
+    'toast.noResume':'No lesson to resume yet',
+    'toast.quizCreated':'Quiz created!',
+    'toast.quizDeleted':'Quiz deleted',
+    'toast.questionTextRequired':'Question text required',
+    'toast.questionAdded':'Question added!',
+    'toast.questionDeleted':'Question deleted',
+    'toast.replyEmpty':'Reply cannot be empty',
+    'toast.replyPosted':'Reply posted!',
+    'toast.replyDeleted':'Reply deleted',
+    'toast.postDeleted':'Post deleted',
+    'toast.postBodyRequired':'Post body is required',
+    'toast.postCreated':'Post created!',
+    'toast.errLoadProfile':"Couldn't load profile: ",
+    'toast.profileSaved':'Profile saved!',
+    'toast.errSaveProfile':"Couldn't save profile: ",
+    'toast.photoUploaded':'Photo uploaded!',
+    'toast.uploadFailed':'Upload failed: ',
+    'err.teachersOnly':'Teachers only',
+    'err.studentsOnly':'Students only',
+    'err.adminsOnly':'Admins only',
+    'err.forbidden':"You don't have permission to do that",
+    'err.badLogin':'Invalid email or password',
+    'err.notEnrolled':"You're not enrolled in this course",
+    'err.driveLink':'Please use a Google Drive folder or file link',
+    'err.recordingClass':'This recording is not available for your class',
+    'err.notFound':'Not found or no longer available',
+    'err.notAvailableYet':'Not available yet',
+    'err.noFile':'No file provided',
+    'err.invalidScore':'Invalid score',
+    'err.required':'Please fill in all the required fields',
+    'err.emailExists':'That email is already in use',
+    'err.cantDeleteAdmin':'Admin accounts cannot be deleted',
+    'err.alreadyEnrolled':'Already enrolled in this course',
+    'err.notPaid':'This enrolment is not marked as paid',
+    'err.imageOnly':'Image files only (JPG, PNG, WEBP, GIF)',
+    'err.attendanceStatus':'Status must be present, absent or late',
+    'err.datetimeFormat':'Date/time must be in the format YYYY-MM-DDTHH:MM',
+    'err.blankCertNoStudent':'Blank-name certificates are not linked to a student',
+    'err.studentNoEmail':'This student has no email address',
+    'err.emailNotSent':'Email could not be sent — check the email configuration',
+    'err.selectCert':'Select at least one certificate',
+    'err.bulkLimit':'Bulk download is limited to 200 certificates at a time',
+    'err.certGone':'One or more selected certificates no longer exist',
+    'err.notStudentAccount':'That email belongs to a non-student account',
+    'err.badFeedbackLink':'Invalid feedback link',
+    'err.ratingRequired':'An event rating is required',
+    'err.maxAttempts':"You've reached the maximum number of attempts",
+    'err.invalidLang':'Invalid language',
   },
   zh: {
     dashboard:'学习面板', recordings:'课程录像', materials:'学习资料', learn:'幻灯片与测验',
@@ -4949,7 +5037,95 @@ const I18N = {
     'lrn.noQuiz':'当前课节暂无测验。', 'lrn.couldNotOpenQuiz':'无法打开此测验。', 'lrn.noQuestion':'此测验暂无题目。',
     'lrn.quizEyebrow':'必做测验 · {title}', 'lrn.progOf':'第 {i} / {n}',
     'lrn.correct':'回答正确 —— 测验通过。', 'lrn.notQuite':'不对 —— 正确答案已高亮。',
-    'lrn.submitAnswer':'提交答案', 'lrn.nextQuiz':'下一个测验', 'lrn.backToLesson':'返回课程', 'lrn.skip':'暂时跳过', 'lrn.couldNotSubmit':'无法提交'
+    'lrn.submitAnswer':'提交答案', 'lrn.nextQuiz':'下一个测验', 'lrn.backToLesson':'返回课程', 'lrn.skip':'暂时跳过', 'lrn.couldNotSubmit':'无法提交',
+    'login.title':'学习门户', 'login.email':'邮箱', 'login.password':'密码', 'login.submit':'进入门户', 'login.signingIn':'正在登录…',
+    'toast.reportExported':'已导出学生报告',
+    'toast.gradeSavedNotified':'成绩已保存，已通知学生！',
+    'toast.fileDropped':'已拖入文件：{v}',
+    'toast.errLoading':'加载失败：',
+    'toast.switchedTo':'已切换到 {v}',
+    'toast.selectCourse':'请先选择一门课程',
+    'toast.studentNameEmail':'请填写学生姓名和邮箱',
+    'toast.studentAdded':'已添加学生并加入此课程',
+    'toast.errLoadCerts':'加载证书失败：',
+    'toast.qtyRange':'请输入 1 到 200 之间的数量',
+    'toast.pasteDriveLink':'请先粘贴 Google Drive 链接',
+    'toast.recordingSaved':'录像已保存！',
+    'toast.recordingDeleted':'录像已删除',
+    'toast.selectFile':'请先选择文件',
+    'toast.materialPublished':'资料已发布！',
+    'toast.materialDeleted':'资料已删除',
+    'toast.assignmentPublished':'作业已发布给学生！',
+    'toast.assignmentDeleted':'作业已删除',
+    'toast.attachFile':'请先附加文件',
+    'toast.assignmentSubmitted':'作业已提交！🎉',
+    'toast.enterScoreFirst':'请先输入分数',
+    'toast.gradeSaved':'成绩已保存！',
+    'toast.enterScore':'请输入分数',
+    'toast.markedWatched':'已标记为已观看！',
+    'toast.fileSelected':'已选择文件：{v}',
+    'toast.allNotifsRead':'所有通知已标记为已读',
+    'toast.pickStartDate':'请先选择开始日期',
+    'toast.startDateSaved':'开始日期已保存',
+    'toast.errLoadSessions':'加载课程安排失败：',
+    'toast.titleRequired':'请填写标题',
+    'toast.startDateTimeRequired':'请填写开始日期／时间',
+    'toast.sessionScheduled':'课程已排期！',
+    'toast.sessionDeleted':'课程已删除',
+    'toast.enterUrl':'请输入网址',
+    'toast.recordingUrlSaved':'录像链接已保存！',
+    'toast.pickDate':'请先选择日期',
+    'toast.noRecordingUrl':'没有可用的录像链接',
+    'toast.noRecordingAccess':'你没有此录像的访问权限',
+    'toast.resuming':'继续学习：{v}',
+    'toast.noResume':'暂无可继续的课程',
+    'toast.quizCreated':'测验已创建！',
+    'toast.quizDeleted':'测验已删除',
+    'toast.questionTextRequired':'请填写题目内容',
+    'toast.questionAdded':'题目已添加！',
+    'toast.questionDeleted':'题目已删除',
+    'toast.replyEmpty':'回复不能为空',
+    'toast.replyPosted':'回复已发布！',
+    'toast.replyDeleted':'回复已删除',
+    'toast.postDeleted':'帖子已删除',
+    'toast.postBodyRequired':'请填写帖子正文',
+    'toast.postCreated':'帖子已发布！',
+    'toast.errLoadProfile':'加载资料失败：',
+    'toast.profileSaved':'资料已保存！',
+    'toast.errSaveProfile':'保存资料失败：',
+    'toast.photoUploaded':'照片已上传！',
+    'toast.uploadFailed':'上传失败：',
+    'err.teachersOnly':'仅限教师',
+    'err.studentsOnly':'仅限学生',
+    'err.adminsOnly':'仅限管理员',
+    'err.forbidden':'你没有执行此操作的权限',
+    'err.badLogin':'邮箱或密码错误',
+    'err.notEnrolled':'你未报名此课程',
+    'err.driveLink':'请使用 Google Drive 文件夹或文件链接',
+    'err.recordingClass':'此录像不向你所在的班级开放',
+    'err.notFound':'未找到或已不可用',
+    'err.notAvailableYet':'尚未开放',
+    'err.noFile':'未提供文件',
+    'err.invalidScore':'分数无效',
+    'err.required':'请填写所有必填项',
+    'err.emailExists':'该邮箱已被使用',
+    'err.cantDeleteAdmin':'无法删除管理员账户',
+    'err.alreadyEnrolled':'已报名此课程',
+    'err.notPaid':'此报名未标记为已付款',
+    'err.imageOnly':'仅限图片文件（JPG、PNG、WEBP、GIF）',
+    'err.attendanceStatus':'状态必须为出席、缺席或迟到',
+    'err.datetimeFormat':'日期／时间格式须为 YYYY-MM-DDTHH:MM',
+    'err.blankCertNoStudent':'无姓名证书不与学生关联',
+    'err.studentNoEmail':'该学生没有邮箱地址',
+    'err.emailNotSent':'邮件发送失败 —— 请检查邮件配置',
+    'err.selectCert':'请至少选择一张证书',
+    'err.bulkLimit':'批量下载每次最多 200 张证书',
+    'err.certGone':'所选证书中有一张或多张已不存在',
+    'err.notStudentAccount':'该邮箱属于非学生账户',
+    'err.badFeedbackLink':'反馈链接无效',
+    'err.ratingRequired':'请填写活动评分',
+    'err.maxAttempts':'你已达到最大尝试次数',
+    'err.invalidLang':'语言无效',
   },
   bm: {
     dashboard:'Papan Pemuka', recordings:'Rakaman', materials:'Bahan', learn:'Slaid & Kuiz',
@@ -5036,7 +5212,95 @@ const I18N = {
     'lrn.noQuiz':'Tiada kuiz untuk sesi semasa anda lagi.', 'lrn.couldNotOpenQuiz':'Tidak dapat membuka kuiz ini.', 'lrn.noQuestion':'Kuiz ini belum ada soalan.',
     'lrn.quizEyebrow':'kuiz wajib · {title}', 'lrn.progOf':'{i} daripada {n}',
     'lrn.correct':'Betul — kuiz lulus.', 'lrn.notQuite':'Belum tepat — jawapan betul diserlahkan.',
-    'lrn.submitAnswer':'Hantar jawapan', 'lrn.nextQuiz':'Kuiz seterusnya', 'lrn.backToLesson':'Kembali ke pelajaran', 'lrn.skip':'Langkau dahulu', 'lrn.couldNotSubmit':'Tidak dapat menghantar'
+    'lrn.submitAnswer':'Hantar jawapan', 'lrn.nextQuiz':'Kuiz seterusnya', 'lrn.backToLesson':'Kembali ke pelajaran', 'lrn.skip':'Langkau dahulu', 'lrn.couldNotSubmit':'Tidak dapat menghantar',
+    'login.title':'Portal Pembelajaran', 'login.email':'E-mel', 'login.password':'Kata Laluan', 'login.submit':'Akses Portal', 'login.signingIn':'Sedang log masuk...',
+    'toast.reportExported':'Laporan pelajar dieksport',
+    'toast.gradeSavedNotified':'Gred disimpan & pelajar dimaklumkan!',
+    'toast.fileDropped':'Fail dilepaskan: {v}',
+    'toast.errLoading':'Gagal memuatkan: ',
+    'toast.switchedTo':'Ditukar ke {v}',
+    'toast.selectCourse':'Pilih kursus dahulu',
+    'toast.studentNameEmail':'Nama dan e-mel pelajar diperlukan',
+    'toast.studentAdded':'Pelajar ditambah dan ditugaskan ke kursus ini',
+    'toast.errLoadCerts':'Gagal memuatkan sijil: ',
+    'toast.qtyRange':'Masukkan kuantiti antara 1 dan 200',
+    'toast.pasteDriveLink':'Sila tampal pautan Google Drive dahulu',
+    'toast.recordingSaved':'Rakaman disimpan!',
+    'toast.recordingDeleted':'Rakaman dipadam',
+    'toast.selectFile':'Sila pilih fail dahulu',
+    'toast.materialPublished':'Bahan diterbitkan!',
+    'toast.materialDeleted':'Bahan dipadam',
+    'toast.assignmentPublished':'Tugasan diterbitkan kepada pelajar!',
+    'toast.assignmentDeleted':'Tugasan dipadam',
+    'toast.attachFile':'Sila lampirkan fail dahulu',
+    'toast.assignmentSubmitted':'Tugasan dihantar! 🎉',
+    'toast.enterScoreFirst':'Masukkan markah dahulu',
+    'toast.gradeSaved':'Gred disimpan!',
+    'toast.enterScore':'Masukkan markah',
+    'toast.markedWatched':'Ditandakan sebagai ditonton!',
+    'toast.fileSelected':'Fail dipilih: {v}',
+    'toast.allNotifsRead':'Semua pemberitahuan ditanda dibaca',
+    'toast.pickStartDate':'Pilih tarikh mula dahulu',
+    'toast.startDateSaved':'Tarikh mula disimpan',
+    'toast.errLoadSessions':'Gagal memuatkan sesi: ',
+    'toast.titleRequired':'Tajuk diperlukan',
+    'toast.startDateTimeRequired':'Tarikh/masa mula diperlukan',
+    'toast.sessionScheduled':'Sesi dijadualkan!',
+    'toast.sessionDeleted':'Sesi dipadam',
+    'toast.enterUrl':'Masukkan URL',
+    'toast.recordingUrlSaved':'URL rakaman disimpan!',
+    'toast.pickDate':'Pilih tarikh dahulu',
+    'toast.noRecordingUrl':'Tiada URL rakaman tersedia',
+    'toast.noRecordingAccess':'Anda tiada akses kepada rakaman ini',
+    'toast.resuming':'Menyambung: {v}',
+    'toast.noResume':'Tiada pelajaran untuk disambung lagi',
+    'toast.quizCreated':'Kuiz dicipta!',
+    'toast.quizDeleted':'Kuiz dipadam',
+    'toast.questionTextRequired':'Teks soalan diperlukan',
+    'toast.questionAdded':'Soalan ditambah!',
+    'toast.questionDeleted':'Soalan dipadam',
+    'toast.replyEmpty':'Balasan tidak boleh kosong',
+    'toast.replyPosted':'Balasan dihantar!',
+    'toast.replyDeleted':'Balasan dipadam',
+    'toast.postDeleted':'Kiriman dipadam',
+    'toast.postBodyRequired':'Isi kiriman diperlukan',
+    'toast.postCreated':'Kiriman dicipta!',
+    'toast.errLoadProfile':'Gagal memuatkan profil: ',
+    'toast.profileSaved':'Profil disimpan!',
+    'toast.errSaveProfile':'Gagal menyimpan profil: ',
+    'toast.photoUploaded':'Foto dimuat naik!',
+    'toast.uploadFailed':'Muat naik gagal: ',
+    'err.teachersOnly':'Pengajar sahaja',
+    'err.studentsOnly':'Pelajar sahaja',
+    'err.adminsOnly':'Pentadbir sahaja',
+    'err.forbidden':'Anda tiada kebenaran untuk berbuat demikian',
+    'err.badLogin':'E-mel atau kata laluan tidak sah',
+    'err.notEnrolled':'Anda tidak mendaftar dalam kursus ini',
+    'err.driveLink':'Sila guna pautan folder atau fail Google Drive',
+    'err.recordingClass':'Rakaman ini tidak tersedia untuk kelas anda',
+    'err.notFound':'Tidak dijumpai atau tidak lagi tersedia',
+    'err.notAvailableYet':'Belum tersedia',
+    'err.noFile':'Tiada fail diberikan',
+    'err.invalidScore':'Markah tidak sah',
+    'err.required':'Sila isi semua medan yang diperlukan',
+    'err.emailExists':'E-mel itu sudah digunakan',
+    'err.cantDeleteAdmin':'Akaun pentadbir tidak boleh dipadam',
+    'err.alreadyEnrolled':'Sudah mendaftar dalam kursus ini',
+    'err.notPaid':'Pendaftaran ini tidak ditanda sebagai dibayar',
+    'err.imageOnly':'Fail imej sahaja (JPG, PNG, WEBP, GIF)',
+    'err.attendanceStatus':'Status mesti hadir, tidak hadir atau lewat',
+    'err.datetimeFormat':'Tarikh/masa mesti dalam format YYYY-MM-DDTHH:MM',
+    'err.blankCertNoStudent':'Sijil tanpa nama tidak dikaitkan dengan pelajar',
+    'err.studentNoEmail':'Pelajar ini tiada alamat e-mel',
+    'err.emailNotSent':'E-mel tidak dapat dihantar — semak konfigurasi e-mel',
+    'err.selectCert':'Pilih sekurang-kurangnya satu sijil',
+    'err.bulkLimit':'Muat turun pukal terhad kepada 200 sijil pada satu masa',
+    'err.certGone':'Satu atau lebih sijil yang dipilih tidak lagi wujud',
+    'err.notStudentAccount':'E-mel itu milik akaun bukan pelajar',
+    'err.badFeedbackLink':'Pautan maklum balas tidak sah',
+    'err.ratingRequired':'Penilaian acara diperlukan',
+    'err.maxAttempts':'Anda telah mencapai bilangan percubaan maksimum',
+    'err.invalidLang':'Bahasa tidak sah',
   }
 };
 
@@ -5071,6 +5335,52 @@ function timeAgo(iso) {
   if (secs < 3600)  return T('ago.min', { n: Math.floor(secs / 60) });
   if (secs < 86400) return T('ago.hr',  { n: Math.floor(secs / 3600) });
   return T('ago.day', { n: Math.floor(secs / 86400) });
+}
+
+// Map the exact English string the API returns → an err.* key.
+// Anything not listed (dynamic / rare) passes through unchanged.
+const TERR = {
+  'Teachers only':'err.teachersOnly', 'Students only':'err.studentsOnly', 'Admins only':'err.adminsOnly',
+  'Forbidden':'err.forbidden', 'forbidden':'err.forbidden', 'Access denied':'err.forbidden',
+  'Invalid email or password':'err.badLogin',
+  'Not enrolled':'err.notEnrolled',
+  'Please use a Google Drive folder or file link':'err.driveLink',
+  'Recording not available for your class':'err.recordingClass',
+  'Slide not found':'err.notFound', 'Material not found':'err.notFound', 'No recording available':'err.notFound',
+  'Not available yet':'err.notAvailableYet',
+  'No file provided':'err.noFile', 'No file':'err.noFile',
+  'Invalid score':'err.invalidScore',
+  'name and email are required':'err.required', 'name required':'err.required', 'title is required':'err.required',
+  'question_text required':'err.required', 'body required':'err.required', 'session required':'err.required',
+  'material_id required':'err.required', 'course_id required':'err.required', 'student_id and session required':'err.required',
+  'start_datetime is required':'err.required', 'title and content required':'err.required',
+  'title and start_datetime are required':'err.required', 'title and course_id required':'err.required',
+  'course_id required for attendance export':'err.required',
+  'workshop_id required; student_id required unless blank_name is true':'err.required',
+  'course_id required; student_id required unless blank_name is true':'err.required',
+  'Email already exists':'err.emailExists', 'Email already in use':'err.emailExists',
+  'Cannot delete admin accounts':'err.cantDeleteAdmin',
+  'Already enrolled':'err.alreadyEnrolled',
+  'Enrollment is not marked as paid':'err.notPaid',
+  'Image files only (jpg, png, webp, gif)':'err.imageOnly',
+  'status must be present/absent/late':'err.attendanceStatus',
+  'start_datetime must be YYYY-MM-DDTHH:MM':'err.datetimeFormat',
+  'Blank-name certificates are not linked to a student':'err.blankCertNoStudent',
+  'Student has no email address':'err.studentNoEmail',
+  'Email could not be sent. Check email configuration.':'err.emailNotSent',
+  'Select at least one certificate':'err.selectCert',
+  'Bulk download is limited to 200 certificates at a time':'err.bulkLimit',
+  'One or more selected certificates no longer exist':'err.certGone',
+  'Email belongs to a non-student account':'err.notStudentAccount',
+  'Invalid feedback link':'err.badFeedbackLink',
+  'An event rating is required':'err.ratingRequired',
+  'Max attempts reached':'err.maxAttempts',
+  'Invalid language':'err.invalidLang',
+};
+function tErr(msg) {
+  if (msg == null) return '';
+  const k = TERR[String(msg)];
+  return k ? T(k) : String(msg);
 }
 
 function applyLanguage(lang, opts) {
@@ -5214,12 +5524,12 @@ async function resumeLastLesson() {
   try {
     const data = await GET(`/api/courses/${STATE.courseId}/last_lesson`);
     if (data.last_lesson) {
-      showToast('Resuming: ' + data.last_lesson.material_title);
+      showToast(T('toast.resuming', {v: data.last_lesson.material_title}));
       switchView('materials');
     } else {
-      showToast('No lesson to resume yet', true);
+      showToast(T('toast.noResume'), true);
     }
-  } catch(e) { showToast('Error: ' + e.message, true); }
+  } catch(e) { showToast(e.message, true); }
 }
 
 // ══════════════════════════════════════════════════════
@@ -5276,7 +5586,7 @@ async function startQuiz(qid) {
     _quizAnswers = {};
     renderQuizAttempt(data);
   } catch(e) {
-    showToast('Error: ' + e.message, true);
+    showToast(e.message, true);
   }
 }
 
@@ -5323,7 +5633,7 @@ async function submitQuiz(qid) {
     const data = await POST(`/api/quizzes/${qid}/attempt`, { submit: true, answers: _quizAnswers });
     renderQuizResult(data);
   } catch(e) {
-    showToast('Error: ' + e.message, true);
+    showToast(e.message, true);
   }
 }
 
@@ -5377,12 +5687,12 @@ async function loadTeacherQuizzes() {
           </button>
           <button class="btn-action red" onclick="deleteQuiz(${q.id})"><i class="fas fa-trash"></i></button>
         </div>`).join('');
-  } catch(e) { showToast('Error: ' + e.message, true); }
+  } catch(e) { showToast(e.message, true); }
 }
 
 async function createQuiz() {
   const title = document.getElementById('quiz-title-input')?.value.trim();
-  if (!title) { showToast('Title is required', true); return; }
+  if (!title) { showToast(T('toast.titleRequired'), true); return; }
   try {
     await POST('/api/quizzes', {
       course_id: STATE.courseId,
@@ -5392,10 +5702,10 @@ async function createQuiz() {
       max_attempts: parseInt(document.getElementById('quiz-max-attempts-input')?.value) || 2,
       time_limit_mins: parseInt(document.getElementById('quiz-time-limit-input')?.value) || null
     });
-    showToast('Quiz created!');
+    showToast(T('toast.quizCreated'));
     document.getElementById('quiz-title-input').value = '';
     await loadTeacherQuizzes();
-  } catch(e) { showToast('Error: ' + e.message, true); }
+  } catch(e) { showToast(e.message, true); }
 }
 
 async function toggleQuizPublish(qid, current) {
@@ -5403,7 +5713,7 @@ async function toggleQuizPublish(qid, current) {
     await PUT(`/api/quizzes/${qid}/publish`);
     showToast(current ? 'Quiz unpublished' : 'Quiz published!');
     await loadTeacherQuizzes();
-  } catch(e) { showToast('Error: ' + e.message, true); }
+  } catch(e) { showToast(e.message, true); }
 }
 
 async function deleteQuiz(qid) {
@@ -5411,8 +5721,8 @@ async function deleteQuiz(qid) {
   try {
     await DELETE(`/api/quizzes/${qid}`);
     document.getElementById(`tq-row-${qid}`)?.remove();
-    showToast('Quiz deleted');
-  } catch(e) { showToast('Error: ' + e.message, true); }
+    showToast(T('toast.quizDeleted'));
+  } catch(e) { showToast(e.message, true); }
 }
 
 async function openQuizEditor(qid, title) {
@@ -5446,7 +5756,7 @@ function openAddQuestionForm() {
 
 async function submitAddQuestion() {
   const text = document.getElementById('aq-text')?.value.trim();
-  if (!text) { showToast('Question text required', true); return; }
+  if (!text) { showToast(T('toast.questionTextRequired'), true); return; }
   const type = document.getElementById('aq-type')?.value;
   const points = parseInt(document.getElementById('aq-points')?.value) || 1;
   const explanation = document.getElementById('aq-explanation')?.value || '';
@@ -5459,14 +5769,14 @@ async function submitAddQuestion() {
 
   try {
     await POST(`/api/quizzes/${_editingQuizId}/questions`, { question_text: text, question_type: type, points, explanation, choices });
-    showToast('Question added!');
+    showToast(T('toast.questionAdded'));
     document.getElementById('t-add-question-form').style.display = 'none';
     document.getElementById('aq-text').value = '';
     document.getElementById('aq-explanation').value = '';
     choiceInputs.forEach(i => i.value = '');
     document.querySelector('#aq-choices-list input[name="aq-correct"]:checked')?.setAttribute('checked', false);
     await loadQuizQuestions(_editingQuizId);
-  } catch(e) { showToast('Error: ' + e.message, true); }
+  } catch(e) { showToast(e.message, true); }
 }
 
 async function deleteQuestion(qid, qqid) {
@@ -5474,8 +5784,8 @@ async function deleteQuestion(qid, qqid) {
   try {
     await DELETE(`/api/quizzes/${qid}/questions/${qqid}`);
     await loadQuizQuestions(qid);
-    showToast('Question deleted');
-  } catch(e) { showToast('Error: ' + e.message, true); }
+    showToast(T('toast.questionDeleted'));
+  } catch(e) { showToast(e.message, true); }
 }
 
 // ══════════════════════════════════════════════════════
@@ -5624,12 +5934,12 @@ function backToDiscussionList(isTeacher) {
 
 async function submitReply(pid, isTeacher) {
   const body = document.getElementById(`reply-body-${pid}`)?.value.trim();
-  if (!body) { showToast('Reply cannot be empty', true); return; }
+  if (!body) { showToast(T('toast.replyEmpty'), true); return; }
   try {
     await POST(`/api/discussions/${pid}/replies`, { body });
-    showToast('Reply posted!');
+    showToast(T('toast.replyPosted'));
     await openDiscussionPost(pid, isTeacher);
-  } catch(e) { showToast('Error: ' + e.message, true); }
+  } catch(e) { showToast(e.message, true); }
 }
 
 async function deleteReply(rid, pid, isTeacher) {
@@ -5637,29 +5947,29 @@ async function deleteReply(rid, pid, isTeacher) {
   try {
     await DELETE(`/api/discussions/replies/${rid}`);
     await openDiscussionPost(pid, isTeacher);
-    showToast('Reply deleted');
-  } catch(e) { showToast('Error: ' + e.message, true); }
+    showToast(T('toast.replyDeleted'));
+  } catch(e) { showToast(e.message, true); }
 }
 
 async function upvotePost(pid, isTeacher) {
   try {
     await POST(`/api/discussions/${pid}/upvote`);
     await renderDiscussionList(isTeacher ? 't-discussion-list' : 'discussion-list', isTeacher);
-  } catch(e) { showToast('Error: ' + e.message, true); }
+  } catch(e) { showToast(e.message, true); }
 }
 
 async function togglePin(pid) {
   try {
     await PUT(`/api/discussions/${pid}/pin`);
     await renderDiscussionList('t-discussion-list', true);
-  } catch(e) { showToast('Error: ' + e.message, true); }
+  } catch(e) { showToast(e.message, true); }
 }
 
 async function toggleResolve(pid) {
   try {
     await PUT(`/api/discussions/${pid}/resolve`);
     await renderDiscussionList('t-discussion-list', true);
-  } catch(e) { showToast('Error: ' + e.message, true); }
+  } catch(e) { showToast(e.message, true); }
 }
 
 async function deletePost(pid, isTeacher) {
@@ -5667,8 +5977,8 @@ async function deletePost(pid, isTeacher) {
   try {
     await DELETE(`/api/discussions/${pid}`);
     await renderDiscussionList(isTeacher ? 't-discussion-list' : 'discussion-list', isTeacher);
-    showToast('Post deleted');
-  } catch(e) { showToast('Error: ' + e.message, true); }
+    showToast(T('toast.postDeleted'));
+  } catch(e) { showToast(e.message, true); }
 }
 
 function openNewPostModal() {
@@ -5681,13 +5991,13 @@ async function submitNewPost() {
   const title = document.getElementById('new-post-title')?.value.trim();
   const body  = document.getElementById('new-post-body')?.value.trim();
   const session  = document.getElementById('new-post-week')?.value || null;
-  if (!body) { showToast('Post body is required', true); return; }
+  if (!body) { showToast(T('toast.postBodyRequired'), true); return; }
   try {
     await POST(`/api/courses/${STATE.courseId}/discussions`, { title, body, session: session ? parseInt(session) : null });
     closeModal('new-post-modal');
-    showToast('Post created!');
+    showToast(T('toast.postCreated'));
     await renderDiscussionList('discussion-list', false);
-  } catch(e) { showToast('Error: ' + e.message, true); }
+  } catch(e) { showToast(e.message, true); }
 }
 
 // ══════════════════════════════════════════════════════
@@ -5734,7 +6044,7 @@ async function toggleMaterialPublish(mid) {
     const data = await PUT(`/api/materials/${mid}/publish`);
     showToast(data.material.is_published ? 'Material published!' : 'Material unpublished');
     await loadTeacherMaterials();
-  } catch(e) { showToast('Error: ' + e.message, true); }
+  } catch(e) { showToast(e.message, true); }
 }
 
 async function scheduleMaterial(mid) {
@@ -5744,7 +6054,7 @@ async function scheduleMaterial(mid) {
     await PUT(`/api/materials/${mid}/schedule`, { publish_at: dt });
     showToast(dt ? `Scheduled for ${dt}` : 'Schedule cleared');
     await loadTeacherMaterials();
-  } catch(e) { showToast('Error: ' + e.message, true); }
+  } catch(e) { showToast(e.message, true); }
 }
 
 // Update VIEW_TITLES for new views
@@ -5778,7 +6088,7 @@ async function loadTeacherProfile() {
      'prof-specializations','prof-website','prof-linkedin'].forEach(id => {
       document.getElementById(id).oninput = () => renderProfilePreviewCard(collectProfileFields());
     });
-  } catch(e) { showToast('Error loading profile: ' + e.message, true); }
+  } catch(e) { showToast(T('toast.errLoadProfile') + e.message, true); }
 }
 
 function collectProfileFields() {
@@ -5857,8 +6167,8 @@ async function saveTeacherProfile() {
     renderProfilePreviewCard(r.profile);
     const msg = document.getElementById('profile-save-msg');
     if (msg) { msg.style.display = ''; setTimeout(() => msg.style.display = 'none', 3000); }
-    showToast('Profile saved!');
-  } catch(e) { showToast('Error saving profile: ' + e.message, true); }
+    showToast(T('toast.profileSaved'));
+  } catch(e) { showToast(T('toast.errSaveProfile') + e.message, true); }
 }
 
 async function uploadAvatar(input) {
@@ -5869,15 +6179,15 @@ async function uploadAvatar(input) {
   try {
     const r = await fetch('/api/teacher/profile/avatar', { method:'POST', body: fd });
     const j = await r.json();
-    if (!r.ok) throw new Error(j.error || 'Upload failed');
+    if (!r.ok) throw new Error(tErr(j.error) || 'Upload failed');
     const p = { avatar_filename: j.avatar_filename, name: STATE.user?.name || '', initials: STATE.user?.initials || '' };
     renderProfileAvatarPreview(p);
     // Update hidden field
     const hidden = document.getElementById('prof-avatar-stored');
     if (hidden) hidden.value = j.avatar_filename;
     renderProfilePreviewCard(collectProfileFields());
-    showToast('Photo uploaded!');
-  } catch(e) { showToast('Upload failed: ' + e.message, true); }
+    showToast(T('toast.photoUploaded'));
+  } catch(e) { showToast(T('toast.uploadFailed') + e.message, true); }
 }
 
 // ── Instructor card on student dashboard ─────────────
