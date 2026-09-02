@@ -2638,9 +2638,9 @@
       <img class="lrn-logo lrn-logo-dark" src="/static/img/logo_full_dark.png?v=2" alt="codencode.my" />
     </a>
     <div class="lrn-nav">
-      <button onclick="learnExit()">Home</button>
-      <button id="lrn-nav-lesson" class="on" onclick="learnGo('learn')">Lesson</button>
-      <button id="lrn-nav-practice" onclick="learnGo('practice')">Quiz</button>
+      <button onclick="learnExit()" data-i18n="lrn.home">Home</button>
+      <button id="lrn-nav-lesson" class="on" onclick="learnGo('learn')" data-i18n="lrn.lesson">Lesson</button>
+      <button id="lrn-nav-practice" onclick="learnGo('practice')" data-i18n="quizzes">Quiz</button>
     </div>
     <div class="lrn-topbar-right">
       <button class="lrn-icon-btn lrn-theme-toggle" onclick="toggleTheme()" title="Switch between light and dark" aria-label="Switch between light and dark">
@@ -4832,7 +4832,27 @@ const I18N = {
     't.card.newQuiz':'New Quiz', 't.card.yourQuizzes':'Your Quizzes', 't.card.editQuestions':'Edit Questions', 't.card.previewStudent':'Preview (student view)',
     't.btn.gradeAll':'Grade All', 't.btn.grade':'Grade', 't.nothingToGrade':'Nothing to grade 🎉',
     't.submittedOn':'Submitted {when} · {file}', 't.dash.sub':'// {prog} · {date}', 't.dash.subProg':'// {prog}',
-    't.grading.title':'{title} · {n} submissions', 't.students.sub':'// {n} student(s) enrolled'
+    't.grading.title':'{title} · {n} submissions', 't.students.sub':'// {n} student(s) enrolled',
+    // learn / quiz focus mode
+    'lrn.home':'Home', 'lrn.lesson':'Lesson', 'lrn.pickCourse':'Pick a course from the dashboard first.',
+    'lrn.general':'General resources', 'lrn.session':'Session {n}', 'lrn.items':'{n} items',
+    'lrn.lessonKicker':'Lesson', 'lrn.passed':'passed', 'lrn.requiredQuiz':'required quiz',
+    'lrn.noLessons':'No lessons published for your current session yet.',
+    'lrn.loading':'Loading…', 'lrn.couldNotOpenLesson':'Could not open this lesson.', 'lrn.allSessions':'All sessions',
+    'lrn.scopeGeneral':'general', 'lrn.scopeSession':'session {n}', 'lrn.crumbLesson':'lesson',
+    'lrn.selfPaced':'Self-paced', 'lrn.langNote':'EN with 中文 notes', 'lrn.keyPoints':'{n} key points',
+    'lrn.tab.transcript':'Transcript', 'lrn.tab.notes':'Notes', 'lrn.tab.resources':'Resources', 'lrn.tab.discussion':'Discussion',
+    'lrn.thisCourse':'This course', 'lrn.upNext':'Up next',
+    'lrn.lessonCompleted':'Lesson completed', 'lrn.markComplete':'Mark lesson complete',
+    'lrn.quizPassed':'Quiz passed ✓', 'lrn.takeQuiz':'Take the quiz', 'lrn.askDiscussion':'Ask in discussion',
+    'lrn.completeToast':'Lesson marked complete', 'lrn.couldNotSave':'Could not save',
+    'lrn.noKeyPoints':'No key points captured for this lesson yet.', 'lrn.notesPh':'Your notes for this lesson… (saved on this device)',
+    'lrn.fullDeck':'Full slide deck', 'lrn.download':'Download', 'lrn.review':'Review', 'lrn.start':'Start',
+    'lrn.courseDiscussion':'Course discussion', 'lrn.open':'Open', 'lrn.slideCount':'slide {i} of {n}',
+    'lrn.noQuiz':'No quiz for your current session yet.', 'lrn.couldNotOpenQuiz':'Could not open this quiz.', 'lrn.noQuestion':'This quiz has no question yet.',
+    'lrn.quizEyebrow':'required quiz · {title}', 'lrn.progOf':'{i} of {n}',
+    'lrn.correct':'Correct — quiz passed.', 'lrn.notQuite':'Not quite — the right answer is highlighted.',
+    'lrn.submitAnswer':'Submit answer', 'lrn.nextQuiz':'Next quiz', 'lrn.backToLesson':'Back to lesson', 'lrn.skip':'Skip for now', 'lrn.couldNotSubmit':'Could not submit'
   },
   zh: {
     dashboard:'学习面板', recordings:'课程录像', materials:'学习资料', learn:'幻灯片与测验',
@@ -4894,7 +4914,27 @@ const I18N = {
     't.card.newQuiz':'新测验', 't.card.yourQuizzes':'你的测验', 't.card.editQuestions':'编辑题目', 't.card.previewStudent':'预览（学生视角）',
     't.btn.gradeAll':'全部批改', 't.btn.grade':'批改', 't.nothingToGrade':'没有待批改的内容 🎉',
     't.submittedOn':'提交于 {when} · {file}', 't.dash.sub':'// {prog} · {date}', 't.dash.subProg':'// {prog}',
-    't.grading.title':'{title} · {n} 份提交', 't.students.sub':'// 已报名 {n} 名学生'
+    't.grading.title':'{title} · {n} 份提交', 't.students.sub':'// 已报名 {n} 名学生',
+    // learn / quiz focus mode
+    'lrn.home':'首页', 'lrn.lesson':'课程', 'lrn.pickCourse':'请先从面板中选择一门课程。',
+    'lrn.general':'通用资源', 'lrn.session':'第 {n} 节', 'lrn.items':'{n} 项',
+    'lrn.lessonKicker':'课程', 'lrn.passed':'已通过', 'lrn.requiredQuiz':'必做测验',
+    'lrn.noLessons':'当前课节暂无已发布的课程。',
+    'lrn.loading':'加载中…', 'lrn.couldNotOpenLesson':'无法打开此课程。', 'lrn.allSessions':'所有课节',
+    'lrn.scopeGeneral':'通用', 'lrn.scopeSession':'第 {n} 节', 'lrn.crumbLesson':'课程',
+    'lrn.selfPaced':'自主进度', 'lrn.langNote':'英文课程，附中文要点', 'lrn.keyPoints':'{n} 个要点',
+    'lrn.tab.transcript':'要点', 'lrn.tab.notes':'笔记', 'lrn.tab.resources':'资源', 'lrn.tab.discussion':'讨论',
+    'lrn.thisCourse':'本课程', 'lrn.upNext':'下一节',
+    'lrn.lessonCompleted':'课程已完成', 'lrn.markComplete':'标记课程完成',
+    'lrn.quizPassed':'测验已通过 ✓', 'lrn.takeQuiz':'去做测验', 'lrn.askDiscussion':'到讨论区提问',
+    'lrn.completeToast':'已标记课程完成', 'lrn.couldNotSave':'无法保存',
+    'lrn.noKeyPoints':'此课程暂无要点。', 'lrn.notesPh':'此课程的笔记……（保存在本设备）',
+    'lrn.fullDeck':'完整幻灯片', 'lrn.download':'下载', 'lrn.review':'回顾', 'lrn.start':'开始',
+    'lrn.courseDiscussion':'课程讨论', 'lrn.open':'打开', 'lrn.slideCount':'第 {i} / {n} 张',
+    'lrn.noQuiz':'当前课节暂无测验。', 'lrn.couldNotOpenQuiz':'无法打开此测验。', 'lrn.noQuestion':'此测验暂无题目。',
+    'lrn.quizEyebrow':'必做测验 · {title}', 'lrn.progOf':'第 {i} / {n}',
+    'lrn.correct':'回答正确 —— 测验通过。', 'lrn.notQuite':'不对 —— 正确答案已高亮。',
+    'lrn.submitAnswer':'提交答案', 'lrn.nextQuiz':'下一个测验', 'lrn.backToLesson':'返回课程', 'lrn.skip':'暂时跳过', 'lrn.couldNotSubmit':'无法提交'
   },
   bm: {
     dashboard:'Papan Pemuka', recordings:'Rakaman', materials:'Bahan', learn:'Slaid & Kuiz',
@@ -4956,7 +4996,27 @@ const I18N = {
     't.card.newQuiz':'Kuiz Baharu', 't.card.yourQuizzes':'Kuiz Anda', 't.card.editQuestions':'Sunting Soalan', 't.card.previewStudent':'Pratonton (paparan pelajar)',
     't.btn.gradeAll':'Nilai Semua', 't.btn.grade':'Nilai', 't.nothingToGrade':'Tiada apa untuk dinilai 🎉',
     't.submittedOn':'Dihantar {when} · {file}', 't.dash.sub':'// {prog} · {date}', 't.dash.subProg':'// {prog}',
-    't.grading.title':'{title} · {n} penghantaran', 't.students.sub':'// {n} pelajar mendaftar'
+    't.grading.title':'{title} · {n} penghantaran', 't.students.sub':'// {n} pelajar mendaftar',
+    // learn / quiz focus mode
+    'lrn.home':'Utama', 'lrn.lesson':'Pelajaran', 'lrn.pickCourse':'Pilih kursus dari papan pemuka dahulu.',
+    'lrn.general':'Sumber umum', 'lrn.session':'Sesi {n}', 'lrn.items':'{n} item',
+    'lrn.lessonKicker':'Pelajaran', 'lrn.passed':'lulus', 'lrn.requiredQuiz':'kuiz wajib',
+    'lrn.noLessons':'Tiada pelajaran diterbitkan untuk sesi semasa anda lagi.',
+    'lrn.loading':'Memuatkan…', 'lrn.couldNotOpenLesson':'Tidak dapat membuka pelajaran ini.', 'lrn.allSessions':'Semua sesi',
+    'lrn.scopeGeneral':'umum', 'lrn.scopeSession':'sesi {n}', 'lrn.crumbLesson':'pelajaran',
+    'lrn.selfPaced':'Kadar sendiri', 'lrn.langNote':'BI dengan nota 中文', 'lrn.keyPoints':'{n} perkara utama',
+    'lrn.tab.transcript':'Transkrip', 'lrn.tab.notes':'Nota', 'lrn.tab.resources':'Sumber', 'lrn.tab.discussion':'Perbincangan',
+    'lrn.thisCourse':'Kursus ini', 'lrn.upNext':'Seterusnya',
+    'lrn.lessonCompleted':'Pelajaran selesai', 'lrn.markComplete':'Tandakan pelajaran selesai',
+    'lrn.quizPassed':'Kuiz lulus ✓', 'lrn.takeQuiz':'Ambil kuiz', 'lrn.askDiscussion':'Tanya di perbincangan',
+    'lrn.completeToast':'Pelajaran ditandakan selesai', 'lrn.couldNotSave':'Tidak dapat menyimpan',
+    'lrn.noKeyPoints':'Tiada perkara utama direkodkan untuk pelajaran ini lagi.', 'lrn.notesPh':'Nota anda untuk pelajaran ini… (disimpan pada peranti ini)',
+    'lrn.fullDeck':'Set slaid penuh', 'lrn.download':'Muat Turun', 'lrn.review':'Semak', 'lrn.start':'Mula',
+    'lrn.courseDiscussion':'Perbincangan kursus', 'lrn.open':'Buka', 'lrn.slideCount':'slaid {i} daripada {n}',
+    'lrn.noQuiz':'Tiada kuiz untuk sesi semasa anda lagi.', 'lrn.couldNotOpenQuiz':'Tidak dapat membuka kuiz ini.', 'lrn.noQuestion':'Kuiz ini belum ada soalan.',
+    'lrn.quizEyebrow':'kuiz wajib · {title}', 'lrn.progOf':'{i} daripada {n}',
+    'lrn.correct':'Betul — kuiz lulus.', 'lrn.notQuite':'Belum tepat — jawapan betul diserlahkan.',
+    'lrn.submitAnswer':'Hantar jawapan', 'lrn.nextQuiz':'Kuiz seterusnya', 'lrn.backToLesson':'Kembali ke pelajaran', 'lrn.skip':'Langkau dahulu', 'lrn.couldNotSubmit':'Tidak dapat menghantar'
   }
 };
 
@@ -5849,7 +5909,7 @@ async function learnEnsureOutline(force){
 async function loadLearn(){
   const o = await learnEnsureOutline();
   if (!o) { document.getElementById('lrn-stage').innerHTML =
-    `<div class="lrn-empty">Pick a course from the dashboard first.</div>`; return; }
+    `<div class="lrn-empty">${T('lrn.pickCourse')}</div>`; return; }
   if (LRN.curMaterialId) return renderLesson(LRN.curMaterialId);
   renderOutline(o);
 }
@@ -5858,13 +5918,13 @@ function renderOutline(o){
   const stage = document.getElementById('lrn-stage');
   const c = o.course;
   const sessHtml = o.sessions.map(s => {
-    const label = s.session === 0 ? 'General resources' : `Session ${s.session}`;
+    const label = s.session === 0 ? T('lrn.general') : T('lrn.session', { n: s.session });
     const items = s.items.map(it => {
       if (it.type === 'lesson') {
         return `<button class="lrn-card lesson" onclick="learnOpenLesson(${it.id})">
           <span class="lrn-card-ic"><i class="fas ${esc(it.icon||'fa-file-alt')}"></i></span>
           <span class="lrn-card-body">
-            <span class="lrn-card-kicker">${esc(it.duration_label||'Lesson')}</span>
+            <span class="lrn-card-kicker">${esc(it.duration_label||T('lrn.lessonKicker'))}</span>
             <span class="lrn-card-title">${esc(it.title)}</span>
             <span class="lrn-card-prog"><span class="lrn-prog-track" style="max-width:220px">
               <span class="lrn-prog-fill" style="width:${it.progress||0}%"></span></span>
@@ -5876,11 +5936,11 @@ function renderOutline(o){
         <span class="lrn-card-body">
           <span class="lrn-card-title">${esc(it.title)}</span>
           <span class="lrn-tag ${it.passed?'ok':''}">
-            <i class="fas ${it.passed?'fa-check':'fa-flag'}"></i>${it.passed?'passed':'required quiz'}</span>
+            <i class="fas ${it.passed?'fa-check':'fa-flag'}"></i>${it.passed?T('lrn.passed'):T('lrn.requiredQuiz')}</span>
         </span></button>`;
     }).join('');
     return `<div class="lrn-sess"><div class="lrn-sess-head">${label}
-      <span class="lrn-sess-count">${s.items.length} items</span></div>
+      <span class="lrn-sess-count">${T('lrn.items',{n:s.items.length})}</span></div>
       <div class="lrn-sess-grid">${items}</div></div>`;
   }).join('');
 
@@ -5888,7 +5948,7 @@ function renderOutline(o){
     <div class="lrn-eyebrow">${esc(c.programme || c.title)}</div>
     <div class="lrn-h1" style="margin-top:6px">${esc(c.title)}</div>
     <p style="color:var(--lrn-text-2);font-size:14px;margin:0 0 26px;max-width:640px">${esc(c.tagline||'')}</p>
-    ${sessHtml || '<div class="lrn-empty">No lessons published for your current session yet.</div>'}`;
+    ${sessHtml || `<div class="lrn-empty">${T('lrn.noLessons')}</div>`}`;
 }
 
 async function learnOpenLesson(mid){ LRN.curMaterialId = mid; LRN.curDrillId = null;
@@ -5896,10 +5956,10 @@ async function learnOpenLesson(mid){ LRN.curMaterialId = mid; LRN.curDrillId = n
 
 async function renderLesson(mid){
   const stage = document.getElementById('lrn-stage');
-  stage.innerHTML = `<div class="lrn-empty">Loading…</div>`;
+  stage.innerHTML = `<div class="lrn-empty">${T('lrn.loading')}</div>`;
   let d;
   try { d = await GET(`/api/lms/material/${mid}`); }
-  catch(e){ stage.innerHTML = `<div class="lrn-empty">${esc(e.message||'Could not open this lesson.')}</div>`; return; }
+  catch(e){ stage.innerHTML = `<div class="lrn-empty">${esc(e.message||T('lrn.couldNotOpenLesson'))}</div>`; return; }
   LRN.curMaterialId = mid; LRN.data = d; LRN.slideIdx = 0; LRN.tab = 'transcript';
   // fire a light progress ping
   POST(`/api/lms/material/${mid}/progress`, { percent: Math.max(15, d.progress||0) }).catch(()=>{});
@@ -5914,13 +5974,13 @@ async function renderLesson(mid){
     const cls = 'lrn-check' + (done?' done':'') + (cur?' on':'');
     const inner = done ? '<i class="fas fa-check"></i>' : (it.type==='drill' ? '<i class="fas fa-flag-checkered" style="font-size:8px"></i>' : '');
     const onclick = it.type==='lesson' ? `learnOpenLesson(${it.id})` : `learnOpenDrill(${it.id})`;
-    const name = it.type==='drill' ? 'Quiz · '+it.title : it.title;
+    const name = it.type==='drill' ? T('quizzes')+' · '+it.title : it.title;
     return `<div class="lrn-rail-item ${cur?'on':''} ${done?'done':''}" onclick="${onclick}">
       <div class="${cls}">${inner}</div><div class="lrn-rail-name">${esc(name)}</div></div>`;
   }).join('');
 
   stage.innerHTML = `
-  <button class="lrn-back" onclick="LRN.curMaterialId=null;loadLearn()"><i class="fas fa-chevron-left"></i> All sessions</button>
+  <button class="lrn-back" onclick="LRN.curMaterialId=null;loadLearn()"><i class="fas fa-chevron-left"></i> ${T('lrn.allSessions')}</button>
   <div class="lrn-lesson">
     <div>
       <div class="lrn-media" id="lrn-media"></div>
@@ -5928,34 +5988,34 @@ async function renderLesson(mid){
         <button id="lrn-sl-prev"><i class="fas fa-chevron-left"></i></button>
         <span class="count" id="lrn-sl-count"></span>
         <button id="lrn-sl-next"><i class="fas fa-chevron-right"></i></button></div>` : ''}
-      <div class="lrn-eyebrow">${esc(d.course.programme||d.course.title)} · ${d.session===0?'general':'session '+d.session} · lesson</div>
+      <div class="lrn-eyebrow">${esc(d.course.programme||d.course.title)} · ${d.session===0?T('lrn.scopeGeneral'):T('lrn.scopeSession',{n:d.session})} · ${T('lrn.crumbLesson')}</div>
       <div class="lrn-h1">${esc(d.title)}</div>
       <div class="lrn-meta">
-        <span><i class="fas fa-clock"></i>${esc(d.duration_label||'Self-paced')}</span>
-        <span><i class="fas fa-language"></i>EN with 中文 notes</span>
-        <span><i class="fas fa-file-alt"></i>${kp.length} key points</span>
+        <span><i class="fas fa-clock"></i>${esc(d.duration_label||T('lrn.selfPaced'))}</span>
+        <span><i class="fas fa-language"></i>${T('lrn.langNote')}</span>
+        <span><i class="fas fa-file-alt"></i>${T('lrn.keyPoints',{n:kp.length})}</span>
       </div>
       <div class="lrn-tabs">
-        <button data-tab="transcript" class="on" onclick="learnTab('transcript')">Transcript</button>
-        <button data-tab="notes" onclick="learnTab('notes')">Notes</button>
-        <button data-tab="resources" onclick="learnTab('resources')">Resources</button>
-        <button data-tab="discussion" onclick="switchView('discussion')">Discussion</button>
+        <button data-tab="transcript" class="on" onclick="learnTab('transcript')">${T('lrn.tab.transcript')}</button>
+        <button data-tab="notes" onclick="learnTab('notes')">${T('lrn.tab.notes')}</button>
+        <button data-tab="resources" onclick="learnTab('resources')">${T('lrn.tab.resources')}</button>
+        <button data-tab="discussion" onclick="switchView('discussion')">${T('lrn.tab.discussion')}</button>
       </div>
       <div id="lrn-tabbody"></div>
     </div>
     <div class="lrn-rail">
-      <div class="lrn-rail-title">${esc((LRN.outline?.course?.title)||'This course')}</div>
+      <div class="lrn-rail-title">${esc((LRN.outline?.course?.title)||T('lrn.thisCourse'))}</div>
       ${railHtml}
       <div class="lrn-rail-divider"></div>
-      ${d.next ? `<div class="lrn-rail-sub">Up next</div>
+      ${d.next ? `<div class="lrn-rail-sub">${T('lrn.upNext')}</div>
         <div class="lrn-rail-item" onclick="learnOpenLesson(${d.next.id})">
           <div class="lrn-check"><i class="fas fa-arrow-right" style="font-size:8px"></i></div>
           <div class="lrn-rail-name">${esc(d.next.title)}</div></div>` : ''}
       <button class="lrn-btn" id="lrn-complete" onclick="learnComplete(${mid})">
-        ${d.completed ? 'Lesson completed' : 'Mark lesson complete'}</button>
+        ${d.completed ? T('lrn.lessonCompleted') : T('lrn.markComplete')}</button>
       ${d.drill ? `<button class="lrn-btn ghost" onclick="learnOpenDrill(${d.drill.id})">
-        ${d.drill.passed ? 'Quiz passed ✓' : 'Take the quiz'}</button>` : ''}
-      <button class="lrn-btn ghost" onclick="switchView('discussion')">Ask in discussion</button>
+        ${d.drill.passed ? T('lrn.quizPassed') : T('lrn.takeQuiz')}</button>` : ''}
+      <button class="lrn-btn ghost" onclick="switchView('discussion')">${T('lrn.askDiscussion')}</button>
     </div>
   </div>`;
 
@@ -5976,7 +6036,7 @@ function renderMedia(){
     const s = LRN.slides[LRN.slideIdx];
     el.innerHTML = `<img src="${esc(s.image_url)}" alt="slide ${LRN.slideIdx+1}">`;
     const c = document.getElementById('lrn-sl-count');
-    if (c) c.textContent = `slide ${LRN.slideIdx+1} of ${LRN.slides.length}`;
+    if (c) c.textContent = T('lrn.slideCount', { i: LRN.slideIdx+1, n: LRN.slides.length });
   } else {
     el.innerHTML = `<iframe src="${esc(d.file_url)}" title="${esc(d.title)}"></iframe>
       <span class="lrn-media-tag">${esc((d.file_type||'deck').toUpperCase())}</span>`;
@@ -5992,24 +6052,24 @@ function learnTab(t){
   if (t === 'transcript') {
     const lines = (LRN.kp||[]).map((x,i) =>
       `<div class="line"><b>${String(i+1).padStart(2,'0')}</b><span>${esc(x)}</span></div>`).join('');
-    body.innerHTML = `<div class="lrn-transcript">${lines || '<div class="lrn-empty">No key points captured for this lesson yet.</div>'}</div>`;
+    body.innerHTML = `<div class="lrn-transcript">${lines || `<div class="lrn-empty">${T('lrn.noKeyPoints')}</div>`}</div>`;
   } else if (t === 'notes') {
     const key = 'cc-note-' + d.id;
     let saved = ''; try { saved = localStorage.getItem(key) || ''; } catch(e){}
-    body.innerHTML = `<textarea class="lrn-note-area" id="lrn-note" placeholder="Your notes for this lesson… (saved on this device)">${esc(saved)}</textarea>`;
+    body.innerHTML = `<textarea class="lrn-note-area" id="lrn-note" placeholder="${esc(T('lrn.notesPh'))}">${esc(saved)}</textarea>`;
     document.getElementById('lrn-note').addEventListener('input', e => {
       try { localStorage.setItem(key, e.target.value); } catch(err){} });
   } else if (t === 'resources') {
     body.innerHTML = `
       <div class="lrn-res-row"><i class="fas fa-download" style="color:var(--lrn-text-3)"></i>
-        <div style="flex:1">Full slide deck</div>
-        <a href="${esc(d.file_url)}?download=1">Download</a></div>
+        <div style="flex:1">${T('lrn.fullDeck')}</div>
+        <a href="${esc(d.file_url)}?download=1">${T('lrn.download')}</a></div>
       ${d.drill ? `<div class="lrn-res-row"><i class="fas fa-flag-checkered" style="color:var(--lrn-text-3)"></i>
         <div style="flex:1">${esc(d.drill.title)}</div>
-        <a href="javascript:void 0" onclick="learnOpenDrill(${d.drill.id})">${d.drill.passed?'Review':'Start'}</a></div>` : ''}
+        <a href="javascript:void 0" onclick="learnOpenDrill(${d.drill.id})">${d.drill.passed?T('lrn.review'):T('lrn.start')}</a></div>` : ''}
       <div class="lrn-res-row"><i class="fas fa-comments" style="color:var(--lrn-text-3)"></i>
-        <div style="flex:1">Course discussion</div>
-        <a href="javascript:void 0" onclick="switchView('discussion')">Open</a></div>`;
+        <div style="flex:1">${T('lrn.courseDiscussion')}</div>
+        <a href="javascript:void 0" onclick="switchView('discussion')">${T('lrn.open')}</a></div>`;
   }
 }
 
@@ -6018,14 +6078,14 @@ async function learnComplete(mid){
   if (btn) btn.disabled = true;
   try {
     await POST(`/api/lms/material/${mid}/progress`, { complete: true });
-    if (btn) btn.textContent = 'Lesson completed';
-    showToast('Lesson marked complete');
+    if (btn) btn.textContent = T('lrn.lessonCompleted');
+    showToast(T('lrn.completeToast'));
     await learnEnsureOutline(true);
     if (LRN.data && LRN.data.completed !== true) LRN.data.completed = true;
     if (LRN.data && LRN.data.next) {
       setTimeout(() => learnOpenLesson(LRN.data.next.id), 500);
     } else { renderLesson(mid); }
-  } catch(e){ if (btn) btn.disabled = false; showToast(e.message || 'Could not save', true); }
+  } catch(e){ if (btn) btn.disabled = false; showToast(e.message || T('lrn.couldNotSave'), true); }
 }
 
 /* ---------- PRACTICE TAB ---------- */
@@ -6034,7 +6094,7 @@ async function loadPractice(){
   if (LRN.curDrillId) return renderDrill(LRN.curDrillId);
   const drills = (o?.sessions||[]).flatMap(s => s.items).filter(it => it.type==='drill');
   const stage = document.getElementById('lrn-stage');
-  if (!drills.length) { stage.innerHTML = `<div class="lrn-empty">No quiz for your current session yet.</div>`; return; }
+  if (!drills.length) { stage.innerHTML = `<div class="lrn-empty">${T('lrn.noQuiz')}</div>`; return; }
   const next = drills.find(d => !d.passed) || drills[0];
   renderDrill(next.id);
 }
@@ -6050,14 +6110,14 @@ function parseCode(txt){
 
 async function renderDrill(qid){
   const stage = document.getElementById('lrn-stage');
-  stage.innerHTML = `<div class="lrn-empty">Loading…</div>`;
+  stage.innerHTML = `<div class="lrn-empty">${T('lrn.loading')}</div>`;
   let d;
   try { d = await GET(`/api/lms/drill/${qid}`); }
-  catch(e){ stage.innerHTML = `<div class="lrn-empty">${esc(e.message||'Could not open this quiz.')}</div>`; return; }
+  catch(e){ stage.innerHTML = `<div class="lrn-empty">${esc(e.message||T('lrn.couldNotOpenQuiz'))}</div>`; return; }
   LRN.curDrillId = qid; LRN.drill = d; LRN.sel = null; LRN.submitted = false;
 
   const q = (d.questions||[])[0];
-  if (!q) { stage.innerHTML = `<div class="lrn-empty">This quiz has no question yet.</div>`; return; }
+  if (!q) { stage.innerHTML = `<div class="lrn-empty">${T('lrn.noQuestion')}</div>`; return; }
   LRN.q = q;
 
   const allDrills = (LRN.outline?.sessions||[]).flatMap(s => s.items).filter(it => it.type==='drill');
@@ -6082,18 +6142,18 @@ async function renderDrill(qid){
       const ok = LRN.res.passed;
       fb = `<div class="lrn-feedback ${ok?'pass':'fail'}">
         <i class="fas ${ok?'fa-check':'fa-times'}"></i>
-        ${ok ? 'Correct — quiz passed.' : 'Not quite — the right answer is highlighted.'}</div>
+        ${ok ? T('lrn.correct') : T('lrn.notQuite')}</div>
         ${LRN.res.explanation ? `<div class="lrn-explain">${esc(LRN.res.explanation)}</div>` : ''}`;
     }
 
     stage.innerHTML = `
     <div class="lrn-practice">
-      <button class="lrn-back" onclick="LRN.curDrillId=null;switchView('learn')"><i class="fas fa-chevron-left"></i> Back to lesson</button>
+      <button class="lrn-back" onclick="LRN.curDrillId=null;switchView('learn')"><i class="fas fa-chevron-left"></i> ${T('lrn.backToLesson')}</button>
       <div class="lrn-prog-row">
         <div class="lrn-prog-track"><div class="lrn-prog-fill" style="width:${Math.round((idx+1)/Math.max(1,allDrills.length)*100)}%"></div></div>
-        <div class="lrn-prog-label">${idx+1} of ${allDrills.length}</div>
+        <div class="lrn-prog-label">${T('lrn.progOf',{i:idx+1,n:allDrills.length})}</div>
       </div>
-      <div class="lrn-drill-eyebrow"><i class="fas fa-flag-checkered"></i>required quiz · ${esc(d.title)}</div>
+      <div class="lrn-drill-eyebrow"><i class="fas fa-flag-checkered"></i>${T('lrn.quizEyebrow',{title:esc(d.title)})}</div>
       <div class="lrn-drill-q">${esc(parsedQ.body)}</div>
       ${parsedSub.body ? `<div class="lrn-drill-sub">${esc(parsedSub.body)}</div>` : ''}
       ${parsedQ.code ? `<div class="lrn-code">${parsedQ.code}</div>` :
@@ -6101,9 +6161,9 @@ async function renderDrill(qid){
       ${opts}
       ${fb}
       <div class="lrn-drill-footer">
-        <span class="lrn-skip" onclick="LRN.curDrillId=null;switchView('learn')">${LRN.submitted?'':'Skip for now'}</span>
+        <span class="lrn-skip" onclick="LRN.curDrillId=null;switchView('learn')">${LRN.submitted?'':T('lrn.skip')}</span>
         <button class="lrn-submit" id="lrn-drill-btn" ${(!LRN.submitted && LRN.sel==null)?'disabled':''}
-          onclick="learnDrillAction(${qid})">${LRN.submitted ? (LRN.nextDrill?'Next quiz':'Back to lesson') : 'Submit answer'}</button>
+          onclick="learnDrillAction(${qid})">${LRN.submitted ? (LRN.nextDrill?T('lrn.nextQuiz'):T('lrn.backToLesson')) : T('lrn.submitAnswer')}</button>
       </div>
     </div>`;
   };
@@ -6125,7 +6185,7 @@ async function learnDrillAction(qid){
       LRN.submitted = true;
       await learnEnsureOutline(true);
       LRN.render();
-    } catch(e){ if (btn) btn.disabled = false; showToast(e.message || 'Could not submit', true); }
+    } catch(e){ if (btn) btn.disabled = false; showToast(e.message || T('lrn.couldNotSubmit'), true); }
   } else {
     if (LRN.nextDrill) { learnOpenDrill(LRN.nextDrill.id); }
     else { LRN.curDrillId = null; switchView('learn'); }
