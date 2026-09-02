@@ -2355,10 +2355,10 @@
           </div>
           <div class="card-body">
             <div class="month-legend">
-              <span><i class="month-key class"></i> Cohort / Class</span>
-              <span><i class="month-key group"></i> Group</span>
-              <span><i class="month-key private"></i> Private</span>
-              <span><i class="month-key avoid"></i> Avoid / Blocked</span>
+              <span><i class="month-key class"></i> <span data-i18n="tt.cohort">Cohort / Class</span></span>
+              <span><i class="month-key group"></i> <span data-i18n="tt.group">Group</span></span>
+              <span><i class="month-key private"></i> <span data-i18n="tt.private">Private</span></span>
+              <span><i class="month-key avoid"></i> <span data-i18n="tt.avoid">Avoid / Blocked</span></span>
             </div>
             <div id="teacher-calendar-months" class="month-stack">
               <div style="padding:16px 20px;color:var(--muted);font-family:var(--font-m);font-size:11px" data-i18n="te.loadingMonthly">Loading monthly schedule...</div>
@@ -2545,7 +2545,7 @@
               <span class="card-title"><i class="fas fa-eye"></i> <span data-i18n="t.card.previewStudent">Preview (student view)</span></span>
             </div>
             <div class="card-body" id="profile-preview-card">
-              <div style="color:var(--muted);font-family:var(--font-m);font-size:12px">Fill in your details on the right →</div>
+              <div style="color:var(--muted);font-family:var(--font-m);font-size:12px" data-i18n="x.fillDetails">Fill in your details on the right →</div>
             </div>
           </div>
 
@@ -4768,6 +4768,7 @@ async function watchRecording(sid) {
 
 const I18N = {
   en: {
+    "x.fillDetails": "Fill in your details on the right →",
     "x.loadingTt2": "Loading timetable...",
     "x.noStudentsEnrolledShort": "No students enrolled",
     "x.loadingShort": "Loading...",
@@ -5199,6 +5200,7 @@ const I18N = {
     'err.invalidLang':'Invalid language',
   },
   zh: {
+    "x.fillDetails": "在右侧填写你的资料 →",
     "x.loadingTt2": "正在加载时间表……",
     "x.noStudentsEnrolledShort": "暂无学生报名",
     "x.loadingShort": "加载中……",
@@ -5624,6 +5626,7 @@ const I18N = {
     'err.invalidLang':'语言无效',
   },
   bm: {
+    "x.fillDetails": "Isi butiran anda di sebelah kanan →",
     "x.loadingTt2": "Memuatkan jadual...",
     "x.noStudentsEnrolledShort": "Tiada pelajar mendaftar",
     "x.loadingShort": "Memuatkan...",
