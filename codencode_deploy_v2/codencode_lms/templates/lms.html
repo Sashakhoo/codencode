@@ -1207,12 +1207,13 @@
         min-height: auto;
         padding: 12px;
         gap: 10px;
-        flex-wrap: wrap;
+        flex-wrap: nowrap;
+        align-items: center;
         overflow: hidden;
       }
-      .topbar-left,
-      .topbar-actions {
+      .topbar-left {
         min-width: 0;
+        flex: 1 1 auto;
       }
       .topbar-title-wrap {
         min-width: 0;
@@ -1225,12 +1226,16 @@
       }
       .topbar-subtitle {
         max-width: 100%;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
       }
       .topbar-actions {
-        width: 100%;
-        margin-left: 0 !important;
-        flex-wrap: wrap;
-        justify-content: flex-start;
+        width: auto;
+        flex: 0 0 auto;
+        flex-wrap: nowrap;
+        margin-left: auto !important;
+        justify-content: flex-end;
       }
       .main-content {
         width: 100%;
@@ -1456,12 +1461,13 @@
 
     @media (max-width: 900px) {
       .topbar {
-        flex-wrap: wrap;
-        align-items: flex-start;
+        flex-wrap: nowrap;
+        align-items: center;
       }
 
       .topbar-actions {
-        flex-wrap: wrap;
+        flex-wrap: nowrap;
+        margin-left: auto;
         justify-content: flex-end;
       }
 
@@ -1514,6 +1520,7 @@
     }
   </style>
   <link rel="stylesheet" href="/static/css/lms-skin.css?v=5" />
+  <link rel="stylesheet" href="/static/css/lms-learn.css?v=2" />
 </head>
 <body>
 
@@ -1584,6 +1591,9 @@
         </button>
         <button class="nav-item" onclick="switchView('materials')">
           <i class="fas fa-folder-open"></i><span data-i18n="materials">Materials</span>
+        </button>
+        <button class="nav-item" onclick="switchView('learn')">
+          <i class="fas fa-chalkboard"></i><span data-i18n="learn">Slides &amp; Practice</span>
         </button>
         <button class="nav-item" onclick="switchView('assignments')">
           <i class="fas fa-tasks"></i><span data-i18n="assignments">Assignments</span>
@@ -2654,6 +2664,32 @@
   </div><!-- end main-area -->
 </div><!-- end app -->
 
+<!-- ═══════════════════════════════════════
+     LEARN FOCUS MODE  (lesson viewer + practice)
+═══════════════════════════════════════ -->
+<div id="learn-shell" hidden>
+  <div class="lrn-topbar">
+    <a class="lrn-brand" href="/lms" onclick="learnExit();return false;" title="codencode.my">
+      <img class="lrn-logo lrn-logo-light" src="/static/img/logo_full.png?v=2" alt="codencode.my" />
+      <img class="lrn-logo lrn-logo-dark" src="/static/img/logo_full_dark.png?v=2" alt="codencode.my" />
+    </a>
+    <div class="lrn-nav">
+      <button onclick="learnExit()">Home</button>
+      <button id="lrn-nav-lesson" class="on" onclick="learnGo('learn')">Lesson</button>
+      <button id="lrn-nav-practice" onclick="learnGo('practice')">Practice</button>
+    </div>
+    <div class="lrn-topbar-right">
+      <button class="lrn-icon-btn" onclick="toggleTheme()" title="Toggle light / dark">
+        <i class="fas fa-moon" id="lrn-theme-icon"></i>
+      </button>
+      <div class="lrn-user"><span id="lrn-user-name">Student</span>
+        <div class="lrn-avatar" id="lrn-avatar">S</div>
+      </div>
+    </div>
+  </div>
+  <div class="lrn-stage" id="lrn-stage"></div>
+</div>
+
 <!-- ══════════════════════════════
      VIDEO MODAL
 ══════════════════════════════ -->
@@ -2813,10 +2849,26 @@
 
 <script>
 // ── Theme ──────────────────────────────────────────────
-// The portal now ships a single polished light theme (matching the
-// admin panel). Force it regardless of any stale saved preference.
-document.documentElement.setAttribute('data-theme', 'light');
-function toggleTheme() { /* retained as a no-op for any legacy callers */ }
+// The dashboard ships a fixed light theme (matching the admin panel).
+// The "Slides & Practice" focus mode is the only dark-capable surface:
+// its toggle is scoped to #learn-shell[data-theme] so returning Home
+// never restyles the dashboard. Preference persists in localStorage.
+function learnTheme() {
+  try { return localStorage.getItem('cc-theme') === 'dark' ? 'dark' : 'light'; }
+  catch(e) { return 'light'; }
+}
+function applyLearnTheme() {
+  const shell = document.getElementById('learn-shell');
+  const t = learnTheme();
+  if (shell) shell.setAttribute('data-theme', t);
+  const ic = document.getElementById('lrn-theme-icon');
+  if (ic) ic.className = 'fas ' + (t === 'dark' ? 'fa-sun' : 'fa-moon');
+}
+function toggleTheme() {
+  const next = learnTheme() === 'dark' ? 'light' : 'dark';
+  try { localStorage.setItem('cc-theme', next); } catch(e){}
+  applyLearnTheme();
+}
 
 // ═══════════════════════════════════════════════════════
 //  codencode.my LMS — API client
@@ -3044,6 +3096,24 @@ async function switchView(id) {
   const titleEl = document.getElementById('topbar-title');
   if (titleEl) titleEl.textContent = VIEW_TITLES[id] || '';
   document.getElementById('main-content').scrollTop = 0;
+
+  // Learn focus mode: swap the whole shell for view-learn / view-practice
+  const learnShell = document.getElementById('learn-shell');
+  const isLearn = (id === 'learn' || id === 'practice');
+  document.getElementById('app').style.display = isLearn ? 'none' : '';
+  learnShell.hidden = !isLearn;
+  if (isLearn) {
+    document.getElementById('lrn-nav-lesson').classList.toggle('on', id === 'learn');
+    document.getElementById('lrn-nav-practice').classList.toggle('on', id === 'practice');
+    if (STATE.user) {
+      const nm = STATE.user.name || 'Student';
+      document.getElementById('lrn-user-name').textContent = nm;
+      document.getElementById('lrn-avatar').textContent =
+        nm.split(' ').map(p=>p[0]).join('').toUpperCase().slice(0,2);
+    }
+    applyLearnTheme();
+    learnShell.scrollTop = 0;
+  }
 
   // Auto-close sidebar on mobile after navigation
   if (window.innerWidth <= 768) {
@@ -5531,6 +5601,322 @@ async function loadInstructorCard(courseId) {
     if (card) card.style.display = 'none';
   }
 }
+
+/* ═══════════════════════════════════════════════════════
+   LEARN FOCUS MODE — lesson viewer + practice / drills
+   ═══════════════════════════════════════════════════════ */
+
+STATE.learn = { outline: null, flat: [], courseId: null,
+                curMaterialId: null, curDrillId: null,
+                tab: 'transcript', slideIdx: 0, sel: null, submitted: false };
+
+const LRN = STATE.learn;
+
+function learnExit()  { switchView('dashboard'); }
+function learnGo(id)  { switchView(id); }
+
+function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g, c => (
+  {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+
+async function learnEnsureOutline(force){
+  if (!STATE.courseId) return null;
+  if (LRN.outline && LRN.courseId === STATE.courseId && !force) return LRN.outline;
+  const data = await GET(`/api/lms/course/${STATE.courseId}/outline`);
+  LRN.outline = data; LRN.flat = data.flat || []; LRN.courseId = STATE.courseId;
+  return data;
+}
+
+/* ---------- LESSON TAB ---------- */
+async function loadLearn(){
+  const o = await learnEnsureOutline();
+  if (!o) { document.getElementById('lrn-stage').innerHTML =
+    `<div class="lrn-empty">Pick a course from the dashboard first.</div>`; return; }
+  if (LRN.curMaterialId) return renderLesson(LRN.curMaterialId);
+  renderOutline(o);
+}
+
+function renderOutline(o){
+  const stage = document.getElementById('lrn-stage');
+  const c = o.course;
+  const sessHtml = o.sessions.map(s => {
+    const label = s.session === 0 ? 'General resources' : `Session ${s.session}`;
+    const items = s.items.map(it => {
+      if (it.type === 'lesson') {
+        return `<button class="lrn-card lesson" onclick="learnOpenLesson(${it.id})">
+          <span class="lrn-card-ic"><i class="fas ${esc(it.icon||'fa-file-alt')}"></i></span>
+          <span class="lrn-card-body">
+            <span class="lrn-card-kicker">${esc(it.duration_label||'Lesson')}</span>
+            <span class="lrn-card-title">${esc(it.title)}</span>
+            <span class="lrn-card-prog"><span class="lrn-prog-track" style="max-width:220px">
+              <span class="lrn-prog-fill" style="width:${it.progress||0}%"></span></span>
+              <span class="lrn-prog-label">${it.progress||0}%</span></span>
+          </span></button>`;
+      }
+      return `<button class="lrn-card drill" onclick="learnOpenDrill(${it.id})">
+        <span class="lrn-card-ic"><i class="fas fa-flag-checkered"></i></span>
+        <span class="lrn-card-body">
+          <span class="lrn-card-title">${esc(it.title)}</span>
+          <span class="lrn-tag ${it.passed?'ok':''}">
+            <i class="fas ${it.passed?'fa-check':'fa-flag'}"></i>${it.passed?'passed':'required drill'}</span>
+        </span></button>`;
+    }).join('');
+    return `<div class="lrn-sess"><div class="lrn-sess-head">${label}
+      <span class="lrn-sess-count">${s.items.length} items</span></div>
+      <div class="lrn-sess-grid">${items}</div></div>`;
+  }).join('');
+
+  stage.innerHTML = `
+    <div class="lrn-eyebrow">${esc(c.programme || c.title)}</div>
+    <div class="lrn-h1" style="margin-top:6px">${esc(c.title)}</div>
+    <p style="color:var(--lrn-text-2);font-size:14px;margin:0 0 26px;max-width:640px">${esc(c.tagline||'')}</p>
+    ${sessHtml || '<div class="lrn-empty">No lessons published for your current session yet.</div>'}`;
+}
+
+async function learnOpenLesson(mid){ LRN.curMaterialId = mid; LRN.curDrillId = null;
+  learnGo('learn'); renderLesson(mid); }
+
+async function renderLesson(mid){
+  const stage = document.getElementById('lrn-stage');
+  stage.innerHTML = `<div class="lrn-empty">Loading…</div>`;
+  let d;
+  try { d = await GET(`/api/lms/material/${mid}`); }
+  catch(e){ stage.innerHTML = `<div class="lrn-empty">${esc(e.message||'Could not open this lesson.')}</div>`; return; }
+  LRN.curMaterialId = mid; LRN.data = d; LRN.slideIdx = 0; LRN.tab = 'transcript';
+  // fire a light progress ping
+  POST(`/api/lms/material/${mid}/progress`, { percent: Math.max(15, d.progress||0) }).catch(()=>{});
+
+  const slides = (d.slides||[]).filter(s => s.image_url);
+  const kp = d.keypoints && d.keypoints.length ? d.keypoints
+           : (d.slides||[]).map(s => s.caption).filter(Boolean);
+
+  const railHtml = (LRN.outline?.sessions||[]).flatMap(s => s.items).map(it => {
+    const cur = it.type==='lesson' && it.id===mid;
+    const done = it.type==='lesson' ? (it.completed || it.progress>=100) : it.passed;
+    const cls = 'lrn-check' + (done?' done':'') + (cur?' on':'');
+    const inner = done ? '<i class="fas fa-check"></i>' : (it.type==='drill' ? '<i class="fas fa-flag-checkered" style="font-size:8px"></i>' : '');
+    const onclick = it.type==='lesson' ? `learnOpenLesson(${it.id})` : `learnOpenDrill(${it.id})`;
+    const name = it.type==='drill' ? 'Drill · '+it.title : it.title;
+    return `<div class="lrn-rail-item ${cur?'on':''} ${done?'done':''}" onclick="${onclick}">
+      <div class="${cls}">${inner}</div><div class="lrn-rail-name">${esc(name)}</div></div>`;
+  }).join('');
+
+  stage.innerHTML = `
+  <button class="lrn-back" onclick="LRN.curMaterialId=null;loadLearn()"><i class="fas fa-chevron-left"></i> All sessions</button>
+  <div class="lrn-lesson">
+    <div>
+      <div class="lrn-media" id="lrn-media"></div>
+      ${slides.length ? `<div class="lrn-slidenav">
+        <button id="lrn-sl-prev"><i class="fas fa-chevron-left"></i></button>
+        <span class="count" id="lrn-sl-count"></span>
+        <button id="lrn-sl-next"><i class="fas fa-chevron-right"></i></button></div>` : ''}
+      <div class="lrn-eyebrow">${esc(d.course.programme||d.course.title)} · ${d.session===0?'general':'session '+d.session} · lesson</div>
+      <div class="lrn-h1">${esc(d.title)}</div>
+      <div class="lrn-meta">
+        <span><i class="fas fa-clock"></i>${esc(d.duration_label||'Self-paced')}</span>
+        <span><i class="fas fa-language"></i>EN with 中文 notes</span>
+        <span><i class="fas fa-file-alt"></i>${kp.length} key points</span>
+      </div>
+      <div class="lrn-tabs">
+        <button data-tab="transcript" class="on" onclick="learnTab('transcript')">Transcript</button>
+        <button data-tab="notes" onclick="learnTab('notes')">Notes</button>
+        <button data-tab="resources" onclick="learnTab('resources')">Resources</button>
+        <button data-tab="discussion" onclick="switchView('discussion')">Discussion</button>
+      </div>
+      <div id="lrn-tabbody"></div>
+    </div>
+    <div class="lrn-rail">
+      <div class="lrn-rail-title">${esc((LRN.outline?.course?.title)||'This course')}</div>
+      ${railHtml}
+      <div class="lrn-rail-divider"></div>
+      ${d.next ? `<div class="lrn-rail-sub">Up next</div>
+        <div class="lrn-rail-item" onclick="learnOpenLesson(${d.next.id})">
+          <div class="lrn-check"><i class="fas fa-arrow-right" style="font-size:8px"></i></div>
+          <div class="lrn-rail-name">${esc(d.next.title)}</div></div>` : ''}
+      <button class="lrn-btn" id="lrn-complete" onclick="learnComplete(${mid})">
+        ${d.completed ? 'Lesson completed' : 'Mark lesson complete'}</button>
+      ${d.drill ? `<button class="lrn-btn ghost" onclick="learnOpenDrill(${d.drill.id})">
+        ${d.drill.passed ? 'Drill passed ✓' : 'Take the required drill'}</button>` : ''}
+      <button class="lrn-btn ghost" onclick="switchView('discussion')">Ask in discussion</button>
+    </div>
+  </div>`;
+
+  LRN.slides = slides; LRN.kp = kp;
+  renderMedia();
+  learnTab('transcript');
+  if (slides.length) {
+    document.getElementById('lrn-sl-prev').onclick = () => { if (LRN.slideIdx>0){LRN.slideIdx--; renderMedia();} };
+    document.getElementById('lrn-sl-next').onclick = () => { if (LRN.slideIdx<LRN.slides.length-1){LRN.slideIdx++; renderMedia();
+      POST(`/api/lms/material/${mid}/progress`, { percent: Math.round((LRN.slideIdx+1)/LRN.slides.length*100) }).catch(()=>{}); } };
+  }
+}
+
+function renderMedia(){
+  const el = document.getElementById('lrn-media');
+  const d = LRN.data;
+  if (LRN.slides && LRN.slides.length) {
+    const s = LRN.slides[LRN.slideIdx];
+    el.innerHTML = `<img src="${esc(s.image_url)}" alt="slide ${LRN.slideIdx+1}">`;
+    const c = document.getElementById('lrn-sl-count');
+    if (c) c.textContent = `slide ${LRN.slideIdx+1} of ${LRN.slides.length}`;
+  } else {
+    el.innerHTML = `<iframe src="${esc(d.file_url)}" title="${esc(d.title)}"></iframe>
+      <span class="lrn-media-tag">${esc((d.file_type||'deck').toUpperCase())}</span>`;
+  }
+}
+
+function learnTab(t){
+  LRN.tab = t;
+  document.querySelectorAll('.lrn-tabs button').forEach(b =>
+    b.classList.toggle('on', b.dataset.tab === t));
+  const body = document.getElementById('lrn-tabbody');
+  const d = LRN.data;
+  if (t === 'transcript') {
+    const lines = (LRN.kp||[]).map((x,i) =>
+      `<div class="line"><b>${String(i+1).padStart(2,'0')}</b><span>${esc(x)}</span></div>`).join('');
+    body.innerHTML = `<div class="lrn-transcript">${lines || '<div class="lrn-empty">No key points captured for this lesson yet.</div>'}</div>`;
+  } else if (t === 'notes') {
+    const key = 'cc-note-' + d.id;
+    let saved = ''; try { saved = localStorage.getItem(key) || ''; } catch(e){}
+    body.innerHTML = `<textarea class="lrn-note-area" id="lrn-note" placeholder="Your notes for this lesson… (saved on this device)">${esc(saved)}</textarea>`;
+    document.getElementById('lrn-note').addEventListener('input', e => {
+      try { localStorage.setItem(key, e.target.value); } catch(err){} });
+  } else if (t === 'resources') {
+    body.innerHTML = `
+      <div class="lrn-res-row"><i class="fas fa-download" style="color:var(--lrn-text-3)"></i>
+        <div style="flex:1">Full slide deck</div>
+        <a href="${esc(d.file_url)}?download=1">Download</a></div>
+      ${d.drill ? `<div class="lrn-res-row"><i class="fas fa-flag-checkered" style="color:var(--lrn-text-3)"></i>
+        <div style="flex:1">${esc(d.drill.title)}</div>
+        <a href="javascript:void 0" onclick="learnOpenDrill(${d.drill.id})">${d.drill.passed?'Review':'Start'}</a></div>` : ''}
+      <div class="lrn-res-row"><i class="fas fa-comments" style="color:var(--lrn-text-3)"></i>
+        <div style="flex:1">Course discussion</div>
+        <a href="javascript:void 0" onclick="switchView('discussion')">Open</a></div>`;
+  }
+}
+
+async function learnComplete(mid){
+  const btn = document.getElementById('lrn-complete');
+  if (btn) btn.disabled = true;
+  try {
+    await POST(`/api/lms/material/${mid}/progress`, { complete: true });
+    if (btn) btn.textContent = 'Lesson completed';
+    showToast('Lesson marked complete');
+    await learnEnsureOutline(true);
+    if (LRN.data && LRN.data.completed !== true) LRN.data.completed = true;
+    if (LRN.data && LRN.data.next) {
+      setTimeout(() => learnOpenLesson(LRN.data.next.id), 500);
+    } else { renderLesson(mid); }
+  } catch(e){ if (btn) btn.disabled = false; showToast(e.message || 'Could not save', true); }
+}
+
+/* ---------- PRACTICE TAB ---------- */
+async function loadPractice(){
+  const o = await learnEnsureOutline();
+  if (LRN.curDrillId) return renderDrill(LRN.curDrillId);
+  const drills = (o?.sessions||[]).flatMap(s => s.items).filter(it => it.type==='drill');
+  const stage = document.getElementById('lrn-stage');
+  if (!drills.length) { stage.innerHTML = `<div class="lrn-empty">No practice drills for your current session yet.</div>`; return; }
+  const next = drills.find(d => !d.passed) || drills[0];
+  renderDrill(next.id);
+}
+
+async function learnOpenDrill(qid){ LRN.curDrillId = qid; learnGo('practice'); renderDrill(qid); }
+
+function parseCode(txt){
+  const m = String(txt||'').match(/\[code\]([\s\S]*?)\[\/code\]/);
+  if (!m) return { body: txt, code: null };
+  return { body: String(txt).replace(m[0], '').trim(),
+           code: m[1].trim().replace(/^(system|user|assistant):/gm, '<span class="k">$1</span>:') };
+}
+
+async function renderDrill(qid){
+  const stage = document.getElementById('lrn-stage');
+  stage.innerHTML = `<div class="lrn-empty">Loading…</div>`;
+  let d;
+  try { d = await GET(`/api/lms/drill/${qid}`); }
+  catch(e){ stage.innerHTML = `<div class="lrn-empty">${esc(e.message||'Could not open this drill.')}</div>`; return; }
+  LRN.curDrillId = qid; LRN.drill = d; LRN.sel = null; LRN.submitted = false;
+
+  const q = (d.questions||[])[0];
+  if (!q) { stage.innerHTML = `<div class="lrn-empty">This drill has no question yet.</div>`; return; }
+  LRN.q = q;
+
+  const allDrills = (LRN.outline?.sessions||[]).flatMap(s => s.items).filter(it => it.type==='drill');
+  const idx = Math.max(0, allDrills.findIndex(x => x.id === qid));
+  const parsedQ  = parseCode(q.question_text);
+  const parsedSub = parseCode(d.description);
+  LRN.render = () => {
+    const opts = (q.choices||[]).map((c,i) => {
+      let cls = 'lrn-opt';
+      if (LRN.submitted) {
+        cls += ' lock';
+        if (LRN.res && c.id === LRN.res.correct_choice_id) cls += ' correct';
+        else if (c.id === LRN.sel) cls += ' wrong';
+      } else if (c.id === LRN.sel) cls += ' sel';
+      return `<div class="${cls}" ${LRN.submitted?'':`onclick="LRN.sel=${c.id};LRN.render()"`}>
+        <div class="lrn-opt-letter">${String.fromCharCode(65+i)}</div>
+        <div class="lrn-opt-text">${esc(c.choice_text)}</div></div>`;
+    }).join('');
+
+    let fb = '';
+    if (LRN.submitted && LRN.res) {
+      const ok = LRN.res.passed;
+      fb = `<div class="lrn-feedback ${ok?'pass':'fail'}">
+        <i class="fas ${ok?'fa-check':'fa-times'}"></i>
+        ${ok ? 'Correct — drill passed.' : 'Not quite — the right answer is highlighted.'}</div>
+        ${LRN.res.explanation ? `<div class="lrn-explain">${esc(LRN.res.explanation)}</div>` : ''}`;
+    }
+
+    stage.innerHTML = `
+    <div class="lrn-practice">
+      <button class="lrn-back" onclick="LRN.curDrillId=null;switchView('learn')"><i class="fas fa-chevron-left"></i> Back to lesson</button>
+      <div class="lrn-prog-row">
+        <div class="lrn-prog-track"><div class="lrn-prog-fill" style="width:${Math.round((idx+1)/Math.max(1,allDrills.length)*100)}%"></div></div>
+        <div class="lrn-prog-label">${idx+1} of ${allDrills.length}</div>
+      </div>
+      <div class="lrn-drill-eyebrow"><i class="fas fa-flag-checkered"></i>required drill · ${esc(d.title)}</div>
+      <div class="lrn-drill-q">${esc(parsedQ.body)}</div>
+      ${parsedSub.body ? `<div class="lrn-drill-sub">${esc(parsedSub.body)}</div>` : ''}
+      ${parsedQ.code ? `<div class="lrn-code">${parsedQ.code}</div>` :
+        parsedSub.code ? `<div class="lrn-code">${parsedSub.code}</div>` : ''}
+      ${opts}
+      ${fb}
+      <div class="lrn-drill-footer">
+        <span class="lrn-skip" onclick="LRN.curDrillId=null;switchView('learn')">${LRN.submitted?'':'Skip for now'}</span>
+        <button class="lrn-submit" id="lrn-drill-btn" ${(!LRN.submitted && LRN.sel==null)?'disabled':''}
+          onclick="learnDrillAction(${qid})">${LRN.submitted ? (LRN.nextDrill?'Next drill':'Back to lesson') : 'Submit answer'}</button>
+      </div>
+    </div>`;
+  };
+  LRN.nextDrill = allDrills[idx+1] || null;
+  LRN.render();
+}
+
+async function learnDrillAction(qid){
+  if (!LRN.submitted) {
+    if (LRN.sel == null) return;
+    const btn = document.getElementById('lrn-drill-btn');
+    if (btn) btn.disabled = true;
+    try {
+      const r = await POST(`/api/quizzes/${qid}/attempt`, {
+        submit: true, answers: { [LRN.q.id]: LRN.sel } });
+      const a = (r.answers||[])[0] || {};
+      LRN.res = { passed: r.passed, correct_choice_id: a.correct_choice_id,
+                  explanation: a.explanation || '' };
+      LRN.submitted = true;
+      await learnEnsureOutline(true);
+      LRN.render();
+    } catch(e){ if (btn) btn.disabled = false; showToast(e.message || 'Could not submit', true); }
+  } else {
+    if (LRN.nextDrill) { learnOpenDrill(LRN.nextDrill.id); }
+    else { LRN.curDrillId = null; switchView('learn'); }
+  }
+}
+
+VIEW_LOADERS['learn']    = loadLearn;
+VIEW_LOADERS['practice'] = loadPractice;
+VIEW_TITLES['learn']     = 'Slides & Practice';
+VIEW_TITLES['practice']  = 'Practice';
 </script>
 </body>
 </html>
