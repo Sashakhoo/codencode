@@ -86,6 +86,8 @@ class Course(db.Model):
     seat_cap     = db.Column(db.Integer)                   # max enrolment seats (NULL = unlimited)
     created_at   = db.Column(db.DateTime, default=datetime.utcnow)
     teacher_id   = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)  # assigned instructor
+    icon         = db.Column(db.String(40))    # Font Awesome icon name for the learn UI, e.g. 'fa-terminal'
+    tagline      = db.Column(db.String(300))   # short marketing line shown on the learn dashboard
 
     teacher      = db.relationship('User', foreign_keys=[teacher_id])
 
@@ -106,6 +108,8 @@ class Course(db.Model):
             'total_sessions': self.total_sessions, 'current_session': self.current_session,
             'start_date': self.start_date.strftime('%Y-%m-%d') if self.start_date else None,
             'programme': self.programme or '',
+            'icon': self.icon or 'fa-book-open',
+            'tagline': self.tagline or (self.description or '')[:140],
             'language': self.language or 'en',
             'seat_cap': self.seat_cap,
             'teacher_id': self.teacher_id,
@@ -269,8 +273,26 @@ class Material(db.Model):
     is_published = db.Column(db.Boolean, default=True)
     publish_at   = db.Column(db.DateTime)   # NULL means publish immediately
     order_index  = db.Column(db.Integer, default=0)
+    icon           = db.Column(db.String(40))   # Font Awesome icon name for the lesson list
+    duration_label = db.Column(db.String(20))   # e.g. "12 min" — display only
+    keypoints      = db.Column(db.Text)         # JSON list[str] of transcript-style key points
 
     course = db.relationship('Course', back_populates='materials')
+    slides = db.relationship('LessonSlide', back_populates='material',
+                             cascade='all, delete-orphan',
+                             order_by='LessonSlide.order_index')
+    progress_rows = db.relationship('MaterialProgress', back_populates='material',
+                                    cascade='all, delete-orphan')
+
+    def keypoints_list(self):
+        import json as _json
+        if not self.keypoints:
+            return []
+        try:
+            v = _json.loads(self.keypoints)
+            return v if isinstance(v, list) else []
+        except Exception:
+            return [ln.strip() for ln in self.keypoints.splitlines() if ln.strip()]
 
     def to_dict(self):
         return {
@@ -280,8 +302,26 @@ class Material(db.Model):
             'uploaded_at': self.uploaded_at.strftime('%b %d, %Y'),
             'is_published': self.is_published if self.is_published is not None else True,
             'publish_at': self.publish_at.strftime('%Y-%m-%dT%H:%M') if self.publish_at else None,
-            'order_index': self.order_index or 0
+            'order_index': self.order_index or 0,
+            'icon': self.icon or 'fa-file-alt',
+            'duration_label': self.duration_label or '',
         }
+
+    def to_learn_dict(self, student_id=None):
+        """Serializer for the learn UI: adds slides, key points and per-student progress."""
+        d = self.to_dict()
+        d['keypoints'] = self.keypoints_list()
+        d['slides'] = [s.to_dict() for s in self.slides]
+        pct, done = 0, False
+        if student_id is not None:
+            row = MaterialProgress.query.filter_by(
+                student_id=student_id, material_id=self.id).first()
+            if row:
+                pct = row.percent or 0
+                done = row.completed_at is not None
+        d['progress'] = pct
+        d['completed'] = done
+        return d
 
 
 class Assignment(db.Model):
@@ -574,6 +614,8 @@ class Quiz(db.Model):
     time_limit_mins = db.Column(db.Integer)  # NULL = no limit
     is_published    = db.Column(db.Boolean, default=False)
     created_by      = db.Column(db.Integer, db.ForeignKey('users.id'))
+    is_required        = db.Column(db.Boolean, default=False)   # shows as a "required drill" gate in the learn UI
+    gates_material_id  = db.Column(db.Integer, db.ForeignKey('materials.id'), nullable=True)  # lesson this drill sits under
 
     questions = db.relationship('QuizQuestion', back_populates='quiz',
                                 cascade='all, delete-orphan',
@@ -591,7 +633,9 @@ class Quiz(db.Model):
             'max_attempts': self.max_attempts,
             'time_limit_mins': self.time_limit_mins,
             'is_published': self.is_published,
-            'question_count': len(self.questions)
+            'question_count': len(self.questions),
+            'is_required': bool(self.is_required),
+            'gates_material_id': self.gates_material_id,
         }
         if include_questions:
             d['questions'] = [q.to_dict(hide_correct=hide_correct) for q in self.questions]
@@ -1003,4 +1047,57 @@ class WorkshopFeedback(db.Model):
             'teacher_rating': self.teacher_rating,
             'comment': self.comment or '',
             'submitted_at': self.submitted_at.strftime('%b %d, %Y · %I:%M %p'),
+        }
+
+
+# ─────────────────────────────────────────────
+#  Learn UI: lesson slides + per-student progress
+# ─────────────────────────────────────────────
+
+class LessonSlide(db.Model):
+    """One slide of a lesson's deck: an image render plus the key-point caption
+    shown in the transcript panel. Ordered within a Material."""
+    __tablename__ = 'lesson_slides'
+    id          = db.Column(db.Integer, primary_key=True)
+    material_id = db.Column(db.Integer, db.ForeignKey('materials.id'), nullable=False)
+    image_url   = db.Column(db.String(500))   # /uploads/... path or absolute URL; NULL = text-only slide
+    caption     = db.Column(db.Text)          # the key point / transcript line for this slide
+    order_index = db.Column(db.Integer, default=0)
+
+    material = db.relationship('Material', back_populates='slides')
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'material_id': self.material_id,
+            'image_url': self.image_url,
+            'caption': self.caption or '',
+            'order_index': self.order_index or 0,
+        }
+
+
+class MaterialProgress(db.Model):
+    """Per-student completion state for a single lesson (Material)."""
+    __tablename__ = 'material_progress'
+    id             = db.Column(db.Integer, primary_key=True)
+    student_id     = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    material_id    = db.Column(db.Integer, db.ForeignKey('materials.id'), nullable=False)
+    percent        = db.Column(db.Integer, default=0)          # 0–100
+    completed_at   = db.Column(db.DateTime, nullable=True)     # set once when percent hits 100 / marked complete
+    last_viewed_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    __table_args__ = (db.UniqueConstraint('student_id', 'material_id', name='uq_material_progress'),)
+
+    student  = db.relationship('User')
+    material = db.relationship('Material', back_populates='progress_rows')
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'student_id': self.student_id,
+            'material_id': self.material_id,
+            'percent': self.percent or 0,
+            'completed': self.completed_at is not None,
+            'completed_at': self.completed_at.strftime('%b %d, %Y') if self.completed_at else None,
+            'last_viewed_at': self.last_viewed_at.strftime('%b %d, %Y · %I:%M %p') if self.last_viewed_at else None,
         }

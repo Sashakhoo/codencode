@@ -45,7 +45,8 @@ from models import (db, User, Course, Enrollment, Recording,
                     Quiz, QuizQuestion, QuizChoice, QuizAttempt, QuizAnswer,
                     DiscussionPost, DiscussionReply, PostUpvote,
                     LastLesson, Cohort, Registration,
-                    Workshop, WorkshopRun, WorkshopAttendee, WorkshopFeedback)
+                    Workshop, WorkshopRun, WorkshopAttendee, WorkshopFeedback,
+                    LessonSlide, MaterialProgress)
 
 # ─────────────────────────────────────────────
 # App setup
@@ -1452,8 +1453,10 @@ def _slide_materials_for_course(course):
     has_ml = 'machine learning' in title or 'ml' in title
     has_ai_workplace = 'ai' in title and 'workplace' in title
 
+    # AI Workplace now has its own curriculum (seeded from the workshop deck),
+    # so no legacy demo decks are auto-seeded for it.
     if has_ai_workplace:
-        return [item for item in SLIDE_MATERIALS if item[0] in (14, 15)]
+        return []
     if has_ml and not has_python:
         return [item for item in SLIDE_MATERIALS if item[0] >= 8]
     # The Python Bootcamp now has its own curriculum uploaded through the admin
@@ -1575,6 +1578,18 @@ def api_delete_material(mid):
 @app.route('/uploads/materials/<path:filename>')
 @login_required
 def serve_material(filename):
+    # Learn-UI slide renders (learn/<deck>-<lesson>-<slide>.png). Access is
+    # gated by enrolment on the LessonSlide's parent Material.
+    if filename.startswith('learn/'):
+        slide = LessonSlide.query.filter_by(
+            image_url=f'/uploads/materials/{filename}').first()
+        if not slide:
+            return jsonify({'error': 'Slide not found'}), 404
+        if current_user.role == 'student' and not enrolled_or_staff(slide.material.course_id):
+            return jsonify({'error': 'Not enrolled'}), 403
+        return send_from_directory(
+            os.path.join(app.config['UPLOAD_FOLDER'], 'materials'), filename)
+
     mats = Material.query.filter_by(filename=filename).all()
     if not mats and filename in {item[2] for item in SLIDE_MATERIALS}:
         for course in Course.query.all():
@@ -5552,6 +5567,195 @@ def api_get_last_lesson(cid):
 
 
 # ─────────────────────────────────────────────
+#  Learn UI  (lesson viewer + practice screens)
+# ─────────────────────────────────────────────
+
+def _visible_materials(cid):
+    """Materials a student may see for a course, in display order.
+    Mirrors the gating in api_materials()."""
+    course = Course.query.get_or_404(cid)
+    _ensure_slide_materials(course)
+    now = datetime.utcnow()
+    _legacy_deck = re.compile(r'^Session_\d+_Student_.*\.html$')
+    mats = Material.query.filter_by(course_id=cid).order_by(
+        Material.session, Material.order_index, Material.uploaded_at).all()
+    # the learn outline shows structured curriculum only, not legacy demo decks
+    mats = [m for m in mats if not _legacy_deck.match(m.filename or '')]
+    if current_user.role == 'student':
+        wk = _student_week(cid)
+        mats = [m for m in mats
+                if (m.session == 0 or m.session <= wk)
+                and (m.is_published if m.is_published is not None else True)
+                and (m.publish_at is None or m.publish_at <= now)]
+    return course, mats
+
+
+def _drill_state(quiz_id):
+    """Best attempt summary for the current user on a drill/quiz."""
+    best = QuizAttempt.query.filter(
+        QuizAttempt.quiz_id == quiz_id,
+        QuizAttempt.student_id == current_user.id,
+        QuizAttempt.submitted_at != None
+    ).order_by(QuizAttempt.score.desc()).first()
+    used = QuizAttempt.query.filter(
+        QuizAttempt.quiz_id == quiz_id,
+        QuizAttempt.student_id == current_user.id,
+        QuizAttempt.submitted_at != None
+    ).count()
+    return {
+        'attempted': used > 0,
+        'passed': bool(best.passed) if best else False,
+        'best_score': best.score if best else None,
+        'attempts_used': used,
+    }
+
+
+@app.route('/api/lms/course/<int:cid>/outline')
+@login_required
+def api_lms_outline(cid):
+    if not enrolled_or_staff(cid):
+        return jsonify({'error': 'Not enrolled'}), 403
+    course, mats = _visible_materials(cid)
+    sid = current_user.id if current_user.role == 'student' else None
+
+    # required drills for this course, indexed by the lesson they gate
+    drills = Quiz.query.filter_by(course_id=cid, is_required=True).all()
+    if current_user.role == 'student':
+        drills = [q for q in drills if q.is_published]
+    drills_by_mat = {}
+    loose_drills = []
+    for q in drills:
+        (drills_by_mat.setdefault(q.gates_material_id, []).append(q)
+         if q.gates_material_id else loose_drills.append(q))
+
+    def drill_item(q):
+        st = _drill_state(q.id) if sid else {'attempted': False, 'passed': False}
+        return {
+            'type': 'drill', 'id': q.id, 'title': q.title,
+            'sub': q.description or '', 'session': q.session or 0,
+            'icon': 'fa-flag-checkered',
+            'passed': st['passed'], 'attempted': st['attempted'],
+        }
+
+    # group into sessions
+    sessions = {}
+    flat = []
+    for m in mats:
+        s = m.session or 0
+        bucket = sessions.setdefault(s, {'session': s, 'items': []})
+        item = m.to_learn_dict(sid)
+        item['type'] = 'lesson'
+        bucket['items'].append(item)
+        flat.append({'type': 'lesson', 'id': m.id})
+        for q in drills_by_mat.get(m.id, []):
+            di = drill_item(q)
+            bucket['items'].append(di)
+            flat.append({'type': 'drill', 'id': q.id})
+    for q in loose_drills:
+        s = q.session or 0
+        bucket = sessions.setdefault(s, {'session': s, 'items': []})
+        di = drill_item(q)
+        bucket['items'].append(di)
+        flat.append({'type': 'drill', 'id': q.id})
+
+    ordered = [sessions[k] for k in sorted(sessions.keys())]
+    return jsonify({
+        'course': course.to_dict(),
+        'sessions': ordered,
+        'flat': flat,
+    })
+
+
+@app.route('/api/lms/material/<int:mid>')
+@login_required
+def api_lms_material(mid):
+    m = Material.query.get_or_404(mid)
+    if not enrolled_or_staff(m.course_id):
+        return jsonify({'error': 'Not enrolled'}), 403
+    course, mats = _visible_materials(m.course_id)
+    if current_user.role == 'student' and m.id not in {x.id for x in mats}:
+        return jsonify({'error': 'Not available yet'}), 403
+
+    sid = current_user.id if current_user.role == 'student' else None
+    data = m.to_learn_dict(sid)
+    data['course'] = {'id': course.id, 'title': course.title,
+                      'programme': course.programme or '', 'icon': course.icon or 'fa-book-open'}
+    data['file_url'] = f'/uploads/materials/{m.filename}'
+
+    ids = [x.id for x in mats]
+    if m.id in ids:
+        i = ids.index(m.id)
+        prev_m = mats[i - 1] if i > 0 else None
+        next_m = mats[i + 1] if i < len(ids) - 1 else None
+        data['prev'] = {'id': prev_m.id, 'title': prev_m.title} if prev_m else None
+        data['next'] = {'id': next_m.id, 'title': next_m.title} if next_m else None
+
+    gate = Quiz.query.filter_by(gates_material_id=m.id, is_required=True).first()
+    if gate and (gate.is_published or current_user.role != 'student'):
+        st = _drill_state(gate.id) if sid else {'passed': False, 'attempted': False}
+        data['drill'] = {'id': gate.id, 'title': gate.title,
+                         'passed': st['passed'], 'attempted': st['attempted']}
+    return jsonify(data)
+
+
+@app.route('/api/lms/material/<int:mid>/progress', methods=['POST'])
+@login_required
+def api_lms_material_progress(mid):
+    m = Material.query.get_or_404(mid)
+    if current_user.role != 'student':
+        return jsonify({'ok': True, 'progress': 0, 'completed': False})
+    if not enrolled_or_staff(m.course_id):
+        return jsonify({'error': 'Not enrolled'}), 403
+
+    body = request.get_json() or {}
+    row = MaterialProgress.query.filter_by(
+        student_id=current_user.id, material_id=mid).first()
+    if not row:
+        row = MaterialProgress(student_id=current_user.id, material_id=mid, percent=0)
+        db.session.add(row)
+
+    if body.get('complete'):
+        row.percent = 100
+    elif 'percent' in body:
+        try:
+            p = max(0, min(100, int(body['percent'])))
+        except (TypeError, ValueError):
+            p = row.percent or 0
+        row.percent = max(row.percent or 0, p)   # progress only moves forward
+
+    if row.percent >= 100 and row.completed_at is None:
+        row.completed_at = datetime.utcnow()
+    row.last_viewed_at = datetime.utcnow()
+
+    # keep the "continue where you left off" pointer in sync
+    ll = LastLesson.query.filter_by(
+        student_id=current_user.id, course_id=m.course_id).first()
+    if ll:
+        ll.material_id = mid
+        ll.updated_at = datetime.utcnow()
+    else:
+        db.session.add(LastLesson(student_id=current_user.id,
+                                  course_id=m.course_id, material_id=mid))
+    db.session.commit()
+    return jsonify({'ok': True, 'progress': row.percent,
+                    'completed': row.completed_at is not None})
+
+
+@app.route('/api/lms/drill/<int:qid>')
+@login_required
+def api_lms_drill(qid):
+    q = Quiz.query.get_or_404(qid)
+    if not enrolled_or_staff(q.course_id):
+        return jsonify({'error': 'Not enrolled'}), 403
+    hide = (current_user.role == 'student')
+    d = q.to_dict(include_questions=True, hide_correct=hide)
+    d['state'] = _drill_state(qid) if current_user.role == 'student' else {}
+    d['attempts_remaining'] = max(0, (q.max_attempts or 2) - d['state'].get('attempts_used', 0)) \
+        if current_user.role == 'student' else None
+    return jsonify(d)
+
+
+# ─────────────────────────────────────────────
 # R1/R2/R3 — Recording Access Control
 # ─────────────────────────────────────────────
 @app.route('/api/sessions/<int:sid>/recording/access')
@@ -5968,6 +6172,27 @@ with app.app_context():
     except Exception:
         db.session.rollback()
         app.logger.exception('Workshop attendee login repair failed')
+
+    # Learn UI: new columns on existing tables (lesson_slides / material_progress
+    # are created by create_all() above). SQLite has no ADD COLUMN IF NOT EXISTS.
+    try:
+        insp = sa_inspect(db.engine)
+        learn_cols = {
+            'courses':   [('icon', 'VARCHAR(40)'), ('tagline', 'VARCHAR(300)')],
+            'materials': [('icon', 'VARCHAR(40)'), ('duration_label', 'VARCHAR(20)'),
+                          ('keypoints', 'TEXT')],
+            'quizzes':   [('is_required', 'BOOLEAN DEFAULT 0'),
+                          ('gates_material_id', 'INTEGER')],
+        }
+        with db.engine.connect() as conn:
+            for table, cols in learn_cols.items():
+                existing = {c['name'] for c in insp.get_columns(table)}
+                for col, ddl in cols:
+                    if col not in existing:
+                        conn.execute(text(f'ALTER TABLE {table} ADD COLUMN {col} {ddl}'))
+                        conn.commit()
+    except Exception:
+        app.logger.exception('Learn UI schema migration failed')
 
     # Existing installs may have courses from before teacher assignment existed.
     # When there is only one teacher, make that teacher the owner so their portal

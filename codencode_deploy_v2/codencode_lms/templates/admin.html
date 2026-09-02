@@ -2925,14 +2925,21 @@
       /* The in-topbar secondary nav is redundant with the drawer here */
       .topbar-nav { display: none !important; }
 
-      /* Topbar: single tidy row */
+      /* Topbar: single tidy row — menu · logo · spacer · search · bell · avatar */
       .topbar {
         flex-wrap: nowrap !important;
         gap: 10px !important;
         padding: 12px 14px !important;
       }
-      .topbar-actions { margin-left: auto !important; }
-      .global-search { width: min(240px, 40vw) !important; }
+      .topbar-left { flex: 0 0 auto !important; min-width: 0 !important; }
+      .topbar-actions {
+        width: auto !important;
+        flex: 0 0 auto !important;
+        flex-wrap: nowrap !important;
+        margin-left: auto !important;
+        order: 0 !important;
+      }
+      .global-search { order: 0 !important; width: min(240px, 34vw) !important; flex: 0 1 auto !important; }
 
       /* Collapse every 2-pane / multi-column dashboard layout */
       .two-pane,
@@ -3030,7 +3037,13 @@
       .topbar { flex-wrap: nowrap !important; gap: 8px !important; padding: 10px 12px !important; }
       .topbar-badge { display: none !important; }
       .global-search { display: none !important; }
-      .topbar-actions { margin-left: auto !important; gap: 8px !important; }
+      .topbar-actions {
+        width: auto !important;
+        flex: 0 0 auto !important;
+        flex-wrap: nowrap !important;
+        margin-left: auto !important;
+        gap: 8px !important;
+      }
       .topbar-logo-img { width: 128px !important; }
       .dashboard-hero h1 { font-size: 24px !important; }
     }
