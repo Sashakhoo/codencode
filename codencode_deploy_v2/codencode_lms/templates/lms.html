@@ -1404,10 +1404,8 @@
         min-width: 0;
       }
 
-      .month-cal-actions,
-      .topbar-actions {
-        width: 100%;
-      }
+      .month-cal-actions { width: 100%; }
+      .topbar-actions { width: auto; flex: 0 0 auto; margin-left: auto; }
     }
 
     /* Final responsive alignment guardrails across student and teacher pages. */
@@ -1513,10 +1511,8 @@
         grid-template-columns: 1fr !important;
       }
 
-      .month-cal-actions,
-      .topbar-actions {
-        width: 100%;
-      }
+      .month-cal-actions { width: 100%; }
+      .topbar-actions { width: auto; flex: 0 0 auto; margin-left: auto; }
     }
   </style>
   <link rel="stylesheet" href="/static/css/lms-skin.css?v=5" />
@@ -1676,11 +1672,11 @@
 
     <!-- Topbar -->
     <div class="topbar" id="topbar">
-      <div style="display:flex;align-items:center;gap:10px;min-width:0">
+      <div class="topbar-left" style="display:flex;align-items:center;gap:10px;min-width:0">
         <button id="menu-toggle" onclick="toggleSidebar()" title="Menu">
           <i class="fas fa-bars"></i>
         </button>
-        <div style="min-width:0">
+        <div class="topbar-title-wrap" style="min-width:0">
           <div class="topbar-title" id="topbar-title">Dashboard</div>
           <div class="topbar-subtitle" id="topbar-subtitle">Your learning progress</div>
         </div>
