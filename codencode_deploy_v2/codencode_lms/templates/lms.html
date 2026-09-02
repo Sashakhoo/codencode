@@ -2781,7 +2781,7 @@
       <div class="form-group">
         <label class="form-label">Session (optional)</label>
         <select class="form-input" id="new-post-week">
-          <option value="">All Sessions</option>
+          <option value="" data-i18n="tj.allSessions">All Sessions</option>
         </select>
       </div>
       <div class="form-group">
@@ -3585,7 +3585,7 @@ async function loadTeacherVideos() {
           <div class="file-icon mp4"><i class="fas ${r.source_type === 'link' ? 'fa-link' : 'fa-film'}"></i></div>
           <div style="flex:1">
             <div class="file-name" style="font-size:12px">Session ${r.week}.${r.session_num} — ${r.title}</div>
-            <div class="file-sub">${r.cohort_name ? 'Class: ' + r.cohort_name + ' - ' : 'Whole course - '}${r.source_type === 'link' ? 'Drive link' : 'Uploaded'} ${r.uploaded_at||''}${r.duration ? ' - ' + r.duration : ''}</div>
+            <div class="file-sub">${r.cohort_name ? T('tj.classPrefix', {name: r.cohort_name}) : T('tj.wholeCoursePrefix')}${r.source_type === 'link' ? T('tj.driveLink') : T('tj.uploaded')} ${r.uploaded_at||''}${r.duration ? ' - ' + r.duration : ''}</div>
           </div>
           <button class="btn-action red" onclick="deleteRecording(${r.id})"><i class="fas fa-trash"></i></button>
         </div>`).join('');
@@ -3695,7 +3695,7 @@ async function renderGradingTable(aid, title, maxPoints) {
             </td>
             <td>
               <input class="grade-input" type="text" style="width:140px"
-                     id="fb-${s.id}" value="${s.feedback||''}" placeholder="Feedback..." />
+                     id="fb-${s.id}" value="${s.feedback||''}" placeholder="${T('ph.feedback')}" />
             </td>
             <td>
               ${s.score !== null && s.score !== undefined
@@ -3883,7 +3883,7 @@ async function teacherIssueCertificateFromSection() {
   const blankName = document.getElementById('teacher-cert-blank-name')?.checked;
   const quantity = parseInt(document.getElementById('teacher-cert-blank-quantity')?.value || '1');
   const studentName = document.getElementById('teacher-cert-student')?.selectedOptions?.[0]?.textContent || 'this student';
-  if (!courseId || (!blankName && !studentId)) { showToast(blankName ? 'Select a course first' : 'Select a course and student first', true); return; }
+  if (!courseId || (!blankName && !studentId)) { showToast(blankName ? T('toast.selectCourse') : T('tj.selectCourseStudent'), true); return; }
   if (blankName && (!quantity || quantity < 1 || quantity > 200)) { showToast(T('toast.qtyRange'), true); return; }
   if (!confirm(blankName ? `Issue ${quantity} workshop certificate${quantity === 1 ? '' : 's'} without participant name?` : `Issue certificate to ${studentName}?`)) return;
   try {
@@ -3904,7 +3904,7 @@ async function teacherIssueCertificateFromSection() {
 // -------------------------------------------------------
 async function uploadRecording() {
   const btn  = document.getElementById('upload-rec-btn');
-  btn.textContent = 'Saving...';
+  btn.textContent = T('state.saving');
   try {
     const fd = new FormData();
     const fileInput = document.getElementById('vid-file');
@@ -3930,7 +3930,7 @@ async function uploadRecording() {
 }
 
 async function deleteRecording(rid) {
-  if (!confirm('Delete this recording?')) return;
+  if (!confirm(T('confirm.deleteRecording'))) return;
   try {
     await DELETE(`/api/recordings/${rid}`);
     document.getElementById(`rec-row-${rid}`)?.remove();
@@ -3941,7 +3941,7 @@ async function deleteRecording(rid) {
 // ── Upload material ──
 async function uploadMaterial() {
   const btn  = document.getElementById('upload-mat-btn');
-  btn.textContent = 'Uploading...';
+  btn.textContent = T('state.uploading');
   try {
     const fd = new FormData();
     const fileInput = document.getElementById('mat-file');
@@ -3961,7 +3961,7 @@ async function uploadMaterial() {
 }
 
 async function deleteMaterial(mid) {
-  if (!confirm('Delete this material?')) return;
+  if (!confirm(T('confirm.deleteMaterial'))) return;
   try {
     await DELETE(`/api/materials/${mid}`);
     document.getElementById(`mat-row-${mid}`)?.remove();
@@ -3972,7 +3972,7 @@ async function deleteMaterial(mid) {
 // ── Create assignment ──
 async function createAssignment() {
   const btn  = document.getElementById('create-asgn-btn');
-  btn.textContent = 'Publishing...';
+  btn.textContent = T('state.publishing');
   try {
     const fd = new FormData();
     const titleEl = document.querySelector('#view-t-assignments [name="title"]');
@@ -3981,7 +3981,7 @@ async function createAssignment() {
     const dueEl   = document.querySelector('#view-t-assignments [name="due_date"]');
     const maxEl   = document.querySelector('#view-t-assignments [name="max_points"]');
     const fileInput = document.getElementById('asgn-file');
-    fd.append('title',       titleEl?.value || 'Untitled');
+    fd.append('title',       titleEl?.value || T('tj.untitled'));
     fd.append('description', descEl?.value  || '');
     fd.append('session',        sessionEl?.value  || 1);
     fd.append('due_date',    dueEl?.value   || '');
@@ -3997,7 +3997,7 @@ async function createAssignment() {
 }
 
 async function deleteAssignment(aid) {
-  if (!confirm('Delete this assignment?')) return;
+  if (!confirm(T('confirm.deleteAssignment'))) return;
   try {
     await DELETE(`/api/assignments/${aid}`);
     document.getElementById(`asgn-row-${aid}`)?.remove();
@@ -4015,7 +4015,7 @@ async function submitAssignment() {
   fd.append('file', file);
   fd.append('notes', notes);
   const btn = document.getElementById('submit-btn');
-  btn.textContent = 'Submitting...';
+  btn.textContent = T('state.submitting');
   try {
     await POST(`/api/assignments/${aid}/submit`, fd);
     showToast(T('toast.assignmentSubmitted'));
@@ -4123,7 +4123,7 @@ async function markWatched() {
 function openSubmitModal(aid, title) {
   document.getElementById('submit-modal-title').textContent = 'Submit: ' + title;
   document.getElementById('submit-modal').dataset.assignmentId = aid;
-  document.getElementById('sub-file-name').textContent = 'Drop your file or click to browse';
+  document.getElementById('sub-file-name').textContent = T('ph.dropFile');
   document.getElementById('sub-file').value = '';
   document.getElementById('sub-notes').value = '';
   document.getElementById('submit-modal').classList.add('open');
@@ -4486,29 +4486,29 @@ async function loadTeacherMonthPlan() {
   }
   container.innerHTML = `<div style="padding:16px 20px;color:var(--muted);font-family:var(--font-m);font-size:11px">Loading timetable...</div>`;
   const data = await GET(`/api/courses/${cid}/timetable${cohortId ? '?cohort_id=' + cohortId : ''}`);
-  const courseTitle = document.getElementById('t-plan-course')?.selectedOptions[0]?.textContent?.trim() || 'Class';
+  const courseTitle = document.getElementById('t-plan-course')?.selectedOptions[0]?.textContent?.trim() || T('cal.class');
   const startInput = document.getElementById('t-plan-start-date');
   if (startInput) startInput.value = data.start_date || '';
   const activeWeeks = data.weeks.slice(Math.max(0, (data.current_week || 1) - 1), Math.max(0, (data.current_week || 1) - 1) + 4);
   container.innerHTML = activeWeeks.map(w => `
-    <div class="timetable-week">
+    <div class="timetable-week" data-week="${w.week}">
       <div class="tt-week-header">
-        <span class="tt-week-num">Session ${w.week}</span>
-        <button class="btn-action ghost" style="margin-left:auto;font-size:10px;padding:5px 10px" onclick="addTeacherPlanRow(${w.week})"><i class="fas fa-plus"></i> Add timing</button>
+        <span class="tt-week-num">${T('lrn.session', {n: w.week})}</span>
+        <button class="btn-action ghost" style="margin-left:auto;font-size:10px;padding:5px 10px" onclick="addTeacherPlanRow(${w.week})"><i class="fas fa-plus"></i> ${T('tj.addTiming')}</button>
       </div>
       ${w.sessions.map(s => teacherPlanRow(w.week, s, courseTitle)).join('')}
     </div>
   `).join('');
 }
 
-function teacherPlanRow(week, s, courseTitle = 'Class') {
+function teacherPlanRow(week, s, courseTitle) {
   const snum = s.session_num;
   const days = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
-  const topic = (courseTitle || s.topic || 'Class').replace(/"/g, '&quot;');
+  const topic = (courseTitle || s.topic || T('cal.class')).replace(/"/g, '&quot;');
   return `<div class="tt-session" data-week="${week}" data-snum="${snum}" style="grid-template-columns:160px 250px 1fr">
     <div>
       <select class="form-input t-plan-day" data-week="${week}" data-snum="${snum}" style="padding:6px 8px;font-size:11px">
-        ${days.map(d => `<option value="${d}" ${d===s.day?'selected':''}>${d}</option>`).join('')}
+        ${days.map(d => `<option value="${d}" ${d===s.day?'selected':''}>${T('day.'+d)}</option>`).join('')}
       </select>
       <div class="tt-day-date">${s.date || '—'}</div>
     </div>
@@ -4517,19 +4517,19 @@ function teacherPlanRow(week, s, courseTitle = 'Class') {
       <span style="color:var(--muted);font-size:10px">to</span>
       <input class="form-input t-plan-end" type="time" value="${s.time_end || ''}" data-week="${week}" data-snum="${snum}" style="width:105px;padding:6px 8px;font-size:11px" />
     </div>
-    <input class="tt-topic-input" type="text" value="${topic}" data-week="${week}" data-snum="${snum}" readonly title="Uses the selected course title for every day" />
+    <input class="tt-topic-input" type="text" value="${topic}" data-week="${week}" data-snum="${snum}" readonly title="${T('tj.usesCourseTitle')}" />
   </div>`;
 }
 
 function addTeacherPlanRow(week) {
   const container = document.getElementById('t-plan-container');
-  const weekEl = [...container.querySelectorAll('.timetable-week')].find(el => el.textContent.includes(`Session ${week}`));
+  const weekEl = [...container.querySelectorAll('.timetable-week')].find(el => el.dataset.week == week);
   if (!weekEl) return;
   const existing = [...weekEl.querySelectorAll('.tt-topic-input')].map(i => parseInt(i.dataset.snum) || 0);
   const snum = Math.max(4, ...existing) + 1;
-  const courseTitle = document.getElementById('t-plan-course')?.selectedOptions[0]?.textContent?.trim() || 'Class';
+  const courseTitle = document.getElementById('t-plan-course')?.selectedOptions[0]?.textContent?.trim() || T('cal.class');
   weekEl.insertAdjacentHTML('beforeend', teacherPlanRow(week, {
-    session_num: snum, day: 'Friday', date: 'New timing', time_start: '20:00', time_end: '22:00', topic: ''
+    session_num: snum, day: 'Friday', date: T('tj.newTiming'), time_start: '20:00', time_end: '22:00', topic: ''
   }, courseTitle));
 }
 
@@ -4563,7 +4563,7 @@ async function saveTeacherMonthPlan() {
   const cohortId = document.getElementById('t-plan-cohort')?.value || '';
   if (!cid) { showToast(T('toast.selectCourse'), true); return; }
   const inputs = document.querySelectorAll('#t-plan-container .tt-topic-input');
-  const courseTitle = document.getElementById('t-plan-course')?.selectedOptions[0]?.textContent?.trim() || 'Class';
+  const courseTitle = document.getElementById('t-plan-course')?.selectedOptions[0]?.textContent?.trim() || T('cal.class');
   let saved = 0;
   for (const inp of inputs) {
     const selector = `[data-week="${inp.dataset.week}"][data-snum="${inp.dataset.snum}"]`;
@@ -4686,7 +4686,7 @@ async function createSession() {
 }
 
 async function deleteSession(sid) {
-  if (!confirm('Delete this session?')) return;
+  if (!confirm(T('confirm.deleteSession'))) return;
   try {
     await DELETE(`/api/sessions/${sid}`);
     document.getElementById(`sess-row-${sid}`)?.remove();
@@ -4966,6 +4966,48 @@ const I18N = {
     'tfo.s6':'Session 6',
     'tfo.s7':'Session 7',
     'tfo.s8':'Session 8',
+    'confirm.deleteRecording':'Delete this recording?',
+    'confirm.deleteMaterial':'Delete this material?',
+    'confirm.deleteAssignment':'Delete this assignment?',
+    'confirm.deleteSession':'Delete this session?',
+    'confirm.deleteQuiz':'Delete this quiz and all its questions?',
+    'confirm.deleteQuestion':'Delete this question?',
+    'confirm.deleteReply':'Delete this reply?',
+    'confirm.deletePost':'Delete this post and all its replies?',
+    'confirm.submitQuiz':'Submit your quiz? You cannot change answers after submission.',
+    'state.saving':'Saving...',
+    'state.uploading':'Uploading...',
+    'state.publishing':'Publishing...',
+    'state.submitting':'Submitting...',
+    'tj.unpublish':'Unpublish',
+    'tj.publish':'Publish',
+    'tj.quizUnpublished':'Quiz unpublished',
+    'tj.quizPublished':'Quiz published!',
+    'tj.materialUnpublished':'Material unpublished',
+    'tj.scheduleCleared':'Schedule cleared',
+    'tj.scheduledFor':'Scheduled for {dt}',
+    'tj.untitled':'Untitled',
+    'tj.driveLink':'Drive link',
+    'tj.uploaded':'Uploaded',
+    'tj.classPrefix':'Class: {name} - ',
+    'tj.wholeCoursePrefix':'Whole course - ',
+    'tj.passed':'Passed! Well done!',
+    'tj.notPassed':'Not passed. Keep practicing!',
+    'tj.selectCourseStudent':'Select a course and student first',
+    'tj.usesCourseTitle':'Uses the selected course title for every day',
+    'tj.newTiming':'New timing',
+    'ph.feedback':'Feedback...',
+    'ph.yourAnswer':'Your answer...',
+    'ph.writeReply':'Write a reply...',
+    'ph.dropFile':'Drop your file or click to browse',
+    'day.Monday':'Monday',
+    'day.Tuesday':'Tuesday',
+    'day.Wednesday':'Wednesday',
+    'day.Thursday':'Thursday',
+    'day.Friday':'Friday',
+    'day.Saturday':'Saturday',
+    'day.Sunday':'Sunday',
+    'tj.addTiming':'Add timing', 'tj.allSessions':'All Sessions',
 
     'toast.reportExported':'Student report exported',
     'toast.gradeSavedNotified':'Grade saved & student notified!',
@@ -5253,6 +5295,48 @@ const I18N = {
     'tfo.s6':'第 6 节',
     'tfo.s7':'第 7 节',
     'tfo.s8':'第 8 节',
+    'confirm.deleteRecording':'删除此录像？',
+    'confirm.deleteMaterial':'删除此资料？',
+    'confirm.deleteAssignment':'删除此作业？',
+    'confirm.deleteSession':'删除此课程？',
+    'confirm.deleteQuiz':'删除此测验及其所有题目？',
+    'confirm.deleteQuestion':'删除此题目？',
+    'confirm.deleteReply':'删除此回复？',
+    'confirm.deletePost':'删除此帖子及其所有回复？',
+    'confirm.submitQuiz':'提交测验？提交后将无法修改答案。',
+    'state.saving':'保存中…',
+    'state.uploading':'上传中…',
+    'state.publishing':'发布中…',
+    'state.submitting':'提交中…',
+    'tj.unpublish':'取消发布',
+    'tj.publish':'发布',
+    'tj.quizUnpublished':'测验已取消发布',
+    'tj.quizPublished':'测验已发布！',
+    'tj.materialUnpublished':'资料已取消发布',
+    'tj.scheduleCleared':'排期已清除',
+    'tj.scheduledFor':'已排期至 {dt}',
+    'tj.untitled':'无标题',
+    'tj.driveLink':'Drive 链接',
+    'tj.uploaded':'已上传',
+    'tj.classPrefix':'班级：{name} - ',
+    'tj.wholeCoursePrefix':'整门课程 - ',
+    'tj.passed':'通过了！做得好！',
+    'tj.notPassed':'未通过，继续练习！',
+    'tj.selectCourseStudent':'请先选择课程和学生',
+    'tj.usesCourseTitle':'每天使用所选课程的标题',
+    'tj.newTiming':'新时段',
+    'ph.feedback':'评语……',
+    'ph.yourAnswer':'你的答案……',
+    'ph.writeReply':'写下回复……',
+    'ph.dropFile':'拖入文件或点击浏览',
+    'day.Monday':'星期一',
+    'day.Tuesday':'星期二',
+    'day.Wednesday':'星期三',
+    'day.Thursday':'星期四',
+    'day.Friday':'星期五',
+    'day.Saturday':'星期六',
+    'day.Sunday':'星期日',
+    'tj.addTiming':'添加时段', 'tj.allSessions':'所有课节',
 
     'toast.reportExported':'已导出学生报告',
     'toast.gradeSavedNotified':'成绩已保存，已通知学生！',
@@ -5540,6 +5624,48 @@ const I18N = {
     'tfo.s6':'Sesi 6',
     'tfo.s7':'Sesi 7',
     'tfo.s8':'Sesi 8',
+    'confirm.deleteRecording':'Padam rakaman ini?',
+    'confirm.deleteMaterial':'Padam bahan ini?',
+    'confirm.deleteAssignment':'Padam tugasan ini?',
+    'confirm.deleteSession':'Padam sesi ini?',
+    'confirm.deleteQuiz':'Padam kuiz ini dan semua soalannya?',
+    'confirm.deleteQuestion':'Padam soalan ini?',
+    'confirm.deleteReply':'Padam balasan ini?',
+    'confirm.deletePost':'Padam kiriman ini dan semua balasannya?',
+    'confirm.submitQuiz':'Hantar kuiz anda? Anda tidak boleh ubah jawapan selepas menghantar.',
+    'state.saving':'Menyimpan...',
+    'state.uploading':'Memuat naik...',
+    'state.publishing':'Menerbitkan...',
+    'state.submitting':'Menghantar...',
+    'tj.unpublish':'Nyahterbit',
+    'tj.publish':'Terbit',
+    'tj.quizUnpublished':'Kuiz dinyahterbitkan',
+    'tj.quizPublished':'Kuiz diterbitkan!',
+    'tj.materialUnpublished':'Bahan dinyahterbitkan',
+    'tj.scheduleCleared':'Jadual dikosongkan',
+    'tj.scheduledFor':'Dijadualkan untuk {dt}',
+    'tj.untitled':'Tanpa tajuk',
+    'tj.driveLink':'Pautan Drive',
+    'tj.uploaded':'Dimuat naik',
+    'tj.classPrefix':'Kelas: {name} - ',
+    'tj.wholeCoursePrefix':'Seluruh kursus - ',
+    'tj.passed':'Lulus! Syabas!',
+    'tj.notPassed':'Tidak lulus. Teruskan berlatih!',
+    'tj.selectCourseStudent':'Pilih kursus dan pelajar dahulu',
+    'tj.usesCourseTitle':'Menggunakan tajuk kursus terpilih untuk setiap hari',
+    'tj.newTiming':'Waktu baharu',
+    'ph.feedback':'Maklum balas...',
+    'ph.yourAnswer':'Jawapan anda...',
+    'ph.writeReply':'Tulis balasan...',
+    'ph.dropFile':'Lepaskan fail anda atau klik untuk semak',
+    'day.Monday':'Isnin',
+    'day.Tuesday':'Selasa',
+    'day.Wednesday':'Rabu',
+    'day.Thursday':'Khamis',
+    'day.Friday':'Jumaat',
+    'day.Saturday':'Sabtu',
+    'day.Sunday':'Ahad',
+    'tj.addTiming':'Tambah waktu', 'tj.allSessions':'Semua Sesi',
 
     'toast.reportExported':'Laporan pelajar dieksport',
     'toast.gradeSavedNotified':'Gred disimpan & pelajar dimaklumkan!',
@@ -5931,7 +6057,7 @@ function renderQuizAttempt(quiz) {
           <input type="radio" name="q-${q.id}" value="${c.id}" style="accent-color:var(--cyan)" onchange="_quizAnswers[${q.id}]=${c.id};document.querySelectorAll('[name=q-${q.id}]').forEach(r=>{r.closest('label').style.background=r.checked?'var(--cyan-dim)':''})">
           <span style="font-family:var(--font-m);font-size:12px">${c.choice_text}</span>
         </label>`).join('') :
-        `<textarea class="feedback-input" rows="2" placeholder="Your answer..." oninput="_quizAnswers[${q.id}]=this.value"></textarea>`
+        `<textarea class="feedback-input" rows="2" placeholder="${T('ph.yourAnswer')}" oninput="_quizAnswers[${q.id}]=this.value"></textarea>`
       }
     </div>`).join('');
 
@@ -5955,7 +6081,7 @@ function cancelQuiz() {
 }
 
 async function submitQuiz(qid) {
-  if (!confirm('Submit your quiz? You cannot change answers after submission.')) return;
+  if (!confirm(T('confirm.submitQuiz'))) return;
   try {
     const data = await POST(`/api/quizzes/${qid}/attempt`, { submit: true, answers: _quizAnswers });
     renderQuizResult(data);
@@ -5980,7 +6106,7 @@ function renderQuizResult(data) {
     <div style="text-align:center;padding:32px 20px;border:1px solid ${passed ? 'var(--green3)' : 'rgba(255,92,92,0.4)'};background:${passed ? 'var(--green-dim)' : 'var(--red-dim)'};margin-bottom:24px">
       <div style="font-size:48px;margin-bottom:8px">${passed ? '🎉' : '📚'}</div>
       <div style="font-family:var(--font-d);font-size:28px;font-weight:800;color:${passed ? 'var(--green)' : 'var(--red)'}">${data.score}%</div>
-      <div style="font-family:var(--font-d);font-size:16px;margin-top:4px">${passed ? 'Passed! Well done!' : 'Not passed. Keep practicing!'}</div>
+      <div style="font-family:var(--font-d);font-size:16px;margin-top:4px">${passed ? T('tj.passed') : T('tj.notPassed')}</div>
       <div style="font-family:var(--font-c);font-size:10px;color:var(--muted);margin-top:8px">${data.attempts_remaining} attempt(s) remaining</div>
     </div>
     <div>${answerRows}</div>
@@ -6007,7 +6133,7 @@ async function loadTeacherQuizzes() {
             <div class="file-sub">${q.session ? 'Session '+q.session+' · ' : ''}${q.question_count} questions · Pass: ${q.pass_score}%</div>
           </div>
           <button class="btn-action ghost" style="font-size:10px;padding:5px 10px;margin-right:4px" onclick="toggleQuizPublish(${q.id},${q.is_published})">
-            <i class="fas fa-${q.is_published ? 'eye-slash' : 'eye'}"></i> ${q.is_published ? 'Unpublish' : 'Publish'}
+            <i class="fas fa-${q.is_published ? 'eye-slash' : 'eye'}"></i> ${q.is_published ? T('tj.unpublish') : T('tj.publish')}
           </button>
           <button class="btn-action" style="font-size:10px;padding:5px 10px;margin-right:4px" onclick="openQuizEditor(${q.id},'${q.title.replace(/'/g,"\\'")}')">
             <i class="fas fa-edit"></i> Edit
@@ -6038,13 +6164,13 @@ async function createQuiz() {
 async function toggleQuizPublish(qid, current) {
   try {
     await PUT(`/api/quizzes/${qid}/publish`);
-    showToast(current ? 'Quiz unpublished' : 'Quiz published!');
+    showToast(current ? T('tj.quizUnpublished') : T('tj.quizPublished'));
     await loadTeacherQuizzes();
   } catch(e) { showToast(e.message, true); }
 }
 
 async function deleteQuiz(qid) {
-  if (!confirm('Delete this quiz and all its questions?')) return;
+  if (!confirm(T('confirm.deleteQuiz'))) return;
   try {
     await DELETE(`/api/quizzes/${qid}`);
     document.getElementById(`tq-row-${qid}`)?.remove();
@@ -6107,7 +6233,7 @@ async function submitAddQuestion() {
 }
 
 async function deleteQuestion(qid, qqid) {
-  if (!confirm('Delete this question?')) return;
+  if (!confirm(T('confirm.deleteQuestion'))) return;
   try {
     await DELETE(`/api/quizzes/${qid}/questions/${qqid}`);
     await loadQuizQuestions(qid);
@@ -6146,7 +6272,7 @@ async function renderDiscussionWeekTabs(containerId, isTeacher) {
   // Populate new post week selector
   const weekSel = document.getElementById('new-post-week');
   if (weekSel) {
-    weekSel.innerHTML = `<option value="">All Sessions</option>` + Array.from({length: weeks}, (_,i) => `<option value="${i+1}">Session ${i+1}</option>`).join('');
+    weekSel.innerHTML = `<option value="">${T('tj.allSessions')}</option>` + Array.from({length: weeks}, (_,i) => `<option value="${i+1}">${T('lrn.session',{n:i+1})}</option>`).join('');
   }
 }
 
@@ -6244,7 +6370,7 @@ async function openDiscussionPost(pid, isTeacher) {
           <div style="font-family:var(--font-c);font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);margin-bottom:12px">${p.reply_count} Replies</div>
           ${replies || `<div style="color:var(--muted);font-family:var(--font-m);font-size:11px">No replies yet.</div>`}
           <div style="margin-top:16px;display:flex;gap:10px;align-items:flex-start">
-            <textarea class="feedback-input" id="reply-body-${pid}" rows="2" placeholder="Write a reply..." style="flex:1"></textarea>
+            <textarea class="feedback-input" id="reply-body-${pid}" rows="2" placeholder="${T('ph.writeReply')}" style="flex:1"></textarea>
             <button class="btn-action" style="flex-shrink:0" onclick="submitReply(${pid},${isTeacher})"><i class="fas fa-paper-plane"></i></button>
           </div>
         </div>
@@ -6270,7 +6396,7 @@ async function submitReply(pid, isTeacher) {
 }
 
 async function deleteReply(rid, pid, isTeacher) {
-  if (!confirm('Delete this reply?')) return;
+  if (!confirm(T('confirm.deleteReply'))) return;
   try {
     await DELETE(`/api/discussions/replies/${rid}`);
     await openDiscussionPost(pid, isTeacher);
@@ -6300,7 +6426,7 @@ async function toggleResolve(pid) {
 }
 
 async function deletePost(pid, isTeacher) {
-  if (!confirm('Delete this post and all its replies?')) return;
+  if (!confirm(T('confirm.deletePost'))) return;
   try {
     await DELETE(`/api/discussions/${pid}`);
     await renderDiscussionList(isTeacher ? 't-discussion-list' : 'discussion-list', isTeacher);
@@ -6369,7 +6495,7 @@ async function loadCertificates() {
 async function toggleMaterialPublish(mid) {
   try {
     const data = await PUT(`/api/materials/${mid}/publish`);
-    showToast(data.material.is_published ? 'Material published!' : 'Material unpublished');
+    showToast(data.material.is_published ? T('toast.materialPublished') : T('tj.materialUnpublished'));
     await loadTeacherMaterials();
   } catch(e) { showToast(e.message, true); }
 }
@@ -6379,7 +6505,7 @@ async function scheduleMaterial(mid) {
   if (dt === null) return;
   try {
     await PUT(`/api/materials/${mid}/schedule`, { publish_at: dt });
-    showToast(dt ? `Scheduled for ${dt}` : 'Schedule cleared');
+    showToast(dt ? T('tj.scheduledFor', {dt}) : T('tj.scheduleCleared'));
     await loadTeacherMaterials();
   } catch(e) { showToast(e.message, true); }
 }
