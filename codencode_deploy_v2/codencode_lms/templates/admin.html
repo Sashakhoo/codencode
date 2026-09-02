@@ -5695,6 +5695,7 @@ const I18N = { en: {
     "common.error": "Ralat: ",
   } };
 window.LANG = (function(){ try { return localStorage.getItem('admin-lang') || 'en'; } catch(e){ return 'en'; } })();
+window.__adminView = window.__adminView || "dashboard";
 function T(key, vars){
   const d = I18N[window.LANG] || I18N.en;
   let s = (d && d[key] != null) ? d[key] : (I18N.en[key] != null ? I18N.en[key] : key);
@@ -5715,7 +5716,18 @@ function applyLanguage(lang, opts){
   document.querySelectorAll('[data-i18n-title]').forEach(el => { const v=T(el.getAttribute('data-i18n-title')); if(v!=null) el.setAttribute('title',v); });
   ['en','zh','bm'].forEach(l => { const b=document.getElementById('alang-'+l); if(b) b.classList.toggle('on', l===lang); });
   if (opts && opts.rerender === false) return;
-  try { if (window.__adminView && typeof showView === 'function') showView(window.__adminView); } catch(e){}
+  // Re-render the JS-built content of the current view so its strings switch too.
+  try {
+    const v = window.__adminView;
+    const openStu = window.__openStudent, openTea = window.__openTeacher;   // capture before showView rebuilds lists
+    if (v === 'dashboard' && typeof loadDashboard === 'function') loadDashboard();
+    else if (typeof showView === 'function' && v) showView(v);
+    // showView() rebuilds the lists but not the open detail pane / editors:
+    if (openStu && typeof selectStudent === 'function') selectStudent(openStu);
+    if (openTea && typeof showTeacherDetail === 'function') showTeacherDetail(openTea);
+    if (v === 'attendance' && document.getElementById('att-course-select')?.value && typeof loadAttendance === 'function') loadAttendance();
+    if (v === 'timetable' && document.getElementById('tt-course-select')?.value && typeof loadAdminTimetable === 'function') loadAdminTimetable();
+  } catch(e){}
 }
 function setLanguage(lang){ applyLanguage(lang); }
 (function(){ applyLanguage(window.LANG, { rerender:false }); })();
@@ -5877,6 +5889,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     await Promise.all([loadCourses(), loadStudents(), loadTeachers()]);
     populateCourseSelects();
+    window.__adminView = 'dashboard';
     loadDashboard();
   } catch(e) {
     window.location.href = '/';
@@ -6146,6 +6159,7 @@ function getFilteredStudents() {
 }
 
 function renderStudentList() {
+  if (!document.querySelector(".student-item.selected")) window.__openStudent = null;
   const listBody = document.getElementById('student-list-body');
   const localSearch = document.getElementById('student-search');
   const globalSearch = document.getElementById('global-student-search');
@@ -6207,6 +6221,7 @@ function filterStudents() {
 }
 
 function selectStudent(uid) {
+  window.__openStudent = uid; window.__openTeacher = null;
   document.querySelectorAll('.student-item').forEach(el => el.classList.remove('selected'));
   document.getElementById(`si-${uid}`)?.classList.add('selected');
   const s = S.students.find(x => x.id === uid);
@@ -6713,7 +6728,7 @@ async function deleteStudent(uid, name) {
   try {
     await DELETE(`/api/admin/students/${uid}`);
     toast(`${name} deleted`);
-    document.getElementById('student-detail').innerHTML = '';
+    document.getElementById('student-detail').innerHTML = ''; window.__openStudent = null;
     await loadStudents();
     renderStudentList();
   } catch(e) { toast(e.message, true); }
@@ -8812,6 +8827,7 @@ function renderTeacherList(q = '') {
 }
 
 async function showTeacherDetail(id) {
+  window.__openTeacher = id; window.__openStudent = null;
   const t = (S.teachers || []).find(x => x.id === id);
   if (!t) return;
 
