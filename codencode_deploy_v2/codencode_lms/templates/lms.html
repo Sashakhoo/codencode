@@ -2940,7 +2940,8 @@ async function bootApp() {
   if (isTeacher && STATE.courses.length === 0) {
     const banner = document.createElement('div');
     banner.id = 'no-courses-banner';
-    banner.innerHTML = '<i class="fas fa-exclamation-triangle"></i> &nbsp;No courses assigned to you yet. Ask your admin to assign a course to your account.';
+    banner.setAttribute('data-i18n-html', 'banner.noCoursesTeacher');
+    banner.innerHTML = T('banner.noCoursesTeacher');
     document.body.prepend(banner);
   }
   document.getElementById('student-nav').style.display = isTeacher ? 'none' : 'block';
@@ -2967,7 +2968,7 @@ async function bootApp() {
 function renderCourseSelector() {
   const sel = document.getElementById('course-selector');
   if (!STATE.courses.length) {
-    sel.innerHTML = '<option value="">No courses assigned</option>';
+    sel.innerHTML = `<option value="">${T('banner.noCoursesOpt')}</option>`;
     return;
   }
   sel.innerHTML = STATE.courses.map(c =>
@@ -4767,6 +4768,8 @@ async function watchRecording(sid) {
 
 const I18N = {
   en: {
+    "banner.noCoursesTeacher": "<i class=\"fas fa-exclamation-triangle\"></i> &nbsp;No courses assigned to you yet. Ask your admin to assign a course to your account.",
+    "banner.noCoursesOpt": "No courses assigned",
     "topbar.progress": "Your learning progress",
     "md.sessionRecording": "Session Recording",
     "md.selectVideo": "Select a video to play",
@@ -5136,6 +5139,8 @@ const I18N = {
     'err.invalidLang':'Invalid language',
   },
   zh: {
+    "banner.noCoursesTeacher": "<i class=\"fas fa-exclamation-triangle\"></i> &nbsp;你的账户尚未分配任何课程。请联系管理员为你的账户分配课程。",
+    "banner.noCoursesOpt": "尚未分配课程",
     "topbar.progress": "你的学习进度",
     "md.sessionRecording": "课堂录像",
     "md.selectVideo": "请选择要播放的视频",
@@ -5499,6 +5504,8 @@ const I18N = {
     'err.invalidLang':'语言无效',
   },
   bm: {
+    "banner.noCoursesTeacher": "<i class=\"fas fa-exclamation-triangle\"></i> &nbsp;Tiada kursus ditugaskan kepada anda lagi. Minta pentadbir menugaskan kursus kepada akaun anda.",
+    "banner.noCoursesOpt": "Tiada kursus ditugaskan",
     "topbar.progress": "Kemajuan pembelajaran anda",
     "md.sessionRecording": "Rakaman Kelas",
     "md.selectVideo": "Pilih video untuk dimainkan",
