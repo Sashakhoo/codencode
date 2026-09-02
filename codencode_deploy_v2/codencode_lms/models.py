@@ -383,6 +383,7 @@ class Submission(db.Model):
             'filename': self.filename,
             'notes': self.notes,
             'submitted_at': self.submitted_at.strftime('%b %d, %Y · %I:%M %p'),
+            'submitted_at_iso': self.submitted_at.isoformat() if self.submitted_at else None,
             'score': self.score,
             'feedback': self.feedback,
             'graded_at': self.graded_at.strftime('%b %d, %Y') if self.graded_at else None,
@@ -543,6 +544,7 @@ class Announcement(db.Model):
             'created_by': self.created_by,
             'creator_name': self.creator.name if self.creator else 'System',
             'created_at': self.created_at.strftime('%b %d, %Y'),
+            'created_at_iso': self.created_at.isoformat() if self.created_at else None,
             'ago': ago,
         }
 

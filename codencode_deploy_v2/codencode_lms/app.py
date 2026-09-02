@@ -1817,18 +1817,22 @@ def api_dashboard(cid):
         recent_recordings = (visible_recordings_query(cid, current_user.id)
             .order_by(Recording.uploaded_at.desc()).limit(3).all())
         for r in recent_recordings:
-            activity.append({'type': 'cyan', 'text': f'<strong>{r.title}</strong> — video uploaded',
-                             'time': r.uploaded_at.strftime('%b %d, %Y')})
+            activity.append({'type': 'cyan', 'kind': 'video', 'title': r.title,
+                             'date': r.uploaded_at.isoformat() if r.uploaded_at else None,
+                             'time': r.uploaded_at.strftime('%b %d, %Y') if r.uploaded_at else ''})
         recent_materials = (Material.query.filter_by(course_id=cid)
             .order_by(Material.uploaded_at.desc()).limit(2).all())
         for m in recent_materials:
-            activity.append({'type': 'purple', 'text': f'New material: <strong>{m.title}</strong> added',
-                             'time': m.uploaded_at.strftime('%b %d, %Y')})
+            activity.append({'type': 'purple', 'kind': 'material', 'title': m.title,
+                             'date': m.uploaded_at.isoformat() if m.uploaded_at else None,
+                             'time': m.uploaded_at.strftime('%b %d, %Y') if m.uploaded_at else ''})
         for s in sorted(graded, key=lambda x: x.graded_at or x.submitted_at, reverse=True)[:3]:
-            activity.append({'type': 'green',
-                             'text': f'<strong>{s.assignment.title}</strong> graded — {s.score}/{s.assignment.max_points}',
-                             'time': (s.graded_at or s.submitted_at).strftime('%b %d, %Y')})
-        activity.sort(key=lambda x: x['time'], reverse=True)
+            _dt = s.graded_at or s.submitted_at
+            activity.append({'type': 'green', 'kind': 'graded', 'title': s.assignment.title,
+                             'score': s.score, 'max': s.assignment.max_points,
+                             'date': _dt.isoformat() if _dt else None,
+                             'time': _dt.strftime('%b %d, %Y') if _dt else ''})
+        activity.sort(key=lambda x: x['date'] or '', reverse=True)
 
         course = Course.query.get(cid)
         return jsonify({
