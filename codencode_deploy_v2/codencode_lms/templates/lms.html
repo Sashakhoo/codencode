@@ -1671,7 +1671,7 @@
         </button>
         <div class="topbar-title-wrap" style="min-width:0">
           <div class="topbar-title" id="topbar-title">Dashboard</div>
-          <div class="topbar-subtitle" id="topbar-subtitle">Your learning progress</div>
+          <div class="topbar-subtitle" id="topbar-subtitle" data-i18n="topbar.progress">Your learning progress</div>
         </div>
       </div>
       <div class="topbar-actions">
@@ -2928,7 +2928,9 @@ async function bootApp() {
   if (STATE.courses.length > 0) {
     STATE.courseId = STATE.courses[0].id;
     document.getElementById('course-selector').value = STATE.courseId;
-    document.getElementById('topbar-subtitle').textContent = STATE.courses[0].title;
+    const sub0 = document.getElementById('topbar-subtitle');
+    sub0.removeAttribute('data-i18n');
+    sub0.textContent = STATE.courses[0].title;
   }
 
   // 2. Setup role UI (DOM writes, cannot fail)
@@ -3101,7 +3103,9 @@ async function setCourse(val) {
   // Reset cache
   STATE.dashboard = STATE.recordings = STATE.materials = STATE.assignments = null;
   const course = STATE.courses.find(c => c.id === STATE.courseId);
-  document.getElementById('topbar-subtitle').textContent = course?.title || '';
+  const subEl2 = document.getElementById('topbar-subtitle');
+  if (course?.title) { subEl2.removeAttribute('data-i18n'); subEl2.textContent = course.title; }
+  else { subEl2.setAttribute('data-i18n', 'topbar.progress'); subEl2.textContent = T('topbar.progress'); }
   showToast(T('toast.switchedTo', {v: course?.title || ''}));
   // Reload current view
   const activeView = document.querySelector('.view.active');
@@ -4763,6 +4767,7 @@ async function watchRecording(sid) {
 
 const I18N = {
   en: {
+    "topbar.progress": "Your learning progress",
     "md.sessionRecording": "Session Recording",
     "md.selectVideo": "Select a video to play",
     "md.download": "Download",
@@ -5131,6 +5136,7 @@ const I18N = {
     'err.invalidLang':'Invalid language',
   },
   zh: {
+    "topbar.progress": "你的学习进度",
     "md.sessionRecording": "课堂录像",
     "md.selectVideo": "请选择要播放的视频",
     "md.download": "下载",
@@ -5493,6 +5499,7 @@ const I18N = {
     'err.invalidLang':'语言无效',
   },
   bm: {
+    "topbar.progress": "Kemajuan pembelajaran anda",
     "md.sessionRecording": "Rakaman Kelas",
     "md.selectVideo": "Pilih video untuk dimainkan",
     "md.download": "Muat Turun",
