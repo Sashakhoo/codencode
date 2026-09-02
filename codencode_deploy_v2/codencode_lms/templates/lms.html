@@ -3213,14 +3213,19 @@ async function loadStudentDashboard() {
   const actEl = document.getElementById('dash-activity');
   if (actEl) {
     actEl.innerHTML = d.recent_activity && d.recent_activity.length
-      ? d.recent_activity.map(a => `
+      ? d.recent_activity.map(a => {
+          const label = a.kind
+            ? T('act.' + a.kind, { title: esc(a.title || ''), score: a.score, max: a.max })
+            : (a.text || '');
+          return `
         <div class="activity-item">
           <div class="activity-dot dot-${a.type}"></div>
           <div>
-            <div class="activity-text">${a.text}</div>
-            <div class="activity-time">${a.time}</div>
+            <div class="activity-text">${label}</div>
+            <div class="activity-time">${a.date ? fmtDate(a.date) : (a.time || '')}</div>
           </div>
-        </div>`).join('')
+        </div>`;
+        }).join('')
       : `<div style="color:var(--muted);font-family:var(--font-m);font-size:12px;padding:16px 0">${T('act.none')}</div>`;
   }
 
@@ -3248,7 +3253,7 @@ async function loadAnnouncements() {
         <div class="ann-title">${a.title}</div>
         <div class="ann-body">${a.content}</div>
         <div class="ann-footer">
-          <span class="ann-author">${a.creator_name} · ${a.ago}${a.course_title !== 'All Courses' ? ' · ' + a.course_title : ''}</span>
+          <span class="ann-author">${a.creator_name} · ${a.created_at_iso ? timeAgo(a.created_at_iso) : a.ago}${a.course_title !== 'All Courses' ? ' · ' + a.course_title : ''}</span>
         </div>
       </div>`).join('');
   } catch(e) {
@@ -3543,7 +3548,7 @@ async function loadTeacherDashboard() {
           <div class="student-dot">${(s.student_name||'').split(' ').map(p=>p[0]).join('').slice(0,2).toUpperCase()}</div>
           <div style="flex:1">
             <div class="file-name" style="font-size:12px">${s.student_name} — ${s.assignment_title}</div>
-            <div class="file-sub">${T('t.submittedOn', { when: s.submitted_at||'', file: s.orig_name||s.filename })}</div>
+            <div class="file-sub">${T('t.submittedOn', { when: s.submitted_at_iso ? fmtDate(s.submitted_at_iso) : (s.submitted_at||''), file: s.orig_name||s.filename })}</div>
           </div>
           <button class="btn-action" onclick="openGradeModal(${s.id},'${(s.student_name||'').replace(/'/g,"\\'")}','${(s.assignment_title||'').replace(/'/g,"\\'")}')">${T('t.btn.grade')}</button>
         </div>`).join('');
@@ -4789,6 +4794,11 @@ const I18N = {
     'dash.videos':'Videos', 'dash.assignmentsSubmitted':'Assignments Submitted',
     'ann.loading':'Loading announcements...', 'ann.none':'No announcements yet.', 'ann.error':'Could not load announcements.',
     'act.none':'No recent activity.',
+    'act.video':'<strong>{title}</strong> — video uploaded',
+    'act.material':'New material: <strong>{title}</strong> added',
+    'act.graded':'<strong>{title}</strong> graded — {score}/{max}',
+    'ago.now':'just now', 'ago.min':'{n} min ago', 'ago.hr':'{n} hr ago', 'ago.day':'{n} days ago',
+    'lrn.slidesN':'{n} slides',
     // grades table
     'grades.avg':'Avg: {avg}', 'gt.num':'#', 'gt.assignment':'Assignment', 'gt.submitted':'Submitted', 'gt.score':'Score', 'gt.feedback':'Feedback',
     'grades.subNone':'// No grades yet', 'grades.subAvg':'// Current average: {avg} / 100',
@@ -4874,6 +4884,11 @@ const I18N = {
     'dash.videos':'视频', 'dash.assignmentsSubmitted':'已提交作业',
     'ann.loading':'正在加载公告…', 'ann.none':'暂无公告。', 'ann.error':'无法加载公告。',
     'act.none':'暂无近期动态。',
+    'act.video':'<strong>{title}</strong> —— 上传了视频',
+    'act.material':'新增资料：<strong>{title}</strong>',
+    'act.graded':'<strong>{title}</strong> 已批改 —— {score}/{max}',
+    'ago.now':'刚刚', 'ago.min':'{n} 分钟前', 'ago.hr':'{n} 小时前', 'ago.day':'{n} 天前',
+    'lrn.slidesN':'{n} 张幻灯片',
     'grades.avg':'平均：{avg}', 'gt.num':'#', 'gt.assignment':'作业', 'gt.submitted':'提交时间', 'gt.score':'得分', 'gt.feedback':'评语',
     'grades.subNone':'// 暂无成绩', 'grades.subAvg':'// 当前平均分：{avg} / 100',
     'status.pending':'待提交', 'status.submitted':'已提交', 'status.graded':'已批改 · {s}/{m}',
@@ -4956,6 +4971,11 @@ const I18N = {
     'dash.videos':'Video', 'dash.assignmentsSubmitted':'Tugasan Dihantar',
     'ann.loading':'Memuatkan pengumuman...', 'ann.none':'Tiada pengumuman lagi.', 'ann.error':'Tidak dapat memuatkan pengumuman.',
     'act.none':'Tiada aktiviti terkini.',
+    'act.video':'<strong>{title}</strong> — video dimuat naik',
+    'act.material':'Bahan baharu: <strong>{title}</strong> ditambah',
+    'act.graded':'<strong>{title}</strong> dinilai — {score}/{max}',
+    'ago.now':'sebentar tadi', 'ago.min':'{n} min lalu', 'ago.hr':'{n} jam lalu', 'ago.day':'{n} hari lalu',
+    'lrn.slidesN':'{n} slaid',
     'grades.avg':'Purata: {avg}', 'gt.num':'#', 'gt.assignment':'Tugasan', 'gt.submitted':'Dihantar', 'gt.score':'Markah', 'gt.feedback':'Maklum balas',
     'grades.subNone':'// Tiada gred lagi', 'grades.subAvg':'// Purata semasa: {avg} / 100',
     'status.pending':'Belum Hantar', 'status.submitted':'Dihantar', 'status.graded':'Dinilai · {s}/{m}',
@@ -5030,6 +5050,27 @@ function T(key, vars) {
         : (I18N.en[key] != null ? I18N.en[key] : key);
   if (vars) for (const k in vars) s = s.replace(new RegExp('\\{' + k + '\\}', 'g'), vars[k]);
   return s;
+}
+
+function _locale() {
+  return window.LANG === 'zh' ? 'zh-CN' : (window.LANG === 'bm' ? 'ms-MY' : 'en-US');
+}
+// ISO string / Date → localised "Mar 16, 2026"
+function fmtDate(iso) {
+  if (!iso) return '';
+  const d = new Date(iso);
+  if (isNaN(d)) return iso;
+  return d.toLocaleDateString(_locale(), { year: 'numeric', month: 'short', day: 'numeric' });
+}
+// ISO string → localised "3 hr ago"
+function timeAgo(iso) {
+  if (!iso) return '';
+  const secs = (Date.now() - new Date(iso).getTime()) / 1000;
+  if (isNaN(secs)) return '';
+  if (secs < 60)    return T('ago.now');
+  if (secs < 3600)  return T('ago.min', { n: Math.floor(secs / 60) });
+  if (secs < 86400) return T('ago.hr',  { n: Math.floor(secs / 3600) });
+  return T('ago.day', { n: Math.floor(secs / 86400) });
 }
 
 function applyLanguage(lang, opts) {
@@ -5924,7 +5965,7 @@ function renderOutline(o){
         return `<button class="lrn-card lesson" onclick="learnOpenLesson(${it.id})">
           <span class="lrn-card-ic"><i class="fas ${esc(it.icon||'fa-file-alt')}"></i></span>
           <span class="lrn-card-body">
-            <span class="lrn-card-kicker">${esc(it.duration_label||T('lrn.lessonKicker'))}</span>
+            <span class="lrn-card-kicker">${(it.slides&&it.slides.length) ? T('lrn.slidesN',{n:it.slides.length}) : esc(it.duration_label||T('lrn.lessonKicker'))}</span>
             <span class="lrn-card-title">${esc(it.title)}</span>
             <span class="lrn-card-prog"><span class="lrn-prog-track" style="max-width:220px">
               <span class="lrn-prog-fill" style="width:${it.progress||0}%"></span></span>
@@ -5991,7 +6032,7 @@ async function renderLesson(mid){
       <div class="lrn-eyebrow">${esc(d.course.programme||d.course.title)} · ${d.session===0?T('lrn.scopeGeneral'):T('lrn.scopeSession',{n:d.session})} · ${T('lrn.crumbLesson')}</div>
       <div class="lrn-h1">${esc(d.title)}</div>
       <div class="lrn-meta">
-        <span><i class="fas fa-clock"></i>${esc(d.duration_label||T('lrn.selfPaced'))}</span>
+        <span><i class="fas fa-clock"></i>${slides.length ? T('lrn.slidesN',{n:slides.length}) : esc(d.duration_label||T('lrn.selfPaced'))}</span>
         <span><i class="fas fa-language"></i>${T('lrn.langNote')}</span>
         <span><i class="fas fa-file-alt"></i>${T('lrn.keyPoints',{n:kp.length})}</span>
       </div>
