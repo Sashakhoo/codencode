@@ -1954,45 +1954,44 @@
             <div class="card-body">
               <div class="upload-form">
                 <div class="form-group">
-                  <label class="form-label">Session Title</label>
-                  <input class="form-input" type="text" placeholder="e.g. Session 4 - GroupBy & Pivot Tables" id="vid-title" />
+                  <label class="form-label" data-i18n="tf.sessionTitle">Session Title</label>
+                  <input class="form-input" type="text" placeholder="e.g. Session 4 - GroupBy & Pivot Tables" data-i18n-ph="tfp.recTitle" id="vid-title" />
                 </div>
                 <div class="grid-2" style="gap:12px">
                   <div class="form-group">
-                    <label class="form-label">Session</label>
+                    <label class="form-label" data-i18n="tf.session">Session</label>
                     <select class="form-input" name="week">
-                      <option value="1">Session 1</option><option value="2">Session 2</option><option value="3">Session 3</option>
-                      <option value="4" selected>Session 4</option><option value="5">Session 5</option><option value="6">Session 6</option>
+                      <option value="1" data-i18n="tfo.s1">Session 1</option><option value="2" data-i18n="tfo.s2">Session 2</option><option value="3" data-i18n="tfo.s3">Session 3</option>
+                      <option value="4" selected data-i18n="tfo.s4">Session 4</option><option value="5" data-i18n="tfo.s5">Session 5</option><option value="6" data-i18n="tfo.s6">Session 6</option>
                     </select>
                   </div>
                   <div class="form-group">
-                    <label class="form-label">Session #</label>
+                    <label class="form-label" data-i18n="tf.sessionNum">Session #</label>
                     <select class="form-input" name="session_num">
-                      <option value="1">Session 1</option><option value="2">Session 2</option>
-                      <option value="3" selected>Session 3</option><option value="4">Session 4</option>
+                      <option value="1" data-i18n="tfo.s1">Session 1</option><option value="2" data-i18n="tfo.s2">Session 2</option>
+                      <option value="3" selected data-i18n="tfo.s3">Session 3</option><option value="4" data-i18n="tfo.s4">Session 4</option>
                     </select>
                   </div>
                 </div>
                 <div class="form-group">
-                  <label class="form-label">Visible To</label>
+                  <label class="form-label" data-i18n="tf.visibleTo">Visible To</label>
                   <select class="form-input" id="recording-cohort-select">
-                    <option value="">Whole course</option>
+                    <option value="" data-i18n="tfo.wholeCourse">Whole course</option>
                   </select>
-                  <div class="upload-sub" style="margin-top:6px">Choose a cohort/class for private 1-to-1, 2-to-1, or 5-to-1 recordings.</div>
+                  <div class="upload-sub" style="margin-top:6px" data-i18n="tfu.recCohortHint">Choose a cohort/class for private 1-to-1, 2-to-1, or 5-to-1 recordings.</div>
                 </div>
                 <div class="form-group">
-                  <label class="form-label">Google Drive Link</label>
-                  <input class="form-input" type="url" id="recording-url" placeholder="https://drive.google.com/drive/folders/..." />
-                  <div class="upload-sub" style="margin-top:6px">Paste a shared Drive folder or recording link.</div>
+                  <label class="form-label" data-i18n="tf.driveLink">Google Drive Link</label>
+                  <input class="form-input" type="url" id="recording-url" placeholder="https://drive.google.com/drive/folders/..." data-i18n-ph="tfp.driveUrl" />
+                  <div class="upload-sub" style="margin-top:6px" data-i18n="tfu.recDriveHint">Paste a shared Drive folder or recording link.</div>
                   <input type="file" id="vid-file" name="file" class="upload-input" accept="video/*" onchange="handleFileSelect(this)" />
                 </div>
                 <div class="form-group">
-                  <label class="form-label">Description (Optional)</label>
-                  <textarea class="feedback-input" name="description" placeholder="Topics covered in this session..." style="min-height:60px"></textarea>
+                  <label class="form-label" data-i18n="tf.descOpt">Description (Optional)</label>
+                  <textarea class="feedback-input" name="description" placeholder="Topics covered in this session..." data-i18n-ph="tfp.recDesc" style="min-height:60px"></textarea>
                 </div>
                 <button id="upload-rec-btn" class="btn-action" style="width:100%;justify-content:center;padding:14px" onclick="uploadRecording()">
-                  <i class="fas fa-link"></i> Save Recording Link
-                </button>
+                  <i class="fas fa-link"></i> <span data-i18n="tfb.saveRecLink">Save Recording Link</span></button>
               </div>
             </div>
           </div>
@@ -2024,39 +2023,38 @@
             <div class="card-body">
               <div class="upload-form">
                 <div class="form-group">
-                  <label class="form-label">File Name / Title</label>
-                  <input class="form-input" type="text" name="title" placeholder="e.g. Pandas Cheat Sheet" />
+                  <label class="form-label" data-i18n="tf.fileNameTitle">File Name / Title</label>
+                  <input class="form-input" type="text" name="title" placeholder="e.g. Pandas Cheat Sheet" data-i18n-ph="tfp.matTitle" />
                 </div>
                 <div class="form-group">
-                  <label class="form-label">Category</label>
+                  <label class="form-label" data-i18n="tf.category">Category</label>
                   <select class="form-input" name="category">
-                    <option>Slides / PDF</option>
-                    <option>Code / Notebook</option>
-                    <option>Dataset</option>
-                    <option>Assignment Brief</option>
-                    <option>General Resource</option>
+                    <option data-i18n="tfo.slidesPdf">Slides / PDF</option>
+                    <option data-i18n="tfo.codeNotebook">Code / Notebook</option>
+                    <option data-i18n="tfo.dataset">Dataset</option>
+                    <option data-i18n="tfo.asgnBrief">Assignment Brief</option>
+                    <option data-i18n="tfo.genResource">General Resource</option>
                   </select>
                 </div>
                 <div class="form-group">
-                  <label class="form-label">Session</label>
+                  <label class="form-label" data-i18n="tf.session">Session</label>
                   <select class="form-input" name="session">
-                    <option value="0">General (All Sessions)</option>
-                    <option value="1">Session 1</option><option value="2">Session 2</option><option value="3">Session 3</option>
-                    <option value="4" selected>Session 4</option><option value="5">Session 5</option><option value="6">Session 6</option>
+                    <option value="0" data-i18n="tfo.genAll">General (All Sessions)</option>
+                    <option value="1" data-i18n="tfo.s1">Session 1</option><option value="2" data-i18n="tfo.s2">Session 2</option><option value="3" data-i18n="tfo.s3">Session 3</option>
+                    <option value="4" selected data-i18n="tfo.s4">Session 4</option><option value="5" data-i18n="tfo.s5">Session 5</option><option value="6" data-i18n="tfo.s6">Session 6</option>
                   </select>
                 </div>
                 <div class="form-group">
-                  <label class="form-label">File</label>
+                  <label class="form-label" data-i18n="tf.file">File</label>
                   <div class="upload-zone" onclick="document.getElementById('mat-file').click()">
                     <div class="upload-icon"><i class="fas fa-paperclip"></i></div>
-                    <div class="upload-text">Drop file or click to browse</div>
-                    <div class="upload-sub">PDF, PY, IPYNB, ZIP, CSV, HTML — max 100MB</div>
+                    <div class="upload-text" data-i18n="tfu.dropFile">Drop file or click to browse</div>
+                    <div class="upload-sub" data-i18n="tfu.fileTypesHint">PDF, PY, IPYNB, ZIP, CSV, HTML — max 100MB</div>
                   </div>
                   <input type="file" id="mat-file" name="file" class="upload-input" accept=".pdf,.py,.ipynb,.zip,.csv,.txt,.docx,.pptx,.html" onchange="handleFileSelect(this)" />
                 </div>
                 <button class="btn-action" style="width:100%;justify-content:center;padding:14px" id="upload-mat-btn" onclick="uploadMaterial()">
-                  <i class="fas fa-upload"></i> Publish Material
-                </button>
+                  <i class="fas fa-upload"></i> <span data-i18n="tfb.publishMat">Publish Material</span></button>
               </div>
             </div>
           </div>
@@ -2087,40 +2085,39 @@
           <div class="card-body">
             <div class="upload-form">
               <div class="form-group">
-                <label class="form-label">Assignment Title</label>
-                <input class="form-input" type="text" name="title" placeholder="e.g. Pandas Data Analysis Report" />
+                <label class="form-label" data-i18n="tf.asgnTitle">Assignment Title</label>
+                <input class="form-input" type="text" name="title" placeholder="e.g. Pandas Data Analysis Report" data-i18n-ph="tfp.asgnTitleEg" />
               </div>
               <div class="form-group">
-                <label class="form-label">Description / Instructions</label>
-                <textarea class="feedback-input" name="description" placeholder="Describe what students need to do..." style="min-height:100px"></textarea>
+                <label class="form-label" data-i18n="tf.descInstr">Description / Instructions</label>
+                <textarea class="feedback-input" name="description" placeholder="Describe what students need to do..." data-i18n-ph="tfp.asgnDesc" style="min-height:100px"></textarea>
               </div>
               <div class="grid-3">
                 <div class="form-group">
-                  <label class="form-label">Session</label>
+                  <label class="form-label" data-i18n="tf.session">Session</label>
                   <select class="form-input" name="session">
-                    <option value="1">Session 1</option><option value="2">Session 2</option><option value="3">Session 3</option>
-                    <option value="4">Session 4</option><option value="5" selected>Session 5</option><option value="6">Session 6</option>
+                    <option value="1" data-i18n="tfo.s1">Session 1</option><option value="2" data-i18n="tfo.s2">Session 2</option><option value="3" data-i18n="tfo.s3">Session 3</option>
+                    <option value="4" data-i18n="tfo.s4">Session 4</option><option value="5" selected data-i18n="tfo.s5">Session 5</option><option value="6" data-i18n="tfo.s6">Session 6</option>
                   </select>
                 </div>
                 <div class="form-group">
-                  <label class="form-label">Due Date</label>
+                  <label class="form-label" data-i18n="tf.dueDate">Due Date</label>
                   <input class="form-input" type="datetime-local" name="due_date" />
                 </div>
                 <div class="form-group">
-                  <label class="form-label">Total Points</label>
+                  <label class="form-label" data-i18n="tf.totalPoints">Total Points</label>
                   <input class="form-input" type="number" name="max_points" value="100" />
                 </div>
               </div>
               <div class="form-group">
-                <label class="form-label">Attach Files (Optional)</label>
+                <label class="form-label" data-i18n="tf.attachOpt">Attach Files (Optional)</label>
                 <div class="upload-zone" onclick="document.getElementById('asgn-file').click()" style="padding:20px">
                   <div class="upload-sub"><span>Browse</span> or drag starter code / brief (PDF, HTML, DOCX, PY, ZIP…)</div>
                 </div>
                 <input type="file" id="asgn-file" name="file" class="upload-input" accept=".pdf,.html,.py,.ipynb,.zip,.csv,.txt,.docx,.pptx" />
               </div>
               <button class="btn-action" style="width:100%;justify-content:center;padding:14px" id="create-asgn-btn" onclick="createAssignment()">
-                <i class="fas fa-paper-plane"></i> Publish Assignment
-              </button>
+                <i class="fas fa-paper-plane"></i> <span data-i18n="tfb.publishAsgn">Publish Assignment</span></button>
             </div>
           </div>
         </div>
@@ -2168,35 +2165,34 @@
             <div class="upload-form" id="teacher-add-student-form">
               <div class="grid-3">
                 <div class="form-group">
-                  <label class="form-label">Student Name</label>
-                  <input class="form-input" type="text" id="teacher-student-name" placeholder="e.g. Nur Aina" />
+                  <label class="form-label" data-i18n="tf.studentName">Student Name</label>
+                  <input class="form-input" type="text" id="teacher-student-name" placeholder="e.g. Nur Aina" data-i18n-ph="tfp.studentNameEg" />
                 </div>
                 <div class="form-group">
-                  <label class="form-label">Email</label>
-                  <input class="form-input" type="email" id="teacher-student-email" placeholder="student@email.com" />
+                  <label class="form-label" data-i18n="tf.email">Email</label>
+                  <input class="form-input" type="email" id="teacher-student-email" placeholder="student@email.com" data-i18n-ph="tfp.studentEmailEg" />
                 </div>
                 <div class="form-group">
-                  <label class="form-label">Phone</label>
-                  <input class="form-input" type="text" id="teacher-student-phone" placeholder="Optional" />
+                  <label class="form-label" data-i18n="tf.phone">Phone</label>
+                  <input class="form-input" type="text" id="teacher-student-phone" placeholder="Optional" data-i18n-ph="tfp.optional" />
                 </div>
               </div>
               <div class="grid-3">
                 <div class="form-group">
-                  <label class="form-label">Temporary Password</label>
-                  <input class="form-input" type="text" id="teacher-student-password" placeholder="codencode123" />
+                  <label class="form-label" data-i18n="tf.tempPassword">Temporary Password</label>
+                  <input class="form-input" type="text" id="teacher-student-password" placeholder="codencode123" data-i18n-ph="tfp.tempPwEg" />
                 </div>
                 <div class="form-group">
-                  <label class="form-label">Language</label>
+                  <label class="form-label" data-i18n="tf.language">Language</label>
                   <select class="form-input" id="teacher-student-language">
-                    <option value="en">English</option>
-                    <option value="zh">Mandarin</option>
-                    <option value="bm">Bahasa Melayu</option>
+                    <option value="en" data-i18n="tfo.english">English</option>
+                    <option value="zh" data-i18n="tfo.mandarin">Mandarin</option>
+                    <option value="bm" data-i18n="tfo.malay">Bahasa Melayu</option>
                   </select>
                 </div>
                 <div class="form-group" style="display:flex;align-items:flex-end">
                   <button class="btn-action" style="width:100%;justify-content:center;padding:14px" onclick="teacherAddStudent()">
-                    <i class="fas fa-user-plus"></i> Add & Assign
-                  </button>
+                    <i class="fas fa-user-plus"></i> <span data-i18n="tfb.addAssign">Add & Assign</span></button>
                 </div>
               </div>
             </div>
@@ -2214,7 +2210,7 @@
             </tbody>
           </table>
           <div style="padding:14px 20px;border-top:1px solid var(--border)">
-            <button class="btn-action ghost" onclick="showToast(T('toast.reportExported'))"><i class="fas fa-file-export"></i> Export Report</button>
+            <button class="btn-action ghost" onclick="showToast(T('toast.reportExported'))"><i class="fas fa-file-export"></i> <span data-i18n="tfb.exportReport">Export Report</span></button>
           </div>
         </div>
       </div>
@@ -2233,15 +2229,15 @@
             <div class="card-body">
               <div class="upload-form">
                 <div class="form-group">
-                  <label class="form-label">Course</label>
+                  <label class="form-label" data-i18n="tf.course">Course</label>
                   <select class="form-input" id="teacher-cert-course" onchange="populateTeacherCertStudents()">
-                    <option value="">Select course...</option>
+                    <option value="" data-i18n="tfo.selCourse">Select course...</option>
                   </select>
                 </div>
                 <div class="form-group">
-                  <label class="form-label">Student</label>
+                  <label class="form-label" data-i18n="tf.student">Student</label>
                   <select class="form-input" id="teacher-cert-student">
-                    <option value="">Select student...</option>
+                    <option value="" data-i18n="tfo.selStudent">Select student...</option>
                   </select>
                 </div>
                 <div class="form-group">
@@ -2251,12 +2247,11 @@
                   </label>
                 </div>
                 <div class="form-group" id="teacher-cert-blank-quantity-group" style="display:none">
-                  <label class="form-label">Quantity</label>
+                  <label class="form-label" data-i18n="tf.quantity">Quantity</label>
                   <input class="form-input" type="number" id="teacher-cert-blank-quantity" min="1" max="200" value="1" />
                 </div>
                 <button class="btn-action" style="width:100%;justify-content:center;padding:14px" onclick="teacherIssueCertificateFromSection()">
-                  <i class="fas fa-certificate"></i> Issue Certificate
-                </button>
+                  <i class="fas fa-certificate"></i> <span data-i18n="tfb.issueCert">Issue Certificate</span></button>
               </div>
             </div>
           </div>
@@ -2297,46 +2292,45 @@
             <div class="card-body">
               <div class="upload-form" id="new-session-form">
                 <div class="form-group">
-                  <label class="form-label">Title</label>
-                  <input class="form-input" type="text" id="sess-title" placeholder="e.g. Session 4 Live Class" />
+                  <label class="form-label" data-i18n="tf.title">Title</label>
+                  <input class="form-input" type="text" id="sess-title" placeholder="e.g. Session 4 Live Class" data-i18n-ph="tfp.sessTitleEg" />
                 </div>
                 <div class="form-group">
-                  <label class="form-label">Type</label>
+                  <label class="form-label" data-i18n="tf.type">Type</label>
                   <select class="form-input" id="sess-type" onchange="onSessTypeChange()">
-                    <option value="cohort">Cohort (all enrolled students)</option>
-                    <option value="group">Group (selected students)</option>
-                    <option value="private">Private (one student)</option>
+                    <option value="cohort" data-i18n="tfo.cohortAll">Cohort (all enrolled students)</option>
+                    <option value="group" data-i18n="tfo.groupSel">Group (selected students)</option>
+                    <option value="private" data-i18n="tfo.privateOne">Private (one student)</option>
                   </select>
                 </div>
                 <div class="form-group">
-                  <label class="form-label">Course</label>
+                  <label class="form-label" data-i18n="tf.course">Course</label>
                   <select class="form-input" id="sess-course">
-                    <option value="">— select course —</option>
+                    <option value="" data-i18n="tfo.selCourseDash">— select course —</option>
                   </select>
                 </div>
                 <div class="grid-2" style="gap:12px">
                   <div class="form-group">
-                    <label class="form-label">Date &amp; Time</label>
+                    <label class="form-label" data-i18n="tf.dateTime">Date &amp; Time</label>
                     <input class="form-input" type="datetime-local" id="sess-start" />
                   </div>
                   <div class="form-group">
-                    <label class="form-label">Duration (min)</label>
+                    <label class="form-label" data-i18n="tf.durationMin">Duration (min)</label>
                     <input class="form-input" type="number" id="sess-duration" value="120" min="15" />
                   </div>
                 </div>
                 <div class="form-group">
-                  <label class="form-label">Zoom Link</label>
-                  <input class="form-input" type="url" id="sess-zoom" placeholder="Leave blank to auto-create Zoom meeting" />
+                  <label class="form-label" data-i18n="tf.zoomLink">Zoom Link</label>
+                  <input class="form-input" type="url" id="sess-zoom" placeholder="Leave blank to auto-create Zoom meeting" data-i18n-ph="tfp.zoomAuto" />
                 </div>
                 <div class="form-group" id="sess-participants-group" style="display:none">
-                  <label class="form-label">Participants</label>
+                  <label class="form-label" data-i18n="tf.participants">Participants</label>
                   <div id="sess-participants-list" style="display:flex;flex-direction:column;gap:6px;max-height:160px;overflow-y:auto;border:1px solid var(--border);padding:8px">
                     <span style="color:var(--muted);font-family:var(--font-m);font-size:11px">Select a course first</span>
                   </div>
                 </div>
                 <button class="btn-action" style="width:100%;justify-content:center;padding:14px" onclick="createSession()">
-                  <i class="fas fa-calendar-plus"></i> Schedule Session
-                </button>
+                  <i class="fas fa-calendar-plus"></i> <span data-i18n="tfb.scheduleSession">Schedule Session</span></button>
               </div>
             </div>
           </div>
@@ -2374,29 +2368,29 @@
         <div class="card" style="margin-top:20px">
           <div class="card-header">
             <span class="card-title"><i class="fas fa-calendar-alt"></i> <span data-i18n="t.card.monthlyTimetable">Monthly Class Timetable</span></span>
-            <button class="btn-action ghost" onclick="saveTeacherMonthPlan()"><i class="fas fa-save"></i> Save Timetable</button>
+            <button class="btn-action ghost" onclick="saveTeacherMonthPlan()"><i class="fas fa-save"></i> <span data-i18n="tfb.saveTimetable">Save Timetable</span></button>
           </div>
           <div class="card-body">
             <div class="upload-form" style="margin-bottom:16px">
               <div class="grid-2" style="gap:12px">
                 <div class="form-group">
-                  <label class="form-label">Course / Class</label>
+                  <label class="form-label" data-i18n="tf.courseClass">Course / Class</label>
                   <select class="form-input" id="t-plan-course" onchange="loadTeacherMonthPlan()">
-                    <option value="">— select course —</option>
+                    <option value="" data-i18n="tfo.selCourseDash">— select course —</option>
                   </select>
                 </div>
                 <div class="form-group">
-                  <label class="form-label">Cohort / Intake</label>
+                  <label class="form-label" data-i18n="tf.cohortIntake">Cohort / Intake</label>
                   <select class="form-input" id="t-plan-cohort" onchange="loadTeacherMonthPlan()">
-                    <option value="">Whole course / class</option>
+                    <option value="" data-i18n="tfo.wholeCourseClass">Whole course / class</option>
                   </select>
                 </div>
                 <div class="form-group">
-                  <label class="form-label">Session 1 Start Date</label>
+                  <label class="form-label" data-i18n="tf.s1StartDate">Session 1 Start Date</label>
                   <input class="form-input" type="date" id="t-plan-start-date" />
                 </div>
               </div>
-              <button class="btn-action ghost" onclick="saveTeacherPlanStartDate()"><i class="fas fa-calendar-check"></i> Save Start Date</button>
+              <button class="btn-action ghost" onclick="saveTeacherPlanStartDate()"><i class="fas fa-calendar-check"></i> <span data-i18n="tfb.saveStartDate">Save Start Date</span></button>
             </div>
             <div id="t-plan-container">
               <div style="padding:16px 20px;color:var(--muted);font-family:var(--font-m);font-size:11px">Select a course to edit the session timetable.</div>
@@ -2422,32 +2416,31 @@
             <div class="card-body">
               <div class="upload-form">
                 <div class="form-group">
-                  <label class="form-label">Title</label>
-                  <input class="form-input" type="text" id="quiz-title-input" placeholder="e.g. Session 2 Python Quiz" />
+                  <label class="form-label" data-i18n="tf.title">Title</label>
+                  <input class="form-input" type="text" id="quiz-title-input" placeholder="e.g. Session 2 Python Quiz" data-i18n-ph="tfp.quizTitleEg" />
                 </div>
                 <div class="grid-2" style="gap:12px">
                   <div class="form-group">
-                    <label class="form-label">Session</label>
+                    <label class="form-label" data-i18n="tf.session">Session</label>
                     <input class="form-input" type="number" id="quiz-session-input" placeholder="1" min="1" />
                   </div>
                   <div class="form-group">
-                    <label class="form-label">Pass Score (%)</label>
+                    <label class="form-label" data-i18n="tf.passScore">Pass Score (%)</label>
                     <input class="form-input" type="number" id="quiz-pass-score-input" value="70" min="0" max="100" />
                   </div>
                 </div>
                 <div class="grid-2" style="gap:12px">
                   <div class="form-group">
-                    <label class="form-label">Max Attempts</label>
+                    <label class="form-label" data-i18n="tf.maxAttempts">Max Attempts</label>
                     <input class="form-input" type="number" id="quiz-max-attempts-input" value="2" min="1" />
                   </div>
                   <div class="form-group">
-                    <label class="form-label">Time Limit (min, opt)</label>
-                    <input class="form-input" type="number" id="quiz-time-limit-input" placeholder="No limit" min="1" />
+                    <label class="form-label" data-i18n="tf.timeLimit">Time Limit (min, opt)</label>
+                    <input class="form-input" type="number" id="quiz-time-limit-input" placeholder="No limit" data-i18n-ph="tfp.noLimit" min="1" />
                   </div>
                 </div>
                 <button class="btn-action" style="width:100%;justify-content:center;padding:14px" onclick="createQuiz()">
-                  <i class="fas fa-plus"></i> Create Quiz
-                </button>
+                  <i class="fas fa-plus"></i> <span data-i18n="tfb.createQuiz">Create Quiz</span></button>
               </div>
             </div>
           </div>
@@ -2465,29 +2458,29 @@
           <div class="card" style="margin-top:20px">
             <div class="card-header">
               <span class="card-title" id="t-quiz-editor-title"><i class="fas fa-edit"></i> <span data-i18n="t.card.editQuestions">Edit Questions</span></span>
-              <button class="btn-action" onclick="openAddQuestionForm()"><i class="fas fa-plus"></i> Add Question</button>
+              <button class="btn-action" onclick="openAddQuestionForm()"><i class="fas fa-plus"></i> <span data-i18n="tfb.addQuestion">Add Question</span></button>
             </div>
             <div id="t-question-list" style="padding:16px 20px"></div>
             <div id="t-add-question-form" style="display:none;padding:16px 20px;border-top:1px solid var(--border)">
               <div class="form-group">
-                <label class="form-label">Question Text</label>
-                <textarea class="feedback-input" id="aq-text" rows="2" placeholder="Enter your question..."></textarea>
+                <label class="form-label" data-i18n="tf.questionText">Question Text</label>
+                <textarea class="feedback-input" id="aq-text" rows="2" placeholder="Enter your question..." data-i18n-ph="tfp.enterQuestion"></textarea>
               </div>
               <div class="grid-2" style="gap:12px">
                 <div class="form-group">
-                  <label class="form-label">Type</label>
+                  <label class="form-label" data-i18n="tf.type">Type</label>
                   <select class="form-input" id="aq-type">
-                    <option value="mcq">Multiple Choice (MCQ)</option>
-                    <option value="short">Short Answer</option>
+                    <option value="mcq" data-i18n="tfo.mcq">Multiple Choice (MCQ)</option>
+                    <option value="short" data-i18n="tfo.shortAns">Short Answer</option>
                   </select>
                 </div>
                 <div class="form-group">
-                  <label class="form-label">Points</label>
+                  <label class="form-label" data-i18n="tf.points">Points</label>
                   <input class="form-input" type="number" id="aq-points" value="1" min="1" />
                 </div>
               </div>
               <div id="aq-choices-group">
-                <label class="form-label" style="margin-bottom:8px;display:block">Choices (mark correct one)</label>
+                <label class="form-label" style="margin-bottom:8px;display:block" data-i18n="tf.choices">Choices (mark correct one)</label>
                 <div id="aq-choices-list">
                   <div style="display:flex;gap:8px;margin-bottom:6px">
                     <input type="radio" name="aq-correct" value="0" style="margin-top:8px;accent-color:var(--cyan)" />
@@ -2508,11 +2501,11 @@
                 </div>
               </div>
               <div class="form-group">
-                <label class="form-label">Explanation (shown after submission)</label>
-                <input class="form-input" type="text" id="aq-explanation" placeholder="Why is this the correct answer?" />
+                <label class="form-label" data-i18n="tf.explanation">Explanation (shown after submission)</label>
+                <input class="form-input" type="text" id="aq-explanation" placeholder="Why is this the correct answer?" data-i18n-ph="tfp.whyCorrect" />
               </div>
               <div style="display:flex;gap:8px">
-                <button class="btn-action" onclick="submitAddQuestion()"><i class="fas fa-check"></i> Add Question</button>
+                <button class="btn-action" onclick="submitAddQuestion()"><i class="fas fa-check"></i> <span data-i18n="tfb.addQuestion">Add Question</span></button>
                 <button class="btn-action red" onclick="document.getElementById('t-add-question-form').style.display='none'">Cancel</button>
               </div>
             </div>
@@ -2564,13 +2557,12 @@
             <div class="card-body" style="display:flex;flex-direction:column;gap:14px">
 
               <div class="form-group">
-                <label class="form-label">Profile Photo</label>
+                <label class="form-label" data-i18n="tf.profilePhoto">Profile Photo</label>
                 <div style="display:flex;align-items:center;gap:14px">
                   <div id="profile-avatar-preview" style="width:64px;height:64px;border-radius:50%;background:var(--accent-dim);border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-family:var(--font-m);font-size:20px;font-weight:700;color:var(--cyan);overflow:hidden;flex-shrink:0"></div>
                   <div>
                     <button class="btn-action ghost" style="font-size:11px;padding:6px 12px" onclick="document.getElementById('avatar-file-input').click()">
-                      <i class="fas fa-upload"></i> Upload Photo
-                    </button>
+                      <i class="fas fa-upload"></i> <span data-i18n="tfb.uploadPhoto">Upload Photo</span></button>
                     <div style="color:var(--muted);font-family:var(--font-m);font-size:10px;margin-top:4px">JPG, PNG, WebP · max 5MB</div>
                   </div>
                   <input type="file" id="avatar-file-input" accept="image/*" style="display:none" onchange="uploadAvatar(this)">
@@ -2579,42 +2571,41 @@
 
               <div class="form-group">
                 <label class="form-label">Display Title <span style="color:var(--muted);font-size:10px">(e.g. Lead Instructor)</span></label>
-                <input class="form-input" id="prof-title" placeholder="e.g. Lead Python Instructor">
+                <input class="form-input" id="prof-title" placeholder="e.g. Lead Python Instructor" data-i18n-ph="tfp.roleEg">
               </div>
 
               <div class="form-group">
                 <label class="form-label">Short Bio <span style="color:var(--muted);font-size:10px">(2–3 sentences)</span></label>
-                <textarea class="form-input" id="prof-bio" rows="3" placeholder="Tell students a bit about yourself..."></textarea>
+                <textarea class="form-input" id="prof-bio" rows="3" placeholder="Tell students a bit about yourself..." data-i18n-ph="tfp.bioEg"></textarea>
               </div>
 
               <div class="form-group">
-                <label class="form-label">Education</label>
-                <input class="form-input" id="prof-education" placeholder="e.g. BSc Computer Science, UPM · MSc AI, UM">
+                <label class="form-label" data-i18n="tf.education">Education</label>
+                <input class="form-input" id="prof-education" placeholder="e.g. BSc Computer Science, UPM · MSc AI, UM" data-i18n-ph="tfp.eduEg">
               </div>
 
               <div class="form-group">
-                <label class="form-label">Experience</label>
-                <textarea class="form-input" id="prof-experience" rows="2" placeholder="e.g. 5+ years in Python, data engineering and ML..."></textarea>
+                <label class="form-label" data-i18n="tf.experience">Experience</label>
+                <textarea class="form-input" id="prof-experience" rows="2" placeholder="e.g. 5+ years in Python, data engineering and ML..." data-i18n-ph="tfp.expEg"></textarea>
               </div>
 
               <div class="form-group">
                 <label class="form-label">Specializations <span style="color:var(--muted);font-size:10px">(comma-separated)</span></label>
-                <input class="form-input" id="prof-specializations" placeholder="Python, Machine Learning, Data Science">
+                <input class="form-input" id="prof-specializations" placeholder="Python, Machine Learning, Data Science" data-i18n-ph="tfp.specEg">
               </div>
 
               <div class="form-group">
-                <label class="form-label">Portfolio / Website</label>
-                <input class="form-input" id="prof-website" type="url" placeholder="https://yourportfolio.com">
+                <label class="form-label" data-i18n="tf.portfolio">Portfolio / Website</label>
+                <input class="form-input" id="prof-website" type="url" placeholder="https://yourportfolio.com" data-i18n-ph="tfp.portfolioEg">
               </div>
 
               <div class="form-group">
-                <label class="form-label">LinkedIn URL</label>
-                <input class="form-input" id="prof-linkedin" type="url" placeholder="https://linkedin.com/in/yourname">
+                <label class="form-label" data-i18n="tf.linkedin">LinkedIn URL</label>
+                <input class="form-input" id="prof-linkedin" type="url" placeholder="https://linkedin.com/in/yourname" data-i18n-ph="tfp.linkedinEg">
               </div>
 
               <button class="btn-action" style="width:100%;justify-content:center;margin-top:4px" onclick="saveTeacherProfile()">
-                <i class="fas fa-save"></i> Save Profile
-              </button>
+                <i class="fas fa-save"></i> <span data-i18n="tfb.saveProfile">Save Profile</span></button>
               <div id="profile-save-msg" style="display:none;text-align:center;font-family:var(--font-m);font-size:12px;color:var(--cyan);margin-top:6px">
                 <i class="fas fa-check-circle"></i> Profile saved successfully!
               </div>
@@ -4864,6 +4855,118 @@ const I18N = {
     'lrn.correct':'Correct — quiz passed.', 'lrn.notQuite':'Not quite — the right answer is highlighted.',
     'lrn.submitAnswer':'Submit answer', 'lrn.nextQuiz':'Next quiz', 'lrn.backToLesson':'Back to lesson', 'lrn.skip':'Skip for now', 'lrn.couldNotSubmit':'Could not submit',
     'login.title':'Learning Portal', 'login.email':'Email', 'login.password':'Password', 'login.submit':'Access Portal', 'login.signingIn':'Signing in...',
+    'tf.sessionTitle':'Session Title',
+    'tf.session':'Session',
+    'tf.sessionNum':'Session #',
+    'tf.visibleTo':'Visible To',
+    'tf.driveLink':'Google Drive Link',
+    'tf.descOpt':'Description (Optional)',
+    'tf.fileNameTitle':'File Name / Title',
+    'tf.category':'Category',
+    'tf.file':'File',
+    'tf.asgnTitle':'Assignment Title',
+    'tf.descInstr':'Description / Instructions',
+    'tf.dueDate':'Due Date',
+    'tf.totalPoints':'Total Points',
+    'tf.attachOpt':'Attach Files (Optional)',
+    'tf.studentName':'Student Name',
+    'tf.email':'Email',
+    'tf.phone':'Phone',
+    'tf.tempPassword':'Temporary Password',
+    'tf.language':'Language',
+    'tf.course':'Course',
+    'tf.student':'Student',
+    'tf.quantity':'Quantity',
+    'tf.title':'Title',
+    'tf.type':'Type',
+    'tf.dateTime':'Date & Time',
+    'tf.durationMin':'Duration (min)',
+    'tf.zoomLink':'Zoom Link',
+    'tf.participants':'Participants',
+    'tf.courseClass':'Course / Class',
+    'tf.cohortIntake':'Cohort / Intake',
+    'tf.s1StartDate':'Session 1 Start Date',
+    'tf.passScore':'Pass Score (%)',
+    'tf.maxAttempts':'Max Attempts',
+    'tf.timeLimit':'Time Limit (min, opt)',
+    'tf.questionText':'Question Text',
+    'tf.points':'Points',
+    'tf.choices':'Choices (mark correct one)',
+    'tf.explanation':'Explanation (shown after submission)',
+    'tf.profilePhoto':'Profile Photo',
+    'tf.education':'Education',
+    'tf.experience':'Experience',
+    'tf.portfolio':'Portfolio / Website',
+    'tf.linkedin':'LinkedIn URL',
+    'tfp.recTitle':'e.g. Session 4 - GroupBy & Pivot Tables',
+    'tfp.driveUrl':'https://drive.google.com/drive/folders/...',
+    'tfp.recDesc':'Topics covered in this session...',
+    'tfp.matTitle':'e.g. Pandas Cheat Sheet',
+    'tfp.asgnTitleEg':'e.g. Pandas Data Analysis Report',
+    'tfp.asgnDesc':'Describe what students need to do...',
+    'tfp.studentNameEg':'e.g. Nur Aina',
+    'tfp.studentEmailEg':'student@email.com',
+    'tfp.optional':'Optional',
+    'tfp.tempPwEg':'codencode123',
+    'tfp.sessTitleEg':'e.g. Session 4 Live Class',
+    'tfp.zoomAuto':'Leave blank to auto-create Zoom meeting',
+    'tfp.quizTitleEg':'e.g. Session 2 Python Quiz',
+    'tfp.noLimit':'No limit',
+    'tfp.enterQuestion':'Enter your question...',
+    'tfp.whyCorrect':'Why is this the correct answer?',
+    'tfp.roleEg':'e.g. Lead Python Instructor',
+    'tfp.bioEg':'Tell students a bit about yourself...',
+    'tfp.eduEg':'e.g. BSc Computer Science, UPM · MSc AI, UM',
+    'tfp.expEg':'e.g. 5+ years in Python, data engineering and ML...',
+    'tfp.specEg':'Python, Machine Learning, Data Science',
+    'tfp.portfolioEg':'https://yourportfolio.com',
+    'tfp.linkedinEg':'https://linkedin.com/in/yourname',
+    'tfo.wholeCourse':'Whole course',
+    'tfo.slidesPdf':'Slides / PDF',
+    'tfo.codeNotebook':'Code / Notebook',
+    'tfo.dataset':'Dataset',
+    'tfo.asgnBrief':'Assignment Brief',
+    'tfo.genResource':'General Resource',
+    'tfo.genAll':'General (All Sessions)',
+    'tfo.english':'English',
+    'tfo.mandarin':'Mandarin',
+    'tfo.malay':'Bahasa Melayu',
+    'tfo.selCourse':'Select course...',
+    'tfo.selStudent':'Select student...',
+    'tfo.cohortAll':'Cohort (all enrolled students)',
+    'tfo.groupSel':'Group (selected students)',
+    'tfo.privateOne':'Private (one student)',
+    'tfo.selCourseDash':'— select course —',
+    'tfo.wholeCourseClass':'Whole course / class',
+    'tfo.mcq':'Multiple Choice (MCQ)',
+    'tfo.shortAns':'Short Answer',
+    'tfb.saveRecLink':'Save Recording Link',
+    'tfb.publishMat':'Publish Material',
+    'tfb.publishAsgn':'Publish Assignment',
+    'tfb.addAssign':'Add & Assign',
+    'tfb.exportReport':'Export Report',
+    'tfb.issueCert':'Issue Certificate',
+    'tfb.scheduleSession':'Schedule Session',
+    'tfb.saveTimetable':'Save Timetable',
+    'tfb.saveStartDate':'Save Start Date',
+    'tfb.createQuiz':'Create Quiz',
+    'tfb.addQuestion':'Add Question',
+    'tfb.cancel':'Cancel',
+    'tfb.uploadPhoto':'Upload Photo',
+    'tfb.saveProfile':'Save Profile',
+    'tfu.recCohortHint':'Choose a cohort/class for private 1-to-1, 2-to-1, or 5-to-1 recordings.',
+    'tfu.recDriveHint':'Paste a shared Drive folder or recording link.',
+    'tfu.dropFile':'Drop file or click to browse',
+    'tfu.fileTypesHint':'PDF, PY, IPYNB, ZIP, CSV, HTML — max 100MB',
+    'tfo.s1':'Session 1',
+    'tfo.s2':'Session 2',
+    'tfo.s3':'Session 3',
+    'tfo.s4':'Session 4',
+    'tfo.s5':'Session 5',
+    'tfo.s6':'Session 6',
+    'tfo.s7':'Session 7',
+    'tfo.s8':'Session 8',
+
     'toast.reportExported':'Student report exported',
     'toast.gradeSavedNotified':'Grade saved & student notified!',
     'toast.fileDropped':'File dropped: {v}',
@@ -5039,6 +5142,118 @@ const I18N = {
     'lrn.correct':'回答正确 —— 测验通过。', 'lrn.notQuite':'不对 —— 正确答案已高亮。',
     'lrn.submitAnswer':'提交答案', 'lrn.nextQuiz':'下一个测验', 'lrn.backToLesson':'返回课程', 'lrn.skip':'暂时跳过', 'lrn.couldNotSubmit':'无法提交',
     'login.title':'学习门户', 'login.email':'邮箱', 'login.password':'密码', 'login.submit':'进入门户', 'login.signingIn':'正在登录…',
+    'tf.sessionTitle':'课节标题',
+    'tf.session':'课节',
+    'tf.sessionNum':'课节编号',
+    'tf.visibleTo':'可见对象',
+    'tf.driveLink':'Google Drive 链接',
+    'tf.descOpt':'描述（可选）',
+    'tf.fileNameTitle':'文件名／标题',
+    'tf.category':'类别',
+    'tf.file':'文件',
+    'tf.asgnTitle':'作业标题',
+    'tf.descInstr':'描述／说明',
+    'tf.dueDate':'截止日期',
+    'tf.totalPoints':'总分',
+    'tf.attachOpt':'附加文件（可选）',
+    'tf.studentName':'学生姓名',
+    'tf.email':'邮箱',
+    'tf.phone':'电话',
+    'tf.tempPassword':'临时密码',
+    'tf.language':'语言',
+    'tf.course':'课程',
+    'tf.student':'学生',
+    'tf.quantity':'数量',
+    'tf.title':'标题',
+    'tf.type':'类型',
+    'tf.dateTime':'日期与时间',
+    'tf.durationMin':'时长（分钟）',
+    'tf.zoomLink':'Zoom 链接',
+    'tf.participants':'参与者',
+    'tf.courseClass':'课程／班级',
+    'tf.cohortIntake':'班级／期次',
+    'tf.s1StartDate':'第 1 节开始日期',
+    'tf.passScore':'及格分（%）',
+    'tf.maxAttempts':'最大尝试次数',
+    'tf.timeLimit':'时间限制（分钟，可选）',
+    'tf.questionText':'题目内容',
+    'tf.points':'分值',
+    'tf.choices':'选项（标出正确项）',
+    'tf.explanation':'解析（提交后显示）',
+    'tf.profilePhoto':'头像',
+    'tf.education':'教育背景',
+    'tf.experience':'工作经历',
+    'tf.portfolio':'作品集／网站',
+    'tf.linkedin':'LinkedIn 网址',
+    'tfp.recTitle':'例如：第 4 节 - GroupBy 与数据透视表',
+    'tfp.driveUrl':'https://drive.google.com/drive/folders/...',
+    'tfp.recDesc':'本节涵盖的主题……',
+    'tfp.matTitle':'例如：Pandas 速查表',
+    'tfp.asgnTitleEg':'例如：Pandas 数据分析报告',
+    'tfp.asgnDesc':'描述学生需要完成的内容……',
+    'tfp.studentNameEg':'例如：Nur Aina',
+    'tfp.studentEmailEg':'student@email.com',
+    'tfp.optional':'可选',
+    'tfp.tempPwEg':'codencode123',
+    'tfp.sessTitleEg':'例如：第 4 节直播课',
+    'tfp.zoomAuto':'留空则自动创建 Zoom 会议',
+    'tfp.quizTitleEg':'例如：第 2 节 Python 测验',
+    'tfp.noLimit':'无限制',
+    'tfp.enterQuestion':'输入你的题目……',
+    'tfp.whyCorrect':'为什么这是正确答案？',
+    'tfp.roleEg':'例如：Python 首席讲师',
+    'tfp.bioEg':'向学生简单介绍一下你自己……',
+    'tfp.eduEg':'例如：UPM 计算机科学学士 · UM 人工智能硕士',
+    'tfp.expEg':'例如：5 年以上 Python、数据工程与机器学习经验……',
+    'tfp.specEg':'Python、机器学习、数据科学',
+    'tfp.portfolioEg':'https://yourportfolio.com',
+    'tfp.linkedinEg':'https://linkedin.com/in/yourname',
+    'tfo.wholeCourse':'整门课程',
+    'tfo.slidesPdf':'幻灯片 / PDF',
+    'tfo.codeNotebook':'代码 / Notebook',
+    'tfo.dataset':'数据集',
+    'tfo.asgnBrief':'作业说明',
+    'tfo.genResource':'通用资源',
+    'tfo.genAll':'通用（所有课节）',
+    'tfo.english':'英语',
+    'tfo.mandarin':'中文',
+    'tfo.malay':'马来语',
+    'tfo.selCourse':'选择课程……',
+    'tfo.selStudent':'选择学生……',
+    'tfo.cohortAll':'班级（全体已报名学生）',
+    'tfo.groupSel':'小组（选定学生）',
+    'tfo.privateOne':'一对一（单个学生）',
+    'tfo.selCourseDash':'— 选择课程 —',
+    'tfo.wholeCourseClass':'整门课程 / 班级',
+    'tfo.mcq':'选择题（MCQ）',
+    'tfo.shortAns':'简答题',
+    'tfb.saveRecLink':'保存录像链接',
+    'tfb.publishMat':'发布资料',
+    'tfb.publishAsgn':'发布作业',
+    'tfb.addAssign':'添加并分配',
+    'tfb.exportReport':'导出报告',
+    'tfb.issueCert':'颁发证书',
+    'tfb.scheduleSession':'安排课程',
+    'tfb.saveTimetable':'保存时间表',
+    'tfb.saveStartDate':'保存开始日期',
+    'tfb.createQuiz':'创建测验',
+    'tfb.addQuestion':'添加题目',
+    'tfb.cancel':'取消',
+    'tfb.uploadPhoto':'上传头像',
+    'tfb.saveProfile':'保存资料',
+    'tfu.recCohortHint':'为一对一、二对一或五对一录像选择一个班级。',
+    'tfu.recDriveHint':'粘贴共享的 Drive 文件夹或录像链接。',
+    'tfu.dropFile':'拖入文件或点击浏览',
+    'tfu.fileTypesHint':'PDF、PY、IPYNB、ZIP、CSV、HTML —— 最大 100MB',
+    'tfo.s1':'第 1 节',
+    'tfo.s2':'第 2 节',
+    'tfo.s3':'第 3 节',
+    'tfo.s4':'第 4 节',
+    'tfo.s5':'第 5 节',
+    'tfo.s6':'第 6 节',
+    'tfo.s7':'第 7 节',
+    'tfo.s8':'第 8 节',
+
     'toast.reportExported':'已导出学生报告',
     'toast.gradeSavedNotified':'成绩已保存，已通知学生！',
     'toast.fileDropped':'已拖入文件：{v}',
@@ -5214,6 +5429,118 @@ const I18N = {
     'lrn.correct':'Betul — kuiz lulus.', 'lrn.notQuite':'Belum tepat — jawapan betul diserlahkan.',
     'lrn.submitAnswer':'Hantar jawapan', 'lrn.nextQuiz':'Kuiz seterusnya', 'lrn.backToLesson':'Kembali ke pelajaran', 'lrn.skip':'Langkau dahulu', 'lrn.couldNotSubmit':'Tidak dapat menghantar',
     'login.title':'Portal Pembelajaran', 'login.email':'E-mel', 'login.password':'Kata Laluan', 'login.submit':'Akses Portal', 'login.signingIn':'Sedang log masuk...',
+    'tf.sessionTitle':'Tajuk Sesi',
+    'tf.session':'Sesi',
+    'tf.sessionNum':'No. Sesi',
+    'tf.visibleTo':'Dilihat Oleh',
+    'tf.driveLink':'Pautan Google Drive',
+    'tf.descOpt':'Penerangan (Pilihan)',
+    'tf.fileNameTitle':'Nama Fail / Tajuk',
+    'tf.category':'Kategori',
+    'tf.file':'Fail',
+    'tf.asgnTitle':'Tajuk Tugasan',
+    'tf.descInstr':'Penerangan / Arahan',
+    'tf.dueDate':'Tarikh Akhir',
+    'tf.totalPoints':'Jumlah Mata',
+    'tf.attachOpt':'Lampirkan Fail (Pilihan)',
+    'tf.studentName':'Nama Pelajar',
+    'tf.email':'E-mel',
+    'tf.phone':'Telefon',
+    'tf.tempPassword':'Kata Laluan Sementara',
+    'tf.language':'Bahasa',
+    'tf.course':'Kursus',
+    'tf.student':'Pelajar',
+    'tf.quantity':'Kuantiti',
+    'tf.title':'Tajuk',
+    'tf.type':'Jenis',
+    'tf.dateTime':'Tarikh & Masa',
+    'tf.durationMin':'Tempoh (min)',
+    'tf.zoomLink':'Pautan Zoom',
+    'tf.participants':'Peserta',
+    'tf.courseClass':'Kursus / Kelas',
+    'tf.cohortIntake':'Kohort / Ambilan',
+    'tf.s1StartDate':'Tarikh Mula Sesi 1',
+    'tf.passScore':'Markah Lulus (%)',
+    'tf.maxAttempts':'Percubaan Maksimum',
+    'tf.timeLimit':'Had Masa (min, pilihan)',
+    'tf.questionText':'Teks Soalan',
+    'tf.points':'Mata',
+    'tf.choices':'Pilihan (tandakan yang betul)',
+    'tf.explanation':'Penjelasan (ditunjuk selepas hantar)',
+    'tf.profilePhoto':'Foto Profil',
+    'tf.education':'Pendidikan',
+    'tf.experience':'Pengalaman',
+    'tf.portfolio':'Portfolio / Laman Web',
+    'tf.linkedin':'URL LinkedIn',
+    'tfp.recTitle':'cth. Sesi 4 - GroupBy & Jadual Pangsi',
+    'tfp.driveUrl':'https://drive.google.com/drive/folders/...',
+    'tfp.recDesc':'Topik yang dibincangkan dalam sesi ini...',
+    'tfp.matTitle':'cth. Helaian Rujukan Pandas',
+    'tfp.asgnTitleEg':'cth. Laporan Analisis Data Pandas',
+    'tfp.asgnDesc':'Terangkan apa yang pelajar perlu buat...',
+    'tfp.studentNameEg':'cth. Nur Aina',
+    'tfp.studentEmailEg':'student@email.com',
+    'tfp.optional':'Pilihan',
+    'tfp.tempPwEg':'codencode123',
+    'tfp.sessTitleEg':'cth. Kelas Langsung Sesi 4',
+    'tfp.zoomAuto':'Biar kosong untuk cipta mesyuarat Zoom automatik',
+    'tfp.quizTitleEg':'cth. Kuiz Python Sesi 2',
+    'tfp.noLimit':'Tiada had',
+    'tfp.enterQuestion':'Masukkan soalan anda...',
+    'tfp.whyCorrect':'Kenapa ini jawapan yang betul?',
+    'tfp.roleEg':'cth. Instruktur Python Utama',
+    'tfp.bioEg':'Ceritakan sedikit tentang diri anda kepada pelajar...',
+    'tfp.eduEg':'cth. BSc Sains Komputer, UPM · MSc AI, UM',
+    'tfp.expEg':'cth. 5+ tahun dalam Python, kejuruteraan data dan ML...',
+    'tfp.specEg':'Python, Pembelajaran Mesin, Sains Data',
+    'tfp.portfolioEg':'https://yourportfolio.com',
+    'tfp.linkedinEg':'https://linkedin.com/in/yourname',
+    'tfo.wholeCourse':'Seluruh kursus',
+    'tfo.slidesPdf':'Slaid / PDF',
+    'tfo.codeNotebook':'Kod / Notebook',
+    'tfo.dataset':'Set Data',
+    'tfo.asgnBrief':'Ringkasan Tugasan',
+    'tfo.genResource':'Sumber Umum',
+    'tfo.genAll':'Umum (Semua Sesi)',
+    'tfo.english':'Inggeris',
+    'tfo.mandarin':'Mandarin',
+    'tfo.malay':'Bahasa Melayu',
+    'tfo.selCourse':'Pilih kursus...',
+    'tfo.selStudent':'Pilih pelajar...',
+    'tfo.cohortAll':'Kohort (semua pelajar berdaftar)',
+    'tfo.groupSel':'Kumpulan (pelajar terpilih)',
+    'tfo.privateOne':'Persendirian (seorang pelajar)',
+    'tfo.selCourseDash':'— pilih kursus —',
+    'tfo.wholeCourseClass':'Seluruh kursus / kelas',
+    'tfo.mcq':'Aneka Pilihan (MCQ)',
+    'tfo.shortAns':'Jawapan Pendek',
+    'tfb.saveRecLink':'Simpan Pautan Rakaman',
+    'tfb.publishMat':'Terbitkan Bahan',
+    'tfb.publishAsgn':'Terbitkan Tugasan',
+    'tfb.addAssign':'Tambah & Tugaskan',
+    'tfb.exportReport':'Eksport Laporan',
+    'tfb.issueCert':'Keluarkan Sijil',
+    'tfb.scheduleSession':'Jadualkan Sesi',
+    'tfb.saveTimetable':'Simpan Jadual',
+    'tfb.saveStartDate':'Simpan Tarikh Mula',
+    'tfb.createQuiz':'Cipta Kuiz',
+    'tfb.addQuestion':'Tambah Soalan',
+    'tfb.cancel':'Batal',
+    'tfb.uploadPhoto':'Muat Naik Foto',
+    'tfb.saveProfile':'Simpan Profil',
+    'tfu.recCohortHint':'Pilih kohort/kelas untuk rakaman persendirian 1-ke-1, 2-ke-1, atau 5-ke-1.',
+    'tfu.recDriveHint':'Tampal folder Drive kongsi atau pautan rakaman.',
+    'tfu.dropFile':'Lepaskan fail atau klik untuk semak',
+    'tfu.fileTypesHint':'PDF, PY, IPYNB, ZIP, CSV, HTML — maks 100MB',
+    'tfo.s1':'Sesi 1',
+    'tfo.s2':'Sesi 2',
+    'tfo.s3':'Sesi 3',
+    'tfo.s4':'Sesi 4',
+    'tfo.s5':'Sesi 5',
+    'tfo.s6':'Sesi 6',
+    'tfo.s7':'Sesi 7',
+    'tfo.s8':'Sesi 8',
+
     'toast.reportExported':'Laporan pelajar dieksport',
     'toast.gradeSavedNotified':'Gred disimpan & pelajar dimaklumkan!',
     'toast.fileDropped':'Fail dilepaskan: {v}',
