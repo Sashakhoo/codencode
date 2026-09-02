@@ -1609,9 +1609,9 @@
     <!-- Teacher nav -->
     <div id="teacher-nav" style="display:none">
       <div class="sidebar-section">
-        <div class="sidebar-label">Teaching</div>
+        <div class="sidebar-label" data-i18n="nav.teaching">Teaching</div>
         <button class="nav-item active" onclick="switchView('t-dashboard')">
-          <i class="fas fa-th-large"></i><span>Overview</span>
+          <i class="fas fa-th-large"></i><span data-i18n="th.overview">Overview</span>
         </button>
         <button class="nav-item" onclick="switchView('t-videos')">
           <i class="fas fa-video"></i><span data-i18n="recordings">Recordings</span>
@@ -1623,14 +1623,14 @@
           <i class="fas fa-edit"></i><span data-i18n="assignments">Assignments</span>
         </button>
         <button class="nav-item" onclick="switchView('t-grading')">
-          <i class="fas fa-check-double"></i><span>Grading</span>
+          <i class="fas fa-check-double"></i><span data-i18n="th.grading">Grading</span>
           <span class="nav-badge" id="ungraded-badge" style="display:none">0</span>
         </button>
         <button class="nav-item" onclick="switchView('t-students')">
-          <i class="fas fa-users"></i><span>Students</span>
+          <i class="fas fa-users"></i><span data-i18n="th.students">Students</span>
         </button>
         <button class="nav-item" onclick="switchView('t-certificates')">
-          <i class="fas fa-certificate"></i><span>Certificates</span>
+          <i class="fas fa-certificate"></i><span data-i18n="certificates">Certificates</span>
         </button>
         <button class="nav-item" onclick="switchView('t-timetable')">
           <i class="fas fa-calendar-alt"></i><span data-i18n="timetable">Timetable</span>
@@ -1642,7 +1642,7 @@
           <i class="fas fa-comments"></i><span data-i18n="discussion">Discussion</span>
         </button>
         <button class="nav-item" onclick="switchView('t-profile')">
-          <i class="fas fa-id-card"></i><span>My Profile</span>
+          <i class="fas fa-id-card"></i><span data-i18n="th.profile">My Profile</span>
         </button>
       </div>
     </div>
@@ -1894,44 +1894,44 @@
       ══════════════════════════════ -->
       <div class="view" id="view-t-dashboard">
         <div class="page-header">
-          <div class="page-label">Teacher Dashboard</div>
+          <div class="page-label" data-i18n="t.hdr.dashboard.label">Teacher Dashboard</div>
           <div class="page-title" id="teacher-greeting">Welcome back. 🎓</div>
           <div class="page-sub" id="teacher-dashboard-sub">// —</div>
         </div>
         <div class="stats-row" id="teacher-stats-row">
           <div class="stat-cell" data-icon="👨‍🎓">
             <div class="stat-val">14</div>
-            <div class="stat-lbl">Active Students</div>
+            <div class="stat-lbl" data-i18n="t.stat.activeStudents">Active Students</div>
           </div>
           <div class="stat-cell orange" data-icon="📬">
             <div class="stat-val">5</div>
-            <div class="stat-lbl">Submissions to Grade</div>
+            <div class="stat-lbl" data-i18n="t.stat.toGrade">Submissions to Grade</div>
           </div>
           <div class="stat-cell green" data-icon="📹">
             <div class="stat-val">22</div>
-            <div class="stat-lbl">Videos Uploaded</div>
+            <div class="stat-lbl" data-i18n="t.stat.videosUploaded">Videos Uploaded</div>
           </div>
           <div class="stat-cell purple" data-icon="📁">
             <div class="stat-val">18</div>
-            <div class="stat-lbl">Materials Posted</div>
+            <div class="stat-lbl" data-i18n="t.stat.materialsPosted">Materials Posted</div>
           </div>
         </div>
         <div class="grid-2">
           <div class="card">
             <div class="card-header">
-              <span class="card-title"><i class="fas fa-inbox"></i> Pending Submissions</span>
-              <button class="btn-action" onclick="switchView('t-grading')">Grade All</button>
+              <span class="card-title"><i class="fas fa-inbox"></i> <span data-i18n="t.card.pending">Pending Submissions</span></span>
+              <button class="btn-action" onclick="switchView('t-grading')" data-i18n="t.btn.gradeAll">Grade All</button>
             </div>
             <div class="file-list" id="t-ungraded-list">
-              <div style="padding:16px 20px;color:var(--muted);font-family:var(--font-m);font-size:12px">No progress yet.</div>
+              <div style="padding:16px 20px;color:var(--muted);font-family:var(--font-m);font-size:12px" data-i18n="common.noProgress">No progress yet.</div>
             </div>
           </div>
           <div class="card">
             <div class="card-header">
-              <span class="card-title"><i class="fas fa-users"></i> Student Progress</span>
+              <span class="card-title"><i class="fas fa-users"></i> <span data-i18n="t.card.studentProgress">Student Progress</span></span>
             </div>
             <div style="padding:16px 20px;display:flex;flex-direction:column;gap:14px" id="t-student-progress">
-              <div style="color:var(--muted);font-family:var(--font-m);font-size:12px">No progress yet.</div>
+              <div style="color:var(--muted);font-family:var(--font-m);font-size:12px" data-i18n="common.noProgress">No progress yet.</div>
             </div>
           </div>
         </div>
@@ -1942,14 +1942,14 @@
       ══════════════════════════════ -->
       <div class="view" id="view-t-videos">
         <div class="page-header">
-          <div class="page-label">Recordings</div>
-          <div class="page-title">Manage Recordings</div>
-          <div class="page-sub">// Add class recording links for students to review</div>
+          <div class="page-label" data-i18n="t.hdr.videos.label">Recordings</div>
+          <div class="page-title" data-i18n="t.hdr.videos.title">Manage Recordings</div>
+          <div class="page-sub" data-i18n="t.hdr.videos.sub">// Add class recording links for students to review</div>
         </div>
         <div class="grid-2">
           <div class="card">
             <div class="card-header">
-              <span class="card-title"><i class="fas fa-link"></i> Add Recording Link</span>
+              <span class="card-title"><i class="fas fa-link"></i> <span data-i18n="t.card.addRecording">Add Recording Link</span></span>
             </div>
             <div class="card-body">
               <div class="upload-form">
@@ -1998,10 +1998,10 @@
           </div>
           <div class="card">
             <div class="card-header">
-              <span class="card-title"><i class="fas fa-list"></i> Uploaded Recordings</span>
+              <span class="card-title"><i class="fas fa-list"></i> <span data-i18n="t.card.uploadedRecordings">Uploaded Recordings</span></span>
             </div>
             <div class="file-list" id="t-recordings-list">
-              <div style="padding:16px 20px;color:var(--muted);font-family:var(--font-m);font-size:12px">No progress yet.</div>
+              <div style="padding:16px 20px;color:var(--muted);font-family:var(--font-m);font-size:12px" data-i18n="common.noProgress">No progress yet.</div>
             </div>
           </div>
         </div>
@@ -2012,14 +2012,14 @@
       ══════════════════════════════ -->
       <div class="view" id="view-t-materials">
         <div class="page-header">
-          <div class="page-label">Materials</div>
-          <div class="page-title">Upload Materials</div>
-          <div class="page-sub">// Slides, code, datasets — all in one place</div>
+          <div class="page-label" data-i18n="t.hdr.materials.label">Materials</div>
+          <div class="page-title" data-i18n="t.hdr.materials.title">Upload Materials</div>
+          <div class="page-sub" data-i18n="t.hdr.materials.sub">// Slides, code, datasets — all in one place</div>
         </div>
         <div class="grid-2">
           <div class="card">
             <div class="card-header">
-              <span class="card-title"><i class="fas fa-cloud-upload-alt"></i> Upload Material</span>
+              <span class="card-title"><i class="fas fa-cloud-upload-alt"></i> <span data-i18n="t.card.uploadMaterial">Upload Material</span></span>
             </div>
             <div class="card-body">
               <div class="upload-form">
@@ -2062,10 +2062,10 @@
           </div>
           <div class="card">
             <div class="card-header">
-              <span class="card-title"><i class="fas fa-folder-open"></i> Published Materials</span>
+              <span class="card-title"><i class="fas fa-folder-open"></i> <span data-i18n="t.card.publishedMaterials">Published Materials</span></span>
             </div>
             <div class="file-list" id="t-materials-list">
-              <div style="padding:16px 20px;color:var(--muted);font-family:var(--font-m);font-size:12px">Loading materials...</div>
+              <div style="padding:16px 20px;color:var(--muted);font-family:var(--font-m);font-size:12px" data-i18n="common.loading">Loading materials...</div>
             </div>
           </div>
         </div>
@@ -2076,13 +2076,13 @@
       ══════════════════════════════ -->
       <div class="view" id="view-t-assignments">
         <div class="page-header">
-          <div class="page-label">Assignments</div>
-          <div class="page-title">Manage Assignments</div>
-          <div class="page-sub">// Create and track student submissions</div>
+          <div class="page-label" data-i18n="t.hdr.assignments.label">Assignments</div>
+          <div class="page-title" data-i18n="t.hdr.assignments.title">Manage Assignments</div>
+          <div class="page-sub" data-i18n="t.hdr.assignments.sub">// Create and track student submissions</div>
         </div>
         <div class="card" style="margin-bottom:20px">
           <div class="card-header">
-            <span class="card-title"><i class="fas fa-plus-circle"></i> Create New Assignment</span>
+            <span class="card-title"><i class="fas fa-plus-circle"></i> <span data-i18n="t.card.createAssignment">Create New Assignment</span></span>
           </div>
           <div class="card-body">
             <div class="upload-form">
@@ -2128,10 +2128,10 @@
         <!-- Existing assignments -->
         <div class="card">
           <div class="card-header">
-            <span class="card-title"><i class="fas fa-list-alt"></i> Published Assignments</span>
+            <span class="card-title"><i class="fas fa-list-alt"></i> <span data-i18n="t.card.publishedAssignments">Published Assignments</span></span>
           </div>
           <div class="assignment-list" style="padding:16px 20px" id="t-assignments-list">
-            <div style="color:var(--muted);font-family:var(--font-m);font-size:12px">No progress yet.</div>
+            <div style="color:var(--muted);font-family:var(--font-m);font-size:12px" data-i18n="common.noProgress">No progress yet.</div>
           </div>
         </div>
       </div>
@@ -2141,28 +2141,28 @@
       ══════════════════════════════ -->
       <div class="view" id="view-t-grading">
         <div class="page-header">
-          <div class="page-label">Grading</div>
-          <div class="page-title">Grade Submissions</div>
-          <div class="page-sub">// click Save on each row, or Save All at once</div>
+          <div class="page-label" data-i18n="t.hdr.grading.label">Grading</div>
+          <div class="page-title" data-i18n="t.hdr.grading.title">Grade Submissions</div>
+          <div class="page-sub" data-i18n="t.hdr.grading.sub">// click Save on each row, or Save All at once</div>
         </div>
         <div class="card">
           <div class="card-header">
-            <span class="card-title" id="grading-title"><i class="fas fa-inbox"></i> Submissions</span>
+            <span class="card-title" id="grading-title"><i class="fas fa-inbox"></i> <span data-i18n="t.card.submissions">Submissions</span></span>
             <span style="font-family:var(--font-m);font-size:11px;color:var(--orange)" id="grading-ungraded"></span>
           </div>
-          <div id="grading-container"><div style="color:var(--muted);font-family:var(--font-m);font-size:12px;padding:32px;text-align:center">No progress yet.</div></div>
+          <div id="grading-container"><div style="color:var(--muted);font-family:var(--font-m);font-size:12px;padding:32px;text-align:center" data-i18n="common.noProgress">No progress yet.</div></div>
         </div>
       </div>
 
       <div class="view" id="view-t-students">
         <div class="page-header">
-          <div class="page-label">Students</div>
-          <div class="page-title">Class Roster</div>
-          <div class="page-sub" id="students-sub">// No students enrolled yet.</div>
+          <div class="page-label" data-i18n="t.hdr.students.label">Students</div>
+          <div class="page-title" data-i18n="t.hdr.students.title">Class Roster</div>
+          <div class="page-sub" id="students-sub" data-i18n="t.hdr.students.subNone">// No students enrolled yet.</div>
         </div>
         <div class="card" style="margin-bottom:20px">
           <div class="card-header">
-            <span class="card-title"><i class="fas fa-user-plus"></i> Add Student To This Course</span>
+            <span class="card-title"><i class="fas fa-user-plus"></i> <span data-i18n="t.card.addStudent">Add Student To This Course</span></span>
           </div>
           <div class="card-body">
             <div class="upload-form" id="teacher-add-student-form">
@@ -2221,14 +2221,14 @@
 
       <div class="view" id="view-t-certificates">
         <div class="page-header">
-          <div class="page-label">Certificates</div>
-          <div class="page-title">Issue Certificates</div>
-          <div class="page-sub">// Issue completion certificates for your own students</div>
+          <div class="page-label" data-i18n="t.hdr.certificates.label">Certificates</div>
+          <div class="page-title" data-i18n="t.hdr.certificates.title">Issue Certificates</div>
+          <div class="page-sub" data-i18n="t.hdr.certificates.sub">// Issue completion certificates for your own students</div>
         </div>
         <div class="grid-2" style="margin-bottom:20px">
           <div class="card">
             <div class="card-header">
-              <span class="card-title"><i class="fas fa-award"></i> New Certificate</span>
+              <span class="card-title"><i class="fas fa-award"></i> <span data-i18n="t.card.newCertificate">New Certificate</span></span>
             </div>
             <div class="card-body">
               <div class="upload-form">
@@ -2262,9 +2262,9 @@
           </div>
           <div class="card">
             <div class="card-header">
-              <span class="card-title"><i class="fas fa-list-check"></i> Issued Certificates</span>
+              <span class="card-title"><i class="fas fa-list-check"></i> <span data-i18n="t.card.issuedCertificates">Issued Certificates</span></span>
             </div>
-            <div class="card-body" id="teacher-cert-summary" style="font-family:var(--font-m);font-size:12px;color:var(--muted)">
+            <div class="card-body" id="teacher-cert-summary" style="font-family:var(--font-m);font-size:12px;color:var(--muted)" data-i18n="common.loading">
               Loading certificate data...
             </div>
           </div>
@@ -2284,15 +2284,15 @@
       </div>
       <div class="view" id="view-t-timetable">
         <div class="page-header">
-          <div class="page-label">Sessions</div>
-          <div class="page-title">Session Scheduler</div>
-          <div class="page-sub">// Schedule cohort, group and private sessions</div>
+          <div class="page-label" data-i18n="t.hdr.timetable.label">Sessions</div>
+          <div class="page-title" data-i18n="t.hdr.timetable.title">Session Scheduler</div>
+          <div class="page-sub" data-i18n="t.hdr.timetable.sub">// Schedule cohort, group and private sessions</div>
         </div>
         <div class="grid-2" style="margin-bottom:20px">
           <!-- New session form -->
           <div class="card">
             <div class="card-header">
-              <span class="card-title"><i class="fas fa-plus-circle"></i> New Session</span>
+              <span class="card-title"><i class="fas fa-plus-circle"></i> <span data-i18n="t.card.newSession">New Session</span></span>
             </div>
             <div class="card-body">
               <div class="upload-form" id="new-session-form">
@@ -2343,7 +2343,7 @@
           <!-- Session list -->
           <div class="card">
             <div class="card-header">
-              <span class="card-title"><i class="fas fa-list"></i> Scheduled Sessions</span>
+              <span class="card-title"><i class="fas fa-list"></i> <span data-i18n="t.card.scheduledSessions">Scheduled Sessions</span></span>
             </div>
             <div id="t-sessions-list" style="max-height:480px;overflow-y:auto">
               <div style="padding:16px 20px;color:var(--muted);font-family:var(--font-m);font-size:11px">No sessions yet.</div>
@@ -2352,7 +2352,7 @@
         </div>
         <div class="card" style="margin-top:20px">
           <div class="card-header">
-            <span class="card-title"><i class="fas fa-calendar-alt"></i> All Teacher / Student Schedule</span>
+            <span class="card-title"><i class="fas fa-calendar-alt"></i> <span data-i18n="t.card.allSchedule">All Teacher / Student Schedule</span></span>
             <div style="display:flex;gap:8px;flex-wrap:wrap">
               <button class="btn-action ghost" onclick="shiftTeacherCalMonth(-1)"><i class="fas fa-chevron-left"></i></button>
               <button class="btn-action ghost" onclick="resetTeacherCalMonth()"><i class="fas fa-calendar-day"></i> Today</button>
@@ -2373,7 +2373,7 @@
         </div>
         <div class="card" style="margin-top:20px">
           <div class="card-header">
-            <span class="card-title"><i class="fas fa-calendar-alt"></i> Monthly Class Timetable</span>
+            <span class="card-title"><i class="fas fa-calendar-alt"></i> <span data-i18n="t.card.monthlyTimetable">Monthly Class Timetable</span></span>
             <button class="btn-action ghost" onclick="saveTeacherMonthPlan()"><i class="fas fa-save"></i> Save Timetable</button>
           </div>
           <div class="card-body">
@@ -2410,14 +2410,14 @@
       ══════════════════════════════ -->
       <div class="view" id="view-t-quizzes">
         <div class="page-header">
-          <div class="page-label">Quizzes</div>
-          <div class="page-title">Quiz Builder</div>
-          <div class="page-sub">// Create and manage MCQ quizzes</div>
+          <div class="page-label" data-i18n="t.hdr.quizzes.label">Quizzes</div>
+          <div class="page-title" data-i18n="t.hdr.quizzes.title">Quiz Builder</div>
+          <div class="page-sub" data-i18n="t.hdr.quizzes.sub">// Create and manage MCQ quizzes</div>
         </div>
         <div class="grid-2">
           <div class="card">
             <div class="card-header">
-              <span class="card-title"><i class="fas fa-plus-circle"></i> New Quiz</span>
+              <span class="card-title"><i class="fas fa-plus-circle"></i> <span data-i18n="t.card.newQuiz">New Quiz</span></span>
             </div>
             <div class="card-body">
               <div class="upload-form">
@@ -2453,7 +2453,7 @@
           </div>
           <div class="card">
             <div class="card-header">
-              <span class="card-title"><i class="fas fa-list"></i> Your Quizzes</span>
+              <span class="card-title"><i class="fas fa-list"></i> <span data-i18n="t.card.yourQuizzes">Your Quizzes</span></span>
             </div>
             <div id="t-quiz-list">
               <div style="padding:16px 20px;color:var(--muted);font-family:var(--font-m);font-size:11px">No quizzes yet.</div>
@@ -2464,7 +2464,7 @@
         <div id="t-quiz-editor" style="display:none">
           <div class="card" style="margin-top:20px">
             <div class="card-header">
-              <span class="card-title" id="t-quiz-editor-title"><i class="fas fa-edit"></i> Edit Questions</span>
+              <span class="card-title" id="t-quiz-editor-title"><i class="fas fa-edit"></i> <span data-i18n="t.card.editQuestions">Edit Questions</span></span>
               <button class="btn-action" onclick="openAddQuestionForm()"><i class="fas fa-plus"></i> Add Question</button>
             </div>
             <div id="t-question-list" style="padding:16px 20px"></div>
@@ -2525,9 +2525,9 @@
       ══════════════════════════════ -->
       <div class="view" id="view-t-discussion">
         <div class="page-header">
-          <div class="page-label">Discussion</div>
-          <div class="page-title">Student Discussions</div>
-          <div class="page-sub">// Moderate and reply to student posts</div>
+          <div class="page-label" data-i18n="t.hdr.discussion.label">Discussion</div>
+          <div class="page-title" data-i18n="t.hdr.discussion.title">Student Discussions</div>
+          <div class="page-sub" data-i18n="t.hdr.discussion.sub">// Moderate and reply to student posts</div>
         </div>
         <div style="display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap" id="t-disc-week-tabs"></div>
         <div id="t-discussion-list"></div>
@@ -2539,9 +2539,9 @@
       ══════════════════════════════ -->
       <div class="view" id="view-t-profile">
         <div class="page-header">
-          <div class="page-label">My Profile</div>
-          <div class="page-title">Instructor Profile</div>
-          <div class="page-sub">// This information is visible to your students</div>
+          <div class="page-label" data-i18n="t.hdr.profile.label">My Profile</div>
+          <div class="page-title" data-i18n="t.hdr.profile.title">Instructor Profile</div>
+          <div class="page-sub" data-i18n="t.hdr.profile.sub">// This information is visible to your students</div>
         </div>
 
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;max-width:900px">
@@ -2549,7 +2549,7 @@
           <!-- Preview card -->
           <div class="card" style="align-self:start">
             <div class="card-header">
-              <span class="card-title"><i class="fas fa-eye"></i> Preview (student view)</span>
+              <span class="card-title"><i class="fas fa-eye"></i> <span data-i18n="t.card.previewStudent">Preview (student view)</span></span>
             </div>
             <div class="card-body" id="profile-preview-card">
               <div style="color:var(--muted);font-family:var(--font-m);font-size:12px">Fill in your details on the right →</div>
@@ -3514,38 +3514,38 @@ async function loadTeacherDashboard() {
   if (subEl) {
     const prog = d.programme || '';
     const date = d.start_date || '';
-    subEl.textContent = prog && date ? `// ${prog} · ${date}` : prog ? `// ${prog}` : '// —';
+    subEl.textContent = prog && date ? T('t.dash.sub', { prog, date }) : prog ? T('t.dash.subProg', { prog }) : '// —';
   }
 
   document.querySelector('#view-t-dashboard .stats-row').innerHTML = `
     <div class="stat-cell" data-icon="👨‍🎓">
       <div class="stat-val">${d.enrolled_students}</div>
-      <div class="stat-lbl">Students</div>
+      <div class="stat-lbl">${T('t.stat.activeStudents')}</div>
     </div>
     <div class="stat-cell orange" data-icon="📬">
       <div class="stat-val">${d.ungraded_submissions}</div>
-      <div class="stat-lbl">To Grade</div>
+      <div class="stat-lbl">${T('t.stat.toGrade')}</div>
     </div>
     <div class="stat-cell green" data-icon="📹">
       <div class="stat-val">${d.total_recordings}</div>
-      <div class="stat-lbl">Recordings</div>
+      <div class="stat-lbl">${T('t.stat.videosUploaded')}</div>
     </div>
     <div class="stat-cell purple" data-icon="📁">
       <div class="stat-val">${d.total_materials}</div>
-      <div class="stat-lbl">Materials</div>
+      <div class="stat-lbl">${T('t.stat.materialsPosted')}</div>
     </div>`;
 
   // Ungraded submissions queue
   document.getElementById('t-ungraded-list').innerHTML = d.recent_ungraded.length === 0
-    ? `<div style="padding:16px 20px;color:var(--muted);font-family:var(--font-m);font-size:11px">Nothing to grade 🎉</div>`
+    ? `<div style="padding:16px 20px;color:var(--muted);font-family:var(--font-m);font-size:11px">${T('t.nothingToGrade')}</div>`
     : d.recent_ungraded.map(s => `
         <div class="file-row">
           <div class="student-dot">${(s.student_name||'').split(' ').map(p=>p[0]).join('').slice(0,2).toUpperCase()}</div>
           <div style="flex:1">
             <div class="file-name" style="font-size:12px">${s.student_name} — ${s.assignment_title}</div>
-            <div class="file-sub">Submitted ${s.submitted_at||''} · ${s.orig_name||s.filename}</div>
+            <div class="file-sub">${T('t.submittedOn', { when: s.submitted_at||'', file: s.orig_name||s.filename })}</div>
           </div>
-          <button class="btn-action" onclick="openGradeModal(${s.id},'${(s.student_name||'').replace(/'/g,"\\'")}','${(s.assignment_title||'').replace(/'/g,"\\'")}')">Grade</button>
+          <button class="btn-action" onclick="openGradeModal(${s.id},'${(s.student_name||'').replace(/'/g,"\\'")}','${(s.assignment_title||'').replace(/'/g,"\\'")}')">${T('t.btn.grade')}</button>
         </div>`).join('');
 
   // Student progress bars
@@ -3664,7 +3664,7 @@ async function renderGradingTable(aid, title, maxPoints) {
   if (!container) return;
 
   const ungraded = subs.filter(s => s.score === null || s.score === undefined).length;
-  document.getElementById('grading-title').textContent = `${title} · ${subs.length} submissions`;
+  document.getElementById('grading-title').textContent = T('t.grading.title', { title, n: subs.length });
   document.getElementById('grading-ungraded').textContent = ungraded + ' ungraded';
 
   if (subs.length === 0) {
@@ -3744,7 +3744,7 @@ async function loadStudents() {
       </td>
     </tr>`).join('') || `<tr><td colspan="7" style="color:var(--muted);font-family:var(--font-m);font-size:12px;padding:24px;text-align:center">No students enrolled yet.</td></tr>`;
   const sub = document.getElementById('students-sub');
-  if (sub) sub.textContent = `// ${d.enrolled_students} enrolled`;
+  if (sub) { sub.removeAttribute('data-i18n'); sub.textContent = T('t.students.sub', { n: d.enrolled_students }); }
 }
 
 async function teacherAddStudent() {
@@ -4811,7 +4811,28 @@ const I18N = {
     'cert.none':'No certificates yet', 'cert.noneSub':'Complete your courses to earn certificates!',
     'cert.issued':'Issued: {date}', 'cert.download':'Download Certificate', 'cert.error':'Failed to load certificates.',
     'cal.dow':'Mon,Tue,Wed,Thu,Fri,Sat,Sun', 'cal.joinZoom':'Join Zoom', 'cal.class':'Class',
-    'cal.teacher':'Teacher: {name}', 'cal.students':'Students: {list}'
+    'cal.teacher':'Teacher: {name}', 'cal.students':'Students: {list}',
+    // teacher
+    't.hdr.dashboard.label':'Teacher Dashboard',
+    't.hdr.videos.label':'Recordings', 't.hdr.videos.title':'Manage Recordings', 't.hdr.videos.sub':'// Add class recording links for students to review',
+    't.hdr.materials.label':'Materials', 't.hdr.materials.title':'Upload Materials', 't.hdr.materials.sub':'// Slides, code, datasets — all in one place',
+    't.hdr.assignments.label':'Assignments', 't.hdr.assignments.title':'Manage Assignments', 't.hdr.assignments.sub':'// Create and track student submissions',
+    't.hdr.grading.label':'Grading', 't.hdr.grading.title':'Grade Submissions', 't.hdr.grading.sub':'// click Save on each row, or Save All at once',
+    't.hdr.students.label':'Students', 't.hdr.students.title':'Class Roster', 't.hdr.students.subNone':'// No students enrolled yet.',
+    't.hdr.certificates.label':'Certificates', 't.hdr.certificates.title':'Issue Certificates', 't.hdr.certificates.sub':'// Issue completion certificates for your own students',
+    't.hdr.timetable.label':'Sessions', 't.hdr.timetable.title':'Session Scheduler', 't.hdr.timetable.sub':'// Schedule cohort, group and private sessions',
+    't.hdr.quizzes.label':'Quizzes', 't.hdr.quizzes.title':'Quiz Builder', 't.hdr.quizzes.sub':'// Create and manage MCQ quizzes',
+    't.hdr.discussion.label':'Discussion', 't.hdr.discussion.title':'Student Discussions', 't.hdr.discussion.sub':'// Moderate and reply to student posts',
+    't.hdr.profile.label':'My Profile', 't.hdr.profile.title':'Instructor Profile', 't.hdr.profile.sub':'// This information is visible to your students',
+    't.stat.activeStudents':'Active Students', 't.stat.toGrade':'Submissions to Grade', 't.stat.videosUploaded':'Videos Uploaded', 't.stat.materialsPosted':'Materials Posted',
+    't.card.pending':'Pending Submissions', 't.card.studentProgress':'Student Progress', 't.card.addRecording':'Add Recording Link', 't.card.uploadedRecordings':'Uploaded Recordings',
+    't.card.uploadMaterial':'Upload Material', 't.card.publishedMaterials':'Published Materials', 't.card.createAssignment':'Create New Assignment', 't.card.publishedAssignments':'Published Assignments',
+    't.card.submissions':'Submissions', 't.card.addStudent':'Add Student To This Course', 't.card.newCertificate':'New Certificate', 't.card.issuedCertificates':'Issued Certificates',
+    't.card.newSession':'New Session', 't.card.scheduledSessions':'Scheduled Sessions', 't.card.allSchedule':'All Teacher / Student Schedule', 't.card.monthlyTimetable':'Monthly Class Timetable',
+    't.card.newQuiz':'New Quiz', 't.card.yourQuizzes':'Your Quizzes', 't.card.editQuestions':'Edit Questions', 't.card.previewStudent':'Preview (student view)',
+    't.btn.gradeAll':'Grade All', 't.btn.grade':'Grade', 't.nothingToGrade':'Nothing to grade 🎉',
+    't.submittedOn':'Submitted {when} · {file}', 't.dash.sub':'// {prog} · {date}', 't.dash.subProg':'// {prog}',
+    't.grading.title':'{title} · {n} submissions', 't.students.sub':'// {n} student(s) enrolled'
   },
   zh: {
     dashboard:'学习面板', recordings:'课程录像', materials:'学习资料', learn:'幻灯片与测验',
@@ -4852,7 +4873,28 @@ const I18N = {
     'cert.none':'暂无证书', 'cert.noneSub':'完成课程即可获得证书！',
     'cert.issued':'颁发日期：{date}', 'cert.download':'下载证书', 'cert.error':'无法加载证书。',
     'cal.dow':'一,二,三,四,五,六,日', 'cal.joinZoom':'加入 Zoom', 'cal.class':'课程',
-    'cal.teacher':'教师：{name}', 'cal.students':'学生：{list}'
+    'cal.teacher':'教师：{name}', 'cal.students':'学生：{list}',
+    // teacher
+    't.hdr.dashboard.label':'教师面板',
+    't.hdr.videos.label':'课程录像', 't.hdr.videos.title':'管理录像', 't.hdr.videos.sub':'// 添加课堂录像链接供学生回看',
+    't.hdr.materials.label':'资料', 't.hdr.materials.title':'上传资料', 't.hdr.materials.sub':'// 幻灯片、代码、数据集 —— 一处管理',
+    't.hdr.assignments.label':'作业', 't.hdr.assignments.title':'管理作业', 't.hdr.assignments.sub':'// 创建作业并追踪学生提交',
+    't.hdr.grading.label':'批改', 't.hdr.grading.title':'批改提交', 't.hdr.grading.sub':'// 逐行点击保存，或一次全部保存',
+    't.hdr.students.label':'学生', 't.hdr.students.title':'班级名单', 't.hdr.students.subNone':'// 暂无学生报名。',
+    't.hdr.certificates.label':'证书', 't.hdr.certificates.title':'颁发证书', 't.hdr.certificates.sub':'// 为你自己的学生颁发结业证书',
+    't.hdr.timetable.label':'课程安排', 't.hdr.timetable.title':'课程排期', 't.hdr.timetable.sub':'// 安排班级、小组和一对一课程',
+    't.hdr.quizzes.label':'测验', 't.hdr.quizzes.title':'测验编辑器', 't.hdr.quizzes.sub':'// 创建和管理选择题测验',
+    't.hdr.discussion.label':'讨论区', 't.hdr.discussion.title':'学生讨论', 't.hdr.discussion.sub':'// 审核并回复学生帖子',
+    't.hdr.profile.label':'我的资料', 't.hdr.profile.title':'导师资料', 't.hdr.profile.sub':'// 此信息对你的学生可见',
+    't.stat.activeStudents':'活跃学生', 't.stat.toGrade':'待批改提交', 't.stat.videosUploaded':'已上传视频', 't.stat.materialsPosted':'已发布资料',
+    't.card.pending':'待批改提交', 't.card.studentProgress':'学生进度', 't.card.addRecording':'添加录像链接', 't.card.uploadedRecordings':'已上传录像',
+    't.card.uploadMaterial':'上传资料', 't.card.publishedMaterials':'已发布资料', 't.card.createAssignment':'创建新作业', 't.card.publishedAssignments':'已发布作业',
+    't.card.submissions':'提交', 't.card.addStudent':'将学生加入此课程', 't.card.newCertificate':'新证书', 't.card.issuedCertificates':'已颁发证书',
+    't.card.newSession':'新课程', 't.card.scheduledSessions':'已排期课程', 't.card.allSchedule':'全部教师／学生日程', 't.card.monthlyTimetable':'每月课程时间表',
+    't.card.newQuiz':'新测验', 't.card.yourQuizzes':'你的测验', 't.card.editQuestions':'编辑题目', 't.card.previewStudent':'预览（学生视角）',
+    't.btn.gradeAll':'全部批改', 't.btn.grade':'批改', 't.nothingToGrade':'没有待批改的内容 🎉',
+    't.submittedOn':'提交于 {when} · {file}', 't.dash.sub':'// {prog} · {date}', 't.dash.subProg':'// {prog}',
+    't.grading.title':'{title} · {n} 份提交', 't.students.sub':'// 已报名 {n} 名学生'
   },
   bm: {
     dashboard:'Papan Pemuka', recordings:'Rakaman', materials:'Bahan', learn:'Slaid & Kuiz',
@@ -4893,7 +4935,28 @@ const I18N = {
     'cert.none':'Tiada sijil lagi', 'cert.noneSub':'Lengkapkan kursus anda untuk memperoleh sijil!',
     'cert.issued':'Dikeluarkan: {date}', 'cert.download':'Muat Turun Sijil', 'cert.error':'Gagal memuatkan sijil.',
     'cal.dow':'Isn,Sel,Rab,Kha,Jum,Sab,Ahd', 'cal.joinZoom':'Sertai Zoom', 'cal.class':'Kelas',
-    'cal.teacher':'Pengajar: {name}', 'cal.students':'Pelajar: {list}'
+    'cal.teacher':'Pengajar: {name}', 'cal.students':'Pelajar: {list}',
+    // teacher
+    't.hdr.dashboard.label':'Papan Pemuka Pengajar',
+    't.hdr.videos.label':'Rakaman', 't.hdr.videos.title':'Urus Rakaman', 't.hdr.videos.sub':'// Tambah pautan rakaman kelas untuk pelajar semak semula',
+    't.hdr.materials.label':'Bahan', 't.hdr.materials.title':'Muat Naik Bahan', 't.hdr.materials.sub':'// Slaid, kod, set data — semua di satu tempat',
+    't.hdr.assignments.label':'Tugasan', 't.hdr.assignments.title':'Urus Tugasan', 't.hdr.assignments.sub':'// Cipta dan jejak penghantaran pelajar',
+    't.hdr.grading.label':'Penilaian', 't.hdr.grading.title':'Nilai Penghantaran', 't.hdr.grading.sub':'// klik Simpan pada setiap baris, atau Simpan Semua sekali gus',
+    't.hdr.students.label':'Pelajar', 't.hdr.students.title':'Senarai Kelas', 't.hdr.students.subNone':'// Tiada pelajar mendaftar lagi.',
+    't.hdr.certificates.label':'Sijil', 't.hdr.certificates.title':'Keluarkan Sijil', 't.hdr.certificates.sub':'// Keluarkan sijil tamat untuk pelajar anda sendiri',
+    't.hdr.timetable.label':'Sesi', 't.hdr.timetable.title':'Penjadual Sesi', 't.hdr.timetable.sub':'// Jadualkan sesi kohort, kumpulan dan persendirian',
+    't.hdr.quizzes.label':'Kuiz', 't.hdr.quizzes.title':'Pembina Kuiz', 't.hdr.quizzes.sub':'// Cipta dan urus kuiz MCQ',
+    't.hdr.discussion.label':'Perbincangan', 't.hdr.discussion.title':'Perbincangan Pelajar', 't.hdr.discussion.sub':'// Sederhana dan balas kiriman pelajar',
+    't.hdr.profile.label':'Profil Saya', 't.hdr.profile.title':'Profil Pengajar', 't.hdr.profile.sub':'// Maklumat ini dilihat oleh pelajar anda',
+    't.stat.activeStudents':'Pelajar Aktif', 't.stat.toGrade':'Penghantaran Perlu Dinilai', 't.stat.videosUploaded':'Video Dimuat Naik', 't.stat.materialsPosted':'Bahan Disiarkan',
+    't.card.pending':'Penghantaran Tertunda', 't.card.studentProgress':'Kemajuan Pelajar', 't.card.addRecording':'Tambah Pautan Rakaman', 't.card.uploadedRecordings':'Rakaman Dimuat Naik',
+    't.card.uploadMaterial':'Muat Naik Bahan', 't.card.publishedMaterials':'Bahan Disiarkan', 't.card.createAssignment':'Cipta Tugasan Baharu', 't.card.publishedAssignments':'Tugasan Disiarkan',
+    't.card.submissions':'Penghantaran', 't.card.addStudent':'Tambah Pelajar Ke Kursus Ini', 't.card.newCertificate':'Sijil Baharu', 't.card.issuedCertificates':'Sijil Dikeluarkan',
+    't.card.newSession':'Sesi Baharu', 't.card.scheduledSessions':'Sesi Dijadualkan', 't.card.allSchedule':'Semua Jadual Pengajar / Pelajar', 't.card.monthlyTimetable':'Jadual Kelas Bulanan',
+    't.card.newQuiz':'Kuiz Baharu', 't.card.yourQuizzes':'Kuiz Anda', 't.card.editQuestions':'Sunting Soalan', 't.card.previewStudent':'Pratonton (paparan pelajar)',
+    't.btn.gradeAll':'Nilai Semua', 't.btn.grade':'Nilai', 't.nothingToGrade':'Tiada apa untuk dinilai 🎉',
+    't.submittedOn':'Dihantar {when} · {file}', 't.dash.sub':'// {prog} · {date}', 't.dash.subProg':'// {prog}',
+    't.grading.title':'{title} · {n} penghantaran', 't.students.sub':'// {n} pelajar mendaftar'
   }
 };
 
