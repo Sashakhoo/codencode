@@ -2206,7 +2206,7 @@
               </tr>
             </thead>
             <tbody id="students-tbody">
-              <tr><td colspan="7" style="color:var(--muted);font-family:var(--font-m);font-size:12px;padding:24px;text-align:center">No progress yet.</td></tr>
+              <tr><td colspan="7" style="color:var(--muted);font-family:var(--font-m);font-size:12px;padding:24px;text-align:center" data-i18n="common.noProgress">No progress yet.</td></tr>
             </tbody>
           </table>
           <div style="padding:14px 20px;border-top:1px solid var(--border)">
@@ -2272,7 +2272,7 @@
               </tr>
             </thead>
             <tbody id="teacher-certs-tbody">
-              <tr><td colspan="5" style="color:var(--muted);font-family:var(--font-m);font-size:12px;padding:24px;text-align:center">Loading certificates...</td></tr>
+              <tr><td colspan="5" style="color:var(--muted);font-family:var(--font-m);font-size:12px;padding:24px;text-align:center" data-i18n="x.loadingCerts">Loading certificates...</td></tr>
             </tbody>
           </table>
         </div>
@@ -4489,7 +4489,7 @@ async function loadTeacherMonthPlan() {
     } catch(e) {}
     cohortId = '';
   }
-  container.innerHTML = `<div style="padding:16px 20px;color:var(--muted);font-family:var(--font-m);font-size:11px">Loading timetable...</div>`;
+  container.innerHTML = `<div style="padding:16px 20px;color:var(--muted);font-family:var(--font-m);font-size:11px">${T("x.loadingTt2")}</div>`;
   const data = await GET(`/api/courses/${cid}/timetable${cohortId ? '?cohort_id=' + cohortId : ''}`);
   const courseTitle = document.getElementById('t-plan-course')?.selectedOptions[0]?.textContent?.trim() || T('cal.class');
   const startInput = document.getElementById('t-plan-start-date');
@@ -4640,7 +4640,7 @@ async function updateParticipantList() {
     const students = await GET(`/api/admin/courses/${courseId}/students`);
     const arr = Array.isArray(students) ? students : [];
     if (arr.length === 0) {
-      container.innerHTML = `<span style="color:var(--muted);font-family:var(--font-m);font-size:11px">No students enrolled</span>`;
+      container.innerHTML = `<span style="color:var(--muted);font-family:var(--font-m);font-size:11px">${T("x.noStudentsEnrolledShort")}</span>`;
       return;
     }
     container.innerHTML = arr.map(e => `
@@ -4768,6 +4768,9 @@ async function watchRecording(sid) {
 
 const I18N = {
   en: {
+    "x.loadingTt2": "Loading timetable...",
+    "x.noStudentsEnrolledShort": "No students enrolled",
+    "x.loadingShort": "Loading...",
     "x.noNotifications": "No notifications",
     "x.wsCertNoName": "Workshop certificate without participant name",
     "x.loadingCertData": "Loading certificate data...",
@@ -5196,6 +5199,9 @@ const I18N = {
     'err.invalidLang':'Invalid language',
   },
   zh: {
+    "x.loadingTt2": "正在加载时间表……",
+    "x.noStudentsEnrolledShort": "暂无学生报名",
+    "x.loadingShort": "加载中……",
     "x.noNotifications": "暂无通知",
     "x.wsCertNoName": "无参与者姓名的工作坊证书",
     "x.loadingCertData": "正在加载证书数据……",
@@ -5618,6 +5624,9 @@ const I18N = {
     'err.invalidLang':'语言无效',
   },
   bm: {
+    "x.loadingTt2": "Memuatkan jadual...",
+    "x.noStudentsEnrolledShort": "Tiada pelajar mendaftar",
+    "x.loadingShort": "Memuatkan...",
     "x.noNotifications": "Tiada pemberitahuan",
     "x.wsCertNoName": "Sijil bengkel tanpa nama peserta",
     "x.loadingCertData": "Memuatkan data sijil...",
@@ -6624,7 +6633,7 @@ async function openDiscussionPost(pid, isTeacher) {
   const viewEl = document.getElementById(isTeacher ? 't-discussion-post-view' : 'discussion-post-view');
   listEl.style.display = 'none';
   viewEl.style.display = '';
-  viewEl.innerHTML = `<div style="color:var(--muted);font-family:var(--font-m);font-size:12px;padding:20px;text-align:center">Loading...</div>`;
+  viewEl.innerHTML = `<div style="color:var(--muted);font-family:var(--font-m);font-size:12px;padding:20px;text-align:center">${T("x.loadingShort")}</div>`;
 
   try {
     const p = await GET(`/api/discussions/${pid}`);
