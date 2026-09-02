@@ -3070,78 +3070,78 @@
     </div>
 
     <div class="sidebar-section">
-      <div class="sidebar-section-label">Overview</div>
+      <div class="sidebar-section-label" data-i18n="sec.overview">Overview</div>
       <div class="nav-item active" onclick="showView('dashboard')">
-        <i class="fas fa-tachometer-alt"></i> <span>Dashboard</span>
+        <i class="fas fa-tachometer-alt"></i> <span data-i18n="nav.dashboard">Dashboard</span>
       </div>
     </div>
 
     <div class="sidebar-section">
-      <div class="sidebar-section-label">People</div>
+      <div class="sidebar-section-label" data-i18n="sec.people">People</div>
       <div class="nav-item" onclick="showView('students')">
-        <i class="fas fa-users"></i> <span>All Students</span>
+        <i class="fas fa-users"></i> <span data-i18n="nav.allStudents">All Students</span>
       </div>
       <div class="nav-item" onclick="openAddStudent()">
-        <i class="fas fa-user-plus"></i> <span>Add Student</span>
+        <i class="fas fa-user-plus"></i> <span data-i18n="nav.addStudent">Add Student</span>
       </div>
       <div class="nav-item" onclick="showView('teachers')">
-        <i class="fas fa-chalkboard-teacher"></i> <span>Teachers</span>
+        <i class="fas fa-chalkboard-teacher"></i> <span data-i18n="nav.teachers">Teachers</span>
       </div>
       <div class="nav-item" onclick="openAddTeacher()">
-        <i class="fas fa-user-tie"></i> <span>Add Teacher</span>
+        <i class="fas fa-user-tie"></i> <span data-i18n="nav.addTeacher">Add Teacher</span>
       </div>
     </div>
 
     <div class="sidebar-section">
-      <div class="sidebar-section-label">Courses</div>
+      <div class="sidebar-section-label" data-i18n="sec.courses">Courses</div>
       <div class="nav-item" onclick="showView('courses')">
-        <i class="fas fa-layer-group"></i> <span>Manage Courses</span>
+        <i class="fas fa-layer-group"></i> <span data-i18n="nav.manageCourses">Manage Courses</span>
       </div>
       <div class="nav-item" onclick="showView('attendance')">
-        <i class="fas fa-clipboard-check"></i> <span>Attendance</span>
+        <i class="fas fa-clipboard-check"></i> <span data-i18n="nav.attendance">Attendance</span>
       </div>
       <div class="nav-item" onclick="showView('materials')">
-        <i class="fas fa-file-upload"></i> <span>Upload Materials</span>
+        <i class="fas fa-file-upload"></i> <span data-i18n="nav.uploadMaterials">Upload Materials</span>
       </div>
       <div class="nav-item" onclick="showView('timetable')">
-        <i class="fas fa-calendar-alt"></i> <span>Timetable</span>
+        <i class="fas fa-calendar-alt"></i> <span data-i18n="nav.timetable">Timetable</span>
       </div>
     </div>
 
     <div class="sidebar-section">
-      <div class="sidebar-section-label">Workshops</div>
+      <div class="sidebar-section-label" data-i18n="sec.workshops">Workshops</div>
       <div class="nav-item" onclick="showView('workshops')">
-        <i class="fas fa-chalkboard"></i> <span>Catalogue</span>
+        <i class="fas fa-chalkboard"></i> <span data-i18n="nav.catalogue">Catalogue</span>
       </div>
       <div class="nav-item" onclick="showView('workshop-runs')">
-        <i class="fas fa-calendar-day"></i> <span>Upcoming Runs</span>
+        <i class="fas fa-calendar-day"></i> <span data-i18n="nav.upcomingRuns">Upcoming Runs</span>
       </div>
     </div>
 
     <div class="sidebar-section">
-      <div class="sidebar-section-label">Comms</div>
+      <div class="sidebar-section-label" data-i18n="sec.comms">Comms</div>
       <div class="nav-item" onclick="showView('announcements')">
-        <i class="fas fa-bullhorn"></i> <span>Announcements</span>
+        <i class="fas fa-bullhorn"></i> <span data-i18n="nav.announcements" data-i18n="hdr.announcements">Announcements</span>
       </div>
       <div class="nav-item" onclick="showView('sessions')">
-        <i class="fas fa-calendar-check"></i> <span>Sessions</span>
+        <i class="fas fa-calendar-check"></i> <span data-i18n="nav.sessions">Sessions</span>
       </div>
     </div>
 
     <div class="sidebar-section">
-      <div class="sidebar-section-label">Finance</div>
+      <div class="sidebar-section-label" data-i18n="sec.finance">Finance</div>
       <div class="nav-item" onclick="showView('payments')">
-        <i class="fas fa-credit-card"></i> <span>Payment Tracker</span>
+        <i class="fas fa-credit-card"></i> <span data-i18n="nav.paymentTracker">Payment Tracker</span>
       </div>
     </div>
 
     <div class="sidebar-section">
-      <div class="sidebar-section-label">Academic</div>
+      <div class="sidebar-section-label" data-i18n="sec.academic">Academic</div>
       <div class="nav-item" onclick="showView('certificates')">
-        <i class="fas fa-certificate"></i> <span>Certificates</span>
+        <i class="fas fa-certificate"></i> <span data-i18n="nav.certificates" data-i18n="hdr.certificates">Certificates</span>
       </div>
       <div class="nav-item" onclick="showView('analytics')">
-        <i class="fas fa-chart-line"></i> <span>Analytics</span>
+        <i class="fas fa-chart-line"></i> <span data-i18n="nav.analytics">Analytics</span>
       </div>
     </div>
 
@@ -3170,15 +3170,20 @@
         <span class="topbar-badge">LMS</span>
       </div>
       <div class="topbar-nav" id="topbar-nav">
-        <button class="active" data-view-link="dashboard" onclick="showView('dashboard')">Dashboard</button>
-        <button data-view-link="students" onclick="showView('students')">Students</button>
-        <button data-view-link="timetable" onclick="showView('timetable')">Timetable</button>
-        <button data-view-link="add-student" onclick="openAddStudent()">Add Student</button>
+        <button class="active" data-view-link="dashboard" onclick="showView('dashboard')" data-i18n="nav.dashboard">Dashboard</button>
+        <button data-view-link="students" onclick="showView('students')" data-i18n="nav.allStudents">Students</button>
+        <button data-view-link="timetable" onclick="showView('timetable')" data-i18n="nav.timetable">Timetable</button>
+        <button data-view-link="add-student" onclick="openAddStudent()" data-i18n="nav.addStudent">Add Student</button>
       </div>
       <div class="topbar-actions" style="margin-left:auto;display:flex;align-items:center;gap:10px">
         <div class="global-search">
           <i class="fas fa-search"></i>
           <input id="global-student-search" placeholder="Search students..." oninput="handleGlobalStudentSearch(this.value)" />
+        </div>
+        <div class="alang-switch" style="display:flex;gap:2px;background:var(--bg);border-radius:10px;padding:3px">
+          <button id="alang-en" class="alang on" onclick="setLanguage('en')" style="padding:5px 8px;border:0;background:none;color:var(--text-muted);font:600 10px/1 var(--font-m,monospace);cursor:pointer;border-radius:7px">EN</button>
+          <button id="alang-zh" class="alang" onclick="setLanguage('zh')" style="padding:5px 8px;border:0;background:none;color:var(--text-muted);font:600 10px/1 var(--font-m,monospace);cursor:pointer;border-radius:7px">中文</button>
+          <button id="alang-bm" class="alang" onclick="setLanguage('bm')" style="padding:5px 8px;border:0;background:none;color:var(--text-muted);font:600 10px/1 var(--font-m,monospace);cursor:pointer;border-radius:7px">BM</button>
         </div>
         <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme" style="width:46px;height:46px;background:var(--bg);border:0;color:var(--text);cursor:pointer;display:grid;place-items:center;border-radius:14px;transition:all 0.2s">
           <i class="far fa-bell" id="theme-icon"></i>
@@ -3457,7 +3462,7 @@
       <!-- ── SESSIONS ─────────────────────────── -->
       <div id="view-sessions" class="view">
         <div class="section-header" style="margin-bottom:20px">
-          <div class="section-title">Calendar & Sessions</div>
+          <div class="section-title" data-i18n="hdr.calendar">Calendar & Sessions</div>
           <span style="font-size:11px;color:var(--text-muted)">See teacher bookings and open time by week</span>
         </div>
         <div class="card" style="margin-bottom:20px">
@@ -4354,6 +4359,438 @@
 <div id="toast-container"></div>
 
 <script>
+// ── i18n ──────────────────────────────────────────────
+const I18N = { en: {
+    'sec.courses': 'Courses',
+    'sec.comms': 'Comms',
+    'sec.finance': 'Finance',
+    'sec.academic': 'Academic',
+    "nav.dashboard": "Dashboard",
+    "nav.allStudents": "All Students",
+    "nav.addStudent": "Add Student",
+    "nav.teachers": "Teachers",
+    "nav.addTeacher": "Add Teacher",
+    "nav.manageCourses": "Manage Courses",
+    "nav.attendance": "Attendance",
+    "nav.uploadMaterials": "Upload Materials",
+    "nav.timetable": "Timetable",
+    "nav.catalogue": "Catalogue",
+    "nav.upcomingRuns": "Upcoming Runs",
+    "nav.announcements": "Announcements",
+    "nav.sessions": "Sessions",
+    "nav.paymentTracker": "Payment Tracker",
+    "nav.certificates": "Certificates",
+    "nav.analytics": "Analytics",
+    "sec.overview": "Overview",
+    "sec.people": "People",
+    "sec.learning": "Learning",
+    "sec.workshops": "Workshops",
+    "sec.operations": "Operations",
+    "hdr.courses": "Courses & Programmes",
+    "hdr.announcements": "Announcements",
+    "hdr.calendar": "Calendar & Sessions",
+    "hdr.certificates": "Certificates",
+    "hdr.analytics": "Analytics & Exports",
+    "at.notifSoon": "Notifications panel coming soon",
+    "at.nameEmailReq": "Name and email are required",
+    "at.studentUpdated": "Student updated",
+    "at.studentAddedEnrolled": "Student added and enrolled",
+    "at.studentAdded": "Student added",
+    "at.assignCourseFirst": "Assign a course before generating an invoice",
+    "at.studentAddedPayLoading": "Student added. Payment row is loading; refresh Payment Tracker if it is not visible yet.",
+    "at.studentEnrolled": "Student enrolled",
+    "at.studentUnenrolled": "Student unenrolled",
+    "at.wsRegDeleted": "Workshop registration deleted",
+    "at.cohortDeleted": "Cohort deleted",
+    "at.cohortNameReq": "Cohort name is required",
+    "at.cohortCreated": "Cohort created",
+    "at.cohortUpdated": "Cohort updated",
+    "at.selectCourse": "Please select a course",
+    "at.selectFile": "Please select a file",
+    "at.materialUploaded": "Material uploaded",
+    "at.materialDeleted": "Material deleted",
+    "at.validSession": "Enter a valid session number (0 or above)",
+    "at.enrollNotFound": "Enrollment data not found",
+    "at.payUpdatedReceipt": "Payment updated — receipt emailed to student",
+    "at.payUpdated": "Payment updated",
+    "at.titleReq": "Title is required",
+    "at.wsSaved": "Workshop saved",
+    "at.wsDeleted": "Workshop deleted",
+    "at.runLoading": "Run details are still loading",
+    "at.startDtReq": "Start date & time is required",
+    "at.studentNotFound": "Student not found",
+    "at.selectRun": "Select a workshop run",
+    "at.wsAssigned": "Workshop assigned",
+    "at.emailReq": "Email is required",
+    "at.attendeeReg": "Attendee registered",
+    "at.attendeeRemoved": "Attendee removed",
+    "at.payUpdatedWsReceipt": "Payment updated — workshop receipt emailed",
+    "at.courseTitleReq": "Course title is required",
+    "at.courseUpdated": "Course updated",
+    "at.courseCreated": "Course created",
+    "at.selectCourseFirst": "Select a course first",
+    "at.pickDate": "Pick a date first",
+    "at.startDateSaved": "Start date saved!",
+    "at.errLoadAnn": "Error loading announcements: ",
+    "at.titleContentReq": "Title and content are required",
+    "at.annPublished": "Announcement published!",
+    "at.annDeleted": "Announcement deleted",
+    "at.errLoadSessions": "Error loading sessions: ",
+    "at.errLoadCerts": "Error loading certificates: ",
+    "at.errDlCerts": "Error downloading certificates: ",
+    "at.errLoadCertOpts": "Error loading certificate options: ",
+    "at.qtyRange": "Enter a quantity between 1 and 200",
+    "at.certEmailSent": "Certificate email sent!",
+    "at.errSendCertEmail": "Error sending certificate email: ",
+    "at.errDelCerts": "Error deleting certificates: ",
+    "at.errClearCerts": "Error clearing certificates: ",
+    "at.teacherUpdated": "Teacher updated",
+    "at.teacherAdded": "Teacher added",
+    "at.teacherDeleted": "Teacher deleted",
+    "at.welcomeRemind": "Welcome reminders triggered! Check server logs for delivery status.",
+    "ac.rmStudentCourse": "Remove this student from the course?",
+    "ac.delWsReg": "Delete this workshop registration?",
+    "ac.delCohort": "Delete this cohort? Students assigned to it will lose their cohort link.",
+    "ac.delMaterial": "Delete this material?",
+    "ac.delWorkshop": "Delete this workshop and all its runs, attendees & feedback?",
+    "ac.rmAttendee": "Remove this attendee from the run?",
+    "ac.delAnn": "Delete this announcement?",
+    "ac.clearCerts": "Clear all issued certificates? The next certificate will start from 111.",
+    "ac.delTeacher": "Delete this teacher? This cannot be undone.",
+    "aerr.teachersOnly": "Teachers only",
+    "aerr.studentsOnly": "Students only",
+    "aerr.adminsOnly": "Admins only",
+    "aerr.forbidden": "You don't have permission to do that",
+    "aerr.badLogin": "Invalid email or password",
+    "aerr.notEnrolled": "Not enrolled in this course",
+    "aerr.driveLink": "Please use a Google Drive folder or file link",
+    "aerr.recordingClass": "This recording is not available for that class",
+    "aerr.notFound": "Not found or no longer available",
+    "aerr.notAvailableYet": "Not available yet",
+    "aerr.noFile": "No file provided",
+    "aerr.invalidScore": "Invalid score",
+    "aerr.required": "Please fill in all the required fields",
+    "aerr.emailExists": "That email is already in use",
+    "aerr.cantDeleteAdmin": "Admin accounts cannot be deleted",
+    "aerr.alreadyEnrolled": "Already enrolled in this course",
+    "aerr.notPaid": "This enrolment is not marked as paid",
+    "aerr.imageOnly": "Image files only (JPG, PNG, WEBP, GIF)",
+    "aerr.attendanceStatus": "Status must be present, absent or late",
+    "aerr.datetimeFormat": "Date/time must be YYYY-MM-DDTHH:MM",
+    "aerr.blankCertNoStudent": "Blank-name certificates are not linked to a student",
+    "aerr.studentNoEmail": "This student has no email address",
+    "aerr.emailNotSent": "Email could not be sent — check the email configuration",
+    "aerr.selectCert": "Select at least one certificate",
+    "aerr.bulkLimit": "Bulk download is limited to 200 certificates at a time",
+    "aerr.certGone": "One or more selected certificates no longer exist",
+    "aerr.notStudentAccount": "That email belongs to a non-student account",
+    "aerr.badFeedbackLink": "Invalid feedback link",
+    "aerr.ratingRequired": "An event rating is required",
+    "aerr.maxAttempts": "Maximum attempts reached",
+    "aerr.invalidLang": "Invalid language",
+    "ac.delStudent": "Permanently delete student \"{v}\" and all their enrollments? This cannot be undone.",
+    "ac.delCourse": "Permanently delete course \"{v}\" and all its enrollments? This cannot be undone.",
+    "ac.delLabel": "Delete {v}? This cannot be undone.",
+    "ac.aiWorkplace": "This will create/reuse the \"AI for Workplace\" workshop run and register every current student as an attendee (except the named exceptions). Safe to run more than once. Continue?",
+    "ui.lang": "Language",
+    "common.loading": "Loading...",
+    "common.error": "Error: ",
+  }, zh: {
+    'sec.courses': '课程',
+    'sec.comms': '沟通',
+    'sec.finance': '财务',
+    'sec.academic': '教务',
+    "nav.dashboard": "仪表板",
+    "nav.allStudents": "所有学生",
+    "nav.addStudent": "添加学生",
+    "nav.teachers": "教师",
+    "nav.addTeacher": "添加教师",
+    "nav.manageCourses": "管理课程",
+    "nav.attendance": "考勤",
+    "nav.uploadMaterials": "上传资料",
+    "nav.timetable": "时间表",
+    "nav.catalogue": "工作坊目录",
+    "nav.upcomingRuns": "即将举办",
+    "nav.announcements": "公告",
+    "nav.sessions": "课程安排",
+    "nav.paymentTracker": "付款追踪",
+    "nav.certificates": "证书",
+    "nav.analytics": "数据分析",
+    "sec.overview": "概览",
+    "sec.people": "人员",
+    "sec.learning": "教学",
+    "sec.workshops": "工作坊",
+    "sec.operations": "运营",
+    "hdr.courses": "课程与项目",
+    "hdr.announcements": "公告",
+    "hdr.calendar": "日历与课程",
+    "hdr.certificates": "证书",
+    "hdr.analytics": "数据分析与导出",
+    "at.notifSoon": "通知面板即将上线",
+    "at.nameEmailReq": "请填写姓名和邮箱",
+    "at.studentUpdated": "学生已更新",
+    "at.studentAddedEnrolled": "学生已添加并报名",
+    "at.studentAdded": "学生已添加",
+    "at.assignCourseFirst": "请先分配课程再生成发票",
+    "at.studentAddedPayLoading": "学生已添加。付款记录正在加载；若未显示请刷新付款追踪。",
+    "at.studentEnrolled": "学生已报名",
+    "at.studentUnenrolled": "学生已取消报名",
+    "at.wsRegDeleted": "工作坊报名已删除",
+    "at.cohortDeleted": "班级已删除",
+    "at.cohortNameReq": "请填写班级名称",
+    "at.cohortCreated": "班级已创建",
+    "at.cohortUpdated": "班级已更新",
+    "at.selectCourse": "请选择一门课程",
+    "at.selectFile": "请选择文件",
+    "at.materialUploaded": "资料已上传",
+    "at.materialDeleted": "资料已删除",
+    "at.validSession": "请输入有效的课节编号（0 或以上）",
+    "at.enrollNotFound": "未找到报名数据",
+    "at.payUpdatedReceipt": "付款已更新 —— 收据已邮寄给学生",
+    "at.payUpdated": "付款已更新",
+    "at.titleReq": "请填写标题",
+    "at.wsSaved": "工作坊已保存",
+    "at.wsDeleted": "工作坊已删除",
+    "at.runLoading": "场次详情仍在加载",
+    "at.startDtReq": "请填写开始日期和时间",
+    "at.studentNotFound": "未找到学生",
+    "at.selectRun": "请选择一个工作坊场次",
+    "at.wsAssigned": "工作坊已分配",
+    "at.emailReq": "请填写邮箱",
+    "at.attendeeReg": "参与者已登记",
+    "at.attendeeRemoved": "参与者已移除",
+    "at.payUpdatedWsReceipt": "付款已更新 —— 工作坊收据已邮寄",
+    "at.courseTitleReq": "请填写课程标题",
+    "at.courseUpdated": "课程已更新",
+    "at.courseCreated": "课程已创建",
+    "at.selectCourseFirst": "请先选择一门课程",
+    "at.pickDate": "请先选择日期",
+    "at.startDateSaved": "开始日期已保存！",
+    "at.errLoadAnn": "加载公告出错：",
+    "at.titleContentReq": "请填写标题和内容",
+    "at.annPublished": "公告已发布！",
+    "at.annDeleted": "公告已删除",
+    "at.errLoadSessions": "加载课程安排出错：",
+    "at.errLoadCerts": "加载证书出错：",
+    "at.errDlCerts": "下载证书出错：",
+    "at.errLoadCertOpts": "加载证书选项出错：",
+    "at.qtyRange": "请输入 1 到 200 之间的数量",
+    "at.certEmailSent": "证书邮件已发送！",
+    "at.errSendCertEmail": "发送证书邮件出错：",
+    "at.errDelCerts": "删除证书出错：",
+    "at.errClearCerts": "清除证书出错：",
+    "at.teacherUpdated": "教师已更新",
+    "at.teacherAdded": "教师已添加",
+    "at.teacherDeleted": "教师已删除",
+    "at.welcomeRemind": "欢迎提醒已触发！请查看服务器日志了解发送状态。",
+    "ac.rmStudentCourse": "将该学生移出此课程？",
+    "ac.delWsReg": "删除此工作坊报名？",
+    "ac.delCohort": "删除此班级？分配到该班级的学生将失去班级关联。",
+    "ac.delMaterial": "删除此资料？",
+    "ac.delWorkshop": "删除此工作坊及其所有场次、参与者和反馈？",
+    "ac.rmAttendee": "将该参与者移出此场次？",
+    "ac.delAnn": "删除此公告？",
+    "ac.clearCerts": "清除所有已颁发的证书？下一张证书将从 111 开始。",
+    "ac.delTeacher": "删除此教师？此操作无法撤销。",
+    "aerr.teachersOnly": "仅限教师",
+    "aerr.studentsOnly": "仅限学生",
+    "aerr.adminsOnly": "仅限管理员",
+    "aerr.forbidden": "你没有执行此操作的权限",
+    "aerr.badLogin": "邮箱或密码错误",
+    "aerr.notEnrolled": "未报名此课程",
+    "aerr.driveLink": "请使用 Google Drive 文件夹或文件链接",
+    "aerr.recordingClass": "此录像不向该班级开放",
+    "aerr.notFound": "未找到或已不可用",
+    "aerr.notAvailableYet": "尚未开放",
+    "aerr.noFile": "未提供文件",
+    "aerr.invalidScore": "分数无效",
+    "aerr.required": "请填写所有必填项",
+    "aerr.emailExists": "该邮箱已被使用",
+    "aerr.cantDeleteAdmin": "无法删除管理员账户",
+    "aerr.alreadyEnrolled": "已报名此课程",
+    "aerr.notPaid": "此报名未标记为已付款",
+    "aerr.imageOnly": "仅限图片文件（JPG、PNG、WEBP、GIF）",
+    "aerr.attendanceStatus": "状态必须为出席、缺席或迟到",
+    "aerr.datetimeFormat": "日期／时间格式须为 YYYY-MM-DDTHH:MM",
+    "aerr.blankCertNoStudent": "无姓名证书不与学生关联",
+    "aerr.studentNoEmail": "该学生没有邮箱地址",
+    "aerr.emailNotSent": "邮件发送失败 —— 请检查邮件配置",
+    "aerr.selectCert": "请至少选择一张证书",
+    "aerr.bulkLimit": "批量下载每次最多 200 张证书",
+    "aerr.certGone": "所选证书中有一张或多张已不存在",
+    "aerr.notStudentAccount": "该邮箱属于非学生账户",
+    "aerr.badFeedbackLink": "反馈链接无效",
+    "aerr.ratingRequired": "请填写活动评分",
+    "aerr.maxAttempts": "已达到最大尝试次数",
+    "aerr.invalidLang": "语言无效",
+    "ac.delStudent": "永久删除学生「{v}」及其所有报名记录？此操作无法撤销。",
+    "ac.delCourse": "永久删除课程「{v}」及其所有报名记录？此操作无法撤销。",
+    "ac.delLabel": "删除 {v}？此操作无法撤销。",
+    "ac.aiWorkplace": "这将创建／复用「AI for Workplace」工作坊场次，并把当前所有学生（除已列明的例外者）登记为参与者。可多次运行。是否继续？",
+    "ui.lang": "语言",
+    "common.loading": "加载中…",
+    "common.error": "错误：",
+  }, bm: {
+    'sec.courses': 'Kursus',
+    'sec.comms': 'Komunikasi',
+    'sec.finance': 'Kewangan',
+    'sec.academic': 'Akademik',
+    "nav.dashboard": "Papan Pemuka",
+    "nav.allStudents": "Semua Pelajar",
+    "nav.addStudent": "Tambah Pelajar",
+    "nav.teachers": "Pengajar",
+    "nav.addTeacher": "Tambah Pengajar",
+    "nav.manageCourses": "Urus Kursus",
+    "nav.attendance": "Kehadiran",
+    "nav.uploadMaterials": "Muat Naik Bahan",
+    "nav.timetable": "Jadual",
+    "nav.catalogue": "Katalog",
+    "nav.upcomingRuns": "Sesi Akan Datang",
+    "nav.announcements": "Pengumuman",
+    "nav.sessions": "Sesi",
+    "nav.paymentTracker": "Penjejak Bayaran",
+    "nav.certificates": "Sijil",
+    "nav.analytics": "Analitik",
+    "sec.overview": "Gambaran",
+    "sec.people": "Orang",
+    "sec.learning": "Pembelajaran",
+    "sec.workshops": "Bengkel",
+    "sec.operations": "Operasi",
+    "hdr.courses": "Kursus & Program",
+    "hdr.announcements": "Pengumuman",
+    "hdr.calendar": "Kalendar & Sesi",
+    "hdr.certificates": "Sijil",
+    "hdr.analytics": "Analitik & Eksport",
+    "at.notifSoon": "Panel pemberitahuan akan datang",
+    "at.nameEmailReq": "Nama dan e-mel diperlukan",
+    "at.studentUpdated": "Pelajar dikemas kini",
+    "at.studentAddedEnrolled": "Pelajar ditambah dan didaftarkan",
+    "at.studentAdded": "Pelajar ditambah",
+    "at.assignCourseFirst": "Tugaskan kursus sebelum menjana invois",
+    "at.studentAddedPayLoading": "Pelajar ditambah. Baris bayaran sedang dimuatkan; muat semula Penjejak Bayaran jika belum kelihatan.",
+    "at.studentEnrolled": "Pelajar didaftarkan",
+    "at.studentUnenrolled": "Pendaftaran pelajar dibatalkan",
+    "at.wsRegDeleted": "Pendaftaran bengkel dipadam",
+    "at.cohortDeleted": "Kohort dipadam",
+    "at.cohortNameReq": "Nama kohort diperlukan",
+    "at.cohortCreated": "Kohort dicipta",
+    "at.cohortUpdated": "Kohort dikemas kini",
+    "at.selectCourse": "Sila pilih kursus",
+    "at.selectFile": "Sila pilih fail",
+    "at.materialUploaded": "Bahan dimuat naik",
+    "at.materialDeleted": "Bahan dipadam",
+    "at.validSession": "Masukkan nombor sesi yang sah (0 atau lebih)",
+    "at.enrollNotFound": "Data pendaftaran tidak dijumpai",
+    "at.payUpdatedReceipt": "Bayaran dikemas kini — resit dihantar kepada pelajar",
+    "at.payUpdated": "Bayaran dikemas kini",
+    "at.titleReq": "Tajuk diperlukan",
+    "at.wsSaved": "Bengkel disimpan",
+    "at.wsDeleted": "Bengkel dipadam",
+    "at.runLoading": "Butiran sesi masih dimuatkan",
+    "at.startDtReq": "Tarikh & masa mula diperlukan",
+    "at.studentNotFound": "Pelajar tidak dijumpai",
+    "at.selectRun": "Pilih sesi bengkel",
+    "at.wsAssigned": "Bengkel ditugaskan",
+    "at.emailReq": "E-mel diperlukan",
+    "at.attendeeReg": "Peserta didaftarkan",
+    "at.attendeeRemoved": "Peserta dikeluarkan",
+    "at.payUpdatedWsReceipt": "Bayaran dikemas kini — resit bengkel dihantar",
+    "at.courseTitleReq": "Tajuk kursus diperlukan",
+    "at.courseUpdated": "Kursus dikemas kini",
+    "at.courseCreated": "Kursus dicipta",
+    "at.selectCourseFirst": "Pilih kursus dahulu",
+    "at.pickDate": "Pilih tarikh dahulu",
+    "at.startDateSaved": "Tarikh mula disimpan!",
+    "at.errLoadAnn": "Ralat memuatkan pengumuman: ",
+    "at.titleContentReq": "Tajuk dan kandungan diperlukan",
+    "at.annPublished": "Pengumuman diterbitkan!",
+    "at.annDeleted": "Pengumuman dipadam",
+    "at.errLoadSessions": "Ralat memuatkan sesi: ",
+    "at.errLoadCerts": "Ralat memuatkan sijil: ",
+    "at.errDlCerts": "Ralat memuat turun sijil: ",
+    "at.errLoadCertOpts": "Ralat memuatkan pilihan sijil: ",
+    "at.qtyRange": "Masukkan kuantiti antara 1 dan 200",
+    "at.certEmailSent": "E-mel sijil dihantar!",
+    "at.errSendCertEmail": "Ralat menghantar e-mel sijil: ",
+    "at.errDelCerts": "Ralat memadam sijil: ",
+    "at.errClearCerts": "Ralat mengosongkan sijil: ",
+    "at.teacherUpdated": "Pengajar dikemas kini",
+    "at.teacherAdded": "Pengajar ditambah",
+    "at.teacherDeleted": "Pengajar dipadam",
+    "at.welcomeRemind": "Peringatan selamat datang dicetuskan! Semak log pelayan untuk status penghantaran.",
+    "ac.rmStudentCourse": "Keluarkan pelajar ini dari kursus?",
+    "ac.delWsReg": "Padam pendaftaran bengkel ini?",
+    "ac.delCohort": "Padam kohort ini? Pelajar yang ditugaskan akan hilang pautan kohort mereka.",
+    "ac.delMaterial": "Padam bahan ini?",
+    "ac.delWorkshop": "Padam bengkel ini dan semua sesi, peserta & maklum balasnya?",
+    "ac.rmAttendee": "Keluarkan peserta ini dari sesi?",
+    "ac.delAnn": "Padam pengumuman ini?",
+    "ac.clearCerts": "Kosongkan semua sijil yang dikeluarkan? Sijil seterusnya akan bermula dari 111.",
+    "ac.delTeacher": "Padam pengajar ini? Ini tidak boleh dibatalkan.",
+    "aerr.teachersOnly": "Pengajar sahaja",
+    "aerr.studentsOnly": "Pelajar sahaja",
+    "aerr.adminsOnly": "Pentadbir sahaja",
+    "aerr.forbidden": "Anda tiada kebenaran untuk berbuat demikian",
+    "aerr.badLogin": "E-mel atau kata laluan tidak sah",
+    "aerr.notEnrolled": "Tidak mendaftar dalam kursus ini",
+    "aerr.driveLink": "Sila guna pautan folder atau fail Google Drive",
+    "aerr.recordingClass": "Rakaman ini tidak tersedia untuk kelas itu",
+    "aerr.notFound": "Tidak dijumpai atau tidak lagi tersedia",
+    "aerr.notAvailableYet": "Belum tersedia",
+    "aerr.noFile": "Tiada fail diberikan",
+    "aerr.invalidScore": "Markah tidak sah",
+    "aerr.required": "Sila isi semua medan yang diperlukan",
+    "aerr.emailExists": "E-mel itu sudah digunakan",
+    "aerr.cantDeleteAdmin": "Akaun pentadbir tidak boleh dipadam",
+    "aerr.alreadyEnrolled": "Sudah mendaftar dalam kursus ini",
+    "aerr.notPaid": "Pendaftaran ini tidak ditanda sebagai dibayar",
+    "aerr.imageOnly": "Fail imej sahaja (JPG, PNG, WEBP, GIF)",
+    "aerr.attendanceStatus": "Status mesti hadir, tidak hadir atau lewat",
+    "aerr.datetimeFormat": "Tarikh/masa mesti YYYY-MM-DDTHH:MM",
+    "aerr.blankCertNoStudent": "Sijil tanpa nama tidak dikaitkan dengan pelajar",
+    "aerr.studentNoEmail": "Pelajar ini tiada alamat e-mel",
+    "aerr.emailNotSent": "E-mel tidak dapat dihantar — semak konfigurasi e-mel",
+    "aerr.selectCert": "Pilih sekurang-kurangnya satu sijil",
+    "aerr.bulkLimit": "Muat turun pukal terhad kepada 200 sijil pada satu masa",
+    "aerr.certGone": "Satu atau lebih sijil yang dipilih tidak lagi wujud",
+    "aerr.notStudentAccount": "E-mel itu milik akaun bukan pelajar",
+    "aerr.badFeedbackLink": "Pautan maklum balas tidak sah",
+    "aerr.ratingRequired": "Penilaian acara diperlukan",
+    "aerr.maxAttempts": "Bilangan percubaan maksimum dicapai",
+    "aerr.invalidLang": "Bahasa tidak sah",
+    "ac.delStudent": "Padam pelajar \"{v}\" dan semua pendaftarannya secara kekal? Ini tidak boleh dibatalkan.",
+    "ac.delCourse": "Padam kursus \"{v}\" dan semua pendaftarannya secara kekal? Ini tidak boleh dibatalkan.",
+    "ac.delLabel": "Padam {v}? Ini tidak boleh dibatalkan.",
+    "ac.aiWorkplace": "Ini akan cipta/guna semula sesi bengkel \"AI for Workplace\" dan daftar setiap pelajar semasa sebagai peserta (kecuali pengecualian yang dinamakan). Selamat dijalankan berkali-kali. Teruskan?",
+    "ui.lang": "Bahasa",
+    "common.loading": "Memuatkan...",
+    "common.error": "Ralat: ",
+  } };
+window.LANG = (function(){ try { return localStorage.getItem('admin-lang') || 'en'; } catch(e){ return 'en'; } })();
+function T(key, vars){
+  const d = I18N[window.LANG] || I18N.en;
+  let s = (d && d[key] != null) ? d[key] : (I18N.en[key] != null ? I18N.en[key] : key);
+  if (vars) for (const k in vars) s = s.replace(new RegExp('\\{'+k+'\\}','g'), vars[k]);
+  return s;
+}
+const TERR = {"Teachers only": "aerr.teachersOnly", "Students only": "aerr.studentsOnly", "Admins only": "aerr.adminsOnly", "Forbidden": "aerr.forbidden", "forbidden": "aerr.forbidden", "Access denied": "aerr.forbidden", "Invalid email or password": "aerr.badLogin", "Not enrolled": "aerr.notEnrolled", "Please use a Google Drive folder or file link": "aerr.driveLink", "Recording not available for your class": "aerr.recordingClass", "Slide not found": "aerr.notFound", "Material not found": "aerr.notFound", "No recording available": "aerr.notFound", "Not available yet": "aerr.notAvailableYet", "No file provided": "aerr.noFile", "No file": "aerr.noFile", "Invalid score": "aerr.invalidScore", "name and email are required": "aerr.required", "name required": "aerr.required", "title is required": "aerr.required", "question_text required": "aerr.required", "body required": "aerr.required", "session required": "aerr.required", "material_id required": "aerr.required", "course_id required": "aerr.required", "student_id and session required": "aerr.required", "start_datetime is required": "aerr.required", "title and content required": "aerr.required", "title and start_datetime are required": "aerr.required", "title and course_id required": "aerr.required", "course_id required for attendance export": "aerr.required", "workshop_id required; student_id required unless blank_name is true": "aerr.required", "course_id required; student_id required unless blank_name is true": "aerr.required", "Email already exists": "aerr.emailExists", "Email already in use": "aerr.emailExists", "Cannot delete admin accounts": "aerr.cantDeleteAdmin", "Already enrolled": "aerr.alreadyEnrolled", "Enrollment is not marked as paid": "aerr.notPaid", "Image files only (jpg, png, webp, gif)": "aerr.imageOnly", "status must be present/absent/late": "aerr.attendanceStatus", "start_datetime must be YYYY-MM-DDTHH:MM": "aerr.datetimeFormat", "Blank-name certificates are not linked to a student": "aerr.blankCertNoStudent", "Student has no email address": "aerr.studentNoEmail", "Email could not be sent. Check email configuration.": "aerr.emailNotSent", "Select at least one certificate": "aerr.selectCert", "Bulk download is limited to 200 certificates at a time": "aerr.bulkLimit", "One or more selected certificates no longer exist": "aerr.certGone", "Email belongs to a non-student account": "aerr.notStudentAccount", "Invalid feedback link": "aerr.badFeedbackLink", "An event rating is required": "aerr.ratingRequired", "Max attempts reached": "aerr.maxAttempts", "Invalid language": "aerr.invalidLang"};
+function tErr(m){ if (m==null) return ''; const k = TERR[String(m)]; return k ? T(k) : String(m); }
+function _adminLocale(){ return window.LANG==='zh'?'zh-CN':(window.LANG==='bm'?'ms-MY':'en-US'); }
+function fmtDate(iso){ if(!iso) return ''; const d=new Date(iso); return isNaN(d)?iso:d.toLocaleDateString(_adminLocale(),{year:'numeric',month:'short',day:'numeric'}); }
+function applyLanguage(lang, opts){
+  window.LANG = lang;
+  try { localStorage.setItem('admin-lang', lang); } catch(e){}
+  document.documentElement.lang = lang==='zh'?'zh-CN':(lang==='bm'?'ms':'en');
+  document.querySelectorAll('[data-i18n]').forEach(el => { const v=T(el.getAttribute('data-i18n')); if(v!=null) el.textContent=v; });
+  document.querySelectorAll('[data-i18n-ph]').forEach(el => { const v=T(el.getAttribute('data-i18n-ph')); if(v!=null) el.setAttribute('placeholder',v); });
+  document.querySelectorAll('[data-i18n-title]').forEach(el => { const v=T(el.getAttribute('data-i18n-title')); if(v!=null) el.setAttribute('title',v); });
+  ['en','zh','bm'].forEach(l => { const b=document.getElementById('alang-'+l); if(b) b.classList.toggle('on', l===lang); });
+  if (opts && opts.rerender === false) return;
+  try { if (window.__adminView && typeof showView === 'function') showView(window.__adminView); } catch(e){}
+}
+function setLanguage(lang){ applyLanguage(lang); }
+(function(){ applyLanguage(window.LANG, { rerender:false }); })();
+
 // ── Theme toggle ───────────────────────────────────────
 (function(){
   const t = localStorage.getItem('theme') || 'light';
@@ -4363,7 +4800,7 @@
 })();
 
 function toggleTheme() {
-  toast('Notifications panel coming soon');
+  toast(T('at.notifSoon'));
 }
 
 // ═══════════════════════════════════════════════════════
@@ -4396,7 +4833,7 @@ async function api(method, url, body, formData) {
   }
   const res = await fetch(url, opts);
   const json = await res.json().catch(() => ({}));
-  if (!res.ok) throw new Error(json.error || `HTTP ${res.status}`);
+  if (!res.ok) throw new Error((typeof tErr==='function'?tErr(json.error):json.error) || `HTTP ${res.status}`);
   return json;
 }
 function GET(url)       { return api('GET',    url); }
@@ -4603,6 +5040,7 @@ function setActiveNavigation(name) {
 }
 
 function showView(name) {
+  window.__adminView = name;
   closeAllOverlays();
   document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
   const el = document.getElementById(`view-${name}`);
@@ -5052,7 +5490,7 @@ function validateStudentWizardStep(step) {
   const name = document.getElementById('s-name').value.trim();
   const email = document.getElementById('s-email').value.trim();
   if (step === 1 && (!name || !email)) {
-    toast('Name and email are required', true);
+    toast(T('at.nameEmailReq'), true);
     return false;
   }
   return true;
@@ -5092,7 +5530,7 @@ function teacherWizardNext() {
   const name = document.getElementById('t-name').value.trim();
   const email = document.getElementById('t-email').value.trim();
   if (S.teacherWizardStep === 1 && (!name || !email)) {
-    toast('Name and email are required', true);
+    toast(T('at.nameEmailReq'), true);
     return;
   }
   setTeacherWizardStep(S.teacherWizardStep + 1);
@@ -5182,12 +5620,12 @@ async function saveStudent() {
     bill_sst_number: document.getElementById('s-bill-sst-number').value.trim(),
     bill_company_address: document.getElementById('s-bill-company-address').value.trim(),
   };
-  if (!data.name || !data.email) { toast('Name and email are required', true); return; }
+  if (!data.name || !data.email) { toast(T('at.nameEmailReq'), true); return; }
   if (!uid && !validateStudentWizardStep(1)) return;
   try {
     if (uid) {
       await PUT(`/api/admin/students/${uid}`, data);
-      toast('Student updated');
+      toast(T('at.studentUpdated'));
     } else {
       const res = await POST('/api/admin/students', data);
       const newId = res.student.id;
@@ -5207,9 +5645,9 @@ async function saveStudent() {
         });
         addedStudentHasEnrollment = true;
         newStudentPaymentTarget = { studentId: newId, courseId: numericCourseId };
-        toast('Student added and enrolled');
+        toast(T('at.studentAddedEnrolled'));
       } else {
-        toast('Student added');
+        toast(T('at.studentAdded'));
       }
     }
     closeModal('modal-student');
@@ -5223,7 +5661,7 @@ async function saveStudent() {
         await renderPayments();
         openPaymentForNewStudent(newStudentPaymentTarget);
       } else {
-        toast('Assign a course before generating an invoice', true);
+        toast(T('at.assignCourseFirst'), true);
       }
     }
   } catch(e) { toast(e.message, true); }
@@ -5236,7 +5674,7 @@ function openPaymentForNewStudent(target) {
     parseInt(e.course_id) === parseInt(target.courseId)
   );
   if (!payment) {
-    toast('Student added. Payment row is loading; refresh Payment Tracker if it is not visible yet.', true);
+    toast(T('at.studentAddedPayLoading'), true);
     return;
   }
   const filter = document.getElementById('pay-filter');
@@ -5320,7 +5758,7 @@ async function enrollStudent() {
   };
   try {
     await POST(`/api/admin/students/${uid}/enroll`, data);
-    toast('Student enrolled');
+    toast(T('at.studentEnrolled'));
     closeModal('modal-enroll');
     await loadStudents();
     selectStudent(uid);
@@ -5328,27 +5766,27 @@ async function enrollStudent() {
 }
 
 async function unenroll(eid, uid) {
-  if (!confirm('Remove this student from the course?')) return;
+  if (!confirm(T('ac.rmStudentCourse'))) return;
   try {
     await DELETE(`/api/admin/enrollments/${eid}`);
-    toast('Student unenrolled');
+    toast(T('at.studentUnenrolled'));
     await loadStudents();
     selectStudent(uid);
   } catch(e) { toast(e.message, true); }
 }
 
 async function deleteWorkshopRegistration(runId, attendeeId, uid) {
-  if (!confirm('Delete this workshop registration?')) return;
+  if (!confirm(T('ac.delWsReg'))) return;
   try {
     await DELETE(`/api/admin/workshop-runs/${runId}/attendees/${attendeeId}`);
-    toast('Workshop registration deleted');
+    toast(T('at.wsRegDeleted'));
     await loadStudents();
     selectStudent(uid);
   } catch(e) { toast(e.message, true); }
 }
 
 async function deleteStudent(uid, name) {
-  if (!confirm(`Permanently delete student "${name}" and all their enrollments? This cannot be undone.`)) return;
+  if (!confirm(T('ac.delStudent', {v: name}))) return;
   try {
     await DELETE(`/api/admin/students/${uid}`);
     toast(`${name} deleted`);
@@ -5359,7 +5797,7 @@ async function deleteStudent(uid, name) {
 }
 
 async function deleteCourse(cid, title) {
-  if (!confirm(`Permanently delete course "${title}" and all its enrollments? This cannot be undone.`)) return;
+  if (!confirm(T('ac.delCourse', {v: title}))) return;
   try {
     await DELETE(`/api/admin/courses/${cid}`);
     toast(`${title} deleted`);
@@ -5496,10 +5934,10 @@ async function advanceCohortWeek(cohortId, delta, cid) {
 }
 
 async function deleteCohort(cohortId, cid) {
-  if (!confirm('Delete this cohort? Students assigned to it will lose their cohort link.')) return;
+  if (!confirm(T('ac.delCohort'))) return;
   try {
     await DELETE(`/api/admin/cohorts/${cohortId}`);
-    toast('Cohort deleted');
+    toast(T('at.cohortDeleted'));
     loadCohortsForCourse(cid);
   } catch(e) { toast(e.message, true); }
 }
@@ -5519,7 +5957,7 @@ async function saveNewCohort() {
   const start = document.getElementById('add-cohort-start').value;
   const end   = document.getElementById('add-cohort-end').value;
   const teacherId = document.getElementById('add-cohort-teacher')?.value;
-  if (!name) { toast('Cohort name is required', true); return; }
+  if (!name) { toast(T('at.cohortNameReq'), true); return; }
   try {
     await POST(`/api/courses/${cid}/cohorts`, {
       name,
@@ -5527,7 +5965,7 @@ async function saveNewCohort() {
       end_date: end || null,
       teacher_id: teacherId ? parseInt(teacherId) : null
     });
-    toast('Cohort created');
+    toast(T('at.cohortCreated'));
     closeModal('modal-add-cohort');
     loadCohortsForCourse(parseInt(cid));
   } catch(e) { toast(e.message, true); }
@@ -5577,7 +6015,7 @@ async function saveCohortEdit() {
   const cohortId = parseInt(document.getElementById('edit-cohort-id').value);
   const cid      = parseInt(document.getElementById('edit-cohort-course-id').value);
   const name     = document.getElementById('edit-cohort-name').value.trim();
-  if (!name) { toast('Cohort name is required', true); return; }
+  if (!name) { toast(T('at.cohortNameReq'), true); return; }
   // Collect schedule slots
   const slots = [...document.querySelectorAll('#edit-cohort-schedule > div')].map(div => ({
     day:   div.querySelector('.slot-day').value,
@@ -5597,7 +6035,7 @@ async function saveCohortEdit() {
   };
   try {
     await PUT(`/api/admin/cohorts/${cohortId}`, payload);
-    toast('Cohort updated');
+    toast(T('at.cohortUpdated'));
     closeModal('modal-edit-cohort');
     loadCohortsForCourse(cid);
   } catch(e) { toast(e.message, true); }
@@ -5784,8 +6222,8 @@ function handleMatDrop(e) {
 async function uploadMaterial() {
   const cid  = document.getElementById('mat-course-select').value;
   const file = document.getElementById('mat-file').files[0];
-  if (!cid)  { toast('Please select a course', true); return; }
-  if (!file) { toast('Please select a file', true); return; }
+  if (!cid)  { toast(T('at.selectCourse'), true); return; }
+  if (!file) { toast(T('at.selectFile'), true); return; }
 
   const fd = new FormData();
   fd.append('file',  file);
@@ -5794,7 +6232,7 @@ async function uploadMaterial() {
 
   try {
     await POSTFD(`/api/admin/courses/${cid}/materials`, fd);
-    toast('Material uploaded');
+    toast(T('at.materialUploaded'));
     document.getElementById('mat-file').value    = '';
     document.getElementById('mat-file-label').textContent = 'Click or drag file here';
     document.getElementById('mat-title').value   = '';
@@ -5804,10 +6242,10 @@ async function uploadMaterial() {
 }
 
 async function deleteMaterial(mid, cid) {
-  if (!confirm('Delete this material?')) return;
+  if (!confirm(T('ac.delMaterial'))) return;
   try {
     await DELETE(`/api/admin/materials/${mid}`);
-    toast('Material deleted');
+    toast(T('at.materialDeleted'));
     loadMaterialsList();
   } catch(e) { toast(e.message, true); }
 }
@@ -5819,7 +6257,7 @@ async function editMaterialWeek(mid, cid, currentSession) {
   );
   if (input === null) return;
   const session = parseInt(input);
-  if (isNaN(session) || session < 0) { toast('Enter a valid session number (0 or above)', true); return; }
+  if (isNaN(session) || session < 0) { toast(T('at.validSession'), true); return; }
   try {
     await PUT(`/api/admin/materials/${mid}`, { session });
     toast(`Material moved to ${session === 0 ? 'General Resources' : 'Session ' + session}`);
@@ -5872,7 +6310,7 @@ function filterPayments() {
 
 function openPaymentModal(eid) {
   const e = (S.enrollMap || {})[eid];
-  if (!e) { toast('Enrollment data not found', true); return; }
+  if (!e) { toast(T('at.enrollNotFound'), true); return; }
   document.getElementById('pay-enrollment-id').value = eid;
   document.getElementById('pay-status-select').value = e.payment_status || 'pending';
   document.getElementById('pay-amount').value         = e.payment_amount != null ? e.payment_amount : '';
@@ -5931,13 +6369,13 @@ async function savePayment() {
       const res = await fetch(`/api/admin/enrollments/${eid}/receipt`, { method:'POST', body: fd });
       if (!res.ok) {
         const err = await res.json();
-        throw new Error(err.error || 'Receipt upload failed');
+        throw new Error(tErr(err.error) || 'Receipt upload failed');
       }
     }
     if (payResult.just_paid && payResult.email_status) {
       const st = payResult.email_status;
       if (st.receipt_sent) {
-        toast('Payment updated — receipt emailed to student');
+        toast(T('at.payUpdatedReceipt'));
       } else {
         toast(`Payment updated, but receipt email FAILED${st.receipt_error ? ': ' + st.receipt_error : ''}`, true);
       }
@@ -5945,7 +6383,7 @@ async function savePayment() {
         toast(`Enrolment confirmation email FAILED${st.confirmation_error ? ': ' + st.confirmation_error : ''}`, true);
       }
     } else {
-      toast('Payment updated');
+      toast(T('at.payUpdated'));
     }
     closeModal('modal-payment');
     // Reload data and re-render
@@ -6023,21 +6461,21 @@ async function saveWorkshop() {
     duration_hours: parseFloat(document.getElementById('workshop-duration').value) || 4,
     price_per_pax: document.getElementById('workshop-price').value || null,
   };
-  if (!payload.title) { toast('Title is required', true); return; }
+  if (!payload.title) { toast(T('at.titleReq'), true); return; }
   try {
     if (id) await PUT(`/api/admin/workshops/${id}`, payload);
     else    await POST('/api/admin/workshops', payload);
-    toast('Workshop saved');
+    toast(T('at.wsSaved'));
     closeModal('modal-workshop');
     await loadWorkshopCatalogue();
   } catch(e) { toast(e.message, true); }
 }
 
 async function deleteWorkshop(wid) {
-  if (!confirm('Delete this workshop and all its runs, attendees & feedback?')) return;
+  if (!confirm(T('ac.delWorkshop'))) return;
   try {
     await DELETE(`/api/admin/workshops/${wid}`);
-    toast('Workshop deleted');
+    toast(T('at.wsDeleted'));
     await loadWorkshopCatalogue();
   } catch(e) { toast(e.message, true); }
 }
@@ -6061,7 +6499,7 @@ function openScheduleRunModal(wid) {
 
 function openEditRunModal(rid) {
   const run = S.currentRun && parseInt(S.currentRun.id) === parseInt(rid) ? S.currentRun : null;
-  if (!run) { toast('Run details are still loading', true); return; }
+  if (!run) { toast(T('at.runLoading'), true); return; }
   document.getElementById('run-modal-title').textContent = 'Edit Run';
   document.getElementById('run-workshop-id').value = run.workshop_id;
   document.getElementById('run-id').value = run.id;
@@ -6083,7 +6521,7 @@ async function saveScheduleRun() {
   const wid = document.getElementById('run-workshop-id').value;
   const rid = document.getElementById('run-id').value;
   const start = document.getElementById('run-start').value;
-  if (!start) { toast('Start date & time is required', true); return; }
+  if (!start) { toast(T('at.startDtReq'), true); return; }
   const payload = {
     start_datetime: start,
     end_datetime: document.getElementById('run-end').value || null,
@@ -6118,7 +6556,7 @@ async function runClassifyExistingStudents() {
 
 async function openAssignWorkshopModal(uid) {
   const student = (S.students || []).find(s => s.id === uid);
-  if (!student) { toast('Student not found', true); return; }
+  if (!student) { toast(T('at.studentNotFound'), true); return; }
   document.getElementById('assign-workshop-student-id').value = uid;
   const select = document.getElementById('assign-workshop-run');
   const note = document.getElementById('assign-workshop-note');
@@ -6155,13 +6593,13 @@ async function openAssignWorkshopModal(uid) {
 async function saveAssignWorkshop() {
   const uid = parseInt(document.getElementById('assign-workshop-student-id').value || '0');
   const rid = document.getElementById('assign-workshop-run').value;
-  if (!uid || !rid) { toast('Select a workshop run', true); return; }
+  if (!uid || !rid) { toast(T('at.selectRun'), true); return; }
   const btn = document.getElementById('assign-workshop-save');
   btn.disabled = true;
   btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Assigning...';
   try {
     await POST(`/api/admin/workshop-runs/${rid}/attendees`, { client_id: uid });
-    toast('Workshop assigned');
+    toast(T('at.wsAssigned'));
     closeModal('modal-assign-workshop');
     await loadStudents();
     renderStudentList();
@@ -6344,7 +6782,7 @@ async function saveAddAttendee() {
   const rid = document.getElementById('att-run-id').value;
   const clientId = document.getElementById('att-existing-student').value;
   const email = document.getElementById('att-email').value.trim();
-  if (!clientId && !email) { toast('Email is required', true); return; }
+  if (!clientId && !email) { toast(T('at.emailReq'), true); return; }
   try {
     const payload = clientId
       ? { client_id: parseInt(clientId) }
@@ -6359,7 +6797,7 @@ async function saveAddAttendee() {
     } else if (res.account?.repaired_login) {
       toast(`Attendee registered — LMS login repaired: ${res.account.login_email} / ${res.account.login_password}`);
     } else {
-      toast('Attendee registered');
+      toast(T('at.attendeeReg'));
     }
     closeModal('modal-add-attendee');
     await openRunDetail(parseInt(rid));
@@ -6374,10 +6812,10 @@ async function toggleAttendance(rid, aid, attended) {
 }
 
 async function deleteAttendee(rid, aid) {
-  if (!confirm('Remove this attendee from the run?')) return;
+  if (!confirm(T('ac.rmAttendee'))) return;
   try {
     await DELETE(`/api/admin/workshop-runs/${rid}/attendees/${aid}`);
-    toast('Attendee removed');
+    toast(T('at.attendeeRemoved'));
     await openRunDetail(rid);
   } catch(e) { toast(e.message, true); }
 }
@@ -6412,12 +6850,12 @@ async function saveAttendeePayment() {
     if (payResult.just_paid && payResult.email_status) {
       const st = payResult.email_status;
       if (st.receipt_sent) {
-        toast('Payment updated — workshop receipt emailed');
+        toast(T('at.payUpdatedWsReceipt'));
       } else {
         toast(`Payment updated, but workshop receipt email FAILED${st.receipt_error ? ': ' + st.receipt_error : ''}`, true);
       }
     } else {
-      toast('Payment updated');
+      toast(T('at.payUpdated'));
     }
     closeModal('modal-attendee-payment');
     if (uid) {
@@ -6550,7 +6988,7 @@ async function saveCourse() {
     seat_cap:    capEl && capEl.value ? parseInt(capEl.value) : null,
     teacher_id:  teacherEl && teacherEl.value ? parseInt(teacherEl.value) : null,
   };
-  if (!data.title) { toast('Course title is required', true); return; }
+  if (!data.title) { toast(T('at.courseTitleReq'), true); return; }
   const btn = document.getElementById('course-save-btn');
   btn.disabled = true;
   try {
@@ -6558,11 +6996,11 @@ async function saveCourse() {
       const res = await PUT(`/api/admin/courses/${cid}`, data);
       const idx = S.courses.findIndex(x => x.id === parseInt(cid));
       if (idx >= 0) S.courses[idx] = res.course;
-      toast('Course updated');
+      toast(T('at.courseUpdated'));
     } else {
       const res = await POST('/api/admin/courses', data);
       S.courses.push(res.course);
-      toast('Course created');
+      toast(T('at.courseCreated'));
     }
     closeModal('modal-course');
     renderCourses();
@@ -6697,8 +7135,8 @@ async function saveAdminStartDate() {
   const cid = document.getElementById('tt-course-select').value;
   const cohortId = document.getElementById('tt-cohort-select')?.value || '';
   const val = document.getElementById('tt-admin-start-date').value;
-  if (!cid) { toast('Select a course first', true); return; }
-  if (!val) { toast('Pick a date first', true); return; }
+  if (!cid) { toast(T('at.selectCourseFirst'), true); return; }
+  if (!val) { toast(T('at.pickDate'), true); return; }
   try {
     if (cohortId) {
       const cohorts = await GET(`/api/courses/${cid}/cohorts`);
@@ -6718,7 +7156,7 @@ async function saveAdminStartDate() {
       const c = S.courses.find(x => x.id === parseInt(cid));
       if (c) c.start_date = val;
     }
-    toast('Start date saved!');
+    toast(T('at.startDateSaved'));
     await loadAdminTimetable();
   } catch(e) { toast(e.message, true); }
 }
@@ -6727,7 +7165,7 @@ async function saveAdminAllTopics() {
   const cid    = document.getElementById('tt-course-select').value;
   const cohortId = document.getElementById('tt-cohort-select')?.value || '';
   const inputs = document.querySelectorAll('#tt-admin-container .tt-input');
-  if (!cid) { toast('Select a course first', true); return; }
+  if (!cid) { toast(T('at.selectCourseFirst'), true); return; }
   let saved = 0;
   for (const inp of inputs) {
     const selector = `[data-week="${inp.dataset.week}"][data-snum="${inp.dataset.snum}"]`;
@@ -6799,7 +7237,7 @@ async function loadAdminAnnouncements() {
           </button>
         </div>
       </div>`).join('');
-  } catch(e) { toast('Error loading announcements: ' + e.message, true); }
+  } catch(e) { toast(T('at.errLoadAnn') + tErr(e.message), true); }
 }
 
 function openAnnouncementModal() {
@@ -6814,25 +7252,25 @@ async function saveAnnouncement() {
   const title    = document.getElementById('ann-title')?.value.trim();
   const content  = document.getElementById('ann-content')?.value.trim();
   const courseId = document.getElementById('ann-course-select')?.value;
-  if (!title || !content) { toast('Title and content are required', true); return; }
+  if (!title || !content) { toast(T('at.titleContentReq'), true); return; }
   try {
     await POST('/api/announcements', {
       title, content,
       course_id: courseId ? parseInt(courseId) : null
     });
-    toast('Announcement published!');
+    toast(T('at.annPublished'));
     closeModal('modal-announcement');
     loadAdminAnnouncements();
-  } catch(e) { toast('Error: ' + e.message, true); }
+  } catch(e) { toast(tErr(e.message), true); }
 }
 
 async function deleteAnnouncement(aid) {
-  if (!confirm('Delete this announcement?')) return;
+  if (!confirm(T('ac.delAnn'))) return;
   try {
     await DELETE(`/api/announcements/${aid}`);
-    toast('Announcement deleted');
+    toast(T('at.annDeleted'));
     loadAdminAnnouncements();
-  } catch(e) { toast('Error: ' + e.message, true); }
+  } catch(e) { toast(tErr(e.message), true); }
 }
 
 // ═══════════════════════════════════════════════════════
@@ -6949,7 +7387,7 @@ async function loadAdminSessions() {
         <td>${recCell}</td>
       </tr>`;
     }).join('');
-  } catch(e) { toast('Error loading sessions: ' + e.message, true); }
+  } catch(e) { toast(T('at.errLoadSessions') + tErr(e.message), true); }
 }
 
 // ═══════════════════════════════════════════════════════
@@ -7144,7 +7582,7 @@ async function loadAdminCertificates() {
         </td>
       </tr>`).join('');
     updateSelectedCertificatesButton();
-  } catch(e) { toast('Error loading certificates: ' + e.message, true); }
+  } catch(e) { toast(T('at.errLoadCerts') + tErr(e.message), true); }
 }
 
 function selectedCertificateIds() {
@@ -7186,7 +7624,7 @@ async function downloadSelectedCertificates() {
     });
     if (!res.ok) {
       const json = await res.json().catch(() => ({}));
-      throw new Error(json.error || `HTTP ${res.status}`);
+      throw new Error(tErr(json.error) || `HTTP ${res.status}`);
     }
     const blob = await res.blob();
     const url = URL.createObjectURL(blob);
@@ -7201,7 +7639,7 @@ async function downloadSelectedCertificates() {
     URL.revokeObjectURL(url);
     toast(ids.length === 1 ? 'PDF certificate download started' : `${ids.length} PDF certificates download started`);
   } catch(e) {
-    toast('Error downloading certificates: ' + e.message, true);
+    toast(T('at.errDlCerts') + tErr(e.message), true);
   } finally {
     if (btn) {
       btn.innerHTML = '<i class="fas fa-download"></i> Download PDFs';
@@ -7216,7 +7654,7 @@ async function openIssueCertModal() {
     populateCertificateCourses();
     populateCertificateStudents();
   } catch(e) {
-    toast('Error loading certificate options: ' + e.message, true);
+    toast(T('at.errLoadCertOpts') + tErr(e.message), true);
     return;
   }
   const stuSel = document.getElementById('cert-student-select');
@@ -7242,7 +7680,7 @@ async function issueCertificate() {
   const sendEmail = document.getElementById('cert-send-email')?.checked;
   const quantity = parseInt(document.getElementById('cert-blank-quantity')?.value || '1');
   if (!rawTargetId || (!blankName && !studentId)) { toast(blankName ? 'Select course' : 'Select student and course', true); return; }
-  if (blankName && (!quantity || quantity < 1 || quantity > 200)) { toast('Enter a quantity between 1 and 200', true); return; }
+  if (blankName && (!quantity || quantity < 1 || quantity > 200)) { toast(T('at.qtyRange'), true); return; }
   const btn = document.getElementById('issue-cert-btn');
   if (btn) btn.disabled = true;
   try {
@@ -7258,16 +7696,16 @@ async function issueCertificate() {
     toast(blankName && r.count > 1 ? `${r.count} certificates issued!` : (sendEmail ? 'Certificate issued and emailed!' : 'Certificate issued for printing.'));
     closeModal('modal-issue-cert');
     loadAdminCertificates();
-  } catch(e) { toast('Error: ' + e.message, true); }
+  } catch(e) { toast(tErr(e.message), true); }
   if (btn) btn.disabled = false;
 }
 
 async function sendCertificateEmail(certId) {
   try {
     await POST(`/api/admin/certificates/${certId}/send`, {});
-    toast('Certificate email sent!');
+    toast(T('at.certEmailSent'));
   } catch(e) {
-    toast('Error sending certificate email: ' + e.message, true);
+    toast(T('at.errSendCertEmail') + tErr(e.message), true);
   }
 }
 
@@ -7275,7 +7713,7 @@ async function deleteSelectedCertificates() {
   const ids = selectedCertificateIds();
   if (!ids.length) return;
   const label = ids.length === 1 ? 'this certificate' : `${ids.length} certificates`;
-  if (!confirm(`Delete ${label}? This cannot be undone.`)) return;
+  if (!confirm(T('ac.delLabel', {v: label}))) return;
   const btn = document.getElementById('delete-selected-certs-btn');
   if (btn) btn.disabled = true;
   try {
@@ -7285,19 +7723,19 @@ async function deleteSelectedCertificates() {
     toast(ids.length === 1 ? 'Certificate deleted' : `${ids.length} certificates deleted`);
     await loadAdminCertificates();
   } catch(e) {
-    toast('Error deleting certificates: ' + e.message, true);
+    toast(T('at.errDelCerts') + tErr(e.message), true);
     updateSelectedCertificatesButton();
   }
 }
 
 async function resetCertificates() {
   if (S.user?.role !== 'admin') return;
-  if (!confirm('Clear all issued certificates? The next certificate will start from 111.')) return;
+  if (!confirm(T('ac.clearCerts'))) return;
   try {
     const result = await POST('/api/admin/certificates/reset', {});
     toast(`Certificates cleared. Next: ${result.next_cert_number}`);
     loadAdminCertificates();
-  } catch(e) { toast('Error clearing certificates: ' + e.message, true); }
+  } catch(e) { toast(T('at.errClearCerts') + tErr(e.message), true); }
 }
 
 // ═══════════════════════════════════════════════════════
@@ -7408,14 +7846,14 @@ async function saveTeacher() {
     website:         document.getElementById('t-website').value.trim(),
     linkedin:        document.getElementById('t-linkedin').value.trim(),
   };
-  if (!data.name || !data.email) { toast('Name and email are required', true); return; }
+  if (!data.name || !data.email) { toast(T('at.nameEmailReq'), true); return; }
   try {
     if (uid) {
       await PUT(`/api/admin/teachers/${uid}`, data);
-      toast('Teacher updated');
+      toast(T('at.teacherUpdated'));
     } else {
       await POST('/api/admin/teachers', data);
-      toast('Teacher added');
+      toast(T('at.teacherAdded'));
     }
     closeModal('modal-teacher');
     await loadTeachers();
@@ -7520,10 +7958,10 @@ async function showTeacherDetail(id) {
 }
 
 async function deleteTeacher(id) {
-  if (!confirm('Delete this teacher? This cannot be undone.')) return;
+  if (!confirm(T('ac.delTeacher'))) return;
   try {
     await DELETE(`/api/admin/teachers/${id}`);
-    toast('Teacher deleted');
+    toast(T('at.teacherDeleted'));
     await loadTeachers();
     document.getElementById('teacher-detail').innerHTML = `<div class="empty-state"><i class="fas fa-chalkboard-teacher"></i><p>Select a teacher to view their details</p></div>`;
   } catch(e) { toast(e.message, true); }
@@ -7535,13 +7973,15 @@ async function triggerWelcomeReminders() {
     btn.disabled = true;
     btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
     await POST('/api/admin/trigger-welcome-reminders', {});
-    toast('Welcome reminders triggered! Check server logs for delivery status.');
+    toast(T('at.welcomeRemind'));
     btn.disabled = false;
     btn.innerHTML = '<i class="fas fa-paper-plane"></i> Send Now (Test)';
   } catch(e) {
-    toast('Error: ' + e.message, true);
+    toast(tErr(e.message), true);
   }
 }
 </script>
 </body>
 </html>
+
+<style>.alang.on{background:var(--cyan-dim)!important;color:var(--cyan)!important}</style>
