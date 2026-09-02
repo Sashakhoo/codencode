@@ -3178,7 +3178,7 @@
       <div class="topbar-actions" style="margin-left:auto;display:flex;align-items:center;gap:10px">
         <div class="global-search">
           <i class="fas fa-search"></i>
-          <input id="global-student-search" placeholder="Search students..." oninput="handleGlobalStudentSearch(this.value)" />
+          <input id="global-student-search" placeholder="Search students..." data-i18n-ph="p.searchStudents" oninput="handleGlobalStudentSearch(this.value)" />
         </div>
         <div class="alang-switch" style="display:flex;gap:2px;background:var(--bg);border-radius:10px;padding:3px">
           <button id="alang-en" class="alang on" onclick="setLanguage('en')" style="padding:5px 8px;border:0;background:none;color:var(--text-muted);font:600 10px/1 var(--font-m,monospace);cursor:pointer;border-radius:7px">EN</button>
@@ -3199,21 +3199,21 @@
         <div class="dashboard-hero">
           <div>
             <div class="hero-kicker">Codencode LMS</div>
-            <h1>Welcome Back, <span id="dashboard-admin-name">Admin</span></h1>
-            <p>Students, payments, courses and class operations in one view.</p>
+            <h1><span data-i18n="h.welcome">Welcome Back,</span> <span id="dashboard-admin-name">Admin</span></h1>
+            <p data-i18n="h.sub">Students, payments, courses and class operations in one view.</p>
           </div>
           <button class="btn btn-primary" onclick="openAddStudent()">
-            <i class="fas fa-user-plus"></i> Add Student
+            <i class="fas fa-user-plus"></i> <span data-i18n="btn.addStudent">Add Student</span>
           </button>
         </div>
         <div class="stats-grid" id="dash-stats"></div>
         <div class="dashboard-panel-grid">
           <div class="card">
-            <div class="card-title"><i class="fas fa-exclamation-triangle" style="color:var(--yellow);margin-right:8px"></i>Payments Pending / Overdue</div>
+            <div class="card-title"><i class="fas fa-exclamation-triangle" style="color:var(--yellow);margin-right:8px"></i><span data-i18n="c.payPending">Payments Pending / Overdue</span></div>
             <div id="dash-payment-list"></div>
           </div>
           <div class="card">
-            <div class="card-title"><i class="fas fa-layer-group" style="color:var(--cyan);margin-right:8px"></i>Courses & Current Session</div>
+            <div class="card-title"><i class="fas fa-layer-group" style="color:var(--cyan);margin-right:8px"></i><span data-i18n="c.coursesSession">Courses & Current Session</span></div>
             <div id="dash-courses-list"></div>
           </div>
         </div>
@@ -3224,7 +3224,7 @@
         <div class="two-pane">
           <div class="pane-list">
             <div class="pane-list-header">
-              <input class="pane-search" id="teacher-search" placeholder="Search teachers..." oninput="filterTeachers()" />
+              <input class="pane-search" id="teacher-search" placeholder="Search teachers..." data-i18n-ph="p.searchTeachers" oninput="filterTeachers()" />
               <button class="btn btn-primary btn-sm" onclick="openAddTeacher()" title="Add Teacher">
                 <i class="fas fa-plus"></i>
               </button>
@@ -3236,7 +3236,7 @@
           <div id="teacher-detail">
             <div class="empty-state">
               <i class="fas fa-chalkboard-teacher"></i>
-              <p>Select a teacher to view their details</p>
+              <p data-i18n="e.selTeacher">Select a teacher to view their details</p>
             </div>
           </div>
         </div>
@@ -3248,18 +3248,18 @@
           <!-- Left: student list -->
           <div class="pane-list">
             <div class="pane-list-header">
-              <input class="pane-search" id="student-search" placeholder="Search students..." oninput="handleStudentSearch(this.value)" />
-              <button class="btn btn-primary btn-sm" onclick="openAddStudent()" title="Add Student">
+              <input class="pane-search" id="student-search" placeholder="Search students..." data-i18n-ph="p.searchStudents" oninput="handleStudentSearch(this.value)" />
+              <button class="btn btn-primary btn-sm" onclick="openAddStudent()" data-i18n-title="btn.addStudent" title="Add Student">
                 <i class="fas fa-plus"></i>
               </button>
             </div>
             <div class="students-interactions">
               <div class="student-filter-chips">
-                <button class="filter-chip active" data-student-filter="all" onclick="setStudentFilter('all')">All</button>
-                <button class="filter-chip" data-student-filter="paid" onclick="setStudentFilter('paid')">Paid</button>
-                <button class="filter-chip" data-student-filter="pending" onclick="setStudentFilter('pending')">Pending</button>
-                <button class="filter-chip" data-student-filter="overdue" onclick="setStudentFilter('overdue')">Overdue</button>
-                <button class="filter-chip" data-student-filter="none" onclick="setStudentFilter('none')">No Course</button>
+                <button class="filter-chip active" data-student-filter="all" onclick="setStudentFilter('all')" data-i18n="chip.all">All</button>
+                <button class="filter-chip" data-student-filter="paid" onclick="setStudentFilter('paid')" data-i18n="chip.paid">Paid</button>
+                <button class="filter-chip" data-student-filter="pending" onclick="setStudentFilter('pending')" data-i18n="chip.pending">Pending</button>
+                <button class="filter-chip" data-student-filter="overdue" onclick="setStudentFilter('overdue')" data-i18n="chip.overdue">Overdue</button>
+                <button class="filter-chip" data-student-filter="none" onclick="setStudentFilter('none')" data-i18n="chip.noCourse">No Course</button>
               </div>
               <div class="student-view-toggle">
                 <button class="active" data-student-view="list" onclick="setStudentViewMode('list')" title="List view">
@@ -3279,7 +3279,7 @@
           <div id="student-detail">
             <div class="empty-state">
               <i class="fas fa-user-circle"></i>
-              <p>Select a student to view their details</p>
+              <p data-i18n="e.selStudent">Select a student to view their details</p>
             </div>
           </div>
         </div>
@@ -3289,9 +3289,7 @@
       <div id="view-courses" class="view">
         <div class="section-header" style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
           <div class="section-title">Courses &amp; Programmes</div>
-          <button class="btn btn-primary btn-sm" onclick="openAddCourse()">
-            <i class="fas fa-plus"></i> New Course
-          </button>
+          <button class="btn btn-primary btn-sm" onclick="openAddCourse()"><i class="fas fa-plus"></i> <span data-i18n="btn.newCourse">New Course</span></button>
         </div>
         <div id="courses-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:16px">
           <div style="color:var(--text-muted)">No progress yet.</div>
@@ -3301,7 +3299,7 @@
       <!-- ── ATTENDANCE ──────────────────────── -->
       <div id="view-attendance" class="view">
         <div class="filter-bar">
-          <label>Course</label>
+          <label data-i18n="lbl.course">Course</label>
           <select class="form-select" id="att-course-select" onchange="loadAttendance()" style="width:280px">
             <option value="">Select course...</option>
           </select>
@@ -3309,7 +3307,7 @@
         <div id="attendance-area">
           <div class="empty-state">
             <i class="fas fa-clipboard-check"></i>
-            <p>Select a course to manage attendance</p>
+            <p data-i18n="e.selCourseAtt">Select a course to manage attendance</p>
           </div>
         </div>
       </div>
@@ -3325,14 +3323,14 @@
 
         <!-- Upload form -->
         <div class="card" id="mat-upload-card" style="display:none">
-          <div class="card-title"><i class="fas fa-upload" style="color:var(--cyan);margin-right:8px"></i>Upload Material</div>
+          <div class="card-title"><i class="fas fa-upload" style="color:var(--cyan);margin-right:8px"></i><span data-i18n="c.uploadMaterial">Upload Material</span></div>
           <div class="form-grid" style="margin-bottom:16px">
             <div class="form-group">
-              <label class="form-label">Title</label>
+              <label class="form-label" data-i18n="lbl.title">Title</label>
               <input class="form-input" id="mat-title" placeholder="Session 3 — OOP Exercises" />
             </div>
             <div class="form-group">
-              <label class="form-label">Session (0 = always visible)</label>
+              <label class="form-label" data-i18n="lbl.session0">Session (0 = always visible)</label>
               <input class="form-input" type="number" id="mat-session" min="0" max="12" value="1" style="width:100px" />
             </div>
           </div>
@@ -3346,15 +3344,13 @@
             <input type="file" id="mat-file" accept=".pdf,.py,.ipynb,.zip,.csv,.txt,.docx,.pptx,.html" onchange="handleMatFileSelect()" />
           </div>
           <div style="margin-top:12px;text-align:right">
-            <button class="btn btn-primary" onclick="uploadMaterial()">
-              <i class="fas fa-upload"></i> Upload
-            </button>
+            <button class="btn btn-primary" onclick="uploadMaterial()"><i class="fas fa-upload"></i> <span data-i18n="btn.upload">Upload</span></button>
           </div>
         </div>
 
         <!-- Materials list -->
         <div class="card" id="mat-list-card" style="display:none">
-          <div class="card-title"><i class="fas fa-folder-open" style="color:var(--cyan);margin-right:8px"></i>Existing Materials</div>
+          <div class="card-title"><i class="fas fa-folder-open" style="color:var(--cyan);margin-right:8px"></i><span data-i18n="c.existingMaterials">Existing Materials</span></div>
           <div id="mat-list-body"></div>
         </div>
       </div>
@@ -3362,7 +3358,7 @@
       <!-- ── PAYMENTS ────────────────────────── -->
       <div id="view-payments" class="view">
         <div class="filter-bar">
-          <label>Filter</label>
+          <label data-i18n="lbl.filter">Filter</label>
           <select class="form-select" id="pay-filter" onchange="filterPayments()" style="width:160px">
             <option value="all">All</option>
             <option value="pending">Pending</option>
@@ -3376,11 +3372,11 @@
             <table>
               <thead>
                 <tr>
-                  <th>Student</th>
-                  <th>Course</th>
-                  <th>Status</th>
-                  <th>Remarks</th>
-                  <th>Action</th>
+                  <th data-i18n="th.student">Student</th>
+                  <th data-i18n="th.course">Course</th>
+                  <th data-i18n="th.status">Status</th>
+                  <th data-i18n="th.remarks">Remarks</th>
+                  <th data-i18n="th.action">Action</th>
                 </tr>
               </thead>
               <tbody id="payments-tbody"></tbody>
@@ -3399,7 +3395,7 @@
             </select>
           </div>
           <div class="filter-field" style="min-width:280px">
-            <label>Class / Cohort</label>
+            <label data-i18n="lbl.classCohort">Class / Cohort</label>
             <select class="form-select" id="tt-cohort-select" onchange="loadAdminTimetable()">
               <option value="">Whole course / class</option>
             </select>
@@ -3409,25 +3405,25 @@
           <div class="card" style="padding:16px 20px;display:flex;align-items:center;gap:12px;flex-wrap:wrap">
             <span style="font-size:12px;color:var(--text-muted)"><i class="fas fa-calendar-day" style="color:var(--cyan);margin-right:6px"></i>Week 1 Start Date (Friday)</span>
             <input type="date" id="tt-admin-start-date" class="form-input" style="max-width:180px" />
-            <button class="btn btn-primary btn-sm" onclick="saveAdminStartDate()"><i class="fas fa-save"></i> Save Date</button>
+            <button class="btn btn-primary btn-sm" onclick="saveAdminStartDate()"><i class="fas fa-save"></i> <span data-i18n="btn.saveDate">Save Date</span></button>
             <span style="font-size:10px;color:var(--text-muted)">All session dates auto-calculate from this.</span>
           </div>
         </div>
         <div id="tt-admin-container">
           <div class="empty-state">
             <i class="fas fa-calendar-alt"></i>
-            <p>Select a course to manage its timetable</p>
+            <p data-i18n="e.selCourseTt">Select a course to manage its timetable</p>
           </div>
         </div>
         <div id="tt-save-bar" style="display:none;margin-top:16px">
-          <button class="btn btn-primary" onclick="saveAdminAllTopics()"><i class="fas fa-paper-plane"></i> Save All Topics</button>
+          <button class="btn btn-primary" onclick="saveAdminAllTopics()"><i class="fas fa-paper-plane"></i> <span data-i18n="btn.saveAllTopics">Save All Topics</span></button>
         </div>
       </div>
 
       <!-- ── WORKSHOP CATALOGUE ───────────────── -->
       <div id="view-workshops" class="view">
         <div style="margin-bottom:16px;display:flex;gap:8px;flex-wrap:wrap">
-          <button class="btn btn-primary btn-sm" onclick="openAddWorkshopModal()"><i class="fas fa-plus"></i> Add Workshop</button>
+          <button class="btn btn-primary btn-sm" onclick="openAddWorkshopModal()"><i class="fas fa-plus"></i> <span data-i18n="btn.addWorkshop">Add Workshop</span></button>
           <button class="btn btn-secondary btn-sm" onclick="runClassifyExistingStudents()" title="One-time: register all current non-Core-Subjects students into AI for Workplace">
             <i class="fas fa-magic"></i> Classify Existing Students → AI for Workplace
           </button>
@@ -3442,7 +3438,7 @@
 
       <!-- ── WORKSHOP RUN DETAIL ─────────────── -->
       <div id="view-workshop-run-detail" class="view">
-        <button class="btn btn-secondary btn-sm" style="margin-bottom:16px" onclick="showView('workshop-runs')"><i class="fas fa-arrow-left"></i> Back to Upcoming Runs</button>
+        <button class="btn btn-secondary btn-sm" style="margin-bottom:16px" onclick="showView('workshop-runs')"><i class="fas fa-arrow-left"></i> <span data-i18n="btn.backRuns">Back to Upcoming Runs</span></button>
         <div id="workshop-run-detail-body"></div>
       </div>
 
@@ -3450,9 +3446,7 @@
       <div id="view-announcements" class="view">
         <div class="section-header" style="margin-bottom:20px">
           <div class="section-title">Announcements</div>
-          <button class="btn btn-primary btn-sm" onclick="openAnnouncementModal()">
-            <i class="fas fa-plus"></i> New Announcement
-          </button>
+          <button class="btn btn-primary btn-sm" onclick="openAnnouncementModal()"><i class="fas fa-plus"></i> <span data-i18n="btn.newAnn">New Announcement</span></button>
         </div>
         <div id="ann-list" style="display:flex;flex-direction:column;gap:12px">
           <div style="color:var(--text-muted);text-align:center;padding:40px">Loading...</div>
@@ -3483,12 +3477,12 @@
             <table>
               <thead>
                 <tr>
-                  <th>Title</th>
-                  <th>Type</th>
-                  <th>Course</th>
-                  <th>Date &amp; Time</th>
-                  <th>Duration</th>
-                  <th>Recording</th>
+                  <th data-i18n="th.title">Title</th>
+                  <th data-i18n="th.type">Type</th>
+                  <th data-i18n="th.course">Course</th>
+                  <th data-i18n="th.dateTime">Date &amp; Time</th>
+                  <th data-i18n="th.duration">Duration</th>
+                  <th data-i18n="th.recording">Recording</th>
                 </tr>
               </thead>
               <tbody id="sessions-tbody">
@@ -3504,18 +3498,10 @@
         <div class="section-header" style="margin-bottom:20px">
           <div class="section-title">Certificates</div>
           <div style="display:flex;gap:8px;flex-wrap:wrap">
-            <button class="btn btn-secondary btn-sm" id="download-selected-certs-btn" onclick="downloadSelectedCertificates()" disabled>
-              <i class="fas fa-download"></i> Download PDFs
-            </button>
-            <button class="btn btn-danger btn-sm" id="delete-selected-certs-btn" onclick="deleteSelectedCertificates()" disabled>
-              <i class="fas fa-trash"></i> Delete Selected
-            </button>
-            <button class="btn btn-secondary btn-sm admin-only" onclick="resetCertificates()">
-              <i class="fas fa-trash"></i> Clear Certificates
-            </button>
-            <button class="btn btn-primary btn-sm" onclick="openIssueCertModal()">
-              <i class="fas fa-plus"></i> Issue Certificate
-            </button>
+            <button class="btn btn-secondary btn-sm" id="download-selected-certs-btn" onclick="downloadSelectedCertificates()" disabled><i class="fas fa-download"></i> <span data-i18n="btn.downloadPdfs">Download PDFs</span></button>
+            <button class="btn btn-danger btn-sm" id="delete-selected-certs-btn" onclick="deleteSelectedCertificates()" disabled><i class="fas fa-trash"></i> <span data-i18n="btn.deleteSelected">Delete Selected</span></button>
+            <button class="btn btn-secondary btn-sm admin-only" onclick="resetCertificates()"><i class="fas fa-trash"></i> <span data-i18n="btn.clearCerts">Clear Certificates</span></button>
+            <button class="btn btn-primary btn-sm" onclick="openIssueCertModal()"><i class="fas fa-plus"></i> <span data-i18n="btn.issueCert">Issue Certificate</span></button>
           </div>
         </div>
         <div class="card">
@@ -3524,7 +3510,7 @@
               <thead>
                 <tr>
                   <th style="width:36px"><input type="checkbox" id="cert-select-all" onchange="toggleAllCertificates(this.checked)" /></th>
-                  <th>Cert No.</th><th>Student</th><th>Course</th><th>Issued</th><th>Action</th>
+                  <th data-i18n="th.certNo">Cert No.</th><th data-i18n="th.student">Student</th><th data-i18n="th.course">Course</th><th data-i18n="th.issued">Issued</th><th data-i18n="th.action">Action</th>
                 </tr>
               </thead>
               <tbody id="certs-tbody">
@@ -3550,29 +3536,27 @@
               Runs automatically every day at <strong>9:00 AM</strong>.<br>
               Sends WhatsApp + Email to students whose course starts in 3 days.
             </div>
-            <button class="btn btn-primary btn-sm" onclick="triggerWelcomeReminders()">
-              <i class="fas fa-paper-plane"></i> Send Now (Test)
-            </button>
+            <button class="btn btn-primary btn-sm" onclick="triggerWelcomeReminders()"><i class="fas fa-paper-plane"></i> <span data-i18n="btn.sendNowTest">Send Now (Test)</span></button>
           </div>
         </div>
         <div class="card" style="margin-bottom:20px">
-          <div class="card-title" style="padding:16px 20px;border-bottom:1px solid var(--border2)">Export Data</div>
+          <div class="card-title" style="padding:16px 20px;border-bottom:1px solid var(--border2)"><span data-i18n="c.exportData">Export Data</span></div>
           <div style="padding:20px;display:flex;flex-direction:column;gap:12px">
             <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
               <select class="form-select" id="analytics-course-select" style="width:240px">
                 <option value="">All Courses</option>
               </select>
-              <button class="btn btn-secondary btn-sm" onclick="exportCSV('students')"><i class="fas fa-file-csv"></i> Export Students</button>
-              <button class="btn btn-secondary btn-sm" onclick="exportCSV('submissions')"><i class="fas fa-file-csv"></i> Export Submissions</button>
-              <button class="btn btn-secondary btn-sm" onclick="exportCSV('attendance')"><i class="fas fa-file-csv"></i> Export Attendance</button>
+              <button class="btn btn-secondary btn-sm" onclick="exportCSV('students')"><i class="fas fa-file-csv"></i> <span data-i18n="btn.exportStudents">Export Students</span></button>
+              <button class="btn btn-secondary btn-sm" onclick="exportCSV('submissions')"><i class="fas fa-file-csv"></i> <span data-i18n="btn.exportSubmissions">Export Submissions</span></button>
+              <button class="btn btn-secondary btn-sm" onclick="exportCSV('attendance')"><i class="fas fa-file-csv"></i> <span data-i18n="btn.exportAttendance">Export Attendance</span></button>
             </div>
           </div>
         </div>
         <div class="card">
-          <div class="card-title" style="padding:16px 20px;border-bottom:1px solid var(--border2)">Recent Login Activity</div>
+          <div class="card-title" style="padding:16px 20px;border-bottom:1px solid var(--border2)"><span data-i18n="c.recentLogins">Recent Login Activity</span></div>
           <div class="table-wrap">
             <table>
-              <thead><tr><th>User</th><th>Login Time</th><th>IP Address</th></tr></thead>
+              <thead><tr><th data-i18n="th.user">User</th><th data-i18n="th.loginTime">Login Time</th><th data-i18n="th.ip">IP Address</th></tr></thead>
               <tbody id="login-activity-tbody">
                 <tr><td colspan="3" style="color:var(--text-muted);text-align:center;padding:24px">Loading...</td></tr>
               </tbody>
@@ -3590,7 +3574,7 @@
 <!-- Add / Edit Student -->
 <div class="modal-overlay" id="modal-student" onclick="if(event.target===this)closeModal('modal-student')">
   <div class="modal-box" style="max-height:92vh;overflow-y:auto;display:flex;flex-direction:column;">
-    <div class="modal-title" id="student-modal-title">Add Student</div>
+    <div class="modal-title" id="student-modal-title" data-i18n="btn.addStudent">Add Student</div>
     <input type="hidden" id="edit-student-id" value="" />
     <div class="student-wizard">
       <aside class="wizard-rail">
@@ -3626,23 +3610,23 @@
     </div>
     <div class="form-grid">
       <div class="form-group">
-        <label class="form-label">Full Name *</label>
+        <label class="form-label" data-i18n="lbl.fullName">Full Name *</label>
         <input class="form-input" id="s-name" placeholder="Alex Tan" />
       </div>
       <div class="form-group">
-        <label class="form-label">Email *</label>
+        <label class="form-label" data-i18n="lbl.emailReq">Email *</label>
         <input class="form-input" id="s-email" type="email" placeholder="alex@codencode.my" />
       </div>
       <div class="form-group" id="s-pass-group">
-        <label class="form-label">Password</label>
+        <label class="form-label" data-i18n="lbl.password">Password</label>
         <input class="form-input" id="s-password" type="password" placeholder="codencode123" />
       </div>
       <div class="form-group">
-        <label class="form-label">Phone Number</label>
+        <label class="form-label" data-i18n="lbl.phoneNumber">Phone Number</label>
         <input class="form-input" id="s-phone" placeholder="012-3456789" />
       </div>
       <div class="form-group">
-        <label class="form-label">Preferred Language</label>
+        <label class="form-label" data-i18n="lbl.prefLang">Preferred Language</label>
         <select class="form-select" id="s-language">
           <option value="en">English</option>
           <option value="bm">Malay (BM)</option>
@@ -3661,19 +3645,19 @@
     <div style="font-size:12px;color:var(--text-muted);margin:-4px 0 16px">Add optional billing details before saving the student.</div>
     <div class="form-grid">
       <div class="form-group">
-        <label class="form-label">Company Name</label>
+        <label class="form-label" data-i18n="lbl.companyName">Company Name</label>
         <input class="form-input" id="s-bill-company-name" placeholder="Company Sdn Bhd" />
       </div>
       <div class="form-group">
-        <label class="form-label">Business Reg Number</label>
+        <label class="form-label" data-i18n="lbl.bizReg">Business Reg Number</label>
         <input class="form-input" id="s-bill-business-reg-number" placeholder="202601234567" />
       </div>
       <div class="form-group">
-        <label class="form-label">SST Registration No.</label>
+        <label class="form-label" data-i18n="lbl.sstNo">SST Registration No.</label>
         <input class="form-input" id="s-bill-sst-number" placeholder="optional" />
       </div>
       <div class="form-group" style="grid-column:span 2">
-        <label class="form-label">Address</label>
+        <label class="form-label" data-i18n="lbl.address">Address</label>
         <textarea class="form-textarea" id="s-bill-company-address" rows="3" placeholder="Billing address"></textarea>
       </div>
     </div>
@@ -3703,7 +3687,7 @@
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">
         <div class="form-group">
-          <label class="form-label">Class Format</label>
+          <label class="form-label" data-i18n="lbl.classFormat">Class Format</label>
           <select class="form-select" id="s-class-format">
             <option value="">— select —</option>
             <option value="1v1">1 vs 1 &nbsp;(Private)</option>
@@ -3713,7 +3697,7 @@
           </select>
         </div>
         <div class="form-group">
-          <label class="form-label">Payment Status</label>
+          <label class="form-label" data-i18n="lbl.payStatus">Payment Status</label>
           <select class="form-select" id="s-payment-status">
             <option value="pending">Pending</option>
             <option value="paid">Paid</option>
@@ -3724,10 +3708,10 @@
       </div>
 
       <div class="form-group" style="margin-bottom:14px">
-        <label class="form-label">Time of Class</label>
+        <label class="form-label" data-i18n="lbl.classTime">Time of Class</label>
         <div class="timing-builder" id="s-timing-builder"></div>
         <div style="margin-top:8px">
-          <button class="btn btn-secondary btn-sm" onclick="addClassTimingRow('s')"><i class="fas fa-plus"></i> Add time</button>
+          <button class="btn btn-secondary btn-sm" onclick="addClassTimingRow('s')"><i class="fas fa-plus"></i> <span data-i18n="btn.addTime">Add time</span></button>
         </div>
       </div>
       </div>
@@ -3737,12 +3721,10 @@
     </div>
 
     <div class="modal-footer student-modal-footer">
-      <button class="btn btn-secondary" onclick="closeModal('modal-student')">Cancel</button>
-      <button class="btn btn-secondary" id="student-wizard-back" onclick="studentWizardBack()" type="button">Back</button>
-      <button class="btn btn-primary" id="student-wizard-next" onclick="studentWizardNext()" type="button">Continue</button>
-      <button class="btn btn-primary" id="student-wizard-save" onclick="saveStudent()">
-        <i class="fas fa-save"></i> Save
-      </button>
+      <button class="btn btn-secondary" onclick="closeModal('modal-student')"><span data-i18n="btn.cancel">Cancel</span></button>
+      <button class="btn btn-secondary" id="student-wizard-back" onclick="studentWizardBack()" type="button"><span data-i18n="btn.back">Back</span></button>
+      <button class="btn btn-primary" id="student-wizard-next" onclick="studentWizardNext()" type="button"><span data-i18n="btn.continue">Continue</span></button>
+      <button class="btn btn-primary" id="student-wizard-save" onclick="saveStudent()"><i class="fas fa-save"></i> <span data-i18n="btn.save">Save</span></button>
     </div>
   </div>
 </div>
@@ -3809,7 +3791,7 @@
     </div>
     <div class="form-grid">
       <div class="form-group">
-        <label class="form-label">Display Title</label>
+        <label class="form-label" data-i18n="lbl.displayTitle">Display Title</label>
         <input class="form-input" id="t-title" placeholder="e.g. Lead Instructor, Senior Data Scientist" />
       </div>
       <div class="form-group">
@@ -3817,23 +3799,23 @@
         <input class="form-input" id="t-specializations" placeholder="Python, Machine Learning, NLP" />
       </div>
       <div class="form-group" style="grid-column:span 2">
-        <label class="form-label">Short Bio</label>
-        <textarea class="form-textarea" id="t-bio" rows="2" placeholder="Brief intro shown to students on their dashboard..."></textarea>
+        <label class="form-label" data-i18n="lbl.shortBio">Short Bio</label>
+        <textarea class="form-textarea" id="t-bio" rows="2" placeholder="Brief intro shown to students on their dashboard..." data-i18n-ph="p.bioIntro"></textarea>
       </div>
       <div class="form-group" style="grid-column:span 2">
-        <label class="form-label">Education</label>
+        <label class="form-label" data-i18n="lbl.education">Education</label>
         <input class="form-input" id="t-education" placeholder="e.g. BSc CS, UPM · MSc AI, UM" />
       </div>
       <div class="form-group" style="grid-column:span 2">
-        <label class="form-label">Experience</label>
+        <label class="form-label" data-i18n="lbl.experience">Experience</label>
         <textarea class="form-textarea" id="t-experience" rows="2" placeholder="e.g. 5+ years in Python, data engineering and ML..."></textarea>
       </div>
       <div class="form-group">
-        <label class="form-label">Portfolio Website</label>
+        <label class="form-label" data-i18n="lbl.portfolio">Portfolio Website</label>
         <input class="form-input" id="t-website" type="url" placeholder="https://portfolio.com" />
       </div>
       <div class="form-group">
-        <label class="form-label">LinkedIn URL</label>
+        <label class="form-label" data-i18n="lbl.linkedin">LinkedIn URL</label>
         <input class="form-input" id="t-linkedin" type="url" placeholder="https://linkedin.com/in/name" />
       </div>
     </div>
@@ -3842,12 +3824,10 @@
     </div>
 
     <div class="modal-footer teacher-modal-footer">
-      <button class="btn btn-secondary" onclick="closeModal('modal-teacher')">Cancel</button>
-      <button class="btn btn-secondary" id="teacher-wizard-back" onclick="teacherWizardBack()" type="button">Back</button>
-      <button class="btn btn-primary" id="teacher-wizard-next" onclick="teacherWizardNext()" type="button">Continue</button>
-      <button class="btn btn-primary" id="teacher-wizard-save" onclick="saveTeacher()">
-        <i class="fas fa-save"></i> Save
-      </button>
+      <button class="btn btn-secondary" onclick="closeModal('modal-teacher')"><span data-i18n="btn.cancel">Cancel</span></button>
+      <button class="btn btn-secondary" id="teacher-wizard-back" onclick="teacherWizardBack()" type="button"><span data-i18n="btn.back">Back</span></button>
+      <button class="btn btn-primary" id="teacher-wizard-next" onclick="teacherWizardNext()" type="button"><span data-i18n="btn.continue">Continue</span></button>
+      <button class="btn btn-primary" id="teacher-wizard-save" onclick="saveTeacher()"><i class="fas fa-save"></i> <span data-i18n="btn.save">Save</span></button>
     </div>
   </div>
 </div>
@@ -3878,10 +3858,10 @@
       </select>
     </div>
     <div class="form-group" style="margin-bottom:14px">
-      <label class="form-label">Class Timing</label>
+      <label class="form-label" data-i18n="lbl.classTiming">Class Timing</label>
       <div class="timing-builder" id="timing-builder"></div>
       <div style="margin-top:8px">
-        <button class="btn btn-secondary btn-sm" onclick="addClassTimingRow('enroll')"><i class="fas fa-plus"></i> Add time</button>
+        <button class="btn btn-secondary btn-sm" onclick="addClassTimingRow('enroll')"><i class="fas fa-plus"></i> <span data-i18n="btn.addTime">Add time</span></button>
       </div>
     </div>
     <div class="form-group" style="margin-bottom:14px">
@@ -3894,14 +3874,12 @@
       </select>
     </div>
     <div class="form-group">
-      <label class="form-label">Remarks</label>
+      <label class="form-label" data-i18n="lbl.remarks">Remarks</label>
       <textarea class="form-textarea" id="enroll-remarks" placeholder="e.g. Full payment received"></textarea>
     </div>
     <div class="modal-footer">
-      <button class="btn btn-secondary" onclick="closeModal('modal-enroll')">Cancel</button>
-      <button class="btn btn-primary" onclick="enrollStudent()">
-        <i class="fas fa-plus"></i> Enroll
-      </button>
+      <button class="btn btn-secondary" onclick="closeModal('modal-enroll')"><span data-i18n="btn.cancel">Cancel</span></button>
+      <button class="btn btn-primary" onclick="enrollStudent()"><i class="fas fa-plus"></i> <span data-i18n="btn.enroll">Enroll</span></button>
     </div>
   </div>
 </div>
@@ -3912,7 +3890,7 @@
     <div class="modal-title">Update Payment</div>
     <input type="hidden" id="pay-enrollment-id" value="" />
     <div class="form-group" style="margin-bottom:14px">
-      <label class="form-label">Status</label>
+      <label class="form-label" data-i18n="lbl.status">Status</label>
       <select class="form-select" id="pay-status-select">
         <option value="pending">Pending</option>
         <option value="paid">Paid</option>
@@ -3922,11 +3900,11 @@
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">
       <div class="form-group">
-        <label class="form-label">Amount (RM)</label>
+        <label class="form-label" data-i18n="lbl.amountRM">Amount (RM)</label>
         <input type="number" class="form-input" id="pay-amount" placeholder="e.g. 1200.00" step="0.01" min="0" />
       </div>
       <div class="form-group">
-        <label class="form-label">Payment Method</label>
+        <label class="form-label" data-i18n="lbl.payMethod">Payment Method</label>
         <select class="form-select" id="pay-method">
           <option value="">— select —</option>
           <option value="Bank Transfer">Bank Transfer</option>
@@ -3940,11 +3918,11 @@
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">
       <div class="form-group">
-        <label class="form-label">Discount (%)</label>
+        <label class="form-label" data-i18n="lbl.discountPct">Discount (%)</label>
         <input type="number" class="form-input" id="pay-discount-amount" placeholder="e.g. 10" step="0.01" min="0" max="100" />
       </div>
       <div class="form-group">
-        <label class="form-label">Discount Reason</label>
+        <label class="form-label" data-i18n="lbl.discountReason">Discount Reason</label>
         <input type="text" class="form-input" id="pay-discount-reason" placeholder="e.g. Early bird" maxlength="200" />
       </div>
     </div>
@@ -3954,19 +3932,17 @@
     </div>
     <div class="form-group" style="margin-bottom:14px">
       <label class="form-label">Remarks</label>
-      <textarea class="form-textarea" id="pay-remarks" placeholder="Notes about payment..."></textarea>
+      <textarea class="form-textarea" id="pay-remarks" placeholder="Notes about payment..." data-i18n-ph="p.payNotes"></textarea>
     </div>
     <div class="form-group" style="margin-bottom:14px">
-      <label class="form-label">Receipt (PDF / Image) — optional</label>
+      <label class="form-label" data-i18n="lbl.receiptOpt">Receipt (PDF / Image) — optional</label>
       <input type="file" id="pay-receipt-file" accept=".pdf,.jpg,.jpeg,.png,.heic"
         style="display:block;width:100%;padding:8px;background:var(--surface2);border:1px solid var(--border2);border-radius:var(--radius);color:var(--text);font-family:inherit;font-size:12px;" />
       <div id="pay-existing-receipt" style="margin-top:6px;font-size:11px;color:var(--cyan)"></div>
     </div>
     <div class="modal-footer">
-      <button class="btn btn-secondary" onclick="closeModal('modal-payment')">Cancel</button>
-      <button class="btn btn-primary" id="pay-save-btn" onclick="savePayment()">
-        <i class="fas fa-save"></i> Save
-      </button>
+      <button class="btn btn-secondary" onclick="closeModal('modal-payment')"><span data-i18n="btn.cancel">Cancel</span></button>
+      <button class="btn btn-primary" id="pay-save-btn" onclick="savePayment()"><i class="fas fa-save"></i> <span data-i18n="btn.save">Save</span></button>
     </div>
   </div>
 </div>
@@ -3977,26 +3953,26 @@
     <div class="modal-title" id="workshop-modal-title">Add Workshop</div>
     <input type="hidden" id="workshop-id" value="" />
     <div class="form-group" style="margin-bottom:14px">
-      <label class="form-label">Title *</label>
+      <label class="form-label" data-i18n="lbl.titleReq">Title *</label>
       <input class="form-input" id="workshop-title" placeholder="e.g. AI for Marketing" />
     </div>
     <div class="form-group" style="margin-bottom:14px">
-      <label class="form-label">Description</label>
-      <textarea class="form-textarea" id="workshop-description" placeholder="What this workshop covers..."></textarea>
+      <label class="form-label" data-i18n="lbl.description">Description</label>
+      <textarea class="form-textarea" id="workshop-description" placeholder="What this workshop covers..." data-i18n-ph="p.wsCovers"></textarea>
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px">
       <div class="form-group">
-        <label class="form-label">Duration (hours)</label>
+        <label class="form-label" data-i18n="lbl.durationHrs">Duration (hours)</label>
         <input class="form-input" type="number" id="workshop-duration" value="4" min="0.5" step="0.5" />
       </div>
       <div class="form-group">
-        <label class="form-label">Default Price / Pax (RM)</label>
+        <label class="form-label" data-i18n="lbl.defaultPrice">Default Price / Pax (RM)</label>
         <input class="form-input" type="number" id="workshop-price" placeholder="optional" min="0" step="0.01" />
       </div>
     </div>
     <div class="modal-footer">
-      <button class="btn btn-secondary" onclick="closeModal('modal-workshop')">Cancel</button>
-      <button class="btn btn-primary" onclick="saveWorkshop()"><i class="fas fa-save"></i> Save</button>
+      <button class="btn btn-secondary" onclick="closeModal('modal-workshop')"><span data-i18n="btn.cancel">Cancel</span></button>
+      <button class="btn btn-primary" onclick="saveWorkshop()"><i class="fas fa-save"></i> <span data-i18n="btn.save">Save</span></button>
     </div>
   </div>
 </div>
@@ -4009,21 +3985,21 @@
     <input type="hidden" id="run-id" value="" />
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px">
       <div class="form-group">
-        <label class="form-label">Start Date & Time *</label>
+        <label class="form-label" data-i18n="lbl.startDtReq">Start Date & Time *</label>
         <input class="form-input" type="datetime-local" id="run-start" />
       </div>
       <div class="form-group">
-        <label class="form-label">End Date & Time</label>
+        <label class="form-label" data-i18n="lbl.endDt">End Date & Time</label>
         <input class="form-input" type="datetime-local" id="run-end" />
       </div>
     </div>
     <div class="form-group" style="margin-bottom:14px">
-      <label class="form-label">Venue</label>
+      <label class="form-label" data-i18n="lbl.venue">Venue</label>
       <input class="form-input" id="run-venue" placeholder="e.g. Mount Austin, JB" />
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px">
       <div class="form-group">
-        <label class="form-label">Capacity</label>
+        <label class="form-label" data-i18n="lbl.capacity">Capacity</label>
         <input class="form-input" type="number" id="run-capacity" placeholder="e.g. 20" min="1" />
       </div>
       <div class="form-group">
@@ -4032,7 +4008,7 @@
       </div>
     </div>
     <div class="form-group" style="margin-bottom:14px">
-      <label class="form-label">Facilitator</label>
+      <label class="form-label" data-i18n="lbl.facilitator">Facilitator</label>
       <select class="form-select" id="run-teacher"><option value="">— none —</option></select>
     </div>
     <div class="form-group" style="margin-bottom:14px">
@@ -4040,8 +4016,8 @@
       <input class="form-input" id="run-google-review" placeholder="https://g.page/r/..." />
     </div>
     <div class="modal-footer">
-      <button class="btn btn-secondary" onclick="closeModal('modal-schedule-run')">Cancel</button>
-      <button class="btn btn-primary" id="run-save-btn" onclick="saveScheduleRun()"><i class="fas fa-calendar-plus"></i> Schedule</button>
+      <button class="btn btn-secondary" onclick="closeModal('modal-schedule-run')"><span data-i18n="btn.cancel">Cancel</span></button>
+      <button class="btn btn-primary" id="run-save-btn" onclick="saveScheduleRun()"><i class="fas fa-calendar-plus"></i> <span data-i18n="btn.schedule">Schedule</span></button>
     </div>
   </div>
 </div>
@@ -4052,15 +4028,13 @@
     <div class="modal-title">Assign Workshop</div>
     <input type="hidden" id="assign-workshop-student-id" value="" />
     <div class="form-group" style="margin-bottom:14px">
-      <label class="form-label">Workshop Run</label>
+      <label class="form-label" data-i18n="lbl.wsRun">Workshop Run</label>
       <select class="form-select" id="assign-workshop-run"></select>
       <div id="assign-workshop-note" style="font-size:10px;color:var(--text-dim);margin-top:4px"></div>
     </div>
     <div class="modal-footer">
-      <button class="btn btn-secondary" onclick="closeModal('modal-assign-workshop')">Cancel</button>
-      <button class="btn btn-primary" id="assign-workshop-save" onclick="saveAssignWorkshop()">
-        <i class="fas fa-plus"></i> Assign
-      </button>
+      <button class="btn btn-secondary" onclick="closeModal('modal-assign-workshop')"><span data-i18n="btn.cancel">Cancel</span></button>
+      <button class="btn btn-primary" id="assign-workshop-save" onclick="saveAssignWorkshop()"><i class="fas fa-plus"></i> <span data-i18n="btn.assign">Assign</span></button>
     </div>
   </div>
 </div>
@@ -4071,27 +4045,27 @@
     <div class="modal-title">Register Attendee</div>
     <input type="hidden" id="att-run-id" value="" />
     <div class="form-group" style="margin-bottom:14px">
-      <label class="form-label">Existing Student</label>
+      <label class="form-label" data-i18n="lbl.existingStudent">Existing Student</label>
       <select class="form-select" id="att-existing-student" onchange="fillAttendeeFromStudent()">
         <option value="">— new / type manually —</option>
       </select>
     </div>
     <div class="form-group" style="margin-bottom:14px">
-      <label class="form-label">Name *</label>
-      <input class="form-input" id="att-name" placeholder="Full name" />
+      <label class="form-label" data-i18n="lbl.nameReq">Name *</label>
+      <input class="form-input" id="att-name" placeholder="Full name" data-i18n-ph="p.fullName" />
     </div>
     <div class="form-group" style="margin-bottom:14px">
       <label class="form-label">Email *</label>
-      <input class="form-input" type="email" id="att-email" placeholder="you@example.com" />
+      <input class="form-input" type="email" id="att-email" placeholder="you@example.com" data-i18n-ph="p.email" />
       <div style="font-size:10px;color:var(--text-dim);margin-top:4px">New workshop attendees get LMS login access. Default password: codencode123. If this email already exists, we'll link to that person instead of creating a duplicate.</div>
     </div>
     <div class="form-group" style="margin-bottom:14px">
-      <label class="form-label">Phone</label>
+      <label class="form-label" data-i18n="lbl.phone">Phone</label>
       <input class="form-input" id="att-phone" placeholder="optional" />
     </div>
     <div class="modal-footer">
-      <button class="btn btn-secondary" onclick="closeModal('modal-add-attendee')">Cancel</button>
-      <button class="btn btn-primary" onclick="saveAddAttendee()"><i class="fas fa-user-plus"></i> Register</button>
+      <button class="btn btn-secondary" onclick="closeModal('modal-add-attendee')"><span data-i18n="btn.cancel">Cancel</span></button>
+      <button class="btn btn-primary" onclick="saveAddAttendee()"><i class="fas fa-user-plus"></i> <span data-i18n="btn.register">Register</span></button>
     </div>
   </div>
 </div>
@@ -4131,8 +4105,8 @@
       </div>
     </div>
     <div class="modal-footer">
-      <button class="btn btn-secondary" onclick="closeModal('modal-attendee-payment')">Cancel</button>
-      <button class="btn btn-primary" onclick="saveAttendeePayment()"><i class="fas fa-save"></i> Save</button>
+      <button class="btn btn-secondary" onclick="closeModal('modal-attendee-payment')"><span data-i18n="btn.cancel">Cancel</span></button>
+      <button class="btn btn-primary" onclick="saveAttendeePayment()"><i class="fas fa-save"></i> <span data-i18n="btn.save">Save</span></button>
     </div>
   </div>
 </div>
@@ -4144,7 +4118,7 @@
     <div class="modal-title">New Cohort / Intake</div>
     <input type="hidden" id="add-cohort-course-id" value="" />
     <div class="form-group" style="margin-bottom:14px">
-      <label class="form-label">Cohort Name *</label>
+      <label class="form-label" data-i18n="lbl.cohortNameReq">Cohort Name *</label>
       <input class="form-input" id="add-cohort-name" placeholder="e.g. Jan 2026, Cohort 2, May Intake" />
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px">
@@ -4153,7 +4127,7 @@
         <input class="form-input" type="date" id="add-cohort-start" />
       </div>
       <div class="form-group">
-        <label class="form-label">End Date</label>
+        <label class="form-label" data-i18n="lbl.endDate">End Date</label>
         <input class="form-input" type="date" id="add-cohort-end" />
       </div>
     </div>
@@ -4162,10 +4136,8 @@
       <select class="form-select" id="add-cohort-teacher"></select>
     </div>
     <div class="modal-footer">
-      <button class="btn btn-secondary" onclick="closeModal('modal-add-cohort')">Cancel</button>
-      <button class="btn btn-primary" onclick="saveNewCohort()">
-        <i class="fas fa-plus"></i> Create Cohort
-      </button>
+      <button class="btn btn-secondary" onclick="closeModal('modal-add-cohort')"><span data-i18n="btn.cancel">Cancel</span></button>
+      <button class="btn btn-primary" onclick="saveNewCohort()"><i class="fas fa-plus"></i> <span data-i18n="btn.createCohort">Create Cohort</span></button>
     </div>
   </div>
 </div>
@@ -4184,7 +4156,7 @@
 
     <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:14px">
       <div class="form-group">
-        <label class="form-label">Start Date</label>
+        <label class="form-label" data-i18n="lbl.startDate">Start Date</label>
         <input class="form-input" type="date" id="edit-cohort-start" />
       </div>
       <div class="form-group">
@@ -4192,7 +4164,7 @@
         <input class="form-input" type="date" id="edit-cohort-end" />
       </div>
       <div class="form-group">
-        <label class="form-label">Current Session</label>
+        <label class="form-label" data-i18n="lbl.currentSession">Current Session</label>
         <input class="form-input" type="number" id="edit-cohort-session" min="1" max="20" value="1" />
       </div>
     </div>
@@ -4205,9 +4177,7 @@
     <div class="form-group" style="margin-bottom:14px">
       <label class="form-label" style="display:flex;align-items:center;justify-content:space-between">
         Class Schedule
-        <button class="btn btn-secondary btn-sm" onclick="addScheduleSlot()" style="font-size:10px;padding:3px 8px">
-          <i class="fas fa-plus"></i> Add slot
-        </button>
+        <button class="btn btn-secondary btn-sm" onclick="addScheduleSlot()" style="font-size:10px;padding:3px 8px"><i class="fas fa-plus"></i> <span data-i18n="btn.addSlot">Add slot</span></button>
       </label>
       <div id="edit-cohort-schedule" style="display:flex;flex-direction:column;gap:8px;margin-top:6px"></div>
     </div>
@@ -4218,10 +4188,8 @@
     </div>
 
     <div class="modal-footer">
-      <button class="btn btn-secondary" onclick="closeModal('modal-edit-cohort')">Cancel</button>
-      <button class="btn btn-primary" onclick="saveCohortEdit()">
-        <i class="fas fa-save"></i> Save Changes
-      </button>
+      <button class="btn btn-secondary" onclick="closeModal('modal-edit-cohort')"><span data-i18n="btn.cancel">Cancel</span></button>
+      <button class="btn btn-primary" onclick="saveCohortEdit()"><i class="fas fa-save"></i> <span data-i18n="btn.saveChanges">Save Changes</span></button>
     </div>
   </div>
 </div>
@@ -4232,27 +4200,27 @@
     <input type="hidden" id="edit-course-id" value="" />
     <div class="form-grid">
       <div class="form-group">
-        <label class="form-label">Course Title *</label>
+        <label class="form-label" data-i18n="lbl.courseTitleReq">Course Title *</label>
         <input class="form-input" id="c-title" placeholder="Python Bootcamp — Cohort 1" />
       </div>
       <div class="form-group">
-        <label class="form-label">Programme</label>
+        <label class="form-label" data-i18n="lbl.programme">Programme</label>
         <input class="form-input" id="c-programme" placeholder="Python Bootcamp" />
       </div>
       <div class="form-group" style="grid-column:1/-1">
         <label class="form-label">Description</label>
-        <textarea class="form-textarea" id="c-description" placeholder="Short description of this cohort..."></textarea>
+        <textarea class="form-textarea" id="c-description" placeholder="Short description of this cohort..." data-i18n-ph="p.cohortDesc"></textarea>
       </div>
       <div class="form-group">
-        <label class="form-label">Number of Sessions</label>
+        <label class="form-label" data-i18n="lbl.numSessions">Number of Sessions</label>
         <input class="form-input" type="number" id="c-sessions" min="1" max="52" value="6" style="width:100px" />
       </div>
       <div class="form-group">
-        <label class="form-label">Session 1 Start Date (Friday)</label>
+        <label class="form-label" data-i18n="lbl.s1Friday">Session 1 Start Date (Friday)</label>
         <input class="form-input" type="date" id="c-start-date" />
       </div>
       <div class="form-group">
-        <label class="form-label">Language</label>
+        <label class="form-label" data-i18n="lbl.language">Language</label>
         <select class="form-input" id="c-language">
           <option value="en">English (EN)</option>
           <option value="zh">中文 (ZH)</option>
@@ -4260,21 +4228,19 @@
         </select>
       </div>
       <div class="form-group">
-        <label class="form-label">Seat Cap (optional)</label>
-        <input class="form-input" type="number" id="c-seat-cap" placeholder="Leave blank for unlimited" min="1" />
+        <label class="form-label" data-i18n="lbl.seatCap">Seat Cap (optional)</label>
+        <input class="form-input" type="number" id="c-seat-cap" placeholder="Leave blank for unlimited" data-i18n-ph="p.blankUnlimited" min="1" />
       </div>
       <div class="form-group">
-        <label class="form-label">Assigned Teacher (optional)</label>
+        <label class="form-label" data-i18n="lbl.assignedTeacher">Assigned Teacher (optional)</label>
         <select class="form-input" id="c-teacher-id">
           <option value="">— No teacher assigned —</option>
         </select>
       </div>
     </div>
     <div class="modal-footer">
-      <button class="btn btn-secondary" onclick="closeModal('modal-course')">Cancel</button>
-      <button class="btn btn-primary" id="course-save-btn" onclick="saveCourse()">
-        <i class="fas fa-save"></i> Save
-      </button>
+      <button class="btn btn-secondary" onclick="closeModal('modal-course')"><span data-i18n="btn.cancel">Cancel</span></button>
+      <button class="btn btn-primary" id="course-save-btn" onclick="saveCourse()"><i class="fas fa-save"></i> <span data-i18n="btn.save">Save</span></button>
     </div>
   </div>
 </div>
@@ -4288,20 +4254,18 @@
       <input class="form-input" id="ann-title" placeholder="e.g. Session 5 starts Monday" />
     </div>
     <div class="form-group" style="margin-bottom:14px">
-      <label class="form-label">Content *</label>
-      <textarea class="form-textarea" id="ann-content" placeholder="Announcement details..." style="min-height:100px"></textarea>
+      <label class="form-label" data-i18n="lbl.contentReq">Content *</label>
+      <textarea class="form-textarea" id="ann-content" placeholder="Announcement details..." data-i18n-ph="p.annDetails" style="min-height:100px"></textarea>
     </div>
     <div class="form-group" style="margin-bottom:14px">
-      <label class="form-label">Course (leave blank for all courses)</label>
+      <label class="form-label" data-i18n="lbl.courseAllBlank">Course (leave blank for all courses)</label>
       <select class="form-select" id="ann-course-select">
         <option value="">All Courses (Global)</option>
       </select>
     </div>
     <div class="modal-footer">
-      <button class="btn btn-secondary" onclick="closeModal('modal-announcement')">Cancel</button>
-      <button class="btn btn-primary" onclick="saveAnnouncement()">
-        <i class="fas fa-paper-plane"></i> Publish
-      </button>
+      <button class="btn btn-secondary" onclick="closeModal('modal-announcement')"><span data-i18n="btn.cancel">Cancel</span></button>
+      <button class="btn btn-primary" onclick="saveAnnouncement()"><i class="fas fa-paper-plane"></i> <span data-i18n="btn.publish">Publish</span></button>
     </div>
   </div>
 </div>
@@ -4311,9 +4275,9 @@
   <div class="modal-box">
     <div class="modal-title">Issue Certificate</div>
     <div class="form-group">
-      <label class="form-label">Student</label>
+      <label class="form-label" data-i18n="lbl.student">Student</label>
       <div class="autocomplete-wrap">
-        <input class="form-input" id="cert-student-search" placeholder="Type student name..." autocomplete="off"
+        <input class="form-input" id="cert-student-search" placeholder="Type student name..." data-i18n-ph="p.typeStudent" autocomplete="off"
                oninput="handleCertificateStudentSearch()" onfocus="renderCertificateStudentMatches()" />
         <input type="hidden" id="cert-student-select" value="" />
         <div class="autocomplete-menu" id="cert-student-results"></div>
@@ -4326,7 +4290,7 @@
       </label>
     </div>
     <div class="form-group" id="cert-blank-quantity-group" style="display:none">
-      <label class="form-label">Quantity</label>
+      <label class="form-label" data-i18n="lbl.quantity">Quantity</label>
       <input class="form-input" type="number" id="cert-blank-quantity" min="1" max="200" value="1" />
     </div>
     <div class="form-group" id="cert-email-group">
@@ -4347,10 +4311,8 @@
       </select>
     </div>
     <div class="modal-footer">
-      <button class="btn btn-secondary" onclick="closeModal('modal-issue-cert')">Cancel</button>
-      <button class="btn btn-primary" id="issue-cert-btn" onclick="issueCertificate()">
-        <i class="fas fa-award"></i> Issue
-      </button>
+      <button class="btn btn-secondary" onclick="closeModal('modal-issue-cert')"><span data-i18n="btn.cancel">Cancel</span></button>
+      <button class="btn btn-primary" id="issue-cert-btn" onclick="issueCertificate()"><i class="fas fa-award"></i> <span data-i18n="btn.issue">Issue</span></button>
     </div>
   </div>
 </div>
@@ -4361,6 +4323,172 @@
 <script>
 // ── i18n ──────────────────────────────────────────────
 const I18N = { en: {
+    "btn.editInfo": "Edit Info",
+    "btn.assignCourse": "Assign Course",
+    "btn.assignWorkshop": "Assign Workshop",
+    "btn.addCohort": "Add Cohort",
+    "btn.saveAll": "Save All",
+    "btn.edit": "Edit",
+    "btn.scheduleRun": "Schedule a run",
+    "btn.view": "View",
+    "btn.editRun": "Edit Run",
+    "btn.addTiming": "Add timing",
+    "btn.sendEmailLater": "Send Email Later",
+    "ds.totalStudents": "Total Students",
+    "ds.totalStudentsHint": "Active learner records",
+    "ds.courses": "Courses",
+    "ds.coursesHint": "Programmes configured",
+    "ds.payReceived": "Payments Received",
+    "ds.payReceivedHint": "Paid invoices and receipts",
+    "ds.payPending": "Pending Payments",
+    "ds.payPendingHint": "Awaiting confirmation",
+    "ds.payOverdue": "Overdue Payments",
+    "ds.payOverdueHint": "Needs follow-up",
+    "ds.cancelled": "Cancelled Invoices",
+    "ds.cancelledHint": "Tracked but excluded",
+    "ds.allUpToDate": "All payments up to date",
+    "ds.enrolledN": "{n} students enrolled",
+    "st.paid": "paid",
+    "st.pending": "pending",
+    "st.overdue": "overdue",
+    "st.cancelled": "cancelled",
+    "st.void": "void",
+    "st.none": "no course",
+    "st.present": "present",
+    "st.absent": "absent",
+    "st.late": "late",
+    "h.welcome": "Welcome Back,",
+    "h.sub": "Students, payments, courses and class operations in one view.",
+    "c.payPending": "Payments Pending / Overdue",
+    "c.coursesSession": "Courses & Current Session",
+    "c.uploadMaterial": "Upload Material",
+    "c.existingMaterials": "Existing Materials",
+    "c.exportData": "Export Data",
+    "c.recentLogins": "Recent Login Activity",
+    "th.student": "Student",
+    "th.course": "Course",
+    "th.status": "Status",
+    "th.remarks": "Remarks",
+    "th.action": "Action",
+    "th.title": "Title",
+    "th.type": "Type",
+    "th.dateTime": "Date &amp; Time",
+    "th.duration": "Duration",
+    "th.recording": "Recording",
+    "th.certNo": "Cert No.",
+    "th.issued": "Issued",
+    "th.user": "User",
+    "th.loginTime": "Login Time",
+    "th.ip": "IP Address",
+    "lbl.course": "Course",
+    "lbl.title": "Title",
+    "lbl.session0": "Session (0 = always visible)",
+    "lbl.filter": "Filter",
+    "lbl.classCohort": "Class / Cohort",
+    "lbl.fullName": "Full Name *",
+    "lbl.emailReq": "Email *",
+    "lbl.password": "Password",
+    "lbl.phoneNumber": "Phone Number",
+    "lbl.prefLang": "Preferred Language",
+    "lbl.companyName": "Company Name",
+    "lbl.bizReg": "Business Reg Number",
+    "lbl.sstNo": "SST Registration No.",
+    "lbl.address": "Address",
+    "lbl.classFormat": "Class Format",
+    "lbl.payStatus": "Payment Status",
+    "lbl.classTime": "Time of Class",
+    "lbl.displayTitle": "Display Title",
+    "lbl.shortBio": "Short Bio",
+    "lbl.education": "Education",
+    "lbl.experience": "Experience",
+    "lbl.portfolio": "Portfolio Website",
+    "lbl.linkedin": "LinkedIn URL",
+    "lbl.classTiming": "Class Timing",
+    "lbl.remarks": "Remarks",
+    "lbl.status": "Status",
+    "lbl.amountRM": "Amount (RM)",
+    "lbl.payMethod": "Payment Method",
+    "lbl.discountPct": "Discount (%)",
+    "lbl.discountReason": "Discount Reason",
+    "lbl.receiptOpt": "Receipt (PDF / Image) — optional",
+    "lbl.titleReq": "Title *",
+    "lbl.description": "Description",
+    "lbl.durationHrs": "Duration (hours)",
+    "lbl.defaultPrice": "Default Price / Pax (RM)",
+    "lbl.startDtReq": "Start Date & Time *",
+    "lbl.endDt": "End Date & Time",
+    "lbl.venue": "Venue",
+    "lbl.capacity": "Capacity",
+    "lbl.facilitator": "Facilitator",
+    "lbl.wsRun": "Workshop Run",
+    "lbl.existingStudent": "Existing Student",
+    "lbl.nameReq": "Name *",
+    "lbl.phone": "Phone",
+    "lbl.cohortNameReq": "Cohort Name *",
+    "lbl.endDate": "End Date",
+    "lbl.startDate": "Start Date",
+    "lbl.currentSession": "Current Session",
+    "lbl.courseTitleReq": "Course Title *",
+    "lbl.programme": "Programme",
+    "lbl.numSessions": "Number of Sessions",
+    "lbl.s1Friday": "Session 1 Start Date (Friday)",
+    "lbl.language": "Language",
+    "lbl.seatCap": "Seat Cap (optional)",
+    "lbl.assignedTeacher": "Assigned Teacher (optional)",
+    "lbl.contentReq": "Content *",
+    "lbl.courseAllBlank": "Course (leave blank for all courses)",
+    "lbl.student": "Student",
+    "lbl.quantity": "Quantity",
+    "btn.newCourse": "New Course",
+    "btn.upload": "Upload",
+    "btn.saveDate": "Save Date",
+    "btn.saveAllTopics": "Save All Topics",
+    "btn.addWorkshop": "Add Workshop",
+    "btn.backRuns": "Back to Upcoming Runs",
+    "btn.newAnn": "New Announcement",
+    "btn.downloadPdfs": "Download PDFs",
+    "btn.deleteSelected": "Delete Selected",
+    "btn.clearCerts": "Clear Certificates",
+    "btn.issueCert": "Issue Certificate",
+    "btn.sendNowTest": "Send Now (Test)",
+    "btn.exportStudents": "Export Students",
+    "btn.exportSubmissions": "Export Submissions",
+    "btn.exportAttendance": "Export Attendance",
+    "btn.addTime": "Add time",
+    "btn.cancel": "Cancel",
+    "btn.back": "Back",
+    "btn.continue": "Continue",
+    "btn.save": "Save",
+    "btn.enroll": "Enroll",
+    "btn.schedule": "Schedule",
+    "btn.assign": "Assign",
+    "btn.register": "Register",
+    "btn.createCohort": "Create Cohort",
+    "btn.addSlot": "Add slot",
+    "btn.saveChanges": "Save Changes",
+    "btn.publish": "Publish",
+    "btn.issue": "Issue",
+    "btn.addStudent": "Add Student",
+    "chip.all": "All",
+    "chip.paid": "Paid",
+    "chip.pending": "Pending",
+    "chip.overdue": "Overdue",
+    "chip.noCourse": "No Course",
+    "e.selTeacher": "Select a teacher to view their details",
+    "e.selStudent": "Select a student to view their details",
+    "e.selCourseAtt": "Select a course to manage attendance",
+    "e.selCourseTt": "Select a course to manage its timetable",
+    "p.searchTeachers": "Search teachers...",
+    "p.searchStudents": "Search students...",
+    "p.fullName": "Full name",
+    "p.email": "you@example.com",
+    "p.payNotes": "Notes about payment...",
+    "p.wsCovers": "What this workshop covers...",
+    "p.annDetails": "Announcement details...",
+    "p.typeStudent": "Type student name...",
+    "p.cohortDesc": "Short description of this cohort...",
+    "p.bioIntro": "Brief intro shown to students on their dashboard...",
+    "p.blankUnlimited": "Leave blank for unlimited",
     'sec.courses': 'Courses',
     'sec.comms': 'Comms',
     'sec.finance': 'Finance',
@@ -4496,6 +4624,172 @@ const I18N = { en: {
     "common.loading": "Loading...",
     "common.error": "Error: ",
   }, zh: {
+    "btn.editInfo": "编辑信息",
+    "btn.assignCourse": "分配课程",
+    "btn.assignWorkshop": "分配工作坊",
+    "btn.addCohort": "添加班级",
+    "btn.saveAll": "全部保存",
+    "btn.edit": "编辑",
+    "btn.scheduleRun": "安排场次",
+    "btn.view": "查看",
+    "btn.editRun": "编辑场次",
+    "btn.addTiming": "添加时段",
+    "btn.sendEmailLater": "稍后发送邮件",
+    "ds.totalStudents": "学生总数",
+    "ds.totalStudentsHint": "活跃学员记录",
+    "ds.courses": "课程数",
+    "ds.coursesHint": "已配置项目",
+    "ds.payReceived": "已收付款",
+    "ds.payReceivedHint": "已付发票与收据",
+    "ds.payPending": "待付款",
+    "ds.payPendingHint": "等待确认",
+    "ds.payOverdue": "逾期付款",
+    "ds.payOverdueHint": "需要跟进",
+    "ds.cancelled": "已取消发票",
+    "ds.cancelledHint": "已记录但排除",
+    "ds.allUpToDate": "所有付款均已结清",
+    "ds.enrolledN": "{n} 名学生已报名",
+    "st.paid": "已付款",
+    "st.pending": "待付款",
+    "st.overdue": "逾期",
+    "st.cancelled": "已取消",
+    "st.void": "作废",
+    "st.none": "无课程",
+    "st.present": "出席",
+    "st.absent": "缺席",
+    "st.late": "迟到",
+    "h.welcome": "欢迎回来，",
+    "h.sub": "在一个界面管理学生、付款、课程和班级运营。",
+    "c.payPending": "待付／逾期付款",
+    "c.coursesSession": "课程与当前课节",
+    "c.uploadMaterial": "上传资料",
+    "c.existingMaterials": "现有资料",
+    "c.exportData": "导出数据",
+    "c.recentLogins": "近期登录记录",
+    "th.student": "学生",
+    "th.course": "课程",
+    "th.status": "状态",
+    "th.remarks": "备注",
+    "th.action": "操作",
+    "th.title": "标题",
+    "th.type": "类型",
+    "th.dateTime": "日期与时间",
+    "th.duration": "时长",
+    "th.recording": "录像",
+    "th.certNo": "证书编号",
+    "th.issued": "颁发日期",
+    "th.user": "用户",
+    "th.loginTime": "登录时间",
+    "th.ip": "IP 地址",
+    "lbl.course": "课程",
+    "lbl.title": "标题",
+    "lbl.session0": "课节（0 = 始终可见）",
+    "lbl.filter": "筛选",
+    "lbl.classCohort": "班级 / 期次",
+    "lbl.fullName": "全名 *",
+    "lbl.emailReq": "邮箱 *",
+    "lbl.password": "密码",
+    "lbl.phoneNumber": "电话号码",
+    "lbl.prefLang": "首选语言",
+    "lbl.companyName": "公司名称",
+    "lbl.bizReg": "商业注册号",
+    "lbl.sstNo": "SST 注册号",
+    "lbl.address": "地址",
+    "lbl.classFormat": "上课形式",
+    "lbl.payStatus": "付款状态",
+    "lbl.classTime": "上课时间",
+    "lbl.displayTitle": "显示头衔",
+    "lbl.shortBio": "简短介绍",
+    "lbl.education": "教育背景",
+    "lbl.experience": "工作经历",
+    "lbl.portfolio": "作品集网站",
+    "lbl.linkedin": "LinkedIn 网址",
+    "lbl.classTiming": "上课时段",
+    "lbl.remarks": "备注",
+    "lbl.status": "状态",
+    "lbl.amountRM": "金额（RM）",
+    "lbl.payMethod": "付款方式",
+    "lbl.discountPct": "折扣（%）",
+    "lbl.discountReason": "折扣原因",
+    "lbl.receiptOpt": "收据（PDF / 图片）—— 可选",
+    "lbl.titleReq": "标题 *",
+    "lbl.description": "描述",
+    "lbl.durationHrs": "时长（小时）",
+    "lbl.defaultPrice": "默认单价 / 人（RM）",
+    "lbl.startDtReq": "开始日期和时间 *",
+    "lbl.endDt": "结束日期和时间",
+    "lbl.venue": "地点",
+    "lbl.capacity": "容量",
+    "lbl.facilitator": "讲师",
+    "lbl.wsRun": "工作坊场次",
+    "lbl.existingStudent": "现有学生",
+    "lbl.nameReq": "姓名 *",
+    "lbl.phone": "电话",
+    "lbl.cohortNameReq": "班级名称 *",
+    "lbl.endDate": "结束日期",
+    "lbl.startDate": "开始日期",
+    "lbl.currentSession": "当前课节",
+    "lbl.courseTitleReq": "课程标题 *",
+    "lbl.programme": "项目",
+    "lbl.numSessions": "课节数量",
+    "lbl.s1Friday": "第 1 节开始日期（星期五）",
+    "lbl.language": "语言",
+    "lbl.seatCap": "座位上限（可选）",
+    "lbl.assignedTeacher": "指派教师（可选）",
+    "lbl.contentReq": "内容 *",
+    "lbl.courseAllBlank": "课程（留空表示所有课程）",
+    "lbl.student": "学生",
+    "lbl.quantity": "数量",
+    "btn.newCourse": "新建课程",
+    "btn.upload": "上传",
+    "btn.saveDate": "保存日期",
+    "btn.saveAllTopics": "保存所有主题",
+    "btn.addWorkshop": "添加工作坊",
+    "btn.backRuns": "返回即将举办",
+    "btn.newAnn": "新建公告",
+    "btn.downloadPdfs": "下载 PDF",
+    "btn.deleteSelected": "删除所选",
+    "btn.clearCerts": "清除证书",
+    "btn.issueCert": "颁发证书",
+    "btn.sendNowTest": "立即发送（测试）",
+    "btn.exportStudents": "导出学生",
+    "btn.exportSubmissions": "导出提交",
+    "btn.exportAttendance": "导出考勤",
+    "btn.addTime": "添加时段",
+    "btn.cancel": "取消",
+    "btn.back": "返回",
+    "btn.continue": "继续",
+    "btn.save": "保存",
+    "btn.enroll": "报名",
+    "btn.schedule": "排期",
+    "btn.assign": "指派",
+    "btn.register": "登记",
+    "btn.createCohort": "创建班级",
+    "btn.addSlot": "添加时段",
+    "btn.saveChanges": "保存更改",
+    "btn.publish": "发布",
+    "btn.issue": "颁发",
+    "btn.addStudent": "添加学生",
+    "chip.all": "全部",
+    "chip.paid": "已付款",
+    "chip.pending": "待付款",
+    "chip.overdue": "逾期",
+    "chip.noCourse": "无课程",
+    "e.selTeacher": "选择一位教师以查看详情",
+    "e.selStudent": "选择一位学生以查看详情",
+    "e.selCourseAtt": "选择一门课程以管理考勤",
+    "e.selCourseTt": "选择一门课程以管理时间表",
+    "p.searchTeachers": "搜索教师……",
+    "p.searchStudents": "搜索学生……",
+    "p.fullName": "全名",
+    "p.email": "you@example.com",
+    "p.payNotes": "付款备注……",
+    "p.wsCovers": "此工作坊涵盖的内容……",
+    "p.annDetails": "公告详情……",
+    "p.typeStudent": "输入学生姓名……",
+    "p.cohortDesc": "此班级的简短描述……",
+    "p.bioIntro": "显示在学生面板上的简短介绍……",
+    "p.blankUnlimited": "留空表示无限制",
     'sec.courses': '课程',
     'sec.comms': '沟通',
     'sec.finance': '财务',
@@ -4631,6 +4925,172 @@ const I18N = { en: {
     "common.loading": "加载中…",
     "common.error": "错误：",
   }, bm: {
+    "btn.editInfo": "Sunting Maklumat",
+    "btn.assignCourse": "Tugaskan Kursus",
+    "btn.assignWorkshop": "Tugaskan Bengkel",
+    "btn.addCohort": "Tambah Kohort",
+    "btn.saveAll": "Simpan Semua",
+    "btn.edit": "Sunting",
+    "btn.scheduleRun": "Jadualkan sesi",
+    "btn.view": "Lihat",
+    "btn.editRun": "Sunting Sesi",
+    "btn.addTiming": "Tambah waktu",
+    "btn.sendEmailLater": "Hantar E-mel Kemudian",
+    "ds.totalStudents": "Jumlah Pelajar",
+    "ds.totalStudentsHint": "Rekod pelajar aktif",
+    "ds.courses": "Kursus",
+    "ds.coursesHint": "Program dikonfigurasi",
+    "ds.payReceived": "Bayaran Diterima",
+    "ds.payReceivedHint": "Invois dan resit dibayar",
+    "ds.payPending": "Bayaran Tertunda",
+    "ds.payPendingHint": "Menunggu pengesahan",
+    "ds.payOverdue": "Bayaran Lewat",
+    "ds.payOverdueHint": "Perlu tindakan susulan",
+    "ds.cancelled": "Invois Dibatalkan",
+    "ds.cancelledHint": "Dijejak tetapi dikecualikan",
+    "ds.allUpToDate": "Semua bayaran terkini",
+    "ds.enrolledN": "{n} pelajar berdaftar",
+    "st.paid": "dibayar",
+    "st.pending": "tertunda",
+    "st.overdue": "lewat",
+    "st.cancelled": "dibatalkan",
+    "st.void": "batal",
+    "st.none": "tiada kursus",
+    "st.present": "hadir",
+    "st.absent": "tidak hadir",
+    "st.late": "lewat",
+    "h.welcome": "Selamat Kembali,",
+    "h.sub": "Pelajar, bayaran, kursus dan operasi kelas dalam satu paparan.",
+    "c.payPending": "Bayaran Tertunggak / Lewat",
+    "c.coursesSession": "Kursus & Sesi Semasa",
+    "c.uploadMaterial": "Muat Naik Bahan",
+    "c.existingMaterials": "Bahan Sedia Ada",
+    "c.exportData": "Eksport Data",
+    "c.recentLogins": "Aktiviti Log Masuk Terkini",
+    "th.student": "Pelajar",
+    "th.course": "Kursus",
+    "th.status": "Status",
+    "th.remarks": "Catatan",
+    "th.action": "Tindakan",
+    "th.title": "Tajuk",
+    "th.type": "Jenis",
+    "th.dateTime": "Tarikh & Masa",
+    "th.duration": "Tempoh",
+    "th.recording": "Rakaman",
+    "th.certNo": "No. Sijil",
+    "th.issued": "Dikeluarkan",
+    "th.user": "Pengguna",
+    "th.loginTime": "Masa Log Masuk",
+    "th.ip": "Alamat IP",
+    "lbl.course": "Kursus",
+    "lbl.title": "Tajuk",
+    "lbl.session0": "Sesi (0 = sentiasa kelihatan)",
+    "lbl.filter": "Tapis",
+    "lbl.classCohort": "Kelas / Kohort",
+    "lbl.fullName": "Nama Penuh *",
+    "lbl.emailReq": "E-mel *",
+    "lbl.password": "Kata Laluan",
+    "lbl.phoneNumber": "Nombor Telefon",
+    "lbl.prefLang": "Bahasa Pilihan",
+    "lbl.companyName": "Nama Syarikat",
+    "lbl.bizReg": "No. Pendaftaran Perniagaan",
+    "lbl.sstNo": "No. Pendaftaran SST",
+    "lbl.address": "Alamat",
+    "lbl.classFormat": "Format Kelas",
+    "lbl.payStatus": "Status Bayaran",
+    "lbl.classTime": "Masa Kelas",
+    "lbl.displayTitle": "Tajuk Paparan",
+    "lbl.shortBio": "Bio Ringkas",
+    "lbl.education": "Pendidikan",
+    "lbl.experience": "Pengalaman",
+    "lbl.portfolio": "Laman Portfolio",
+    "lbl.linkedin": "URL LinkedIn",
+    "lbl.classTiming": "Waktu Kelas",
+    "lbl.remarks": "Catatan",
+    "lbl.status": "Status",
+    "lbl.amountRM": "Jumlah (RM)",
+    "lbl.payMethod": "Kaedah Bayaran",
+    "lbl.discountPct": "Diskaun (%)",
+    "lbl.discountReason": "Sebab Diskaun",
+    "lbl.receiptOpt": "Resit (PDF / Imej) — pilihan",
+    "lbl.titleReq": "Tajuk *",
+    "lbl.description": "Penerangan",
+    "lbl.durationHrs": "Tempoh (jam)",
+    "lbl.defaultPrice": "Harga Lalai / Pax (RM)",
+    "lbl.startDtReq": "Tarikh & Masa Mula *",
+    "lbl.endDt": "Tarikh & Masa Tamat",
+    "lbl.venue": "Tempat",
+    "lbl.capacity": "Kapasiti",
+    "lbl.facilitator": "Fasilitator",
+    "lbl.wsRun": "Sesi Bengkel",
+    "lbl.existingStudent": "Pelajar Sedia Ada",
+    "lbl.nameReq": "Nama *",
+    "lbl.phone": "Telefon",
+    "lbl.cohortNameReq": "Nama Kohort *",
+    "lbl.endDate": "Tarikh Tamat",
+    "lbl.startDate": "Tarikh Mula",
+    "lbl.currentSession": "Sesi Semasa",
+    "lbl.courseTitleReq": "Tajuk Kursus *",
+    "lbl.programme": "Program",
+    "lbl.numSessions": "Bilangan Sesi",
+    "lbl.s1Friday": "Tarikh Mula Sesi 1 (Jumaat)",
+    "lbl.language": "Bahasa",
+    "lbl.seatCap": "Had Tempat (pilihan)",
+    "lbl.assignedTeacher": "Pengajar Ditugaskan (pilihan)",
+    "lbl.contentReq": "Kandungan *",
+    "lbl.courseAllBlank": "Kursus (biar kosong untuk semua kursus)",
+    "lbl.student": "Pelajar",
+    "lbl.quantity": "Kuantiti",
+    "btn.newCourse": "Kursus Baharu",
+    "btn.upload": "Muat Naik",
+    "btn.saveDate": "Simpan Tarikh",
+    "btn.saveAllTopics": "Simpan Semua Topik",
+    "btn.addWorkshop": "Tambah Bengkel",
+    "btn.backRuns": "Kembali ke Sesi Akan Datang",
+    "btn.newAnn": "Pengumuman Baharu",
+    "btn.downloadPdfs": "Muat Turun PDF",
+    "btn.deleteSelected": "Padam Terpilih",
+    "btn.clearCerts": "Kosongkan Sijil",
+    "btn.issueCert": "Keluarkan Sijil",
+    "btn.sendNowTest": "Hantar Sekarang (Uji)",
+    "btn.exportStudents": "Eksport Pelajar",
+    "btn.exportSubmissions": "Eksport Penghantaran",
+    "btn.exportAttendance": "Eksport Kehadiran",
+    "btn.addTime": "Tambah masa",
+    "btn.cancel": "Batal",
+    "btn.back": "Kembali",
+    "btn.continue": "Teruskan",
+    "btn.save": "Simpan",
+    "btn.enroll": "Daftar",
+    "btn.schedule": "Jadualkan",
+    "btn.assign": "Tugaskan",
+    "btn.register": "Daftar",
+    "btn.createCohort": "Cipta Kohort",
+    "btn.addSlot": "Tambah slot",
+    "btn.saveChanges": "Simpan Perubahan",
+    "btn.publish": "Terbit",
+    "btn.issue": "Keluarkan",
+    "btn.addStudent": "Tambah Pelajar",
+    "chip.all": "Semua",
+    "chip.paid": "Dibayar",
+    "chip.pending": "Tertunda",
+    "chip.overdue": "Lewat",
+    "chip.noCourse": "Tiada Kursus",
+    "e.selTeacher": "Pilih pengajar untuk lihat butiran",
+    "e.selStudent": "Pilih pelajar untuk lihat butiran",
+    "e.selCourseAtt": "Pilih kursus untuk urus kehadiran",
+    "e.selCourseTt": "Pilih kursus untuk urus jadualnya",
+    "p.searchTeachers": "Cari pengajar...",
+    "p.searchStudents": "Cari pelajar...",
+    "p.fullName": "Nama penuh",
+    "p.email": "you@example.com",
+    "p.payNotes": "Nota tentang bayaran...",
+    "p.wsCovers": "Apa yang bengkel ini liputi...",
+    "p.annDetails": "Butiran pengumuman...",
+    "p.typeStudent": "Taip nama pelajar...",
+    "p.cohortDesc": "Penerangan ringkas kohort ini...",
+    "p.bioIntro": "Pengenalan ringkas yang ditunjuk kepada pelajar...",
+    "p.blankUnlimited": "Biar kosong untuk tanpa had",
     'sec.courses': 'Kursus',
     'sec.comms': 'Komunikasi',
     'sec.finance': 'Kewangan',
@@ -4774,6 +5234,7 @@ function T(key, vars){
   return s;
 }
 const TERR = {"Teachers only": "aerr.teachersOnly", "Students only": "aerr.studentsOnly", "Admins only": "aerr.adminsOnly", "Forbidden": "aerr.forbidden", "forbidden": "aerr.forbidden", "Access denied": "aerr.forbidden", "Invalid email or password": "aerr.badLogin", "Not enrolled": "aerr.notEnrolled", "Please use a Google Drive folder or file link": "aerr.driveLink", "Recording not available for your class": "aerr.recordingClass", "Slide not found": "aerr.notFound", "Material not found": "aerr.notFound", "No recording available": "aerr.notFound", "Not available yet": "aerr.notAvailableYet", "No file provided": "aerr.noFile", "No file": "aerr.noFile", "Invalid score": "aerr.invalidScore", "name and email are required": "aerr.required", "name required": "aerr.required", "title is required": "aerr.required", "question_text required": "aerr.required", "body required": "aerr.required", "session required": "aerr.required", "material_id required": "aerr.required", "course_id required": "aerr.required", "student_id and session required": "aerr.required", "start_datetime is required": "aerr.required", "title and content required": "aerr.required", "title and start_datetime are required": "aerr.required", "title and course_id required": "aerr.required", "course_id required for attendance export": "aerr.required", "workshop_id required; student_id required unless blank_name is true": "aerr.required", "course_id required; student_id required unless blank_name is true": "aerr.required", "Email already exists": "aerr.emailExists", "Email already in use": "aerr.emailExists", "Cannot delete admin accounts": "aerr.cantDeleteAdmin", "Already enrolled": "aerr.alreadyEnrolled", "Enrollment is not marked as paid": "aerr.notPaid", "Image files only (jpg, png, webp, gif)": "aerr.imageOnly", "status must be present/absent/late": "aerr.attendanceStatus", "start_datetime must be YYYY-MM-DDTHH:MM": "aerr.datetimeFormat", "Blank-name certificates are not linked to a student": "aerr.blankCertNoStudent", "Student has no email address": "aerr.studentNoEmail", "Email could not be sent. Check email configuration.": "aerr.emailNotSent", "Select at least one certificate": "aerr.selectCert", "Bulk download is limited to 200 certificates at a time": "aerr.bulkLimit", "One or more selected certificates no longer exist": "aerr.certGone", "Email belongs to a non-student account": "aerr.notStudentAccount", "Invalid feedback link": "aerr.badFeedbackLink", "An event rating is required": "aerr.ratingRequired", "Max attempts reached": "aerr.maxAttempts", "Invalid language": "aerr.invalidLang"};
+function tStatus(x){ const k='st.'+String(x||'').toLowerCase().replace(/\s+/g,''); const v=T(k); return v===k ? x : v; }
 function tErr(m){ if (m==null) return ''; const k = TERR[String(m)]; return k ? T(k) : String(m); }
 function _adminLocale(){ return window.LANG==='zh'?'zh-CN':(window.LANG==='bm'?'ms-MY':'en-US'); }
 function fmtDate(iso){ if(!iso) return ''; const d=new Date(iso); return isNaN(d)?iso:d.toLocaleDateString(_adminLocale(),{year:'numeric',month:'short',day:'numeric'}); }
@@ -5103,62 +5564,62 @@ async function loadDashboard() {
     <div class="stat-card">
       <div class="stat-head">
         <div>
-          <div class="stat-label">Total Students</div>
+          <div class="stat-label">${T('ds.totalStudents')}</div>
           <div class="stat-value" style="color:var(--text)">${totalStudents}</div>
         </div>
         <div class="stat-icon"><i class="fas fa-users"></i></div>
       </div>
-      <div class="stat-hint">Active learner records</div>
+      <div class="stat-hint">${T('ds.totalStudentsHint')}</div>
     </div>
     <div class="stat-card">
       <div class="stat-head">
         <div>
-          <div class="stat-label">Courses</div>
+          <div class="stat-label">${T('ds.courses')}</div>
           <div class="stat-value" style="color:var(--text)">${totalCourses}</div>
         </div>
         <div class="stat-icon"><i class="fas fa-layer-group"></i></div>
       </div>
-      <div class="stat-hint">Programmes configured</div>
+      <div class="stat-hint">${T('ds.coursesHint')}</div>
     </div>
     <div class="stat-card">
       <div class="stat-head">
         <div>
-          <div class="stat-label">Payments Received</div>
+          <div class="stat-label">${T('ds.payReceived')}</div>
           <div class="stat-value" style="color:var(--green)">${paid}</div>
         </div>
         <div class="stat-icon"><i class="fas fa-check-circle"></i></div>
       </div>
-      <div class="stat-hint">Paid invoices and receipts</div>
+      <div class="stat-hint">${T('ds.payReceivedHint')}</div>
     </div>
     <div class="stat-card">
       <div class="stat-head">
         <div>
-          <div class="stat-label">Pending Payments</div>
+          <div class="stat-label">${T('ds.payPending')}</div>
           <div class="stat-value" style="color:var(--yellow)">${pending}</div>
         </div>
         <div class="stat-icon"><i class="fas fa-clock"></i></div>
       </div>
-      <div class="stat-hint">Awaiting confirmation</div>
+      <div class="stat-hint">${T('ds.payPendingHint')}</div>
     </div>
     <div class="stat-card">
       <div class="stat-head">
         <div>
-          <div class="stat-label">Overdue Payments</div>
+          <div class="stat-label">${T('ds.payOverdue')}</div>
           <div class="stat-value" style="color:var(--red)">${overdue}</div>
         </div>
         <div class="stat-icon"><i class="fas fa-exclamation-circle"></i></div>
       </div>
-      <div class="stat-hint">Needs follow-up</div>
+      <div class="stat-hint">${T('ds.payOverdueHint')}</div>
     </div>
     <div class="stat-card">
       <div class="stat-head">
         <div>
-          <div class="stat-label">Cancelled Invoices</div>
+          <div class="stat-label">${T('ds.cancelled')}</div>
           <div class="stat-value" style="color:var(--text-muted)">${cancelled}</div>
         </div>
         <div class="stat-icon"><i class="fas fa-ban"></i></div>
       </div>
-      <div class="stat-hint">Tracked but excluded</div>
+      <div class="stat-hint">${T('ds.cancelledHint')}</div>
     </div>
   `;
 
@@ -5170,16 +5631,16 @@ async function loadDashboard() {
         <div class="dashboard-list-title">${e.student_name}</div>
         <div class="dashboard-list-sub">${e.course_title}</div>
       </div>
-      <span class="badge badge-${e.payment_status}">${e.payment_status}</span>
+      <span class="badge badge-${e.payment_status}">${tStatus(e.payment_status)}</span>
     </div>
-  `).join('') : '<div class="dashboard-empty">All payments up to date</div>';
+  `).join('') : `<div class="dashboard-empty">${T('ds.allUpToDate')}</div>`;
 
   // Courses list
   document.getElementById('dash-courses-list').innerHTML = S.courses.map(c => `
     <div class="dashboard-list-row">
       <div class="dashboard-list-main">
         <div class="dashboard-list-title">${c.title}</div>
-        <div class="dashboard-list-sub">${c.enrolled_count} students enrolled</div>
+        <div class="dashboard-list-sub">${T('ds.enrolledN',{n:c.enrolled_count})}</div>
       </div>
       <span class="session-chip">S${c.current_session}/${c.total_sessions}</span>
     </div>
@@ -5317,9 +5778,7 @@ function renderStudentDetail(s) {
           <div style="font-family:'Syne',sans-serif;font-size:18px;font-weight:700">${s.name}</div>
           <div style="font-size:12px;color:var(--text-muted)">${s.email}</div>
         </div>
-        <button class="btn btn-secondary btn-sm" onclick="openEditStudent(${s.id})">
-          <i class="fas fa-edit"></i> Edit Info
-        </button>
+        <button class="btn btn-secondary btn-sm" onclick="openEditStudent(${s.id})"><i class="fas fa-edit"></i> <span data-i18n="btn.editInfo">Edit Info</span></button>
         <button class="btn btn-danger btn-sm" onclick="deleteStudent(${s.id},'${s.name}')" title="Delete student">
           <i class="fas fa-trash"></i>
         </button>
@@ -5374,9 +5833,7 @@ function renderStudentDetail(s) {
 
         ${availableCourses.length ? `
           <div style="margin-top:14px">
-            <button class="btn btn-primary btn-sm" onclick="openEnrollModal(${s.id})">
-              <i class="fas fa-plus"></i> Assign Course
-            </button>
+            <button class="btn btn-primary btn-sm" onclick="openEnrollModal(${s.id})"><i class="fas fa-plus"></i> <span data-i18n="btn.assignCourse">Assign Course</span></button>
           </div>` : ''}
 
         <div class="form-label" style="margin:18px 0 8px">Workshop Registrations</div>
@@ -5404,9 +5861,7 @@ function renderStudentDetail(s) {
         `).join('') : '<div style="color:var(--text-muted);padding:8px 0">No workshop registrations.</div>'}
 
         <div style="margin-top:14px">
-          <button class="btn btn-primary btn-sm" onclick="openAssignWorkshopModal(${s.id})">
-            <i class="fas fa-plus"></i> Assign Workshop
-          </button>
+          <button class="btn btn-primary btn-sm" onclick="openAssignWorkshopModal(${s.id})"><i class="fas fa-plus"></i> <span data-i18n="btn.assignWorkshop">Assign Workshop</span></button>
         </div>
       </div>
 
@@ -5830,9 +6285,7 @@ function renderCourses() {
       <div style="margin-bottom:14px">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
           <div style="font-size:11px;color:var(--text-muted);letter-spacing:.8px">COHORTS / INTAKES</div>
-          <button class="btn btn-secondary btn-sm" onclick="openAddCohortModal(${c.id})" style="font-size:10px;padding:3px 8px">
-            <i class="fas fa-plus"></i> Add Cohort
-          </button>
+          <button class="btn btn-secondary btn-sm" onclick="openAddCohortModal(${c.id})" style="font-size:10px;padding:3px 8px"><i class="fas fa-plus"></i> <span data-i18n="btn.addCohort">Add Cohort</span></button>
         </div>
         <div id="cohorts-${c.id}">
           <div style="font-size:11px;color:var(--text-dim)">Loading...</div>
@@ -6057,7 +6510,7 @@ async function loadAttendance() {
   const cid = document.getElementById('att-course-select').value;
   const area = document.getElementById('attendance-area');
   if (!cid) {
-    area.innerHTML = `<div class="empty-state"><i class="fas fa-clipboard-check"></i><p>Select a course to manage attendance</p></div>`;
+    area.innerHTML = `<div class="empty-state"><i class="fas fa-clipboard-check"></i><p data-i18n="e.selCourseAtt">Select a course to manage attendance</p></div>`;
     return;
   }
 
@@ -6084,15 +6537,13 @@ function renderAttendanceGrid(cid, data) {
         <select class="form-select" id="bulk-week-select" style="width:120px">
           ${sessions.map(w=>`<option value="${w}">Session ${w}</option>`).join('')}
         </select>
-        <button class="btn btn-primary btn-sm" onclick="saveBulkAttendance(${cid})">
-          <i class="fas fa-save"></i> Save All
-        </button>
+        <button class="btn btn-primary btn-sm" onclick="saveBulkAttendance(${cid})"><i class="fas fa-save"></i> <span data-i18n="btn.saveAll">Save All</span></button>
       </div>
       <div class="table-wrap">
         <table class="att-table">
           <thead>
             <tr>
-              <th>Student</th>
+              <th data-i18n="th.student">Student</th>
               ${sessions.map(w=>`<th>Session ${w}</th>`).join('')}
             </tr>
           </thead>
@@ -6291,9 +6742,7 @@ function filterPayments() {
       <td style="max-width:200px;font-size:12px;color:var(--text-muted)">${e.payment_remarks || '—'}</td>
       <td>
         <div style="display:flex;gap:5px;align-items:center">
-          <button class="btn btn-secondary btn-sm" onclick="openPaymentModal(${e.id})" title="Edit payment">
-            <i class="fas fa-edit"></i> Edit
-          </button>
+          <button class="btn btn-secondary btn-sm" onclick="openPaymentModal(${e.id})" title="Edit payment"><i class="fas fa-edit"></i> <span data-i18n="btn.edit">Edit</span></button>
           <button class="btn btn-secondary btn-sm" onclick="window.open('/api/admin/enrollments/${e.id}/invoice','_blank')" style="color:var(--cyan)" title="Download invoice">
             <i class="fas fa-file-invoice"></i>
           </button>
@@ -6423,7 +6872,7 @@ async function loadWorkshopCatalogue() {
       <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:15px;margin-bottom:4px">${w.title}</div>
       <div style="font-size:11px;color:var(--text-muted);margin-bottom:12px">${w.duration_hours}h · ${w.run_count} run${w.run_count!==1?'s':''} scheduled</div>
       <div style="display:flex;gap:8px;flex-wrap:wrap">
-        <button class="btn btn-primary btn-sm" onclick="openScheduleRunModal(${w.id})"><i class="fas fa-calendar-plus"></i> Schedule a run</button>
+        <button class="btn btn-primary btn-sm" onclick="openScheduleRunModal(${w.id})"><i class="fas fa-calendar-plus"></i> <span data-i18n="btn.scheduleRun">Schedule a run</span></button>
         <button class="btn btn-secondary btn-sm" onclick="openEditWorkshopModal(${w.id})"><i class="fas fa-edit"></i></button>
         <button class="btn btn-danger btn-sm" onclick="deleteWorkshop(${w.id})"><i class="fas fa-trash"></i></button>
       </div>
@@ -6638,7 +7087,7 @@ async function loadUpcomingRuns() {
         <div style="font-family:'JetBrains Mono',monospace;font-size:12px">${r.attendee_count}${r.capacity ? ' / ' + r.capacity : ''}</div>
         ${r.capacity ? `<div style="width:90px;height:5px;background:var(--surface2);border-radius:3px;overflow:hidden;margin-top:4px"><div style="height:100%;width:${capPct}%;background:${capPct>=100?'var(--gold)':'var(--cyan)'}"></div></div>` : ''}
       </div>
-      <button class="btn btn-secondary btn-sm" onclick="event.stopPropagation();openRunDetail(${r.id})">View</button>
+      <button class="btn btn-secondary btn-sm" onclick="event.stopPropagation();openRunDetail(${r.id})"><span data-i18n="btn.view">View</span></button>
     </div>`;
   }).join('');
 }
@@ -6663,7 +7112,7 @@ function renderRunDetail(run) {
     </div>
 
     <div style="margin-bottom:18px">
-      <button class="btn btn-secondary btn-sm" onclick="openEditRunModal(${run.id})"><i class="fas fa-edit"></i> Edit Run</button>
+      <button class="btn btn-secondary btn-sm" onclick="openEditRunModal(${run.id})"><i class="fas fa-edit"></i> <span data-i18n="btn.editRun">Edit Run</span></button>
     </div>
 
     <div style="display:flex;gap:14px;flex-wrap:wrap;margin-bottom:18px">
@@ -7039,7 +7488,7 @@ async function loadAdminTimetable() {
   const saveBar    = document.getElementById('tt-save-bar');
   const startBar   = document.getElementById('tt-start-date-bar');
   if (!cid) {
-    container.innerHTML = '<div class="empty-state"><i class="fas fa-calendar-alt"></i><p>Select a course to manage its timetable</p></div>';
+    container.innerHTML = '<div class="empty-state"><i class="fas fa-calendar-alt"></i><p data-i18n="e.selCourseTt">Select a course to manage its timetable</p></div>';
     saveBar.style.display  = 'none';
     startBar.style.display = 'none';
     return;
@@ -7092,7 +7541,7 @@ async function loadAdminTimetable() {
         <div class="tt-week-head">
           <span class="tt-wk-num">WEEK ${w.week}</span>
           ${isCurrent ? '<span class="tt-wk-curr">Current Week</span>' : ''}
-          <button class="btn btn-secondary btn-sm" onclick="addTimetableRow(${w.week})" style="margin-left:auto;font-size:10px;padding:4px 9px"><i class="fas fa-plus"></i> Add timing</button>
+          <button class="btn btn-secondary btn-sm" onclick="addTimetableRow(${w.week})" style="margin-left:auto;font-size:10px;padding:4px 9px"><i class="fas fa-plus"></i> <span data-i18n="btn.addTiming">Add timing</span></button>
         </div>
         ${rows}
       </div>`;
@@ -7576,9 +8025,7 @@ async function loadAdminCertificates() {
             <i class="fas fa-download"></i> View
           </a>
           ${c.student_id ? `
-            <button class="btn btn-sm" onclick="sendCertificateEmail(${c.id})" style="background:var(--surface);border:1px solid var(--border);color:var(--text);margin-left:6px">
-              <i class="fas fa-envelope"></i> Send Email Later
-            </button>` : ''}
+            <button class="btn btn-sm" onclick="sendCertificateEmail(${c.id})" style="background:var(--surface);border:1px solid var(--border);color:var(--text);margin-left:6px"><i class="fas fa-envelope"></i> <span data-i18n="btn.sendEmailLater">Send Email Later</span></button>` : ''}
         </td>
       </tr>`).join('');
     updateSelectedCertificatesButton();
@@ -7925,9 +8372,7 @@ async function showTeacherDetail(id) {
           ${tags ? `<div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px">${tags}</div>` : ''}
         </div>
         <div style="display:flex;gap:6px;flex-shrink:0">
-          <button class="btn btn-secondary btn-sm" onclick="openEditTeacher(${JSON.stringify(t).replace(/"/g,'&quot;')})">
-            <i class="fas fa-edit"></i> Edit
-          </button>
+          <button class="btn btn-secondary btn-sm" onclick="openEditTeacher(${JSON.stringify(t).replace(/"/g,'&quot;')})"><i class="fas fa-edit"></i> <span data-i18n="btn.edit">Edit</span></button>
           <button class="btn btn-danger btn-sm" onclick="deleteTeacher(${t.id})">
             <i class="fas fa-trash"></i>
           </button>
@@ -7963,7 +8408,7 @@ async function deleteTeacher(id) {
     await DELETE(`/api/admin/teachers/${id}`);
     toast(T('at.teacherDeleted'));
     await loadTeachers();
-    document.getElementById('teacher-detail').innerHTML = `<div class="empty-state"><i class="fas fa-chalkboard-teacher"></i><p>Select a teacher to view their details</p></div>`;
+    document.getElementById('teacher-detail').innerHTML = `<div class="empty-state"><i class="fas fa-chalkboard-teacher"></i><p data-i18n="e.selTeacher">Select a teacher to view their details</p></div>`;
   } catch(e) { toast(e.message, true); }
 }
 
