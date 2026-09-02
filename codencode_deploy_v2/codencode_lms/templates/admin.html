@@ -3230,7 +3230,7 @@
               </button>
             </div>
             <div class="pane-list-body" id="teacher-list-body">
-              <div style="padding:20px;color:var(--text-muted);text-align:center">Loading...</div>
+              <div style="padding:20px;color:var(--text-muted);text-align:center" data-i18n="aj.loading">Loading...</div>
             </div>
           </div>
           <div id="teacher-detail">
@@ -3271,7 +3271,7 @@
               </div>
             </div>
             <div class="pane-list-body" id="student-list-body">
-              <div style="padding:20px;color:var(--text-muted);text-align:center">Loading...</div>
+              <div style="padding:20px;color:var(--text-muted);text-align:center" data-i18n="aj.loading">Loading...</div>
             </div>
           </div>
 
@@ -3449,7 +3449,7 @@
           <button class="btn btn-primary btn-sm" onclick="openAnnouncementModal()"><i class="fas fa-plus"></i> <span data-i18n="btn.newAnn">New Announcement</span></button>
         </div>
         <div id="ann-list" style="display:flex;flex-direction:column;gap:12px">
-          <div style="color:var(--text-muted);text-align:center;padding:40px">Loading...</div>
+          <div style="color:var(--text-muted);text-align:center;padding:40px" data-i18n="aj.loading">Loading...</div>
         </div>
       </div>
 
@@ -3469,7 +3469,7 @@
             </select>
           </div>
           <div id="admin-calendar-grid">
-            <div style="color:var(--text-muted);text-align:center;padding:24px">Loading calendar...</div>
+            <div style="color:var(--text-muted);text-align:center;padding:24px" data-i18n="aj.loadingCal">Loading calendar...</div>
           </div>
         </div>
         <div class="card">
@@ -3486,7 +3486,7 @@
                 </tr>
               </thead>
               <tbody id="sessions-tbody">
-                <tr><td colspan="6" style="color:var(--text-muted);text-align:center;padding:24px">Loading...</td></tr>
+                <tr><td colspan="6" style="color:var(--text-muted);text-align:center;padding:24px" data-i18n="aj.loading">Loading...</td></tr>
               </tbody>
             </table>
           </div>
@@ -3514,7 +3514,7 @@
                 </tr>
               </thead>
               <tbody id="certs-tbody">
-                <tr><td colspan="6" style="color:var(--text-muted);text-align:center;padding:24px">Loading...</td></tr>
+                <tr><td colspan="6" style="color:var(--text-muted);text-align:center;padding:24px" data-i18n="aj.loading">Loading...</td></tr>
               </tbody>
             </table>
           </div>
@@ -3558,7 +3558,7 @@
             <table>
               <thead><tr><th data-i18n="th.user">User</th><th data-i18n="th.loginTime">Login Time</th><th data-i18n="th.ip">IP Address</th></tr></thead>
               <tbody id="login-activity-tbody">
-                <tr><td colspan="3" style="color:var(--text-muted);text-align:center;padding:24px">Loading...</td></tr>
+                <tr><td colspan="3" style="color:var(--text-muted);text-align:center;padding:24px" data-i18n="aj.loading">Loading...</td></tr>
               </tbody>
             </table>
           </div>
@@ -4323,6 +4323,83 @@
 <script>
 // ── i18n ──────────────────────────────────────────────
 const I18N = { en: {
+    "aj.noCohortsYet": "No cohorts yet — click",
+    "aj.toCreateIntake": "to create the first intake.",
+    "aj.noAnnYet": "No announcements yet. Click \"New Announcement\" to create one.",
+    "aj.loadingCal": "Loading calendar...",
+    "aj.enrolledOn": "Enrolled",
+    "aj.attended": "ATTENDED",
+    "aj.attendance": "Attendance",
+    "aj.attendees": "Attendees",
+    "aj.avgEvent": "Avg. Event Rating",
+    "aj.avgFac": "Avg. Facilitator Rating",
+    "aj.billToCompany": "Bill To Company",
+    "aj.cohortsIntakes": "COHORTS / INTAKES",
+    "aj.cantLoadCohorts2": "Could not load cohorts.",
+    "aj.courseEnrol": "Course Enrollments",
+    "aj.cwp": "Courses, Workshops & Payment",
+    "aj.enrolCourses": "Enrolled Courses",
+    "aj.feedback": "Feedback",
+    "aj.feedbackForm": "Feedback Form",
+    "aj.feedbackSub": "Feedback Submitted",
+    "aj.gReview": "Google Review",
+    "aj.joined": "Joined",
+    "aj.lastLogin": "Last Login",
+    "aj.loadingQr": "Loading QR codes...",
+    "aj.markedPresent": "Marked Present",
+    "aj.newTiming": "New timing",
+    "aj.noCertsIssued": "No certificates issued yet.",
+    "aj.noLogins": "No login activity yet.",
+    "aj.noSessions": "No sessions scheduled yet.",
+    "aj.noTeachers": "No teachers found.",
+    "aj.profile": "Profile",
+    "aj.qrCodes": "QR Codes",
+    "aj.revenuePaid": "Revenue (paid)",
+    "aj.teacherBadge": "TEACHER",
+    "aj.viewReceipt": "View official receipt",
+    "aj.wsRegs": "Workshop Registrations",
+    "aj.allCoursesGlobal": "All Courses (Global)",
+    "aj.noStudentsFound": "No students found",
+    "aj.noEnrolAny": "Not enrolled in any course.",
+    "aj.noWsRegs": "No workshop registrations.",
+    "aj.noAtt": "No attendance records.",
+    "aj.noMats": "No materials uploaded yet.",
+    "aj.noSchedule": "No schedule set",
+    "aj.loading": "Loading...",
+    "aj.loadingTt": "Loading timetable...",
+    "aj.noWeeks": "No weeks configured for this course.",
+    "aj.currentWeek": "Current Week",
+    "aj.typeStudent": "Type a student name to search.",
+    "aj.noAttendees": "No attendees registered yet.",
+    "aj.noFeedback": "No feedback submitted yet.",
+    "aj.noGReview": "No Google review link set for this run.",
+    "aj.noUpcomingRuns": "No upcoming runs scheduled.",
+    "aj.noneAssigned": "None assigned",
+    "aj.savingE": "Saving…",
+    "aj.assigningE": "Assigning...",
+    "aj.sendingE": "Sending...",
+    "aj.preparingPdfs": "Preparing PDFs...",
+    "aj.issueBlank": "Issue Blank Certs",
+    "aj.issueEmail": "Issue & Email",
+    "aj.issuePrint": "Issue for Print",
+    "aj.optSkipEnrol": "— skip enrolment for now —",
+    "aj.optChooseCourse": "— choose course first —",
+    "aj.optNoCohort": "— no cohort assigned —",
+    "aj.optNoCohortsYet": "— no cohorts yet, use course timing —",
+    "aj.optCantLoadCohorts": "— could not load cohorts —",
+    "aj.optSelCourse": "Select course...",
+    "aj.optNoneDash": "— none —",
+    "aj.optNoneDash2": "-- none --",
+    "aj.optLoadingRuns": "Loading workshop runs...",
+    "aj.optNoRuns": "No available workshop runs",
+    "aj.optCantLoadRuns": "Could not load workshop runs",
+    "aj.optNewManual": "— new / type manually —",
+    "aj.optWholeCourse": "Whole course / class",
+    "aj.optAllTeachers": "All teachers",
+    "aj.optAllCourses": "All Courses",
+    "aj.noCoursesClick": "No courses yet. Click",
+    "aj.toCreateOne": "to create one.",
+    "aj.noWorkshopsClick": "No workshops yet. Click \"Add Workshop\" to create your first one.",
     "btn.editInfo": "Edit Info",
     "btn.assignCourse": "Assign Course",
     "btn.assignWorkshop": "Assign Workshop",
@@ -4624,6 +4701,83 @@ const I18N = { en: {
     "common.loading": "Loading...",
     "common.error": "Error: ",
   }, zh: {
+    "aj.noCohortsYet": "暂无班级 —— 点击",
+    "aj.toCreateIntake": "以创建第一期。",
+    "aj.noAnnYet": "暂无公告。点击「新建公告」以创建。",
+    "aj.loadingCal": "正在加载日历……",
+    "aj.enrolledOn": "报名于",
+    "aj.attended": "已出席",
+    "aj.attendance": "考勤",
+    "aj.attendees": "参与者",
+    "aj.avgEvent": "平均活动评分",
+    "aj.avgFac": "平均讲师评分",
+    "aj.billToCompany": "开票公司",
+    "aj.cohortsIntakes": "班级 / 期次",
+    "aj.cantLoadCohorts2": "无法加载班级。",
+    "aj.courseEnrol": "课程报名",
+    "aj.cwp": "课程、工作坊与付款",
+    "aj.enrolCourses": "已报名课程",
+    "aj.feedback": "反馈",
+    "aj.feedbackForm": "反馈表",
+    "aj.feedbackSub": "已提交反馈",
+    "aj.gReview": "Google 评价",
+    "aj.joined": "加入时间",
+    "aj.lastLogin": "上次登录",
+    "aj.loadingQr": "正在加载二维码……",
+    "aj.markedPresent": "已标记出席",
+    "aj.newTiming": "新时段",
+    "aj.noCertsIssued": "暂无已颁发的证书。",
+    "aj.noLogins": "暂无登录记录。",
+    "aj.noSessions": "暂无已排期的课程。",
+    "aj.noTeachers": "未找到教师。",
+    "aj.profile": "资料",
+    "aj.qrCodes": "二维码",
+    "aj.revenuePaid": "收入（已付）",
+    "aj.teacherBadge": "教师",
+    "aj.viewReceipt": "查看正式收据",
+    "aj.wsRegs": "工作坊报名",
+    "aj.allCoursesGlobal": "所有课程（全局）",
+    "aj.noStudentsFound": "未找到学生",
+    "aj.noEnrolAny": "尚未报名任何课程。",
+    "aj.noWsRegs": "暂无工作坊报名。",
+    "aj.noAtt": "暂无考勤记录。",
+    "aj.noMats": "尚未上传资料。",
+    "aj.noSchedule": "未设置日程",
+    "aj.loading": "加载中……",
+    "aj.loadingTt": "正在加载时间表……",
+    "aj.noWeeks": "此课程尚未配置课节。",
+    "aj.currentWeek": "当前课节",
+    "aj.typeStudent": "输入学生姓名进行搜索。",
+    "aj.noAttendees": "暂无已登记的参与者。",
+    "aj.noFeedback": "暂无已提交的反馈。",
+    "aj.noGReview": "此场次未设置 Google 评价链接。",
+    "aj.noUpcomingRuns": "暂无即将举办的场次。",
+    "aj.noneAssigned": "未分配",
+    "aj.savingE": "保存中…",
+    "aj.assigningE": "指派中…",
+    "aj.sendingE": "发送中…",
+    "aj.preparingPdfs": "正在准备 PDF……",
+    "aj.issueBlank": "颁发空白证书",
+    "aj.issueEmail": "颁发并邮寄",
+    "aj.issuePrint": "颁发以供打印",
+    "aj.optSkipEnrol": "— 暂不报名 —",
+    "aj.optChooseCourse": "— 请先选择课程 —",
+    "aj.optNoCohort": "— 未分配班级 —",
+    "aj.optNoCohortsYet": "— 暂无班级，使用课程时段 —",
+    "aj.optCantLoadCohorts": "— 无法加载班级 —",
+    "aj.optSelCourse": "选择课程……",
+    "aj.optNoneDash": "— 无 —",
+    "aj.optNoneDash2": "-- 无 --",
+    "aj.optLoadingRuns": "正在加载工作坊场次……",
+    "aj.optNoRuns": "没有可用的工作坊场次",
+    "aj.optCantLoadRuns": "无法加载工作坊场次",
+    "aj.optNewManual": "— 新建 / 手动输入 —",
+    "aj.optWholeCourse": "整门课程 / 班级",
+    "aj.optAllTeachers": "所有教师",
+    "aj.optAllCourses": "所有课程",
+    "aj.noCoursesClick": "暂无课程。点击",
+    "aj.toCreateOne": "以创建一门。",
+    "aj.noWorkshopsClick": "暂无工作坊。点击「添加工作坊」以创建第一个。",
     "btn.editInfo": "编辑信息",
     "btn.assignCourse": "分配课程",
     "btn.assignWorkshop": "分配工作坊",
@@ -4925,6 +5079,83 @@ const I18N = { en: {
     "common.loading": "加载中…",
     "common.error": "错误：",
   }, bm: {
+    "aj.noCohortsYet": "Tiada kohort lagi — klik",
+    "aj.toCreateIntake": "untuk cipta ambilan pertama.",
+    "aj.noAnnYet": "Tiada pengumuman lagi. Klik \"Pengumuman Baharu\" untuk cipta satu.",
+    "aj.loadingCal": "Memuatkan kalendar...",
+    "aj.enrolledOn": "Didaftar",
+    "aj.attended": "HADIR",
+    "aj.attendance": "Kehadiran",
+    "aj.attendees": "Peserta",
+    "aj.avgEvent": "Purata Penilaian Acara",
+    "aj.avgFac": "Purata Penilaian Fasilitator",
+    "aj.billToCompany": "Bil Kepada Syarikat",
+    "aj.cohortsIntakes": "KOHORT / AMBILAN",
+    "aj.cantLoadCohorts2": "Tidak dapat memuatkan kohort.",
+    "aj.courseEnrol": "Pendaftaran Kursus",
+    "aj.cwp": "Kursus, Bengkel & Bayaran",
+    "aj.enrolCourses": "Kursus Berdaftar",
+    "aj.feedback": "Maklum Balas",
+    "aj.feedbackForm": "Borang Maklum Balas",
+    "aj.feedbackSub": "Maklum Balas Dihantar",
+    "aj.gReview": "Ulasan Google",
+    "aj.joined": "Menyertai",
+    "aj.lastLogin": "Log Masuk Terakhir",
+    "aj.loadingQr": "Memuatkan kod QR...",
+    "aj.markedPresent": "Ditanda Hadir",
+    "aj.newTiming": "Waktu baharu",
+    "aj.noCertsIssued": "Tiada sijil dikeluarkan lagi.",
+    "aj.noLogins": "Tiada aktiviti log masuk lagi.",
+    "aj.noSessions": "Tiada sesi dijadualkan lagi.",
+    "aj.noTeachers": "Tiada pengajar dijumpai.",
+    "aj.profile": "Profil",
+    "aj.qrCodes": "Kod QR",
+    "aj.revenuePaid": "Hasil (dibayar)",
+    "aj.teacherBadge": "PENGAJAR",
+    "aj.viewReceipt": "Lihat resit rasmi",
+    "aj.wsRegs": "Pendaftaran Bengkel",
+    "aj.allCoursesGlobal": "Semua Kursus (Global)",
+    "aj.noStudentsFound": "Tiada pelajar dijumpai",
+    "aj.noEnrolAny": "Tidak mendaftar dalam mana-mana kursus.",
+    "aj.noWsRegs": "Tiada pendaftaran bengkel.",
+    "aj.noAtt": "Tiada rekod kehadiran.",
+    "aj.noMats": "Tiada bahan dimuat naik lagi.",
+    "aj.noSchedule": "Tiada jadual ditetapkan",
+    "aj.loading": "Memuatkan...",
+    "aj.loadingTt": "Memuatkan jadual...",
+    "aj.noWeeks": "Tiada minggu dikonfigurasi untuk kursus ini.",
+    "aj.currentWeek": "Minggu Semasa",
+    "aj.typeStudent": "Taip nama pelajar untuk mencari.",
+    "aj.noAttendees": "Tiada peserta didaftarkan lagi.",
+    "aj.noFeedback": "Tiada maklum balas dihantar lagi.",
+    "aj.noGReview": "Tiada pautan ulasan Google ditetapkan untuk sesi ini.",
+    "aj.noUpcomingRuns": "Tiada sesi akan datang dijadualkan.",
+    "aj.noneAssigned": "Tiada ditugaskan",
+    "aj.savingE": "Menyimpan…",
+    "aj.assigningE": "Menugaskan...",
+    "aj.sendingE": "Menghantar...",
+    "aj.preparingPdfs": "Menyediakan PDF...",
+    "aj.issueBlank": "Keluarkan Sijil Kosong",
+    "aj.issueEmail": "Keluarkan & E-mel",
+    "aj.issuePrint": "Keluarkan untuk Cetak",
+    "aj.optSkipEnrol": "— langkau pendaftaran buat masa ini —",
+    "aj.optChooseCourse": "— pilih kursus dahulu —",
+    "aj.optNoCohort": "— tiada kohort ditugaskan —",
+    "aj.optNoCohortsYet": "— tiada kohort lagi, guna waktu kursus —",
+    "aj.optCantLoadCohorts": "— tidak dapat memuatkan kohort —",
+    "aj.optSelCourse": "Pilih kursus...",
+    "aj.optNoneDash": "— tiada —",
+    "aj.optNoneDash2": "-- tiada --",
+    "aj.optLoadingRuns": "Memuatkan sesi bengkel...",
+    "aj.optNoRuns": "Tiada sesi bengkel tersedia",
+    "aj.optCantLoadRuns": "Tidak dapat memuatkan sesi bengkel",
+    "aj.optNewManual": "— baharu / taip sendiri —",
+    "aj.optWholeCourse": "Seluruh kursus / kelas",
+    "aj.optAllTeachers": "Semua pengajar",
+    "aj.optAllCourses": "Semua Kursus",
+    "aj.noCoursesClick": "Tiada kursus lagi. Klik",
+    "aj.toCreateOne": "untuk mencipta satu.",
+    "aj.noWorkshopsClick": "Tiada bengkel lagi. Klik \"Tambah Bengkel\" untuk cipta yang pertama.",
     "btn.editInfo": "Sunting Maklumat",
     "btn.assignCourse": "Tugaskan Kursus",
     "btn.assignWorkshop": "Tugaskan Bengkel",
@@ -5705,11 +5936,11 @@ function renderStudentList() {
             <div class="student-name">${s.name}</div>
             <div class="student-email">${s.email}</div>
             <div class="student-meta-line">${primaryCourse}</div>
-            <span class="student-status-chip ${paymentState}">${paymentState === 'none' ? 'No Course' : paymentState}</span>
+            <span class="student-status-chip ${paymentState}">${paymentState === 'none' ? T('chip.noCourse') : tStatus(paymentState)}</span>
           </div>
         </div>`;
       }).join('')
-    : '<div style="padding:20px;color:var(--text-muted);text-align:center">No students found</div>';
+    : `<div style="padding:20px;color:var(--text-muted);text-align:center">${T('aj.noStudentsFound')}</div>`;
 }
 
 function handleStudentSearch(value) {
@@ -5759,12 +5990,12 @@ function renderStudentDetail(s) {
   const availableCourses  = S.courses.filter(c => !enrolledCourseIds.has(c.id));
   const billingHtml = (s.bill_company_name || s.bill_business_reg_number || s.bill_sst_number || s.bill_company_address) ? `
     <div style="border-top:1px solid var(--border);margin:18px 0 14px"></div>
-    <div class="form-label" style="margin-bottom:8px">Bill To Company</div>
+    <div class="form-label" style="margin-bottom:8px">${T('aj.billToCompany')}</div>
     <div class="form-grid">
-      <div><div class="form-label">Company Name</div><div style="margin-top:4px">${escHtml(s.bill_company_name) || '&mdash;'}</div></div>
-      <div><div class="form-label">Business Reg Number</div><div style="margin-top:4px">${escHtml(s.bill_business_reg_number) || '&mdash;'}</div></div>
-      <div><div class="form-label">SST Registration No.</div><div style="margin-top:4px">${escHtml(s.bill_sst_number) || '&mdash;'}</div></div>
-      <div style="grid-column:span 2"><div class="form-label">Address</div><div style="margin-top:4px;white-space:pre-wrap">${escHtml(s.bill_company_address) || '&mdash;'}</div></div>
+      <div><div class="form-label">${T('lbl.companyName')}</div><div style="margin-top:4px">${escHtml(s.bill_company_name) || '&mdash;'}</div></div>
+      <div><div class="form-label">${T('lbl.bizReg')}</div><div style="margin-top:4px">${escHtml(s.bill_business_reg_number) || '&mdash;'}</div></div>
+      <div><div class="form-label">${T('lbl.sstNo')}</div><div style="margin-top:4px">${escHtml(s.bill_sst_number) || '&mdash;'}</div></div>
+      <div style="grid-column:span 2"><div class="form-label">${T('lbl.address')}</div><div style="margin-top:4px;white-space:pre-wrap">${escHtml(s.bill_company_address) || '&mdash;'}</div></div>
     </div>
   ` : '';
   // Store enrollment data in map so buttons can safely reference by ID
@@ -5778,32 +6009,32 @@ function renderStudentDetail(s) {
           <div style="font-family:'Syne',sans-serif;font-size:18px;font-weight:700">${s.name}</div>
           <div style="font-size:12px;color:var(--text-muted)">${s.email}</div>
         </div>
-        <button class="btn btn-secondary btn-sm" onclick="openEditStudent(${s.id})"><i class="fas fa-edit"></i> <span data-i18n="btn.editInfo">Edit Info</span></button>
+        <button class="btn btn-secondary btn-sm" onclick="openEditStudent(${s.id})"><i class="fas fa-edit"></i> <span data-i18n="btn.editInfo">${T('btn.editInfo')}</span></button>
         <button class="btn btn-danger btn-sm" onclick="deleteStudent(${s.id},'${s.name}')" title="Delete student">
           <i class="fas fa-trash"></i>
         </button>
       </div>
 
       <div class="detail-tabs">
-        <div class="detail-tab active" onclick="switchDetailTab(this,'dt-info-${s.id}')">Profile</div>
-        <div class="detail-tab" onclick="switchDetailTab(this,'dt-enroll-${s.id}')">Courses, Workshops & Payment</div>
-        <div class="detail-tab" onclick="switchDetailTab(this,'dt-att-${s.id}');loadStudentAttendance(${s.id})">Attendance</div>
+        <div class="detail-tab active" onclick="switchDetailTab(this,'dt-info-${s.id}')">${T('aj.profile')}</div>
+        <div class="detail-tab" onclick="switchDetailTab(this,'dt-enroll-${s.id}')">${T('aj.cwp')}</div>
+        <div class="detail-tab" onclick="switchDetailTab(this,'dt-att-${s.id}');loadStudentAttendance(${s.id})">${T('aj.attendance')}</div>
       </div>
 
       <!-- Profile tab -->
       <div id="dt-info-${s.id}" class="detail-tab-content active">
         <div class="form-grid">
-          <div><div class="form-label">Phone</div><div style="margin-top:4px">${s.phone || '—'}</div></div>
-          <div><div class="form-label">Joined</div><div style="margin-top:4px">${s.created_at}</div></div>
-          <div><div class="form-label">Enrolled Courses</div><div style="margin-top:4px">${enrollments.length}</div></div>
-          <div><div class="form-label">Workshop Registrations</div><div style="margin-top:4px">${workshopAttendances.length}</div></div>
+          <div><div class="form-label">${T('lbl.phone')}</div><div style="margin-top:4px">${s.phone || '—'}</div></div>
+          <div><div class="form-label">${T('aj.joined')}</div><div style="margin-top:4px">${s.created_at}</div></div>
+          <div><div class="form-label">${T('aj.enrolCourses')}</div><div style="margin-top:4px">${enrollments.length}</div></div>
+          <div><div class="form-label">${T('aj.wsRegs')}</div><div style="margin-top:4px">${workshopAttendances.length}</div></div>
         </div>
         ${billingHtml}
       </div>
 
       <!-- Courses & Payment tab -->
       <div id="dt-enroll-${s.id}" class="detail-tab-content">
-        <div class="form-label" style="margin-bottom:8px">Course Enrollments</div>
+        <div class="form-label" style="margin-bottom:8px">${T('aj.courseEnrol')}</div>
         ${enrollments.length ? enrollments.map(e => `
           <div class="enroll-row">
             <div class="enroll-course">
@@ -5811,10 +6042,10 @@ function renderStudentDetail(s) {
                 ${e.course_title}
                 ${e.class_format ? `<span style="background:var(--purple-dim);color:var(--purple);border:1px solid var(--purple);font-family:'JetBrains Mono',monospace;font-size:9px;padding:1px 7px;border-radius:20px;letter-spacing:.5px">${e.class_format.toUpperCase()}</span>` : ''}
               </div>
-              <small>Enrolled ${e.enrolled_at}${e.cohort_name ? ' · <span style="color:var(--gold)">' + e.cohort_name + '</span>' : ''}</small>
+              <small>${T('aj.enrolledOn')} ${e.enrolled_at}${e.cohort_name ? ` · <span style="color:var(--gold)">` + e.cohort_name + `</span>` : ''}</small>
               ${e.class_timing ? `<small style="color:var(--cyan)"><i class="fas fa-clock" style="margin-right:3px"></i>${e.class_timing}</small>` : ''}
             </div>
-            <span class="badge badge-${e.payment_status}">${e.payment_status}</span>
+            <span class="badge badge-${e.payment_status}">${tStatus(e.payment_status)}</span>
             <button class="btn btn-secondary btn-sm" onclick="openPaymentModal(${e.id})" title="Edit payment">
               <i class="fas fa-edit"></i>
             </button>
@@ -5829,25 +6060,25 @@ function renderStudentDetail(s) {
               <i class="fas fa-times"></i>
             </button>
           </div>
-        `).join('') : '<div style="color:var(--text-muted);padding:8px 0">Not enrolled in any course.</div>'}
+        `).join('') : `<div style="color:var(--text-muted);padding:8px 0">${T('aj.noEnrolAny')}</div>`}
 
         ${availableCourses.length ? `
           <div style="margin-top:14px">
-            <button class="btn btn-primary btn-sm" onclick="openEnrollModal(${s.id})"><i class="fas fa-plus"></i> <span data-i18n="btn.assignCourse">Assign Course</span></button>
+            <button class="btn btn-primary btn-sm" onclick="openEnrollModal(${s.id})"><i class="fas fa-plus"></i> <span data-i18n="btn.assignCourse">${T('btn.assignCourse')}</span></button>
           </div>` : ''}
 
-        <div class="form-label" style="margin:18px 0 8px">Workshop Registrations</div>
+        <div class="form-label" style="margin:18px 0 8px">${T('aj.wsRegs')}</div>
         ${workshopAttendances.length ? workshopAttendances.map(w => `
           <div class="enroll-row">
             <div class="enroll-course">
               <div style="display:flex;align-items:center;gap:6px">
                 ${w.workshop_title || 'Workshop'}
-                ${w.attended ? `<span style="background:var(--green-dim);color:var(--green);border:1px solid var(--green);font-family:'JetBrains Mono',monospace;font-size:9px;padding:1px 7px;border-radius:20px;letter-spacing:.5px">ATTENDED</span>` : ''}
+                ${w.attended ? `<span style="background:var(--green-dim);color:var(--green);border:1px solid var(--green);font-family:'JetBrains Mono',monospace;font-size:9px;padding:1px 7px;border-radius:20px;letter-spacing:.5px">${T('aj.attended')}</span>` : ''}
               </div>
-              <small>${w.start_display || 'Date TBC'}${w.venue ? ' · <span style="color:var(--gold)">' + w.venue + '</span>' : ''}</small>
+              <small>${w.start_display || 'Date TBC'}${w.venue ? ` · <span style="color:var(--gold)">` + w.venue + `</span>` : ''}</small>
               ${w.payment_method ? `<small style="color:var(--cyan)"><i class="fas fa-credit-card" style="margin-right:3px"></i>${w.payment_method}${w.paid_at ? ' · Paid ' + w.paid_at : ''}</small>` : ''}
             </div>
-            <span class="badge badge-${w.payment_status}">${w.payment_status}</span>
+            <span class="badge badge-${w.payment_status}">${tStatus(w.payment_status)}</span>
             <button class="btn btn-secondary btn-sm" onclick="openAttendeePaymentModal(${w.run_id},${w.id},${s.id})" title="Edit workshop payment">
               <i class="fas fa-edit"></i>
             </button>
@@ -5858,10 +6089,10 @@ function renderStudentDetail(s) {
               <i class="fas fa-times"></i>
             </button>
           </div>
-        `).join('') : '<div style="color:var(--text-muted);padding:8px 0">No workshop registrations.</div>'}
+        `).join('') : `<div style="color:var(--text-muted);padding:8px 0">${T('aj.noWsRegs')}</div>`}
 
         <div style="margin-top:14px">
-          <button class="btn btn-primary btn-sm" onclick="openAssignWorkshopModal(${s.id})"><i class="fas fa-plus"></i> <span data-i18n="btn.assignWorkshop">Assign Workshop</span></button>
+          <button class="btn btn-primary btn-sm" onclick="openAssignWorkshopModal(${s.id})"><i class="fas fa-plus"></i> <span data-i18n="btn.assignWorkshop">${T('btn.assignWorkshop')}</span></button>
         </div>
       </div>
 
@@ -5888,7 +6119,7 @@ async function loadStudentAttendance(uid) {
   if (!el) return;
   const s = S.students.find(x => x.id === uid);
   if (!s || !s.enrollments.length) {
-    el.innerHTML = '<div style="color:var(--text-muted)">Not enrolled in any course.</div>';
+    el.innerHTML = `<div style="color:var(--text-muted)">${T('aj.noEnrolAny')}</div>`;
     return;
   }
 
@@ -5914,7 +6145,7 @@ async function loadStudentAttendance(uid) {
         </div>`;
     } catch(e) { /* skip */ }
   }
-  el.innerHTML = html || '<div style="color:var(--text-muted)">No attendance records.</div>';
+  el.innerHTML = html || `<div style="color:var(--text-muted)">${T('aj.noAtt')}</div>`;
 }
 
 // ── Add / Edit Student Modal ───────────────────
@@ -6020,8 +6251,8 @@ function openAddStudent() {
   // Populate course dropdown and reset enrolment fields
   const courseOpts = S.courses.map(c => `<option value="${c.id}">${c.title}</option>`).join('');
   document.getElementById('s-course-select').innerHTML =
-    '<option value="">— skip enrolment for now —</option>' + courseOpts;
-  document.getElementById('s-cohort-select').innerHTML = '<option value="">— choose course first —</option>';
+    `<option value="">${T('aj.optSkipEnrol')}</option>` + courseOpts;
+  document.getElementById('s-cohort-select').innerHTML = `<option value="">${T('aj.optChooseCourse')}</option>`;
   document.getElementById('s-class-format').value    = '';
   document.getElementById('s-payment-status').value  = 'pending';
   resetClassTimingRows('s');
@@ -6146,22 +6377,22 @@ async function loadStudentFormCohorts() {
   const sel = document.getElementById('s-cohort-select');
   updateStudentEnrollmentFields();
   if (!sel) return;
-  sel.innerHTML = '<option value="">— no cohort assigned —</option>';
+  sel.innerHTML = `<option value="">${T('aj.optNoCohort')}</option>`;
   if (!cid) {
-    sel.innerHTML = '<option value="">— choose course first —</option>';
+    sel.innerHTML = `<option value="">${T('aj.optChooseCourse')}</option>`;
     return;
   }
   try {
     const cohorts = await GET(`/api/courses/${cid}/cohorts`);
     if (!cohorts.length) {
-      sel.innerHTML = '<option value="">— no cohorts yet, use course timing —</option>';
+      sel.innerHTML = `<option value="">${T('aj.optNoCohortsYet')}</option>`;
       return;
     }
     sel.innerHTML += cohorts.map(h =>
       `<option value="${h.id}" data-cohort='${JSON.stringify(h).replace(/'/g, '&#39;')}'>${cohortOptionLabel(h)}</option>`
     ).join('');
   } catch(e) {
-    sel.innerHTML = '<option value="">— could not load cohorts —</option>';
+    sel.innerHTML = `<option value="">${T('aj.optCantLoadCohorts')}</option>`;
   }
 }
 
@@ -6176,7 +6407,7 @@ function openEnrollModal(uid) {
   document.getElementById('enroll-payment-status').value = 'pending';
   document.getElementById('enroll-remarks').value = '';
   document.getElementById('enroll-class-format').value = '';
-  document.getElementById('enroll-cohort-select').innerHTML = '<option value="">— no cohort assigned —</option>';
+  document.getElementById('enroll-cohort-select').innerHTML = `<option value="">${T('aj.optNoCohort')}</option>`;
   resetClassTimingRows('enroll');
   loadEnrollCohorts();
   openModal('modal-enroll');
@@ -6185,7 +6416,7 @@ function openEnrollModal(uid) {
 async function loadEnrollCohorts() {
   const cid = document.getElementById('enroll-course-select').value;
   const sel = document.getElementById('enroll-cohort-select');
-  sel.innerHTML = '<option value="">— no cohort assigned —</option>';
+  sel.innerHTML = `<option value="">${T('aj.optNoCohort')}</option>`;
   if (!cid) return;
   try {
     const cohorts = await GET(`/api/courses/${cid}/cohorts`);
@@ -6266,7 +6497,7 @@ async function deleteCourse(cid, title) {
 // ═══════════════════════════════════════════════════════
 function renderCourses() {
   if (!S.courses.length) {
-    document.getElementById('courses-grid').innerHTML = '<div style="color:var(--text-muted)">No courses yet. Click <strong>New Course</strong> to create one.</div>';
+    document.getElementById('courses-grid').innerHTML = `<div style="color:var(--text-muted)">${T('aj.noCoursesClick')} <strong>${T('btn.newCourse')}</strong> ${T('aj.toCreateOne')}</div>`;
     return;
   }
   const grid = document.getElementById('courses-grid');
@@ -6276,16 +6507,16 @@ function renderCourses() {
       <div class="card-title" style="margin-bottom:6px">${c.title}</div>
       <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px">${c.description || ''}</div>
       <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px">
-        ${c.start_date ? '<i class="fas fa-calendar" style="color:var(--cyan);margin-right:4px"></i>' + formatDate(c.start_date) + ' start &nbsp;·&nbsp; ' : ''}
+        ${c.start_date ? `<i class="fas fa-calendar" style="color:var(--cyan);margin-right:4px"></i>` + formatDate(c.start_date) + ' start &nbsp;·&nbsp; ' : ''}
         ${c.enrolled_count}${c.seat_cap ? '/'+c.seat_cap : ''} students enrolled
-        ${c.language && c.language !== 'en' ? '&nbsp;·&nbsp;<span style="text-transform:uppercase;font-weight:700;color:var(--cyan)">' + c.language + '</span>' : ''}
+        ${c.language && c.language !== 'en' ? `&nbsp;·&nbsp;<span style="text-transform:uppercase;font-weight:700;color:var(--cyan)">` + c.language + `</span>` : ''}
       </div>
       ${c.teacher_name ? `<div style="font-size:11px;color:var(--text-muted);margin-bottom:4px"><i class="fas fa-chalkboard-teacher" style="color:var(--purple);margin-right:4px"></i>${c.teacher_name}${c.teacher_title ? ' · ' + c.teacher_title : ''}</div>` : ''}
       <!-- Cohorts -->
       <div style="margin-bottom:14px">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
-          <div style="font-size:11px;color:var(--text-muted);letter-spacing:.8px">COHORTS / INTAKES</div>
-          <button class="btn btn-secondary btn-sm" onclick="openAddCohortModal(${c.id})" style="font-size:10px;padding:3px 8px"><i class="fas fa-plus"></i> <span data-i18n="btn.addCohort">Add Cohort</span></button>
+          <div style="font-size:11px;color:var(--text-muted);letter-spacing:.8px">${T('aj.cohortsIntakes')}</div>
+          <button class="btn btn-secondary btn-sm" onclick="openAddCohortModal(${c.id})" style="font-size:10px;padding:3px 8px"><i class="fas fa-plus"></i> <span data-i18n="btn.addCohort">${T('btn.addCohort')}</span></button>
         </div>
         <div id="cohorts-${c.id}">
           <div style="font-size:11px;color:var(--text-dim)">Loading...</div>
@@ -6328,13 +6559,13 @@ async function loadCohortsForCourse(cid) {
     const cohorts = await GET(`/api/courses/${cid}/cohorts`);
     const course  = S.courses.find(x => x.id === cid);
     if (!cohorts.length) {
-      container.innerHTML = `<div style="font-size:11px;color:var(--text-dim);padding:4px 0">No cohorts yet — click <strong>Add Cohort</strong> to create the first intake.</div>`;
+      container.innerHTML = `<div style="font-size:11px;color:var(--text-dim);padding:4px 0">${T('aj.noCohortsYet')} <strong>${T('btn.addCohort')}</strong> ${T('aj.toCreateIntake')}</div>`;
       return;
     }
     container.innerHTML = cohorts.map(h => {
       const scheduleStr = h.schedule && h.schedule.length
         ? h.schedule.map(s => `${s.day} ${s.start}–${s.end}`).join(' · ')
-        : '<span style="color:var(--text-dim)">No schedule set</span>';
+        : `<span style="color:var(--text-dim)">${T('aj.noSchedule')}</span>`;
       return `
       <div style="background:var(--bg-hover);border-radius:6px;margin-bottom:6px;overflow:hidden">
         <div style="display:flex;align-items:center;gap:8px;padding:8px 10px">
@@ -6369,7 +6600,7 @@ async function loadCohortsForCourse(cid) {
       </div>`;
     }).join('');
   } catch(e) {
-    if (container) container.innerHTML = `<div style="font-size:11px;color:var(--text-dim)">Could not load cohorts.</div>`;
+    if (container) container.innerHTML = `<div style="font-size:11px;color:var(--text-dim)">${T('aj.cantLoadCohorts2')}</div>`;
   }
 }
 
@@ -6501,7 +6732,7 @@ function populateCourseSelects() {
   const opts = S.courses.map(c => `<option value="${c.id}">${c.title}</option>`).join('');
   ['att-course-select','mat-course-select'].forEach(id => {
     const el = document.getElementById(id);
-    if (el) el.innerHTML = '<option value="">Select course...</option>' + opts;
+    if (el) el.innerHTML = `<option value="">${T('aj.optSelCourse')}</option>` + opts;
   });
   populateTimetableCourseSelect();
 }
@@ -6510,11 +6741,11 @@ async function loadAttendance() {
   const cid = document.getElementById('att-course-select').value;
   const area = document.getElementById('attendance-area');
   if (!cid) {
-    area.innerHTML = `<div class="empty-state"><i class="fas fa-clipboard-check"></i><p data-i18n="e.selCourseAtt">Select a course to manage attendance</p></div>`;
+    area.innerHTML = `<div class="empty-state"><i class="fas fa-clipboard-check"></i><p data-i18n="e.selCourseAtt">${T('e.selCourseAtt')}</p></div>`;
     return;
   }
 
-  area.innerHTML = '<div style="color:var(--text-muted);padding:20px">Loading...</div>';
+  area.innerHTML = `<div style="color:var(--text-muted);padding:20px">${T('aj.loading')}</div>`;
   try {
     const data = await GET(`/api/admin/courses/${cid}/attendance`);
     renderAttendanceGrid(cid, data);
@@ -6537,7 +6768,7 @@ function renderAttendanceGrid(cid, data) {
         <select class="form-select" id="bulk-week-select" style="width:120px">
           ${sessions.map(w=>`<option value="${w}">Session ${w}</option>`).join('')}
         </select>
-        <button class="btn btn-primary btn-sm" onclick="saveBulkAttendance(${cid})"><i class="fas fa-save"></i> <span data-i18n="btn.saveAll">Save All</span></button>
+        <button class="btn btn-primary btn-sm" onclick="saveBulkAttendance(${cid})"><i class="fas fa-save"></i> <span data-i18n="btn.saveAll">${T('btn.saveAll')}</span></button>
       </div>
       <div class="table-wrap">
         <table class="att-table">
@@ -6557,9 +6788,9 @@ function renderAttendanceGrid(cid, data) {
                     <select class="att-select s-${st}" id="att-${cid}-${row.student_id}-${w}"
                       data-sid="${row.student_id}" data-week="${w}" data-cid="${cid}"
                       onchange="this.className='att-select s-'+this.value;saveAttCell(this)">
-                      <option value="present" ${st==='present'?'selected':''}>Present</option>
-                      <option value="absent"  ${st==='absent' ?'selected':''}>Absent</option>
-                      <option value="late"    ${st==='late'   ?'selected':''}>Late</option>
+                      <option value="present" ${st==='present'?'selected':''}>${T('st.present')}</option>
+                      <option value="absent"  ${st==='absent' ?'selected':''}>${T('st.absent')}</option>
+                      <option value="late"    ${st==='late'   ?'selected':''}>${T('st.late')}</option>
                     </select>
                   </td>`;
                 }).join('')}
@@ -6613,7 +6844,7 @@ async function loadMaterialsList() {
 function renderMatList(cid, mats) {
   const body = document.getElementById('mat-list-body');
   if (!mats.length) {
-    body.innerHTML = '<div style="color:var(--text-muted);padding:8px 0">No materials uploaded yet.</div>';
+    body.innerHTML = `<div style="color:var(--text-muted);padding:8px 0">${T('aj.noMats')}</div>`;
     return;
   }
   // Group by session
@@ -6738,11 +6969,11 @@ function filterPayments() {
         <div style="font-size:11px;color:var(--text-muted)">${e.student_email}</div>
       </td>
       <td>${e.course_title}</td>
-      <td><span class="badge badge-${e.payment_status}">${e.payment_status}</span></td>
+      <td><span class="badge badge-${e.payment_status}">${tStatus(e.payment_status)}</span></td>
       <td style="max-width:200px;font-size:12px;color:var(--text-muted)">${e.payment_remarks || '—'}</td>
       <td>
         <div style="display:flex;gap:5px;align-items:center">
-          <button class="btn btn-secondary btn-sm" onclick="openPaymentModal(${e.id})" title="Edit payment"><i class="fas fa-edit"></i> <span data-i18n="btn.edit">Edit</span></button>
+          <button class="btn btn-secondary btn-sm" onclick="openPaymentModal(${e.id})" title="Edit payment"><i class="fas fa-edit"></i> <span data-i18n="btn.edit">${T('btn.edit')}</span></button>
           <button class="btn btn-secondary btn-sm" onclick="window.open('/api/admin/enrollments/${e.id}/invoice','_blank')" style="color:var(--cyan)" title="Download invoice">
             <i class="fas fa-file-invoice"></i>
           </button>
@@ -6780,7 +7011,7 @@ function openPaymentModal(eid) {
     ? `<i class="fas fa-paperclip"></i> Uploaded proof on file — <a href="/uploads/receipts/${e.receipt_file}" target="_blank" style="color:var(--cyan)">view</a> (uploading a new file will replace it)`
     : '';
   if (e.payment_status === 'paid') {
-    receiptHtml += `${receiptHtml ? '<br>' : ''}<i class="fas fa-receipt"></i> <a href="/api/admin/enrollments/${eid}/receipt/view" target="_blank" style="color:var(--green)">View official receipt</a>`;
+    receiptHtml += `${receiptHtml ? `<br>` : ''}<i class="fas fa-receipt"></i> <a href="/api/admin/enrollments/${eid}/receipt/view" target="_blank" style="color:var(--green)">View official receipt</a>`;
   }
   existingDiv.innerHTML = receiptHtml;
   openModal('modal-payment');
@@ -6790,7 +7021,7 @@ async function savePayment() {
   const eid     = document.getElementById('pay-enrollment-id').value;
   const btn     = document.getElementById('pay-save-btn');
   btn.disabled  = true;
-  btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving…';
+  btn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> ${T('aj.savingE')}`;
 
   // Remember which student + tab is active so we can restore after re-render
   const selectedItem = document.querySelector('.student-item.selected');
@@ -6853,7 +7084,7 @@ async function savePayment() {
     toast(e.message, true);
   } finally {
     btn.disabled  = false;
-    btn.innerHTML = '<i class="fas fa-save"></i> Save';
+    btn.innerHTML = `<i class="fas fa-save"></i> ${T('btn.save')}`;
   }
 }
 
@@ -6864,7 +7095,7 @@ async function loadWorkshopCatalogue() {
   S.workshops = await GET('/api/admin/workshops');
   const el = document.getElementById('workshop-catalogue');
   if (!S.workshops.length) {
-    el.innerHTML = '<div class="empty-state"><i class="fas fa-chalkboard"></i><p>No workshops yet. Click "Add Workshop" to create your first one.</p></div>';
+    el.innerHTML = `<div class="empty-state"><i class="fas fa-chalkboard"></i><p>${T('aj.noWorkshopsClick')}</p></div>`;
     return;
   }
   el.innerHTML = S.workshops.map(w => `
@@ -6872,7 +7103,7 @@ async function loadWorkshopCatalogue() {
       <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:15px;margin-bottom:4px">${w.title}</div>
       <div style="font-size:11px;color:var(--text-muted);margin-bottom:12px">${w.duration_hours}h · ${w.run_count} run${w.run_count!==1?'s':''} scheduled</div>
       <div style="display:flex;gap:8px;flex-wrap:wrap">
-        <button class="btn btn-primary btn-sm" onclick="openScheduleRunModal(${w.id})"><i class="fas fa-calendar-plus"></i> <span data-i18n="btn.scheduleRun">Schedule a run</span></button>
+        <button class="btn btn-primary btn-sm" onclick="openScheduleRunModal(${w.id})"><i class="fas fa-calendar-plus"></i> <span data-i18n="btn.scheduleRun">${T('btn.scheduleRun')}</span></button>
         <button class="btn btn-secondary btn-sm" onclick="openEditWorkshopModal(${w.id})"><i class="fas fa-edit"></i></button>
         <button class="btn btn-danger btn-sm" onclick="deleteWorkshop(${w.id})"><i class="fas fa-trash"></i></button>
       </div>
@@ -6939,9 +7170,9 @@ function openScheduleRunModal(wid) {
   document.getElementById('run-capacity').value = '';
   document.getElementById('run-price').value = '';
   document.getElementById('run-google-review').value = '';
-  document.getElementById('run-save-btn').innerHTML = '<i class="fas fa-calendar-plus"></i> Schedule';
+  document.getElementById('run-save-btn').innerHTML = `<i class="fas fa-calendar-plus"></i> ${T('btn.schedule')}`;
   const sel = document.getElementById('run-teacher');
-  sel.innerHTML = '<option value="">— none —</option>' +
+  sel.innerHTML = `<option value="">${T('aj.optNoneDash')}</option>` +
     (S.teachers || []).map(t => `<option value="${t.id}">${t.name}</option>`).join('');
   openModal('modal-schedule-run');
 }
@@ -6958,9 +7189,9 @@ function openEditRunModal(rid) {
   document.getElementById('run-capacity').value = run.capacity ?? '';
   document.getElementById('run-price').value = run.price_per_pax ?? '';
   document.getElementById('run-google-review').value = run.google_review_url || '';
-  document.getElementById('run-save-btn').innerHTML = '<i class="fas fa-save"></i> Save';
+  document.getElementById('run-save-btn').innerHTML = `<i class="fas fa-save"></i> ${T('btn.save')}`;
   const sel = document.getElementById('run-teacher');
-  sel.innerHTML = '<option value="">-- none --</option>' +
+  sel.innerHTML = `<option value="">${T('aj.optNoneDash2')}</option>` +
     (S.teachers || []).map(t => `<option value="${t.id}">${t.name}</option>`).join('');
   sel.value = run.teacher_id || '';
   openModal('modal-schedule-run');
@@ -7010,7 +7241,7 @@ async function openAssignWorkshopModal(uid) {
   const select = document.getElementById('assign-workshop-run');
   const note = document.getElementById('assign-workshop-note');
   const saveBtn = document.getElementById('assign-workshop-save');
-  select.innerHTML = '<option value="">Loading workshop runs...</option>';
+  select.innerHTML = `<option value="">${T('aj.optLoadingRuns')}</option>`;
   note.textContent = '';
   saveBtn.disabled = true;
   openModal('modal-assign-workshop');
@@ -7020,7 +7251,7 @@ async function openAssignWorkshopModal(uid) {
     const registeredRunIds = new Set((student.workshop_attendances || []).map(w => parseInt(w.run_id)));
     const availableRuns = runs.filter(r => !registeredRunIds.has(parseInt(r.id)));
     if (!availableRuns.length) {
-      select.innerHTML = '<option value="">No available workshop runs</option>';
+      select.innerHTML = `<option value="">${T('aj.optNoRuns')}</option>`;
       note.textContent = 'This student is already registered for every scheduled workshop run.';
       saveBtn.disabled = true;
       return;
@@ -7033,7 +7264,7 @@ async function openAssignWorkshopModal(uid) {
     note.textContent = `Assigning workshop for ${student.name}.`;
     saveBtn.disabled = false;
   } catch(e) {
-    select.innerHTML = '<option value="">Could not load workshop runs</option>';
+    select.innerHTML = `<option value="">${T('aj.optCantLoadRuns')}</option>`;
     note.textContent = e.message;
     saveBtn.disabled = true;
   }
@@ -7045,7 +7276,7 @@ async function saveAssignWorkshop() {
   if (!uid || !rid) { toast(T('at.selectRun'), true); return; }
   const btn = document.getElementById('assign-workshop-save');
   btn.disabled = true;
-  btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Assigning...';
+  btn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> ${T('aj.assigningE')}`;
   try {
     await POST(`/api/admin/workshop-runs/${rid}/attendees`, { client_id: uid });
     toast(T('at.wsAssigned'));
@@ -7057,7 +7288,7 @@ async function saveAssignWorkshop() {
     toast(e.message, true);
   } finally {
     btn.disabled = false;
-    btn.innerHTML = '<i class="fas fa-plus"></i> Assign';
+    btn.innerHTML = `<i class="fas fa-plus"></i> ${T('btn.assign')}`;
   }
 }
 
@@ -7065,7 +7296,7 @@ async function loadUpcomingRuns() {
   const runs = await GET('/api/admin/workshop-runs?upcoming=1');
   const el = document.getElementById('workshop-runs-list');
   if (!runs.length) {
-    el.innerHTML = '<div class="empty-state"><i class="fas fa-calendar-day"></i><p>No upcoming runs scheduled.</p></div>';
+    el.innerHTML = `<div class="empty-state"><i class="fas fa-calendar-day"></i><p>${T('aj.noUpcomingRuns')}</p></div>`;
     return;
   }
   el.innerHTML = runs.map(r => {
@@ -7087,7 +7318,7 @@ async function loadUpcomingRuns() {
         <div style="font-family:'JetBrains Mono',monospace;font-size:12px">${r.attendee_count}${r.capacity ? ' / ' + r.capacity : ''}</div>
         ${r.capacity ? `<div style="width:90px;height:5px;background:var(--surface2);border-radius:3px;overflow:hidden;margin-top:4px"><div style="height:100%;width:${capPct}%;background:${capPct>=100?'var(--gold)':'var(--cyan)'}"></div></div>` : ''}
       </div>
-      <button class="btn btn-secondary btn-sm" onclick="event.stopPropagation();openRunDetail(${r.id})"><span data-i18n="btn.view">View</span></button>
+      <button class="btn btn-secondary btn-sm" onclick="event.stopPropagation();openRunDetail(${r.id})"><span data-i18n="btn.view">${T('btn.view')}</span></button>
     </div>`;
   }).join('');
 }
@@ -7095,7 +7326,7 @@ async function loadUpcomingRuns() {
 async function openRunDetail(rid) {
   showView('workshop-run-detail');
   const body = document.getElementById('workshop-run-detail-body');
-  body.innerHTML = '<div style="color:var(--text-muted);padding:20px">Loading...</div>';
+  body.innerHTML = `<div style="color:var(--text-muted);padding:20px">${T('aj.loading')}</div>`;
   const run = await GET(`/api/admin/workshop-runs/${rid}`);
   S.currentRun = run;
   renderRunDetail(run);
@@ -7112,22 +7343,22 @@ function renderRunDetail(run) {
     </div>
 
     <div style="margin-bottom:18px">
-      <button class="btn btn-secondary btn-sm" onclick="openEditRunModal(${run.id})"><i class="fas fa-edit"></i> <span data-i18n="btn.editRun">Edit Run</span></button>
+      <button class="btn btn-secondary btn-sm" onclick="openEditRunModal(${run.id})"><i class="fas fa-edit"></i> <span data-i18n="btn.editRun">${T('btn.editRun')}</span></button>
     </div>
 
     <div style="display:flex;gap:14px;flex-wrap:wrap;margin-bottom:18px">
-      <div class="card" style="flex:1;min-width:120px"><div style="font-family:'Syne',sans-serif;font-size:22px;font-weight:800;color:var(--cyan)">${run.attendee_count}</div><div style="font-size:11px;color:var(--text-muted)">Attendees</div></div>
-      <div class="card" style="flex:1;min-width:120px"><div style="font-family:'Syne',sans-serif;font-size:22px;font-weight:800;color:var(--cyan)">${run.attended_count}</div><div style="font-size:11px;color:var(--text-muted)">Marked Present</div></div>
-      <div class="card" style="flex:1;min-width:120px"><div style="font-family:'Syne',sans-serif;font-size:22px;font-weight:800;color:var(--cyan)">${run.feedback_count}</div><div style="font-size:11px;color:var(--text-muted)">Feedback Submitted</div></div>
-      <div class="card" style="flex:1;min-width:120px"><div style="font-family:'Syne',sans-serif;font-size:22px;font-weight:800;color:var(--gold)">${run.avg_event_rating ?? '—'}${run.avg_event_rating ? '★' : ''}</div><div style="font-size:11px;color:var(--text-muted)">Avg. Event Rating</div></div>
-      <div class="card" style="flex:1;min-width:120px"><div style="font-family:'Syne',sans-serif;font-size:22px;font-weight:800;color:var(--gold)">${run.avg_teacher_rating ?? '—'}${run.avg_teacher_rating ? '★' : ''}</div><div style="font-size:11px;color:var(--text-muted)">Avg. Facilitator Rating</div></div>
-      ${run.revenue != null ? `<div class="card" style="flex:1;min-width:120px"><div style="font-family:'Syne',sans-serif;font-size:22px;font-weight:800;color:var(--green2)">RM ${run.revenue.toFixed(0)}</div><div style="font-size:11px;color:var(--text-muted)">Revenue (paid)</div></div>` : ''}
+      <div class="card" style="flex:1;min-width:120px"><div style="font-family:'Syne',sans-serif;font-size:22px;font-weight:800;color:var(--cyan)">${run.attendee_count}</div><div style="font-size:11px;color:var(--text-muted)">${T('aj.attendees')}</div></div>
+      <div class="card" style="flex:1;min-width:120px"><div style="font-family:'Syne',sans-serif;font-size:22px;font-weight:800;color:var(--cyan)">${run.attended_count}</div><div style="font-size:11px;color:var(--text-muted)">${T('aj.markedPresent')}</div></div>
+      <div class="card" style="flex:1;min-width:120px"><div style="font-family:'Syne',sans-serif;font-size:22px;font-weight:800;color:var(--cyan)">${run.feedback_count}</div><div style="font-size:11px;color:var(--text-muted)">${T('aj.feedbackSub')}</div></div>
+      <div class="card" style="flex:1;min-width:120px"><div style="font-family:'Syne',sans-serif;font-size:22px;font-weight:800;color:var(--gold)">${run.avg_event_rating ?? '—'}${run.avg_event_rating ? '★' : ''}</div><div style="font-size:11px;color:var(--text-muted)">${T('aj.avgEvent')}</div></div>
+      <div class="card" style="flex:1;min-width:120px"><div style="font-family:'Syne',sans-serif;font-size:22px;font-weight:800;color:var(--gold)">${run.avg_teacher_rating ?? '—'}${run.avg_teacher_rating ? '★' : ''}</div><div style="font-size:11px;color:var(--text-muted)">${T('aj.avgFac')}</div></div>
+      ${run.revenue != null ? `<div class="card" style="flex:1;min-width:120px"><div style="font-family:'Syne',sans-serif;font-size:22px;font-weight:800;color:var(--green2)">RM ${run.revenue.toFixed(0)}</div><div style="font-size:11px;color:var(--text-muted)">${T('aj.revenuePaid')}</div></div>` : ''}
     </div>
 
     <div style="display:grid;grid-template-columns:1.3fr 1fr;gap:16px">
       <div class="card">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
-          <div style="font-weight:700">Attendees</div>
+          <div style="font-weight:700">${T('aj.attendees')}</div>
           <button class="btn btn-primary btn-sm" onclick="openAddAttendeeModal(${run.id})"><i class="fas fa-user-plus"></i> Add</button>
         </div>
         <div id="run-attendee-list">${renderAttendeeRows(run)}</div>
@@ -7135,11 +7366,11 @@ function renderRunDetail(run) {
 
       <div>
         <div class="card" style="margin-bottom:14px">
-          <div style="font-weight:700;margin-bottom:10px">QR Codes</div>
-          <div id="run-qr-area" style="color:var(--text-muted);font-size:12px">Loading QR codes...</div>
+          <div style="font-weight:700;margin-bottom:10px">${T('aj.qrCodes')}</div>
+          <div id="run-qr-area" style="color:var(--text-muted);font-size:12px">${T('aj.loadingQr')}</div>
         </div>
         <div class="card">
-          <div style="font-weight:700;margin-bottom:10px">Feedback</div>
+          <div style="font-weight:700;margin-bottom:10px">${T('aj.feedback')}</div>
           <div id="run-feedback-list">${renderFeedbackItems(run.feedback)}</div>
         </div>
       </div>
@@ -7149,13 +7380,13 @@ function renderRunDetail(run) {
 }
 
 function renderAttendeeRows(run) {
-  if (!run.attendees.length) return '<div style="color:var(--text-muted);font-size:12px;padding:8px 0">No attendees registered yet.</div>';
+  if (!run.attendees.length) return `<div style="color:var(--text-muted);font-size:12px;padding:8px 0">${T('aj.noAttendees')}</div>`;
   return run.attendees.map(a => `
     <div style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--border)">
       <div style="width:28px;height:28px;border-radius:50%;background:var(--purple-dim);color:var(--purple);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700">${(a.client_name||'?').split(' ').map(n=>n[0]).slice(0,2).join('').toUpperCase()}</div>
       <div style="flex:1">
         <div style="font-weight:600;font-size:12px">${a.client_name}</div>
-        <div style="font-size:10px;color:var(--text-muted)">${a.client_email} · <span class="badge badge-${a.payment_status}">${a.payment_status}</span></div>
+        <div style="font-size:10px;color:var(--text-muted)">${a.client_email} · <span class="badge badge-${a.payment_status}">${tStatus(a.payment_status)}</span></div>
       </div>
       <div onclick="toggleAttendance(${run.id},${a.id},${!a.attended})" style="width:36px;height:20px;border-radius:10px;cursor:pointer;position:relative;background:${a.attended?'var(--cyan-dim)':'var(--surface2)'};border:1px solid ${a.attended?'var(--cyan)':'var(--border3)'}" title="Mark present/absent">
         <div style="position:absolute;top:1px;left:${a.attended?'17px':'1px'};width:16px;height:16px;border-radius:50%;background:${a.attended?'var(--cyan)':'var(--text-dim)'};transition:left .15s"></div>
@@ -7168,7 +7399,7 @@ function renderAttendeeRows(run) {
 }
 
 function renderFeedbackItems(feedback) {
-  if (!feedback.length) return '<div style="color:var(--text-muted);font-size:12px">No feedback submitted yet.</div>';
+  if (!feedback.length) return `<div style="color:var(--text-muted);font-size:12px">${T('aj.noFeedback')}</div>`;
   return feedback.map(f => `
     <div style="padding:9px 0;border-bottom:1px solid var(--border)">
       <div style="color:var(--gold);font-size:12px">${'★'.repeat(f.event_rating)}${'☆'.repeat(5-f.event_rating)}${f.teacher_rating ? ' · Facilitator: ' + '★'.repeat(f.teacher_rating) : ''}</div>
@@ -7185,13 +7416,13 @@ async function loadRunQr(rid) {
       <div style="display:flex;gap:16px;flex-wrap:wrap">
         <div style="text-align:center">
           <img src="data:image/png;base64,${qr.feedback_qr_png_base64}" style="width:120px;height:120px;border-radius:6px;background:#fff;padding:6px" />
-          <div style="font-size:10px;color:var(--text-muted);margin-top:6px">Feedback Form</div>
+          <div style="font-size:10px;color:var(--text-muted);margin-top:6px">${T('aj.feedbackForm')}</div>
         </div>
         ${qr.review_qr_png_base64 ? `
         <div style="text-align:center">
           <img src="data:image/png;base64,${qr.review_qr_png_base64}" style="width:120px;height:120px;border-radius:6px;background:#fff;padding:6px" />
-          <div style="font-size:10px;color:var(--text-muted);margin-top:6px">Google Review</div>
-        </div>` : '<div style="font-size:11px;color:var(--text-dim)">No Google review link set for this run.</div>'}
+          <div style="font-size:10px;color:var(--text-muted);margin-top:6px">${T('aj.gReview')}</div>
+        </div>` : `<div style="font-size:11px;color:var(--text-dim)">${T('aj.noGReview')}</div>`}
       </div>
       <div style="font-size:10px;color:var(--text-dim);margin-top:10px;word-break:break-all">${qr.feedback_url}</div>
     `;
@@ -7213,7 +7444,7 @@ function openAddAttendeeModal(rid) {
 function populateAttendeeStudentSelect() {
   const select = document.getElementById('att-existing-student');
   const students = [...(S.students || [])].sort((a, b) => (a.name || '').localeCompare(b.name || ''));
-  select.innerHTML = '<option value="">— new / type manually —</option>' + students.map(s =>
+  select.innerHTML = `<option value="">${T('aj.optNewManual')}</option>` + students.map(s =>
     `<option value="${s.id}">${s.name} · ${s.email}</option>`
   ).join('');
 }
@@ -7464,7 +7695,7 @@ async function saveCourse() {
 function populateTimetableCourseSelect() {
   const sel = document.getElementById('tt-course-select');
   if (!sel) return;
-  sel.innerHTML = '<option value="">Select course...</option>' +
+  sel.innerHTML = `<option value="">${T('aj.optSelCourse')}</option>` +
     S.courses.map(c => `<option value="${c.id}">${c.title}${c.programme ? ' · '+c.programme : ''}</option>`).join('');
   populateTimetableCohortSelect('');
 }
@@ -7472,7 +7703,7 @@ function populateTimetableCourseSelect() {
 async function populateTimetableCohortSelect(cid) {
   const sel = document.getElementById('tt-cohort-select');
   if (!sel) return;
-  sel.innerHTML = '<option value="">Whole course / class</option>';
+  sel.innerHTML = `<option value="">${T('aj.optWholeCourse')}</option>`;
   if (!cid) return;
   try {
     const cohorts = await GET(`/api/courses/${cid}/cohorts`);
@@ -7488,7 +7719,7 @@ async function loadAdminTimetable() {
   const saveBar    = document.getElementById('tt-save-bar');
   const startBar   = document.getElementById('tt-start-date-bar');
   if (!cid) {
-    container.innerHTML = '<div class="empty-state"><i class="fas fa-calendar-alt"></i><p data-i18n="e.selCourseTt">Select a course to manage its timetable</p></div>';
+    container.innerHTML = `<div class="empty-state"><i class="fas fa-calendar-alt"></i><p data-i18n="e.selCourseTt">${T('e.selCourseTt')}</p></div>`;
     saveBar.style.display  = 'none';
     startBar.style.display = 'none';
     return;
@@ -7498,7 +7729,7 @@ async function loadAdminTimetable() {
     await populateTimetableCohortSelect(cid);
     cohortId = '';
   }
-  container.innerHTML = '<div style="color:var(--text-muted);padding:20px;text-align:center">Loading timetable...</div>';
+  container.innerHTML = `<div style="color:var(--text-muted);padding:20px;text-align:center">${T('aj.loadingTt')}</div>`;
   try {
     const data = await GET(`/api/courses/${cid}/timetable${cohortId ? '?cohort_id=' + cohortId : ''}`);
     // Set start date input
@@ -7507,7 +7738,7 @@ async function loadAdminTimetable() {
     startBar.style.display = 'block';
 
     if (!data.weeks || !data.weeks.length) {
-      container.innerHTML = '<div class="empty-state"><i class="fas fa-calendar-alt"></i><p>No weeks configured for this course.</p></div>';
+      container.innerHTML = `<div class="empty-state"><i class="fas fa-calendar-alt"></i><p>${T('aj.noWeeks')}</p></div>`;
       saveBar.style.display = 'none';
       return;
     }
@@ -7540,8 +7771,8 @@ async function loadAdminTimetable() {
       return `<div class="tt-week-card">
         <div class="tt-week-head">
           <span class="tt-wk-num">WEEK ${w.week}</span>
-          ${isCurrent ? '<span class="tt-wk-curr">Current Week</span>' : ''}
-          <button class="btn btn-secondary btn-sm" onclick="addTimetableRow(${w.week})" style="margin-left:auto;font-size:10px;padding:4px 9px"><i class="fas fa-plus"></i> <span data-i18n="btn.addTiming">Add timing</span></button>
+          ${isCurrent ? `<span class="tt-wk-curr">${T('aj.currentWeek')}</span>` : ''}
+          <button class="btn btn-secondary btn-sm" onclick="addTimetableRow(${w.week})" style="margin-left:auto;font-size:10px;padding:4px 9px"><i class="fas fa-plus"></i> <span data-i18n="btn.addTiming">${T('btn.addTiming')}</span></button>
         </div>
         ${rows}
       </div>`;
@@ -7568,7 +7799,7 @@ function addTimetableRow(week) {
       <select class="form-select tt-day-select" data-week="${week}" data-snum="${snum}" style="font-size:12px;padding:6px 8px;min-width:130px">
         ${days.map(d => `<option value="${d}" ${d==='Friday'?'selected':''}>${d}</option>`).join('')}
       </select>
-      <div class="tt-date">New timing</div>
+      <div class="tt-date">${T('aj.newTiming')}</div>
     </div>
     <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
       <input class="form-input tt-time-start" type="time" value="20:00" data-week="${week}" data-snum="${snum}" style="width:112px;font-size:12px;padding:7px 8px" />
@@ -7661,7 +7892,7 @@ async function loadAdminAnnouncements() {
   // Populate course select in modal
   const sel = document.getElementById('ann-course-select');
   if (sel) {
-    sel.innerHTML = `<option value="">All Courses (Global)</option>` +
+    sel.innerHTML = `<option value="">${T('aj.allCoursesGlobal')}</option>` +
       S.courses.map(c => `<option value="${c.id}">${c.title}</option>`).join('');
   }
   try {
@@ -7670,7 +7901,7 @@ async function loadAdminAnnouncements() {
     const list = document.getElementById('ann-list');
     if (!list) return;
     if (arr.length === 0) {
-      list.innerHTML = `<div style="color:var(--text-muted);text-align:center;padding:40px">No announcements yet. Click "New Announcement" to create one.</div>`;
+      list.innerHTML = `<div style="color:var(--text-muted);text-align:center;padding:40px">${T('aj.noAnnYet')}</div>`;
       return;
     }
     list.innerHTML = arr.map(a => `
@@ -7774,7 +8005,7 @@ async function loadAdminCalendar() {
   const data = await GET(`/api/admin/calendar?start=${isoDate(ADMIN_CAL_START)}${teacherId ? '&teacher_id=' + teacherId : ''}`);
   const filter = document.getElementById('calendar-teacher-filter');
   if (filter && filter.options.length <= 1) {
-    filter.innerHTML = '<option value="">All teachers</option>' + data.teachers.map(t => `<option value="${t.id}">${t.name}</option>`).join('');
+    filter.innerHTML = `<option value="">${T('aj.optAllTeachers')}</option>` + data.teachers.map(t => `<option value="${t.id}">${t.name}</option>`).join('');
     filter.value = teacherId;
   }
   const days = Array.from({ length: 7 }, (_, i) => {
@@ -7802,7 +8033,7 @@ async function loadAdminCalendar() {
             const color = SESSION_TYPE_COLORS_ADMIN[e.session_type] || 'var(--cyan)';
             return `<div class="cal-event" style="border-left-color:${color}">
               <div class="cal-event-title">${e.title}</div>
-              <div class="cal-event-meta">${e.time_start}-${e.time_end}<br>${e.teacher_name || 'Teacher TBA'}${e.course_title ? '<br>' + e.course_title : ''}</div>
+              <div class="cal-event-meta">${e.time_start}-${e.time_end}<br>${e.teacher_name || 'Teacher TBA'}${e.course_title ? `<br>` + e.course_title : ''}</div>
             </div>`;
           }).join('')}
         </div>`;
@@ -7819,13 +8050,13 @@ async function loadAdminSessions() {
     const tbody = document.getElementById('sessions-tbody');
     if (!tbody) return;
     if (arr.length === 0) {
-      tbody.innerHTML = `<tr><td colspan="6" style="color:var(--text-muted);text-align:center;padding:24px">No sessions scheduled yet.</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="6" style="color:var(--text-muted);text-align:center;padding:24px">${T('aj.noSessions')}</td></tr>`;
       return;
     }
     tbody.innerHTML = arr.map(s => {
       const color = SESSION_TYPE_COLORS_ADMIN[s.session_type] || 'var(--cyan)';
       const recCell = s.recording_url
-        ? `<a href="${s.recording_url}" target="_blank" style="color:var(--cyan);font-size:11px"><i class="fas fa-link"></i> View</a>`
+        ? `<a href="${s.recording_url}" target="_blank" style="color:var(--cyan);font-size:11px"><i class="fas fa-link"></i> ${T('btn.view')}</a>`
         : `<span style="color:var(--text-muted)">—</span>`;
       return `<tr>
         <td style="font-weight:600">${s.title}</td>
@@ -7863,7 +8094,7 @@ async function loadCertificateOptions() {
 function populateCertificateCourses() {
   const cSel = document.getElementById('cert-course-select');
   if (!cSel) return;
-  cSel.innerHTML = '<option value="">Select course...</option>' +
+  cSel.innerHTML = `<option value="">${T('aj.optSelCourse')}</option>` +
     S.certOptions.courses.map(c => {
       const value = c.option_value || (c.target_type ? `${c.target_type}:${c.target_id}` : `course:${c.id}`);
       const label = c.target_type === 'workshop' ? `${c.title} (Workshop/Event)` : c.title;
@@ -7930,7 +8161,7 @@ function renderCertificateStudentMatches() {
   if (!search || !menu || blankName || search.disabled) return;
   const query = search.value.trim().toLowerCase();
   if (!query) {
-    menu.innerHTML = '<div class="autocomplete-empty">Type a student name to search.</div>';
+    menu.innerHTML = `<div class="autocomplete-empty">${T('aj.typeStudent')}</div>`;
     menu.classList.add('open');
     return;
   }
@@ -7988,11 +8219,11 @@ function updateIssueCertButtonText() {
   const blankName = document.getElementById('cert-blank-name')?.checked;
   const sendEmail = document.getElementById('cert-send-email')?.checked;
   if (blankName) {
-    btn.innerHTML = '<i class="fas fa-award"></i> Issue Blank Certs';
+    btn.innerHTML = `<i class="fas fa-award"></i> ${T('aj.issueBlank')}`;
   } else if (sendEmail) {
-    btn.innerHTML = '<i class="fas fa-paper-plane"></i> Issue & Email';
+    btn.innerHTML = `<i class="fas fa-paper-plane"></i> ${T('aj.issueEmail')}`;
   } else {
-    btn.innerHTML = '<i class="fas fa-print"></i> Issue for Print';
+    btn.innerHTML = `<i class="fas fa-print"></i> ${T('aj.issuePrint')}`;
   }
 }
 
@@ -8010,7 +8241,7 @@ async function loadAdminCertificates() {
     if (selectAll) selectAll.checked = false;
     updateSelectedCertificatesButton();
     if (arr.length === 0) {
-      tbody.innerHTML = `<tr><td colspan="6" style="color:var(--text-muted);text-align:center;padding:24px">No certificates issued yet.</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="6" style="color:var(--text-muted);text-align:center;padding:24px">${T('aj.noCertsIssued')}</td></tr>`;
       return;
     }
     tbody.innerHTML = arr.map(c => `
@@ -8022,10 +8253,10 @@ async function loadAdminCertificates() {
         <td style="font-size:12px;color:var(--text-muted)">${c.issued_at ? new Date(c.issued_at).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}) : '—'}</td>
         <td>
           <a href="/api/certificates/${c.id}/download" target="_blank" class="btn btn-sm" style="background:var(--surface);border:1px solid var(--border);color:var(--text)">
-            <i class="fas fa-download"></i> View
+            <i class="fas fa-download"></i> ${T('btn.view')}
           </a>
           ${c.student_id ? `
-            <button class="btn btn-sm" onclick="sendCertificateEmail(${c.id})" style="background:var(--surface);border:1px solid var(--border);color:var(--text);margin-left:6px"><i class="fas fa-envelope"></i> <span data-i18n="btn.sendEmailLater">Send Email Later</span></button>` : ''}
+            <button class="btn btn-sm" onclick="sendCertificateEmail(${c.id})" style="background:var(--surface);border:1px solid var(--border);color:var(--text);margin-left:6px"><i class="fas fa-envelope"></i> <span data-i18n="btn.sendEmailLater">${T('btn.sendEmailLater')}</span></button>` : ''}
         </td>
       </tr>`).join('');
     updateSelectedCertificatesButton();
@@ -8061,7 +8292,7 @@ async function downloadSelectedCertificates() {
   const btn = document.getElementById('download-selected-certs-btn');
   if (btn) {
     btn.disabled = true;
-      btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Preparing PDFs...';
+      btn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> ${T('aj.preparingPdfs')}`;
   }
   try {
     const res = await fetch('/api/admin/certificates/download', {
@@ -8089,7 +8320,7 @@ async function downloadSelectedCertificates() {
     toast(T('at.errDlCerts') + tErr(e.message), true);
   } finally {
     if (btn) {
-      btn.innerHTML = '<i class="fas fa-download"></i> Download PDFs';
+      btn.innerHTML = `<i class="fas fa-download"></i> ${T('btn.downloadPdfs')}`;
       updateSelectedCertificatesButton();
     }
   }
@@ -8193,7 +8424,7 @@ async function loadAdminAnalytics() {
   // Populate course select
   const sel = document.getElementById('analytics-course-select');
   if (sel) {
-    sel.innerHTML = '<option value="">All Courses</option>' +
+    sel.innerHTML = `<option value="">${T('aj.optAllCourses')}</option>` +
       S.courses.map(c => `<option value="${c.id}">${c.title}</option>`).join('');
   }
   await loadLoginActivity();
@@ -8206,7 +8437,7 @@ async function loadLoginActivity() {
     const tbody = document.getElementById('login-activity-tbody');
     if (!tbody) return;
     if (arr.length === 0) {
-      tbody.innerHTML = `<tr><td colspan="3" style="color:var(--text-muted);text-align:center;padding:24px">No login activity yet.</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="3" style="color:var(--text-muted);text-align:center;padding:24px">${T('aj.noLogins')}</td></tr>`;
       return;
     }
     tbody.innerHTML = arr.map(l => `
@@ -8323,7 +8554,7 @@ function renderTeacherList(q = '') {
     !q || t.name.toLowerCase().includes(q) || t.email.toLowerCase().includes(q)
   );
   if (!list.length) {
-    body.innerHTML = `<div style="padding:20px;color:var(--text-muted);text-align:center">No teachers found.</div>`;
+    body.innerHTML = `<div style="padding:20px;color:var(--text-muted);text-align:center">${T('aj.noTeachers')}</div>`;
     return;
   }
   body.innerHTML = list.map(t => {
@@ -8338,7 +8569,7 @@ function renderTeacherList(q = '') {
         <div class="student-name">${t.name}</div>
         <div class="student-email">${t.title ? t.title + ' · ' : ''}${t.email}</div>
       </div>
-      <span style="font-size:10px;background:rgba(168,145,201,.12);color:var(--purple);border:1px solid rgba(168,145,201,.4);padding:2px 8px;border-radius:20px;font-family:var(--font-m);flex-shrink:0">TEACHER</span>
+      <span style="font-size:10px;background:rgba(168,145,201,.12);color:var(--purple);border:1px solid rgba(168,145,201,.4);padding:2px 8px;border-radius:20px;font-family:var(--font-m);flex-shrink:0">${T('aj.teacherBadge')}</span>
     </div>`;
   }).join('');
 }
@@ -8359,7 +8590,7 @@ async function showTeacherDetail(id) {
   const assignedCourses = (S.courses||[]).filter(c => c.teacher_id === t.id);
   const coursesHtml = assignedCourses.length
     ? assignedCourses.map(c=>`<span style="background:var(--bg-raised);border:1px solid var(--border);border-radius:6px;padding:3px 10px;font-size:11px">${c.title}</span>`).join(' ')
-    : '<span style="color:var(--text-muted);font-size:12px">None assigned</span>';
+    : `<span style="color:var(--text-muted);font-size:12px">${T('aj.noneAssigned')}</span>`;
 
   document.getElementById('teacher-detail').innerHTML = `
     <div style="padding:24px">
@@ -8372,7 +8603,7 @@ async function showTeacherDetail(id) {
           ${tags ? `<div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px">${tags}</div>` : ''}
         </div>
         <div style="display:flex;gap:6px;flex-shrink:0">
-          <button class="btn btn-secondary btn-sm" onclick="openEditTeacher(${JSON.stringify(t).replace(/"/g,'&quot;')})"><i class="fas fa-edit"></i> <span data-i18n="btn.edit">Edit</span></button>
+          <button class="btn btn-secondary btn-sm" onclick="openEditTeacher(${JSON.stringify(t).replace(/"/g,'&quot;')})"><i class="fas fa-edit"></i> <span data-i18n="btn.edit">${T('btn.edit')}</span></button>
           <button class="btn btn-danger btn-sm" onclick="deleteTeacher(${t.id})">
             <i class="fas fa-trash"></i>
           </button>
@@ -8382,10 +8613,10 @@ async function showTeacherDetail(id) {
       ${t.bio ? `<p style="color:var(--text-muted);font-size:13px;line-height:1.6;margin-bottom:16px;padding:12px;background:var(--bg-raised);border-radius:8px;border:1px solid var(--border)">${t.bio}</p>` : ''}
 
       <div class="info-grid" style="grid-template-columns:1fr 1fr;gap:12px;display:grid;margin-bottom:16px">
-        <div class="info-cell"><div class="info-label">Phone</div><div class="info-val">${t.phone||'—'}</div></div>
-        <div class="info-cell"><div class="info-label">Language</div><div class="info-val">${{en:'English',bm:'Malay',zh:'Chinese'}[t.language_pref]||'English'}</div></div>
-        <div class="info-cell"><div class="info-label">Last Login</div><div class="info-val">${t.last_login||'Never'}</div></div>
-        <div class="info-cell"><div class="info-label">Joined</div><div class="info-val">${t.created_at||'—'}</div></div>
+        <div class="info-cell"><div class="info-label">${T('lbl.phone')}</div><div class="info-val">${t.phone||'—'}</div></div>
+        <div class="info-cell"><div class="info-label">${T('lbl.language')}</div><div class="info-val">${{en:'English',bm:'Malay',zh:'Chinese'}[t.language_pref]||'English'}</div></div>
+        <div class="info-cell"><div class="info-label">${T('aj.lastLogin')}</div><div class="info-val">${t.last_login||'Never'}</div></div>
+        <div class="info-cell"><div class="info-label">${T('aj.joined')}</div><div class="info-val">${t.created_at||'—'}</div></div>
         ${t.education ? `<div class="info-cell" style="grid-column:span 2"><div class="info-label"><i class="fas fa-graduation-cap"></i> Education</div><div class="info-val">${t.education}</div></div>` : ''}
         ${t.experience ? `<div class="info-cell" style="grid-column:span 2"><div class="info-label"><i class="fas fa-briefcase"></i> Experience</div><div class="info-val">${t.experience}</div></div>` : ''}
       </div>
@@ -8408,7 +8639,7 @@ async function deleteTeacher(id) {
     await DELETE(`/api/admin/teachers/${id}`);
     toast(T('at.teacherDeleted'));
     await loadTeachers();
-    document.getElementById('teacher-detail').innerHTML = `<div class="empty-state"><i class="fas fa-chalkboard-teacher"></i><p data-i18n="e.selTeacher">Select a teacher to view their details</p></div>`;
+    document.getElementById('teacher-detail').innerHTML = `<div class="empty-state"><i class="fas fa-chalkboard-teacher"></i><p data-i18n="e.selTeacher">${T('e.selTeacher')}</p></div>`;
   } catch(e) { toast(e.message, true); }
 }
 
@@ -8416,11 +8647,11 @@ async function triggerWelcomeReminders() {
   try {
     const btn = event.currentTarget;
     btn.disabled = true;
-    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
+    btn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> ${T('aj.sendingE')}`;
     await POST('/api/admin/trigger-welcome-reminders', {});
     toast(T('at.welcomeRemind'));
     btn.disabled = false;
-    btn.innerHTML = '<i class="fas fa-paper-plane"></i> Send Now (Test)';
+    btn.innerHTML = `<i class="fas fa-paper-plane"></i> ${T('btn.sendNowTest')}`;
   } catch(e) {
     toast(tErr(e.message), true);
   }
