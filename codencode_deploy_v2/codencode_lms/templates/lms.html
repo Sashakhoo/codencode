@@ -1569,7 +1569,7 @@
 
     <!-- Course selector -->
     <div class="sidebar-course-selector">
-      <div class="course-select-label">Current Course</div>
+      <div class="course-select-label" data-i18n="nav.currentCourse">Current Course</div>
       <select class="course-select" id="course-selector" onchange="setCourse(this.value)">
         <option value="">— select course —</option>
       </select>
@@ -1578,7 +1578,7 @@
     <!-- Student nav -->
     <div id="student-nav">
       <div class="sidebar-section">
-        <div class="sidebar-label">Learning</div>
+        <div class="sidebar-label" data-i18n="nav.learning">Learning</div>
         <button class="nav-item active" onclick="switchView('dashboard')">
           <i class="fas fa-th-large"></i><span data-i18n="dashboard">Dashboard</span>
         </button>
@@ -1715,27 +1715,27 @@
       ══════════════════════════════ -->
       <div class="view active" id="view-dashboard">
         <div class="page-header">
-          <div class="page-label">Student Dashboard</div>
+          <div class="page-label" data-i18n="hdr.dashboard.label">Student Dashboard</div>
           <div class="page-title" id="student-greeting">Good to see you, Alex. 👋</div>
           <div class="page-sub" id="dashboard-week-sub">// —</div>
         </div>
         <div class="stats-row" id="student-stats-row">
           <div class="stat-cell" data-icon="🎬">
             <div class="stat-val">—</div>
-            <div class="stat-lbl">Videos Watched</div>
+            <div class="stat-lbl" data-i18n="stat.videosWatched">Videos Watched</div>
             <div class="progress-bar" style="margin-top:8px"><div class="progress-fill" style="width:0%"></div></div>
           </div>
           <div class="stat-cell orange" data-icon="📝">
             <div class="stat-val">—</div>
-            <div class="stat-lbl">Assignments Due</div>
+            <div class="stat-lbl" data-i18n="stat.assignmentsDue">Assignments Due</div>
           </div>
           <div class="stat-cell green" data-icon="✅">
             <div class="stat-val">—</div>
-            <div class="stat-lbl">Avg Grade</div>
+            <div class="stat-lbl" data-i18n="stat.avgGrade">Avg Grade</div>
           </div>
           <div class="stat-cell purple" data-icon="🏆">
             <div class="stat-val">—</div>
-            <div class="stat-lbl">Submitted</div>
+            <div class="stat-lbl" data-i18n="stat.submitted">Submitted</div>
           </div>
         </div>
 
@@ -1743,21 +1743,21 @@
           <!-- Course progress -->
           <div class="card">
             <div class="card-header">
-              <span class="card-title"><i class="fas fa-route"></i> Course Progress</span>
+              <span class="card-title"><i class="fas fa-route"></i> <span data-i18n="card.courseProgress">Course Progress</span></span>
             </div>
             <div class="card-body" style="display:flex;flex-direction:column;gap:14px" id="dash-progress">
-              <div style="color:var(--muted);font-family:var(--font-m);font-size:12px">No progress yet.</div>
+              <div style="color:var(--muted);font-family:var(--font-m);font-size:12px" data-i18n="common.noProgress">No progress yet.</div>
             </div>
           </div>
 
           <!-- Recent activity -->
           <div class="card">
             <div class="card-header">
-              <span class="card-title"><i class="fas fa-history"></i> Recent Activity</span>
+              <span class="card-title"><i class="fas fa-history"></i> <span data-i18n="card.recentActivity">Recent Activity</span></span>
             </div>
             <div class="card-body" style="padding:0 20px">
               <div class="activity-feed" id="dash-activity">
-                <div style="color:var(--muted);font-family:var(--font-m);font-size:12px;padding:16px 0">No progress yet.</div>
+                <div style="color:var(--muted);font-family:var(--font-m);font-size:12px;padding:16px 0" data-i18n="common.noProgress">No progress yet.</div>
               </div>
             </div>
           </div>
@@ -1766,17 +1766,17 @@
         <!-- Announcements -->
         <div class="card">
           <div class="card-header">
-            <span class="card-title"><i class="fas fa-bullhorn"></i> Announcements</span>
+            <span class="card-title"><i class="fas fa-bullhorn"></i> <span data-i18n="card.announcements">Announcements</span></span>
           </div>
           <div class="card-body" id="announcements-container">
-            <div style="color:var(--muted);font-family:var(--font-m);font-size:12px">Loading announcements...</div>
+            <div style="color:var(--muted);font-family:var(--font-m);font-size:12px" data-i18n="ann.loading">Loading announcements...</div>
           </div>
         </div>
 
         <!-- Meet Your Instructor -->
         <div class="card" id="instructor-card" style="display:none">
           <div class="card-header">
-            <span class="card-title"><i class="fas fa-chalkboard-teacher"></i> Meet Your Instructor</span>
+            <span class="card-title"><i class="fas fa-chalkboard-teacher"></i> <span data-i18n="card.instructor">Meet Your Instructor</span></span>
           </div>
           <div class="card-body" id="instructor-card-body">
           </div>
@@ -1788,42 +1788,42 @@
       ══════════════════════════════ -->
       <div class="view" id="view-videos">
         <div class="page-header">
-          <div class="page-label">Recordings</div>
-          <div class="page-title">Class Recordings</div>
-          <div class="page-sub">// click to watch</div>
+          <div class="page-label" data-i18n="hdr.videos.label">Recordings</div>
+          <div class="page-title" data-i18n="hdr.videos.title">Class Recordings</div>
+          <div class="page-sub" data-i18n="hdr.videos.sub">// click to watch</div>
         </div>
-        <div id="recordings-container"><div style="color:var(--muted);font-family:var(--font-m);font-size:12px;padding:32px;text-align:center">No progress yet.</div></div>
+        <div id="recordings-container"><div style="color:var(--muted);font-family:var(--font-m);font-size:12px;padding:32px;text-align:center" data-i18n="common.noProgress">No progress yet.</div></div>
         <!-- week items rendered by loadVideos() -->
       </div>
 
       <div class="view" id="view-materials">
         <div class="page-header">
-          <div class="page-label">Course Materials</div>
-          <div class="page-title">Downloads</div>
-          <div class="page-sub">// click to download</div>
+          <div class="page-label" data-i18n="hdr.materials.label">Course Materials</div>
+          <div class="page-title" data-i18n="hdr.materials.title">Downloads</div>
+          <div class="page-sub" data-i18n="hdr.materials.sub">// click to download</div>
         </div>
-        <div id="materials-container"><div style="color:var(--muted);font-family:var(--font-m);font-size:12px;padding:32px;text-align:center">No progress yet.</div></div>
+        <div id="materials-container"><div style="color:var(--muted);font-family:var(--font-m);font-size:12px;padding:32px;text-align:center" data-i18n="common.noProgress">No progress yet.</div></div>
       </div>
 
       <div class="view" id="view-grades">
         <div class="page-header">
-          <div class="page-label">My Grades</div>
-          <div class="page-title">Grade Overview</div>
+          <div class="page-label" data-i18n="hdr.grades.label">My Grades</div>
+          <div class="page-title" data-i18n="hdr.grades.title">Grade Overview</div>
           <div class="page-sub" id="grades-sub">// Current average: —</div>
         </div>
         <div class="card">
           <div class="card-header">
-            <span class="card-title"><i class="fas fa-chart-bar"></i> Assignment Grades</span>
+            <span class="card-title"><i class="fas fa-chart-bar"></i> <span data-i18n="card.assignmentGrades">Assignment Grades</span></span>
             <span style="font-family:var(--font-m);font-size:11px;color:var(--cyan)" id="grades-avg">Avg: —</span>
           </div>
           <table class="grade-table">
             <thead>
               <tr>
-                <th>#</th><th>Assignment</th><th>Submitted</th><th>Score</th><th>Feedback</th>
+                <th data-i18n="gt.num">#</th><th data-i18n="gt.assignment">Assignment</th><th data-i18n="gt.submitted">Submitted</th><th data-i18n="gt.score">Score</th><th data-i18n="gt.feedback">Feedback</th>
               </tr>
             </thead>
             <tbody id="grades-tbody">
-              <tr><td colspan="5" style="color:var(--muted);font-family:var(--font-m);font-size:12px;padding:24px;text-align:center">No progress yet.</td></tr>
+              <tr><td colspan="5" style="color:var(--muted);font-family:var(--font-m);font-size:12px;padding:24px;text-align:center" data-i18n="common.noProgress">No progress yet.</td></tr>
             </tbody>
           </table>
         </div>
@@ -1831,28 +1831,28 @@
 
       <div class="view" id="view-timetable">
         <div class="page-header">
-          <div class="page-label">Schedule</div>
-          <div class="page-title">My Timetable</div>
-          <div class="page-sub">// Month-by-month class schedule</div>
+          <div class="page-label" data-i18n="hdr.timetable.label">Schedule</div>
+          <div class="page-title" data-i18n="hdr.timetable.title">My Timetable</div>
+          <div class="page-sub" data-i18n="hdr.timetable.sub">// Month-by-month class schedule</div>
         </div>
         <div class="month-cal-toolbar">
-          <div class="month-cal-title" id="tt-month-title">Monthly Timetable</div>
+          <div class="month-cal-title" id="tt-month-title" data-i18n="tt.monthly">Monthly Timetable</div>
           <div class="month-cal-actions">
             <button class="btn-action ghost" onclick="shiftTTMonth(-1)"><i class="fas fa-chevron-left"></i></button>
-            <button class="btn-action ghost" onclick="resetTTMonth()"><i class="fas fa-calendar-day"></i> Today</button>
+            <button class="btn-action ghost" onclick="resetTTMonth()"><i class="fas fa-calendar-day"></i> <span data-i18n="tt.today">Today</span></button>
             <button class="btn-action ghost" onclick="shiftTTMonth(1)"><i class="fas fa-chevron-right"></i></button>
           </div>
         </div>
         <div class="month-legend">
-          <span><i class="month-key class"></i> Cohort / Class</span>
-          <span><i class="month-key group"></i> Group</span>
-          <span><i class="month-key private"></i> Private</span>
-          <span><i class="month-key avoid"></i> Avoid / Blocked</span>
+          <span><i class="month-key class"></i> <span data-i18n="tt.cohort">Cohort / Class</span></span>
+          <span><i class="month-key group"></i> <span data-i18n="tt.group">Group</span></span>
+          <span><i class="month-key private"></i> <span data-i18n="tt.private">Private</span></span>
+          <span><i class="month-key avoid"></i> <span data-i18n="tt.avoid">Avoid / Blocked</span></span>
         </div>
         <div id="timetable-months" class="month-stack"></div>
         <div style="display:flex;gap:0;border-bottom:1px solid var(--border);margin:22px 0 16px">
-          <button id="tt-tab-upcoming" onclick="switchTTTab('upcoming')" style="padding:9px 20px;background:var(--cyan-dim);border:none;color:var(--cyan);font-family:'JetBrains Mono',monospace;font-size:11px;cursor:pointer;border-bottom:2px solid var(--cyan)">Upcoming</button>
-          <button id="tt-tab-past" onclick="switchTTTab('past')" style="padding:9px 20px;background:none;border:none;color:var(--muted);font-family:'JetBrains Mono',monospace;font-size:11px;cursor:pointer;border-bottom:2px solid transparent">Past</button>
+          <button id="tt-tab-upcoming" onclick="switchTTTab('upcoming')" style="padding:9px 20px;background:var(--cyan-dim);border:none;color:var(--cyan);font-family:'JetBrains Mono',monospace;font-size:11px;cursor:pointer;border-bottom:2px solid var(--cyan)" data-i18n="tt.upcoming">Upcoming</button>
+          <button id="tt-tab-past" onclick="switchTTTab('past')" style="padding:9px 20px;background:none;border:none;color:var(--muted);font-family:'JetBrains Mono',monospace;font-size:11px;cursor:pointer;border-bottom:2px solid transparent" data-i18n="tt.past">Past</button>
         </div>
         <div id="timetable-upcoming"></div>
         <div id="timetable-past" style="display:none"></div>
@@ -1863,13 +1863,13 @@
       ══════════════════════════════ -->
       <div class="view" id="view-discussion">
         <div class="page-header">
-          <div class="page-label">Discussion</div>
-          <div class="page-title" data-i18n="discussion">Discussion</div>
-          <div class="page-sub">// Ask questions, share insights</div>
+          <div class="page-label" data-i18n="hdr.discussion.label">Discussion</div>
+          <div class="page-title" data-i18n="hdr.discussion.title">Discussion</div>
+          <div class="page-sub" data-i18n="hdr.discussion.sub">// Ask questions, share insights</div>
         </div>
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:10px">
           <div id="disc-week-tabs" style="display:flex;gap:0;flex-wrap:wrap"></div>
-          <button class="btn-action" onclick="openNewPostModal()"><i class="fas fa-plus"></i> New Post</button>
+          <button class="btn-action" onclick="openNewPostModal()"><i class="fas fa-plus"></i> <span data-i18n="common.newPost">New Post</span></button>
         </div>
         <div id="discussion-list"></div>
         <div id="discussion-post-view" style="display:none"></div>
@@ -1880,12 +1880,12 @@
       ══════════════════════════════ -->
       <div class="view" id="view-certificates">
         <div class="page-header">
-          <div class="page-label">Certificates</div>
-          <div class="page-title" data-i18n="certificates">My Certificates</div>
-          <div class="page-sub">// Download your completion certificates</div>
+          <div class="page-label" data-i18n="hdr.certificates.label">Certificates</div>
+          <div class="page-title" data-i18n="hdr.certificates.title">My Certificates</div>
+          <div class="page-sub" data-i18n="hdr.certificates.sub">// Download your completion certificates</div>
         </div>
         <div id="certificates-container">
-          <div style="color:var(--muted);font-family:var(--font-m);font-size:12px;padding:32px;text-align:center">Loading...</div>
+          <div style="color:var(--muted);font-family:var(--font-m);font-size:12px;padding:32px;text-align:center" data-i18n="common.loading">Loading...</div>
         </div>
       </div>
 
@@ -2952,12 +2952,12 @@ async function bootApp() {
   }
   document.getElementById('student-nav').style.display = isTeacher ? 'none' : 'block';
   document.getElementById('teacher-nav').style.display = isTeacher ? 'block' : 'none';
-  document.getElementById('role-badge').textContent    = isTeacher ? 'TEACHER' : 'STUDENT';
+  document.getElementById('role-badge').textContent    = isTeacher ? T('role.teacherUpper') : T('role.studentUpper');
   document.getElementById('role-badge').className      = 'role-badge-sidebar' + (isTeacher ? ' teacher' : '');
   document.getElementById('user-display-name').textContent = STATE.user.name;
-  document.getElementById('footer-role-label').textContent = isTeacher ? 'Teacher' : 'Student';
+  document.getElementById('footer-role-label').textContent = isTeacher ? T('role.teacher') : T('role.student');
   const greetEl = document.getElementById('student-greeting');
-  if (greetEl) greetEl.textContent = 'Good to see you, ' + STATE.user.name.split(' ')[0] + '. 👋';
+  if (greetEl) greetEl.textContent = T('greet.student', { name: STATE.user.name.split(' ')[0] });
   const initials = STATE.user.name.split(' ').map(p=>p[0]).join('').toUpperCase().slice(0,2);
   const avatarEl = document.getElementById('user-avatar-initials');
   if (avatarEl) { avatarEl.textContent = initials; if (!isTeacher) avatarEl.classList.add('student'); }
@@ -3032,6 +3032,17 @@ const VIEW_TITLES = {
   'timetable':'Timetable'
 };
 
+// view id → I18N key for the top-bar title (keeps titles translatable)
+const VIEW_TITLE_KEYS = {
+  dashboard:'dashboard', videos:'recordings', materials:'materials', learn:'learn',
+  grades:'grades', timetable:'timetable', discussion:'discussion', certificates:'certificates',
+  practice:'quizzes',
+  't-dashboard':'th.overview', 't-videos':'recordings', 't-materials':'materials',
+  't-assignments':'assignments', 't-grading':'th.grading', 't-students':'th.students',
+  't-certificates':'certificates', 't-timetable':'timetable', 't-quizzes':'quizzes',
+  't-discussion':'discussion', 't-profile':'th.profile'
+};
+
 // Map view → loader function
 const VIEW_LOADERS = {
   'dashboard':    loadStudentDashboard,
@@ -3059,7 +3070,7 @@ async function switchView(id) {
     if ((btn.getAttribute('onclick')||'').includes("'" + id + "'")) btn.classList.add('active');
   });
   const titleEl = document.getElementById('topbar-title');
-  if (titleEl) titleEl.textContent = VIEW_TITLES[id] || '';
+  if (titleEl) titleEl.textContent = VIEW_TITLE_KEYS[id] ? T(VIEW_TITLE_KEYS[id]) : (VIEW_TITLES[id] || '');
   document.getElementById('main-content').scrollTop = 0;
 
   // Learn focus mode: swap the whole shell for view-learn / view-practice
@@ -3126,10 +3137,10 @@ function toggleWeek(btn) {
 // ── Render helpers ────────────────────────────────────
 
 function statusBadge(sub, maxPoints) {
-  if (!sub) return `<span class="status-badge status-pending">Pending</span>`;
+  if (!sub) return `<span class="status-badge status-pending">${T('status.pending')}</span>`;
   if (sub.score !== null && sub.score !== undefined)
-    return `<span class="status-badge status-graded">Graded · ${sub.score}/${maxPoints}</span>`;
-  return `<span class="status-badge status-submitted">Submitted</span>`;
+    return `<span class="status-badge status-graded">${T('status.graded', { s: sub.score, m: maxPoints })}</span>`;
+  return `<span class="status-badge status-submitted">${T('status.submitted')}</span>`;
 }
 
 function fileIcon(type) {
@@ -3163,37 +3174,38 @@ async function loadStudentDashboard() {
     const prog = d.programme || '';
     const wk   = d.current_week || 1;
     const tot  = d.weeks || 1;
-    subEl.textContent = prog ? `// ${prog} · Session ${wk} of ${tot}` : `// Session ${wk} of ${tot}`;
+    subEl.textContent = prog ? T('hdr.dashboard.subProg', { prog, wk, tot })
+                             : T('hdr.dashboard.sub', { wk, tot });
   }
 
   // Stats row
   document.querySelector('#view-dashboard .stats-row').innerHTML = `
     <div class="stat-cell" data-icon="🎬">
       <div class="stat-val">${d.videos_watched}</div>
-      <div class="stat-lbl">Videos Watched</div>
+      <div class="stat-lbl">${T('stat.videosWatched')}</div>
       ${progressBar(watchPct)}
     </div>
     <div class="stat-cell orange" data-icon="📝">
       <div class="stat-val">${d.assignments_pending ?? (d.total_assignments - d.assignments_submitted)}</div>
-      <div class="stat-lbl">Assignments Due</div>
+      <div class="stat-lbl">${T('stat.assignmentsDue')}</div>
     </div>
     <div class="stat-cell green" data-icon="✅">
       <div class="stat-val">${d.avg_grade !== null ? d.avg_grade + '%' : '—'}</div>
-      <div class="stat-lbl">Avg Grade</div>
+      <div class="stat-lbl">${T('stat.avgGrade')}</div>
     </div>
     <div class="stat-cell purple" data-icon="🎓">
       <div class="stat-val">${d.assignments_submitted}/${d.total_assignments}</div>
-      <div class="stat-lbl">Submitted</div>
+      <div class="stat-lbl">${T('stat.submitted')}</div>
     </div>`;
 
   // Progress card
   document.getElementById('dash-progress').innerHTML = `
     <div>
-      <div class="cp-bar-label"><span>Videos</span><span style="color:var(--cyan)">${d.videos_watched} / ${d.total_recordings}</span></div>
+      <div class="cp-bar-label"><span>${T('dash.videos')}</span><span style="color:var(--cyan)">${d.videos_watched} / ${d.total_recordings}</span></div>
       ${progressBar(watchPct)}
     </div>
     <div style="margin-top:14px">
-      <div class="cp-bar-label"><span>Assignments Submitted</span><span style="color:var(--orange)">${d.assignments_submitted} / ${d.total_assignments}</span></div>
+      <div class="cp-bar-label"><span>${T('dash.assignmentsSubmitted')}</span><span style="color:var(--orange)">${d.assignments_submitted} / ${d.total_assignments}</span></div>
       ${progressBar(asgnPct, 'orange')}
     </div>`;
 
@@ -3209,7 +3221,7 @@ async function loadStudentDashboard() {
             <div class="activity-time">${a.time}</div>
           </div>
         </div>`).join('')
-      : `<div style="color:var(--muted);font-family:var(--font-m);font-size:12px;padding:16px 0">No recent activity.</div>`;
+      : `<div style="color:var(--muted);font-family:var(--font-m);font-size:12px;padding:16px 0">${T('act.none')}</div>`;
   }
 
   // Badge count
@@ -3228,7 +3240,7 @@ async function loadAnnouncements() {
     const container = document.getElementById('announcements-container');
     if (!container) return;
     if (arr.length === 0) {
-      container.innerHTML = `<div style="color:var(--muted);font-family:var(--font-m);font-size:12px">No announcements yet.</div>`;
+      container.innerHTML = `<div style="color:var(--muted);font-family:var(--font-m);font-size:12px">${T('ann.none')}</div>`;
       return;
     }
     container.innerHTML = arr.slice(0, 5).map(a => `
@@ -3241,7 +3253,7 @@ async function loadAnnouncements() {
       </div>`).join('');
   } catch(e) {
     const container = document.getElementById('announcements-container');
-    if (container) container.innerHTML = `<div style="color:var(--muted);font-family:var(--font-m);font-size:12px">Could not load announcements.</div>`;
+    if (container) container.innerHTML = `<div style="color:var(--muted);font-family:var(--font-m);font-size:12px">${T('ann.error')}</div>`;
   }
 }
 
@@ -3463,9 +3475,9 @@ async function loadGrades() {
 
   const graded = asgns.filter(a => a.submission?.score !== null && a.submission?.score !== undefined);
   const avg = graded.length ? (graded.reduce((s,a) => s + a.submission.score, 0) / graded.length).toFixed(1) : '—';
-  document.getElementById('grades-avg').textContent = `Avg: ${avg}`;
+  document.getElementById('grades-avg').textContent = T('grades.avg', { avg });
   const gradesSub = document.getElementById('grades-sub');
-  if (gradesSub) gradesSub.textContent = avg === '—' ? '// No grades yet' : `// Current average: ${avg} / 100`;
+  if (gradesSub) gradesSub.textContent = avg === '—' ? T('grades.subNone') : T('grades.subAvg', { avg });
 
   tbody.innerHTML = asgns.map((a,i) => {
     const sub = a.submission;
@@ -3475,10 +3487,10 @@ async function loadGrades() {
       <td style="color:var(--muted)">${String(i+1).padStart(2,'0')}</td>
       <td>${a.title}</td>
       <td style="color:${sub ? 'var(--green)' : 'var(--muted)'}">
-        ${sub ? `<i class="fas fa-check"></i> ${sub.submitted_at||'Submitted'}` : '—'}
+        ${sub ? `<i class="fas fa-check"></i> ${sub.submitted_at||T('status.submitted')}` : '—'}
       </td>
       <td><span style="color:${scoreColor};font-weight:700">
-        ${sub?.score !== null && sub?.score !== undefined ? sub.score + ' / ' + a.max_points : '<span style="color:var(--orange)">Pending</span>'}
+        ${sub?.score !== null && sub?.score !== undefined ? sub.score + ' / ' + a.max_points : `<span style="color:var(--orange)">${T('status.pending')}</span>`}
       </span></td>
       <td style="color:var(--muted)">${sub?.feedback || '—'}</td>
     </tr>`;
@@ -3496,7 +3508,7 @@ async function loadTeacherDashboard() {
   // Update greeting with real teacher name
   const greetEl = document.getElementById('teacher-greeting');
   if (greetEl && STATE.user) {
-    greetEl.textContent = 'Welcome back, ' + STATE.user.name.split(' ')[0] + '. 🎓';
+    greetEl.textContent = T('greet.teacher', { name: STATE.user.name.split(' ')[0] });
   }
   const subEl = document.getElementById('teacher-dashboard-sub');
   if (subEl) {
@@ -4753,26 +4765,177 @@ async function watchRecording(sid) {
 // ══════════════════════════════════════════════════════
 
 const I18N = {
-  en: { dashboard: 'Dashboard', recordings: 'Recordings', materials: 'Materials', assignments: 'Assignments', grades: 'My Grades', timetable: 'Timetable', discussion: 'Discussion', quizzes: 'Quizzes', certificates: 'Certificates', settings: 'Settings' },
-  zh: { dashboard: '学习面板', recordings: '课程录像', materials: '学习资料', assignments: '作业', grades: '我的成绩', timetable: '课程时间表', discussion: '讨论区', quizzes: '测验', certificates: '证书', settings: '设置' },
-  bm: { dashboard: 'Papan Pemuka', recordings: 'Rakaman', materials: 'Bahan', assignments: 'Tugasan', grades: 'Gred Saya', timetable: 'Jadual', discussion: 'Perbincangan', quizzes: 'Kuiz', certificates: 'Sijil', settings: 'Tetapan' }
+  en: {
+    // sidebar
+    dashboard:'Dashboard', recordings:'Recordings', materials:'Materials', learn:'Slides & Quiz',
+    assignments:'Assignments', grades:'My Grades', timetable:'Timetable', discussion:'Discussion',
+    quizzes:'Quizzes', certificates:'Certificates', settings:'Settings',
+    'nav.learning':'Learning', 'nav.teaching':'Teaching', 'nav.currentCourse':'Current course',
+    'th.overview':'Overview', 'th.students':'Students', 'th.grading':'Grading', 'th.profile':'My Profile',
+    // page headers  hdr.<view> = label | title | sub
+    'hdr.dashboard.label':'Student Dashboard',
+    'hdr.dashboard.sub':'// Session {wk} of {tot}', 'hdr.dashboard.subProg':'// {prog} · Session {wk} of {tot}',
+    'hdr.videos.label':'Recordings', 'hdr.videos.title':'Class Recordings', 'hdr.videos.sub':'// click to watch',
+    'hdr.materials.label':'Course Materials', 'hdr.materials.title':'Downloads', 'hdr.materials.sub':'// click to download',
+    'hdr.grades.label':'My Grades', 'hdr.grades.title':'Grade Overview', 'hdr.grades.sub':'// Current average: {avg}',
+    'hdr.timetable.label':'Schedule', 'hdr.timetable.title':'My Timetable', 'hdr.timetable.sub':'// Month-by-month class schedule',
+    'hdr.discussion.label':'Discussion', 'hdr.discussion.title':'Discussion', 'hdr.discussion.sub':'// Ask questions, share insights',
+    'hdr.certificates.label':'Certificates', 'hdr.certificates.title':'My Certificates', 'hdr.certificates.sub':'// Download your completion certificates',
+    // dashboard
+    'stat.videosWatched':'Videos Watched', 'stat.assignmentsDue':'Assignments Due', 'stat.avgGrade':'Avg Grade', 'stat.submitted':'Submitted',
+    'card.courseProgress':'Course Progress', 'card.recentActivity':'Recent Activity', 'card.announcements':'Announcements',
+    'card.instructor':'Meet Your Instructor', 'card.assignmentGrades':'Assignment Grades',
+    'dash.videos':'Videos', 'dash.assignmentsSubmitted':'Assignments Submitted',
+    'ann.loading':'Loading announcements...', 'ann.none':'No announcements yet.', 'ann.error':'Could not load announcements.',
+    'act.none':'No recent activity.',
+    // grades table
+    'grades.avg':'Avg: {avg}', 'gt.num':'#', 'gt.assignment':'Assignment', 'gt.submitted':'Submitted', 'gt.score':'Score', 'gt.feedback':'Feedback',
+    'grades.subNone':'// No grades yet', 'grades.subAvg':'// Current average: {avg} / 100',
+    'status.pending':'Pending', 'status.submitted':'Submitted', 'status.graded':'Graded · {s}/{m}',
+    // timetable
+    'tt.monthly':'Monthly Timetable', 'tt.today':'Today', 'tt.cohort':'Cohort / Class', 'tt.group':'Group',
+    'tt.private':'Private', 'tt.avoid':'Avoid / Blocked', 'tt.upcoming':'Upcoming', 'tt.past':'Past',
+    // common
+    'common.noProgress':'No progress yet.', 'common.loading':'Loading...', 'common.newPost':'New Post',
+    'common.noRecordings':'No recordings uploaded yet.', 'common.noMaterials':'No materials uploaded yet.',
+    'common.noCerts':'No certificates yet — keep going!',
+    'greet.student':'Good to see you, {name}. 👋', 'greet.teacher':'Welcome back, {name}. 🎓',
+    'role.student':'Student', 'role.teacher':'Teacher', 'role.studentUpper':'STUDENT', 'role.teacherUpper':'TEACHER'
+  },
+  zh: {
+    dashboard:'学习面板', recordings:'课程录像', materials:'学习资料', learn:'幻灯片与测验',
+    assignments:'作业', grades:'我的成绩', timetable:'课程时间表', discussion:'讨论区',
+    quizzes:'测验', certificates:'证书', settings:'设置',
+    'nav.learning':'学习', 'nav.teaching':'教学', 'nav.currentCourse':'当前课程',
+    'th.overview':'概览', 'th.students':'学生', 'th.grading':'批改', 'th.profile':'我的资料',
+    'hdr.dashboard.label':'学生面板',
+    'hdr.dashboard.sub':'// 第 {wk} / {tot} 节', 'hdr.dashboard.subProg':'// {prog} · 第 {wk} / {tot} 节',
+    'hdr.videos.label':'课程录像', 'hdr.videos.title':'课堂录像', 'hdr.videos.sub':'// 点击观看',
+    'hdr.materials.label':'课程资料', 'hdr.materials.title':'下载', 'hdr.materials.sub':'// 点击下载',
+    'hdr.grades.label':'我的成绩', 'hdr.grades.title':'成绩总览', 'hdr.grades.sub':'// 当前平均分：{avg}',
+    'hdr.timetable.label':'时间表', 'hdr.timetable.title':'我的时间表', 'hdr.timetable.sub':'// 按月查看的上课时间表',
+    'hdr.discussion.label':'讨论区', 'hdr.discussion.title':'讨论区', 'hdr.discussion.sub':'// 提出问题，分享见解',
+    'hdr.certificates.label':'证书', 'hdr.certificates.title':'我的证书', 'hdr.certificates.sub':'// 下载你的结业证书',
+    'stat.videosWatched':'已观看视频', 'stat.assignmentsDue':'待交作业', 'stat.avgGrade':'平均分', 'stat.submitted':'已提交',
+    'card.courseProgress':'课程进度', 'card.recentActivity':'近期动态', 'card.announcements':'公告',
+    'card.instructor':'认识你的导师', 'card.assignmentGrades':'作业成绩',
+    'dash.videos':'视频', 'dash.assignmentsSubmitted':'已提交作业',
+    'ann.loading':'正在加载公告…', 'ann.none':'暂无公告。', 'ann.error':'无法加载公告。',
+    'act.none':'暂无近期动态。',
+    'grades.avg':'平均：{avg}', 'gt.num':'#', 'gt.assignment':'作业', 'gt.submitted':'提交时间', 'gt.score':'得分', 'gt.feedback':'评语',
+    'grades.subNone':'// 暂无成绩', 'grades.subAvg':'// 当前平均分：{avg} / 100',
+    'status.pending':'待提交', 'status.submitted':'已提交', 'status.graded':'已批改 · {s}/{m}',
+    'tt.monthly':'每月时间表', 'tt.today':'今天', 'tt.cohort':'班级', 'tt.group':'小组',
+    'tt.private':'一对一', 'tt.avoid':'不可用 / 已占用', 'tt.upcoming':'即将开始', 'tt.past':'已结束',
+    'common.noProgress':'暂无进度。', 'common.loading':'加载中…', 'common.newPost':'发帖',
+    'common.noRecordings':'尚未上传录像。', 'common.noMaterials':'尚未上传资料。',
+    'common.noCerts':'暂无证书 —— 继续加油！',
+    'greet.student':'很高兴见到你，{name}。👋', 'greet.teacher':'欢迎回来，{name}。🎓',
+    'role.student':'学生', 'role.teacher':'教师', 'role.studentUpper':'学生', 'role.teacherUpper':'教师'
+  },
+  bm: {
+    dashboard:'Papan Pemuka', recordings:'Rakaman', materials:'Bahan', learn:'Slaid & Kuiz',
+    assignments:'Tugasan', grades:'Gred Saya', timetable:'Jadual', discussion:'Perbincangan',
+    quizzes:'Kuiz', certificates:'Sijil', settings:'Tetapan',
+    'nav.learning':'Pembelajaran', 'nav.teaching':'Pengajaran', 'nav.currentCourse':'Kursus semasa',
+    'th.overview':'Gambaran', 'th.students':'Pelajar', 'th.grading':'Penilaian', 'th.profile':'Profil Saya',
+    'hdr.dashboard.label':'Papan Pemuka Pelajar',
+    'hdr.dashboard.sub':'// Sesi {wk} daripada {tot}', 'hdr.dashboard.subProg':'// {prog} · Sesi {wk} daripada {tot}',
+    'hdr.videos.label':'Rakaman', 'hdr.videos.title':'Rakaman Kelas', 'hdr.videos.sub':'// klik untuk tonton',
+    'hdr.materials.label':'Bahan Kursus', 'hdr.materials.title':'Muat Turun', 'hdr.materials.sub':'// klik untuk muat turun',
+    'hdr.grades.label':'Gred Saya', 'hdr.grades.title':'Ringkasan Gred', 'hdr.grades.sub':'// Purata semasa: {avg}',
+    'hdr.timetable.label':'Jadual', 'hdr.timetable.title':'Jadual Saya', 'hdr.timetable.sub':'// Jadual kelas mengikut bulan',
+    'hdr.discussion.label':'Perbincangan', 'hdr.discussion.title':'Perbincangan', 'hdr.discussion.sub':'// Tanya soalan, kongsi idea',
+    'hdr.certificates.label':'Sijil', 'hdr.certificates.title':'Sijil Saya', 'hdr.certificates.sub':'// Muat turun sijil tamat anda',
+    'stat.videosWatched':'Video Ditonton', 'stat.assignmentsDue':'Tugasan Perlu Dihantar', 'stat.avgGrade':'Purata Gred', 'stat.submitted':'Dihantar',
+    'card.courseProgress':'Kemajuan Kursus', 'card.recentActivity':'Aktiviti Terkini', 'card.announcements':'Pengumuman',
+    'card.instructor':'Kenali Pengajar Anda', 'card.assignmentGrades':'Gred Tugasan',
+    'dash.videos':'Video', 'dash.assignmentsSubmitted':'Tugasan Dihantar',
+    'ann.loading':'Memuatkan pengumuman...', 'ann.none':'Tiada pengumuman lagi.', 'ann.error':'Tidak dapat memuatkan pengumuman.',
+    'act.none':'Tiada aktiviti terkini.',
+    'grades.avg':'Purata: {avg}', 'gt.num':'#', 'gt.assignment':'Tugasan', 'gt.submitted':'Dihantar', 'gt.score':'Markah', 'gt.feedback':'Maklum balas',
+    'grades.subNone':'// Tiada gred lagi', 'grades.subAvg':'// Purata semasa: {avg} / 100',
+    'status.pending':'Belum Hantar', 'status.submitted':'Dihantar', 'status.graded':'Dinilai · {s}/{m}',
+    'tt.monthly':'Jadual Bulanan', 'tt.today':'Hari ini', 'tt.cohort':'Kohort / Kelas', 'tt.group':'Kumpulan',
+    'tt.private':'Persendirian', 'tt.avoid':'Elak / Disekat', 'tt.upcoming':'Akan Datang', 'tt.past':'Lepas',
+    'common.noProgress':'Tiada kemajuan lagi.', 'common.loading':'Memuatkan...', 'common.newPost':'Kiriman Baru',
+    'common.noRecordings':'Tiada rakaman dimuat naik lagi.', 'common.noMaterials':'Tiada bahan dimuat naik lagi.',
+    'common.noCerts':'Tiada sijil lagi — teruskan usaha!',
+    'greet.student':'Selamat kembali, {name}. 👋', 'greet.teacher':'Selamat kembali, {name}. 🎓',
+    'role.student':'Pelajar', 'role.teacher':'Pengajar', 'role.studentUpper':'PELAJAR', 'role.teacherUpper':'PENGAJAR'
+  }
 };
 
-function applyLanguage(lang) {
+window.LANG = localStorage.getItem('lang') || 'en';
+
+// T('key', {vars}) — current-language lookup with {placeholder} interpolation,
+// falls back to English, then to the key itself.
+function T(key, vars) {
+  const dict = I18N[window.LANG] || I18N.en;
+  let s = (dict && dict[key] != null) ? dict[key]
+        : (I18N.en[key] != null ? I18N.en[key] : key);
+  if (vars) for (const k in vars) s = s.replace(new RegExp('\\{' + k + '\\}', 'g'), vars[k]);
+  return s;
+}
+
+function applyLanguage(lang, opts) {
+  window.LANG = lang;
+  document.documentElement.lang = lang === 'zh' ? 'zh-CN' : (lang === 'bm' ? 'ms' : 'en');
+
   document.querySelectorAll('[data-i18n]').forEach(el => {
-    const key = el.getAttribute('data-i18n');
-    if (I18N[lang] && I18N[lang][key]) el.textContent = I18N[lang][key];
+    const v = T(el.getAttribute('data-i18n'));
+    if (v != null) el.textContent = v;
   });
+  document.querySelectorAll('[data-i18n-html]').forEach(el => {
+    const v = T(el.getAttribute('data-i18n-html'));
+    if (v != null) el.innerHTML = v;
+  });
+  document.querySelectorAll('[data-i18n-ph]').forEach(el => {
+    const v = T(el.getAttribute('data-i18n-ph'));
+    if (v != null) el.setAttribute('placeholder', v);
+  });
+  document.querySelectorAll('[data-i18n-title]').forEach(el => {
+    const v = T(el.getAttribute('data-i18n-title'));
+    if (v != null) el.setAttribute('title', v);
+  });
+
   // Update lang button styles
   ['en','zh','bm'].forEach(l => {
     const btn = document.getElementById('lang-' + l);
     if (!btn) return;
-    if (l === lang) {
-      btn.style.cssText = 'padding:4px 7px;background:var(--cyan-dim);color:var(--cyan);border:1px solid var(--cyan);cursor:pointer;letter-spacing:0.05em;font-family:var(--font-c);font-size:9px';
-    } else {
-      btn.style.cssText = 'padding:4px 7px;background:none;color:var(--muted);border:1px solid var(--border);cursor:pointer;letter-spacing:0.05em;font-family:var(--font-c);font-size:9px';
-    }
+    btn.style.cssText = (l === lang)
+      ? 'padding:4px 7px;background:var(--cyan-dim);color:var(--cyan);border:1px solid var(--cyan);cursor:pointer;letter-spacing:0.05em;font-family:var(--font-c);font-size:9px'
+      : 'padding:4px 7px;background:none;color:var(--muted);border:1px solid var(--border);cursor:pointer;letter-spacing:0.05em;font-family:var(--font-c);font-size:9px';
   });
+
+  // Re-render whatever JS-built view is on screen so its strings switch too
+  if (opts && opts.rerender === false) return;
+  try {
+    // chrome bits set once at login
+    if (typeof STATE !== 'undefined' && STATE.user) {
+      const isT = STATE.user.role === 'teacher';
+      const rb = document.getElementById('role-badge');
+      if (rb) rb.textContent = isT ? T('role.teacherUpper') : T('role.studentUpper');
+      const fr = document.getElementById('footer-role-label');
+      if (fr) fr.textContent = isT ? T('role.teacher') : T('role.student');
+      const sg = document.getElementById('student-greeting');
+      if (sg) sg.textContent = T('greet.student', { name: STATE.user.name.split(' ')[0] });
+      const tg = document.getElementById('teacher-greeting');
+      if (tg) tg.textContent = T('greet.teacher', { name: STATE.user.name.split(' ')[0] });
+      const tt = document.getElementById('topbar-title');
+      const cur = document.querySelector('.view.active');
+      const cid = cur && cur.id.replace('view-', '');
+      if (tt && cid && VIEW_TITLE_KEYS[cid]) tt.textContent = T(VIEW_TITLE_KEYS[cid]);
+    }
+    const active = document.querySelector('.view.active');
+    const id = active && active.id.replace('view-', '');
+    if (id && typeof VIEW_LOADERS !== 'undefined' && VIEW_LOADERS[id]) VIEW_LOADERS[id]();
+    const shell = document.getElementById('learn-shell');
+    if (shell && !shell.hidden && typeof loadLearn === 'function') {
+      const lid = document.getElementById('lrn-nav-practice')?.classList.contains('on') ? 'practice' : 'learn';
+      VIEW_LOADERS[lid] && VIEW_LOADERS[lid]();
+    }
+  } catch(e) {}
 }
 
 async function setLanguage(lang) {
@@ -4783,10 +4946,9 @@ async function setLanguage(lang) {
   } catch(e) {}
 }
 
-// Apply language on boot
+// Apply language on boot (translate DOM only; views load themselves)
 (function() {
-  const lang = localStorage.getItem('lang') || 'en';
-  applyLanguage(lang);
+  applyLanguage(localStorage.getItem('lang') || 'en', { rerender: false });
 })();
 
 // ══════════════════════════════════════════════════════
