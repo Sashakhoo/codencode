@@ -1547,26 +1547,6 @@
       border-bottom: 1px solid var(--border);
       background: #fbfefd;
     }
-    .student-filter-chips {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 7px;
-    }
-    .filter-chip {
-      border: 0;
-      border-radius: 12px;
-      padding: 8px 11px;
-      background: #f1f6f4;
-      color: var(--text-muted);
-      font-family: var(--font-m);
-      font-size: 11px;
-      font-weight: 800;
-      cursor: pointer;
-    }
-    .filter-chip.active {
-      background: var(--cyan);
-      color: #fff;
-    }
     .student-view-toggle {
       display: flex;
       gap: 3px;
@@ -1618,22 +1598,6 @@
       font-size: 11px;
       line-height: 1.35;
     }
-    .student-status-chip {
-      display: inline-flex;
-      width: fit-content;
-      margin-top: 8px;
-      padding: 4px 8px;
-      border-radius: 999px;
-      background: var(--green-dim);
-      color: var(--green3);
-      font-family: var(--font-c);
-      font-size: 10px;
-      font-weight: 800;
-      text-transform: uppercase;
-    }
-    .student-status-chip.pending { background: var(--gold-dim); color: var(--gold2); }
-    .student-status-chip.overdue { background: var(--red-dim); color: var(--red); }
-    .student-status-chip.none { background: #edf1ef; color: var(--text-muted); }
     .student-item {
       padding: 13px 16px;
       border-bottom-color: var(--border);
@@ -1739,7 +1703,7 @@
     }
     .dashboard-panel-grid {
       display: grid;
-      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      grid-template-columns: minmax(0, 1fr);
       gap: 20px;
     }
     .stat-card {
@@ -3129,13 +3093,6 @@
     </div>
 
     <div class="sidebar-section">
-      <div class="sidebar-section-label" data-i18n="sec.finance">Finance</div>
-      <div class="nav-item" onclick="showView('payments')">
-        <i class="fas fa-credit-card"></i> <span data-i18n="nav.paymentTracker">Payment Tracker</span>
-      </div>
-    </div>
-
-    <div class="sidebar-section">
       <div class="sidebar-section-label" data-i18n="sec.academic">Academic</div>
       <div class="nav-item" onclick="showView('certificates')">
         <i class="fas fa-certificate"></i> <span data-i18n="nav.certificates" data-i18n="hdr.certificates">Certificates</span>
@@ -3200,7 +3157,7 @@
           <div>
             <div class="hero-kicker">Codencode LMS</div>
             <h1><span data-i18n="h.welcome">Welcome Back,</span> <span id="dashboard-admin-name">Admin</span></h1>
-            <p data-i18n="h.sub">Students, payments, courses and class operations in one view.</p>
+            <p data-i18n="h.sub">Students, courses and class operations in one view.</p>
           </div>
           <button class="btn btn-primary" onclick="openAddStudent()">
             <i class="fas fa-user-plus"></i> <span data-i18n="btn.addStudent">Add Student</span>
@@ -3208,10 +3165,6 @@
         </div>
         <div class="stats-grid" id="dash-stats"></div>
         <div class="dashboard-panel-grid">
-          <div class="card">
-            <div class="card-title"><i class="fas fa-exclamation-triangle" style="color:var(--yellow);margin-right:8px"></i><span data-i18n="c.payPending">Payments Pending / Overdue</span></div>
-            <div id="dash-payment-list"></div>
-          </div>
           <div class="card">
             <div class="card-title"><i class="fas fa-layer-group" style="color:var(--cyan);margin-right:8px"></i><span data-i18n="c.coursesSession">Courses & Current Session</span></div>
             <div id="dash-courses-list"></div>
@@ -3254,13 +3207,6 @@
               </button>
             </div>
             <div class="students-interactions">
-              <div class="student-filter-chips">
-                <button class="filter-chip active" data-student-filter="all" onclick="setStudentFilter('all')" data-i18n="chip.all">All</button>
-                <button class="filter-chip" data-student-filter="paid" onclick="setStudentFilter('paid')" data-i18n="chip.paid">Paid</button>
-                <button class="filter-chip" data-student-filter="pending" onclick="setStudentFilter('pending')" data-i18n="chip.pending">Pending</button>
-                <button class="filter-chip" data-student-filter="overdue" onclick="setStudentFilter('overdue')" data-i18n="chip.overdue">Overdue</button>
-                <button class="filter-chip" data-student-filter="none" onclick="setStudentFilter('none')" data-i18n="chip.noCourse">No Course</button>
-              </div>
               <div class="student-view-toggle">
                 <button class="active" data-student-view="list" onclick="setStudentViewMode('list')" title="List view">
                   <i class="fas fa-list"></i>
@@ -3352,36 +3298,6 @@
         <div class="card" id="mat-list-card" style="display:none">
           <div class="card-title"><i class="fas fa-folder-open" style="color:var(--cyan);margin-right:8px"></i><span data-i18n="c.existingMaterials">Existing Materials</span></div>
           <div id="mat-list-body"></div>
-        </div>
-      </div>
-
-      <!-- ── PAYMENTS ────────────────────────── -->
-      <div id="view-payments" class="view">
-        <div class="filter-bar">
-          <label data-i18n="lbl.filter">Filter</label>
-          <select class="form-select" id="pay-filter" onchange="filterPayments()" style="width:160px">
-            <option value="all">All</option>
-            <option value="pending" data-i18n="st.pending">Pending</option>
-            <option value="overdue" data-i18n="st.overdue">Overdue</option>
-            <option value="paid" data-i18n="st.paid">Paid</option>
-            <option value="cancelled" data-i18n="st.cancelled">Cancelled</option>
-          </select>
-        </div>
-        <div class="card">
-          <div class="table-wrap">
-            <table>
-              <thead>
-                <tr>
-                  <th data-i18n="th.student">Student</th>
-                  <th data-i18n="th.course">Course</th>
-                  <th data-i18n="th.status">Status</th>
-                  <th data-i18n="th.remarks">Remarks</th>
-                  <th data-i18n="th.action">Action</th>
-                </tr>
-              </thead>
-              <tbody id="payments-tbody"></tbody>
-            </table>
-          </div>
         </div>
       </div>
 
@@ -3685,7 +3601,7 @@
           <option value="" data-i18n="aj.optChooseCourse">— choose course first —</option>
         </select>
       </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">
+      <div style="display:grid;grid-template-columns:1fr;gap:10px;margin-bottom:14px">
         <div class="form-group">
           <label class="form-label" data-i18n="lbl.classFormat">Class Format</label>
           <select class="form-select" id="s-class-format">
@@ -3694,15 +3610,6 @@
             <option value="2v1" data-i18n="am.fmt2v1">2 vs 1 &nbsp;(Pair)</option>
             <option value="5v1" data-i18n="am.fmt5v1">5 vs 1 &nbsp;(Small Group)</option>
             <option value="cohort" data-i18n="am.fmtCohort">Cohort &nbsp;(Full Class)</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label class="form-label" data-i18n="lbl.payStatus">Payment Status</label>
-          <select class="form-select" id="s-payment-status">
-            <option value="pending" data-i18n="st.pending">Pending</option>
-            <option value="paid" data-i18n="st.paid">Paid</option>
-            <option value="overdue" data-i18n="st.overdue">Overdue</option>
-            <option value="cancelled" data-i18n="st.cancelled">Cancelled</option>
           </select>
         </div>
       </div>
@@ -3864,85 +3771,13 @@
         <button class="btn btn-secondary btn-sm" onclick="addClassTimingRow('enroll')"><i class="fas fa-plus"></i> <span data-i18n="btn.addTime">Add time</span></button>
       </div>
     </div>
-    <div class="form-group" style="margin-bottom:14px">
-      <label class="form-label" data-i18n="lbl.payStatus">Payment Status</label>
-      <select class="form-select" id="enroll-payment-status">
-        <option value="pending" data-i18n="st.pending">Pending</option>
-        <option value="paid" data-i18n="st.paid">Paid</option>
-        <option value="overdue" data-i18n="st.overdue">Overdue</option>
-        <option value="cancelled" data-i18n="st.cancelled">Cancelled</option>
-      </select>
-    </div>
     <div class="form-group">
       <label class="form-label" data-i18n="lbl.remarks">Remarks</label>
-      <textarea class="form-textarea" id="enroll-remarks" placeholder="e.g. Full payment received" data-i18n-ph="am.phPayReceived"></textarea>
+      <textarea class="form-textarea" id="enroll-remarks" placeholder="Notes..."></textarea>
     </div>
     <div class="modal-footer">
       <button class="btn btn-secondary" onclick="closeModal('modal-enroll')"><span data-i18n="btn.cancel">Cancel</span></button>
       <button class="btn btn-primary" onclick="enrollStudent()"><i class="fas fa-plus"></i> <span data-i18n="btn.enroll">Enroll</span></button>
-    </div>
-  </div>
-</div>
-
-<!-- Edit Payment -->
-<div class="modal-overlay" id="modal-payment" onclick="if(event.target===this)closeModal('modal-payment')">
-  <div class="modal-box">
-    <div class="modal-title" data-i18n="am.updatePayment">Update Payment</div>
-    <input type="hidden" id="pay-enrollment-id" value="" />
-    <div class="form-group" style="margin-bottom:14px">
-      <label class="form-label" data-i18n="lbl.status">Status</label>
-      <select class="form-select" id="pay-status-select">
-        <option value="pending" data-i18n="st.pending">Pending</option>
-        <option value="paid" data-i18n="st.paid">Paid</option>
-        <option value="overdue" data-i18n="st.overdue">Overdue</option>
-        <option value="cancelled" data-i18n="st.cancelled">Cancelled</option>
-      </select>
-    </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">
-      <div class="form-group">
-        <label class="form-label" data-i18n="lbl.amountRM">Amount (RM)</label>
-        <input type="number" class="form-input" id="pay-amount" placeholder="e.g. 1200.00" step="0.01" min="0" />
-      </div>
-      <div class="form-group">
-        <label class="form-label" data-i18n="lbl.payMethod">Payment Method</label>
-        <select class="form-select" id="pay-method">
-          <option value="" data-i18n="am.optSelect">— select —</option>
-          <option value="Bank Transfer" data-i18n="am.pmBank">Bank Transfer</option>
-          <option value="FPX">FPX</option>
-          <option value="Cash" data-i18n="am.pmCash">Cash</option>
-          <option value="Credit Card" data-i18n="am.pmCredit">Credit Card</option>
-          <option value="Debit Card" data-i18n="am.pmDebit">Debit Card</option>
-          <option value="Other" data-i18n="am.pmOther">Other</option>
-        </select>
-      </div>
-    </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">
-      <div class="form-group">
-        <label class="form-label" data-i18n="lbl.discountPct">Discount (%)</label>
-        <input type="number" class="form-input" id="pay-discount-amount" placeholder="e.g. 10" step="0.01" min="0" max="100" />
-      </div>
-      <div class="form-group">
-        <label class="form-label" data-i18n="lbl.discountReason">Discount Reason</label>
-        <input type="text" class="form-input" id="pay-discount-reason" placeholder="e.g. Early bird" data-i18n-ph="am.phEarlyBird" maxlength="200" />
-      </div>
-    </div>
-    <div id="pay-email-note" style="display:none;background:rgba(0,196,133,.08);border:1px solid rgba(0,196,133,.3);border-radius:6px;padding:9px 12px;font-size:11px;color:var(--cyan);margin-bottom:14px">
-      <i class="fas fa-paper-plane" style="margin-right:6px"></i>
-      Setting to <strong>Paid</strong> will automatically email the student a PDF receipt and enrolment confirmation.
-    </div>
-    <div class="form-group" style="margin-bottom:14px">
-      <label class="form-label" data-i18n="lbl.remarks">Remarks</label>
-      <textarea class="form-textarea" id="pay-remarks" placeholder="Notes about payment..." data-i18n-ph="am.phPayNotes" data-i18n-ph="p.payNotes"></textarea>
-    </div>
-    <div class="form-group" style="margin-bottom:14px">
-      <label class="form-label" data-i18n="lbl.receiptOpt">Receipt (PDF / Image) — optional</label>
-      <input type="file" id="pay-receipt-file" accept=".pdf,.jpg,.jpeg,.png,.heic"
-        style="display:block;width:100%;padding:8px;background:var(--surface2);border:1px solid var(--border2);border-radius:var(--radius);color:var(--text);font-family:inherit;font-size:12px;" />
-      <div id="pay-existing-receipt" style="margin-top:6px;font-size:11px;color:var(--cyan)"></div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn btn-secondary" onclick="closeModal('modal-payment')"><span data-i18n="btn.cancel">Cancel</span></button>
-      <button class="btn btn-primary" id="pay-save-btn" onclick="savePayment()"><i class="fas fa-save"></i> <span data-i18n="btn.save">Save</span></button>
     </div>
   </div>
 </div>
@@ -4066,47 +3901,6 @@
     <div class="modal-footer">
       <button class="btn btn-secondary" onclick="closeModal('modal-add-attendee')"><span data-i18n="btn.cancel">Cancel</span></button>
       <button class="btn btn-primary" onclick="saveAddAttendee()"><i class="fas fa-user-plus"></i> <span data-i18n="btn.register">Register</span></button>
-    </div>
-  </div>
-</div>
-
-<!-- Attendee Payment -->
-<div class="modal-overlay" id="modal-attendee-payment" onclick="if(event.target===this)closeModal('modal-attendee-payment')">
-  <div class="modal-box">
-    <div class="modal-title">Update Payment</div>
-    <input type="hidden" id="ap-run-id" value="" />
-    <input type="hidden" id="ap-attendee-id" value="" />
-    <input type="hidden" id="ap-student-id" value="" />
-    <div class="form-group" style="margin-bottom:14px">
-      <label class="form-label" data-i18n="lbl.status">Status</label>
-      <select class="form-select" id="ap-status">
-        <option value="pending" data-i18n="st.pending">Pending</option>
-        <option value="paid" data-i18n="st.paid">Paid</option>
-        <option value="overdue" data-i18n="st.overdue">Overdue</option>
-        <option value="cancelled" data-i18n="st.cancelled">Cancelled</option>
-      </select>
-    </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">
-      <div class="form-group">
-        <label class="form-label" data-i18n="lbl.amountRM">Amount (RM)</label>
-        <input class="form-input" type="number" id="ap-amount" step="0.01" min="0" />
-      </div>
-      <div class="form-group">
-        <label class="form-label" data-i18n="lbl.payMethod">Payment Method</label>
-        <select class="form-select" id="ap-method">
-          <option value="" data-i18n="am.optSelect">— select —</option>
-          <option value="Bank Transfer" data-i18n="am.pmBank">Bank Transfer</option>
-          <option value="FPX">FPX</option>
-          <option value="Cash" data-i18n="am.pmCash">Cash</option>
-          <option value="Credit Card" data-i18n="am.pmCredit">Credit Card</option>
-          <option value="Debit Card" data-i18n="am.pmDebit">Debit Card</option>
-          <option value="Other" data-i18n="am.pmOther">Other</option>
-        </select>
-      </div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn btn-secondary" onclick="closeModal('modal-attendee-payment')"><span data-i18n="btn.cancel">Cancel</span></button>
-      <button class="btn btn-primary" onclick="saveAttendeePayment()"><i class="fas fa-save"></i> <span data-i18n="btn.save">Save</span></button>
     </div>
   </div>
 </div>
@@ -4332,7 +4126,6 @@ const I18N = { en: {
     "am.addTeacher": "Add Teacher",
     "am.editCohort": "Edit Cohort",
     "am.newCohortIntake": "New Cohort / Intake",
-    "am.updatePayment": "Update Payment",
     "am.stepContact": "Student contact details",
     "am.stepProgramme": "Assign programme setup",
     "am.stepBilling": "Billing and final details",
@@ -4386,9 +4179,7 @@ const I18N = { en: {
     "am.phBioEg": "Brief intro shown to students on their dashboard...",
     "am.phEduEg": "e.g. BSc CS, UPM · MSc AI, UM",
     "am.phExpEg": "e.g. 5+ years in Python, data engineering and ML...",
-    "am.phPayReceived": "e.g. Full payment received",
     "am.phEarlyBird": "e.g. Early bird",
-    "am.phPayNotes": "Notes about payment...",
     "am.phWsEg": "e.g. AI for Marketing",
     "am.phWsCovers": "What this workshop covers...",
     "am.phVenueEg": "e.g. Mount Austin, JB",
@@ -4416,7 +4207,7 @@ const I18N = { en: {
     "aj.cohortsIntakes": "COHORTS / INTAKES",
     "aj.cantLoadCohorts2": "Could not load cohorts.",
     "aj.courseEnrol": "Course Enrollments",
-    "aj.cwp": "Courses, Workshops & Payment",
+    "aj.cwp": "Courses & Workshops",
     "aj.enrolCourses": "Enrolled Courses",
     "aj.feedback": "Feedback",
     "aj.feedbackForm": "Feedback Form",
@@ -4435,7 +4226,6 @@ const I18N = { en: {
     "aj.qrCodes": "QR Codes",
     "aj.revenuePaid": "Revenue (paid)",
     "aj.teacherBadge": "TEACHER",
-    "aj.viewReceipt": "View official receipt",
     "aj.wsRegs": "Workshop Registrations",
     "aj.allCoursesGlobal": "All Courses (Global)",
     "aj.noStudentsFound": "No students found",
@@ -4494,15 +4284,6 @@ const I18N = { en: {
     "ds.totalStudentsHint": "Active learner records",
     "ds.courses": "Courses",
     "ds.coursesHint": "Programmes configured",
-    "ds.payReceived": "Payments Received",
-    "ds.payReceivedHint": "Paid invoices and receipts",
-    "ds.payPending": "Pending Payments",
-    "ds.payPendingHint": "Awaiting confirmation",
-    "ds.payOverdue": "Overdue Payments",
-    "ds.payOverdueHint": "Needs follow-up",
-    "ds.cancelled": "Cancelled Invoices",
-    "ds.cancelledHint": "Tracked but excluded",
-    "ds.allUpToDate": "All payments up to date",
     "ds.enrolledN": "{n} students enrolled",
     "st.paid": "paid",
     "st.pending": "pending",
@@ -4514,8 +4295,7 @@ const I18N = { en: {
     "st.absent": "absent",
     "st.late": "late",
     "h.welcome": "Welcome Back,",
-    "h.sub": "Students, payments, courses and class operations in one view.",
-    "c.payPending": "Payments Pending / Overdue",
+    "h.sub": "Students, courses and class operations in one view.",
     "c.coursesSession": "Courses & Current Session",
     "c.uploadMaterial": "Upload Material",
     "c.existingMaterials": "Existing Materials",
@@ -4551,7 +4331,6 @@ const I18N = { en: {
     "lbl.sstNo": "SST Registration No.",
     "lbl.address": "Address",
     "lbl.classFormat": "Class Format",
-    "lbl.payStatus": "Payment Status",
     "lbl.classTime": "Time of Class",
     "lbl.displayTitle": "Display Title",
     "lbl.shortBio": "Short Bio",
@@ -4563,10 +4342,8 @@ const I18N = { en: {
     "lbl.remarks": "Remarks",
     "lbl.status": "Status",
     "lbl.amountRM": "Amount (RM)",
-    "lbl.payMethod": "Payment Method",
     "lbl.discountPct": "Discount (%)",
     "lbl.discountReason": "Discount Reason",
-    "lbl.receiptOpt": "Receipt (PDF / Image) — optional",
     "lbl.titleReq": "Title *",
     "lbl.description": "Description",
     "lbl.durationHrs": "Duration (hours)",
@@ -4638,7 +4415,6 @@ const I18N = { en: {
     "p.searchStudents": "Search students...",
     "p.fullName": "Full name",
     "p.email": "you@example.com",
-    "p.payNotes": "Notes about payment...",
     "p.wsCovers": "What this workshop covers...",
     "p.annDetails": "Announcement details...",
     "p.typeStudent": "Type student name...",
@@ -4647,7 +4423,6 @@ const I18N = { en: {
     "p.blankUnlimited": "Leave blank for unlimited",
     'sec.courses': 'Courses',
     'sec.comms': 'Comms',
-    'sec.finance': 'Finance',
     'sec.academic': 'Academic',
     "nav.dashboard": "Dashboard",
     "nav.allStudents": "All Students",
@@ -4662,7 +4437,6 @@ const I18N = { en: {
     "nav.upcomingRuns": "Upcoming Runs",
     "nav.announcements": "Announcements",
     "nav.sessions": "Sessions",
-    "nav.paymentTracker": "Payment Tracker",
     "nav.certificates": "Certificates",
     "nav.analytics": "Analytics",
     "sec.overview": "Overview",
@@ -4680,8 +4454,6 @@ const I18N = { en: {
     "at.studentUpdated": "Student updated",
     "at.studentAddedEnrolled": "Student added and enrolled",
     "at.studentAdded": "Student added",
-    "at.assignCourseFirst": "Assign a course before generating an invoice",
-    "at.studentAddedPayLoading": "Student added. Payment row is loading; refresh Payment Tracker if it is not visible yet.",
     "at.studentEnrolled": "Student enrolled",
     "at.studentUnenrolled": "Student unenrolled",
     "at.wsRegDeleted": "Workshop registration deleted",
@@ -4695,8 +4467,6 @@ const I18N = { en: {
     "at.materialDeleted": "Material deleted",
     "at.validSession": "Enter a valid session number (0 or above)",
     "at.enrollNotFound": "Enrollment data not found",
-    "at.payUpdatedReceipt": "Payment updated — receipt emailed to student",
-    "at.payUpdated": "Payment updated",
     "at.titleReq": "Title is required",
     "at.wsSaved": "Workshop saved",
     "at.wsDeleted": "Workshop deleted",
@@ -4708,7 +4478,6 @@ const I18N = { en: {
     "at.emailReq": "Email is required",
     "at.attendeeReg": "Attendee registered",
     "at.attendeeRemoved": "Attendee removed",
-    "at.payUpdatedWsReceipt": "Payment updated — workshop receipt emailed",
     "at.courseTitleReq": "Course title is required",
     "at.courseUpdated": "Course updated",
     "at.courseCreated": "Course created",
@@ -4789,7 +4558,6 @@ const I18N = { en: {
     "am.addTeacher": "添加教师",
     "am.editCohort": "编辑班级",
     "am.newCohortIntake": "新建班级 / 期次",
-    "am.updatePayment": "更新付款",
     "am.stepContact": "学生联系方式",
     "am.stepProgramme": "分配项目设置",
     "am.stepBilling": "账单与最终信息",
@@ -4843,9 +4611,7 @@ const I18N = { en: {
     "am.phBioEg": "显示在学生面板上的简短介绍……",
     "am.phEduEg": "例如：UPM 计算机科学学士 · UM 人工智能硕士",
     "am.phExpEg": "例如：5 年以上 Python、数据工程与机器学习经验……",
-    "am.phPayReceived": "例如：已收全款",
     "am.phEarlyBird": "例如：早鸟优惠",
-    "am.phPayNotes": "付款备注……",
     "am.phWsEg": "例如：AI 营销",
     "am.phWsCovers": "此工作坊涵盖的内容……",
     "am.phVenueEg": "例如：JB Mount Austin",
@@ -4873,7 +4639,7 @@ const I18N = { en: {
     "aj.cohortsIntakes": "班级 / 期次",
     "aj.cantLoadCohorts2": "无法加载班级。",
     "aj.courseEnrol": "课程报名",
-    "aj.cwp": "课程、工作坊与付款",
+    "aj.cwp": "课程与工作坊",
     "aj.enrolCourses": "已报名课程",
     "aj.feedback": "反馈",
     "aj.feedbackForm": "反馈表",
@@ -4892,7 +4658,6 @@ const I18N = { en: {
     "aj.qrCodes": "二维码",
     "aj.revenuePaid": "收入（已付）",
     "aj.teacherBadge": "教师",
-    "aj.viewReceipt": "查看正式收据",
     "aj.wsRegs": "工作坊报名",
     "aj.allCoursesGlobal": "所有课程（全局）",
     "aj.noStudentsFound": "未找到学生",
@@ -4951,15 +4716,6 @@ const I18N = { en: {
     "ds.totalStudentsHint": "活跃学员记录",
     "ds.courses": "课程数",
     "ds.coursesHint": "已配置项目",
-    "ds.payReceived": "已收付款",
-    "ds.payReceivedHint": "已付发票与收据",
-    "ds.payPending": "待付款",
-    "ds.payPendingHint": "等待确认",
-    "ds.payOverdue": "逾期付款",
-    "ds.payOverdueHint": "需要跟进",
-    "ds.cancelled": "已取消发票",
-    "ds.cancelledHint": "已记录但排除",
-    "ds.allUpToDate": "所有付款均已结清",
     "ds.enrolledN": "{n} 名学生已报名",
     "st.paid": "已付款",
     "st.pending": "待付款",
@@ -4971,8 +4727,7 @@ const I18N = { en: {
     "st.absent": "缺席",
     "st.late": "迟到",
     "h.welcome": "欢迎回来，",
-    "h.sub": "在一个界面管理学生、付款、课程和班级运营。",
-    "c.payPending": "待付／逾期付款",
+    "h.sub": "在一个界面管理学生、课程和班级运营。",
     "c.coursesSession": "课程与当前课节",
     "c.uploadMaterial": "上传资料",
     "c.existingMaterials": "现有资料",
@@ -5008,7 +4763,6 @@ const I18N = { en: {
     "lbl.sstNo": "SST 注册号",
     "lbl.address": "地址",
     "lbl.classFormat": "上课形式",
-    "lbl.payStatus": "付款状态",
     "lbl.classTime": "上课时间",
     "lbl.displayTitle": "显示头衔",
     "lbl.shortBio": "简短介绍",
@@ -5020,10 +4774,8 @@ const I18N = { en: {
     "lbl.remarks": "备注",
     "lbl.status": "状态",
     "lbl.amountRM": "金额（RM）",
-    "lbl.payMethod": "付款方式",
     "lbl.discountPct": "折扣（%）",
     "lbl.discountReason": "折扣原因",
-    "lbl.receiptOpt": "收据（PDF / 图片）—— 可选",
     "lbl.titleReq": "标题 *",
     "lbl.description": "描述",
     "lbl.durationHrs": "时长（小时）",
@@ -5095,7 +4847,6 @@ const I18N = { en: {
     "p.searchStudents": "搜索学生……",
     "p.fullName": "全名",
     "p.email": "you@example.com",
-    "p.payNotes": "付款备注……",
     "p.wsCovers": "此工作坊涵盖的内容……",
     "p.annDetails": "公告详情……",
     "p.typeStudent": "输入学生姓名……",
@@ -5104,7 +4855,6 @@ const I18N = { en: {
     "p.blankUnlimited": "留空表示无限制",
     'sec.courses': '课程',
     'sec.comms': '沟通',
-    'sec.finance': '财务',
     'sec.academic': '教务',
     "nav.dashboard": "仪表板",
     "nav.allStudents": "所有学生",
@@ -5119,7 +4869,6 @@ const I18N = { en: {
     "nav.upcomingRuns": "即将举办",
     "nav.announcements": "公告",
     "nav.sessions": "课程安排",
-    "nav.paymentTracker": "付款追踪",
     "nav.certificates": "证书",
     "nav.analytics": "数据分析",
     "sec.overview": "概览",
@@ -5137,8 +4886,6 @@ const I18N = { en: {
     "at.studentUpdated": "学生已更新",
     "at.studentAddedEnrolled": "学生已添加并报名",
     "at.studentAdded": "学生已添加",
-    "at.assignCourseFirst": "请先分配课程再生成发票",
-    "at.studentAddedPayLoading": "学生已添加。付款记录正在加载；若未显示请刷新付款追踪。",
     "at.studentEnrolled": "学生已报名",
     "at.studentUnenrolled": "学生已取消报名",
     "at.wsRegDeleted": "工作坊报名已删除",
@@ -5152,8 +4899,6 @@ const I18N = { en: {
     "at.materialDeleted": "资料已删除",
     "at.validSession": "请输入有效的课节编号（0 或以上）",
     "at.enrollNotFound": "未找到报名数据",
-    "at.payUpdatedReceipt": "付款已更新 —— 收据已邮寄给学生",
-    "at.payUpdated": "付款已更新",
     "at.titleReq": "请填写标题",
     "at.wsSaved": "工作坊已保存",
     "at.wsDeleted": "工作坊已删除",
@@ -5165,7 +4910,6 @@ const I18N = { en: {
     "at.emailReq": "请填写邮箱",
     "at.attendeeReg": "参与者已登记",
     "at.attendeeRemoved": "参与者已移除",
-    "at.payUpdatedWsReceipt": "付款已更新 —— 工作坊收据已邮寄",
     "at.courseTitleReq": "请填写课程标题",
     "at.courseUpdated": "课程已更新",
     "at.courseCreated": "课程已创建",
@@ -5246,7 +4990,6 @@ const I18N = { en: {
     "am.addTeacher": "Tambah Pengajar",
     "am.editCohort": "Sunting Kohort",
     "am.newCohortIntake": "Kohort / Ambilan Baharu",
-    "am.updatePayment": "Kemas Kini Bayaran",
     "am.stepContact": "Butiran hubungan pelajar",
     "am.stepProgramme": "Tetapan program",
     "am.stepBilling": "Bil dan butiran akhir",
@@ -5300,9 +5043,7 @@ const I18N = { en: {
     "am.phBioEg": "Pengenalan ringkas yang ditunjuk kepada pelajar...",
     "am.phEduEg": "cth. BSc CS, UPM · MSc AI, UM",
     "am.phExpEg": "cth. 5+ tahun dalam Python, kejuruteraan data dan ML...",
-    "am.phPayReceived": "cth. Bayaran penuh diterima",
     "am.phEarlyBird": "cth. Tempahan awal",
-    "am.phPayNotes": "Nota tentang bayaran...",
     "am.phWsEg": "cth. AI untuk Pemasaran",
     "am.phWsCovers": "Apa yang bengkel ini liputi...",
     "am.phVenueEg": "cth. Mount Austin, JB",
@@ -5330,7 +5071,7 @@ const I18N = { en: {
     "aj.cohortsIntakes": "KOHORT / AMBILAN",
     "aj.cantLoadCohorts2": "Tidak dapat memuatkan kohort.",
     "aj.courseEnrol": "Pendaftaran Kursus",
-    "aj.cwp": "Kursus, Bengkel & Bayaran",
+    "aj.cwp": "Kursus & Bengkel",
     "aj.enrolCourses": "Kursus Berdaftar",
     "aj.feedback": "Maklum Balas",
     "aj.feedbackForm": "Borang Maklum Balas",
@@ -5349,7 +5090,6 @@ const I18N = { en: {
     "aj.qrCodes": "Kod QR",
     "aj.revenuePaid": "Hasil (dibayar)",
     "aj.teacherBadge": "PENGAJAR",
-    "aj.viewReceipt": "Lihat resit rasmi",
     "aj.wsRegs": "Pendaftaran Bengkel",
     "aj.allCoursesGlobal": "Semua Kursus (Global)",
     "aj.noStudentsFound": "Tiada pelajar dijumpai",
@@ -5408,15 +5148,6 @@ const I18N = { en: {
     "ds.totalStudentsHint": "Rekod pelajar aktif",
     "ds.courses": "Kursus",
     "ds.coursesHint": "Program dikonfigurasi",
-    "ds.payReceived": "Bayaran Diterima",
-    "ds.payReceivedHint": "Invois dan resit dibayar",
-    "ds.payPending": "Bayaran Tertunda",
-    "ds.payPendingHint": "Menunggu pengesahan",
-    "ds.payOverdue": "Bayaran Lewat",
-    "ds.payOverdueHint": "Perlu tindakan susulan",
-    "ds.cancelled": "Invois Dibatalkan",
-    "ds.cancelledHint": "Dijejak tetapi dikecualikan",
-    "ds.allUpToDate": "Semua bayaran terkini",
     "ds.enrolledN": "{n} pelajar berdaftar",
     "st.paid": "dibayar",
     "st.pending": "tertunda",
@@ -5428,8 +5159,7 @@ const I18N = { en: {
     "st.absent": "tidak hadir",
     "st.late": "lewat",
     "h.welcome": "Selamat Kembali,",
-    "h.sub": "Pelajar, bayaran, kursus dan operasi kelas dalam satu paparan.",
-    "c.payPending": "Bayaran Tertunggak / Lewat",
+    "h.sub": "Pelajar, kursus dan operasi kelas dalam satu paparan.",
     "c.coursesSession": "Kursus & Sesi Semasa",
     "c.uploadMaterial": "Muat Naik Bahan",
     "c.existingMaterials": "Bahan Sedia Ada",
@@ -5465,7 +5195,6 @@ const I18N = { en: {
     "lbl.sstNo": "No. Pendaftaran SST",
     "lbl.address": "Alamat",
     "lbl.classFormat": "Format Kelas",
-    "lbl.payStatus": "Status Bayaran",
     "lbl.classTime": "Masa Kelas",
     "lbl.displayTitle": "Tajuk Paparan",
     "lbl.shortBio": "Bio Ringkas",
@@ -5477,10 +5206,8 @@ const I18N = { en: {
     "lbl.remarks": "Catatan",
     "lbl.status": "Status",
     "lbl.amountRM": "Jumlah (RM)",
-    "lbl.payMethod": "Kaedah Bayaran",
     "lbl.discountPct": "Diskaun (%)",
     "lbl.discountReason": "Sebab Diskaun",
-    "lbl.receiptOpt": "Resit (PDF / Imej) — pilihan",
     "lbl.titleReq": "Tajuk *",
     "lbl.description": "Penerangan",
     "lbl.durationHrs": "Tempoh (jam)",
@@ -5552,7 +5279,6 @@ const I18N = { en: {
     "p.searchStudents": "Cari pelajar...",
     "p.fullName": "Nama penuh",
     "p.email": "you@example.com",
-    "p.payNotes": "Nota tentang bayaran...",
     "p.wsCovers": "Apa yang bengkel ini liputi...",
     "p.annDetails": "Butiran pengumuman...",
     "p.typeStudent": "Taip nama pelajar...",
@@ -5561,7 +5287,6 @@ const I18N = { en: {
     "p.blankUnlimited": "Biar kosong untuk tanpa had",
     'sec.courses': 'Kursus',
     'sec.comms': 'Komunikasi',
-    'sec.finance': 'Kewangan',
     'sec.academic': 'Akademik',
     "nav.dashboard": "Papan Pemuka",
     "nav.allStudents": "Semua Pelajar",
@@ -5576,7 +5301,6 @@ const I18N = { en: {
     "nav.upcomingRuns": "Sesi Akan Datang",
     "nav.announcements": "Pengumuman",
     "nav.sessions": "Sesi",
-    "nav.paymentTracker": "Penjejak Bayaran",
     "nav.certificates": "Sijil",
     "nav.analytics": "Analitik",
     "sec.overview": "Gambaran",
@@ -5594,8 +5318,6 @@ const I18N = { en: {
     "at.studentUpdated": "Pelajar dikemas kini",
     "at.studentAddedEnrolled": "Pelajar ditambah dan didaftarkan",
     "at.studentAdded": "Pelajar ditambah",
-    "at.assignCourseFirst": "Tugaskan kursus sebelum menjana invois",
-    "at.studentAddedPayLoading": "Pelajar ditambah. Baris bayaran sedang dimuatkan; muat semula Penjejak Bayaran jika belum kelihatan.",
     "at.studentEnrolled": "Pelajar didaftarkan",
     "at.studentUnenrolled": "Pendaftaran pelajar dibatalkan",
     "at.wsRegDeleted": "Pendaftaran bengkel dipadam",
@@ -5609,8 +5331,6 @@ const I18N = { en: {
     "at.materialDeleted": "Bahan dipadam",
     "at.validSession": "Masukkan nombor sesi yang sah (0 atau lebih)",
     "at.enrollNotFound": "Data pendaftaran tidak dijumpai",
-    "at.payUpdatedReceipt": "Bayaran dikemas kini — resit dihantar kepada pelajar",
-    "at.payUpdated": "Bayaran dikemas kini",
     "at.titleReq": "Tajuk diperlukan",
     "at.wsSaved": "Bengkel disimpan",
     "at.wsDeleted": "Bengkel dipadam",
@@ -5622,7 +5342,6 @@ const I18N = { en: {
     "at.emailReq": "E-mel diperlukan",
     "at.attendeeReg": "Peserta didaftarkan",
     "at.attendeeRemoved": "Peserta dikeluarkan",
-    "at.payUpdatedWsReceipt": "Bayaran dikemas kini — resit bengkel dihantar",
     "at.courseTitleReq": "Tajuk kursus diperlukan",
     "at.courseUpdated": "Kursus dikemas kini",
     "at.courseCreated": "Kursus dicipta",
@@ -5753,9 +5472,7 @@ const S = {
   students:    [],
   teachers:    [],
   certOptions: { courses: [], students: [], enrollments: [] },
-  allPayments: [],
   currentView: 'dashboard',
-  studentFilter: 'all',
   studentViewMode: 'list',
   studentSearch: '',
   studentWizardStep: 1,
@@ -5911,11 +5628,10 @@ const VIEW_TITLES = {
   courses:       ['Courses',          'Manage courses & current session'],
   attendance:    ['Attendance',       'Mark & review attendance'],
   materials:     ['Upload Materials', 'Add materials per session'],
-  payments:      ['Payment Tracker',  'Monitor payment status'],
   timetable:     ['Timetable',        'Set topics & schedule per course'],
   workshops:      ['Workshop Catalogue', 'One-off in-person workshops'],
   'workshop-runs': ['Upcoming Runs',     'Scheduled workshop sessions'],
-  'workshop-run-detail': ['Run Detail',  'Attendees, payments & feedback'],
+  'workshop-run-detail': ['Run Detail',  'Attendees & feedback'],
   announcements: ['Announcements',    'Send announcements to students'],
   sessions:      ['Sessions',         'View all scheduled sessions'],
   certificates:  ['Certificates',     'Issue & manage student certificates'],
@@ -6003,7 +5719,6 @@ function showView(name) {
   if (name === 'students')      renderStudentList();
   if (name === 'teachers')      renderTeacherList();
   if (name === 'courses')       renderCourses();
-  if (name === 'payments')      renderPayments();
   if (name === 'timetable')     populateTimetableCourseSelect();
   if (name === 'announcements') loadAdminAnnouncements();
   if (name === 'sessions')      loadAdminSessions();
@@ -6024,22 +5739,12 @@ async function loadStudents() {
   S.students = await GET('/api/admin/students');
 }
 
-async function loadPaymentsData() {
-  S.allPayments = await GET('/api/admin/payments');
-}
-
 // ═══════════════════════════════════════════════════════
 // DASHBOARD
 // ═══════════════════════════════════════════════════════
 async function loadDashboard() {
-  await loadPaymentsData();
-
   const totalStudents = S.students.length;
   const totalCourses  = S.courses.length;
-  const paid          = S.allPayments.filter(e => e.payment_status === 'paid').length;
-  const pending       = S.allPayments.filter(e => e.payment_status === 'pending').length;
-  const overdue       = S.allPayments.filter(e => e.payment_status === 'overdue').length;
-  const cancelled     = S.allPayments.filter(e => e.payment_status === 'cancelled' || e.payment_status === 'void').length;
 
   document.getElementById('dash-stats').innerHTML = `
     <div class="stat-card">
@@ -6062,59 +5767,7 @@ async function loadDashboard() {
       </div>
       <div class="stat-hint">${T('ds.coursesHint')}</div>
     </div>
-    <div class="stat-card">
-      <div class="stat-head">
-        <div>
-          <div class="stat-label">${T('ds.payReceived')}</div>
-          <div class="stat-value" style="color:var(--green)">${paid}</div>
-        </div>
-        <div class="stat-icon"><i class="fas fa-check-circle"></i></div>
-      </div>
-      <div class="stat-hint">${T('ds.payReceivedHint')}</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-head">
-        <div>
-          <div class="stat-label">${T('ds.payPending')}</div>
-          <div class="stat-value" style="color:var(--yellow)">${pending}</div>
-        </div>
-        <div class="stat-icon"><i class="fas fa-clock"></i></div>
-      </div>
-      <div class="stat-hint">${T('ds.payPendingHint')}</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-head">
-        <div>
-          <div class="stat-label">${T('ds.payOverdue')}</div>
-          <div class="stat-value" style="color:var(--red)">${overdue}</div>
-        </div>
-        <div class="stat-icon"><i class="fas fa-exclamation-circle"></i></div>
-      </div>
-      <div class="stat-hint">${T('ds.payOverdueHint')}</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-head">
-        <div>
-          <div class="stat-label">${T('ds.cancelled')}</div>
-          <div class="stat-value" style="color:var(--text-muted)">${cancelled}</div>
-        </div>
-        <div class="stat-icon"><i class="fas fa-ban"></i></div>
-      </div>
-      <div class="stat-hint">${T('ds.cancelledHint')}</div>
-    </div>
   `;
-
-  // Pending/overdue payment list
-  const alerts = S.allPayments.filter(e => !['paid', 'cancelled', 'void'].includes(e.payment_status)).slice(0, 8);
-  document.getElementById('dash-payment-list').innerHTML = alerts.length ? alerts.map(e => `
-    <div class="dashboard-list-row">
-      <div class="dashboard-list-main">
-        <div class="dashboard-list-title">${e.student_name}</div>
-        <div class="dashboard-list-sub">${e.course_title}</div>
-      </div>
-      <span class="badge badge-${e.payment_status}">${tStatus(e.payment_status)}</span>
-    </div>
-  `).join('') : `<div class="dashboard-empty">${T('ds.allUpToDate')}</div>`;
 
   // Courses list
   document.getElementById('dash-courses-list').innerHTML = S.courses.map(c => `
@@ -6131,16 +5784,6 @@ async function loadDashboard() {
 // ═══════════════════════════════════════════════════════
 // STUDENTS
 // ═══════════════════════════════════════════════════════
-function getStudentPaymentState(s) {
-  const enrollments = Array.isArray(s.enrollments) ? s.enrollments : [];
-  if (!enrollments.length) return 'none';
-  const statuses = enrollments.map(e => e.payment_status || 'pending');
-  if (statuses.includes('overdue')) return 'overdue';
-  if (statuses.includes('pending')) return 'pending';
-  if (statuses.every(st => st === 'paid')) return 'paid';
-  return statuses[0] || 'pending';
-}
-
 function getFilteredStudents() {
   const q = (S.studentSearch || '').toLowerCase();
   return S.students.filter(s => {
@@ -6152,9 +5795,7 @@ function getFilteredStudents() {
       (s.name || '').toLowerCase().includes(q) ||
       (s.email || '').toLowerCase().includes(q) ||
       enrolText.includes(q);
-    const paymentState = getStudentPaymentState(s);
-    const matchesFilter = S.studentFilter === 'all' || paymentState === S.studentFilter;
-    return matchesSearch && matchesFilter;
+    return matchesSearch;
   });
 }
 
@@ -6166,9 +5807,6 @@ function renderStudentList() {
   if (localSearch && localSearch.value !== S.studentSearch) localSearch.value = S.studentSearch;
   if (globalSearch && globalSearch.value !== S.studentSearch) globalSearch.value = S.studentSearch;
 
-  document.querySelectorAll('[data-student-filter]').forEach(btn => {
-    btn.classList.toggle('active', btn.dataset.studentFilter === S.studentFilter);
-  });
   document.querySelectorAll('[data-student-view]').forEach(btn => {
     btn.classList.toggle('active', btn.dataset.studentView === S.studentViewMode);
   });
@@ -6177,7 +5815,6 @@ function renderStudentList() {
   listBody.classList.toggle('grid-mode', S.studentViewMode === 'grid');
   listBody.innerHTML = filtered.length
     ? filtered.map(s => {
-        const paymentState = getStudentPaymentState(s);
         const enrollments = Array.isArray(s.enrollments) ? s.enrollments : [];
         const primaryCourse = enrollments[0]?.course_title || 'No course assigned';
         return `
@@ -6187,7 +5824,6 @@ function renderStudentList() {
             <div class="student-name">${s.name}</div>
             <div class="student-email">${s.email}</div>
             <div class="student-meta-line">${primaryCourse}</div>
-            <span class="student-status-chip ${paymentState}">${paymentState === 'none' ? T('chip.noCourse') : tStatus(paymentState)}</span>
           </div>
         </div>`;
       }).join('')
@@ -6203,11 +5839,6 @@ function handleGlobalStudentSearch(value) {
   S.studentSearch = value || '';
   if (S.currentView !== 'students') showView('students');
   else renderStudentList();
-}
-
-function setStudentFilter(filter) {
-  S.studentFilter = filter;
-  renderStudentList();
 }
 
 function setStudentViewMode(mode) {
@@ -6284,7 +5915,7 @@ function renderStudentDetail(s) {
         ${billingHtml}
       </div>
 
-      <!-- Courses & Payment tab -->
+      <!-- Courses tab -->
       <div id="dt-enroll-${s.id}" class="detail-tab-content">
         <div class="form-label" style="margin-bottom:8px">${T('aj.courseEnrol')}</div>
         ${enrollments.length ? enrollments.map(e => `
@@ -6297,17 +5928,6 @@ function renderStudentDetail(s) {
               <small>${T('aj.enrolledOn')} ${e.enrolled_at}${e.cohort_name ? ` · <span style="color:var(--gold)">` + e.cohort_name + `</span>` : ''}</small>
               ${e.class_timing ? `<small style="color:var(--cyan)"><i class="fas fa-clock" style="margin-right:3px"></i>${e.class_timing}</small>` : ''}
             </div>
-            <span class="badge badge-${e.payment_status}">${tStatus(e.payment_status)}</span>
-            <button class="btn btn-secondary btn-sm" onclick="openPaymentModal(${e.id})" title="Edit payment">
-              <i class="fas fa-edit"></i>
-            </button>
-            ${e.payment_status === 'paid' ? `
-            <button class="btn btn-secondary btn-sm" onclick="window.open('/api/admin/enrollments/${e.id}/receipt/view','_blank')" title="View receipt" style="color:var(--green)">
-              <i class="fas fa-receipt"></i>
-            </button>` : `
-            <button class="btn btn-secondary btn-sm" onclick="window.open('/api/admin/enrollments/${e.id}/invoice','_blank')" title="View invoice" style="color:var(--cyan)">
-              <i class="fas fa-file-invoice"></i>
-            </button>`}
             <button class="btn btn-danger btn-sm btn-icon" onclick="unenroll(${e.id},${s.id})" title="Unenroll">
               <i class="fas fa-times"></i>
             </button>
@@ -6328,15 +5948,7 @@ function renderStudentDetail(s) {
                 ${w.attended ? `<span style="background:var(--green-dim);color:var(--green);border:1px solid var(--green);font-family:'JetBrains Mono',monospace;font-size:9px;padding:1px 7px;border-radius:20px;letter-spacing:.5px">${T('aj.attended')}</span>` : ''}
               </div>
               <small>${w.start_display || 'Date TBC'}${w.venue ? ` · <span style="color:var(--gold)">` + w.venue + `</span>` : ''}</small>
-              ${w.payment_method ? `<small style="color:var(--cyan)"><i class="fas fa-credit-card" style="margin-right:3px"></i>${w.payment_method}${w.paid_at ? ' · Paid ' + w.paid_at : ''}</small>` : ''}
             </div>
-            <span class="badge badge-${w.payment_status}">${tStatus(w.payment_status)}</span>
-            <button class="btn btn-secondary btn-sm" onclick="openAttendeePaymentModal(${w.run_id},${w.id},${s.id})" title="Edit workshop payment">
-              <i class="fas fa-edit"></i>
-            </button>
-            <button class="btn btn-secondary btn-sm" onclick="window.open('/api/admin/workshop-runs/${w.run_id}/attendees/${w.id}/invoice','_blank')" title="View workshop ${w.payment_status === 'paid' ? 'receipt' : 'invoice'}" style="color:${w.payment_status === 'paid' ? 'var(--green)' : 'var(--cyan)'}">
-              <i class="fas ${w.payment_status === 'paid' ? 'fa-receipt' : 'fa-file-invoice'}"></i>
-            </button>
             <button class="btn btn-danger btn-sm btn-icon" onclick="deleteWorkshopRegistration(${w.run_id},${w.id},${s.id})" title="Delete workshop registration">
               <i class="fas fa-times"></i>
             </button>
@@ -6506,7 +6118,6 @@ function openAddStudent() {
     `<option value="">${T('aj.optSkipEnrol')}</option>` + courseOpts;
   document.getElementById('s-cohort-select').innerHTML = `<option value="">${T('aj.optChooseCourse')}</option>`;
   document.getElementById('s-class-format').value    = '';
-  document.getElementById('s-payment-status').value  = 'pending';
   resetClassTimingRows('s');
   document.getElementById('s-enrol-section').style.display = 'block';
   updateStudentEnrollmentFields();
@@ -6546,7 +6157,7 @@ function openEditStudent(uid) {
 async function saveStudent() {
   const uid  = document.getElementById('edit-student-id').value;
   let addedStudentHasEnrollment = false;
-  let newStudentPaymentTarget = null;
+  let newStudentId = null;
   const data = {
     name:          document.getElementById('s-name').value.trim(),
     email:         document.getElementById('s-email').value.trim(),
@@ -6567,6 +6178,7 @@ async function saveStudent() {
     } else {
       const res = await POST('/api/admin/students', data);
       const newId = res.student.id;
+      newStudentId = newId;
 
       // Auto-enrol if a course was selected
       const courseId = document.getElementById('s-course-select').value;
@@ -6578,11 +6190,8 @@ async function saveStudent() {
           cohort_id:       cohortVal ? parseInt(cohortVal) : null,
           class_format:    document.getElementById('s-class-format').value,
           class_timing:    collectClassTimings('s'),
-          payment_status:  document.getElementById('s-payment-status').value,
-          payment_remarks: '',
         });
         addedStudentHasEnrollment = true;
-        newStudentPaymentTarget = { studentId: newId, courseId: numericCourseId };
         toast(T('at.studentAddedEnrolled'));
       } else {
         toast(T('at.studentAdded'));
@@ -6594,34 +6203,13 @@ async function saveStudent() {
       renderStudentList();
       selectStudent(parseInt(uid));
     } else {
-      showView('payments');
-      if (addedStudentHasEnrollment) {
-        await renderPayments();
-        openPaymentForNewStudent(newStudentPaymentTarget);
-      } else {
-        toast(T('at.assignCourseFirst'), true);
+      showView('students');
+      renderStudentList();
+      if (addedStudentHasEnrollment && newStudentId) {
+        selectStudent(newStudentId);
       }
     }
   } catch(e) { toast(e.message, true); }
-}
-
-function openPaymentForNewStudent(target) {
-  if (!target) return;
-  const payment = (S.allPayments || []).find(e =>
-    parseInt(e.student_id) === parseInt(target.studentId) &&
-    parseInt(e.course_id) === parseInt(target.courseId)
-  );
-  if (!payment) {
-    toast(T('at.studentAddedPayLoading'), true);
-    return;
-  }
-  const filter = document.getElementById('pay-filter');
-  if (filter && filter.value !== 'all' && filter.value !== payment.payment_status) {
-    filter.value = 'all';
-    filterPayments();
-  }
-  openPaymentModal(payment.id);
-  setTimeout(() => document.getElementById('pay-amount')?.focus(), 100);
 }
 
 async function loadStudentFormCohorts() {
@@ -6656,7 +6244,6 @@ function openEnrollModal(uid) {
   const available   = S.courses.filter(c => !enrolledIds.has(c.id));
   document.getElementById('enroll-course-select').innerHTML =
     available.map(c => `<option value="${c.id}">${c.title}</option>`).join('');
-  document.getElementById('enroll-payment-status').value = 'pending';
   document.getElementById('enroll-remarks').value = '';
   document.getElementById('enroll-class-format').value = '';
   document.getElementById('enroll-cohort-select').innerHTML = `<option value="">${T('aj.optNoCohort')}</option>`;
@@ -6689,7 +6276,6 @@ async function enrollStudent() {
   const data = {
     course_id:       cid,
     cohort_id:       cohortVal ? parseInt(cohortVal) : null,
-    payment_status:  document.getElementById('enroll-payment-status').value,
     payment_remarks: document.getElementById('enroll-remarks').value,
     class_format:    document.getElementById('enroll-class-format').value,
     class_timing:    collectClassTimings('enroll'),
@@ -7200,147 +6786,6 @@ async function editMaterialWeek(mid, cid, currentSession) {
 }
 
 // ═══════════════════════════════════════════════════════
-// PAYMENTS
-// ═══════════════════════════════════════════════════════
-async function renderPayments() {
-  await loadPaymentsData();
-  filterPayments();
-}
-
-function filterPayments() {
-  const filter = document.getElementById('pay-filter')?.value || 'all';
-  const rows   = filter === 'all' ? S.allPayments : S.allPayments.filter(e => e.payment_status === filter);
-  document.getElementById('payments-tbody').innerHTML = rows.map(e => {
-    // Store in map for safe modal access
-    S.enrollMap = S.enrollMap || {};
-    S.enrollMap[e.id] = e;
-    return `
-    <tr>
-      <td>
-        <div style="font-size:13px">${e.student_name}</div>
-        <div style="font-size:11px;color:var(--text-muted)">${e.student_email}</div>
-      </td>
-      <td>${e.course_title}</td>
-      <td><span class="badge badge-${e.payment_status}">${tStatus(e.payment_status)}</span></td>
-      <td style="max-width:200px;font-size:12px;color:var(--text-muted)">${e.payment_remarks || '—'}</td>
-      <td>
-        <div style="display:flex;gap:5px;align-items:center">
-          <button class="btn btn-secondary btn-sm" onclick="openPaymentModal(${e.id})" title="Edit payment"><i class="fas fa-edit"></i> <span data-i18n="btn.edit">${T('btn.edit')}</span></button>
-          <button class="btn btn-secondary btn-sm" onclick="window.open('/api/admin/enrollments/${e.id}/invoice','_blank')" style="color:var(--cyan)" title="Download invoice">
-            <i class="fas fa-file-invoice"></i>
-          </button>
-          ${e.payment_status === 'paid' ? `
-          <button class="btn btn-secondary btn-sm" onclick="window.open('/api/admin/enrollments/${e.id}/receipt/view','_blank')" style="color:var(--green)" title="View official receipt">
-            <i class="fas fa-receipt"></i>
-          </button>` : ''}
-        </div>
-      </td>
-    </tr>
-  `;
-  }).join('');
-}
-
-function openPaymentModal(eid) {
-  const e = (S.enrollMap || {})[eid];
-  if (!e) { toast(T('at.enrollNotFound'), true); return; }
-  document.getElementById('pay-enrollment-id').value = eid;
-  document.getElementById('pay-status-select').value = e.payment_status || 'pending';
-  document.getElementById('pay-amount').value         = e.payment_amount != null ? e.payment_amount : '';
-  document.getElementById('pay-discount-amount').value = e.payment_discount_amount != null ? e.payment_discount_amount : '';
-  document.getElementById('pay-discount-reason').value = e.payment_discount_reason || '';
-  document.getElementById('pay-method').value         = e.payment_method || '';
-  document.getElementById('pay-remarks').value        = e.payment_remarks || '';
-  document.getElementById('pay-receipt-file').value   = '';
-  // Show email-auto note only when not yet paid
-  const noteEl = document.getElementById('pay-email-note');
-  noteEl.style.display = (e.payment_status !== 'paid') ? 'block' : 'none';
-  document.getElementById('pay-status-select').onchange = function() {
-    noteEl.style.display = (this.value === 'paid' && e.payment_status !== 'paid') ? 'block' : 'none';
-  };
-  // Show existing receipt link
-  const existingDiv = document.getElementById('pay-existing-receipt');
-  let receiptHtml = e.receipt_file
-    ? `<i class="fas fa-paperclip"></i> Uploaded proof on file — <a href="/uploads/receipts/${e.receipt_file}" target="_blank" style="color:var(--cyan)">view</a> (uploading a new file will replace it)`
-    : '';
-  if (e.payment_status === 'paid') {
-    receiptHtml += `${receiptHtml ? `<br>` : ''}<i class="fas fa-receipt"></i> <a href="/api/admin/enrollments/${eid}/receipt/view" target="_blank" style="color:var(--green)">View official receipt</a>`;
-  }
-  existingDiv.innerHTML = receiptHtml;
-  openModal('modal-payment');
-}
-
-async function savePayment() {
-  const eid     = document.getElementById('pay-enrollment-id').value;
-  const btn     = document.getElementById('pay-save-btn');
-  btn.disabled  = true;
-  btn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> ${T('aj.savingE')}`;
-
-  // Remember which student + tab is active so we can restore after re-render
-  const selectedItem = document.querySelector('.student-item.selected');
-  const selectedUid  = selectedItem ? parseInt(selectedItem.id.replace('si-', '')) : null;
-  const activeTab    = document.querySelector('.detail-tab.active');
-  const activeTabText = activeTab ? activeTab.textContent.trim() : null;
-
-  try {
-    // 1) Update status, amount, method + remarks
-    const amtVal = document.getElementById('pay-amount').value;
-    const discountVal = document.getElementById('pay-discount-amount').value;
-    const payResult = await PUT(`/api/admin/enrollments/${eid}/payment`, {
-      payment_status:  document.getElementById('pay-status-select').value,
-      payment_remarks: document.getElementById('pay-remarks').value,
-      payment_amount:  amtVal !== '' ? parseFloat(amtVal) : null,
-      payment_discount_amount: discountVal !== '' ? parseFloat(discountVal) : null,
-      payment_discount_reason: document.getElementById('pay-discount-reason').value,
-      payment_method:  document.getElementById('pay-method').value || null,
-    });
-    // 2) Upload receipt file if selected
-    const fileInput = document.getElementById('pay-receipt-file');
-    if (fileInput.files && fileInput.files[0]) {
-      const fd = new FormData();
-      fd.append('file', fileInput.files[0]);
-      const res = await fetch(`/api/admin/enrollments/${eid}/receipt`, { method:'POST', body: fd });
-      if (!res.ok) {
-        const err = await res.json();
-        throw new Error(tErr(err.error) || 'Receipt upload failed');
-      }
-    }
-    if (payResult.just_paid && payResult.email_status) {
-      const st = payResult.email_status;
-      if (st.receipt_sent) {
-        toast(T('at.payUpdatedReceipt'));
-      } else {
-        toast(`Payment updated, but receipt email FAILED${st.receipt_error ? ': ' + st.receipt_error : ''}`, true);
-      }
-      if (st.confirmation_sent === false) {
-        toast(`Enrolment confirmation email FAILED${st.confirmation_error ? ': ' + st.confirmation_error : ''}`, true);
-      }
-    } else {
-      toast(T('at.payUpdated'));
-    }
-    closeModal('modal-payment');
-    // Reload data and re-render
-    await loadStudents();
-    renderStudentList();
-    if (selectedUid) {
-      selectStudent(selectedUid);
-      // Restore previously active tab
-      if (activeTabText) {
-        const tabs = document.querySelectorAll('.detail-tab');
-        const target = Array.from(tabs).find(t => t.textContent.trim() === activeTabText);
-        if (target) target.click();
-      }
-    }
-    await loadPaymentsData();
-    filterPayments();
-  } catch(e) {
-    toast(e.message, true);
-  } finally {
-    btn.disabled  = false;
-    btn.innerHTML = `<i class="fas fa-save"></i> ${T('btn.save')}`;
-  }
-}
-
-// ═══════════════════════════════════════════════════════
 // WORKSHOPS
 // ═══════════════════════════════════════════════════════
 async function loadWorkshopCatalogue() {
@@ -7638,13 +7083,11 @@ function renderAttendeeRows(run) {
       <div style="width:28px;height:28px;border-radius:50%;background:var(--purple-dim);color:var(--purple);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700">${(a.client_name||'?').split(' ').map(n=>n[0]).slice(0,2).join('').toUpperCase()}</div>
       <div style="flex:1">
         <div style="font-weight:600;font-size:12px">${a.client_name}</div>
-        <div style="font-size:10px;color:var(--text-muted)">${a.client_email} · <span class="badge badge-${a.payment_status}">${tStatus(a.payment_status)}</span></div>
+        <div style="font-size:10px;color:var(--text-muted)">${a.client_email}</div>
       </div>
       <div onclick="toggleAttendance(${run.id},${a.id},${!a.attended})" style="width:36px;height:20px;border-radius:10px;cursor:pointer;position:relative;background:${a.attended?'var(--cyan-dim)':'var(--surface2)'};border:1px solid ${a.attended?'var(--cyan)':'var(--border3)'}" title="Mark present/absent">
         <div style="position:absolute;top:1px;left:${a.attended?'17px':'1px'};width:16px;height:16px;border-radius:50%;background:${a.attended?'var(--cyan)':'var(--text-dim)'};transition:left .15s"></div>
       </div>
-      <button class="btn btn-secondary btn-sm" onclick="openAttendeePaymentModal(${run.id},${a.id})" title="Payment"><i class="fas fa-credit-card"></i></button>
-      <button class="btn btn-secondary btn-sm" onclick="window.open('/api/admin/workshop-runs/${run.id}/attendees/${a.id}/invoice','_blank')" title="View invoice" style="color:var(--cyan)"><i class="fas fa-file-invoice"></i></button>
       <button class="btn btn-danger btn-sm btn-icon" onclick="deleteAttendee(${run.id},${a.id})" title="Remove"><i class="fas fa-times"></i></button>
     </div>
   `).join('');
@@ -7752,53 +7195,6 @@ async function deleteAttendee(rid, aid) {
   } catch(e) { toast(e.message, true); }
 }
 
-function openAttendeePaymentModal(rid, aid, uid = null) {
-  const run = S.currentRun;
-  let a = run?.attendees?.find(x => x.id === aid);
-  if (!a && uid) {
-    const student = (S.students || []).find(s => parseInt(s.id) === parseInt(uid));
-    a = student?.workshop_attendances?.find(x => parseInt(x.id) === parseInt(aid) && parseInt(x.run_id) === parseInt(rid));
-  }
-  if (!a) return;
-  document.getElementById('ap-run-id').value = rid;
-  document.getElementById('ap-attendee-id').value = aid;
-  document.getElementById('ap-student-id').value = uid || '';
-  document.getElementById('ap-status').value = a.payment_status || 'pending';
-  document.getElementById('ap-amount').value = a.payment_amount ?? '';
-  document.getElementById('ap-method').value = a.payment_method || '';
-  openModal('modal-attendee-payment');
-}
-
-async function saveAttendeePayment() {
-  const rid = document.getElementById('ap-run-id').value;
-  const aid = document.getElementById('ap-attendee-id').value;
-  const uid = document.getElementById('ap-student-id').value;
-  try {
-    const payResult = await PUT(`/api/admin/workshop-runs/${rid}/attendees/${aid}`, {
-      payment_status: document.getElementById('ap-status').value,
-      payment_amount: document.getElementById('ap-amount').value || null,
-      payment_method: document.getElementById('ap-method').value || null,
-    });
-    if (payResult.just_paid && payResult.email_status) {
-      const st = payResult.email_status;
-      if (st.receipt_sent) {
-        toast(T('at.payUpdatedWsReceipt'));
-      } else {
-        toast(`Payment updated, but workshop receipt email FAILED${st.receipt_error ? ': ' + st.receipt_error : ''}`, true);
-      }
-    } else {
-      toast(T('at.payUpdated'));
-    }
-    closeModal('modal-attendee-payment');
-    if (uid) {
-      await loadStudents();
-      renderStudentList();
-      selectStudent(parseInt(uid));
-    } else {
-      await openRunDetail(parseInt(rid));
-    }
-  } catch(e) { toast(e.message, true); }
-}
 
 // ═══════════════════════════════════════════════════════
 // UTILS
