@@ -1907,12 +1907,19 @@ def admin_material_detail(mid):
 
 # ── Attendance ────────────────────────────────
 def _enrollment_week(enrollment, course):
-    """Return the session week this enrollment's student has actually reached
-    (cohort progress if the student is in a cohort, otherwise the course's
-    overall session) - different cohorts of the same course can be on
-    different weeks."""
+    """Return the session week this enrollment's student has actually reached.
+    Priority: manual week_override -> cohort progress (if the student is in
+    a cohort) -> auto-computed from how long they've been enrolled -> the
+    course's overall session as a last-resort fallback. Individually-paced
+    students (rolling enrollment dates, no shared cohort) get a sensible
+    default without needing a cohort created for them."""
+    if enrollment.week_override:
+        return enrollment.week_override
     if enrollment.cohort:
         return enrollment.cohort.current_session
+    if enrollment.enrolled_at:
+        weeks_elapsed = (datetime.utcnow() - enrollment.enrolled_at).days // 7 + 1
+        return max(1, min(weeks_elapsed, course.total_sessions or weeks_elapsed))
     return course.current_session
 
 
@@ -1932,16 +1939,42 @@ def _attendance_grid(cid):
             att = att_map.get((s.id, w))
             weeks_data[str(w)] = att.status if att else 'absent'
         students_data.append({
-            'student_id':   s.id,
-            'student_name': s.name,
-            'weeks':        weeks_data,
-            'current_week': own_week,
+            'student_id':    s.id,
+            'student_name':  s.name,
+            'weeks':         weeks_data,
+            'current_week':  own_week,
+            'enrollment_id': e.id,
+            'week_override': e.week_override,
         })
     return {
         'course_id':    cid,
         'current_week': max_week,
         'students':     students_data
     }
+
+
+@app.route('/api/enrollments/<int:eid>/week', methods=['PUT'])
+@teacher_required
+def api_set_enrollment_week(eid):
+    """Manually set (or clear) an enrollment's week override - for students
+    on an individual pace who aren't part of a shared cohort."""
+    enr = Enrollment.query.get_or_404(eid)
+    if not teacher_can_manage_course(enr.course_id):
+        return jsonify({'error': 'Forbidden'}), 403
+    data = request.get_json()
+    val = data.get('week_override')
+    if val is None or val == '':
+        enr.week_override = None
+    else:
+        try:
+            val = int(val)
+        except (TypeError, ValueError):
+            return jsonify({'error': 'week_override must be an integer or null'}), 400
+        course = Course.query.get(enr.course_id)
+        cap = course.total_sessions or val
+        enr.week_override = max(1, min(val, cap))
+    db.session.commit()
+    return jsonify({'enrollment': enr.to_dict()})
 
 
 def _set_attendance(cid, student_id, session_num, status, notes):
@@ -4987,6 +5020,9 @@ with app.app_context():
                 conn.commit()
             if 'cohort_id' not in existing:
                 conn.execute(text('ALTER TABLE enrollments ADD COLUMN cohort_id INTEGER'))
+                conn.commit()
+            if 'week_override' not in existing:
+                conn.execute(text('ALTER TABLE enrollments ADD COLUMN week_override INTEGER'))
                 conn.commit()
     except Exception:
         pass

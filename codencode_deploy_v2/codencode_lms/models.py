@@ -182,6 +182,7 @@ class Enrollment(db.Model):
     payment_discount_reason = db.Column(db.String(200), nullable=True)
     payment_method   = db.Column(db.String(50), nullable=True) # e.g. "Bank Transfer"
     paid_at          = db.Column(db.DateTime, nullable=True)   # timestamp when marked paid
+    week_override    = db.Column(db.Integer, nullable=True)    # manual "which session is this student on" override, for individually-paced students without a cohort
 
     student = db.relationship('User', back_populates='enrollments', foreign_keys=[student_id])
     course  = db.relationship('Course', back_populates='enrollments')
@@ -210,6 +211,7 @@ class Enrollment(db.Model):
             'payment_discount_reason': self.payment_discount_reason or '',
             'payment_method': self.payment_method or '',
             'paid_at': self.paid_at.strftime('%b %d, %Y') if self.paid_at else None,
+            'week_override': self.week_override,
         }
 
 

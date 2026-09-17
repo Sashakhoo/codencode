@@ -6621,7 +6621,14 @@ function renderAttendanceGrid(cid, data) {
             ${data.students.map(row => `
               <tr>
                 <td>${row.student_name}</td>
-                <td style="font-family:var(--font-mono,monospace);font-size:11px;color:var(--cyan)">Session ${row.current_week}</td>
+                <td style="font-family:var(--font-mono,monospace);font-size:11px">
+                  <div style="display:flex;align-items:center;gap:6px">
+                    <input type="number" min="1" value="${row.current_week}" style="width:52px;padding:3px 6px;font-size:11px;color:var(--cyan)"
+                      title="Set this student's current week manually (overrides cohort/auto)"
+                      onchange="setEnrollmentWeek(${row.enrollment_id}, this.value, ${cid})">
+                    ${row.week_override ? `<button class="btn btn-sm btn-secondary" style="padding:2px 6px;font-size:10px" title="Reset to automatic (cohort or enrollment-date based)" onclick="setEnrollmentWeek(${row.enrollment_id}, '', ${cid})"><i class="fas fa-rotate-left"></i></button>` : ''}
+                  </div>
+                </td>
                 ${sessions.map(w => {
                   const st = row.weeks[w] || 'absent';
                   const notReached = w > row.current_week;
@@ -6641,6 +6648,13 @@ function renderAttendanceGrid(cid, data) {
       </div>
     </div>
   `;
+}
+
+async function setEnrollmentWeek(eid, val, cid) {
+  try {
+    await PUT(`/api/enrollments/${eid}/week`, { week_override: val === '' ? null : parseInt(val) });
+    await loadAttendance();
+  } catch(e) { toast(e.message, true); }
 }
 
 async function saveAttCell(sel) {

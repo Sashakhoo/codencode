@@ -3709,7 +3709,14 @@ function renderTeacherAttendanceGrid(cid, data) {
           ${data.students.map(row => `
             <tr>
               <td>${row.student_name}</td>
-              <td style="font-family:var(--font-m);font-size:11px;color:var(--cyan)">${T('t.att.session', {n: row.current_week})}</td>
+              <td style="font-family:var(--font-m);font-size:11px">
+                <div style="display:flex;align-items:center;gap:6px">
+                  <input type="number" min="1" value="${row.current_week}" style="width:52px;padding:3px 6px;font-size:11px;color:var(--cyan);background:var(--surface2,transparent);border:1px solid var(--border);border-radius:6px"
+                    title="${esc(T('t.att.weekOverrideHint'))}"
+                    onchange="setEnrollmentWeek(${row.enrollment_id}, this.value, ${cid})">
+                  ${row.week_override ? `<button class="btn-action ghost" style="padding:2px 6px;font-size:10px" title="${esc(T('t.att.resetToAuto'))}" onclick="setEnrollmentWeek(${row.enrollment_id}, '', ${cid})"><i class="fas fa-rotate-left"></i></button>` : ''}
+                </div>
+              </td>
               ${sessions.map(w => {
                 const st = row.weeks[w] || 'absent';
                 const notReached = w > row.current_week;
@@ -3728,6 +3735,13 @@ function renderTeacherAttendanceGrid(cid, data) {
         </tbody>
       </table>
     </div>`;
+}
+
+async function setEnrollmentWeek(eid, val, cid) {
+  try {
+    await PUT(`/api/enrollments/${eid}/week`, { week_override: val === '' ? null : parseInt(val) });
+    await loadTeacherAttendance();
+  } catch(e) { showToast(e.message, true); }
 }
 
 async function saveTeacherAttCell(sel) {
@@ -4882,6 +4896,7 @@ const I18N = {
     't.card.attendance':'Attendance', 't.att.takeFor':'Take attendance for session:', 't.att.session':'Session {n}',
     't.att.saved':'Saved attendance for Session {n} ({count} students)',
     't.att.currentWeek':'Current Week', 't.att.notReachedYet':'This student is only on session {n} so far',
+    't.att.weekOverrideHint':'Set this student\'s current week manually (overrides cohort/auto)', 't.att.resetToAuto':'Reset to automatic (cohort or enrollment-date based)',
     'st.present':'Present', 'st.absent':'Absent', 'st.late':'Late', 'btn.saveAll':'Save All',
     // page headers  hdr.<view> = label | title | sub
     'hdr.dashboard.label':'Student Dashboard',
@@ -5319,6 +5334,7 @@ const I18N = {
     't.card.attendance':'考勤', 't.att.takeFor':'为以下课节记录考勤：', 't.att.session':'第 {n} 节',
     't.att.saved':'已保存第 {n} 节的考勤（{count} 名学生）',
     't.att.currentWeek':'当前进度', 't.att.notReachedYet':'该学生目前只上到第 {n} 节',
+    't.att.weekOverrideHint':'手动设置该学生的当前周次（覆盖班级/自动计算）', 't.att.resetToAuto':'恢复自动计算（按班级或报名日期）',
     'st.present':'出席', 'st.absent':'缺席', 'st.late':'迟到', 'btn.saveAll':'全部保存',
     'hdr.dashboard.label':'学生面板',
     'hdr.dashboard.sub':'// 第 {wk} / {tot} 节', 'hdr.dashboard.subProg':'// {prog} · 第 {wk} / {tot} 节',
@@ -5751,6 +5767,7 @@ const I18N = {
     't.card.attendance':'Kehadiran', 't.att.takeFor':'Rekod kehadiran untuk sesi:', 't.att.session':'Sesi {n}',
     't.att.saved':'Kehadiran Sesi {n} disimpan ({count} pelajar)',
     't.att.currentWeek':'Minggu Semasa', 't.att.notReachedYet':'Pelajar ini baru sampai sesi {n}',
+    't.att.weekOverrideHint':'Tetapkan minggu semasa pelajar ini secara manual (mengatasi kohort/auto)', 't.att.resetToAuto':'Kembali ke automatik (mengikut kohort atau tarikh daftar)',
     'st.present':'Hadir', 'st.absent':'Tidak Hadir', 'st.late':'Lewat', 'btn.saveAll':'Simpan Semua',
     'hdr.dashboard.label':'Papan Pemuka Pelajar',
     'hdr.dashboard.sub':'// Sesi {wk} daripada {tot}', 'hdr.dashboard.subProg':'// {prog} · Sesi {wk} daripada {tot}',
