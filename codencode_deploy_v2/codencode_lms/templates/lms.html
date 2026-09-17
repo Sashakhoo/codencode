@@ -3701,6 +3701,7 @@ function renderTeacherAttendanceGrid(cid, data) {
         <thead>
           <tr>
             <th data-i18n="tth.student">Student</th>
+            <th data-i18n="t.att.currentWeek">Current Week</th>
             ${sessions.map(w => `<th>${T('t.att.session', {n:w})}</th>`).join('')}
           </tr>
         </thead>
@@ -3708,9 +3709,11 @@ function renderTeacherAttendanceGrid(cid, data) {
           ${data.students.map(row => `
             <tr>
               <td>${row.student_name}</td>
+              <td style="font-family:var(--font-m);font-size:11px;color:var(--cyan)">${T('t.att.session', {n: row.current_week})}</td>
               ${sessions.map(w => {
                 const st = row.weeks[w] || 'absent';
-                return `<td>
+                const notReached = w > row.current_week;
+                return `<td${notReached ? ` style="opacity:.4" title="${esc(T('t.att.notReachedYet', {n: row.current_week}))}"` : ''}>
                   <select class="form-input" style="width:110px;padding:4px 8px;font-size:11px;color:${statusColor[st]||''}"
                     id="t-att-${cid}-${row.student_id}-${w}"
                     data-sid="${row.student_id}" data-week="${w}" data-cid="${cid}"
@@ -4878,6 +4881,7 @@ const I18N = {
     't.hdr.attendance.label':'Attendance', 't.hdr.attendance.title':'Mark Attendance', 't.hdr.attendance.sub':'// Take attendance for your own students, session by session',
     't.card.attendance':'Attendance', 't.att.takeFor':'Take attendance for session:', 't.att.session':'Session {n}',
     't.att.saved':'Saved attendance for Session {n} ({count} students)',
+    't.att.currentWeek':'Current Week', 't.att.notReachedYet':'This student is only on session {n} so far',
     'st.present':'Present', 'st.absent':'Absent', 'st.late':'Late', 'btn.saveAll':'Save All',
     // page headers  hdr.<view> = label | title | sub
     'hdr.dashboard.label':'Student Dashboard',
@@ -5314,6 +5318,7 @@ const I18N = {
     't.hdr.attendance.label':'考勤', 't.hdr.attendance.title':'标记考勤', 't.hdr.attendance.sub':'// 按课节为您的学生记录考勤',
     't.card.attendance':'考勤', 't.att.takeFor':'为以下课节记录考勤：', 't.att.session':'第 {n} 节',
     't.att.saved':'已保存第 {n} 节的考勤（{count} 名学生）',
+    't.att.currentWeek':'当前进度', 't.att.notReachedYet':'该学生目前只上到第 {n} 节',
     'st.present':'出席', 'st.absent':'缺席', 'st.late':'迟到', 'btn.saveAll':'全部保存',
     'hdr.dashboard.label':'学生面板',
     'hdr.dashboard.sub':'// 第 {wk} / {tot} 节', 'hdr.dashboard.subProg':'// {prog} · 第 {wk} / {tot} 节',
@@ -5745,6 +5750,7 @@ const I18N = {
     't.hdr.attendance.label':'Kehadiran', 't.hdr.attendance.title':'Tanda Kehadiran', 't.hdr.attendance.sub':'// Rekod kehadiran pelajar anda, sesi demi sesi',
     't.card.attendance':'Kehadiran', 't.att.takeFor':'Rekod kehadiran untuk sesi:', 't.att.session':'Sesi {n}',
     't.att.saved':'Kehadiran Sesi {n} disimpan ({count} pelajar)',
+    't.att.currentWeek':'Minggu Semasa', 't.att.notReachedYet':'Pelajar ini baru sampai sesi {n}',
     'st.present':'Hadir', 'st.absent':'Tidak Hadir', 'st.late':'Lewat', 'btn.saveAll':'Simpan Semua',
     'hdr.dashboard.label':'Papan Pemuka Pelajar',
     'hdr.dashboard.sub':'// Sesi {wk} daripada {tot}', 'hdr.dashboard.subProg':'// {prog} · Sesi {wk} daripada {tot}',

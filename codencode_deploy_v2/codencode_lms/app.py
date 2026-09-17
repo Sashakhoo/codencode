@@ -1906,26 +1906,40 @@ def admin_material_detail(mid):
 
 
 # ── Attendance ────────────────────────────────
+def _enrollment_week(enrollment, course):
+    """Return the session week this enrollment's student has actually reached
+    (cohort progress if the student is in a cohort, otherwise the course's
+    overall session) - different cohorts of the same course can be on
+    different weeks."""
+    if enrollment.cohort:
+        return enrollment.cohort.current_session
+    return course.current_session
+
+
 def _attendance_grid(cid):
     course      = Course.query.get_or_404(cid)
     enrollments = Enrollment.query.filter_by(course_id=cid).all()
     records     = Attendance.query.filter_by(course_id=cid).all()
     att_map = {(a.student_id, a.session): a for a in records}
+    student_weeks = {e.student_id: _enrollment_week(e, course) for e in enrollments}
+    max_week = max(student_weeks.values()) if student_weeks else course.current_session
     students_data = []
     for e in enrollments:
         s = e.student
+        own_week = student_weeks[s.id]
         weeks_data = {}
-        for w in range(1, course.current_session + 1):
+        for w in range(1, max_week + 1):
             att = att_map.get((s.id, w))
             weeks_data[str(w)] = att.status if att else 'absent'
         students_data.append({
             'student_id':   s.id,
             'student_name': s.name,
-            'weeks':        weeks_data
+            'weeks':        weeks_data,
+            'current_week': own_week,
         })
     return {
         'course_id':    cid,
-        'current_week': course.current_session,
+        'current_week': max_week,
         'students':     students_data
     }
 

@@ -6613,6 +6613,7 @@ function renderAttendanceGrid(cid, data) {
           <thead>
             <tr>
               <th data-i18n="th.student">Student</th>
+              <th>Current Week</th>
               ${sessions.map(w=>`<th>Session ${w}</th>`).join('')}
             </tr>
           </thead>
@@ -6620,9 +6621,11 @@ function renderAttendanceGrid(cid, data) {
             ${data.students.map(row => `
               <tr>
                 <td>${row.student_name}</td>
+                <td style="font-family:var(--font-mono,monospace);font-size:11px;color:var(--cyan)">Session ${row.current_week}</td>
                 ${sessions.map(w => {
                   const st = row.weeks[w] || 'absent';
-                  return `<td>
+                  const notReached = w > row.current_week;
+                  return `<td${notReached ? ` style="opacity:.4" title="This student is only on session ${row.current_week} so far"` : ''}>
                     <select class="att-select s-${st}" id="att-${cid}-${row.student_id}-${w}"
                       data-sid="${row.student_id}" data-week="${w}" data-cid="${cid}"
                       onchange="this.className='att-select s-'+this.value;saveAttCell(this)">
