@@ -1585,9 +1585,6 @@
         <button class="nav-item" onclick="switchView('videos')">
           <i class="fas fa-play-circle"></i><span data-i18n="recordings">Recordings</span>
         </button>
-        <button class="nav-item" onclick="switchView('materials')">
-          <i class="fas fa-folder-open"></i><span data-i18n="materials">Materials</span>
-        </button>
         <button class="nav-item" onclick="switchView('learn')">
           <i class="fas fa-chalkboard"></i><span data-i18n="learn">Slides &amp; Quiz</span>
         </button>
@@ -1794,15 +1791,6 @@
         </div>
         <div id="recordings-container"><div style="color:var(--muted);font-family:var(--font-m);font-size:12px;padding:32px;text-align:center" data-i18n="common.noProgress">No progress yet.</div></div>
         <!-- week items rendered by loadVideos() -->
-      </div>
-
-      <div class="view" id="view-materials">
-        <div class="page-header">
-          <div class="page-label" data-i18n="hdr.materials.label">Course Materials</div>
-          <div class="page-title" data-i18n="hdr.materials.title">Downloads</div>
-          <div class="page-sub" data-i18n="hdr.materials.sub">// click to download</div>
-        </div>
-        <div id="materials-container"><div style="color:var(--muted);font-family:var(--font-m);font-size:12px;padding:32px;text-align:center" data-i18n="common.noProgress">No progress yet.</div></div>
       </div>
 
       <div class="view" id="view-grades">
@@ -2669,20 +2657,6 @@
 </div>
 
 <!-- ══════════════════════════════
-     MATERIAL PREVIEW MODAL
-══════════════════════════════ -->
-<div class="modal-overlay" id="material-preview-modal">
-  <div class="modal-box material-preview-box">
-    <div class="modal-header">
-      <span class="modal-title" id="material-preview-title" data-i18n="md.preview">Preview</span>
-      <div style="display:flex;gap:8px;align-items:center">
-        <a class="btn-action ghost" id="material-preview-open" href="#" target="_blank" rel="noopener"><i class="fas fa-external-link-alt"></i> <span data-i18n="md.openInTab">Open in tab</span></a>
-        <button class="modal-close" onclick="closeModal('material-preview-modal')"><i class="fas fa-times"></i></button>
-      </div>
-    </div>
-    <div class="material-preview-body" id="material-preview-body"></div>
-  </div>
-</div>
 
 <!-- ══════════════════════════════
      SUBMIT ASSIGNMENT MODAL
@@ -3028,7 +3002,7 @@ const VIEW_TITLES = {
 
 // view id → I18N key for the top-bar title (keeps titles translatable)
 const VIEW_TITLE_KEYS = {
-  dashboard:'dashboard', videos:'recordings', materials:'materials', learn:'learn',
+  dashboard:'dashboard', videos:'recordings', learn:'learn',
   grades:'grades', timetable:'timetable', discussion:'discussion', certificates:'certificates',
   practice:'quizzes',
   't-dashboard':'th.overview', 't-videos':'recordings', 't-materials':'materials',
@@ -3041,7 +3015,6 @@ const VIEW_TITLE_KEYS = {
 const VIEW_LOADERS = {
   'dashboard':    loadStudentDashboard,
   'videos':       loadVideos,
-  'materials':    loadMaterials,
   'grades':       loadGrades,
   't-dashboard':  loadTeacherDashboard,
   't-videos':     loadTeacherVideos,
@@ -3334,104 +3307,6 @@ function slidePublicUrl(m) {
   const num = slideNumberForMaterial(m);
   const access = slideAccessKey(num);
   return num ? `https://codencode.my/codencode-slides/session-${num}/index.html?access=${access}` : '';
-}
-
-function materialLocalUrl(m, download=false) {
-  const filename = String(m.filename || '').split('/').map(encodeURIComponent).join('/');
-  return `/uploads/materials/${filename}${download ? '?download=1' : ''}`;
-}
-
-function materialGroupLabel(m) {
-  const slideNum = slideNumberForMaterial(m);
-  if (slideNum) return T('mat.session', { n: parseInt(slideNum, 10) });
-  return m.session === 0 ? T('mat.general') : T('mat.session', { n: m.session });
-}
-
-function materialPreviewKind(m) {
-  const ext = String(m.file_type || (m.filename || '').split('.').pop() || '').toLowerCase();
-  if (['html', 'htm', 'pdf'].includes(ext)) return 'frame';
-  if (['png', 'jpg', 'jpeg', 'gif', 'webp', 'svg'].includes(ext)) return 'image';
-  if (['txt', 'md', 'csv', 'json', 'py'].includes(ext)) return 'text';
-  return null;
-}
-
-function materialActions(m) {
-  const downloadUrl = materialLocalUrl(m, true);
-  const kind = materialPreviewKind(m);
-  const label = String(m.orig_name || m.title || 'Material').replace(/'/g, "\\'");
-  let btns = '';
-  if (kind) {
-    btns += `<button class="btn-preview" onclick="previewMaterial('${encodeURIComponent(m.filename)}','${label}','${kind}')"><i class="fas fa-eye"></i> ${T('mat.preview')}</button>`;
-  }
-  btns += `<a class="btn-dl" href="${downloadUrl}" download="${m.orig_name || m.title}"><i class="fas fa-download"></i> ${T('mat.download')}</a>`;
-  return `<div class="material-actions">${btns}</div>`;
-}
-
-// Inline panel replaced by the shared preview modal.
-function materialPreviewPanel(m) { return ''; }
-
-async function previewMaterial(encFilename, title, kind) {
-  const url = `/uploads/materials/${encFilename}`;
-  const body = document.getElementById('material-preview-body');
-  document.getElementById('material-preview-title').textContent = title;
-  document.getElementById('material-preview-open').href = url;
-  if (kind === 'image') {
-    body.innerHTML = `<img src="${url}" alt="${title.replace(/"/g, '&quot;')}" />`;
-  } else if (kind === 'text') {
-    body.innerHTML = `<pre class="preview-text">Loading…</pre>`;
-    try {
-      const r = await fetch(url);
-      if (!r.ok) throw new Error(r.status);
-      const t = await r.text();
-      body.querySelector('pre').textContent = t.length > 200000 ? t.slice(0, 200000) + '\n\n… (truncated — download for full file)' : t;
-    } catch (e) {
-      body.querySelector('pre').textContent = 'Could not load this file for preview.';
-    }
-  } else {
-    body.innerHTML = `<iframe src="${url}" title="${title.replace(/"/g, '&quot;')}"></iframe>`;
-  }
-  document.getElementById('material-preview-modal').classList.add('open');
-}
-
-async function loadMaterials() {
-  const mats = await GET(`/api/courses/${STATE.courseId}/materials`);
-  STATE.materials = mats;
-  const container = document.getElementById('materials-container');
-  if (!container) return;
-
-  if (mats.length === 0) {
-    container.innerHTML = `<div style="color:var(--muted);font-family:var(--font-m);font-size:12px;padding:32px;text-align:center">${T('common.noMaterials')}</div>`;
-    return;
-  }
-
-  // Group by session
-  const groups = {};
-  mats.forEach(m => {
-    const label = materialGroupLabel(m);
-    (groups[label] = groups[label]||[]).push(m);
-  });
-
-  container.innerHTML = Object.entries(groups).map(([label, items]) => {
-    return `
-      <div class="card">
-        <div class="card-header">
-          <span class="card-title"><i class="fas fa-folder"></i> ${label}</span>
-        </div>
-        <div class="file-list">
-          ${items.map(m => `
-            <div class="file-row">
-              ${fileIcon(m.file_type)}
-              <div style="flex:1">
-                <div class="file-name">${m.orig_name || m.title}</div>
-                <div class="file-sub">${m.description || m.title}</div>
-              </div>
-              <span class="file-size">${m.file_size || ''}</span>
-              ${materialActions(m)}
-            </div>
-            ${materialPreviewPanel(m)}`).join('')}
-        </div>
-      </div>`;
-  }).join('');
 }
 
 async function loadAssignments() {
@@ -6245,7 +6120,7 @@ async function runSearch(q) {
 function navigateToResult(r) {
   document.getElementById('search-results').style.display = 'none';
   document.getElementById('search-input').value = '';
-  if (r.type === 'material') switchView('materials');
+  if (r.type === 'material') learnOpenLesson(r.id);
   else if (r.type === 'assignment') switchView('grades');
   else if (r.type === 'discussion') switchView('discussion');
 }
@@ -6274,7 +6149,7 @@ async function resumeLastLesson() {
     const data = await GET(`/api/courses/${STATE.courseId}/last_lesson`);
     if (data.last_lesson) {
       showToast(T('toast.resuming', {v: data.last_lesson.material_title}));
-      switchView('materials');
+      learnOpenLesson(data.last_lesson.material_id);
     } else {
       showToast(T('toast.noResume'), true);
     }
