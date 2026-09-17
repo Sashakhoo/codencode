@@ -1527,7 +1527,8 @@ def admin_enroll_student(uid):
         payment_remarks = data.get('payment_remarks', ''),
         class_timing    = data.get('class_timing', ''),
         class_format    = data.get('class_format', ''),
-        cohort_id       = data.get('cohort_id') or None
+        cohort_id       = data.get('cohort_id') or None,
+        teacher_id      = data.get('teacher_id') or None
     )
     db.session.add(e)
     db.session.commit()
@@ -5051,6 +5052,9 @@ with app.app_context():
                 conn.commit()
             if 'week_override' not in existing:
                 conn.execute(text('ALTER TABLE enrollments ADD COLUMN week_override INTEGER'))
+                conn.commit()
+            if 'teacher_id' not in existing:
+                conn.execute(text('ALTER TABLE enrollments ADD COLUMN teacher_id INTEGER'))
                 conn.commit()
     except Exception:
         pass

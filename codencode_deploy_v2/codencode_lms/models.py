@@ -183,10 +183,12 @@ class Enrollment(db.Model):
     payment_method   = db.Column(db.String(50), nullable=True) # e.g. "Bank Transfer"
     paid_at          = db.Column(db.DateTime, nullable=True)   # timestamp when marked paid
     week_override    = db.Column(db.Integer, nullable=True)    # manual "which session is this student on" override, for individually-paced students without a cohort
+    teacher_id       = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)  # directly-assigned teacher for non-cohort formats (1v1/2v1/5v1)
 
     student = db.relationship('User', back_populates='enrollments', foreign_keys=[student_id])
     course  = db.relationship('Course', back_populates='enrollments')
     cohort  = db.relationship('Cohort', back_populates='enrollments')
+    teacher = db.relationship('User', foreign_keys=[teacher_id])
     __table_args__ = (db.UniqueConstraint('student_id', 'course_id'),)
 
     def to_dict(self):
@@ -207,6 +209,8 @@ class Enrollment(db.Model):
             'class_format': self.class_format or '',
             'cohort_id':    self.cohort_id,
             'cohort_name':  self.cohort.name if self.cohort else None,
+            'teacher_id':   self.teacher_id,
+            'teacher_name': self.teacher.name if self.teacher else None,
             'payment_amount': self.payment_amount,
             'payment_discount_amount': self.payment_discount_amount,
             'payment_discount_reason': self.payment_discount_reason or '',

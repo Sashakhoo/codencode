@@ -3599,16 +3599,10 @@
         <label class="form-label">Enrollment / Start Date <span style="color:var(--text-dim);font-size:10px">(when their course actually starts - can be in the future if registering early)</span></label>
         <input class="form-input" type="date" id="s-enrolled-date" />
       </div>
-      <div class="form-group" style="margin-bottom:14px">
-        <label class="form-label" data-i18n="lbl.classCohort">Cohort / Class <span style="color:var(--text-dim);font-size:10px" data-i18n="am.hTeacherTt">(teacher + timetable)</span></label>
-        <select class="form-select" id="s-cohort-select" onchange="applySelectedCohortTiming('s')">
-          <option value="" data-i18n="aj.optChooseCourse">— choose course first —</option>
-        </select>
-      </div>
       <div style="display:grid;grid-template-columns:1fr;gap:10px;margin-bottom:14px">
         <div class="form-group">
           <label class="form-label" data-i18n="lbl.classFormat">Class Format</label>
-          <select class="form-select" id="s-class-format">
+          <select class="form-select" id="s-class-format" onchange="toggleCohortVsTeacher('s')">
             <option value="" data-i18n="am.optSelect">— select —</option>
             <option value="1v1" data-i18n="am.fmt1v1">1 vs 1 &nbsp;(Private)</option>
             <option value="2v1" data-i18n="am.fmt2v1">2 vs 1 &nbsp;(Pair)</option>
@@ -3616,6 +3610,17 @@
             <option value="cohort" data-i18n="am.fmtCohort">Cohort &nbsp;(Full Class)</option>
           </select>
         </div>
+      </div>
+
+      <div class="form-group" style="margin-bottom:14px" id="s-cohort-group">
+        <label class="form-label" data-i18n="lbl.classCohort">Cohort / Class <span style="color:var(--text-dim);font-size:10px" data-i18n="am.hTeacherTt">(teacher + timetable)</span></label>
+        <select class="form-select" id="s-cohort-select" onchange="applySelectedCohortTiming('s')">
+          <option value="" data-i18n="aj.optChooseCourse">— choose course first —</option>
+        </select>
+      </div>
+      <div class="form-group" style="margin-bottom:14px" id="s-teacher-group">
+        <label class="form-label">Teacher Assigned <span style="color:var(--text-dim);font-size:10px">(no cohort for this format — pick who teaches them directly)</span></label>
+        <select class="form-select" id="s-teacher-select"></select>
       </div>
 
       <div class="form-group" style="margin-bottom:14px">
@@ -3757,20 +3762,24 @@
       <input class="form-input" type="date" id="enroll-enrolled-date" />
     </div>
     <div class="form-group" style="margin-bottom:14px">
-      <label class="form-label" data-i18n="am.cohort">Cohort <span style="color:var(--text-dim);font-size:10px" data-i18n="am.hIntake">(intake / semester)</span></label>
-      <select class="form-select" id="enroll-cohort-select" onchange="applySelectedCohortTiming('enroll')">
-        <option value="" data-i18n="aj.optNoCohort">— no cohort assigned —</option>
-      </select>
-    </div>
-    <div class="form-group" style="margin-bottom:14px">
       <label class="form-label" data-i18n="lbl.classFormat">Class Format</label>
-      <select class="form-select" id="enroll-class-format">
+      <select class="form-select" id="enroll-class-format" onchange="toggleCohortVsTeacher('enroll')">
         <option value="" data-i18n="am.optSelectFormat">— select format —</option>
         <option value="1v1" data-i18n="am.fmt1v1L">1 vs 1 &nbsp;(Private — student : teacher)</option>
         <option value="2v1" data-i18n="am.fmt2v1L">2 vs 1 &nbsp;(Pair — 2 students : 1 teacher)</option>
         <option value="5v1" data-i18n="am.fmt5v1L">5 vs 1 &nbsp;(Small group — 5 students : 1 teacher)</option>
         <option value="cohort" data-i18n="am.fmtCohortL">Cohort &nbsp;(Full class)</option>
       </select>
+    </div>
+    <div class="form-group" style="margin-bottom:14px" id="enroll-cohort-group">
+      <label class="form-label" data-i18n="am.cohort">Cohort <span style="color:var(--text-dim);font-size:10px" data-i18n="am.hIntake">(intake / semester)</span></label>
+      <select class="form-select" id="enroll-cohort-select" onchange="applySelectedCohortTiming('enroll')">
+        <option value="" data-i18n="aj.optNoCohort">— no cohort assigned —</option>
+      </select>
+    </div>
+    <div class="form-group" style="margin-bottom:14px" id="enroll-teacher-group">
+      <label class="form-label">Teacher Assigned <span style="color:var(--text-dim);font-size:10px">(no cohort for this format — pick who teaches them directly)</span></label>
+      <select class="form-select" id="enroll-teacher-select"></select>
     </div>
     <div class="form-group" style="margin-bottom:14px">
       <label class="form-label" data-i18n="lbl.classTiming">Class Timing</label>
@@ -5586,6 +5595,26 @@ function applySelectedCohortTiming(scope) {
   if (formatEl && !formatEl.value) formatEl.value = 'cohort';
 }
 
+function toggleCohortVsTeacher(scope) {
+  const formatEl   = document.getElementById(scope === 's' ? 's-class-format' : 'enroll-class-format');
+  const cohortGrp   = document.getElementById(scope === 's' ? 's-cohort-group' : 'enroll-cohort-group');
+  const teacherGrp  = document.getElementById(scope === 's' ? 's-teacher-group' : 'enroll-teacher-group');
+  const cohortSel   = document.getElementById(scope === 's' ? 's-cohort-select' : 'enroll-cohort-select');
+  const teacherSel  = document.getElementById(scope === 's' ? 's-teacher-select' : 'enroll-teacher-select');
+  const isCohort = formatEl?.value === 'cohort';
+  if (cohortGrp)  cohortGrp.style.display  = isCohort ? 'block' : 'none';
+  if (teacherGrp) teacherGrp.style.display = isCohort ? 'none' : 'block';
+  if (!isCohort) {
+    if (cohortSel) cohortSel.value = '';
+    if (teacherSel && !teacherSel.dataset.populated) {
+      _populateTeacherDropdown(teacherSel.id, null, '— No teacher assigned —');
+      teacherSel.dataset.populated = '1';
+    }
+  } else if (teacherSel) {
+    teacherSel.value = '';
+  }
+}
+
 // ═══════════════════════════════════════════════════════
 // INIT
 // ═══════════════════════════════════════════════════════
@@ -6129,6 +6158,7 @@ function openAddStudent() {
   document.getElementById('s-cohort-select').innerHTML = `<option value="">${T('aj.optChooseCourse')}</option>`;
   document.getElementById('s-class-format').value    = '';
   document.getElementById('s-enrolled-date').value   = new Date().toISOString().slice(0,10);
+  toggleCohortVsTeacher('s');
   resetClassTimingRows('s');
   document.getElementById('s-enrol-section').style.display = 'block';
   updateStudentEnrollmentFields();
@@ -6196,9 +6226,11 @@ async function saveStudent() {
       if (courseId) {
         const numericCourseId = parseInt(courseId);
         const cohortVal = document.getElementById('s-cohort-select')?.value || '';
+        const teacherVal = document.getElementById('s-teacher-select')?.value || '';
         await POST(`/api/admin/students/${newId}/enroll`, {
           course_id:       numericCourseId,
           cohort_id:       cohortVal ? parseInt(cohortVal) : null,
+          teacher_id:      teacherVal ? parseInt(teacherVal) : null,
           class_format:    document.getElementById('s-class-format').value,
           class_timing:    collectClassTimings('s'),
           enrolled_at:     document.getElementById('s-enrolled-date')?.value || null,
@@ -6260,6 +6292,7 @@ function openEnrollModal(uid) {
   document.getElementById('enroll-class-format').value = '';
   document.getElementById('enroll-enrolled-date').value = new Date().toISOString().slice(0,10);
   document.getElementById('enroll-cohort-select').innerHTML = `<option value="">${T('aj.optNoCohort')}</option>`;
+  toggleCohortVsTeacher('enroll');
   resetClassTimingRows('enroll');
   loadEnrollCohorts();
   openModal('modal-enroll');
@@ -6286,9 +6319,11 @@ async function enrollStudent() {
   const uid = parseInt(document.getElementById('enroll-student-id').value);
   const cid = parseInt(document.getElementById('enroll-course-select').value);
   const cohortVal = document.getElementById('enroll-cohort-select').value;
+  const teacherVal = document.getElementById('enroll-teacher-select')?.value || '';
   const data = {
     course_id:       cid,
     cohort_id:       cohortVal ? parseInt(cohortVal) : null,
+    teacher_id:      teacherVal ? parseInt(teacherVal) : null,
     payment_remarks: document.getElementById('enroll-remarks').value,
     class_format:    document.getElementById('enroll-class-format').value,
     class_timing:    collectClassTimings('enroll'),
