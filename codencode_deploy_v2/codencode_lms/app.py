@@ -4966,7 +4966,8 @@ with app.app_context():
                 conn.execute(text("ALTER TABLE users ADD COLUMN language_pref VARCHAR(5) DEFAULT 'en'"))
                 conn.commit()
             if 'is_active' not in user_cols:
-                conn.execute(text('ALTER TABLE users ADD COLUMN is_active BOOLEAN DEFAULT 1'))
+                _bool_true = 'TRUE' if db.engine.dialect.name == 'postgresql' else '1'
+                conn.execute(text(f'ALTER TABLE users ADD COLUMN is_active BOOLEAN DEFAULT {_bool_true}'))
                 conn.commit()
             if 'last_login' not in user_cols:
                 conn.execute(text('ALTER TABLE users ADD COLUMN last_login DATETIME'))
@@ -5008,7 +5009,8 @@ with app.app_context():
         mat_cols = {c['name'] for c in insp_m.get_columns('materials')}
         with db.engine.connect() as conn:
             if 'is_published' not in mat_cols:
-                conn.execute(text('ALTER TABLE materials ADD COLUMN is_published BOOLEAN DEFAULT 1'))
+                _bool_true = 'TRUE' if db.engine.dialect.name == 'postgresql' else '1'
+                conn.execute(text(f'ALTER TABLE materials ADD COLUMN is_published BOOLEAN DEFAULT {_bool_true}'))
                 conn.commit()
             if 'publish_at' not in mat_cols:
                 conn.execute(text('ALTER TABLE materials ADD COLUMN publish_at DATETIME'))
@@ -5236,11 +5238,12 @@ with app.app_context():
     # are created by create_all() above). SQLite has no ADD COLUMN IF NOT EXISTS.
     try:
         insp = sa_inspect(db.engine)
+        _bool_false = 'FALSE' if db.engine.dialect.name == 'postgresql' else '0'
         learn_cols = {
             'courses':   [('icon', 'VARCHAR(40)'), ('tagline', 'VARCHAR(300)')],
             'materials': [('icon', 'VARCHAR(40)'), ('duration_label', 'VARCHAR(20)'),
                           ('keypoints', 'TEXT')],
-            'quizzes':   [('is_required', 'BOOLEAN DEFAULT 0'),
+            'quizzes':   [('is_required', f'BOOLEAN DEFAULT {_bool_false}'),
                           ('gates_material_id', 'INTEGER')],
         }
         with db.engine.connect() as conn:
