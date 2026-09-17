@@ -1,0 +1,38 @@
+<!DOCTYPE html><html lang='en'><head><meta charset='UTF-8'><meta name='viewport' content='width=device-width,initial-scale=1'><title>Homework 1 — Variables, Setup & Git</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#0d1117;--sf:#161b22;--s2:#21262d;--bd:#30363d;
+      --ac:#f7c948;--a2:#58a6ff;--a3:#3fb950;--a4:#ff7b72;--a5:#bc8cff;
+      --tx:#e6edf3;--mu:#8b949e}
+body{background:var(--bg);color:var(--tx);font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh;padding:32px}
+.wrap{max-width:900px;margin:0 auto}
+.header{background:var(--sf);border:1px solid var(--bd);border-radius:16px;padding:32px;margin-bottom:24px;position:relative;overflow:hidden}
+.badge{display:inline-block;padding:4px 14px;border-radius:12px;font-size:11px;font-weight:700;letter-spacing:1px;margin-bottom:10px}
+h1{font-size:clamp(22px,4vw,38px);font-weight:800;line-height:1.2;margin-bottom:8px}
+.sub{color:var(--mu);font-size:13px;margin-bottom:16px}
+.meta{display:flex;gap:16px;flex-wrap:wrap}
+.meta span{background:var(--s2);border:1px solid var(--bd);border-radius:8px;padding:5px 12px;font-size:11px;font-weight:600}
+.section{background:var(--sf);border:1px solid var(--bd);border-radius:12px;padding:24px;margin-bottom:18px}
+.section-title{font-size:14px;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.task{background:var(--s2);border:1px solid var(--bd);border-radius:10px;padding:16px;margin-bottom:12px;position:relative}
+.task:last-child{margin-bottom:0}
+.task-header{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:8px}
+.task-title{font-weight:700;font-size:13px}
+.difficulty{padding:3px 10px;border-radius:6px;font-size:10px;font-weight:700;white-space:nowrap}
+.easy{background:#1a3a1a;color:var(--a3);border:1px solid var(--a3)}
+.medium{background:#2a2a1a;color:var(--ac);border:1px solid var(--ac)}
+.hard{background:#2a1a1a;color:var(--a4);border:1px solid var(--a4)}
+.bonus{background:#2a1a3a;color:var(--a5);border:1px solid var(--a5)}
+.task p{color:var(--mu);font-size:12px;line-height:1.7;margin-bottom:8px}
+.task ul{padding-left:16px}
+.task ul li{color:var(--mu);font-size:12px;line-height:1.7}
+.hint{background:#1a2233;border:1px solid var(--a2);border-radius:8px;padding:10px 14px;font-size:11px;color:var(--a2);margin-top:8px}
+.note{background:#1a3a1a;border:1px solid var(--a3);border-radius:8px;padding:10px 14px;font-size:11px;color:var(--a3);margin-top:8px}
+pre{background:#010409;border:1px solid var(--bd);border-radius:8px;padding:14px;font-family:'Fira Code',monospace;font-size:11px;overflow-x:auto;line-height:1.7;margin-top:8px}
+.checklist{list-style:none;padding:0}
+.checklist li{display:flex;align-items:flex-start;gap:8px;padding:6px 0;border-bottom:1px solid var(--bd);font-size:12px;color:var(--mu)}
+.checklist li:last-child{border-bottom:none}
+.checklist li::before{content:"\2610";font-size:14px;color:var(--ac);flex-shrink:0}
+.tip{background:#2a1f00;border:1px solid var(--ac);border-radius:8px;padding:10px 14px;font-size:11px;color:var(--ac);margin-top:8px}
+</style>
+</head><body><div class='wrap'><div class='header'><div class='badge' style='background:#58a6ff20;color:#58a6ff;border:1px solid #58a6ff'>SESSION 1</div><h1>Homework 1 — Variables, Setup & Git</h1><div class='sub'>Practise data types, input/output, Git workflow, and basic problem solving</div><div class='meta'><span>Due: Before Session 2</span><span>Est. time: 1.5 – 2 hours</span><span>Codencode Python Bootcamp</span></div></div><div class='section'><div class='section-title'>🐍 Python Tasks</div><div class='task'><div class='task-header'><div class='task-title'>Task 1: Personal Profile Card</div><span class='difficulty easy'>⭐ Easy</span></div><p>Create a script that asks for: name, age, country, favourite colour, fun fact. Print a nicely formatted profile card using f-strings with borders.</p><div class='hint'>💡 Use input().strip() for each field. Print === borders with len(name)+padding</div></div><div class='task'><div class='task-header'><div class='task-title'>Task 2: Unit Converter</div><span class='difficulty easy'>⭐ Easy</span></div><p>Convert: km to miles, kg to lbs, Celsius to Fahrenheit. Use constants (MILES_PER_KM = 0.621371). Show results to 2 decimal places.</p><div class='hint'>💡 F = (C * 9/5) + 32. lbs = kg * 2.20462</div></div><div class='task'><div class='task-header'><div class='task-title'>Task 3: Receipt Calculator</div><span class='difficulty medium'>⭐⭐ Medium</span></div><p>Cafe receipt: user enters item name, price, quantity (3 items). Calculate subtotal, 6% GST, 10% service charge, grand total. Print a formatted receipt with aligned columns.</p></div><div class='task'><div class='task-header'><div class='task-title'>Task 4: String Inspector</div><span class='difficulty medium'>⭐⭐ Medium</span></div><p>Ask for a sentence. Print: length, word count, uppercase, title case, whether it contains 'python' (case-insensitive), and the sentence reversed.</p></div></div><div class='section'><div class='section-title'>🐙 Git Challenge</div><div class='task'><div class='task-header'><div class='task-title'>Task 5: Your First Repository</div><span class='difficulty easy'>⭐ Easy</span></div><p>Create a GitHub repo called python-bootcamp. Add README.md with your name, bootcamp name, what you hope to build. Commit and push. Submit your GitHub URL.</p><div class='tip'>🔥 Commands: git init, git add ., git commit -m 'Initial commit', git push</div></div></div><div class='section'><div class='section-title'>✅ Submission Checklist</div><ul class='checklist'><li>All 4 Python scripts run without errors</li><li>GitHub repo created and README pushed</li><li>Code saved to python-bootcamp/week1/</li><li>Variable names are descriptive (not x, y, z)</li><li>At least 3 comments explaining your code</li></ul></div></div></body></html>

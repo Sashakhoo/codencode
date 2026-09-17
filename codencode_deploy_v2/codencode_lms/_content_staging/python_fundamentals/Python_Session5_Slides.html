@@ -1,0 +1,190 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Session 5 — Object-Oriented Programming</title><style>
+:root{--bg:#0d1117;--sf:#161b22;--s2:#21262d;--bd:#30363d;--ac:#f7c948;--a2:#58a6ff;--a3:#3fb950;--a4:#ff7b72;--a5:#bc8cff;--tx:#e6edf3;--mu:#8b949e}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--tx);font-family:'Segoe UI',system-ui,sans-serif}
+#deck{position:relative;width:100%;height:100%}
+.slide{position:absolute;inset:0;display:flex;flex-direction:column;opacity:0;pointer-events:none;transition:opacity .3s}
+.slide.active{opacity:1;pointer-events:all}
+.tb{background:var(--sf);padding:10px 24px;display:flex;align-items:center;justify-content:space-between;border-bottom:2px solid var(--bd);flex-shrink:0;min-height:48px}
+.tb .brand{font-size:12px;font-weight:700;color:var(--ac);letter-spacing:.5px}
+.tb .sid{font-size:11px;color:var(--mu)}
+.pbar{height:3px;background:var(--bd);flex-shrink:0}
+.pfill{height:100%;background:var(--ac);transition:width .3s}
+.sb{flex:1;padding:18px 48px;overflow:hidden;display:flex;flex-direction:column;justify-content:center}
+h1.st{font-size:clamp(18px,3.2vw,36px);font-weight:700;color:var(--tx);margin-bottom:12px;line-height:1.2}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.three{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+.cw{background:var(--sf);border:1px solid var(--bd);border-radius:8px;overflow:hidden}
+.cw .dots{padding:8px 12px;border-bottom:1px solid var(--bd);display:flex;gap:5px}
+.cw .dots span{width:10px;height:10px;border-radius:50%;display:inline-block}
+.cw .dots span:nth-child(1){background:#ff5f57}
+.cw .dots span:nth-child(2){background:#ffbd2e}
+.cw .dots span:nth-child(3){background:#28c840}
+.cw pre{padding:10px 14px;font-family:'JetBrains Mono','Consolas',monospace;font-size:clamp(9px,1.05vw,12px);line-height:1.75;color:#e6edf3;white-space:pre-wrap;word-break:break-word}
+.kw{color:#ff7b72}.fn{color:#d2a8ff}.st{color:#a5d6ff}.nm{color:#79c0ff}.cm{color:#8b949e;font-style:italic}.vr{color:#ffa657}.cl{color:#ffa657}
+.card{background:var(--sf);border:1px solid var(--bd);border-radius:8px;padding:12px 14px}
+.card h3{font-size:12px;font-weight:700;color:var(--ac);margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px}
+.card ul{list-style:none;font-size:11.5px;color:var(--tx);line-height:1.9}
+.card ul li::before{content:"▸ ";color:var(--a2)}
+.card p{font-size:11.5px;color:var(--tx);line-height:1.75}
+.bq{background:var(--s2);border-left:3px solid var(--a2);border-radius:0 6px 6px 0;padding:10px 14px;margin-bottom:12px;font-size:12px;color:var(--tx);line-height:1.75}
+.bq strong{color:var(--a2)}
+.note{background:rgba(247,201,72,.08);border:1px solid rgba(247,201,72,.3);border-radius:6px;padding:8px 12px;font-size:11px;color:var(--ac);line-height:1.7;margin-top:8px}
+.warn{background:rgba(255,123,114,.08);border:1px solid rgba(255,123,114,.3);border-radius:6px;padding:8px 12px;font-size:11px;color:var(--a4);line-height:1.7;margin-top:8px}
+.good{background:rgba(63,185,80,.08);border:1px solid rgba(63,185,80,.3);border-radius:6px;padding:8px 12px;font-size:11px;color:var(--a3);line-height:1.7;margin-top:8px}
+.agenda-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px}
+.ag-item{background:var(--sf);border:1px solid var(--bd);border-radius:8px;padding:10px 13px;display:flex;align-items:flex-start;gap:10px}
+.ag-num{width:26px;height:26px;border-radius:50%;background:var(--a2);color:var(--bg);font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.ag-item strong{font-size:12px;font-weight:700;color:var(--tx);display:block}
+.ag-item span{font-size:10.5px;color:var(--mu)}
+.demo-hdr{background:linear-gradient(135deg,var(--a2) 0%,var(--a5) 100%);padding:12px 16px;border-radius:8px;margin-bottom:12px}
+.demo-hdr h2{font-size:14px;font-weight:700;color:#fff}
+.demo-hdr p{font-size:11px;color:rgba(255,255,255,.8);margin-top:2px}
+.activity-hdr{background:linear-gradient(135deg,var(--a3) 0%,var(--ac) 100%);padding:12px 16px;border-radius:8px;margin-bottom:12px}
+.activity-hdr h2{font-size:14px;font-weight:700;color:#000}
+.activity-hdr p{font-size:11px;color:rgba(0,0,0,.7);margin-top:2px}
+.step-list{display:flex;flex-direction:column;gap:7px}
+.step{display:flex;gap:10px;align-items:flex-start;background:var(--sf);border:1px solid var(--bd);border-radius:7px;padding:9px 12px}
+.step-n{width:24px;height:24px;border-radius:50%;background:var(--a3);color:#000;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.step strong{font-size:12px;color:var(--tx);display:block;margin-bottom:1px}
+.step span{font-size:10.5px;color:var(--mu)}
+.task-list{display:flex;flex-direction:column;gap:8px}
+.task{background:var(--sf);border:1px solid var(--bd);border-radius:7px;padding:10px 13px;display:flex;align-items:flex-start;gap:10px}
+.task-badge{font-size:10px;font-weight:700;padding:2px 8px;border-radius:12px;flex-shrink:0;margin-top:1px}
+.task strong{font-size:12px;color:var(--tx);display:block;margin-bottom:2px}
+.task p{font-size:10.5px;color:var(--mu);line-height:1.5}
+.summary-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:10px}
+.sum-item{background:var(--sf);border:1px solid var(--a3);border-radius:8px;padding:11px 13px;text-align:center}
+.sum-item .icon{font-size:22px;display:block;margin-bottom:5px}
+.sum-item strong{font-size:11px;color:var(--a3);display:block}
+.sum-item p{font-size:10px;color:var(--mu);margin-top:2px;line-height:1.5}
+nav{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);background:rgba(22,27,34,.9);backdrop-filter:blur(8px);border:1px solid var(--bd);border-radius:40px;padding:6px 16px;display:flex;align-items:center;gap:10px;z-index:100;transition:opacity .3s}
+nav.hidden{opacity:0;pointer-events:none}
+nav button{background:none;border:1px solid var(--bd);color:var(--tx);border-radius:50%;width:30px;height:30px;font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s}
+nav button:hover{background:var(--ac);color:var(--bg);border-color:var(--ac)}
+nav button:disabled{opacity:.3;cursor:default}
+#ct{font-size:11px;color:var(--mu);min-width:48px;text-align:center}
+#fsb{border:none!important;font-size:15px}
+@media(max-width:650px){.two,.three{grid-template-columns:1fr}.sb{padding:12px 18px}}
+</style></head><body><div id="deck"><div class="slide"><div class="tb"><span class="brand">🐧 codencode Academy</span><span class="sid">Session 5 of 7</span></div><div style="background:var(--sf);flex:1;display:flex;align-items:center;justify-content:center;padding:32px 64px;gap:48px"><div style="flex:1"><div style="display:inline-block;background:var(--a3);color:#000;font-size:11px;font-weight:700;padding:3px 14px;border-radius:12px;margin-bottom:12px;letter-spacing:1px">SESSION 5 OF 7</div><h1 style="font-size:clamp(28px,5vw,56px);font-weight:800;color:var(--tx);line-height:1.1;margin-bottom:10px">Object-Oriented<br><span style="color:var(--ac)">Programming</span></h1><p style="color:var(--mu);font-size:13px;margin-bottom:18px">Classes · Objects · Inheritance · @dataclass</p><div style="display:flex;flex-direction:column;gap:7px"><div style="background:var(--s2);border:1px solid var(--bd);border-radius:8px;padding:8px 13px;font-size:12px;font-weight:600;color:var(--tx)">❓ What is OOP? Why use it?</div><div style="background:var(--s2);border:1px solid var(--bd);border-radius:8px;padding:8px 13px;font-size:12px;font-weight:600;color:var(--tx)">🏗️ Classes & Objects — blueprint vs instance</div><div style="background:var(--s2);border:1px solid var(--bd);border-radius:8px;padding:8px 13px;font-size:12px;font-weight:600;color:var(--tx)">⚙️ __init__, methods & attributes</div><div style="background:var(--s2);border:1px solid var(--bd);border-radius:8px;padding:8px 13px;font-size:12px;font-weight:600;color:var(--tx)">🔒 Encapsulation — protecting data</div><div style="background:var(--s2);border:1px solid var(--bd);border-radius:8px;padding:8px 13px;font-size:12px;font-weight:600;color:var(--tx)">👪 Inheritance — reuse and extend</div><div style="background:var(--s2);border:1px solid var(--bd);border-radius:8px;padding:8px 13px;font-size:12px;font-weight:600;color:var(--tx)">📦 @dataclass — modern Python</div><div style="background:var(--s2);border:1px solid var(--bd);border-radius:8px;padding:8px 13px;font-size:12px;font-weight:600;color:var(--tx)">👨‍🏫 Demo: Bank Account System</div><div style="background:var(--s2);border:1px solid var(--bd);border-radius:8px;padding:8px 13px;font-size:12px;font-weight:600;color:var(--tx)">🧑‍💻 Activity: Library + Vehicle fleet</div></div></div><div style="font-size:100px;animation:float 3s ease-in-out infinite">🏗️</div></div></div></div><div class="slide"><div class="tb"><span class="brand">🐧 codencode Academy</span><span class="sid">Session 5 · Agenda</span></div><div class="sb"><h1 class="st">📅 Session 5: Object-Oriented Programming</h1><div class="bq">Here's what we cover today — from <strong>theory → demo → your turn</strong>. By the end, you'll be able to build real things.</div><div class="agenda-grid"><div class="ag-item"><div class="ag-num">1</div><div><strong>What is OOP?</strong><span>Group data and behaviour together</span></div></div><div class="ag-item"><div class="ag-num">2</div><div><strong>Classes & Objects</strong><span>Blueprint vs instance</span></div></div><div class="ag-item"><div class="ag-num">3</div><div><strong>__init__ & methods</strong><span>Constructor + behaviour</span></div></div><div class="ag-item"><div class="ag-num">4</div><div><strong>Encapsulation</strong><span>Control how data is accessed</span></div></div><div class="ag-item"><div class="ag-num">5</div><div><strong>Inheritance</strong><span>Extend existing classes</span></div></div><div class="ag-item"><div class="ag-num">6</div><div><strong>@dataclass</strong><span>Modern, less boilerplate</span></div></div><div class="ag-item"><div class="ag-num">7</div><div><strong>Teacher Demo</strong><span>Bank Account system</span></div></div><div class="ag-item"><div class="ag-num">8</div><div><strong>Your Turn</strong><span>Library + Vehicle fleet</span></div></div></div></div></div><div class="slide"><div class="tb"><span class="brand">🐧 codencode Academy</span><span class="sid">Session 5 · What is OOP?</span></div><div class="sb"><h1 class="st">What is OOP? Why Use It? 🤔</h1><div class="bq"><strong>What:</strong> OOP groups related data and functions together into a single "object".<br><strong>When:</strong> When you have multiple "things" that each have their own data and behaviour — users, bank accounts, products, vehicles.<br><strong>Why:</strong> Without OOP, managing 100 students means 100 separate variable sets. With OOP, one class handles them all.</div><div class="two"><div class="cw"><div class="dots"><span></span><span></span><span></span></div><pre><span class="cm"># before_after_oop.py</span>
+<span class="cm"># ❌ Without OOP — messy parallel variables</span>
+<span class="vr">student1_name</span>  = <span class="st">"Ali"</span>
+<span class="vr">student1_age</span>   = <span class="nm">20</span>
+<span class="vr">student1_score</span> = <span class="nm">85</span>
+
+<span class="vr">student2_name</span>  = <span class="st">"Siti"</span>
+<span class="vr">student2_age</span>   = <span class="nm">19</span>
+<span class="vr">student2_score</span> = <span class="nm">92</span>
+<span class="cm"># 100 students = 300 variables 😱</span>
+
+<span class="cm"># ✅ With OOP — clean and scalable</span>
+<span class="kw">class</span> <span class="cl">Student</span>:
+    <span class="kw">def</span> <span class="fn">__init__</span>(<span class="vr">self</span>, <span class="vr">name</span>, <span class="vr">age</span>, <span class="vr">score</span>):
+        <span class="vr">self</span>.<span class="vr">name</span>  = <span class="vr">name</span>
+        <span class="vr">self</span>.<span class="vr">age</span>   = <span class="vr">age</span>
+        <span class="vr">self</span>.<span class="vr">score</span> = <span class="vr">score</span>
+
+<span class="vr">s1</span> = <span class="cl">Student</span>(<span class="st">"Ali"</span>,  <span class="nm">20</span>, <span class="nm">85</span>)
+<span class="vr">s2</span> = <span class="cl">Student</span>(<span class="st">"Siti"</span>, <span class="nm">19</span>, <span class="nm">92</span>)
+<span class="cm"># 100 students: just 100 Student() calls ✅</span></pre></div><div style="display:flex;flex-direction:column;gap:10px"><div class="card" style=""><h3>4 pillars of OOP</h3><ul><li><strong>Encapsulation</strong> — bundle data + methods together</li><li><strong>Abstraction</strong> — hide complexity, show simple interface</li><li><strong>Inheritance</strong> — new class extends an existing one</li><li><strong>Polymorphism</strong> — same method, different behaviour</li></ul></div><div class="card" style=""><h3>Real-world OOP everywhere</h3><ul><li>Instagram: User class, Post class, Comment class</li><li>Banking: Account class, Transaction class</li><li>Games: Player class, Enemy class, Weapon class</li><li>Webshop: Product class, Cart class, Order class</li></ul></div></div></div></div></div><div class="slide"><div class="tb"><span class="brand">🐧 codencode Academy</span><span class="sid">Session 5 · Classes & Objects</span></div><div class="sb"><h1 class="st">Classes & Objects — Blueprint & Instance 🏗️</h1><div class="bq"><strong>Class</strong> = the blueprint (design). <strong>Object</strong> = an instance (actual thing). self refers to the specific object being used. __init__ is called automatically when you create an object.</div><div class="two"><div class="cw"><div class="dots"><span></span><span></span><span></span></div><pre><span class="cm"># class_basics.py</span>
+<span class="kw">class</span> <span class="cl">BankAccount</span>:
+    <span class="st">"""A simple bank account."""</span>
+
+    <span class="kw">def</span> <span class="fn">__init__</span>(<span class="vr">self</span>, <span class="vr">owner</span>, <span class="vr">balance</span>=<span class="nm">0</span>):
+        <span class="vr">self</span>.<span class="vr">owner</span>   = <span class="vr">owner</span>   <span class="cm"># attribute</span>
+        <span class="vr">self</span>.<span class="vr">balance</span> = <span class="vr">balance</span> <span class="cm"># attribute</span>
+
+    <span class="kw">def</span> <span class="fn">deposit</span>(<span class="vr">self</span>, <span class="vr">amount</span>):
+        <span class="vr">self</span>.<span class="vr">balance</span> += <span class="vr">amount</span>
+        <span class="fn">print</span>(<span class="st">f"✅ Deposited RM{<span class="vr">amount</span>}"</span>)
+
+    <span class="kw">def</span> <span class="fn">withdraw</span>(<span class="vr">self</span>, <span class="vr">amount</span>):
+        <span class="kw">if</span> <span class="vr">amount</span> > <span class="vr">self</span>.<span class="vr">balance</span>:
+            <span class="kw">raise</span> <span class="cl">ValueError</span>(<span class="st">"Insufficient funds!"</span>)
+        <span class="vr">self</span>.<span class="vr">balance</span> -= <span class="vr">amount</span>
+
+    <span class="kw">def</span> <span class="fn">__str__</span>(<span class="vr">self</span>):
+        <span class="kw">return</span> <span class="st">f"{<span class="vr">self</span>.<span class="vr">owner</span>}: RM{<span class="vr">self</span>.<span class="vr">balance</span>:.2f}"</span>
+
+<span class="cm"># Create instances (objects)</span>
+<span class="vr">ali</span>  = <span class="cl">BankAccount</span>(<span class="st">"Ali"</span>, <span class="nm">1000</span>)
+<span class="vr">siti</span> = <span class="cl">BankAccount</span>(<span class="st">"Siti"</span>)
+
+<span class="vr">ali</span>.<span class="fn">deposit</span>(<span class="nm">500</span>)       <span class="cm"># RM1500</span>
+<span class="vr">ali</span>.<span class="fn">withdraw</span>(<span class="nm">200</span>)      <span class="cm"># RM1300</span>
+<span class="fn">print</span>(<span class="vr">ali</span>)             <span class="cm"># Ali: RM1300.00</span></pre></div><div style="display:flex;flex-direction:column;gap:10px"><div class="card" style=""><h3>Key terms</h3><ul><li><code>class Name:</code> — define the blueprint</li><li><code>__init__(self, ...)</code> — constructor</li><li><code>self</code> — the specific object</li><li><code>self.name = name</code> — store as attribute</li><li><code>obj.method()</code> — call a method</li><li><code>__str__</code> — controls print(obj) output</li></ul></div><div class="card" style=""><h3>Inheritance</h3><ul><li><code>class SavingsAccount(BankAccount):</code></li><li>Inherits all methods from BankAccount</li><li>Add new attributes/methods</li><li>Override parent methods to change behaviour</li><li><code>super().__init__(...)</code> — call parent init</li></ul></div><div class="note">💡 Think: class = cookie cutter. Object = actual cookie. Every cookie is different (different flavour) but same shape (same class).</div></div></div></div></div><div class="slide"><div class="tb"><span class="brand">🐧 codencode Academy</span><span class="sid">Session 5 · Inheritance</span></div><div class="sb"><h1 class="st">Inheritance — Extend & Specialise 👪</h1><div class="bq"><strong>When:</strong> When one thing IS a more specific version of another. SavingsAccount IS a BankAccount. GraduateStudent IS a Student. Car IS a Vehicle.<br><strong>Why:</strong> Inherit all the parent's code for free — only write what's different.</div><div class="two"><div class="cw"><div class="dots"><span></span><span></span><span></span></div><pre><span class="cm"># inheritance.py</span>
+<span class="kw">class</span> <span class="cl">Animal</span>:
+    <span class="kw">def</span> <span class="fn">__init__</span>(<span class="vr">self</span>, <span class="vr">name</span>):
+        <span class="vr">self</span>.<span class="vr">name</span> = <span class="vr">name</span>
+
+    <span class="kw">def</span> <span class="fn">speak</span>(<span class="vr">self</span>):
+        <span class="kw">return</span> <span class="st">"..."</span>  <span class="cm"># override in subclass</span>
+
+    <span class="kw">def</span> <span class="fn">__str__</span>(<span class="vr">self</span>):
+        <span class="kw">return</span> <span class="st">f"{<span class="vr">self</span>.<span class="vr">name</span>} says {<span class="vr">self</span>.<span class="fn">speak</span>()}"</span>
+
+<span class="kw">class</span> <span class="cl">Dog</span>(<span class="cl">Animal</span>):    <span class="cm"># inherits Animal</span>
+    <span class="kw">def</span> <span class="fn">speak</span>(<span class="vr">self</span>): <span class="kw">return</span> <span class="st">"Woof!"</span>
+    <span class="kw">def</span> <span class="fn">fetch</span>(<span class="vr">self</span>):  <span class="fn">print</span>(<span class="st">"Fetching!"</span>)
+
+<span class="kw">class</span> <span class="cl">Cat</span>(<span class="cl">Animal</span>):
+    <span class="kw">def</span> <span class="fn">speak</span>(<span class="vr">self</span>): <span class="kw">return</span> <span class="st">"Meow!"</span>
+
+<span class="vr">d</span> = <span class="cl">Dog</span>(<span class="st">"Rex"</span>)
+<span class="vr">c</span> = <span class="cl">Cat</span>(<span class="st">"Whiskers"</span>)
+<span class="fn">print</span>(<span class="vr">d</span>)          <span class="cm"># Rex says Woof!</span>
+<span class="fn">print</span>(<span class="vr">c</span>)          <span class="cm"># Whiskers says Meow!</span>
+
+<span class="cm"># @dataclass — less boilerplate</span>
+<span class="kw">from</span> <span class="vr">dataclasses</span> <span class="kw">import</span> <span class="vr">dataclass</span>
+
+<span class="kw">@</span><span class="fn">dataclass</span>
+<span class="kw">class</span> <span class="cl">Student</span>:
+    <span class="vr">name</span>:  <span class="fn">str</span>
+    <span class="vr">age</span>:   <span class="fn">int</span>
+    <span class="vr">score</span>: <span class="fn">float</span> = <span class="nm">0.0</span>
+
+<span class="vr">s</span> = <span class="cl">Student</span>(<span class="st">"Ali"</span>, <span class="nm">20</span>, <span class="nm">85.5</span>)
+<span class="fn">print</span>(<span class="vr">s</span>)  <span class="cm"># Student(name=Ali, age=20, score=85.5)</span></pre></div><div style="display:flex;flex-direction:column;gap:10px"><div class="card" style=""><h3>Inheritance rules</h3><ul><li>Use when: child IS A parent</li><li>Child gets all parent methods free</li><li>Override a method to change behaviour</li><li>super().__init__() to call parent constructor</li><li><code>isinstance(d, Animal)</code> → True for Dog</li></ul></div><div class="card" style=""><h3>@dataclass benefits</h3><ul><li>Auto-generates __init__, __str__, __repr__</li><li>Add type hints: name: str</li><li>Default values: score: float = 0.0</li><li>Much less code for simple data classes</li><li>Use for: Student, Product, Config, Point</li></ul></div></div></div></div></div><div class="slide"><div class="tb"><span class="brand">🐧 codencode Academy</span><span class="sid">Session 5 · Teacher Demo</span></div><div class="sb"><div class="demo-hdr"><h2>👨‍🏫 Teacher Demo: Bank Account System</h2><p>Full OOP: class, inheritance, methods, validation</p></div><div class="two"><div class="cw"><div class="dots"><span></span><span></span><span></span></div><pre><span class="cm"># bank_system.py</span>
+<span class="kw">class</span> <span class="cl">Account</span>:
+    <span class="kw">def</span> <span class="fn">__init__</span>(<span class="vr">self</span>, <span class="vr">owner</span>, <span class="vr">balance</span>=<span class="nm">0</span>):
+        <span class="vr">self</span>.<span class="vr">owner</span>   = <span class="vr">owner</span>
+        <span class="vr">self</span>.<span class="vr">balance</span> = <span class="vr">balance</span>
+        <span class="vr">self</span>.<span class="vr">history</span> = []
+
+    <span class="kw">def</span> <span class="fn">deposit</span>(<span class="vr">self</span>, <span class="vr">amt</span>):
+        <span class="kw">if</span> <span class="vr">amt</span> <= <span class="nm">0</span>: <span class="kw">raise</span> <span class="cl">ValueError</span>(<span class="st">"Amount must be positive"</span>)
+        <span class="vr">self</span>.<span class="vr">balance</span> += <span class="vr">amt</span>
+        <span class="vr">self</span>.<span class="vr">history</span>.<span class="fn">append</span>(<span class="st">f"+RM{<span class="vr">amt</span>}"</span>)
+
+    <span class="kw">def</span> <span class="fn">withdraw</span>(<span class="vr">self</span>, <span class="vr">amt</span>):
+        <span class="kw">if</span> <span class="vr">amt</span> > <span class="vr">self</span>.<span class="vr">balance</span>: <span class="kw">raise</span> <span class="cl">ValueError</span>(<span class="st">"Insufficient funds"</span>)
+        <span class="vr">self</span>.<span class="vr">balance</span> -= <span class="vr">amt</span>
+        <span class="vr">self</span>.<span class="vr">history</span>.<span class="fn">append</span>(<span class="st">f"-RM{<span class="vr">amt</span>}"</span>)
+
+    <span class="kw">def</span> <span class="fn">statement</span>(<span class="vr">self</span>):
+        <span class="fn">print</span>(<span class="st">f"--- {<span class="vr">self</span>.<span class="vr">owner</span>} ---"</span>)
+        <span class="kw">for</span> <span class="vr">t</span> <span class="kw">in</span> <span class="vr">self</span>.<span class="vr">history</span>: <span class="fn">print</span>(<span class="st">f"  {<span class="vr">t</span>}"</span>)
+        <span class="fn">print</span>(<span class="st">f"Balance: RM{<span class="vr">self</span>.<span class="vr">balance</span>:.2f}"</span>)
+
+<span class="kw">class</span> <span class="cl">SavingsAccount</span>(<span class="cl">Account</span>):
+    <span class="kw">def</span> <span class="fn">__init__</span>(<span class="vr">self</span>, <span class="vr">owner</span>, <span class="vr">rate</span>=<span class="nm">0.03</span>):
+        <span class="fn">super</span>().<span class="fn">__init__</span>(<span class="vr">owner</span>)
+        <span class="vr">self</span>.<span class="vr">rate</span> = <span class="vr">rate</span>
+
+    <span class="kw">def</span> <span class="fn">add_interest</span>(<span class="vr">self</span>):
+        <span class="vr">interest</span> = <span class="vr">self</span>.<span class="vr">balance</span> * <span class="vr">self</span>.<span class="vr">rate</span>
+        <span class="vr">self</span>.<span class="fn">deposit</span>(<span class="fn">round</span>(<span class="vr">interest</span>, <span class="nm">2</span>))</pre></div><div class="step-list"><div class="step"><div class="step-n">1</div><div><strong>Account base class</strong><span>owner, balance, history list</span></div></div><div class="step"><div class="step-n">2</div><div><strong>deposit + withdraw</strong><span>Validate input, update balance, log history</span></div></div><div class="step"><div class="step-n">3</div><div><strong>statement()</strong><span>Loop over history and print</span></div></div><div class="step"><div class="step-n">4</div><div><strong>SavingsAccount</strong><span>Inherits Account, adds interest rate</span></div></div><div class="step"><div class="step-n">5</div><div><strong>super().__init__</strong><span>Call parent constructor — don't repeat</span></div></div></div></div></div></div><div class="slide"><div class="tb"><span class="brand">🐧 codencode Academy</span><span class="sid">Session 5 · Your Turn</span></div><div class="sb"><div class="activity-hdr"><h2>🧑‍💻 Your Turn: Library System + Vehicle Fleet</h2><p>Build two OOP systems from scratch</p></div><div class="task-list"><div class="task"><span class="task-badge" style="background:var(--a2);color:#000">Task 1</span><div><strong>Library System</strong><p>Book class: title, author, available. Library class: add_book, checkout(title), return_book(title), list_available(). Test with 5 books.</p></div></div><div class="task"><span class="task-badge" style="background:var(--a3);color:#000">Task 2</span><div><strong>Vehicle Fleet</strong><p>Vehicle base class: make, model, year, mileage. Car and Truck subclasses. Truck has cargo_capacity. All have a drive(km) method.</p></div></div><div class="task"><span class="task-badge" style="background:var(--ac);color:#000">Bonus</span><div><strong>Use @dataclass</strong><p>Rewrite your Book class using @dataclass. Add __post_init__ to validate year > 1900 and title not empty.</p></div></div><div class="task"><span class="task-badge" style="background:var(--a5);color:#000">Vibe 🤖</span><div><strong>AI OOP design</strong><p>Tell Claude: "I want to build a school management system in Python OOP. What classes should I create, and what attributes and methods should each have?"</p></div></div></div></div></div><div class="slide"><div class="tb"><span class="brand">🐧 codencode Academy</span><span class="sid">Session Summary</span></div><div class="sb"><h1 class="st">✅ Session 5 Complete 🎉</h1><div class="bq">Here's what you can now do. <strong>These are real developer skills.</strong></div><div class="summary-grid"><div class="sum-item"><span class="icon">🏗️</span><strong>Classes & Objects</strong><p>Blueprint vs instance — the core of OOP</p></div><div class="sum-item"><span class="icon">⚙️</span><strong>__init__ & methods</strong><p>Constructor + behaviour bundled together</p></div><div class="sum-item"><span class="icon">🔒</span><strong>Encapsulation</strong><p>Data + validation in one place</p></div><div class="sum-item"><span class="icon">👪</span><strong>Inheritance</strong><p>Extend and specialise without repeating code</p></div><div class="sum-item"><span class="icon">📦</span><strong>@dataclass</strong><p>Modern Python — less boilerplate, more clarity</p></div><div class="sum-item"><span class="icon">🏦</span><strong>Bank system</strong><p>Full multi-class OOP project with history</p></div></div></div></div></div><nav><button id="bp" onclick="go(-1)" disabled>&#8249;</button><div style="display:flex;gap:5px" id="nd"></div><span id="ct"></span><button id="bn" onclick="go(1)">&#8250;</button><button id="fsb" title="Fullscreen (F)">&#x26F6;</button></nav><script>
+const sl=document.querySelectorAll('.slide'),tot=sl.length;
+let cur=0,navT;
+const pf=document.querySelector('.pfill'),bp=document.getElementById('bp'),bn=document.getElementById('bn'),ct=document.getElementById('ct'),nav=document.querySelector('nav');
+function gt(n){sl[cur].classList.remove('active');cur=Math.max(0,Math.min(tot-1,n));sl[cur].classList.add('active');pf.style.width=((cur+1)/tot*100)+'%';bp.disabled=cur===0;bn.disabled=cur===tot-1;ct.textContent=(cur+1)+' / '+tot;}
+function go(d){gt(cur+d)}
+document.addEventListener('keydown',e=>{if(e.key==='ArrowRight'||e.key==='ArrowDown')go(1);if(e.key==='ArrowLeft'||e.key==='ArrowUp')go(-1);if(e.key==='f'||e.key==='F')toggleFS();if(e.key==='Home')gt(0);if(e.key==='End')gt(tot-1);});
+function toggleFS(){if(!document.fullscreenElement)document.documentElement.requestFullscreen().catch(()=>{});else document.exitFullscreen();}
+document.getElementById('fsb').addEventListener('click',toggleFS);
+function resetNav(){nav.classList.remove('hidden');clearTimeout(navT);navT=setTimeout(()=>nav.classList.add('hidden'),3500);}
+document.addEventListener('mousemove',resetNav);document.addEventListener('click',resetNav);
+let tx=0;document.addEventListener('touchstart',e=>{tx=e.touches[0].clientX});document.addEventListener('touchend',e=>{const d=e.changedTouches[0].clientX-tx;if(Math.abs(d)>50)go(d<0?1:-1)});
+gt(0);resetNav();pf.style.width=(1/tot*100)+'%';ct.textContent='1 / '+tot;
+</script></body></html>

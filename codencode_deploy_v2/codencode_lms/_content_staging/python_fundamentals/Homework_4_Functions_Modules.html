@@ -1,0 +1,38 @@
+<!DOCTYPE html><html lang='en'><head><meta charset='UTF-8'><meta name='viewport' content='width=device-width,initial-scale=1'><title>Homework 4 — Functions & Modules</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#0d1117;--sf:#161b22;--s2:#21262d;--bd:#30363d;
+      --ac:#f7c948;--a2:#58a6ff;--a3:#3fb950;--a4:#ff7b72;--a5:#bc8cff;
+      --tx:#e6edf3;--mu:#8b949e}
+body{background:var(--bg);color:var(--tx);font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh;padding:32px}
+.wrap{max-width:900px;margin:0 auto}
+.header{background:var(--sf);border:1px solid var(--bd);border-radius:16px;padding:32px;margin-bottom:24px;position:relative;overflow:hidden}
+.badge{display:inline-block;padding:4px 14px;border-radius:12px;font-size:11px;font-weight:700;letter-spacing:1px;margin-bottom:10px}
+h1{font-size:clamp(22px,4vw,38px);font-weight:800;line-height:1.2;margin-bottom:8px}
+.sub{color:var(--mu);font-size:13px;margin-bottom:16px}
+.meta{display:flex;gap:16px;flex-wrap:wrap}
+.meta span{background:var(--s2);border:1px solid var(--bd);border-radius:8px;padding:5px 12px;font-size:11px;font-weight:600}
+.section{background:var(--sf);border:1px solid var(--bd);border-radius:12px;padding:24px;margin-bottom:18px}
+.section-title{font-size:14px;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.task{background:var(--s2);border:1px solid var(--bd);border-radius:10px;padding:16px;margin-bottom:12px;position:relative}
+.task:last-child{margin-bottom:0}
+.task-header{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:8px}
+.task-title{font-weight:700;font-size:13px}
+.difficulty{padding:3px 10px;border-radius:6px;font-size:10px;font-weight:700;white-space:nowrap}
+.easy{background:#1a3a1a;color:var(--a3);border:1px solid var(--a3)}
+.medium{background:#2a2a1a;color:var(--ac);border:1px solid var(--ac)}
+.hard{background:#2a1a1a;color:var(--a4);border:1px solid var(--a4)}
+.bonus{background:#2a1a3a;color:var(--a5);border:1px solid var(--a5)}
+.task p{color:var(--mu);font-size:12px;line-height:1.7;margin-bottom:8px}
+.task ul{padding-left:16px}
+.task ul li{color:var(--mu);font-size:12px;line-height:1.7}
+.hint{background:#1a2233;border:1px solid var(--a2);border-radius:8px;padding:10px 14px;font-size:11px;color:var(--a2);margin-top:8px}
+.note{background:#1a3a1a;border:1px solid var(--a3);border-radius:8px;padding:10px 14px;font-size:11px;color:var(--a3);margin-top:8px}
+pre{background:#010409;border:1px solid var(--bd);border-radius:8px;padding:14px;font-family:'Fira Code',monospace;font-size:11px;overflow-x:auto;line-height:1.7;margin-top:8px}
+.checklist{list-style:none;padding:0}
+.checklist li{display:flex;align-items:flex-start;gap:8px;padding:6px 0;border-bottom:1px solid var(--bd);font-size:12px;color:var(--mu)}
+.checklist li:last-child{border-bottom:none}
+.checklist li::before{content:"\2610";font-size:14px;color:var(--ac);flex-shrink:0}
+.tip{background:#2a1f00;border:1px solid var(--ac);border-radius:8px;padding:10px 14px;font-size:11px;color:var(--ac);margin-top:8px}
+</style>
+</head><body><div class='wrap'><div class='header'><div class='badge' style='background:#bc8cff20;color:#bc8cff;border:1px solid #bc8cff'>SESSION 4</div><h1>Homework 4 — Functions & Modules</h1><div class='sub'>Practise functions, scope, *args/**kwargs, modules, and clean code</div><div class='meta'><span>Due: Before Session 5</span><span>Est. time: 2 hours</span><span>Codencode Python Bootcamp</span></div></div><div class='section'><div class='section-title'>⚙️ Function Tasks</div><div class='task'><div class='task-header'><div class='task-title'>Task 1: Math Toolkit</div><span class='difficulty easy'>⭐ Easy</span></div><p>Create math_toolkit.py with: is_prime(n), factorial(n), fibonacci(n) (returns list), lcm(a,b), gcd(a,b). Each must have a docstring. Test all in test_math.py.</p></div><div class='task'><div class='task-header'><div class='task-title'>Task 2: String Utilities</div><span class='difficulty medium'>⭐⭐ Medium</span></div><p>Create string_utils.py with: palindrome(s), count_vowels(s), title_case(s) (no .title()), truncate(s, max_len, suffix='...'), slugify(s) converts 'Hello World!' to 'hello-world'.</p><div class='hint'>💡 slugify: lowercase, replace spaces with -, remove non-alphanumeric chars</div></div><div class='task'><div class='task-header'><div class='task-title'>Task 3: Random Quiz Generator</div><span class='difficulty medium'>⭐⭐ Medium</span></div><p>10 random maths questions (random operands + operators +-*). Track score. After quiz show: score, percentage, time taken (datetime), which questions were wrong.</p></div><div class='task'><div class='task-header'><div class='task-title'>Task 4: Personal CLI Toolkit</div><span class='difficulty hard'>⭐⭐⭐ Hard</span></div><p>my_tools.py with 6 functions using *args/**kwargs: generate_password(length=12, symbols=True), format_table(*headers, **rows), countdown_timer(seconds), caesar_cipher(text, shift=3), word_wrap(text, width=80), format_currency(amount, currency='MYR', decimals=2).</p></div></div><div class='section'><div class='section-title'>✅ Submission Checklist</div><ul class='checklist'><li>All functions have docstrings with param/return descriptions</li><li>fibonacci(10) returns [0,1,1,2,3,5,8,13,21,34]</li><li>slugify('Hello World!') returns 'hello-world'</li><li>Quiz timer shows correct elapsed time</li><li>Code pushed to python-bootcamp/week4/</li></ul></div></div></body></html>

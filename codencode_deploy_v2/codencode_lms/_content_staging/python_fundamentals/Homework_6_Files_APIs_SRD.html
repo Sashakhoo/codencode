@@ -1,0 +1,38 @@
+<!DOCTYPE html><html lang='en'><head><meta charset='UTF-8'><meta name='viewport' content='width=device-width,initial-scale=1'><title>Homework 6 — Files, APIs & Project Ideation</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#0d1117;--sf:#161b22;--s2:#21262d;--bd:#30363d;
+      --ac:#f7c948;--a2:#58a6ff;--a3:#3fb950;--a4:#ff7b72;--a5:#bc8cff;
+      --tx:#e6edf3;--mu:#8b949e}
+body{background:var(--bg);color:var(--tx);font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh;padding:32px}
+.wrap{max-width:900px;margin:0 auto}
+.header{background:var(--sf);border:1px solid var(--bd);border-radius:16px;padding:32px;margin-bottom:24px;position:relative;overflow:hidden}
+.badge{display:inline-block;padding:4px 14px;border-radius:12px;font-size:11px;font-weight:700;letter-spacing:1px;margin-bottom:10px}
+h1{font-size:clamp(22px,4vw,38px);font-weight:800;line-height:1.2;margin-bottom:8px}
+.sub{color:var(--mu);font-size:13px;margin-bottom:16px}
+.meta{display:flex;gap:16px;flex-wrap:wrap}
+.meta span{background:var(--s2);border:1px solid var(--bd);border-radius:8px;padding:5px 12px;font-size:11px;font-weight:600}
+.section{background:var(--sf);border:1px solid var(--bd);border-radius:12px;padding:24px;margin-bottom:18px}
+.section-title{font-size:14px;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.task{background:var(--s2);border:1px solid var(--bd);border-radius:10px;padding:16px;margin-bottom:12px;position:relative}
+.task:last-child{margin-bottom:0}
+.task-header{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:8px}
+.task-title{font-weight:700;font-size:13px}
+.difficulty{padding:3px 10px;border-radius:6px;font-size:10px;font-weight:700;white-space:nowrap}
+.easy{background:#1a3a1a;color:var(--a3);border:1px solid var(--a3)}
+.medium{background:#2a2a1a;color:var(--ac);border:1px solid var(--ac)}
+.hard{background:#2a1a1a;color:var(--a4);border:1px solid var(--a4)}
+.bonus{background:#2a1a3a;color:var(--a5);border:1px solid var(--a5)}
+.task p{color:var(--mu);font-size:12px;line-height:1.7;margin-bottom:8px}
+.task ul{padding-left:16px}
+.task ul li{color:var(--mu);font-size:12px;line-height:1.7}
+.hint{background:#1a2233;border:1px solid var(--a2);border-radius:8px;padding:10px 14px;font-size:11px;color:var(--a2);margin-top:8px}
+.note{background:#1a3a1a;border:1px solid var(--a3);border-radius:8px;padding:10px 14px;font-size:11px;color:var(--a3);margin-top:8px}
+pre{background:#010409;border:1px solid var(--bd);border-radius:8px;padding:14px;font-family:'Fira Code',monospace;font-size:11px;overflow-x:auto;line-height:1.7;margin-top:8px}
+.checklist{list-style:none;padding:0}
+.checklist li{display:flex;align-items:flex-start;gap:8px;padding:6px 0;border-bottom:1px solid var(--bd);font-size:12px;color:var(--mu)}
+.checklist li:last-child{border-bottom:none}
+.checklist li::before{content:"\2610";font-size:14px;color:var(--ac);flex-shrink:0}
+.tip{background:#2a1f00;border:1px solid var(--ac);border-radius:8px;padding:10px 14px;font-size:11px;color:var(--ac);margin-top:8px}
+</style>
+</head><body><div class='wrap'><div class='header'><div class='badge' style='background:#58a6ff20;color:#58a6ff;border:1px solid #58a6ff'>SESSION 6</div><h1>Homework 6 — Files, APIs & Project Ideation</h1><div class='sub'>Practise error handling, file I/O, REST APIs, and write your project SRD</div><div class='meta'><span>Due: Before Session 7</span><span>Est. time: 2.5 – 3 hours</span><span>Codencode Python Bootcamp</span></div></div><div class='section'><div class='section-title'>🌐 API & File Tasks</div><div class='task'><div class='task-header'><div class='task-title'>Task 1: Country Explorer</div><span class='difficulty easy'>⭐ Easy</span></div><p>Use RestCountries API (no key needed). Ask for a country name. Display: official name, capital, population, area, currencies, languages, flag emoji. Handle not-found gracefully.</p><div class='hint'>💡 URL: https://restcountries.com/v3.1/name/{country}</div></div><div class='task'><div class='task-header'><div class='task-title'>Task 2: Personal Diary App</div><span class='difficulty medium'>⭐⭐ Medium</span></div><p>CLI diary saving to diary.json (list of dicts: date, title, content, mood). Features: write entry, read today, search by keyword, export to diary_export.txt. Handle all file errors with try/except.</p></div><div class='task'><div class='task-header'><div class='task-title'>Task 3: Crypto Price Tracker</div><span class='difficulty medium'>⭐⭐ Medium</span></div><p>CoinGecko API (free): fetch BTC, ETH, DOGE prices in MYR and USD every 60 seconds. Save each fetch to prices.json with timestamp. Show price change since first fetch.</p><div class='hint'>💡 Use time.sleep(60) in a while loop. Ctrl+C to stop gracefully.</div></div><div class='task'><div class='task-header'><div class='task-title'>Task 4: Your Project SRD</div><span class='difficulty hard'>⭐⭐⭐ Required</span></div><p>Write a complete SRD for YOUR project idea as srd.md. Must include: (1) App name + 1-sentence description, (2) Problem statement, (3) Target user profile, (4) 3 MVP features only, (5) Tech stack with justification, (6) Data model, (7) 2 risks and mitigations, (8) Success metric.</p><div class='note'>✅ This is the most important task. Your project starts here.</div></div></div><div class='section'><div class='section-title'>✅ Submission Checklist</div><ul class='checklist'><li>Country explorer handles typos and not-found countries</li><li>Diary app never crashes if diary.json is missing (first run)</li><li>Crypto tracker timestamps each price fetch</li><li>SRD written in full sentences (not just bullet fragments)</li><li>SRD pushed to python-bootcamp/week6/srd.md</li></ul></div></div></body></html>
