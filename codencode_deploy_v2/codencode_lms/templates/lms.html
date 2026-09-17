@@ -7152,11 +7152,16 @@ function renderMedia(){
   const el = document.getElementById('lrn-media');
   const d = LRN.data;
   if (LRN.slides && LRN.slides.length) {
+    el.classList.remove('lrn-media-deck');
     const s = LRN.slides[LRN.slideIdx];
     el.innerHTML = `<img src="${esc(s.image_url)}" alt="slide ${LRN.slideIdx+1}">`;
     const c = document.getElementById('lrn-sl-count');
     if (c) c.textContent = T('lrn.slideCount', { i: LRN.slideIdx+1, n: LRN.slides.length });
   } else {
+    // Raw file fallback (no discrete LessonSlide rows) — usually a full self-contained
+    // slide-deck HTML app with its own nav/fullscreen, so it needs real height, not a
+    // 16:9 video-style crop.
+    el.classList.add('lrn-media-deck');
     el.innerHTML = `<iframe src="${esc(d.file_url)}" title="${esc(d.title)}"></iframe>
       <span class="lrn-media-tag">${esc((d.file_type||'deck').toUpperCase())}</span>`;
   }
