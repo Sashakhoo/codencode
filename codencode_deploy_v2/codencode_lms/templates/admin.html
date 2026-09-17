@@ -3596,6 +3596,10 @@
 
       <div id="s-enrol-extra-fields">
       <div class="form-group" style="margin-bottom:14px">
+        <label class="form-label">Enrollment / Start Date <span style="color:var(--text-dim);font-size:10px">(when their course actually starts - can be in the future if registering early)</span></label>
+        <input class="form-input" type="date" id="s-enrolled-date" />
+      </div>
+      <div class="form-group" style="margin-bottom:14px">
         <label class="form-label" data-i18n="lbl.classCohort">Cohort / Class <span style="color:var(--text-dim);font-size:10px" data-i18n="am.hTeacherTt">(teacher + timetable)</span></label>
         <select class="form-select" id="s-cohort-select" onchange="applySelectedCohortTiming('s')">
           <option value="" data-i18n="aj.optChooseCourse">— choose course first —</option>
@@ -3747,6 +3751,10 @@
     <div class="form-group" style="margin-bottom:14px">
       <label class="form-label" data-i18n="lbl.course">Course</label>
       <select class="form-select" id="enroll-course-select" onchange="loadEnrollCohorts()"></select>
+    </div>
+    <div class="form-group" style="margin-bottom:14px">
+      <label class="form-label">Enrollment / Start Date <span style="color:var(--text-dim);font-size:10px">(when their course actually starts - can be in the future if registering early)</span></label>
+      <input class="form-input" type="date" id="enroll-enrolled-date" />
     </div>
     <div class="form-group" style="margin-bottom:14px">
       <label class="form-label" data-i18n="am.cohort">Cohort <span style="color:var(--text-dim);font-size:10px" data-i18n="am.hIntake">(intake / semester)</span></label>
@@ -5925,7 +5933,9 @@ function renderStudentDetail(s) {
                 ${e.course_title}
                 ${e.class_format ? `<span style="background:var(--purple-dim);color:var(--purple);border:1px solid var(--purple);font-family:'JetBrains Mono',monospace;font-size:9px;padding:1px 7px;border-radius:20px;letter-spacing:.5px">${e.class_format.toUpperCase()}</span>` : ''}
               </div>
-              <small>${T('aj.enrolledOn')} ${e.enrolled_at}${e.cohort_name ? ` · <span style="color:var(--gold)">` + e.cohort_name + `</span>` : ''}</small>
+              <small>${T('aj.enrolledOn')} ${e.enrolled_at}
+                <a href="#" onclick="editEnrollmentDate(${e.id},'${e.enrolled_at_iso}',${s.id});return false;" title="Correct enrollment date"><i class="fas fa-pencil" style="margin-left:4px;font-size:9px"></i></a>
+                ${e.cohort_name ? ` · <span style="color:var(--gold)">` + e.cohort_name + `</span>` : ''}</small>
               ${e.class_timing ? `<small style="color:var(--cyan)"><i class="fas fa-clock" style="margin-right:3px"></i>${e.class_timing}</small>` : ''}
             </div>
             <button class="btn btn-danger btn-sm btn-icon" onclick="unenroll(${e.id},${s.id})" title="Unenroll">
@@ -6118,6 +6128,7 @@ function openAddStudent() {
     `<option value="">${T('aj.optSkipEnrol')}</option>` + courseOpts;
   document.getElementById('s-cohort-select').innerHTML = `<option value="">${T('aj.optChooseCourse')}</option>`;
   document.getElementById('s-class-format').value    = '';
+  document.getElementById('s-enrolled-date').value   = new Date().toISOString().slice(0,10);
   resetClassTimingRows('s');
   document.getElementById('s-enrol-section').style.display = 'block';
   updateStudentEnrollmentFields();
@@ -6190,6 +6201,7 @@ async function saveStudent() {
           cohort_id:       cohortVal ? parseInt(cohortVal) : null,
           class_format:    document.getElementById('s-class-format').value,
           class_timing:    collectClassTimings('s'),
+          enrolled_at:     document.getElementById('s-enrolled-date')?.value || null,
         });
         addedStudentHasEnrollment = true;
         toast(T('at.studentAddedEnrolled'));
@@ -6246,6 +6258,7 @@ function openEnrollModal(uid) {
     available.map(c => `<option value="${c.id}">${c.title}</option>`).join('');
   document.getElementById('enroll-remarks').value = '';
   document.getElementById('enroll-class-format').value = '';
+  document.getElementById('enroll-enrolled-date').value = new Date().toISOString().slice(0,10);
   document.getElementById('enroll-cohort-select').innerHTML = `<option value="">${T('aj.optNoCohort')}</option>`;
   resetClassTimingRows('enroll');
   loadEnrollCohorts();
@@ -6279,6 +6292,7 @@ async function enrollStudent() {
     payment_remarks: document.getElementById('enroll-remarks').value,
     class_format:    document.getElementById('enroll-class-format').value,
     class_timing:    collectClassTimings('enroll'),
+    enrolled_at:     document.getElementById('enroll-enrolled-date')?.value || null,
   };
   try {
     await POST(`/api/admin/students/${uid}/enroll`, data);
@@ -6294,6 +6308,17 @@ async function unenroll(eid, uid) {
   try {
     await DELETE(`/api/admin/enrollments/${eid}`);
     toast(T('at.studentUnenrolled'));
+    await loadStudents();
+    selectStudent(uid);
+  } catch(e) { toast(e.message, true); }
+}
+
+async function editEnrollmentDate(eid, currentIso, uid) {
+  const val = prompt('Correct enrollment / start date (YYYY-MM-DD):', currentIso);
+  if (!val) return;
+  try {
+    await PUT(`/api/enrollments/${eid}/enrolled-date`, { enrolled_at: val });
+    toast('Enrollment date updated');
     await loadStudents();
     selectStudent(uid);
   } catch(e) { toast(e.message, true); }

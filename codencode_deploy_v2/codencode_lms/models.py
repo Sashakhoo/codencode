@@ -198,6 +198,7 @@ class Enrollment(db.Model):
             'course_id': self.course_id,
             'course_title': self.course.title,
             'enrolled_at': self.enrolled_at.strftime('%b %d, %Y'),
+            'enrolled_at_iso': self.enrolled_at.strftime('%Y-%m-%d'),
             'payment_status': self.payment_status or 'pending',
             'payment_remarks': self.payment_remarks or '',
             'receipt_file': self.receipt_file or '',

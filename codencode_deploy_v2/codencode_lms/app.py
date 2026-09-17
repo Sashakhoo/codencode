@@ -1512,9 +1512,17 @@ def admin_enroll_student(uid):
     if existing:
         return jsonify({'error': 'Already enrolled'}), 409
 
+    enrolled_at = datetime.utcnow()
+    if data.get('enrolled_at'):
+        try:
+            enrolled_at = datetime.strptime(data['enrolled_at'], '%Y-%m-%d')
+        except ValueError:
+            return jsonify({'error': 'enrolled_at must be YYYY-MM-DD'}), 400
+
     e = Enrollment(
         student_id      = uid,
         course_id       = course_id,
+        enrolled_at     = enrolled_at,
         payment_status  = data.get('payment_status', 'pending'),
         payment_remarks = data.get('payment_remarks', ''),
         class_timing    = data.get('class_timing', ''),
@@ -1524,6 +1532,26 @@ def admin_enroll_student(uid):
     db.session.add(e)
     db.session.commit()
     return jsonify({'enrollment': e.to_dict()}), 201
+
+
+@app.route('/api/enrollments/<int:eid>/enrolled-date', methods=['PUT'])
+@teacher_required
+def api_set_enrollment_date(eid):
+    """Correct an enrollment's start date - this is the baseline the
+    auto-computed 'current week' counts from for students without a
+    manual week override or a cohort."""
+    enr = Enrollment.query.get_or_404(eid)
+    if not teacher_can_manage_course(enr.course_id):
+        return jsonify({'error': 'Forbidden'}), 403
+    data = request.get_json()
+    if not data.get('enrolled_at'):
+        return jsonify({'error': 'enrolled_at required'}), 400
+    try:
+        enr.enrolled_at = datetime.strptime(data['enrolled_at'], '%Y-%m-%d')
+    except ValueError:
+        return jsonify({'error': 'enrolled_at must be YYYY-MM-DD'}), 400
+    db.session.commit()
+    return jsonify({'enrollment': enr.to_dict()})
 
 
 @app.route('/api/admin/enrollments/<int:eid>', methods=['DELETE'])
