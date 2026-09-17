@@ -1906,41 +1906,31 @@ def admin_material_detail(mid):
 
 
 # ── Attendance ────────────────────────────────
-@app.route('/api/admin/courses/<int:cid>/attendance', methods=['GET', 'POST'])
-@admin_required
-def admin_attendance(cid):
-    if request.method == 'GET':
-        course      = Course.query.get_or_404(cid)
-        enrollments = Enrollment.query.filter_by(course_id=cid).all()
-        records     = Attendance.query.filter_by(course_id=cid).all()
-        att_map = {(a.student_id, a.session): a for a in records}
-        students_data = []
-        for e in enrollments:
-            s = e.student
-            weeks_data = {}
-            for w in range(1, course.current_session + 1):
-                att = att_map.get((s.id, w))
-                weeks_data[str(w)] = att.status if att else 'absent'
-            students_data.append({
-                'student_id':   s.id,
-                'student_name': s.name,
-                'weeks':        weeks_data
-            })
-        return jsonify({
-            'course_id':    cid,
-            'current_week': course.current_session,
-            'students':     students_data
+def _attendance_grid(cid):
+    course      = Course.query.get_or_404(cid)
+    enrollments = Enrollment.query.filter_by(course_id=cid).all()
+    records     = Attendance.query.filter_by(course_id=cid).all()
+    att_map = {(a.student_id, a.session): a for a in records}
+    students_data = []
+    for e in enrollments:
+        s = e.student
+        weeks_data = {}
+        for w in range(1, course.current_session + 1):
+            att = att_map.get((s.id, w))
+            weeks_data[str(w)] = att.status if att else 'absent'
+        students_data.append({
+            'student_id':   s.id,
+            'student_name': s.name,
+            'weeks':        weeks_data
         })
-    # POST
-    data       = request.get_json()
-    student_id = data.get('student_id')
-    session_num = data.get('session')
-    status     = data.get('status', 'present')
-    notes      = data.get('notes', '')
-    if not student_id or not session_num:
-        return jsonify({'error': 'student_id and session required'}), 400
-    if status not in ('present', 'absent', 'late'):
-        return jsonify({'error': 'status must be present/absent/late'}), 400
+    return {
+        'course_id':    cid,
+        'current_week': course.current_session,
+        'students':     students_data
+    }
+
+
+def _set_attendance(cid, student_id, session_num, status, notes):
     att = Attendance.query.filter_by(
         student_id=student_id, course_id=cid, session=session_num).first()
     if att:
@@ -1952,6 +1942,25 @@ def admin_attendance(cid):
                          session=session_num, status=status, notes=notes)
         db.session.add(att)
     db.session.commit()
+    return att
+
+
+@app.route('/api/admin/courses/<int:cid>/attendance', methods=['GET', 'POST'])
+@admin_required
+def admin_attendance(cid):
+    if request.method == 'GET':
+        return jsonify(_attendance_grid(cid))
+    # POST
+    data       = request.get_json()
+    student_id = data.get('student_id')
+    session_num = data.get('session')
+    status     = data.get('status', 'present')
+    notes      = data.get('notes', '')
+    if not student_id or not session_num:
+        return jsonify({'error': 'student_id and session required'}), 400
+    if status not in ('present', 'absent', 'late'):
+        return jsonify({'error': 'status must be present/absent/late'}), 400
+    att = _set_attendance(cid, student_id, session_num, status, notes)
     return jsonify({'attendance': att.to_dict()})
 
 
@@ -1967,20 +1976,48 @@ def admin_bulk_attendance(cid):
         return jsonify({'error': 'session required'}), 400
 
     for r in records:
-        sid    = r.get('student_id')
-        status = r.get('status', 'absent')
-        notes  = r.get('notes', '')
-        att    = Attendance.query.filter_by(
-            student_id=sid, course_id=cid, session=session_num).first()
-        if att:
-            att.status      = status
-            att.notes       = notes
-            att.recorded_at = datetime.utcnow()
-        else:
-            att = Attendance(student_id=sid, course_id=cid,
-                             session=session_num, status=status, notes=notes)
-            db.session.add(att)
-    db.session.commit()
+        _set_attendance(cid, r.get('student_id'), session_num,
+                        r.get('status', 'absent'), r.get('notes', ''))
+    return jsonify({'ok': True, 'updated': len(records)})
+
+
+# ── Teacher-facing attendance (own courses only) ──
+@app.route('/api/courses/<int:cid>/attendance', methods=['GET', 'POST'])
+@teacher_required
+def teacher_attendance(cid):
+    if not teacher_can_manage_course(cid):
+        return jsonify({'error': 'Forbidden'}), 403
+    if request.method == 'GET':
+        return jsonify(_attendance_grid(cid))
+    # POST
+    data       = request.get_json()
+    student_id = data.get('student_id')
+    session_num = data.get('session')
+    status     = data.get('status', 'present')
+    notes      = data.get('notes', '')
+    if not student_id or not session_num:
+        return jsonify({'error': 'student_id and session required'}), 400
+    if status not in ('present', 'absent', 'late'):
+        return jsonify({'error': 'status must be present/absent/late'}), 400
+    att = _set_attendance(cid, student_id, session_num, status, notes)
+    return jsonify({'attendance': att.to_dict()})
+
+
+@app.route('/api/courses/<int:cid>/attendance/bulk', methods=['POST'])
+@teacher_required
+def teacher_bulk_attendance(cid):
+    """Expects { session: int, records: [{student_id, status, notes}] }"""
+    if not teacher_can_manage_course(cid):
+        return jsonify({'error': 'Forbidden'}), 403
+    data    = request.get_json()
+    session_num = data.get('session')
+    records = data.get('records', [])
+    if not session_num:
+        return jsonify({'error': 'session required'}), 400
+
+    for r in records:
+        _set_attendance(cid, r.get('student_id'), session_num,
+                        r.get('status', 'absent'), r.get('notes', ''))
     return jsonify({'ok': True, 'updated': len(records)})
 
 
