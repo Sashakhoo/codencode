@@ -5178,6 +5178,12 @@ with app.app_context():
             if 'temp_password' not in user_cols:
                 conn.execute(text('ALTER TABLE users ADD COLUMN temp_password VARCHAR(100)'))
                 conn.commit()
+            if 'reset_token' not in user_cols:
+                conn.execute(text('ALTER TABLE users ADD COLUMN reset_token VARCHAR(100)'))
+                conn.commit()
+            if 'reset_token_expires' not in user_cols:
+                conn.execute(text('ALTER TABLE users ADD COLUMN reset_token_expires DATETIME'))
+                conn.commit()
             if 'bill_company_name' not in user_cols:
                 conn.execute(text('ALTER TABLE users ADD COLUMN bill_company_name VARCHAR(200)'))
                 conn.commit()
