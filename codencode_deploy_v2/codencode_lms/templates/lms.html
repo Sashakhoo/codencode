@@ -1588,6 +1588,9 @@
         <button class="nav-item" onclick="switchView('learn')">
           <i class="fas fa-chalkboard"></i><span data-i18n="learn">Slides &amp; Quiz</span>
         </button>
+        <button class="nav-item" onclick="switchView('assignments')">
+          <i class="fas fa-edit"></i><span data-i18n="assignments">Assignments</span>
+        </button>
         <button class="nav-item" onclick="switchView('grades')">
           <i class="fas fa-chart-bar"></i><span data-i18n="grades">My Grades</span>
         </button>
@@ -1794,6 +1797,16 @@
         </div>
         <div id="recordings-container"><div style="color:var(--muted);font-family:var(--font-m);font-size:12px;padding:32px;text-align:center" data-i18n="common.noProgress">No progress yet.</div></div>
         <!-- week items rendered by loadVideos() -->
+      </div>
+
+      <div class="view" id="view-assignments">
+        <div class="page-header">
+          <div class="page-label" data-i18n="hdr.assignments.label">Homework</div>
+          <div class="page-title" data-i18n="hdr.assignments.title">Assignments</div>
+          <div class="page-sub" data-i18n="hdr.assignments.sub">// Submit your homework and projects for your teacher to review</div>
+        </div>
+        <div id="assignments-container"><div style="color:var(--muted);font-family:var(--font-m);font-size:12px;padding:32px;text-align:center" data-i18n="common.noProgress">No progress yet.</div></div>
+        <!-- assignment cards rendered by loadAssignments() -->
       </div>
 
       <div class="view" id="view-grades">
@@ -3013,7 +3026,7 @@ function showError(id, msg) {
 
 const VIEW_TITLES = {
   'dashboard':'Dashboard','videos':'Recordings','materials':'Materials',
-  'grades':'My Grades',
+  'assignments':'Assignments', 'grades':'My Grades',
   't-dashboard':'Overview','t-videos':'Recordings','t-materials':'Materials',
   't-assignments':'Assignments','t-grading':'Grading','t-students':'Students','t-attendance':'Attendance','t-certificates':'Certificates','t-timetable':'Timetable',
   'timetable':'Timetable'
@@ -3022,7 +3035,7 @@ const VIEW_TITLES = {
 // view id → I18N key for the top-bar title (keeps titles translatable)
 const VIEW_TITLE_KEYS = {
   dashboard:'dashboard', videos:'recordings', learn:'learn',
-  grades:'grades', timetable:'timetable', discussion:'discussion', certificates:'certificates',
+  assignments:'assignments', grades:'grades', timetable:'timetable', discussion:'discussion', certificates:'certificates',
   practice:'quizzes',
   't-dashboard':'th.overview', 't-videos':'recordings', 't-materials':'materials',
   't-assignments':'assignments', 't-grading':'th.grading', 't-students':'th.students',
@@ -3035,6 +3048,7 @@ const VIEW_TITLE_KEYS = {
 const VIEW_LOADERS = {
   'dashboard':    loadStudentDashboard,
   'videos':       loadVideos,
+  'assignments':  loadAssignments,
   'grades':       loadGrades,
   't-dashboard':  loadTeacherDashboard,
   't-videos':     loadTeacherVideos,
@@ -4870,6 +4884,7 @@ const I18N = {
     'hdr.dashboard.sub':'// Session {wk} of {tot}', 'hdr.dashboard.subProg':'// {prog} · Session {wk} of {tot}',
     'hdr.videos.label':'Recordings', 'hdr.videos.title':'Class Recordings', 'hdr.videos.sub':'// click to watch',
     'hdr.materials.label':'Course Materials', 'hdr.materials.title':'Downloads', 'hdr.materials.sub':'// click to download',
+    'hdr.assignments.label':'Homework', 'hdr.assignments.title':'Assignments', 'hdr.assignments.sub':'// Submit your homework and projects for your teacher to review',
     'hdr.grades.label':'My Grades', 'hdr.grades.title':'Grade Overview', 'hdr.grades.sub':'// Current average: {avg}',
     'hdr.timetable.label':'Schedule', 'hdr.timetable.title':'My Timetable', 'hdr.timetable.sub':'// Month-by-month class schedule',
     'hdr.discussion.label':'Discussion', 'hdr.discussion.title':'Discussion', 'hdr.discussion.sub':'// Ask questions, share insights',
@@ -5304,6 +5319,7 @@ const I18N = {
     'hdr.dashboard.sub':'// 第 {wk} / {tot} 节', 'hdr.dashboard.subProg':'// {prog} · 第 {wk} / {tot} 节',
     'hdr.videos.label':'课程录像', 'hdr.videos.title':'课堂录像', 'hdr.videos.sub':'// 点击观看',
     'hdr.materials.label':'课程资料', 'hdr.materials.title':'下载', 'hdr.materials.sub':'// 点击下载',
+    'hdr.assignments.label':'作业', 'hdr.assignments.title':'作业列表', 'hdr.assignments.sub':'// 提交您的作业和项目供老师批改',
     'hdr.grades.label':'我的成绩', 'hdr.grades.title':'成绩总览', 'hdr.grades.sub':'// 当前平均分：{avg}',
     'hdr.timetable.label':'时间表', 'hdr.timetable.title':'我的时间表', 'hdr.timetable.sub':'// 按月查看的上课时间表',
     'hdr.discussion.label':'讨论区', 'hdr.discussion.title':'讨论区', 'hdr.discussion.sub':'// 提出问题，分享见解',
@@ -5734,6 +5750,7 @@ const I18N = {
     'hdr.dashboard.sub':'// Sesi {wk} daripada {tot}', 'hdr.dashboard.subProg':'// {prog} · Sesi {wk} daripada {tot}',
     'hdr.videos.label':'Rakaman', 'hdr.videos.title':'Rakaman Kelas', 'hdr.videos.sub':'// klik untuk tonton',
     'hdr.materials.label':'Bahan Kursus', 'hdr.materials.title':'Muat Turun', 'hdr.materials.sub':'// klik untuk muat turun',
+    'hdr.assignments.label':'Kerja Rumah', 'hdr.assignments.title':'Tugasan', 'hdr.assignments.sub':'// Hantar kerja rumah dan projek anda untuk disemak guru',
     'hdr.grades.label':'Gred Saya', 'hdr.grades.title':'Ringkasan Gred', 'hdr.grades.sub':'// Purata semasa: {avg}',
     'hdr.timetable.label':'Jadual', 'hdr.timetable.title':'Jadual Saya', 'hdr.timetable.sub':'// Jadual kelas mengikut bulan',
     'hdr.discussion.label':'Perbincangan', 'hdr.discussion.title':'Perbincangan', 'hdr.discussion.sub':'// Tanya soalan, kongsi idea',
@@ -6248,7 +6265,7 @@ function navigateToResult(r) {
   document.getElementById('search-results').style.display = 'none';
   document.getElementById('search-input').value = '';
   if (r.type === 'material') learnOpenLesson(r.id);
-  else if (r.type === 'assignment') switchView('grades');
+  else if (r.type === 'assignment') switchView('assignments');
   else if (r.type === 'discussion') switchView('discussion');
 }
 
