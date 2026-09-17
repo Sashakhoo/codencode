@@ -11,6 +11,7 @@ codencode.my LMS — Flask Backend
 
 import os
 import uuid
+import secrets
 import re
 import base64
 import time
@@ -119,6 +120,11 @@ _BUSINESS_ADDR  = os.environ.get(
 )
 _BUSINESS_PHONE = os.environ.get('BUSINESS_PHONE', '0196811628')
 _BUSINESS_EMAIL = os.environ.get('BUSINESS_EMAIL', 'codencodemy@gmail.com')
+
+# Shared secret with CNC Finance's one-way "invoice paid -> enroll student"
+# sync (see that repo's backend/lms_sync.py). Must match FINANCE_SYNC_SECRET
+# used there as the X-Finance-Secret header.
+_FINANCE_SYNC_SECRET = os.environ.get('FINANCE_SYNC_SECRET', '')
 _BUSINESS_WEBSITE = os.environ.get('BUSINESS_WEBSITE', 'codencode.my')
 _INVOICE_DUE_DAYS = int(os.environ.get('INVOICE_DUE_DAYS', '14'))
 _BANK_NAME = os.environ.get('BANK_NAME', 'MAYBANK')
@@ -1553,6 +1559,84 @@ def api_set_enrollment_date(eid):
         return jsonify({'error': 'enrolled_at must be YYYY-MM-DD'}), 400
     db.session.commit()
     return jsonify({'enrollment': enr.to_dict()})
+
+
+@app.route('/api/integrations/finance/enroll', methods=['POST'])
+def finance_enroll():
+    """One-way sync target for CNC Finance: when an invoice there is marked
+    Paid/Deposit, it posts here to create the student account (if new) and
+    enroll them in whichever courses match the invoice's line items.
+    Enrollment date/timing/class format are deliberately left blank -
+    Finance doesn't know the real class schedule, so those get filled in
+    manually here afterwards."""
+    if not _FINANCE_SYNC_SECRET or request.headers.get('X-Finance-Secret') != _FINANCE_SYNC_SECRET:
+        return jsonify({'error': 'Forbidden'}), 403
+
+    data  = request.get_json() or {}
+    name  = (data.get('name') or '').strip()
+    email = (data.get('email') or '').strip().lower()
+    if not name or not email:
+        return jsonify({'error': 'name and email required'}), 400
+
+    user = User.query.filter_by(email=email).first()
+    account_created = False
+    if not user:
+        plain_pw = secrets.token_urlsafe(9)
+        user = User(
+            name=name, email=email, role='student',
+            phone=(data.get('phone') or '').strip(),
+            language_pref='en',
+        )
+        user.set_password(plain_pw)
+        user.temp_password = plain_pw
+        db.session.add(user)
+        db.session.commit()
+        account_created = True
+    else:
+        phone = (data.get('phone') or '').strip()
+        if phone and not user.phone:
+            user.phone = phone
+            db.session.commit()
+
+    payment_status = 'paid' if data.get('payment_status') == 'paid' else 'pending'
+    matched, unmatched = [], []
+    for item in (data.get('items') or []):
+        title = (item.get('title') or '').strip()
+        if not title:
+            continue
+        course = Course.query.filter(Course.title.ilike(f"%{title}%")).first()
+        if not course:
+            course = next(
+                (c for c in Course.query.all()
+                 if c.title.lower() in title.lower() or title.lower() in c.title.lower()),
+                None
+            )
+        if not course:
+            unmatched.append({'title': title})
+            continue
+        existing = Enrollment.query.filter_by(student_id=user.id, course_id=course.id).first()
+        if existing:
+            matched.append({'title': title, 'course_id': course.id, 'already_enrolled': True})
+            continue
+        enr = Enrollment(
+            student_id=user.id, course_id=course.id,
+            class_timing='', class_format='',
+            payment_status=payment_status,
+        )
+        db.session.add(enr)
+        db.session.commit()
+        # Enrollment.enrolled_at has a Python-side default (datetime.utcnow)
+        # that fires even when None is passed explicitly, since the ORM
+        # can't tell "explicitly blank" apart from "never set" - force it
+        # to NULL directly so it's actually left blank as intended.
+        db.session.execute(text('UPDATE enrollments SET enrolled_at = NULL WHERE id = :id'), {'id': enr.id})
+        db.session.commit()
+        matched.append({'title': title, 'course_id': course.id})
+
+    if account_created:
+        email_welcome(user.name, user.email, matched[0]['title'] if matched else 'codencode.my')
+
+    return jsonify({'matched': matched, 'unmatched': unmatched, 'account_created': account_created})
 
 
 @app.route('/api/admin/enrollments/<int:eid>', methods=['DELETE'])
