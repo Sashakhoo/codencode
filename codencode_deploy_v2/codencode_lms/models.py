@@ -20,8 +20,6 @@ class User(UserMixin, db.Model):
     is_active     = db.Column(db.Boolean, default=True)
     last_login    = db.Column(db.DateTime)
     temp_password = db.Column(db.String(100), nullable=True)   # plain-text, stored for welcome email only
-    reset_token   = db.Column(db.String(100), nullable=True)   # forgot-password flow, single-use
-    reset_token_expires = db.Column(db.DateTime, nullable=True)
     bill_company_name = db.Column(db.String(200))
     bill_business_reg_number = db.Column(db.String(100))
     bill_sst_number = db.Column(db.String(100))
