@@ -5255,7 +5255,7 @@ with app.app_context():
                 conn.execute(text(f'ALTER TABLE users ADD COLUMN is_active BOOLEAN DEFAULT {_bool_true}'))
                 conn.commit()
             if 'last_login' not in user_cols:
-                conn.execute(text('ALTER TABLE users ADD COLUMN last_login DATETIME'))
+                conn.execute(text('ALTER TABLE users ADD COLUMN last_login TIMESTAMP'))
                 conn.commit()
             if 'temp_password' not in user_cols:
                 conn.execute(text('ALTER TABLE users ADD COLUMN temp_password VARCHAR(100)'))
@@ -5298,7 +5298,7 @@ with app.app_context():
                 conn.execute(text(f'ALTER TABLE materials ADD COLUMN is_published BOOLEAN DEFAULT {_bool_true}'))
                 conn.commit()
             if 'publish_at' not in mat_cols:
-                conn.execute(text('ALTER TABLE materials ADD COLUMN publish_at DATETIME'))
+                conn.execute(text('ALTER TABLE materials ADD COLUMN publish_at TIMESTAMP'))
                 conn.commit()
             if 'order_index' not in mat_cols:
                 conn.execute(text('ALTER TABLE materials ADD COLUMN order_index INTEGER DEFAULT 0'))
@@ -5378,7 +5378,7 @@ with app.app_context():
                 conn.execute(text('ALTER TABLE enrollments ADD COLUMN payment_method VARCHAR(50)'))
                 conn.commit()
             if 'paid_at' not in pay_cols:
-                conn.execute(text('ALTER TABLE enrollments ADD COLUMN paid_at DATETIME'))
+                conn.execute(text('ALTER TABLE enrollments ADD COLUMN paid_at TIMESTAMP'))
                 conn.commit()
             if 'document_number' not in pay_cols:
                 conn.execute(text('ALTER TABLE enrollments ADD COLUMN document_number INTEGER'))
