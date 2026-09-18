@@ -140,6 +140,8 @@ class Cohort(db.Model):
     notes        = db.Column(db.Text)   # free-form notes (e.g. "CNY break session 5")
     teacher_id   = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)
     created_at   = db.Column(db.DateTime, default=datetime.utcnow)
+    zoom_link       = db.Column(db.String(500))   # one recurring meeting, reused every week
+    zoom_meeting_id = db.Column(db.String(50))    # Zoom's numeric meeting id, for matching recording webhooks
 
     course      = db.relationship('Course', back_populates='cohorts')
     enrollments = db.relationship('Enrollment', back_populates='cohort')
@@ -156,6 +158,7 @@ class Cohort(db.Model):
             'current_session': self.current_session,
             'schedule': _json.loads(self.schedule) if self.schedule else [],
             'notes': self.notes or '',
+            'zoom_link': self.zoom_link or '',
             'teacher_id': self.teacher_id,
             'teacher_name': self.teacher.name if self.teacher else '',
             'teacher_title': self.teacher.title if self.teacher else '',

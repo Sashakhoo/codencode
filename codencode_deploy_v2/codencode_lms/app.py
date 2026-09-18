@@ -13,6 +13,8 @@ import os
 import uuid
 import secrets
 import re
+import hmac
+import hashlib
 import base64
 import time
 import urllib.request
@@ -1620,6 +1622,22 @@ def admin_enroll_student(uid):
     )
     db.session.add(e)
     db.session.commit()
+
+    # Assigning a course here is the real "enrolment confirmed" moment in
+    # this system (the UI doesn't currently expose a separate payment_status
+    # toggle) - once a Class/cohort is picked, generate its recurring Zoom
+    # link (idempotent, first student to be assigned creates it) and email
+    # the student their full class-by-class schedule.
+    if e.cohort_id:
+        cohort = Cohort.query.get(e.cohort_id)
+        student = User.query.get(uid)
+        if cohort and student:
+            try:
+                zoom_link = ensure_cohort_zoom_link(cohort, cohort.course)
+                email_class_schedule(student, cohort.course, cohort, zoom_link)
+            except Exception as exc:
+                app.logger.warning('Class schedule email failed for enrollment %s: %s', e.id, exc)
+
     return jsonify({'enrollment': e.to_dict()}), 201
 
 
@@ -2771,6 +2789,211 @@ def _create_zoom_meeting(title, start_dt, duration_minutes):
     )
     with urllib.request.urlopen(req, timeout=20) as res:
         return _json_mod.loads(res.read().decode())
+
+
+def _create_recurring_zoom_meeting(title, first_start_dt, weekly_days, time_start, time_end, occurrences):
+    """One 'recurring, fixed time' Zoom meeting - same join_url every week,
+    matching a class that meets on the same day/time slot(s) every week."""
+    token = _zoom_access_token()
+    if not token:
+        return None
+    zoom_user = os.environ.get('ZOOM_USER_ID', 'me')
+    timezone = os.environ.get('ZOOM_TIMEZONE', 'Asia/Kuala_Lumpur')
+    api_url = _zoom_token_cache.get('api_url') or 'https://api.zoom.us'
+    url = f"{api_url}/v2/users/{urllib.parse.quote(zoom_user, safe='')}/meetings"
+    duration = _time_duration_minutes(time_start, time_end)
+    payload = _json_mod.dumps({
+        'topic': title,
+        'type': 8,  # recurring meeting, fixed time
+        'start_time': first_start_dt.strftime('%Y-%m-%dT%H:%M:%S'),
+        'timezone': timezone,
+        'duration': duration,
+        'recurrence': {
+            'type': 2,  # weekly
+            'repeat_interval': 1,
+            'weekly_days': ','.join(str(d) for d in weekly_days),
+            'end_times': min(60, max(1, occurrences)),  # Zoom caps fixed-time recurrence at 60
+        },
+        'settings': {
+            'join_before_host': True,
+            'waiting_room': False,
+            'mute_upon_entry': True,
+            'approval_type': 2,
+            'audio': 'both',
+        }
+    }).encode()
+    req = urllib.request.Request(
+        url, data=payload,
+        headers={'Authorization': f'Bearer {token}', 'Content-Type': 'application/json'},
+        method='POST'
+    )
+    with urllib.request.urlopen(req, timeout=20) as res:
+        return _json_mod.loads(res.read().decode())
+
+
+def _zoom_day_code(day_name):
+    """Zoom's weekly_days uses 1=Sunday..7=Saturday; _DAY_INDEX uses Monday=0..Sunday=6."""
+    py_weekday = _DAY_INDEX.get(day_name, 0)
+    return (py_weekday + 1) % 7 + 1
+
+
+def ensure_cohort_zoom_link(cohort, course):
+    """Idempotent: the first enrolled student triggers creation of one
+    recurring Zoom meeting for the whole cohort; everyone after reuses it."""
+    if cohort.zoom_link:
+        return cohort.zoom_link
+    if not _zoom_configured():
+        return None
+    slots = _cohort_schedule_slots(cohort)
+    start_date = cohort.start_date
+    if not slots or not start_date:
+        return None
+    weekly_days = sorted({_zoom_day_code(slot['day']) for slot in slots})
+    first_slot = slots[0]
+    first_offset = _day_offset(first_slot['day'], start_date)
+    first_dt = datetime.combine(start_date, datetime.min.time()) + timedelta(days=first_offset)
+    try:
+        h, m = first_slot['time_start'].split(':')
+        first_dt = first_dt.replace(hour=int(h), minute=int(m))
+    except Exception:
+        pass
+    occurrences = (course.total_sessions or 6) * len(slots)
+    try:
+        meeting = _create_recurring_zoom_meeting(
+            f'{course.title} — {cohort.name}', first_dt, weekly_days,
+            first_slot['time_start'], first_slot['time_end'], occurrences
+        )
+    except Exception as exc:
+        app.logger.warning('Zoom recurring meeting creation failed for cohort %s: %s', cohort.id, exc)
+        return None
+    if not meeting or not meeting.get('join_url'):
+        return None
+    cohort.zoom_link = meeting['join_url']
+    cohort.zoom_meeting_id = str(meeting.get('id') or '')
+    db.session.commit()
+    return cohort.zoom_link
+
+
+def email_class_schedule(student, course, cohort, zoom_link):
+    if not student.email:
+        return False
+    timetable = _build_timetable(course, cohort_id=cohort.id if cohort else None)
+    rows_html = []
+    class_no = 0
+    for week_data in timetable['weeks']:
+        for sess in week_data['sessions']:
+            class_no += 1
+            topic = sess.get('topic') or f"Session {sess['session_num']}"
+            when = f"{sess['day']}, {sess['date']}" if sess.get('date') else sess['day']
+            time_range = f"{sess.get('time_start_display','')}–{sess.get('time_end_display','')}"
+            link_html = (f'<a href="{zoom_link}" style="color:#7ec8a0">Join Class →</a>' if zoom_link
+                         else '<em style="color:#627160">link to be shared separately</em>')
+            rows_html.append(f"""
+              <tr style="border-bottom:1px solid rgba(198,206,197,.12)">
+                <td style="padding:8px 10px;color:#C6CEC5">Class {class_no}</td>
+                <td style="padding:8px 10px;color:#C6CEC5">{topic}</td>
+                <td style="padding:8px 10px;color:#A4B4A4;font-size:12px">{when}<br>{time_range}</td>
+                <td style="padding:8px 10px">{link_html}</td>
+              </tr>""")
+    body = f"""
+    <p>Hi <strong>{student.name}</strong>,</p>
+    <p>You're confirmed for <strong>{course.title}</strong>{f' ({cohort.name})' if cohort else ''}.
+    Here's your full class schedule{' — the same Zoom link is used for every class' if zoom_link else ''}:</p>
+    <table style="width:100%;border-collapse:collapse;margin:14px 0">{''.join(rows_html)}</table>
+    <a class="btn" href="https://learn.codencode.my">Open Student Portal →</a>
+    """
+    return send_email(
+        student.email,
+        f"Your Class Schedule — {course.title}",
+        _email_wrapper('Your Classes & Zoom Links 📅', body)
+    )
+
+
+def _zoom_verify_webhook_signature(secret_token, timestamp, raw_body, signature_header):
+    if not signature_header or not signature_header.startswith('v0='):
+        return False
+    message = f'v0:{timestamp}:{raw_body}'
+    expected = 'v0=' + hmac.new(secret_token.encode(), message.encode(), hashlib.sha256).hexdigest()
+    return hmac.compare_digest(expected, signature_header)
+
+
+@app.route('/api/integrations/zoom/webhook', methods=['POST'])
+def zoom_webhook():
+    """Zoom Marketplace event subscription target. Handles the one-time
+    endpoint.url_validation handshake, then recording.completed events to
+    auto-add the cloud recording to the matching cohort's Recordings tab."""
+    secret = os.environ.get('ZOOM_WEBHOOK_SECRET_TOKEN', '')
+    payload = request.get_json(silent=True) or {}
+    event = payload.get('event')
+
+    if event == 'endpoint.url_validation':
+        plain_token = (payload.get('payload') or {}).get('plainToken', '')
+        if not secret:
+            return jsonify({'error': 'ZOOM_WEBHOOK_SECRET_TOKEN not configured'}), 500
+        encrypted = hmac.new(secret.encode(), plain_token.encode(), hashlib.sha256).hexdigest()
+        return jsonify({'plainToken': plain_token, 'encryptedToken': encrypted})
+
+    if not secret or not _zoom_verify_webhook_signature(
+        secret, request.headers.get('x-zm-request-timestamp', ''),
+        request.get_data(as_text=True), request.headers.get('x-zm-signature', '')
+    ):
+        return jsonify({'error': 'Invalid signature'}), 401
+
+    if event == 'recording.completed':
+        obj = (payload.get('payload') or {}).get('object') or {}
+        meeting_id = str(obj.get('id') or '')
+        cohort = Cohort.query.filter_by(zoom_meeting_id=meeting_id).first()
+        if not cohort:
+            return jsonify({'ok': True, 'skipped': 'no matching cohort'}), 200
+        files = obj.get('recording_files') or []
+        video = next((f for f in files if f.get('file_type') == 'MP4'), None)
+        if not video:
+            return jsonify({'ok': True, 'skipped': 'no video file'}), 200
+        recording_url = video.get('play_url') or video.get('download_url') or ''
+
+        # Match the recording to a syllabus week/topic by comparing the
+        # meeting's calendar date (converted from UTC to Malaysia time -
+        # no DST, so a fixed +8h shift is always correct) against the
+        # cohort's computed weekly schedule.
+        target_week, target_snum, topic = None, 1, obj.get('topic', 'Class Recording')
+        start_time_raw = obj.get('start_time')
+        if start_time_raw:
+            try:
+                utc_dt = datetime.strptime(start_time_raw, '%Y-%m-%dT%H:%M:%SZ')
+                local_date_iso = (utc_dt + timedelta(hours=8)).strftime('%Y-%m-%d')
+                timetable = _build_timetable(cohort.course, cohort_id=cohort.id)
+                for week_data in timetable['weeks']:
+                    for sess in week_data['sessions']:
+                        if sess.get('date_iso') == local_date_iso:
+                            target_week = week_data['week']
+                            target_snum = sess['session_num']
+                            if sess.get('topic'):
+                                topic = sess['topic']
+                            break
+                    if target_week:
+                        break
+            except Exception:
+                pass
+        if target_week is None:
+            target_week = cohort.current_session or 1
+
+        existing = Recording.query.filter_by(
+            course_id=cohort.course_id, cohort_id=cohort.id,
+            week=target_week, session_num=target_snum, source_type='zoom'
+        ).first()
+        if existing:
+            existing.recording_url = recording_url
+            existing.title = topic
+        else:
+            db.session.add(Recording(
+                course_id=cohort.course_id, cohort_id=cohort.id,
+                week=target_week, session_num=target_snum,
+                title=topic, recording_url=recording_url, source_type='zoom',
+            ))
+        db.session.commit()
+
+    return jsonify({'ok': True})
+
 
 @app.route('/api/sessions', methods=['GET', 'POST'])
 @login_required
@@ -5338,6 +5561,12 @@ with app.app_context():
                 conn.commit()
             if 'teacher_id' not in coh_cols:
                 conn.execute(text('ALTER TABLE cohorts ADD COLUMN teacher_id INTEGER'))
+                conn.commit()
+            if 'zoom_link' not in coh_cols:
+                conn.execute(text('ALTER TABLE cohorts ADD COLUMN zoom_link VARCHAR(500)'))
+                conn.commit()
+            if 'zoom_meeting_id' not in coh_cols:
+                conn.execute(text('ALTER TABLE cohorts ADD COLUMN zoom_meeting_id VARCHAR(50)'))
                 conn.commit()
     except Exception:
         pass
