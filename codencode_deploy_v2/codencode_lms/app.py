@@ -33,7 +33,7 @@ from flask_login import (LoginManager, login_user, logout_user,
 from sqlalchemy import text
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import joinedload
-from itsdangerous import BadSignature, URLSafeSerializer
+from itsdangerous import BadSignature, SignatureExpired, URLSafeSerializer, URLSafeTimedSerializer
 from werkzeug.utils import secure_filename
 
 import io
@@ -218,14 +218,38 @@ def _email_wrapper(title: str, body_html: str) -> str:
 </div></body></html>"""
 
 
-def email_welcome(student_name: str, email: str, course_title: str):
+def email_welcome(student_name: str, email: str, course_title: str, temp_password: str = None):
+    creds_html = ''
+    if temp_password:
+        creds_html = f"""
+        <p>Here are your login details:</p>
+        <p style="background:#22301F;border:1px solid rgba(198,206,197,.15);border-radius:8px;
+                  padding:12px 16px;font-family:monospace">
+          Email: <strong>{email}</strong><br>
+          Temporary password: <strong>{temp_password}</strong>
+        </p>
+        <p style="color:#627160;font-size:12px">You can change this anytime from your profile,
+        or use "Forgot password?" on the login page if you lose it.</p>
+        """
     body = f"""
     <p>Hi <strong>{student_name}</strong>,</p>
     <p>Welcome to <strong>{course_title}</strong> on codencode.my! Your account is ready.</p>
+    {creds_html}
     <p>Log in now to access your course materials, timetable, and assignments.</p>
     <a class="btn" href="https://learn.codencode.my">Start Learning →</a>
     """
     return send_email(email, f'Welcome to {course_title} — codencode.my', _email_wrapper('Welcome aboard! 🎉', body))
+
+
+def email_password_reset(student_name: str, email: str, reset_url: str):
+    body = f"""
+    <p>Hi <strong>{student_name}</strong>,</p>
+    <p>We received a request to reset your codencode.my password. Click below to choose a new one.</p>
+    <a class="btn" href="{reset_url}">Reset Password →</a>
+    <p style="color:#627160;font-size:12px">This link expires in 1 hour. If you didn't request this,
+    you can safely ignore this email — your password won't be changed.</p>
+    """
+    return send_email(email, 'Reset your password — codencode.my', _email_wrapper('Password Reset Requested 🔑', body))
 
 
 def email_assignment_graded(student_name: str, email: str, assignment_title: str, score, feedback: str):
@@ -688,6 +712,7 @@ def _certificate_quantity(data):
 @app.route('/')
 @app.route('/lms')
 @app.route('/login')
+@app.route('/reset-password')
 def serve_frontend():
     return send_from_directory('templates', 'lms.html')
 
@@ -767,6 +792,63 @@ def api_admin_registrations():
 # ─────────────────────────────────────────────
 # AUTH
 # ─────────────────────────────────────────────
+
+# Password reset tokens are stateless (signed with SECRET_KEY, no DB column):
+# a fragment of the current password_hash is baked into the payload, so the
+# token stops working the moment it's used once (the hash changes) and needs
+# no migration or cleanup job.
+def _reset_serializer():
+    return URLSafeTimedSerializer(app.config['SECRET_KEY'], salt='password-reset')
+
+
+def _make_reset_token(user):
+    return _reset_serializer().dumps({'uid': user.id, 'pwh': user.password_hash[:24]})
+
+
+def _verify_reset_token(token, max_age=3600):
+    try:
+        data = _reset_serializer().loads(token, max_age=max_age)
+    except (BadSignature, SignatureExpired):
+        return None
+    user = User.query.get(data.get('uid'))
+    if not user or user.password_hash[:24] != data.get('pwh'):
+        return None
+    return user
+
+
+@app.route('/api/auth/forgot-password', methods=['POST'])
+def api_forgot_password():
+    data = request.get_json(silent=True) or {}
+    email = (data.get('email') or '').strip().lower()
+    user = User.query.filter_by(email=email).first() if email else None
+    if user:
+        token = _make_reset_token(user)
+        reset_url = f'https://learn.codencode.my/reset-password?token={token}'
+        try:
+            email_password_reset(user.name, user.email, reset_url)
+        except Exception as exc:
+            app.logger.warning('Password reset email failed: %s', exc)
+    # Always return ok, whether or not the email exists, to avoid leaking
+    # which addresses have accounts.
+    return jsonify({'ok': True})
+
+
+@app.route('/api/auth/reset-password', methods=['POST'])
+def api_reset_password():
+    data = request.get_json(silent=True) or {}
+    token = data.get('token') or ''
+    new_password = data.get('password') or ''
+    if len(new_password) < 6:
+        return jsonify({'error': 'Password must be at least 6 characters'}), 400
+    user = _verify_reset_token(token)
+    if not user:
+        return jsonify({'error': 'This reset link is invalid or has expired'}), 400
+    user.set_password(new_password)
+    user.temp_password = None
+    db.session.commit()
+    return jsonify({'ok': True})
+
+
 @app.route('/api/auth/login', methods=['POST'])
 def api_login():
     data  = request.get_json()
@@ -1634,7 +1716,7 @@ def finance_enroll():
         matched.append({'title': title, 'course_id': course.id})
 
     if account_created:
-        email_welcome(user.name, user.email, matched[0]['title'] if matched else 'codencode.my')
+        email_welcome(user.name, user.email, matched[0]['title'] if matched else 'codencode.my', plain_pw)
 
     return jsonify({'matched': matched, 'unmatched': unmatched, 'account_created': account_created})
 

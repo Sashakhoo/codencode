@@ -1531,7 +1531,7 @@
       </div>
       <div class="login-title" data-i18n="login.title">Learning Portal</div>
     </div>
-    <div class="login-body">
+    <div class="login-body" id="login-view-login">
       <div class="form-group">
         <label class="form-label" data-i18n="login.email">Email</label>
         <input class="form-input" type="email" id="login-email" placeholder="you@codencode.my" autocomplete="email" />
@@ -1542,6 +1542,38 @@
       </div>
       <button class="btn-login" onclick="doLogin()">
         <i class="fas fa-sign-in-alt"></i> <span data-i18n="login.submit">Access Portal</span>
+      </button>
+      <div style="text-align:center;margin-top:14px">
+        <a href="#" onclick="showForgotView();return false;" style="color:var(--muted-fg,#7ec8a0);font-size:12px;text-decoration:underline">Forgot password?</a>
+      </div>
+    </div>
+
+    <div class="login-body" id="login-view-forgot" style="display:none">
+      <p style="color:#A4B4A4;font-size:13px;margin:0 0 16px">Enter your account email and we'll send you a link to reset your password.</p>
+      <div class="form-group">
+        <label class="form-label">Email</label>
+        <input class="form-input" type="email" id="forgot-email" placeholder="you@codencode.my" autocomplete="email" />
+      </div>
+      <button class="btn-login" onclick="doForgotPassword()">
+        <i class="fas fa-paper-plane"></i> <span>Send Reset Link</span>
+      </button>
+      <div style="text-align:center;margin-top:14px">
+        <a href="#" onclick="showLoginView();return false;" style="color:var(--muted-fg,#7ec8a0);font-size:12px;text-decoration:underline">Back to login</a>
+      </div>
+    </div>
+
+    <div class="login-body" id="login-view-reset" style="display:none">
+      <p style="color:#A4B4A4;font-size:13px;margin:0 0 16px">Choose a new password for your account.</p>
+      <div class="form-group">
+        <label class="form-label">New password</label>
+        <input class="form-input" type="password" id="reset-pass" placeholder="At least 6 characters" autocomplete="new-password" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Confirm password</label>
+        <input class="form-input" type="password" id="reset-pass-confirm" placeholder="Re-enter password" autocomplete="new-password" />
+      </div>
+      <button class="btn-login" onclick="doResetPassword()">
+        <i class="fas fa-check"></i> <span>Set New Password</span>
       </button>
     </div>
   </div>
@@ -2924,6 +2956,72 @@ function showLoginScreen() {
   document.getElementById('login-screen').style.display  = 'flex';
   document.getElementById('login-screen').style.opacity  = '1';
   document.getElementById('app').classList.remove('visible');
+  const params = new URLSearchParams(window.location.search);
+  const token = params.get('token');
+  if (token) {
+    showResetView(token);
+  } else {
+    showLoginView();
+  }
+}
+
+function showLoginView() {
+  document.getElementById('login-view-login').style.display  = 'block';
+  document.getElementById('login-view-forgot').style.display = 'none';
+  document.getElementById('login-view-reset').style.display  = 'none';
+}
+
+function showForgotView() {
+  document.getElementById('login-view-login').style.display  = 'none';
+  document.getElementById('login-view-forgot').style.display = 'block';
+  document.getElementById('login-view-reset').style.display  = 'none';
+}
+
+function showResetView(token) {
+  document.getElementById('login-view-login').style.display  = 'none';
+  document.getElementById('login-view-forgot').style.display = 'none';
+  document.getElementById('login-view-reset').style.display  = 'block';
+  document.getElementById('login-view-reset').dataset.token  = token;
+}
+
+async function doForgotPassword() {
+  const email = document.getElementById('forgot-email').value.trim();
+  const btn   = document.querySelector('#login-view-forgot .btn-login');
+  if (!email) { showError('forgot-error', 'Enter your email'); return; }
+  btn.disabled = true;
+  try {
+    await POST('/api/auth/forgot-password', { email });
+    document.getElementById('login-view-forgot').innerHTML =
+      '<p style="color:#7ec8a0;font-size:13px;text-align:center;padding:12px 0">' +
+      'If that email is registered, a reset link is on its way. Check your inbox.</p>' +
+      '<div style="text-align:center;margin-top:6px"><a href="#" onclick="showLoginView();return false;" ' +
+      'style="color:#7ec8a0;font-size:12px;text-decoration:underline">Back to login</a></div>';
+  } catch (e) {
+    btn.disabled = false;
+    showError('forgot-error', e.message);
+  }
+}
+
+async function doResetPassword() {
+  const token   = document.getElementById('login-view-reset').dataset.token;
+  const pass    = document.getElementById('reset-pass').value;
+  const confirm = document.getElementById('reset-pass-confirm').value;
+  const btn     = document.querySelector('#login-view-reset .btn-login');
+  if (pass.length < 6) { showError('reset-error', 'Password must be at least 6 characters'); return; }
+  if (pass !== confirm) { showError('reset-error', 'Passwords do not match'); return; }
+  btn.disabled = true;
+  try {
+    await POST('/api/auth/reset-password', { token, password: pass });
+    document.getElementById('login-view-reset').innerHTML =
+      '<p style="color:#7ec8a0;font-size:13px;text-align:center;padding:12px 0">' +
+      'Password updated! You can log in now.</p>' +
+      '<div style="text-align:center;margin-top:6px"><a href="#" onclick="showLoginView();return false;" ' +
+      'style="color:#7ec8a0;font-size:12px;text-decoration:underline">Go to login</a></div>';
+    history.replaceState(null, '', '/login');
+  } catch (e) {
+    btn.disabled = false;
+    showError('reset-error', e.message);
+  }
 }
 
 async function bootApp() {
@@ -3017,7 +3115,9 @@ function showError(id, msg) {
     el = document.createElement('div');
     el.id = id;
     el.style.cssText = 'color:var(--red);font-family:var(--font-m);font-size:11px;margin-top:8px;text-align:center';
-    document.querySelector('.btn-login').after(el);
+    const visibleLoginView = document.querySelector('#login-screen .login-body:not([style*="display: none"])');
+    const anchor = (visibleLoginView || document).querySelector('.btn-login') || document.querySelector('.btn-login');
+    anchor.after(el);
   }
   el.textContent = '⚠ ' + msg;
 }
