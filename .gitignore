@@ -15,3 +15,6 @@ __pycache__/
 
 # Uploads (user files, kept locally only)
 codencode_deploy_v2/codencode_lms/uploads/
+
+# macOS
+.DS_Store
