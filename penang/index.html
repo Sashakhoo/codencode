@@ -2,55 +2,49 @@
 <html lang="en">
 <head>
 <meta charset="utf-8"/>
-  <link rel="icon" href="/favicon.ico" sizes="any">
-  <link rel="icon" type="image/png" sizes="16x16" href="/logo/favicon-16.png">
-  <link rel="icon" type="image/png" sizes="32x32" href="/logo/favicon-32.png">
-  <link rel="icon" type="image/png" sizes="192x192" href="/logo/favicon-192.png">
-  <link rel="icon" type="image/png" sizes="512x512" href="/logo/favicon-512.png">
-  <link rel="apple-touch-icon" sizes="180x180" href="/logo/favicon-180.png">
+  <link rel="icon" type="image/png" sizes="64x64" href="data:image/png;base64,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" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Python, Cybersecurity &amp; AI Courses Johor Bahru | codencode.my</title>
-<meta name="description" content="Online Python, ML &amp; cybersecurity courses in Johor Bahru, plus in-person AI workshops at Mount Austin. English, Mandarin &amp; Malay. First class free."/>
-<meta name="keywords" content="computer science course Johor Bahru, machine learning classes near me, machine learning course Malaysia, data science classes near me, data engineering classes near me, deep learning classes near me, coding academy Johor Bahru, Python course JB, computer class Johor Bahru, belajar coding online Malaysia, kelas Python Johor, 编程课程 新山, AI course Johor, SPM leaver tech course, career change Malaysia coding, programming classes near me, NLP classes near me, computer classes near me, cybersecurity course Johor Bahru, cyber security classes Malaysia, kursus keselamatan siber, 网络安全课程 新山, AI workshop Mount Austin, corporate training Mount Austin JB, half day AI workshop Johor Bahru"/>
+<title>Python, Cybersecurity &amp; AI Courses Penang (Online) | codencode.my</title>
+<meta name="description" content="Online Python, ML &amp; cybersecurity courses for students in Penang — live via Zoom, taught in English, Mandarin &amp; Malay. First class free. In-person AI workshops available at Mount Austin, JB."/>
+<meta name="keywords" content="computer science course Penang, machine learning classes Penang, online machine learning course Malaysia, data science classes Penang, coding academy Penang, Python course Penang, online computer class Penang, belajar coding online Malaysia, kelas Python Penang, 编程课程 槟城, AI course Penang, SPM leaver tech course, career change Malaysia coding, online programming classes Penang, cybersecurity course Penang, cyber security classes Malaysia, kursus keselamatan siber Penang, 网络安全课程 槟城, HRD Corp claimable training Malaysia, HRDC training provider Malaysia, SBL Khas AI training, AI for C-suite executives Malaysia"/>
 <meta name="robots" content="index, follow"/>
-<meta name="geo.region" content="MY-01"/>
-<meta name="geo.placename" content="Johor Bahru, Johor, Malaysia"/>
-<meta name="geo.position" content="1.4927;103.7414"/>
+<meta name="geo.region" content="MY-07"/>
+<meta name="geo.placename" content="Penang, Malaysia"/>
+<meta name="geo.position" content="5.4141;100.3288"/>
 <meta name="language" content="English, Malay, Chinese"/>
-<link rel="canonical" href="https://codencode.my/"/>
+<link rel="canonical" href="https://codencode.my/penang/"/>
 <meta property="og:type" content="website"/>
-<meta property="og:url" content="https://codencode.my/"/>
-<meta property="og:title" content="Python, Cybersecurity &amp; AI Courses Johor Bahru | codencode.my"/>
-<meta property="og:description" content="Online Python, ML &amp; cybersecurity courses plus in-person AI workshops at Mount Austin, JB. English, Mandarin &amp; Malay. First class free."/>
+<meta property="og:url" content="https://codencode.my/penang/"/>
+<meta property="og:title" content="Python, Cybersecurity &amp; AI Courses Penang (Online) | codencode.my"/>
+<meta property="og:description" content="Online Python, ML &amp; cybersecurity courses for Penang students — live via Zoom. English, Mandarin &amp; Malay. First class free."/>
 <meta property="og:image" content="https://codencode.my/marketing/codencode-circle-1080.png"/>
 <meta property="og:locale" content="en_MY"/>
 <meta property="og:locale:alternate" content="zh_MY"/>
 <meta property="og:locale:alternate" content="ms_MY"/>
 <meta name="twitter:card" content="summary_large_image"/>
-<meta name="twitter:title" content="codencode.my | Python, Cybersecurity &amp; AI Courses in Johor Bahru"/>
-<meta name="twitter:description" content="Online courses plus in-person AI workshops at Mount Austin, JB. English, Mandarin &amp; Malay. First class free."/>
+<meta name="twitter:title" content="codencode.my | Python, Cybersecurity &amp; AI Courses for Penang"/>
+<meta name="twitter:description" content="Online Python, ML &amp; cybersecurity courses for Penang students, live via Zoom. English, Mandarin &amp; Malay."/>
 <script type="application/ld+json">
 {
   "@context":"https://schema.org",
   "@graph":[
     {"@type":["EducationalOrganization","LocalBusiness"],"@id":"https://codencode.my/#org","name":"codencode.my","url":"https://codencode.my","description":"Practical coding, AI and cybersecurity academy in Johor Bahru. Fully online Python, Machine Learning, Cybersecurity and Vibe Coding courses, plus in-person AI workshops at Mount Austin. Taught in English, Mandarin and Malay.","telephone":"+60196811628","email":"hello@codencode.my","address":{"@type":"PostalAddress","streetAddress":"Bandar Johor Bahru","addressLocality":"Johor Bahru","addressRegion":"Johor","postalCode":"81300","addressCountry":"MY"},"geo":{"@type":"GeoCoordinates","latitude":1.4927,"longitude":103.7414},"areaServed":[{"@type":"City","name":"Johor Bahru"},{"@type":"City","name":"Penang"},{"@type":"City","name":"Kuala Lumpur"},{"@type":"City","name":"Alor Setar"}],"availableLanguage":[{"@type":"Language","name":"English"},{"@type":"Language","name":"Mandarin Chinese","alternateName":"中文"},{"@type":"Language","name":"Malay","alternateName":"Bahasa Melayu"}],"knowsAbout":["Python programming","Machine Learning","Cybersecurity","Artificial Intelligence","Vibe Coding"],"dateModified":"2026-07-24","sameAs":["https://instagram.com/codencode.my","https://www.tiktok.com/@codencode.my"],"aggregateRating":{"@type":"AggregateRating","ratingValue":"4.7","reviewCount":"12","bestRating":"5"}},
-    {"@type":"WebPage","@id":"https://codencode.my/#webpage","url":"https://codencode.my/","name":"codencode.my — Python, Cybersecurity & AI Courses Johor Bahru","isPartOf":{"@id":"https://codencode.my/#org"},"about":{"@id":"https://codencode.my/#org"},"dateModified":"2026-07-24","inLanguage":"en","speakable":{"@type":"SpeakableSpecification","cssSelector":[".h-desc",".faq-list",".sub"]}},
+    {"@type":"WebPage","@id":"https://codencode.my/penang/#webpage","url":"https://codencode.my/penang/","name":"codencode.my — Python, Cybersecurity & AI Courses for Penang (Online)","isPartOf":{"@id":"https://codencode.my/#org"},"about":{"@id":"https://codencode.my/#org"},"dateModified":"2026-09-18","inLanguage":"en","speakable":{"@type":"SpeakableSpecification","cssSelector":[".h-desc",".faq-list",".sub"]}},
     {"@type":"Course","name":"Python Fundamentals","description":"6-week + 1-week project online Python course for beginners. Taught in English, Mandarin and Malay. Johor Bahru, Malaysia.","provider":{"@id":"https://codencode.my/#org"},"courseMode":"online","educationalLevel":"Beginner","timeRequired":"P7W"},
     {"@type":"Course","name":"Machine Learning Fundamentals","description":"10-week online machine learning course for intermediate learners. English, Mandarin and Malay. Johor Bahru, Malaysia.","provider":{"@id":"https://codencode.my/#org"},"courseMode":"online","educationalLevel":"Intermediate","timeRequired":"P10W"},
     {"@type":"Course","name":"Cybersecurity Fundamentals","description":"6-week + 1-week project online cybersecurity course. Phishing, password hygiene, network basics, intro pentesting. For beginners and anyone who touches a work laptop. Johor Bahru, Malaysia.","provider":{"@id":"https://codencode.my/#org"},"courseMode":"online","educationalLevel":"Beginner","timeRequired":"P7W"},
     {"@type":"Course","name":"Vibe Coding","description":"4-week course building real apps with AI tools like Cursor, GitHub Copilot and Claude. No deep CS background needed. Johor Bahru, Malaysia.","provider":{"@id":"https://codencode.my/#org"},"courseMode":"online","educationalLevel":"Beginner","timeRequired":"P4W"},
+    {"@type":"Course","name":"AI for C-Suites — Executive AI Alignment Day","description":"Full-day, in-house, HRD Corp-claimable AI briefing for boards and leadership teams. Live demos in AI agents, automation, predictive analytics, marketing and governance. Johor Bahru, Malaysia.","provider":{"@id":"https://codencode.my/#org"},"courseMode":"onsite","educationalLevel":"Executive","timeRequired":"P1D"},
     {"@type":"FAQPage","mainEntity":[
-      {"@type":"Question","name":"Is there a computer science course in Johor Bahru?","acceptedAnswer":{"@type":"Answer","text":"Yes. codencode.my offers online computer science, Python, cybersecurity and machine learning courses based in Johor Bahru, taught in English, Mandarin and Bahasa Melayu via Zoom."}},
-      {"@type":"Question","name":"Do I need experience?","acceptedAnswer":{"@type":"Answer","text":"No. We start from absolute zero."}},
-      {"@type":"Question","name":"Is this online?","acceptedAnswer":{"@type":"Answer","text":"100% online via Zoom. Join from anywhere in Malaysia."}},
-      {"@type":"Question","name":"What languages?","acceptedAnswer":{"@type":"Answer","text":"English, Mandarin (中文) and Bahasa Melayu."}},
+      {"@type":"Question","name":"Do you offer coding classes for students in Penang?","acceptedAnswer":{"@type":"Answer","text":"Yes. All codencode.my courses (Python, Machine Learning, Cybersecurity, Vibe Coding) are 100% online via Zoom, so students in Penang join the same live classes as everyone else — no travel needed."}},
+      {"@type":"Question","name":"I've never coded before. Will I be totally lost?","acceptedAnswer":{"@type":"Answer","text":"Nope. We start from absolute zero — like \"what is a variable?\" zero. Slow enough to understand, fast enough to not get bored. Vibe Coding is an even gentler entry point if you want to build something in week one."}},
+      {"@type":"Question","name":"Which language will my class be in?","acceptedAnswer":{"@type":"Answer","text":"You choose — English, Mandarin (中文), or Bahasa Melayu. Tell us when you book and we'll match you."}},
+      {"@type":"Question","name":"What if I miss a class?","acceptedAnswer":{"@type":"Answer","text":"Every session is recorded and uploaded within 24 hours. If you need help catching up, WhatsApp us and we'll guide you through the missed material."}},
+      {"@type":"Question","name":"Will I get a certificate?","acceptedAnswer":{"@type":"Answer","text":"Yes — plus we prep you for Google, Microsoft and AWS exams. See which certs align to which course →"}},
+      {"@type":"Question","name":"Which course should I start with?","acceptedAnswer":{"@type":"Answer","text":"Total beginners usually start with Python Fundamentals or Cybersecurity Fundamentals. Want to ship something fast with AI tools instead? Start with Vibe Coding. Already comfortable with Python? Move into Machine Learning Fundamentals. Not sure? See the career path guide or WhatsApp us."}},
       {"@type":"Question","name":"Are the AI workshops online or in person?","acceptedAnswer":{"@type":"Answer","text":"The AI for ___ workshops are half-day, in-person sessions at Mount Austin, while Python, Machine Learning, and Cybersecurity are fully online multi-week programs."}},
-      {"@type":"Question","name":"How do I get course details?","acceptedAnswer":{"@type":"Answer","text":"WhatsApp us for the latest intake, schedule and enrolment details for Python Fundamentals or any other codencode.my course."}},
-      {"@type":"Question","name":"Is there a cybersecurity course in Johor Bahru?","acceptedAnswer":{"@type":"Answer","text":"Yes. codencode.my's Cybersecurity Fundamentals is a 6-week plus 1-week project online course covering phishing, password hygiene, network basics and intro pentesting for beginners."}},
-      {"@type":"Question","name":"Which course should I start with?","acceptedAnswer":{"@type":"Answer","text":"Total beginners usually start with Python Fundamentals or Cybersecurity Fundamentals. Those wanting a fast, guided build with AI tools start with Vibe Coding. Learners with some Python already move into Machine Learning Fundamentals."}},
-      {"@type":"Question","name":"Do you offer coding classes for students in Penang?","acceptedAnswer":{"@type":"Answer","text":"Yes. All codencode.my courses (Python, Machine Learning, Cybersecurity, Vibe Coding) are 100% online via Zoom, so students in Penang join the same live classes as everyone else — no travel to Johor Bahru needed."}},
-      {"@type":"Question","name":"Can I join codencode.my courses from Kuala Lumpur?","acceptedAnswer":{"@type":"Answer","text":"Yes. Our Core Subjects are fully online and live-instructed, so KL-based students attend via Zoom just like students anywhere else in Malaysia. Only the in-person AI workshops require travel to Mount Austin, Johor Bahru."}},
-      {"@type":"Question","name":"Is there an online coding course for students in Alor Setar?","acceptedAnswer":{"@type":"Answer","text":"Yes. codencode.my's Python, Machine Learning, Cybersecurity and Vibe Coding courses are fully online, so students in Alor Setar and across Kedah can join live via Zoom with no need to relocate."}}
+      {"@type":"Question","name":"Does codencode.my have a branch in Penang?","acceptedAnswer":{"@type":"Answer","text":"No — our only physical address is in Mount Austin, Johor Bahru, used solely for the half-day AI for ___ workshops. Every Core Subject (Python, Machine Learning, Cybersecurity, Vibe Coding) is delivered live online, so Penang students never travel for the multi-week courses — only the in-person AI workshops require a trip to JB."}},
+      {"@type":"Question","name":"How do I get course details?","acceptedAnswer":{"@type":"Answer","text":"WhatsApp us for the latest intake, schedule and enrolment details for Python Fundamentals or any other codencode.my course."}}
     ]}
   ]
 }
@@ -455,7 +449,7 @@ src="https://www.facebook.com/tr?id=1615909506909427&ev=PageView&noscript=1"
 
 <!-- URGENCY BAR -->
 <div class="urg">
-  📍 <span>Johor Bahru</span> · 100% Online · English, 中文 &amp; Bahasa Melayu &nbsp;|&nbsp;
+  📍 <span>Penang</span> · 100% Online · English, 中文 &amp; Bahasa Melayu &nbsp;|&nbsp;
   🔥 <span>May 2026 Python cohort</span> — 8 seats left &nbsp;
   <a href="https://wa.me/60196811628?text=Hi%20codencode!%20I'm%20interested%20👋" target="_blank" rel="noopener">Reserve your spot →</a>
 </div>
@@ -469,8 +463,9 @@ src="https://www.facebook.com/tr?id=1615909506909427&ev=PageView&noscript=1"
     <ul class="nav-links">
       <li><a href="#courses">Courses</a></li>
       <li><a href="#workshops">Workshops</a></li>
+      <li><a href="#corporate">Corporate</a></li>
       <li><a href="#trainer">Trainer</a></li>
-      <li><a href="paths.html">Your Path</a></li>
+      <li><a href="/paths.html">Your Path</a></li>
       <li><a href="https://wa.me/60196811628?text=Hi%20codencode!%20I'm%20interested%20👋" target="_blank" rel="noopener">Contact</a></li>
     </ul>
     <div style="display:flex;align-items:center;gap:14px">
@@ -482,8 +477,9 @@ src="https://www.facebook.com/tr?id=1615909506909427&ev=PageView&noscript=1"
   <div class="mob-nav" id="mob-menu">
     <a href="#courses">Courses</a>
     <a href="#workshops">Workshops</a>
+    <a href="#corporate">Corporate</a>
     <a href="#trainer">Trainer</a>
-    <a href="paths.html">Your Path</a>
+    <a href="/paths.html">Your Path</a>
     <a href="https://wa.me/60196811628?text=Hi%20codencode!%20I'm%20interested%20👋" target="_blank" rel="noopener">Free Trial → WhatsApp</a>
     <button class="mob-theme-toggle" id="mob-theme-btn"><i class="fas fa-sun"></i> <span id="mob-theme-label">Light Mode</span></button>
   </div>
@@ -495,25 +491,25 @@ src="https://www.facebook.com/tr?id=1615909506909427&ev=PageView&noscript=1"
   <div class="container">
     <div class="hero-grid">
       <div>
-        <div class="h-eye">Online Coding Academy · Johor Bahru, Malaysia</div>
+        <div class="h-eye">Online Coding Academy · Serving Penang, Malaysia</div>
         <h1 class="h1">Stop<br>Googling.<br><span class="h-accent">Start Building.</span></h1>
         <div class="lang-row">
           <span class="lpill">English</span>
           <span class="lpill">中文 Mandarin</span>
           <span class="lpill">Bahasa Melayu</span>
         </div>
-        <p class="h-desc">4 fully online courses (Python, Machine Learning, Cybersecurity, Vibe Coding) plus 5 in-person AI workshops at Mount Austin — taught in <strong style="color:var(--cyan)">English, Mandarin &amp; Bahasa Melayu</strong>. Career changers &amp; SPM leavers welcome. First class is free.</p>
+        <p class="h-desc">4 fully online courses (Python, Machine Learning, Cybersecurity, Vibe Coding) — live via Zoom to Penang, taught in <strong style="color:var(--cyan)">English, Mandarin &amp; Bahasa Melayu</strong>. Career changers &amp; SPM leavers welcome. First class is free.</p>
         <div class="h-acts">
           <a class="btn-p" href="https://wa.me/60196811628?text=Hi%20codencode!%20I'm%20interested%20👋" target="_blank" rel="noopener">Book Free Trial <i class="fas fa-arrow-right"></i></a>
           <a class="btn-wa" href="https://wa.me/60196811628?text=Hi%20codencode!%20I'm%20interested%20in%20your%20courses%20👋" target="_blank" rel="noopener"><i class="fab fa-whatsapp"></i> WhatsApp Us</a>
         </div>
         <div class="stat-row">
-          <div class="stat"><div class="sn">50+</div><div class="sl">Students</div></div>
+          <div class="stat"><div class="sn">100+</div><div class="sl">Students</div></div>
           <div class="stat"><div class="sn">3</div><div class="sl">Languages</div></div>
           <div class="stat"><div class="sn">100%</div><div class="sl">Online</div></div>
         </div>
         <div class="trust-strip">
-          <span class="ts-item"><i class="fas fa-map-marker-alt"></i> Johor Bahru, Malaysia</span>
+          <span class="ts-item"><i class="fas fa-map-marker-alt"></i> Serving Penang via Zoom</span>
           <span class="ts-item"><i class="fas fa-wifi"></i> 100% Online via Zoom</span>
           <span class="ts-item"><i class="fas fa-wallet"></i> Free trial available</span>
           <span class="ts-item"><i class="fas fa-language"></i> EN · 中文 · BM</span>
@@ -554,13 +550,13 @@ src="https://www.facebook.com/tr?id=1615909506909427&ev=PageView&noscript=1"
 <section id="why" class="sec alt">
   <div class="container">
     <div class="lbl">Why codencode</div>
-    <h2 class="h2">Johor Bahru's practical<br>online<br><span style="color:var(--cyan)">coding academy.</span></h2>
+    <h2 class="h2">The practical online<br>coding academy for<br><span style="color:var(--cyan)">Penang learners.</span></h2>
     <div class="wgrid3">
 
       <div class="wcard3" data-n="01">
         <div class="wico"><i class="fas fa-map-marker-alt"></i></div>
-        <h3>Built for JB learners</h3>
-        <p><a href="https://share.google/zRqjHddN39P0KPhgs" target="_blank" rel="noopener" style="color:var(--cyan);text-decoration:none;font-weight:700">Based in Johor Bahru</a>. Local context, global skills. We know the JB market and teach with Malaysian learners in mind.</p>
+        <h3>Built for Penang learners</h3>
+        <p><a href="https://share.google/zRqjHddN39P0KPhgs" target="_blank" rel="noopener" style="color:var(--cyan);text-decoration:none;font-weight:700">Rated on Google</a>. Live, instructor-led classes — Malaysian context, taught with Penang learners in mind.</p>
       </div>
 
       <div class="wcard3" data-n="02">
@@ -573,7 +569,7 @@ src="https://www.facebook.com/tr?id=1615909506909427&ev=PageView&noscript=1"
         <div class="lang-card-top">
           <div class="wico"><i class="fas fa-language"></i></div>
           <h3>English · 中文 · Bahasa Melayu</h3>
-          <p>The only coding academy in JB that genuinely teaches in all 3 languages. Not translated slides — real trilingual teaching.</p>
+          <p>The only Malaysian coding academy that genuinely teaches in all 3 languages. Not translated slides — real trilingual teaching.</p>
         </div>
         <div class="lang-flags-row">
           <div class="lflag-item lf-en">
@@ -601,36 +597,37 @@ src="https://www.facebook.com/tr?id=1615909506909427&ev=PageView&noscript=1"
 </section>
 
 <!-- SEO: Computer Science Course JB / ML Classes Section -->
-<section id="cs-jb" class="sec" style="padding-top:64px;padding-bottom:64px;">
+<section id="cs-penang" class="sec" style="padding-top:64px;padding-bottom:64px;">
   <div class="container">
-    <div class="lbl">Johor Bahru</div>
-    <h2 class="h2">The #1 computer science<br>course in <span style="color:var(--cyan)">Johor Bahru.</span></h2>
-    <p class="sub" style="max-width:640px">Looking for a computer science course, cybersecurity classes or machine learning classes near you in Johor Bahru? codencode.my offers online Python, cybersecurity, machine learning and AI courses — plus in-person AI workshops at Mount Austin — all taught in English, Mandarin and Bahasa Melayu. No experience needed.</p>
+    <div class="lbl">Penang</div>
+    <h2 class="h2">The #1 online computer science<br>course for <span style="color:var(--cyan)">Penang.</span></h2>
+    <p class="sub" style="max-width:640px">Looking for a computer science course, cybersecurity classes or machine learning classes near you in Penang? codencode.my offers online Python, cybersecurity, machine learning and AI courses — 100% online via Zoom — all taught in English, Mandarin and Bahasa Melayu. No experience needed.</p>
+    <p class="sub" style="max-width:640px;margin-top:12px"><strong>Penang is roughly a 4.5-hour drive (or a 1-hour flight) from our Johor Bahru base — exactly why every Core Subject runs live over Zoom instead of asking you to relocate. Same instructor, same trilingual options, same 24-hour class recordings as a JB-based student, no North–South Expressway required.</strong></p>
     <div class="wgrid" style="margin-top:36px">
       <div class="wcard" data-n="01">
         <div class="wico"><i class="fas fa-laptop-code"></i></div>
-        <h3>Computer Science Course JB</h3>
-        <p>Practical Python programming from basics to real projects. The foundational computer science course built for the JB market — online, trilingual and beginner-friendly.</p>
+        <h3>Computer Science Course Penang</h3>
+        <p>Practical Python programming from basics to real projects. The foundational computer science course, delivered live online to Penang — trilingual and beginner-friendly.</p>
       </div>
       <div class="wcard" data-n="02">
         <div class="wico"><i class="fas fa-brain"></i></div>
         <h3>Machine Learning Classes</h3>
-        <p>Machine learning course near you — online. Train real models, understand the math, build a portfolio. Taught by a practising engineer.</p>
+        <p>Machine learning course for Penang learners — 100% online. Train real models, understand the math, build a portfolio. Taught by a practising engineer.</p>
       </div>
       <div class="wcard" data-n="03">
         <div class="wico"><i class="fas fa-shield-halved"></i></div>
         <h3>Cybersecurity Classes</h3>
-        <p>Cyber security classes online — kursus keselamatan siber. Phishing, password hygiene, network basics and intro pentesting for beginners.</p>
+        <p>Cyber security classes online for Penang — kursus keselamatan siber. Phishing, password hygiene, network basics and intro pentesting for beginners.</p>
       </div>
       <div class="wcard" data-n="04">
         <div class="wico"><i class="fas fa-robot"></i></div>
-        <h3>AI Workshop Mount Austin</h3>
-        <p>Half-day, in-person AI workshops for workplace, marketing and event teams — corporate training at Mount Austin, Johor Bahru.</p>
+        <h3>AI Workshop &amp; In-House Training</h3>
+        <p>Half-day AI workshops for Penang teams — held at Mount Austin, JB, or booked as in-house corporate training at your Penang office.</p>
       </div>
     </div>
     <div style="margin-top:28px;display:flex;gap:12px;flex-wrap:wrap;">
       <a class="btn-p" href="https://wa.me/60196811628?text=Hi%20codencode!%20I'm%20interested%20👋" target="_blank" rel="noopener">Book Free Trial <i class="fas fa-arrow-right"></i></a>
-      <a class="btn-g" href="paths.html">Find Your Course →</a>
+      <a class="btn-g" href="/paths.html">Find Your Course →</a>
     </div>
   </div>
 </section>
@@ -640,7 +637,7 @@ src="https://www.facebook.com/tr?id=1615909506909427&ev=PageView&noscript=1"
   <div class="container">
     <div class="lbl">Courses</div>
     <h2 class="h2">Pick your<br>weapon.</h2>
-    <p class="sub" style="margin-bottom:0">4 courses. From total beginner to job-ready. Every course taught in English, Mandarin &amp; Malay. Fully online via Zoom.</p>
+    <p class="sub" style="margin-bottom:0">4 courses. From total beginner to job-ready. Every course taught in English, Mandarin &amp; Malay. Fully online via Zoom — join from George Town, Bayan Lepas or Butterworth.</p>
     <div class="course-slider-wrap">
       <div class="slider-hint"><i class="fas fa-arrow-left"></i> scroll <i class="fas fa-arrow-right"></i></div>
       <div class="course-slider" id="courseSlider">
@@ -701,7 +698,7 @@ src="https://www.facebook.com/tr?id=1615909506909427&ev=PageView&noscript=1"
     </div><!-- end course-slider-wrap -->
     <div class="courses-note">
       <i class="fas fa-compass"></i>
-      <span>Not sure which course fits you? <a href="paths.html">See your personalised learning path →</a> We'll match your background to the right starting point.</span>
+      <span>Not sure which course fits you? <a href="/paths.html">See your personalised learning path →</a> We'll match your background to the right starting point.</span>
     </div>
   </div>
 </section>
@@ -711,7 +708,7 @@ src="https://www.facebook.com/tr?id=1615909506909427&ev=PageView&noscript=1"
   <div class="container">
     <div class="lbl">Workshops</div>
     <h2 class="h2">AI for <span style="color:var(--cyan)">___</span>.<br>Half a day. In person.</h2>
-    <p class="sub" style="margin-bottom:0">5 half-day, in-person AI workshops at Mount Austin, Johor Bahru. 4 hours — for teams and individuals who want hands-on AI skills without a multi-week commitment.</p>
+    <p class="sub" style="margin-bottom:0">5 half-day AI workshops, normally held at Mount Austin, Johor Bahru. Penang-based teams can also book these as in-house corporate training at your own office.</p>
     <div class="course-grid">
 
       <div class="ccard">
@@ -783,6 +780,52 @@ src="https://www.facebook.com/tr?id=1615909506909427&ev=PageView&noscript=1"
   </div>
 </section>
 
+<!-- CORPORATE / HRDC -->
+<section id="corporate" class="sec">
+  <div class="container">
+    <div class="lbl">Corporate &amp; HRDC</div>
+    <h2 class="h2">HRD Corp-claimable training,<br>delivered <span style="color:var(--cyan)">trilingually.</span></h2>
+    <p class="sub" style="margin-bottom:0;max-width:640px">100% claimable under the SBL-Khas scheme. Delivered in-house at your Penang office, built from real systems we've shipped for Malaysian businesses — not generic tool demos.</p>
+
+    <div style="display:grid;grid-template-columns:1.15fr 1fr;gap:24px;margin-top:48px;align-items:stretch">
+      <div class="ccard" style="border-color:var(--bs)">
+        <div class="cbody" style="padding:32px">
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px">
+            <span class="lpill" style="border-color:var(--bs);color:var(--gold)">Full Day · 9am–5pm</span>
+            <span class="lpill" style="border-color:var(--bs);color:var(--gold)">100% HRDC Claimable</span>
+          </div>
+          <h3 style="font-size:22px;font-weight:800;letter-spacing:-.01em;margin-bottom:10px">AI for C-Suites — Executive AI Alignment Day</h3>
+          <p style="font-family:var(--mono);font-size:12.5px;color:var(--mu);line-height:1.8;margin-bottom:24px">A private, full-day session for boards and leadership teams. Live demos built from our own deployed CRM and ML projects — not staged examples. Ends with a one-page &quot;where to invest next&quot; plan for the boardroom.</p>
+          <a class="btn-p" href="https://wa.me/60196811628?text=Hi%20codencode!%20I'm%20interested%20in%20the%20AI%20for%20C-Suites%20HRDC%20programme%20👋" target="_blank" rel="noopener">Request a Proposal <i class="fas fa-arrow-right"></i></a>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:16px">
+        <div class="ccard" style="flex:1;display:flex;align-items:center;justify-content:space-between;padding:20px 24px">
+          <span style="font-size:14px;font-weight:700;letter-spacing:-.01em">Python for Business &amp; Data Analytics</span>
+          <span class="lpill" style="border-color:var(--b);color:var(--mu)">2 days</span>
+        </div>
+        <div class="ccard" style="flex:1;display:flex;align-items:center;justify-content:space-between;padding:20px 24px">
+          <span style="font-size:14px;font-weight:700;letter-spacing:-.01em">Applied Machine Learning for Decision-Making</span>
+          <span class="lpill" style="border-color:var(--b);color:var(--mu)">2 days</span>
+        </div>
+        <div class="ccard" style="flex:1;display:flex;align-items:center;justify-content:space-between;padding:20px 24px">
+          <span style="font-size:14px;font-weight:700;letter-spacing:-.01em">Cybersecurity &amp; Agentic AI Security</span>
+          <span class="lpill" style="border-color:var(--b);color:var(--mu)">2 days + consult</span>
+        </div>
+        <div class="ccard" style="flex:1;display:flex;align-items:center;justify-content:space-between;padding:20px 24px">
+          <span style="font-size:14px;font-weight:700;letter-spacing:-.01em">AI Automation with Python &amp; Claude</span>
+          <span class="lpill" style="border-color:var(--b);color:var(--mu)">2 days</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="courses-note" style="margin-top:24px">
+      <i class="fas fa-circle-info"></i>
+      <span>Levy account already active with HRD Corp? <a href="https://wa.me/60196811628?text=Hi%20codencode!%20I'd%20like%20to%20discuss%20HRDC%20corporate%20training%20👋" target="_blank" rel="noopener">Talk to us about claiming your training →</a></span>
+    </div>
+  </div>
+</section>
+
 <!-- AT A GLANCE (dense, extractable fact table for search snippets & AI answer engines) -->
 <section id="at-a-glance" class="sr-only" aria-hidden="false">
   <div class="container">
@@ -807,7 +850,8 @@ src="https://www.facebook.com/tr?id=1615909506909427&ev=PageView&noscript=1"
           <tr style="border-bottom:1px solid var(--b)"><td style="padding:12px 16px">AI for Marketing</td><td style="padding:12px 16px;color:var(--mu)">Workshop</td><td style="padding:12px 16px;color:var(--mu)">4 hours</td><td style="padding:12px 16px;color:var(--mu)">All levels</td><td style="padding:12px 16px;color:var(--mu)">In-person, Mount Austin JB</td></tr>
           <tr style="border-bottom:1px solid var(--b)"><td style="padding:12px 16px">AI for Event Management</td><td style="padding:12px 16px;color:var(--mu)">Workshop</td><td style="padding:12px 16px;color:var(--mu)">4 hours</td><td style="padding:12px 16px;color:var(--mu)">All levels</td><td style="padding:12px 16px;color:var(--mu)">In-person, Mount Austin JB</td></tr>
           <tr style="border-bottom:1px solid var(--b)"><td style="padding:12px 16px">AI for HR</td><td style="padding:12px 16px;color:var(--mu)">Workshop</td><td style="padding:12px 16px;color:var(--mu)">4 hours</td><td style="padding:12px 16px;color:var(--mu)">All levels</td><td style="padding:12px 16px;color:var(--mu)">In-person, Mount Austin JB</td></tr>
-          <tr><td style="padding:12px 16px">AI for Accounting</td><td style="padding:12px 16px;color:var(--mu)">Workshop</td><td style="padding:12px 16px;color:var(--mu)">4 hours</td><td style="padding:12px 16px;color:var(--mu)">All levels</td><td style="padding:12px 16px;color:var(--mu)">In-person, Mount Austin JB</td></tr>
+          <tr style="border-bottom:1px solid var(--b)"><td style="padding:12px 16px">AI for Accounting</td><td style="padding:12px 16px;color:var(--mu)">Workshop</td><td style="padding:12px 16px;color:var(--mu)">4 hours</td><td style="padding:12px 16px;color:var(--mu)">All levels</td><td style="padding:12px 16px;color:var(--mu)">In-person, Mount Austin JB</td></tr>
+          <tr><td style="padding:12px 16px">AI for C-Suites — Executive AI Alignment Day</td><td style="padding:12px 16px;color:var(--mu)">HRDC Corporate</td><td style="padding:12px 16px;color:var(--mu)">1 day (8 hours)</td><td style="padding:12px 16px;color:var(--mu)">Leadership</td><td style="padding:12px 16px;color:var(--mu)">In-house, HRDC claimable</td></tr>
         </tbody>
       </table>
     </div>
@@ -825,7 +869,7 @@ src="https://www.facebook.com/tr?id=1615909506909427&ev=PageView&noscript=1"
     <div class="trainer-grid">
       <article class="trainer-card">
         <div class="trainer-photo" data-initials="TRK">
-          <img src="marketing/trainer-tan-rou-ka.jpg" alt="Tan Rou Ka, Python Trainer" onerror="this.parentElement.classList.add('is-missing')">
+          <img src="/marketing/trainer-tan-rou-ka.jpg" alt="Tan Rou Ka, Python Trainer" onerror="this.parentElement.classList.add('is-missing')">
         </div>
         <div class="trainer-body">
           <div class="iname">Tan Rou Ka</div>
@@ -843,7 +887,7 @@ src="https://www.facebook.com/tr?id=1615909506909427&ev=PageView&noscript=1"
 
       <article class="trainer-card">
         <div class="trainer-photo" data-initials="AN">
-          <img src="marketing/trainer-aisyah-najwa.jpg" alt="Aisyah Najwa, Vibe Coding Lead" onerror="this.parentElement.classList.add('is-missing')">
+          <img src="/marketing/trainer-aisyah-najwa.jpg" alt="Aisyah Najwa, Vibe Coding Lead" onerror="this.parentElement.classList.add('is-missing')">
         </div>
         <div class="trainer-body">
           <div class="iname">Aisyah Najwa</div>
@@ -874,18 +918,15 @@ src="https://www.facebook.com/tr?id=1615909506909427&ev=PageView&noscript=1"
     <div class="lbl">FAQ</div>
     <h2 class="h2">You're probably<br>wondering...</h2>
     <div class="faq-list">
-      <div class="faq-item"><button class="faq-q"><span>I've never coded before. Will I be totally lost?</span><i class="fas fa-chevron-down"></i></button><div class="faq-a"><p>Nope. We start from absolute zero — like "what is a variable?" zero. Slow enough to understand, fast enough to not get bored. Vibe Coding is an even gentler entry point if you want to build something in week one.</p></div></div>
-      <div class="faq-item"><button class="faq-q"><span>Is this 100% online? I live far from JB.</span><i class="fas fa-chevron-down"></i></button><div class="faq-a"><p>100% online via Zoom. Skudai, Penang, Ipoh, Alor Setar, or KL — your postcode is irrelevant. All you need is a laptop and WiFi.</p></div></div>
-      <div class="faq-item"><button class="faq-q"><span>Which language will my class be in?</span><i class="fas fa-chevron-down"></i></button><div class="faq-a"><p>You choose — English, Mandarin (中文), or Bahasa Melayu. Tell us when you book and we'll match you.</p></div></div>
-      <div class="faq-item"><button class="faq-q"><span>What if I miss a class?</span><i class="fas fa-chevron-down"></i></button><div class="faq-a"><p>Every session is recorded and uploaded within 24 hours. If you need help catching up, WhatsApp us and we'll guide you through the missed material.</p></div></div>
-      <div class="faq-item"><button class="faq-q"><span>Will I get a certificate?</span><i class="fas fa-chevron-down"></i></button><div class="faq-a"><p>Yes — plus we prep you for Google, Microsoft and AWS exams. <a href="paths.html" style="color:var(--cyan)">See which certs align to which course →</a></p></div></div>
-      <div class="faq-item"><button class="faq-q"><span>Which course should I start with?</span><i class="fas fa-chevron-down"></i></button><div class="faq-a"><p>Total beginners usually start with Python Fundamentals or Cybersecurity Fundamentals. Want to ship something fast with AI tools instead? Start with Vibe Coding. Already comfortable with Python? Move into Machine Learning Fundamentals. Not sure? <a href="paths.html" style="color:var(--cyan)">See the career path guide</a> or WhatsApp us.</p></div></div>
-      <div class="faq-item"><button class="faq-q"><span>Are the AI workshops online or in person?</span><i class="fas fa-chevron-down"></i></button><div class="faq-a"><p>The AI for ___ workshops are half-day, in-person sessions at Mount Austin, while Python, Machine Learning, and Cybersecurity are fully online multi-week programs.</p></div></div>
-      <div class="faq-item"><button class="faq-q"><span>How do I get course details?</span><i class="fas fa-chevron-down"></i></button><div class="faq-a"><p>WhatsApp us for the latest intake, schedule and enrolment details for Python Fundamentals or any other codencode.my course.</p></div></div>
-      <div class="faq-item"><button class="faq-q"><span>Is there a cybersecurity course in Johor Bahru?</span><i class="fas fa-chevron-down"></i></button><div class="faq-a"><p>Yes. codencode.my's Cybersecurity Fundamentals is a 6-week plus 1-week project online course covering phishing, password hygiene, network basics and intro pentesting for beginners.</p></div></div>
-      <div class="faq-item"><button class="faq-q"><span>Do you offer coding classes for students in Penang?</span><i class="fas fa-chevron-down"></i></button><div class="faq-a"><p>Yes. All codencode.my courses (Python, Machine Learning, Cybersecurity, Vibe Coding) are 100% online via Zoom, so students in Penang join the same live classes as everyone else — no travel to Johor Bahru needed.</p></div></div>
-      <div class="faq-item"><button class="faq-q"><span>Can I join codencode.my courses from Kuala Lumpur?</span><i class="fas fa-chevron-down"></i></button><div class="faq-a"><p>Yes. Our Core Subjects are fully online and live-instructed, so KL-based students attend via Zoom just like students anywhere else in Malaysia. Only the in-person AI workshops require travel to Mount Austin, Johor Bahru.</p></div></div>
-      <div class="faq-item"><button class="faq-q"><span>Is there an online coding course for students in Alor Setar?</span><i class="fas fa-chevron-down"></i></button><div class="faq-a"><p>Yes. codencode.my's Python, Machine Learning, Cybersecurity and Vibe Coding courses are fully online, so students in Alor Setar and across Kedah can join live via Zoom with no need to relocate.</p></div></div>
+<div class="faq-item"><button class="faq-q"><span>Do you offer coding classes for students in Penang?</span><i class="fas fa-chevron-down"></i></button><div class="faq-a"><p>Yes. All codencode.my courses (Python, Machine Learning, Cybersecurity, Vibe Coding) are 100% online via Zoom, so students in Penang join the same live classes as everyone else — no travel needed.</p></div></div>
+<div class="faq-item"><button class="faq-q"><span>I've never coded before. Will I be totally lost?</span><i class="fas fa-chevron-down"></i></button><div class="faq-a"><p>Nope. We start from absolute zero — like "what is a variable?" zero. Slow enough to understand, fast enough to not get bored. Vibe Coding is an even gentler entry point if you want to build something in week one.</p></div></div>
+<div class="faq-item"><button class="faq-q"><span>Which language will my class be in?</span><i class="fas fa-chevron-down"></i></button><div class="faq-a"><p>You choose — English, Mandarin (中文), or Bahasa Melayu. Tell us when you book and we'll match you.</p></div></div>
+<div class="faq-item"><button class="faq-q"><span>What if I miss a class?</span><i class="fas fa-chevron-down"></i></button><div class="faq-a"><p>Every session is recorded and uploaded within 24 hours. If you need help catching up, WhatsApp us and we'll guide you through the missed material.</p></div></div>
+<div class="faq-item"><button class="faq-q"><span>Will I get a certificate?</span><i class="fas fa-chevron-down"></i></button><div class="faq-a"><p>Yes — plus we prep you for Google, Microsoft and AWS exams. <a href="/paths.html" style="color:var(--cyan)">See which certs align to which course →</a></p></div></div>
+<div class="faq-item"><button class="faq-q"><span>Which course should I start with?</span><i class="fas fa-chevron-down"></i></button><div class="faq-a"><p>Total beginners usually start with Python Fundamentals or Cybersecurity Fundamentals. Want to ship something fast with AI tools instead? Start with Vibe Coding. Already comfortable with Python? Move into Machine Learning Fundamentals. Not sure? <a href="/paths.html" style="color:var(--cyan)">See the career path guide</a> or WhatsApp us.</p></div></div>
+<div class="faq-item"><button class="faq-q"><span>Are the AI workshops online or in person?</span><i class="fas fa-chevron-down"></i></button><div class="faq-a"><p>The AI for ___ workshops are half-day, in-person sessions at Mount Austin, while Python, Machine Learning, and Cybersecurity are fully online multi-week programs.</p></div></div>
+<div class="faq-item"><button class="faq-q"><span>Does codencode.my have a branch in Penang?</span><i class="fas fa-chevron-down"></i></button><div class="faq-a"><p>No — our only physical address is in Mount Austin, Johor Bahru, used solely for the half-day AI for ___ workshops. Every Core Subject (Python, Machine Learning, Cybersecurity, Vibe Coding) is delivered live online, so Penang students never travel for the multi-week courses — only the in-person AI workshops require a trip to JB.</p></div></div>
+<div class="faq-item"><button class="faq-q"><span>How do I get course details?</span><i class="fas fa-chevron-down"></i></button><div class="faq-a"><p>WhatsApp us for the latest intake, schedule and enrolment details for Python Fundamentals or any other codencode.my course.</p></div></div>
     </div>
   </div>
 </section>
@@ -930,7 +971,7 @@ src="https://www.facebook.com/tr?id=1615909506909427&ev=PageView&noscript=1"
     <div class="fgrid">
       <div class="fab">
         <a class="logo" href="/" style="display:flex;align-items:center;"><img src="data:image/png;base64,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" alt="codencode.my" style="height:30px;width:auto;" /></a>
-        <p>Affordable online coding academy in <strong>Johor Bahru, Malaysia</strong>. Python, ML &amp; AI courses in <strong>English, Mandarin and Bahasa Melayu</strong>. 100% online via Zoom.</p>
+        <p>Affordable online coding academy serving <strong>Penang, Malaysia</strong>. Python, ML &amp; AI courses in <strong>English, Mandarin and Bahasa Melayu</strong>. 100% online via Zoom.</p>
         <p style="margin-top:10px;font-size:11px"><i class="fas fa-map-marker-alt" style="color:var(--cyan);margin-right:5px"></i>Johor Bahru, Johor &nbsp;·&nbsp; <a href="tel:+60196811628" style="color:var(--mu);text-decoration:none">019-6811628</a> &nbsp;·&nbsp; <a href="mailto:hello@codencode.my" style="color:var(--mu);text-decoration:none">hello@codencode.my</a></p>
       </div>
       <div class="fcol">
@@ -948,8 +989,8 @@ src="https://www.facebook.com/tr?id=1615909506909427&ev=PageView&noscript=1"
         <ul>
           <li><a href="#corporate">Corporate &amp; HRDC</a></li>
           <li><a href="#trainer">Trainer</a></li>
-          <li><a href="paths.html">Your Learning Path</a></li>
-          <li><a href="compare.html">Compare Academies</a></li>
+          <li><a href="/paths.html">Your Learning Path</a></li>
+          <li><a href="/compare.html">Compare Academies</a></li>
           <li><a href="#faq">FAQ</a></li>
           <li><a href="https://wa.me/60196811628?text=Hi%20codencode!%20I'm%20interested%20👋" target="_blank" rel="noopener">Free Trial</a></li>
         </ul>
@@ -957,7 +998,7 @@ src="https://www.facebook.com/tr?id=1615909506909427&ev=PageView&noscript=1"
       <div class="fcol">
         <h4>Also Serving</h4>
         <ul>
-          <li><a href="/penang/">Courses in Penang</a></li>
+          <li><a href="/">Home (Johor Bahru)</a></li>
           <li><a href="/kl/">Courses in Kuala Lumpur</a></li>
           <li><a href="/ipoh/">Courses in Ipoh</a></li>
         </ul>
@@ -975,7 +1016,7 @@ src="https://www.facebook.com/tr?id=1615909506909427&ev=PageView&noscript=1"
     </div>
     <div class="fbot">
       <p class="fcopy">© 2026 <span>codencode.my</span> · All rights reserved · Johor Bahru, Malaysia · Page updated 24 July 2026</p>
-      <p class="fcopy">Built with <span>❤</span> in JB · <a href="paths.html" style="color:var(--mu);text-decoration:none">Your Learning Path →</a></p>
+      <p class="fcopy">Built with <span>❤</span> in Malaysia · <a href="/paths.html" style="color:var(--mu);text-decoration:none">Your Learning Path →</a></p>
     </div>
   </div>
 </footer>
