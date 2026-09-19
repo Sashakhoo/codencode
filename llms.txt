@@ -18,7 +18,6 @@ codencode.my (legal entity: CODE N CODE SOLUTION, 202603072017 / AS0511861-M) ru
 - Homepage (courses, trainers, FAQ, reviews): https://codencode.my/
 - Career roadmaps & learning paths (Data Analyst, Data Scientist, ML Engineer, Python Developer, Automation Engineer, Cybersecurity — with Malaysian salary ranges): https://codencode.my/paths.html
 - Comparison of coding academies serving Johor Bahru (codencode.my vs 42 Iskandar Puteri, NEXT Academy, Kodecoon, Superprof tutors, free self-study): https://codencode.my/compare.html
-- Workshop materials portal (registration + slides/code access for past one-day tech workshops, separate from the AI for ___ corporate workshops below): https://codencode.my/workshop/
 - Penang city landing page (Python, ML & cybersecurity courses for students in Penang, live via Zoom, in English/Mandarin/Malay): https://codencode.my/penang/
 - Kuala Lumpur city landing page (same Core Subjects, live via Zoom, for students in KL): https://codencode.my/kl/
 - Ipoh city landing page (same Core Subjects, live via Zoom, for students in Ipoh): https://codencode.my/ipoh/
