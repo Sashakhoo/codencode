@@ -5418,6 +5418,38 @@ def api_search():
     return jsonify({'results': results, 'query': q})
 
 
+def seed_python_fundamentals_quizzes():
+    """Weeks 1-4 MCQ quizzes for Python Fundamentals, created UNPUBLISHED so a
+    teacher reviews them before students see them. Idempotent by (course,
+    title). To retire one for good, unpublish it rather than deleting it -
+    a deleted quiz is re-created on the next start. Never blocks startup."""
+    try:
+        import random
+        from quiz_seed_python import PYTHON_FUNDAMENTALS_QUIZZES
+        courses = Course.query.filter(db.func.lower(Course.title).like('%python fundamentals%')).all()
+        for course in courses:
+            for spec in PYTHON_FUNDAMENTALS_QUIZZES:
+                if Quiz.query.filter_by(course_id=course.id, title=spec['title']).first():
+                    continue
+                quiz = Quiz(course_id=course.id, title=spec['title'], description=spec['description'],
+                            session=spec['week'], pass_score=70, max_attempts=2, is_published=False)
+                db.session.add(quiz)
+                db.session.flush()
+                for idx, (text_, correct, wrong, explanation) in enumerate(spec['questions']):
+                    qq = QuizQuestion(quiz_id=quiz.id, question_text=text_, question_type='mcq',
+                                      points=1, explanation=explanation, order_index=idx)
+                    db.session.add(qq)
+                    db.session.flush()
+                    choices = [(correct, True)] + [(w, False) for w in wrong]
+                    random.Random(f"{spec['week']}-{idx}").shuffle(choices)
+                    for choice_text, is_correct in choices:
+                        db.session.add(QuizChoice(question_id=qq.id, choice_text=choice_text, is_correct=is_correct))
+        db.session.commit()
+    except Exception as exc:
+        db.session.rollback()
+        app.logger.warning('Python Fundamentals quiz seed skipped: %s', exc)
+
+
 # ─────────────────────────────────────────────
 # Init DB & run
 # ─────────────────────────────────────────────
@@ -5788,6 +5820,7 @@ with app.app_context():
 
     seed_demo()
     seed_predefined_workshops()
+    seed_python_fundamentals_quizzes()
     _start_scheduler()
 
 if __name__ == '__main__':
