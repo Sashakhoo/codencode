@@ -1270,10 +1270,30 @@ def api_create_assignment(cid):
 @app.route('/api/assignments/<int:aid>', methods=['DELETE'])
 @teacher_required
 def api_delete_assignment(aid):
+    """Delete an assignment together with its submissions (scores, feedback)
+    and the uploaded files. Previously this crashed with a 500 whenever any
+    student had submitted, because the submissions could not be orphaned."""
     a = Assignment.query.get_or_404(aid)
+    subs = Submission.query.filter_by(assignment_id=aid).all()
+    filenames = {sub.filename for sub in subs if sub.filename}
+    for sub in subs:
+        db.session.delete(sub)
     db.session.delete(a)
     db.session.commit()
-    return jsonify({'ok': True})
+
+    # Files go only after the database change succeeded, and never a file that
+    # another submission still points at (older uploads could share a name).
+    folder = os.path.join(app.config['UPLOAD_FOLDER'], 'submissions')
+    for fn in filenames:
+        if Submission.query.filter_by(filename=fn).first():
+            continue
+        path = os.path.join(folder, os.path.basename(fn))
+        try:
+            if os.path.exists(path):
+                os.remove(path)
+        except OSError:
+            app.logger.warning('Could not remove submission file %s', path)
+    return jsonify({'ok': True, 'submissions_deleted': len(subs)})
 
 
 # ─────────────────────────────────────────────
@@ -5331,21 +5351,21 @@ def api_lms_outline(cid):
         bucket['items'].append(di)
         flat.append({'type': 'drill', 'id': q.id})
 
-    # Weekly homework lives in Materials next to that week's lesson. The
-    # course's last week is the final Assignment (own page), so it is left out.
-    # Not added to `flat` - that list drives lesson/quiz next-prev navigation.
+    # Weekly homework and the final-week Assignment both live in Materials, in
+    # their week. The course's last week is flagged is_final (labelled
+    # "Assignment"). Not added to `flat` - that list drives lesson/quiz
+    # next-prev navigation.
     total_weeks = course.total_sessions or 0
     hw = Assignment.query.filter_by(course_id=cid).order_by(Assignment.session, Assignment.id).all()
     if current_user.role == 'student':
         wk = _student_week(cid)
         hw = [a for a in hw if a.session <= wk]
     for a in hw:
-        if total_weeks and a.session >= total_weeks:
-            continue
         sub = (Submission.query.filter_by(assignment_id=a.id, student_id=sid).first()
                if sid else None)
         item = a.to_dict(submission=sub)
         item['type'] = 'homework'
+        item['is_final'] = bool(total_weeks and a.session >= total_weeks)
         bucket = sessions.setdefault(a.session, {'session': a.session, 'items': []})
         bucket['items'].append(item)
 
