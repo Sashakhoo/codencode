@@ -599,6 +599,23 @@
       font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--muted);
     }
     .asgn-meta i { margin-right: 4px; }
+    /* Weekly homework: compact rows */
+    .hw-summary { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--muted); margin-bottom: 4px; }
+    .hw-week { font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase;
+      color: var(--cyan); margin: 20px 0 8px; }
+    .hw-row { display: flex; align-items: center; gap: 12px; padding: 12px 16px; margin-bottom: 8px;
+      background: var(--bg-base); border: 1px solid var(--border); border-radius: var(--radius); }
+    .hw-row:hover { border-color: var(--border-strong); }
+    .hw-main { flex: 1; min-width: 0; }
+    .hw-title { font-family: 'Outfit', sans-serif; font-size: 14px; font-weight: 700; letter-spacing: -0.01em; }
+    .hw-desc { font-size: 11px; color: var(--muted); line-height: 1.5; margin-top: 2px;
+      display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .hw-sub { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 4px;
+      font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--muted); }
+    .hw-sub i { margin-right: 4px; }
+    .hw-empty { color: var(--muted); font-family: var(--font-m); font-size: 12px; padding: 32px; text-align: center; line-height: 1.7; }
+    .hw-empty i { display: block; font-size: 20px; margin-bottom: 10px; opacity: 0.6; }
+    @media (max-width: 768px) { .hw-row { flex-wrap: wrap; } .hw-main { flex-basis: 100%; } }
     .status-badge {
       font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 0.08em;
       text-transform: uppercase; padding: 3px 10px; border: 1px solid;
@@ -1620,8 +1637,11 @@
         <button class="nav-item" onclick="switchView('learn')">
           <i class="fas fa-chalkboard"></i><span data-i18n="learn">Slides &amp; Quiz</span>
         </button>
+        <button class="nav-item" onclick="switchView('homework')">
+          <i class="fas fa-pencil-alt"></i><span data-i18n="homework">Homework</span>
+        </button>
         <button class="nav-item" onclick="switchView('assignments')">
-          <i class="fas fa-edit"></i><span data-i18n="assignments">Assignments</span>
+          <i class="fas fa-tasks"></i><span data-i18n="navFinal">Assignments</span>
         </button>
         <button class="nav-item" onclick="switchView('grades')">
           <i class="fas fa-chart-bar"></i><span data-i18n="grades">My Grades</span>
@@ -1833,12 +1853,21 @@
 
       <div class="view" id="view-assignments">
         <div class="page-header">
-          <div class="page-label" data-i18n="hdr.assignments.label">Homework</div>
+          <div class="page-label" data-i18n="hdr.assignments.label">Final Assignment</div>
           <div class="page-title" data-i18n="hdr.assignments.title">Assignments</div>
           <div class="page-sub" data-i18n="hdr.assignments.sub">// Submit your homework and projects for your teacher to review</div>
         </div>
         <div id="assignments-container"><div style="color:var(--muted);font-family:var(--font-m);font-size:12px;padding:32px;text-align:center" data-i18n="common.noProgress">No progress yet.</div></div>
         <!-- assignment cards rendered by loadAssignments() -->
+      </div>
+
+      <div class="view" id="view-homework">
+        <div class="page-header">
+          <div class="page-label" data-i18n="hdr.homework.label">Weekly work</div>
+          <div class="page-title" data-i18n="hdr.homework.title">Homework</div>
+          <div class="page-sub" data-i18n="hdr.homework.sub">// Submit your weekly homework for your teacher to review</div>
+        </div>
+        <div id="homework-container"></div>
       </div>
 
       <div class="view" id="view-grades">
@@ -2685,7 +2714,8 @@
       <button onclick="learnExit()" data-i18n="lrn.home">Home</button>
       <button id="lrn-nav-lesson" class="on" onclick="learnGo('learn')" data-i18n="lrn.lesson">Lesson</button>
       <button id="lrn-nav-practice" onclick="learnGo('practice')" data-i18n="quizzes">Quiz</button>
-      <button id="lrn-nav-assignments" onclick="learnGo('assignments')" data-i18n="assignments">Assignments</button>
+      <button id="lrn-nav-homework" onclick="learnGo('homework')" data-i18n="homework">Homework</button>
+      <button id="lrn-nav-assignments" onclick="learnGo('assignments')" data-i18n="navFinal">Assignments</button>
     </div>
     <div class="lrn-topbar-right">
       <button class="lrn-icon-btn lrn-theme-toggle" onclick="toggleTheme()" title="Switch between light and dark" aria-label="Switch between light and dark">
@@ -3128,7 +3158,7 @@ function showError(id, msg) {
 
 const VIEW_TITLES = {
   'dashboard':'Dashboard','videos':'Recordings','materials':'Materials',
-  'assignments':'Assignments', 'grades':'My Grades',
+  'assignments':'Assignments', 'homework':'Homework', 'grades':'My Grades',
   't-dashboard':'Overview','t-videos':'Recordings','t-materials':'Materials',
   't-assignments':'Assignments','t-grading':'Grading','t-students':'Students','t-attendance':'Attendance','t-certificates':'Certificates','t-timetable':'Timetable',
   'timetable':'Timetable'
@@ -3137,7 +3167,7 @@ const VIEW_TITLES = {
 // view id → I18N key for the top-bar title (keeps titles translatable)
 const VIEW_TITLE_KEYS = {
   dashboard:'dashboard', videos:'recordings', learn:'learn',
-  assignments:'assignments', grades:'grades', timetable:'timetable', discussion:'discussion', certificates:'certificates',
+  assignments:'navFinal', homework:'homework', grades:'grades', timetable:'timetable', discussion:'discussion', certificates:'certificates',
   practice:'quizzes',
   't-dashboard':'th.overview', 't-videos':'recordings', 't-materials':'materials',
   't-assignments':'assignments', 't-grading':'th.grading', 't-students':'th.students',
@@ -3151,6 +3181,7 @@ const VIEW_LOADERS = {
   'dashboard':    loadStudentDashboard,
   'videos':       loadVideos,
   'assignments':  loadAssignments,
+  'homework':     loadHomework,
   'grades':       loadGrades,
   't-dashboard':  loadTeacherDashboard,
   't-videos':     loadTeacherVideos,
@@ -3446,18 +3477,43 @@ function slidePublicUrl(m) {
   return num ? `https://codencode.my/codencode-slides/session-${num}/index.html?access=${access}` : '';
 }
 
+// The final-week item is the course "assignment"; everything before it is weekly homework.
+function _courseTotalWeeks() {
+  const c = (STATE.courses || []).find(c => c.id === STATE.courseId);
+  return c ? (c.total_sessions || 0) : 0;
+}
+function isFinalAsgn(a) {
+  const t = _courseTotalWeeks();
+  return t > 0 && a.session >= t;
+}
+function asgnSubmitBtn(a) {
+  return (!a.submission || a.submission.score === null)
+    ? `<button class="btn-action" onclick="openSubmitModal(${a.id},'${a.title.replace(/'/g,"\\'")}')">
+         <i class="fas fa-upload"></i> ${a.submission ? 'Resubmit' : 'Submit'}
+       </button>`
+    : '';
+}
+function asgnBriefBtn(a) {
+  return a.brief_file
+    ? `<a href="/uploads/materials/${a.brief_file}" target="_blank" class="btn-action ghost" style="font-size:11px"><i class="fas fa-paperclip"></i> Brief</a>`
+    : '';
+}
+
+// Final assignment (last week of the course)
 async function loadAssignments() {
   const asgns = await GET(`/api/courses/${STATE.courseId}/assignments`);
   STATE.assignments = asgns;
   const container = document.getElementById('assignments-container');
   if (!container) return;
 
-  if (asgns.length === 0) {
-    container.innerHTML = `<div style="color:var(--muted);font-family:var(--font-m);font-size:12px;padding:32px;text-align:center">${T('x.noAssignments')}</div>`;
+  const finals = asgns.filter(isFinalAsgn);
+  if (finals.length === 0) {
+    container.innerHTML = `<div class="hw-empty"><i class="fas fa-lock"></i>
+      ${T('x.finalLocked', { w: _courseTotalWeeks() || 7 })}</div>`;
     return;
   }
 
-  container.innerHTML = asgns.map(a => `
+  container.innerHTML = finals.map(a => `
     <div class="assignment-card">
       <div class="assignment-card-top">
         <span class="asgn-num">${String(a.session).padStart(2,'0')}</span>
@@ -3470,15 +3526,49 @@ async function loadAssignments() {
       <div class="asgn-meta">
         ${a.due_date ? `<span><i class="fas fa-clock"></i> Due: ${a.due_date}</span>` : ''}
         <span><i class="fas fa-star"></i> ${a.max_points} pts</span>
-        ${a.brief_file ? `<a href="/uploads/materials/${a.brief_file}" target="_blank" class="btn-action ghost" style="font-size:11px"><i class="fas fa-paperclip"></i> Brief</a>` : ''}
+        ${asgnBriefBtn(a)}
         ${a.submission?.feedback ? `<span style="color:var(--muted)"><i class="fas fa-comment"></i> "${a.submission.feedback}"</span>` : ''}
-        ${(!a.submission || a.submission.score === null)
-          ? `<button class="btn-action" onclick="openSubmitModal(${a.id},'${a.title.replace(/'/g,"\\'")}')">
-               <i class="fas fa-upload"></i> ${a.submission ? 'Resubmit' : 'Submit'}
-             </button>`
-          : ''}
+        ${asgnSubmitBtn(a)}
       </div>
     </div>`).join('');
+}
+
+// Weekly homework: compact one-line rows grouped by week
+async function loadHomework() {
+  const asgns = await GET(`/api/courses/${STATE.courseId}/assignments`);
+  STATE.assignments = asgns;
+  const container = document.getElementById('homework-container');
+  if (!container) return;
+
+  const hw = asgns.filter(a => !isFinalAsgn(a));
+  if (hw.length === 0) {
+    container.innerHTML = `<div class="hw-empty">${T('x.noHomework')}</div>`;
+    return;
+  }
+
+  const byWeek = {};
+  hw.forEach(a => { (byWeek[a.session] = byWeek[a.session] || []).push(a); });
+  const done = hw.filter(a => a.submission).length;
+  const row = a => `<div class="hw-row">
+      <div class="hw-main">
+        <div class="hw-title">${esc(a.title)}</div>
+        ${a.description ? `<div class="hw-desc">${esc(a.description)}</div>` : ''}
+        <div class="hw-sub">
+          ${a.due_date ? `<span><i class="fas fa-clock"></i> ${T('hw.due')} ${esc(a.due_date)}</span>` : ''}
+          <span><i class="fas fa-star"></i> ${a.max_points} pts</span>
+          ${a.submission?.feedback ? `<span><i class="fas fa-comment"></i> "${esc(a.submission.feedback)}"</span>` : ''}
+        </div>
+      </div>
+      ${statusBadge(a.submission, a.max_points)}
+      ${asgnBriefBtn(a)}
+      ${asgnSubmitBtn(a)}
+    </div>`;
+
+  container.innerHTML =
+    `<div class="hw-summary">${T('hw.progress', { d: done, n: hw.length })}</div>` +
+    Object.keys(byWeek).map(Number).sort((x, y) => x - y).map(w =>
+      `<div class="hw-week">${T('hw.week', { w })}</div>` + byWeek[w].map(row).join('')
+    ).join('');
 }
 
 async function loadGrades() {
@@ -4990,7 +5080,7 @@ const I18N = {
     "md.submitTitle": "Submit: {v}",
     // sidebar
     dashboard:'Dashboard', recordings:'Recordings', materials:'Materials', learn:'Slides & Quiz',
-    assignments:'Assignments', grades:'My Grades', timetable:'Timetable', discussion:'Discussion',
+    assignments:'Assignments', homework:'Homework', navFinal:'Assignments', grades:'My Grades', timetable:'Timetable', discussion:'Discussion',
     quizzes:'Quizzes', certificates:'Certificates', settings:'Settings',
     'nav.learning':'Learning', 'nav.teaching':'Teaching', 'nav.currentCourse':'Current course',
     'th.overview':'Overview', 'th.students':'Students', 'th.grading':'Grading', 'th.profile':'My Profile', 'th.attendance':'Attendance',
@@ -5005,7 +5095,10 @@ const I18N = {
     'hdr.dashboard.sub':'// Session {wk} of {tot}', 'hdr.dashboard.subProg':'// {prog} · Session {wk} of {tot}',
     'hdr.videos.label':'Recordings', 'hdr.videos.title':'Class Recordings', 'hdr.videos.sub':'// click to watch',
     'hdr.materials.label':'Course Materials', 'hdr.materials.title':'Downloads', 'hdr.materials.sub':'// click to download',
-    'hdr.assignments.label':'Homework', 'hdr.assignments.title':'Assignments', 'hdr.assignments.sub':'// Submit your homework and projects for your teacher to review',
+    'hdr.assignments.label':'Final Assignment', 'hdr.assignments.title':'Assignments', 'hdr.assignments.sub':'// Your final project - submit it here for your teacher to review',
+    'hdr.homework.label':'Weekly work', 'hdr.homework.title':'Homework', 'hdr.homework.sub':'// Submit your weekly homework for your teacher to review',
+    'hw.week':'Week {w}', 'hw.due':'Due', 'hw.progress':'{d} of {n} submitted', 'x.noHomework':'No homework yet.',
+    'x.finalLocked':'Your final assignment opens in Week {w}. Keep up with your weekly homework and quizzes until then.',
     'hdr.grades.label':'My Grades', 'hdr.grades.title':'Grade Overview', 'hdr.grades.sub':'// Current average: {avg}',
     'hdr.timetable.label':'Schedule', 'hdr.timetable.title':'My Timetable', 'hdr.timetable.sub':'// Month-by-month class schedule',
     'hdr.discussion.label':'Discussion', 'hdr.discussion.title':'Discussion', 'hdr.discussion.sub':'// Ask questions, share insights',
@@ -5431,7 +5524,7 @@ const I18N = {
     "md.gradeName": "批改：{v}",
     "md.submitTitle": "提交：{v}",
     dashboard:'学习面板', recordings:'课程录像', materials:'学习资料', learn:'幻灯片与测验',
-    assignments:'作业', grades:'我的成绩', timetable:'课程时间表', discussion:'讨论区',
+    assignments:'作业', homework:'作业', navFinal:'期末作业', grades:'我的成绩', timetable:'课程时间表', discussion:'讨论区',
     quizzes:'测验', certificates:'证书', settings:'设置',
     'nav.learning':'学习', 'nav.teaching':'教学', 'nav.currentCourse':'当前课程',
     'th.overview':'概览', 'th.students':'学生', 'th.grading':'批改', 'th.profile':'我的资料', 'th.attendance':'考勤',
@@ -5445,7 +5538,10 @@ const I18N = {
     'hdr.dashboard.sub':'// 第 {wk} / {tot} 节', 'hdr.dashboard.subProg':'// {prog} · 第 {wk} / {tot} 节',
     'hdr.videos.label':'课程录像', 'hdr.videos.title':'课堂录像', 'hdr.videos.sub':'// 点击观看',
     'hdr.materials.label':'课程资料', 'hdr.materials.title':'下载', 'hdr.materials.sub':'// 点击下载',
-    'hdr.assignments.label':'作业', 'hdr.assignments.title':'作业列表', 'hdr.assignments.sub':'// 提交您的作业和项目供老师批改',
+    'hdr.assignments.label':'期末项目', 'hdr.assignments.title':'期末作业', 'hdr.assignments.sub':'// 在此提交您的期末项目供老师批改',
+    'hdr.homework.label':'每周作业', 'hdr.homework.title':'作业', 'hdr.homework.sub':'// 提交您的每周作业供老师批改',
+    'hw.week':'第 {w} 周', 'hw.due':'截止', 'hw.progress':'已提交 {d} / {n}', 'x.noHomework':'暂无作业。',
+    'x.finalLocked':'期末作业将在第 {w} 周开放。在此之前，请完成每周作业和测验。',
     'hdr.grades.label':'我的成绩', 'hdr.grades.title':'成绩总览', 'hdr.grades.sub':'// 当前平均分：{avg}',
     'hdr.timetable.label':'时间表', 'hdr.timetable.title':'我的时间表', 'hdr.timetable.sub':'// 按月查看的上课时间表',
     'hdr.discussion.label':'讨论区', 'hdr.discussion.title':'讨论区', 'hdr.discussion.sub':'// 提出问题，分享见解',
@@ -5867,7 +5963,7 @@ const I18N = {
     "md.gradeName": "Nilai: {v}",
     "md.submitTitle": "Hantar: {v}",
     dashboard:'Papan Pemuka', recordings:'Rakaman', materials:'Bahan', learn:'Slaid & Kuiz',
-    assignments:'Tugasan', grades:'Gred Saya', timetable:'Jadual', discussion:'Perbincangan',
+    assignments:'Tugasan', homework:'Kerja Rumah', navFinal:'Tugasan', grades:'Gred Saya', timetable:'Jadual', discussion:'Perbincangan',
     quizzes:'Kuiz', certificates:'Sijil', settings:'Tetapan',
     'nav.learning':'Pembelajaran', 'nav.teaching':'Pengajaran', 'nav.currentCourse':'Kursus semasa',
     'th.overview':'Gambaran', 'th.students':'Pelajar', 'th.grading':'Penilaian', 'th.profile':'Profil Saya', 'th.attendance':'Kehadiran',
@@ -5881,7 +5977,10 @@ const I18N = {
     'hdr.dashboard.sub':'// Sesi {wk} daripada {tot}', 'hdr.dashboard.subProg':'// {prog} · Sesi {wk} daripada {tot}',
     'hdr.videos.label':'Rakaman', 'hdr.videos.title':'Rakaman Kelas', 'hdr.videos.sub':'// klik untuk tonton',
     'hdr.materials.label':'Bahan Kursus', 'hdr.materials.title':'Muat Turun', 'hdr.materials.sub':'// klik untuk muat turun',
-    'hdr.assignments.label':'Kerja Rumah', 'hdr.assignments.title':'Tugasan', 'hdr.assignments.sub':'// Hantar kerja rumah dan projek anda untuk disemak guru',
+    'hdr.assignments.label':'Tugasan Akhir', 'hdr.assignments.title':'Tugasan', 'hdr.assignments.sub':'// Hantar projek akhir anda di sini untuk disemak guru',
+    'hdr.homework.label':'Kerja mingguan', 'hdr.homework.title':'Kerja Rumah', 'hdr.homework.sub':'// Hantar kerja rumah mingguan anda untuk disemak guru',
+    'hw.week':'Minggu {w}', 'hw.due':'Tarikh akhir', 'hw.progress':'{d} daripada {n} dihantar', 'x.noHomework':'Tiada kerja rumah lagi.',
+    'x.finalLocked':'Tugasan akhir anda dibuka pada Minggu {w}. Teruskan kerja rumah mingguan dan kuiz sehingga itu.',
     'hdr.grades.label':'Gred Saya', 'hdr.grades.title':'Ringkasan Gred', 'hdr.grades.sub':'// Purata semasa: {avg}',
     'hdr.timetable.label':'Jadual', 'hdr.timetable.title':'Jadual Saya', 'hdr.timetable.sub':'// Jadual kelas mengikut bulan',
     'hdr.discussion.label':'Perbincangan', 'hdr.discussion.title':'Perbincangan', 'hdr.discussion.sub':'// Tanya soalan, kongsi idea',
@@ -6399,7 +6498,10 @@ function navigateToResult(r) {
   document.getElementById('search-results').style.display = 'none';
   document.getElementById('search-input').value = '';
   if (r.type === 'material') learnOpenLesson(r.id);
-  else if (r.type === 'assignment') switchView('assignments');
+  else if (r.type === 'assignment') {
+    const a = (STATE.assignments || []).find(x => x.id === r.id);
+    switchView(a && isFinalAsgn(a) ? 'assignments' : 'homework');
+  }
   else if (r.type === 'discussion') switchView('discussion');
 }
 
