@@ -5430,10 +5430,12 @@ def api_search():
 
 
 def seed_python_fundamentals_quizzes():
-    """Week 4 and Week 7 checkpoint MCQ quizzes for Python Fundamentals, created UNPUBLISHED so a
-    teacher reviews them before students see them. Idempotent by (course,
-    title). To retire one for good, unpublish it rather than deleting it -
-    a deleted quiz is re-created on the next start. Never blocks startup."""
+    """Week 4 and Week 7 checkpoint MCQ quizzes for Python Fundamentals. Created
+    PUBLISHED (students only see each one once they reach its week), and
+    re-published on every start if a teacher unpublishes it. Idempotent by
+    (course, title). A deleted quiz is re-created on the next start. To
+    stop this, remove the seed_python_fundamentals_quizzes() call at
+    startup. Never blocks startup."""
     try:
         import random
         from quiz_seed_python import PYTHON_FUNDAMENTALS_QUIZZES, RETIRED_TITLES
@@ -5443,10 +5445,13 @@ def seed_python_fundamentals_quizzes():
                 if not old.is_published and not QuizAttempt.query.filter_by(quiz_id=old.id).first():
                     db.session.delete(old)
             for spec in PYTHON_FUNDAMENTALS_QUIZZES:
-                if Quiz.query.filter_by(course_id=course.id, title=spec['title']).first():
+                existing = Quiz.query.filter_by(course_id=course.id, title=spec['title']).first()
+                if existing:
+                    if not existing.is_published:
+                        existing.is_published = True
                     continue
                 quiz = Quiz(course_id=course.id, title=spec['title'], description=spec['description'],
-                            session=spec['week'], pass_score=70, max_attempts=2, is_published=False)
+                            session=spec['week'], pass_score=70, max_attempts=2, is_published=True)
                 db.session.add(quiz)
                 db.session.flush()
                 for idx, (text_, correct, wrong, explanation) in enumerate(spec['questions']):
