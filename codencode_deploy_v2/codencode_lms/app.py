@@ -5195,7 +5195,7 @@ def api_lms_outline(cid):
     # required drills for this course, indexed by the lesson they gate
     drills = Quiz.query.filter_by(course_id=cid, is_required=True).all()
     if current_user.role == 'student':
-        drills = [q for q in drills if q.is_published]
+        drills = [q for q in drills if q.is_published and _quiz_unlocked_for_student(q)]
     drills_by_mat = {}
     loose_drills = []
     for q in drills:
@@ -5209,6 +5209,7 @@ def api_lms_outline(cid):
             'sub': q.description or '', 'session': q.session or 0,
             'icon': 'fa-flag-checkered',
             'passed': st['passed'], 'attempted': st['attempted'],
+            'best_score': st.get('best_score'),
         }
 
     # group into sessions
@@ -5322,6 +5323,8 @@ def api_lms_drill(qid):
     if not enrolled_or_staff(q.course_id):
         return jsonify({'error': 'Not enrolled'}), 403
     hide = (current_user.role == 'student')
+    if hide and not _quiz_unlocked_for_student(q):
+        return jsonify({'error': 'Not available yet'}), 403
     d = q.to_dict(include_questions=True, hide_correct=hide)
     d['state'] = _drill_state(qid) if current_user.role == 'student' else {}
     d['attempts_remaining'] = max(0, (q.max_attempts or 2) - d['state'].get('attempts_used', 0)) \
@@ -5449,9 +5452,12 @@ def seed_python_fundamentals_quizzes():
                 if existing:
                     if not existing.is_published:
                         existing.is_published = True
+                    if not existing.is_required:
+                        existing.is_required = True
                     continue
                 quiz = Quiz(course_id=course.id, title=spec['title'], description=spec['description'],
-                            session=spec['week'], pass_score=70, max_attempts=2, is_published=True)
+                            session=spec['week'], pass_score=70, max_attempts=2, is_published=True,
+                            is_required=True)
                 db.session.add(quiz)
                 db.session.flush()
                 for idx, (text_, correct, wrong, explanation) in enumerate(spec['questions']):

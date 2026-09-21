@@ -5084,6 +5084,9 @@ const I18N = {
     'lrn.quizEyebrow':'required quiz · {title}', 'lrn.progOf':'{i} of {n}',
     'lrn.correct':'Correct — quiz passed.', 'lrn.notQuite':'Not quite — the right answer is highlighted.',
     'lrn.submitAnswer':'Submit answer', 'lrn.nextQuiz':'Next quiz', 'lrn.backToLesson':'Back to lesson', 'lrn.skip':'Skip for now', 'lrn.couldNotSubmit':'Could not submit',
+    'lrn.quizQno':'Question {i} of {n}', 'lrn.quizCount':'{a} of {n} answered', 'lrn.quizSubmit':'Submit quiz', 'lrn.quizUnanswered':'You have {n} unanswered question(s). Submit anyway? You cannot change answers after submission.',
+    'lrn.quizBest':'Your best score', 'lrn.quizPassMark':'Pass mark {p}%', 'lrn.quizPassedMsg':'Passed', 'lrn.quizFailedMsg':'Not passed yet', 'lrn.quizCorrectOf':'{c} of {n} correct', 'lrn.quizAttemptsLeft':'{n} attempt(s) left', 'lrn.quizNoAttempts':'No attempts left',
+    'lrn.quizRetake':'Retake quiz', 'lrn.quizReview':'Review your answers', 'lrn.quizYourAns':'Your answer', 'lrn.quizCorrectAns':'Correct answer', 'lrn.quizNoAns':'Not answered', 'lrn.notPassedYet':'not passed yet', 'lrn.quizQuestions':'{n} questions · pass mark {p}%',
     'login.title':'Learning Portal', 'login.email':'Email', 'login.password':'Password', 'login.submit':'Access Portal', 'login.signingIn':'Signing in...',
     'tf.sessionTitle':'Session Title',
     'tf.session':'Session',
@@ -5517,6 +5520,9 @@ const I18N = {
     'lrn.quizEyebrow':'必做测验 · {title}', 'lrn.progOf':'第 {i} / {n}',
     'lrn.correct':'回答正确 —— 测验通过。', 'lrn.notQuite':'不对 —— 正确答案已高亮。',
     'lrn.submitAnswer':'提交答案', 'lrn.nextQuiz':'下一个测验', 'lrn.backToLesson':'返回课程', 'lrn.skip':'暂时跳过', 'lrn.couldNotSubmit':'无法提交',
+    'lrn.quizQno':'第 {i} 题，共 {n} 题', 'lrn.quizCount':'已答 {a} / {n}', 'lrn.quizSubmit':'提交测验', 'lrn.quizUnanswered':'还有 {n} 题未作答。仍要提交吗？提交后将无法修改答案。',
+    'lrn.quizBest':'你的最高分', 'lrn.quizPassMark':'及格分 {p}%', 'lrn.quizPassedMsg':'已通过', 'lrn.quizFailedMsg':'尚未通过', 'lrn.quizCorrectOf':'答对 {c} / {n} 题', 'lrn.quizAttemptsLeft':'还剩 {n} 次机会', 'lrn.quizNoAttempts':'没有剩余机会',
+    'lrn.quizRetake':'重做测验', 'lrn.quizReview':'查看你的答案', 'lrn.quizYourAns':'你的答案', 'lrn.quizCorrectAns':'正确答案', 'lrn.quizNoAns':'未作答', 'lrn.notPassedYet':'尚未通过', 'lrn.quizQuestions':'{n} 题 · 及格分 {p}%',
     'login.title':'学习门户', 'login.email':'邮箱', 'login.password':'密码', 'login.submit':'进入门户', 'login.signingIn':'正在登录…',
     'tf.sessionTitle':'课节标题',
     'tf.session':'课节',
@@ -5950,6 +5956,9 @@ const I18N = {
     'lrn.quizEyebrow':'kuiz wajib · {title}', 'lrn.progOf':'{i} daripada {n}',
     'lrn.correct':'Betul — kuiz lulus.', 'lrn.notQuite':'Belum tepat — jawapan betul diserlahkan.',
     'lrn.submitAnswer':'Hantar jawapan', 'lrn.nextQuiz':'Kuiz seterusnya', 'lrn.backToLesson':'Kembali ke pelajaran', 'lrn.skip':'Langkau dahulu', 'lrn.couldNotSubmit':'Tidak dapat menghantar',
+    'lrn.quizQno':'Soalan {i} daripada {n}', 'lrn.quizCount':'{a} daripada {n} dijawab', 'lrn.quizSubmit':'Hantar kuiz', 'lrn.quizUnanswered':'Anda ada {n} soalan belum dijawab. Hantar juga? Anda tidak boleh ubah jawapan selepas menghantar.',
+    'lrn.quizBest':'Markah terbaik anda', 'lrn.quizPassMark':'Markah lulus {p}%', 'lrn.quizPassedMsg':'Lulus', 'lrn.quizFailedMsg':'Belum lulus', 'lrn.quizCorrectOf':'{c} daripada {n} betul', 'lrn.quizAttemptsLeft':'{n} percubaan lagi', 'lrn.quizNoAttempts':'Tiada percubaan lagi',
+    'lrn.quizRetake':'Cuba semula kuiz', 'lrn.quizReview':'Semak jawapan anda', 'lrn.quizYourAns':'Jawapan anda', 'lrn.quizCorrectAns':'Jawapan betul', 'lrn.quizNoAns':'Tidak dijawab', 'lrn.notPassedYet':'belum lulus', 'lrn.quizQuestions':'{n} soalan · markah lulus {p}%',
     'login.title':'Portal Pembelajaran', 'login.email':'E-mel', 'login.password':'Kata Laluan', 'login.submit':'Akses Portal', 'login.signingIn':'Sedang log masuk...',
     'tf.sessionTitle':'Tajuk Sesi',
     'tf.session':'Sesi',
@@ -7178,7 +7187,9 @@ function renderOutline(o){
         <span class="lrn-card-body">
           <span class="lrn-card-title">${esc(it.title)}</span>
           <span class="lrn-tag ${it.passed?'ok':''}">
-            <i class="fas ${it.passed?'fa-check':'fa-flag'}"></i>${it.passed?T('lrn.passed'):T('lrn.requiredQuiz')}</span>
+            <i class="fas ${it.passed?'fa-check':'fa-flag'}"></i>${it.attempted
+              ? (it.passed?T('lrn.passed'):T('lrn.notPassedYet')) + (it.best_score!=null ? ' · '+Math.round(it.best_score)+'%' : '')
+              : T('lrn.requiredQuiz')}</span>
         </span></button>`;
     }).join('');
     return `<div class="lrn-sess"><div class="lrn-sess-head">${label}
@@ -7362,6 +7373,8 @@ async function renderDrill(qid){
   try { d = await GET(`/api/lms/drill/${qid}`); }
   catch(e){ stage.innerHTML = `<div class="lrn-empty">${esc(e.message||T('lrn.couldNotOpenQuiz'))}</div>`; return; }
   LRN.curDrillId = qid; LRN.drill = d; LRN.sel = null; LRN.submitted = false;
+  LRN.fqRetake = false;
+  if ((d.questions||[]).length > 1) return renderFullQuiz(qid, d);
 
   const q = (d.questions||[])[0];
   if (!q) { stage.innerHTML = `<div class="lrn-empty">${T('lrn.noQuestion')}</div>`; return; }
@@ -7416,6 +7429,109 @@ async function renderDrill(qid){
   };
   LRN.nextDrill = allDrills[idx+1] || null;
   LRN.render();
+}
+
+// ── Multi-question checkpoint quiz: take it, see your marks, review answers ──
+function renderFullQuiz(qid, d){
+  const stage = document.getElementById('lrn-stage');
+  const qs = d.questions || [];
+  const st = d.state || {};
+  const left = d.attempts_remaining;
+  const passMark = d.pass_score || 70;
+  LRN.fq = { qid, d, answers: {} };
+  const back = `<button class="lrn-back" onclick="LRN.curDrillId=null;switchView('learn')"><i class="fas fa-chevron-left"></i> ${T('lrn.backToLesson')}</button>`;
+  const eyebrow = `<div class="lrn-drill-eyebrow"><i class="fas fa-flag-checkered"></i>${T('lrn.quizEyebrow',{title:esc(d.title)})}</div>`;
+
+  if (st.attempted && !LRN.fqRetake) {
+    const best = Math.round(st.best_score || 0);
+    stage.innerHTML = `<div class="lrn-quiz">${back}${eyebrow}
+      <div class="lrn-score ${st.passed?'pass':'fail'}">
+        <div class="lrn-score-num">${best}%</div>
+        <div class="lrn-score-sub">${T('lrn.quizBest')} · ${T('lrn.quizPassMark',{p:passMark})}</div>
+        <span class="lrn-score-tag">${st.passed?T('lrn.quizPassedMsg'):T('lrn.quizFailedMsg')}</span>
+        <div class="lrn-score-sub">${left>0 ? T('lrn.quizAttemptsLeft',{n:left}) : T('lrn.quizNoAttempts')}</div>
+        <div class="lrn-score-actions">
+          ${left>0 ? `<button class="lrn-submit" onclick="fqRetake()">${T('lrn.quizRetake')}</button>` : ''}
+        </div>
+      </div></div>`;
+    return;
+  }
+
+  const body = qs.map((q,qi) => `<div class="lrn-quiz-q">
+      <div class="lrn-quiz-qno">${T('lrn.quizQno',{i:qi+1,n:qs.length})}</div>
+      <div class="lrn-quiz-qtext">${esc(q.question_text)}</div>
+      ${(q.choices||[]).map((c,i) => `<div class="lrn-opt" data-q="${q.id}" data-c="${c.id}" onclick="fqPick(${q.id},${c.id})">
+        <div class="lrn-opt-letter">${String.fromCharCode(65+i)}</div>
+        <div class="lrn-opt-text">${esc(c.choice_text)}</div></div>`).join('')}
+    </div>`).join('');
+  stage.innerHTML = `<div class="lrn-quiz">${back}${eyebrow}
+    <p class="lrn-quiz-meta">${T('lrn.quizQuestions',{n:qs.length,p:passMark})}</p>
+    ${body}
+    <div class="lrn-quiz-bar">
+      <span class="lrn-quiz-count" id="fq-count">${T('lrn.quizCount',{a:0,n:qs.length})}</span>
+      <button class="lrn-submit" id="fq-submit" disabled onclick="fqSubmit()">${T('lrn.quizSubmit')}</button>
+    </div></div>`;
+}
+
+function fqRetake(){ LRN.fqRetake = true; renderFullQuiz(LRN.fq.qid, LRN.fq.d); window.scrollTo(0,0); }
+
+function fqPick(qid, cid){
+  LRN.fq.answers[qid] = cid;
+  document.querySelectorAll(`.lrn-opt[data-q="${qid}"]`).forEach(el =>
+    el.classList.toggle('sel', Number(el.dataset.c) === cid));
+  const n = LRN.fq.d.questions.length, a = Object.keys(LRN.fq.answers).length;
+  document.getElementById('fq-count').textContent = T('lrn.quizCount',{a,n});
+  document.getElementById('fq-submit').disabled = a === 0;
+}
+
+async function fqSubmit(){
+  const n = LRN.fq.d.questions.length, a = Object.keys(LRN.fq.answers).length;
+  const msg = a < n ? T('lrn.quizUnanswered',{n:n-a}) : T('confirm.submitQuiz');
+  if (!confirm(msg)) return;
+  const btn = document.getElementById('fq-submit');
+  if (btn) btn.disabled = true;
+  try {
+    const r = await POST(`/api/quizzes/${LRN.fq.qid}/attempt`, { submit: true, answers: LRN.fq.answers });
+    await learnEnsureOutline(true);
+    renderFullQuizResult(r);
+    window.scrollTo(0,0);
+  } catch(e){ if (btn) btn.disabled = false; showToast(e.message || T('lrn.couldNotSubmit'), true); }
+}
+
+function renderFullQuizResult(r){
+  const stage = document.getElementById('lrn-stage');
+  const d = LRN.fq.d;
+  const qmap = Object.fromEntries((d.questions||[]).map(q => [q.id, q]));
+  const ctext = (q, id) => { const c = ((q&&q.choices)||[]).find(c => c.id === id); return c ? c.choice_text : null; };
+  const res = r.answers || [];
+  const right = res.filter(a => a.is_correct).length;
+  const left = r.attempts_remaining;
+  const review = res.map((a,i) => {
+    const q = qmap[a.question_id];
+    const mine = ctext(q, a.selected_choice_id);
+    const correct = ctext(q, a.correct_choice_id);
+    return `<div class="lrn-rev ${a.is_correct?'ok':'bad'}">
+      <div class="lrn-rev-q">${i+1}. ${esc(a.question_text)}</div>
+      <div class="lrn-rev-row ${a.is_correct?'right':'wrong'}">${T('lrn.quizYourAns')}: <b>${mine!=null?esc(mine):T('lrn.quizNoAns')}</b></div>
+      ${a.is_correct ? '' : `<div class="lrn-rev-row right">${T('lrn.quizCorrectAns')}: <b>${esc(correct||'')}</b></div>`}
+      ${a.explanation ? `<div class="lrn-explain">${esc(a.explanation)}</div>` : ''}
+    </div>`;
+  }).join('');
+  stage.innerHTML = `<div class="lrn-quiz">
+    <button class="lrn-back" onclick="LRN.curDrillId=null;switchView('learn')"><i class="fas fa-chevron-left"></i> ${T('lrn.backToLesson')}</button>
+    <div class="lrn-drill-eyebrow"><i class="fas fa-flag-checkered"></i>${T('lrn.quizEyebrow',{title:esc(d.title)})}</div>
+    <div class="lrn-score ${r.passed?'pass':'fail'}">
+      <div class="lrn-score-num">${Math.round(r.score)}%</div>
+      <div class="lrn-score-sub">${T('lrn.quizCorrectOf',{c:right,n:res.length})} · ${T('lrn.quizPassMark',{p:d.pass_score||70})}</div>
+      <span class="lrn-score-tag">${r.passed?T('lrn.quizPassedMsg'):T('lrn.quizFailedMsg')}</span>
+      <div class="lrn-score-sub">${left>0 ? T('lrn.quizAttemptsLeft',{n:left}) : T('lrn.quizNoAttempts')}</div>
+      <div class="lrn-score-actions">
+        ${left>0 ? `<button class="lrn-submit" onclick="fqRetake()">${T('lrn.quizRetake')}</button>` : ''}
+      </div>
+    </div>
+    <div class="lrn-quiz-qtext" style="margin-bottom:12px">${T('lrn.quizReview')}</div>
+    ${review}
+  </div>`;
 }
 
 async function learnDrillAction(qid){

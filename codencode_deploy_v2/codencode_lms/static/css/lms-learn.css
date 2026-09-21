@@ -303,3 +303,30 @@
 .lrn-feedback.pass { background: var(--lrn-accent-bg); color: var(--lrn-accent); }
 .lrn-feedback.fail { background: var(--lrn-red-bg); color: var(--lrn-red); }
 .lrn-explain { margin-top: 12px; font-size: 13px; line-height: 1.6; color: var(--lrn-text-2); }
+
+/* ── Multi-question quiz: score card + answer review ── */
+.lrn-quiz { max-width: 720px; margin: 0 auto; }
+.lrn-quiz-q { margin: 0 0 26px; }
+.lrn-quiz-qtext { font: 600 16px/1.5 'Outfit', 'Inter', sans-serif; margin-bottom: 12px; }
+.lrn-quiz-qno { font: 500 11px 'JetBrains Mono', monospace; color: var(--lrn-text-3); margin-bottom: 6px; }
+.lrn-quiz-meta { font-size: 13px; color: var(--lrn-text-2); margin: 0 0 22px; line-height: 1.6; }
+.lrn-quiz-bar { position: sticky; bottom: 0; display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  padding: 14px 0; background: var(--lrn-bg); border-top: 1px solid var(--lrn-border); }
+.lrn-quiz-count { font: 500 12px 'JetBrains Mono', monospace; color: var(--lrn-text-2); }
+.lrn-score { background: var(--lrn-surface); border: 1px solid var(--lrn-border); border-radius: 18px; padding: 28px 24px; text-align: center; margin-bottom: 26px; }
+.lrn-score-num { font: 700 56px/1 'Outfit', 'Inter', sans-serif; letter-spacing: -.02em; }
+.lrn-score.pass .lrn-score-num { color: var(--lrn-accent); }
+.lrn-score.fail .lrn-score-num { color: var(--lrn-red); }
+.lrn-score-sub { margin-top: 10px; font-size: 14px; color: var(--lrn-text-2); }
+.lrn-score-tag { display: inline-block; margin-top: 14px; padding: 6px 14px; border-radius: 999px; font: 600 13px 'Inter', sans-serif; }
+.lrn-score.pass .lrn-score-tag { background: var(--lrn-accent-bg); color: var(--lrn-accent); }
+.lrn-score.fail .lrn-score-tag { background: var(--lrn-red-bg); color: var(--lrn-red); }
+.lrn-score-actions { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 20px; }
+.lrn-rev { border: 1px solid var(--lrn-border); border-radius: 14px; padding: 16px 18px; margin-bottom: 12px; background: var(--lrn-surface); }
+.lrn-rev.ok { border-left: 3px solid var(--lrn-accent); }
+.lrn-rev.bad { border-left: 3px solid var(--lrn-red); }
+.lrn-rev-q { font: 600 14.5px/1.5 'Outfit', 'Inter', sans-serif; margin-bottom: 8px; }
+.lrn-rev-row { font-size: 13px; line-height: 1.6; color: var(--lrn-text-2); }
+.lrn-rev-row b { color: var(--lrn-text); font-weight: 600; }
+.lrn-rev-row.wrong b { color: var(--lrn-red); }
+.lrn-rev-row.right b { color: var(--lrn-accent); }
