@@ -2010,13 +2010,15 @@ def admin_cohort_detail(cohort_id):
 
 
 def _student_week(course_id):
-    """Return the current_session applicable to the logged-in student for this course.
-    Uses the student's cohort progress if assigned, otherwise falls back to the course."""
+    """Return the week the logged-in student has reached in this course.
+    Must match what admins see (_enrollment_week): manual override, then
+    cohort progress, then auto-computed from enrolment date, then the course."""
+    course = Course.query.get(course_id)
     enrollment = Enrollment.query.filter_by(
         course_id=course_id, student_id=current_user.id).first()
-    if enrollment and enrollment.cohort:
-        return enrollment.cohort.current_session
-    return Course.query.get(course_id).current_session
+    if enrollment:
+        return _enrollment_week(enrollment, course)
+    return course.current_session
 
 
 @app.route('/api/admin/courses/<int:cid>/session', methods=['PUT'])
