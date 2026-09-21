@@ -5331,6 +5331,24 @@ def api_lms_outline(cid):
         bucket['items'].append(di)
         flat.append({'type': 'drill', 'id': q.id})
 
+    # Weekly homework lives in Materials next to that week's lesson. The
+    # course's last week is the final Assignment (own page), so it is left out.
+    # Not added to `flat` - that list drives lesson/quiz next-prev navigation.
+    total_weeks = course.total_sessions or 0
+    hw = Assignment.query.filter_by(course_id=cid).order_by(Assignment.session, Assignment.id).all()
+    if current_user.role == 'student':
+        wk = _student_week(cid)
+        hw = [a for a in hw if a.session <= wk]
+    for a in hw:
+        if total_weeks and a.session >= total_weeks:
+            continue
+        sub = (Submission.query.filter_by(assignment_id=a.id, student_id=sid).first()
+               if sid else None)
+        item = a.to_dict(submission=sub)
+        item['type'] = 'homework'
+        bucket = sessions.setdefault(a.session, {'session': a.session, 'items': []})
+        bucket['items'].append(item)
+
     ordered = [sessions[k] for k in sorted(sessions.keys())]
     return jsonify({
         'course': course.to_dict(),

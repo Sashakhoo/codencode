@@ -32,6 +32,7 @@
   --lrn-red:       #E06B6B;
   --lrn-red-bg:    rgba(224,107,107,.12);
   --lrn-track:     #1c2721;
+  --lrn-progress:  #5B9DFF;
   --lrn-line:      #4a5f54;
   --lrn-opt-bg:    #16211b;
   --lrn-sel-bg:    rgba(20,192,138,.24);
@@ -61,6 +62,7 @@
   --lrn-red:       #C0392B;
   --lrn-red-bg:    #FBEAE8;
   --lrn-track:     #E3E7E5;
+  --lrn-progress:  #2F80ED;
   --lrn-line:      #8FA599;
   --lrn-opt-bg:    #F3F7F5;
   --lrn-sel-bg:    #CFEBD9;
@@ -258,8 +260,11 @@
 .lrn-practice { max-width: 680px; margin: 0 auto; }
 .lrn-prog-row { display: flex; align-items: center; gap: 12px; margin-bottom: 26px; }
 .lrn-prog-track { flex: 1; height: 6px; background: var(--lrn-track); border-radius: 20px; overflow: hidden; }
-.lrn-prog-fill { height: 100%; background: var(--lrn-accent); border-radius: 20px; transition: width .3s; }
+/* display:block - the lesson cards use a <span>, which ignores width/height and left the bar empty */
+.lrn-prog-fill { display: block; height: 100%; background: var(--lrn-progress); border-radius: 20px; transition: width .3s, background .3s; }
+.lrn-prog-fill.done { background: var(--lrn-accent); }
 .lrn-prog-label { font: 500 12px 'JetBrains Mono', monospace; color: var(--lrn-text-3); white-space: nowrap; }
+.lrn-prog-label.done { color: var(--lrn-accent); font-weight: 600; }
 
 .lrn-drill-eyebrow { font: 500 11.5px 'JetBrains Mono', monospace; color: var(--lrn-amber); margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
 .lrn-drill-q { font: 700 21px/1.4 'Outfit', 'Inter', sans-serif; letter-spacing: -.01em; margin-bottom: 8px; }
