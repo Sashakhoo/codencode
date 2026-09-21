@@ -32,6 +32,9 @@
   --lrn-red:       #E06B6B;
   --lrn-red-bg:    rgba(224,107,107,.12);
   --lrn-track:     #1c2721;
+  --lrn-line:      #4a5f54;
+  --lrn-opt-bg:    #16211b;
+  --lrn-sel-bg:    rgba(20,192,138,.24);
   --lrn-shadow:    0 24px 60px rgba(0,0,0,.45);
 }
 
@@ -58,6 +61,9 @@
   --lrn-red:       #C0392B;
   --lrn-red-bg:    #FBEAE8;
   --lrn-track:     #E3E7E5;
+  --lrn-line:      #8FA599;
+  --lrn-opt-bg:    #F3F7F5;
+  --lrn-sel-bg:    #CFEBD9;
   --lrn-shadow:    0 20px 44px rgba(20,24,27,.12);
 }
 
@@ -330,3 +336,25 @@
 .lrn-rev-row b { color: var(--lrn-text); font-weight: 600; }
 .lrn-rev-row.wrong b { color: var(--lrn-red); }
 .lrn-rev-row.right b { color: var(--lrn-accent); }
+
+/* ── Higher-contrast quiz cards (answers were hard to see against the page) ── */
+.lrn-quiz-q { background: var(--lrn-surface); border: 2px solid var(--lrn-line); border-radius: 16px;
+  padding: 20px 22px 12px; box-shadow: 0 3px 12px rgba(0,0,0,.08); }
+.lrn-quiz-qno { color: var(--lrn-text-2); font-weight: 600; }
+.lrn-quiz-qtext { font-size: 17px; color: var(--lrn-text); }
+.lrn-opt { background: var(--lrn-opt-bg); border: 2px solid var(--lrn-line); }
+.lrn-opt:hover { border-color: var(--lrn-accent); background: var(--lrn-sel-bg); }
+.lrn-opt.sel { border-color: var(--lrn-accent); background: var(--lrn-sel-bg); box-shadow: 0 0 0 3px var(--lrn-accent-bg); }
+.lrn-opt.sel .lrn-opt-text { font-weight: 700; }
+.lrn-opt.correct { border-color: var(--lrn-accent); background: var(--lrn-sel-bg); }
+.lrn-opt-letter { border: 2px solid var(--lrn-line); color: var(--lrn-text); background: var(--lrn-surface); }
+.lrn-opt.sel .lrn-opt-letter,
+.lrn-opt.correct .lrn-opt-letter { background: var(--lrn-accent); border-color: var(--lrn-accent); color: #fff; }
+.lrn-quiz-bar { bottom: 12px; margin-top: 8px; padding: 12px 16px; background: var(--lrn-surface);
+  border: 2px solid var(--lrn-line); border-radius: 14px; box-shadow: 0 -6px 18px rgba(0,0,0,.10); }
+.lrn-quiz-count { color: var(--lrn-text); font-weight: 600; }
+.lrn-score { border: 2px solid var(--lrn-line); }
+.lrn-rev { border: 2px solid var(--lrn-line); }
+.lrn-rev.ok { border-left: 5px solid var(--lrn-accent); }
+.lrn-rev.bad { border-left: 5px solid var(--lrn-red); }
+
