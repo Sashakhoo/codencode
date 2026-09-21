@@ -1293,9 +1293,12 @@ def api_submit(aid):
         if ext not in app.config['ALLOWED_SUBMISSION']:
             return jsonify({'error': f'File type not allowed'}), 400
         assignment = Assignment.query.get_or_404(aid)
-        safe_title  = re.sub(r'[^a-z0-9]+', '', assignment.title.lower())
-        safe_name   = re.sub(r'[^a-z0-9]+', '', current_user.name.lower())
-        stored = f"{safe_title}_{safe_name}.{ext}"
+        safe_title  = re.sub(r'[^a-z0-9]+', '', assignment.title.lower()) or 'assignment'
+        safe_name   = re.sub(r'[^a-z0-9]+', '', current_user.name.lower()) or 'student'
+        # The student id makes the name unique: two students with the same
+        # (or non-Latin, so blank once sanitised) name must never overwrite
+        # each other's file.
+        stored = f"{safe_title}_{safe_name}_{current_user.id}.{ext}"
         dest = os.path.join(app.config['UPLOAD_FOLDER'], 'submissions')
         os.makedirs(dest, exist_ok=True)
         file.save(os.path.join(dest, stored))
@@ -1305,7 +1308,10 @@ def api_submit(aid):
 
     if existing:
         old = os.path.join(app.config['UPLOAD_FOLDER'], 'submissions', existing.filename)
-        if os.path.exists(old):
+        # Only delete the previous upload if it is a different file - when a
+        # student resubmits the same file type the name is identical, and
+        # removing it here would delete the file that was just saved.
+        if existing.filename != stored and os.path.exists(old):
             os.remove(old)
         existing.filename     = stored
         existing.notes        = request.form.get('notes', '')
