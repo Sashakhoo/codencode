@@ -4717,13 +4717,20 @@ def submit_workshop_feedback(token):
 # ─────────────────────────────────────────────
 # S5+T2 — Quizzes
 # ─────────────────────────────────────────────
+def _quiz_unlocked_for_student(quiz):
+    """A quiz tied to a week (Quiz.session) only opens once the student
+    reaches that week - same rule as lessons and materials."""
+    return not quiz.session or quiz.session <= _student_week(quiz.course_id)
+
+
 @app.route('/api/courses/<int:cid>/quizzes')
 @login_required
 def api_list_quizzes(cid):
     if not enrolled_or_staff(cid):
         return jsonify({'error': 'Not enrolled'}), 403
     if current_user.role == 'student':
-        quizzes = Quiz.query.filter_by(course_id=cid, is_published=True).all()
+        quizzes = [q for q in Quiz.query.filter_by(course_id=cid, is_published=True).all()
+                   if _quiz_unlocked_for_student(q)]
     else:
         quizzes = Quiz.query.filter_by(course_id=cid).all()
     result = []
@@ -4759,6 +4766,8 @@ def api_get_quiz(qid):
     if not enrolled_or_staff(q.course_id):
         return jsonify({'error': 'Not enrolled'}), 403
     hide_correct = (current_user.role == 'student')
+    if hide_correct and not _quiz_unlocked_for_student(q):
+        return jsonify({'error': 'Not available yet'}), 403
     return jsonify(q.to_dict(include_questions=True, hide_correct=hide_correct))
 
 
@@ -4876,6 +4885,8 @@ def api_quiz_attempt(qid):
     quiz = Quiz.query.get_or_404(qid)
     if not enrolled_or_staff(quiz.course_id):
         return jsonify({'error': 'Not enrolled'}), 403
+    if current_user.role == 'student' and not _quiz_unlocked_for_student(quiz):
+        return jsonify({'error': 'Not available yet'}), 403
 
     data = request.get_json() or {}
     is_submit = data.get('submit', False)
@@ -5419,15 +5430,18 @@ def api_search():
 
 
 def seed_python_fundamentals_quizzes():
-    """Weeks 1-4 MCQ quizzes for Python Fundamentals, created UNPUBLISHED so a
+    """Week 4 and Week 7 checkpoint MCQ quizzes for Python Fundamentals, created UNPUBLISHED so a
     teacher reviews them before students see them. Idempotent by (course,
     title). To retire one for good, unpublish it rather than deleting it -
     a deleted quiz is re-created on the next start. Never blocks startup."""
     try:
         import random
-        from quiz_seed_python import PYTHON_FUNDAMENTALS_QUIZZES
+        from quiz_seed_python import PYTHON_FUNDAMENTALS_QUIZZES, RETIRED_TITLES
         courses = Course.query.filter(db.func.lower(Course.title).like('%python fundamentals%')).all()
         for course in courses:
+            for old in Quiz.query.filter(Quiz.course_id == course.id, Quiz.title.in_(RETIRED_TITLES)).all():
+                if not old.is_published and not QuizAttempt.query.filter_by(quiz_id=old.id).first():
+                    db.session.delete(old)
             for spec in PYTHON_FUNDAMENTALS_QUIZZES:
                 if Quiz.query.filter_by(course_id=course.id, title=spec['title']).first():
                     continue

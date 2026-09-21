@@ -1,8 +1,9 @@
-"""Weeks 1-4 Python Fundamentals quizzes (15 easy MCQs each), written from the
-Session 01-04 slide decks. Each question: (text, correct, [3 wrong], explanation).
-The correct answer is listed first here and shuffled deterministically on seed."""
+"""Python Fundamentals checkpoint quizzes (15 easy MCQs each): Week 4 covers
+Weeks 1-4 and Week 7 covers Weeks 1-6. Written from the Session 01-06 slide
+decks. Each question: (text, correct, [3 wrong], explanation). The correct
+answer is listed first here and shuffled deterministically on seed."""
 
-PYTHON_FUNDAMENTALS_QUIZZES = [
+_WEEKLY = [
     {
         'week': 1,
         'title': 'Week 1 Quiz — Python Basics',
@@ -213,4 +214,64 @@ PYTHON_FUNDAMENTALS_QUIZZES = [
     },
 ]
 
+_WEEK5 = [
+    ('Which chart is best for showing how a value changes over time, like a stock price?', 'Line chart',
+     ['Histogram', 'Box plot', 'Heatmap'],
+     'Line charts show trends over time; the slope shows rising, falling or flat.'),
+    ('Which chart shows the shape (distribution) of ONE numeric column, such as age?', 'Histogram',
+     ['Line chart', 'Scatter plot', 'Pie chart'],
+     'A histogram groups values into bins so you can see how they are spread out.'),
+    ('What does a scatter plot show?', 'The relationship between two numeric variables',
+     ['How one value changes over months', 'The average of one column', 'A list of missing values'],
+     'Each dot is one row, placed by its two values. Dots along a line mean the two are correlated.'),
+]
+
+_WEEK6 = [
+    ('What does an HTTP status code of 200 mean?', 'OK — the request worked',
+     ['Not found', 'Too many requests', 'Server error'],
+     '200 means success. 404 is not found, 429 is rate limited and 500 is a server error.'),
+    ('In what format do most web APIs send data back?', 'JSON',
+     ['A photo', 'An Excel macro', 'A Python loop'],
+     'JSON is structured text that maps to Python dictionaries and lists.'),
+    ('Where should you keep an API key?', 'In a .env file, not written directly in your code',
+     ['At the top of your script', 'In a public GitHub post', 'In the chart title'],
+     'Never hardcode secrets. Store them in .env and load them so they are not shared by accident.'),
+]
+
+_BANK = {i + 1: w['questions'] for i, w in enumerate(_WEEKLY)}
+_BANK[5] = _WEEK5
+_BANK[6] = _WEEK6
+
+
+def _pick(picks):
+    return [_BANK[week][idx] for week, idxs in picks for idx in idxs]
+
+
+PYTHON_FUNDAMENTALS_QUIZZES = [
+    {
+        'week': 4,
+        'title': 'Week 4 Quiz — Weeks 1 to 4 Review',
+        'description': 'Checkpoint on Python basics, control flow, data structures & functions, and NumPy/Pandas.',
+        'questions': _pick([(1, [3, 4, 9, 11]), (2, [1, 6, 10]), (3, [0, 3, 7, 11]), (4, [0, 5, 9, 13])]),
+    },
+    {
+        'week': 7,
+        'title': 'Week 7 Quiz — Weeks 1 to 6 Review',
+        'description': 'Final checkpoint covering everything from Weeks 1 to 6, including charts and APIs.',
+        'questions': _pick([(1, [2, 13]), (2, [3, 12]), (3, [12, 14]), (4, [2, 4, 11]), (5, [0, 1, 2]), (6, [0, 1, 2])]),
+    },
+]
+
+# Earlier draft titles that this set replaces (removed only if still unpublished and unattempted).
+RETIRED_TITLES = [
+    'Week 1 Quiz — Python Basics',
+    'Week 2 Quiz — Control Flow',
+    'Week 3 Quiz — Data Structures & Functions',
+    'Week 4 Quiz — NumPy & Pandas',
+]
+
 assert all(len(q['questions']) == 15 for q in PYTHON_FUNDAMENTALS_QUIZZES), 'each quiz needs 15 questions'
+for _q in PYTHON_FUNDAMENTALS_QUIZZES:
+    assert len({t[0] for t in _q['questions']}) == 15, 'duplicate question inside a quiz'
+assert not ({t[0] for t in PYTHON_FUNDAMENTALS_QUIZZES[0]['questions']} &
+            {t[0] for t in PYTHON_FUNDAMENTALS_QUIZZES[1]['questions']}), 'Week 7 repeats Week 4 questions'
