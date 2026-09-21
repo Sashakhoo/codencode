@@ -4981,6 +4981,98 @@ def api_quiz_attempts(qid):
     return jsonify([a.to_dict() for a in attempts])
 
 
+def _quiz_results_payload(quiz):
+    """Class-wide results for one quiz: one row per enrolled student, a
+    summary, and how each question was answered (using every student's
+    latest submitted attempt so retakes are not double counted)."""
+    enrollments = Enrollment.query.filter_by(course_id=quiz.course_id).all()
+    rows, latest_ids = [], []
+    for e in enrollments:
+        st = e.student
+        if not st or st.role != 'student':
+            continue
+        attempts = QuizAttempt.query.filter(
+            QuizAttempt.quiz_id == quiz.id, QuizAttempt.student_id == st.id,
+            QuizAttempt.submitted_at != None
+        ).order_by(QuizAttempt.submitted_at.desc(), QuizAttempt.id.desc()).all()
+        best = max(attempts, key=lambda a: a.score or 0) if attempts else None
+        last = attempts[0] if attempts else None
+        if last:
+            latest_ids.append(last.id)
+        rows.append({
+            'student_id': st.id,
+            'name': st.name,
+            'email': st.email,
+            'class': e.cohort.name if e.cohort else '',
+            'attempts': len(attempts),
+            'best_score': best.score if best else None,
+            'latest_score': last.score if last else None,
+            'passed': bool(best.passed) if best else False,
+            'status': ('passed' if best and best.passed else 'not_passed') if best else 'not_started',
+            'last_submitted': last.submitted_at.strftime('%d %b %Y %H:%M') if last else '',
+        })
+    order = {'not_passed': 0, 'not_started': 1, 'passed': 2}
+    rows.sort(key=lambda r: (order[r['status']], (r['name'] or '').lower()))
+
+    counts = {q.id: [0, 0] for q in quiz.questions}   # question_id -> [answered, correct]
+    if latest_ids:
+        for a in QuizAnswer.query.filter(QuizAnswer.attempt_id.in_(latest_ids)).all():
+            if a.question_id in counts:
+                counts[a.question_id][0] += 1
+                counts[a.question_id][1] += 1 if a.is_correct else 0
+    questions = []
+    for i, q in enumerate(quiz.questions, start=1):
+        answered, correct = counts[q.id]
+        questions.append({
+            'number': i, 'question_text': q.question_text, 'answered': answered, 'correct': correct,
+            'pct_correct': round(correct / answered * 100) if answered else None,
+        })
+
+    attempted = [r for r in rows if r['attempts']]
+    best_scores = [r['best_score'] for r in attempted if r['best_score'] is not None]
+    return {
+        'quiz': quiz.to_dict(),
+        'summary': {
+            'enrolled': len(rows),
+            'attempted': len(attempted),
+            'passed': sum(1 for r in rows if r['passed']),
+            'average_best': round(sum(best_scores) / len(best_scores), 1) if best_scores else None,
+        },
+        'students': rows,
+        'questions': questions,
+    }
+
+
+def _csv_safe(value):
+    """Stop spreadsheet apps treating a name/email as a formula."""
+    v = '' if value is None else str(value)
+    return "'" + v if v[:1] in ('=', '+', '-', '@') else v
+
+
+@app.route('/api/quizzes/<int:qid>/results')
+@teacher_required
+def api_quiz_results(qid):
+    quiz = Quiz.query.get_or_404(qid)
+    if not teacher_can_manage_course(quiz.course_id):
+        return jsonify({'error': 'Forbidden'}), 403
+    payload = _quiz_results_payload(quiz)
+    if request.args.get('format') != 'csv':
+        return jsonify(payload)
+    buf = io.StringIO()
+    w = csv.writer(buf)
+    w.writerow(['Student', 'Email', 'Class', 'Attempts', 'Best score %', 'Latest score %', 'Status', 'Last submitted'])
+    labels = {'passed': 'Passed', 'not_passed': 'Not passed', 'not_started': 'Not started'}
+    for r in payload['students']:
+        w.writerow([_csv_safe(r['name']), _csv_safe(r['email']), _csv_safe(r['class']), r['attempts'],
+                    '' if r['best_score'] is None else r['best_score'],
+                    '' if r['latest_score'] is None else r['latest_score'],
+                    labels[r['status']], r['last_submitted']])
+    fname = re.sub(r'[^A-Za-z0-9_-]+', '_', quiz.title).strip('_') or 'quiz'
+    return app.response_class(
+        '\ufeff' + buf.getvalue(), mimetype='text/csv',
+        headers={'Content-Disposition': f'attachment; filename="{fname}_results.csv"'})
+
+
 # ─────────────────────────────────────────────
 # S8+T8 — Discussion / Q&A
 # ─────────────────────────────────────────────

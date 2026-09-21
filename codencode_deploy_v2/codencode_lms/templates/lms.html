@@ -2505,6 +2505,7 @@
             </div>
           </div>
         </div>
+        <div id="t-quiz-results" style="display:none;margin-top:20px"></div>
         <!-- Question Editor (shown after creating/selecting a quiz) -->
         <div id="t-quiz-editor" style="display:none">
           <div class="card" style="margin-top:20px">
@@ -6582,6 +6583,9 @@ async function loadTeacherQuizzes() {
           <button class="btn-action ghost" style="font-size:10px;padding:5px 10px;margin-right:4px" onclick="toggleQuizPublish(${q.id},${q.is_published})">
             <i class="fas fa-${q.is_published ? 'eye-slash' : 'eye'}"></i> ${q.is_published ? T('tj.unpublish') : T('tj.publish')}
           </button>
+          <button class="btn-action ghost" style="font-size:10px;padding:5px 10px;margin-right:4px" onclick="openQuizResults(${q.id})">
+            <i class="fas fa-chart-bar"></i> Results
+          </button>
           <button class="btn-action" style="font-size:10px;padding:5px 10px;margin-right:4px" onclick="openQuizEditor(${q.id},'${q.title.replace(/'/g,"\\'")}')">
             <i class="fas fa-edit"></i> Edit
           </button>
@@ -6606,6 +6610,70 @@ async function createQuiz() {
     document.getElementById('quiz-title-input').value = '';
     await loadTeacherQuizzes();
   } catch(e) { showToast(e.message, true); }
+}
+
+// ── Class-wide quiz results (teacher / admin) ──
+async function openQuizResults(qid) {
+  const box = document.getElementById('t-quiz-results');
+  box.style.display = '';
+  box.innerHTML = `<div class="card"><div style="padding:20px;color:var(--muted);font-family:var(--font-m);font-size:11px">Loading results...</div></div>`;
+  box.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  let r;
+  try { r = await GET(`/api/quizzes/${qid}/results`); }
+  catch (e) { box.style.display = 'none'; showToast(e.message, true); return; }
+  const sm = r.summary;
+  const pill = (st) => {
+    const map = { passed: ['Passed', 'var(--green)'], not_passed: ['Not passed', 'var(--red)'], not_started: ['Not started', 'var(--muted)'] };
+    const [label, color] = map[st];
+    return `<span style="color:${color};font-family:var(--font-m);font-size:11px;font-weight:600">${label}</span>`;
+  };
+  const scoreCell = (v) => v == null ? '<span style="color:var(--muted)">—</span>' : Math.round(v) + '%';
+  const rows = r.students.length ? r.students.map(x => `<tr>
+      <td>${esc(x.name)}<div style="color:var(--muted);font-size:10px">${esc(x.email)}</div></td>
+      <td>${esc(x['class']) || '<span style="color:var(--muted)">—</span>'}</td>
+      <td>${x.attempts} / ${r.quiz.max_attempts || 2}</td>
+      <td><b>${scoreCell(x.best_score)}</b></td>
+      <td>${scoreCell(x.latest_score)}</td>
+      <td>${pill(x.status)}</td>
+      <td style="color:var(--muted);font-size:11px">${esc(x.last_submitted) || '—'}</td>
+    </tr>`).join('')
+    : `<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:24px">No students are enrolled in this course yet.</td></tr>`;
+  const hardest = r.questions.filter(q => q.pct_correct != null).slice().sort((a, b) => a.pct_correct - b.pct_correct);
+  const bars = hardest.length ? hardest.map(q => {
+    const color = q.pct_correct < 50 ? 'var(--red)' : (q.pct_correct < 75 ? 'var(--orange)' : 'var(--green)');
+    return `<div style="margin-bottom:12px">
+      <div style="display:flex;justify-content:space-between;gap:12px;font-size:12px;margin-bottom:4px">
+        <span>${q.number}. ${esc(q.question_text)}</span>
+        <span style="font-family:var(--font-m);color:${color};white-space:nowrap">${q.pct_correct}% correct (${q.correct}/${q.answered})</span></div>
+      <div style="height:6px;background:var(--border);border-radius:99px;overflow:hidden">
+        <div style="height:100%;width:${q.pct_correct}%;background:${color}"></div></div></div>`;
+  }).join('') : `<div style="color:var(--muted);font-size:12px">No answers submitted yet.</div>`;
+
+  box.innerHTML = `<div class="card">
+    <div class="card-header">
+      <span class="card-title"><i class="fas fa-chart-bar"></i> Results: ${esc(r.quiz.title)}</span>
+      <span>
+        <a class="btn-action" style="font-size:10px;padding:5px 10px;margin-right:4px;text-decoration:none" href="/api/quizzes/${qid}/results?format=csv"><i class="fas fa-download"></i> Download CSV</a>
+        <button class="btn-action ghost" style="font-size:10px;padding:5px 10px" onclick="document.getElementById('t-quiz-results').style.display='none'"><i class="fas fa-times"></i> Close</button>
+      </span>
+    </div>
+    <div style="padding:16px 20px">
+      <div class="stats-row" style="margin-bottom:20px">
+        <div class="stat-cell"><div class="stat-val">${sm.enrolled}</div><div class="stat-lbl">Enrolled</div></div>
+        <div class="stat-cell orange"><div class="stat-val">${sm.attempted}</div><div class="stat-lbl">Attempted</div></div>
+        <div class="stat-cell green"><div class="stat-val">${sm.passed}</div><div class="stat-lbl">Passed</div></div>
+        <div class="stat-cell purple"><div class="stat-val">${sm.average_best == null ? '—' : Math.round(sm.average_best) + '%'}</div><div class="stat-lbl">Average best score</div></div>
+      </div>
+    </div>
+    <table class="grade-table">
+      <thead><tr><th>Student</th><th>Class</th><th>Attempts</th><th>Best</th><th>Latest</th><th>Status</th><th>Last submitted</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table>
+    <div style="padding:20px;border-top:1px solid var(--border)">
+      <div class="card-title" style="margin-bottom:14px"><i class="fas fa-question-circle"></i> Hardest questions first</div>
+      ${bars}
+    </div>
+  </div>`;
 }
 
 async function toggleQuizPublish(qid, current) {
