@@ -474,6 +474,31 @@ def visible_recordings_query(course_id, student_id=None):
     return query
 
 
+def _teacher_has_direct_students(course_id):
+    """True when students in this course were assigned to the current teacher
+    (the 'Teacher Assigned' choice on an enrolment)."""
+    return Enrollment.query.filter_by(
+        course_id=course_id, teacher_id=current_user.id).first() is not None
+
+
+def teacher_student_scope(course_id):
+    """Which students the current teacher may see/mark in this course.
+    None = all of them. A teacher whose ONLY link to the course is students
+    assigned directly to her gets just those students' ids."""
+    if current_user.role != 'teacher':
+        return None
+    course = Course.query.get(course_id)
+    if not course:
+        return None
+    if (course.teacher_id == current_user.id
+            or Cohort.query.filter_by(course_id=course_id, teacher_id=current_user.id).first()
+            or (course.teacher_id is None and User.query.filter_by(role='teacher').count() == 1)):
+        return None
+    mine = {e.student_id for e in Enrollment.query.filter_by(
+        course_id=course_id, teacher_id=current_user.id).all()}
+    return mine or None
+
+
 def teacher_can_manage_course(course_id):
     """Return True when the current teacher/admin may manage this course."""
     if current_user.role == 'admin':
@@ -486,6 +511,8 @@ def teacher_can_manage_course(course_id):
     if course.teacher_id == current_user.id:
         return True
     if Cohort.query.filter_by(course_id=course_id, teacher_id=current_user.id).first():
+        return True
+    if _teacher_has_direct_students(course_id):
         return True
     # Backwards-compatible fallback for old installs with one teacher and unassigned courses.
     return course.teacher_id is None and User.query.filter_by(role='teacher').count() == 1
@@ -503,6 +530,7 @@ def teacher_manageable_course_ids():
         h.course_id for h in Cohort.query.filter_by(teacher_id=current_user.id).all()
         if h.course_id
     )
+    ids.update(e.course_id for e in Enrollment.query.filter_by(teacher_id=current_user.id).all())
     if User.query.filter_by(role='teacher').count() == 1:
         ids.update(c.id for c in Course.query.filter_by(teacher_id=None).all())
     return sorted(ids)
@@ -906,6 +934,10 @@ def api_courses():
             Course.teacher_id == current_user.id,
             Cohort.teacher_id == current_user.id,
         )).order_by(Course.title).distinct().all()
+        # ...and courses where students were assigned directly to this teacher.
+        direct = (Course.query.join(Enrollment, Enrollment.course_id == Course.id)
+                  .filter(Enrollment.teacher_id == current_user.id).all())
+        courses = sorted({c.id: c for c in list(courses) + direct}.values(), key=lambda c: c.title or '')
         if not courses and User.query.filter_by(role='teacher').count() == 1:
             courses = Course.query.filter(Course.teacher_id.is_(None)).order_by(Course.title).all()
     else:
@@ -1676,6 +1708,9 @@ def api_set_enrollment_date(eid):
     enr = Enrollment.query.get_or_404(eid)
     if not teacher_can_manage_course(enr.course_id):
         return jsonify({'error': 'Forbidden'}), 403
+    scope = teacher_student_scope(enr.course_id)
+    if scope is not None and enr.student_id not in scope:
+        return jsonify({'error': 'Forbidden'}), 403
     data = request.get_json()
     if not data.get('enrolled_at'):
         return jsonify({'error': 'enrolled_at required'}), 400
@@ -2094,6 +2129,9 @@ def admin_course_detail(cid):
 @teacher_required
 def admin_course_students(cid):
     enrollments = Enrollment.query.filter_by(course_id=cid).all()
+    scope = teacher_student_scope(cid)
+    if scope is not None:
+        enrollments = [e for e in enrollments if e.student_id in scope]
     return jsonify([e.to_dict() for e in enrollments])
 
 
@@ -2167,6 +2205,9 @@ def _enrollment_week(enrollment, course):
 def _attendance_grid(cid):
     course      = Course.query.get_or_404(cid)
     enrollments = Enrollment.query.filter_by(course_id=cid).all()
+    scope = teacher_student_scope(cid)
+    if scope is not None:
+        enrollments = [e for e in enrollments if e.student_id in scope]
     records     = Attendance.query.filter_by(course_id=cid).all()
     att_map = {(a.student_id, a.session): a for a in records}
     student_weeks = {e.student_id: _enrollment_week(e, course) for e in enrollments}
@@ -2201,6 +2242,9 @@ def api_set_enrollment_week(eid):
     on an individual pace who aren't part of a shared cohort."""
     enr = Enrollment.query.get_or_404(eid)
     if not teacher_can_manage_course(enr.course_id):
+        return jsonify({'error': 'Forbidden'}), 403
+    scope = teacher_student_scope(enr.course_id)
+    if scope is not None and enr.student_id not in scope:
         return jsonify({'error': 'Forbidden'}), 403
     data = request.get_json()
     val = data.get('week_override')
@@ -2248,6 +2292,9 @@ def admin_attendance(cid):
         return jsonify({'error': 'student_id and session required'}), 400
     if status not in ('present', 'absent', 'late'):
         return jsonify({'error': 'status must be present/absent/late'}), 400
+    scope = teacher_student_scope(cid)
+    if scope is not None and int(student_id) not in scope:
+        return jsonify({'error': 'Forbidden'}), 403
     att = _set_attendance(cid, student_id, session_num, status, notes)
     return jsonify({'attendance': att.to_dict()})
 
@@ -2262,6 +2309,9 @@ def admin_bulk_attendance(cid):
     records = data.get('records', [])
     if not session_num:
         return jsonify({'error': 'session required'}), 400
+    scope = teacher_student_scope(cid)
+    if scope is not None and any(int(r.get('student_id') or 0) not in scope for r in records):
+        return jsonify({'error': 'Forbidden'}), 403
 
     for r in records:
         _set_attendance(cid, r.get('student_id'), session_num,
@@ -2287,6 +2337,9 @@ def teacher_attendance(cid):
         return jsonify({'error': 'student_id and session required'}), 400
     if status not in ('present', 'absent', 'late'):
         return jsonify({'error': 'status must be present/absent/late'}), 400
+    scope = teacher_student_scope(cid)
+    if scope is not None and int(student_id) not in scope:
+        return jsonify({'error': 'Forbidden'}), 403
     att = _set_attendance(cid, student_id, session_num, status, notes)
     return jsonify({'attendance': att.to_dict()})
 
@@ -2302,6 +2355,9 @@ def teacher_bulk_attendance(cid):
     records = data.get('records', [])
     if not session_num:
         return jsonify({'error': 'session required'}), 400
+    scope = teacher_student_scope(cid)
+    if scope is not None and any(int(r.get('student_id') or 0) not in scope for r in records):
+        return jsonify({'error': 'Forbidden'}), 403
 
     for r in records:
         _set_attendance(cid, r.get('student_id'), session_num,
