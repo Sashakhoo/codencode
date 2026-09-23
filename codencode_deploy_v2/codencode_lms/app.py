@@ -5668,6 +5668,54 @@ def seed_python_fundamentals_quizzes():
         app.logger.warning('Python Fundamentals quiz seed skipped: %s', exc)
 
 
+def _sync_bundled_materials():
+    """uploads/ sits on Railway's persistent volume, which is mounted OVER
+    whatever the Docker image has at that path - a file placed there via git
+    never actually reaches the running container; the volume's existing
+    content (from whenever it was first populated) wins every deploy, silently.
+    This bit multiple things: new curriculum decks never appeared, and an
+    earlier commit that edited an existing legacy deck's content in place
+    never reached production either.
+
+    So every git-shipped, code-owned material file (session decks, cheat
+    sheets, exercise bundles - anything a student downloads or views that
+    isn't a one-off admin upload) ships from bundled_materials/ instead,
+    outside uploads/ where the volume can't shadow it, and gets synced onto
+    the live uploads/materials/ here on every start: created if missing,
+    overwritten if its content differs from what's in the image (so edits to
+    these specific, known files always propagate), left alone otherwise.
+    Never touches any other file already on the volume (teacher/admin
+    uploads use randomly-generated names and are never in this source dir).
+    Never blocks startup."""
+    src_dir = os.path.join(os.path.dirname(__file__), 'bundled_materials')
+    dst_dir = os.path.join(app.config['UPLOAD_FOLDER'], 'materials')
+    if not os.path.isdir(src_dir):
+        return
+    os.makedirs(dst_dir, exist_ok=True)
+    created, updated = 0, 0
+    for filename in os.listdir(src_dir):
+        src = os.path.join(src_dir, filename)
+        if not os.path.isfile(src):
+            continue
+        dst = os.path.join(dst_dir, filename)
+        try:
+            with open(src, 'rb') as f:
+                src_bytes = f.read()
+            if os.path.exists(dst):
+                with open(dst, 'rb') as f:
+                    if f.read() == src_bytes:
+                        continue
+                updated += 1
+            else:
+                created += 1
+            with open(dst, 'wb') as f:
+                f.write(src_bytes)
+        except Exception as exc:
+            app.logger.warning('Bundled material sync: %s failed: %s', filename, exc)
+    if created or updated:
+        app.logger.info('Bundled material sync: %d new, %d updated onto the volume', created, updated)
+
+
 def seed_course_curriculum_materials():
     """Real per-session lesson decks (curriculum_seed.py) for Python
     Fundamentals and Machine Learning. Each session file already has its own
@@ -5682,33 +5730,45 @@ def seed_course_curriculum_materials():
     row, a locked file, anything) can never roll back another course's
     materials in the same run. Idempotent, never blocks startup.
 
-    uploads/ sits on Railway's persistent volume, which is mounted OVER
-    whatever the Docker image has at that path - files added there via git
-    never actually reach the running container; the volume's existing
-    content wins every deploy. So the source decks ship from
-    curriculum_decks/ (outside uploads/, not shadowed) and are copied onto
-    the volume here, on every start, whenever the volume doesn't have them
-    yet - self-healing even if the volume is ever reset."""
+    Assumes _sync_bundled_materials() already ran this start, so every
+    filename curriculum_seed.py references is already on disk."""
     try:
         from curriculum_seed import CURRICULUM
     except Exception as exc:
         app.logger.warning('Course curriculum material seed skipped (import): %s', exc)
         return
-    import shutil
     materials_dir = os.path.join(app.config['UPLOAD_FOLDER'], 'materials')
-    decks_dir = os.path.join(os.path.dirname(__file__), 'curriculum_decks')
-    os.makedirs(materials_dir, exist_ok=True)
     for spec in CURRICULUM:
         try:
-            courses = Course.query.filter(
-                db.func.lower(Course.title).like(f"%{spec['course_match']}%")).all()
+            q = Course.query
+            for term in spec['include']:
+                q = q.filter(db.func.lower(Course.title).like(f'%{term}%'))
+            for term in spec.get('exclude', []):
+                q = q.filter(~db.func.lower(Course.title).like(f'%{term}%'))
+            courses = q.all()
         except Exception as exc:
             db.session.rollback()
             app.logger.warning('Course curriculum material seed: lookup for %r failed: %s',
-                               spec['course_match'], exc)
+                               spec['include'], exc)
             continue
         for course in courses:
             try:
+                # One-time correction: an earlier, looser course-match wrote this
+                # course's ML sessions at 1-N (colliding with its Python sessions)
+                # instead of offset after them. Delete those specific rows so the
+                # add-if-missing loop below recreates them at the right session.
+                cutoff = spec.get('fixup_ml_cutoff')
+                if cutoff:
+                    wrong = Material.query.filter(
+                        Material.course_id == course.id,
+                        Material.filename.like('ml-session-%'),
+                        Material.session <= cutoff,
+                    ).all()
+                    for m in wrong:
+                        db.session.delete(m)
+                    if wrong:
+                        db.session.flush()
+
                 existing_filenames = {
                     m.filename for m in Material.query.filter_by(course_id=course.id).all()
                 }
@@ -5721,17 +5781,10 @@ def seed_course_curriculum_materials():
                         continue
                     fpath = os.path.join(materials_dir, filename)
                     if not os.path.exists(fpath):
-                        src = os.path.join(decks_dir, filename)
-                        if os.path.exists(src):
-                            shutil.copy2(src, fpath)
-                            app.logger.info(
-                                'Course curriculum material seed: restored %s onto the volume', filename)
-                        else:
-                            app.logger.warning(
-                                'Course curriculum material seed: %s missing from both the volume '
-                                'and curriculum_decks/ for course %s (%r)',
-                                filename, course.id, course.title)
-                            continue
+                        app.logger.warning(
+                            'Course curriculum material seed: %s missing on disk for course %s (%r)',
+                            filename, course.id, course.title)
+                        continue
                     db.session.add(Material(
                         course_id=course.id, session=session_num, title=title,
                         description='Session slides', filename=filename,
@@ -6120,6 +6173,7 @@ with app.app_context():
     seed_demo()
     seed_predefined_workshops()
     seed_python_fundamentals_quizzes()
+    _sync_bundled_materials()
     seed_course_curriculum_materials()
     _start_scheduler()
 

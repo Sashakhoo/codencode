@@ -1,0 +1,903 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>ML Session 07 — Ensembles & Model Tuning | codencode Academy</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0d1117;--panel:#161b22;--panel2:#1c2430;--line:#2a3440;
+  --mint:#00dcb4;--text:#e8eef0;--muted:#8b98a5;--coral:#ff6f91;--amber:#f0b429;--blue:#58a6ff;--purple:#bc8cff;
+  --sans:'Space Grotesk','Inter',system-ui,sans-serif;--body:'Inter',system-ui,sans-serif;
+  --mono:'JetBrains Mono','SF Mono',Consolas,monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:var(--body);height:100vh;overflow:hidden;user-select:none}
+#topbar{position:fixed;top:0;left:0;right:0;height:52px;display:flex;align-items:center;gap:16px;
+  padding:0 24px;background:rgba(13,17,23,.92);border-bottom:1px solid var(--line);z-index:50}
+.wordmark{height:21px;width:auto;display:block;flex-shrink:0}
+#sesslabel{font-size:12px;color:var(--muted);font-family:var(--mono)}
+#titlebar{flex:1;text-align:center;font-size:13px;color:var(--muted);font-family:var(--mono);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#counter{font-family:var(--mono);font-size:12px;color:var(--mint)}
+.btn{background:rgba(0,220,180,.10);border:1px solid rgba(0,220,180,.32);color:var(--mint);
+  font-family:var(--mono);font-size:11px;padding:6px 12px;border-radius:6px;cursor:pointer}
+.btn:hover{background:rgba(0,220,180,.20)}
+#progress{position:fixed;top:52px;left:0;height:2px;background:var(--mint);z-index:51;transition:width .3s}
+#deck{position:absolute;top:54px;bottom:56px;left:0;right:0}
+.slide{position:absolute;inset:0;padding:28px 48px;display:none;flex-direction:column;overflow:hidden}
+.slide.active{display:flex;animation:in .38s ease both}
+@keyframes in{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+.tag{font-family:var(--mono);font-size:11px;letter-spacing:.15em;text-transform:uppercase;color:var(--mint);margin-bottom:7px}
+h1.sh{font-family:var(--sans);font-size:clamp(22px,2.7vw,34px);font-weight:700;line-height:1.14}
+h1.sh::after{content:'';display:block;width:50px;height:4px;background:var(--mint);border-radius:2px;margin-top:10px}
+.sub{color:var(--muted);font-size:14.5px;margin-top:10px;max-width:82ch;line-height:1.6}
+.body{flex:1;display:flex;gap:24px;align-items:center;min-height:0;margin-top:16px;overflow:hidden}
+.body.mid{align-items:center}
+.col{flex:1;min-width:0}
+.figwrap{flex:1.8 1 0;display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:0;min-height:0;max-height:100%;gap:6px}
+svg.fig{width:100%;height:100%;min-height:300px;flex:1 1 auto;display:block}
+.figwrap > .legend,.figwrap > .controls,.figwrap > .gate,.figwrap > .eq{flex:0 0 auto;width:100%}
+
+/* title / divider */
+.title-slide{align-items:center;justify-content:center;text-align:center}
+.title-slide .badge{font-family:var(--mono);font-size:12px;color:var(--mint);border:1px solid rgba(0,220,180,.34);
+  background:rgba(0,220,180,.08);padding:7px 18px;border-radius:20px;margin-bottom:24px}
+.title-slide h1{font-family:var(--sans);font-size:clamp(38px,5.6vw,66px);font-weight:700;line-height:1.05}
+.title-slide h1 em{font-style:normal;color:var(--mint)}
+.title-slide p{color:var(--muted);font-size:17px;margin-top:18px;max-width:62ch}
+.title-slide .foot{margin-top:34px;font-family:var(--mono);font-size:13px;color:var(--muted)}
+.divider{align-items:flex-start;justify-content:center}
+.divider .num{font-family:var(--sans);font-size:112px;font-weight:700;color:rgba(0,220,180,.16);line-height:1}
+.divider h1{font-family:var(--sans);font-size:clamp(32px,4.4vw,52px);font-weight:700;margin-top:-16px}
+.divider .items{margin-top:22px;display:flex;flex-direction:column;gap:11px}
+.divider .items div{font-size:16.5px;color:var(--muted)}
+.divider .items b{color:var(--mint);font-family:var(--mono);font-size:14.5px;margin-right:11px}
+
+/* blocks */
+.cards{display:grid;gap:12px}
+.grid2{grid-template-columns:1fr 1fr}.grid3{grid-template-columns:repeat(3,1fr)}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:15px 17px}
+.card.accent{border-color:rgba(0,220,180,.45);background:var(--panel2)}
+.card.warn{border-color:rgba(255,111,145,.42)}
+.card h3{font-family:var(--sans);font-size:16px;font-weight:600;margin-bottom:5px}
+.card h3 .k{color:var(--mint);font-family:var(--mono);font-size:13.5px;margin-right:8px}
+.card p{color:var(--muted);font-size:13.8px;line-height:1.55}
+.card p b{color:var(--text);font-weight:600}
+
+.def{border-left:3px solid var(--blue);background:linear-gradient(90deg,rgba(88,166,255,.09),transparent 65%);
+  padding:14px 18px;border-radius:0 9px 9px 0;margin-bottom:12px}
+.def .lbl{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;color:var(--blue);text-transform:uppercase}
+.def h4{font-family:var(--sans);font-size:17px;margin:5px 0 6px}
+.def p{color:var(--muted);font-size:14px;line-height:1.6}
+.def p b{color:var(--text);font-weight:600}
+
+.theory{border-left:3px solid var(--amber);background:linear-gradient(90deg,rgba(240,180,41,.08),transparent 65%);
+  padding:14px 18px;border-radius:0 9px 9px 0;margin-bottom:12px}
+.theory .lbl{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;color:var(--amber);text-transform:uppercase}
+.theory p{color:var(--muted);font-size:14px;line-height:1.6;margin-top:6px}
+.theory p b{color:var(--text);font-weight:600}
+
+.formula{background:#0a0e13;border:1px solid var(--line);border-radius:10px;padding:16px 20px;
+  font-family:var(--mono);font-size:19px;color:var(--mint);text-align:center;margin:10px 0;letter-spacing:.02em}
+.formula small{display:block;font-size:12px;color:var(--muted);margin-top:8px;letter-spacing:0}
+
+pre.code{background:#0a0e13;border:1px solid var(--line);border-radius:10px;padding:14px 17px;
+  font-family:var(--mono);font-size:13.2px;line-height:1.68;color:var(--text);overflow:auto}
+pre.code.sm{font-size:12.3px;line-height:1.6}
+pre.code .c{color:var(--muted)}pre.code .s{color:var(--mint)}pre.code .n{color:var(--blue)}
+pre.code .e{color:var(--coral)}pre.code .k{color:var(--purple)}
+.code-head{font-family:var(--mono);font-size:11px;color:var(--muted);background:var(--panel2);
+  border:1px solid var(--line);border-bottom:none;border-radius:10px 10px 0 0;padding:7px 13px}
+.code-head + pre.code{border-radius:0 0 10px 10px}
+
+table.t{width:100%;border-collapse:collapse;font-size:13.5px}
+table.t th{text-align:left;font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--mint);padding:9px 12px;border-bottom:1px solid var(--line)}
+table.t td{padding:10px 12px;border-bottom:1px solid var(--line);color:var(--muted);line-height:1.5;vertical-align:top}
+table.t td:first-child{color:var(--text);font-family:var(--mono);font-size:12.5px;white-space:nowrap}
+table.cps td:first-child{color:var(--mint);font-family:var(--mono);font-size:13px;width:140px}
+
+.pill{display:inline-block;font-family:var(--mono);font-size:11.5px;padding:4px 11px;border-radius:13px;
+  border:1px solid;margin:0 7px 7px 0}
+.pill.mint{color:var(--mint);border-color:rgba(0,220,180,.4);background:rgba(0,220,180,.08)}
+.pill.coral{color:var(--coral);border-color:rgba(255,111,145,.4);background:rgba(255,111,145,.08)}
+.pill.amber{color:var(--amber);border-color:rgba(240,180,41,.4);background:rgba(240,180,41,.08)}
+.pill.blue{color:var(--blue);border-color:rgba(88,166,255,.4);background:rgba(88,166,255,.08)}
+
+.hands-on{border-left:3px solid var(--mint);background:linear-gradient(90deg,rgba(0,220,180,.07),transparent 60%);
+  padding:16px 22px;border-radius:0 10px 10px 0}
+.hands-on .lbl{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;color:var(--mint);text-transform:uppercase}
+.hands-on h3{font-family:var(--sans);font-size:19px;margin:7px 0 9px}
+.hands-on p{color:var(--muted);font-size:14.2px;line-height:1.6}
+.steps{margin-top:12px;display:flex;flex-direction:column;gap:8px}
+.steps div{font-size:14px;color:var(--text);display:flex;gap:11px;align-items:flex-start}
+.steps b{color:var(--mint);font-family:var(--mono);font-size:12.5px;flex-shrink:0}
+.caption{font-size:13px;color:var(--muted);font-style:italic;margin-top:11px;text-align:center}
+
+#nav{position:fixed;bottom:0;left:0;right:0;height:56px;display:flex;align-items:center;justify-content:center;gap:18px;z-index:50}
+.navbtn{background:var(--panel);border:1px solid var(--line);color:var(--muted);font-family:var(--mono);
+  font-size:12px;padding:8px 16px;border-radius:8px;cursor:pointer}
+.navbtn:hover{border-color:var(--mint);color:var(--mint)}
+#dots{display:flex;gap:5px;flex-wrap:wrap;max-width:52vw;justify-content:center}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--line);cursor:pointer}
+.dot.on{background:var(--mint);transform:scale(1.35)}
+
+.fx{opacity:0}
+.slide.active .fx{animation:fade .5s ease forwards}
+@keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.slide.active .d1{animation-delay:.12s}.slide.active .d2{animation-delay:.28s}
+.slide.active .d3{animation-delay:.44s}.slide.active .d4{animation-delay:.6s}
+.slide.active .d5{animation-delay:.78s}.slide.active .d6{animation-delay:.96s}
+.draw{stroke-dasharray:var(--len,300);stroke-dashoffset:var(--len,300)}
+.slide.active .draw{animation:dr .8s ease forwards}
+@keyframes dr{to{stroke-dashoffset:0}}
+.grow{transform-origin:bottom;transform:scaleY(0)}
+.slide.active .grow{animation:gw .7s cubic-bezier(.22,1,.36,1) forwards}
+@keyframes gw{to{transform:scaleY(1)}}
+
+/* ---------- copiable code ---------- */
+pre.code{position:relative;user-select:text}
+.copybtn{position:absolute;top:7px;right:7px;z-index:3;background:rgba(22,27,34,.94);
+  border:1px solid var(--line);color:var(--muted);font-family:var(--mono);font-size:10.5px;
+  letter-spacing:.06em;padding:4px 9px;border-radius:5px;cursor:pointer;opacity:0;transition:.16s}
+pre.code:hover .copybtn{opacity:1}
+.copybtn:hover{border-color:var(--mint);color:var(--mint)}
+.copybtn.done{border-color:var(--mint);color:var(--mint);opacity:1}
+
+/* ---------- figure furniture (legends, controls, sliders) ---------- */
+
+/* ---------- figure slides: stacked on tall screens, side-by-side when wide ---------- */
+.cb{display:block}
+.figbody{flex:1;display:flex;gap:32px;align-items:center;margin-top:24px;min-height:0}
+.figbody > .figwrap{flex:1.8 1 0}
+.figbody > .figside{display:flex;flex-direction:column;gap:12px;min-width:0}
+.figbody > .figside > *{margin-bottom:0}
+@media (max-aspect-ratio: 29/20){
+  .figbody{flex-direction:column;align-items:stretch;gap:16px}
+  .figbody > .figwrap{flex:0 1 auto;width:100%;max-width:none;justify-content:flex-start}
+  .figbody > .figwrap > svg.fig{height:auto;min-height:0;flex:0 0 auto;max-height:100%}
+  .figbody > .figside{max-width:none !important;flex:0 0 auto;display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:14px;align-items:start}
+  .figbody > .figside .controls,.figbody > .figside .legend{justify-content:flex-start}
+}
+
+.legend{display:flex;gap:18px;font-family:var(--mono);font-size:12px;color:var(--muted);
+  margin-top:10px;flex-wrap:wrap;justify-content:center}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px;vertical-align:middle}
+.controls{display:flex;gap:10px;align-items:center;margin-top:12px;flex-wrap:wrap;justify-content:center}
+.btn.ghost{background:transparent;border-color:var(--line);color:var(--muted)}
+.btn.ghost:hover{border-color:var(--mint);color:var(--mint)}
+.gate{margin-bottom:12px}
+.gate label{display:flex;justify-content:space-between;align-items:center;font-family:var(--mono);
+  font-size:12.5px;margin-bottom:6px;gap:12px}
+input[type=range]{width:100%;height:5px;border-radius:3px;appearance:none;background:var(--line);outline:none}
+input[type=range]::-webkit-slider-thumb{appearance:none;width:15px;height:15px;border-radius:50%;
+  background:var(--mint);cursor:pointer;border:2px solid #0d1117}
+.eq{font-family:var(--mono);font-size:12.5px;color:var(--muted);line-height:1.9;background:#0a0e13;
+  border:1px solid var(--line);border-radius:9px;padding:11px 13px}
+.eq b{color:var(--text);font-weight:400}
+</style>
+</head>
+<body>
+
+<div id="topbar">
+  <img class="wordmark" src="data:image/png;base64,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" alt="codencode.my">
+  <div id="sesslabel">ML SESSION 07</div>
+  <div id="titlebar"></div>
+  <div id="counter"></div>
+  <button class="btn" onclick="fs()">FULLSCREEN</button>
+</div>
+<div id="progress"></div>
+
+<div id="deck">
+
+
+<style>
+.ebox{transition:all .35s cubic-bezier(.22,1,.36,1)}
+.trace{font-family:var(--mono);font-size:12.5px;background:#0a0e13;border:1px solid var(--line);
+  border-radius:10px;padding:12px;height:118px;overflow:hidden;display:flex;
+  flex-direction:column-reverse;gap:3px;margin-bottom:11px}
+.trace div{color:var(--muted)}.trace div.new{color:var(--mint)}
+@keyframes popIn{0%{opacity:0;transform:scale(.88)}100%{opacity:1;transform:none}}
+.pop{animation:popIn .4s cubic-bezier(.22,1,.36,1)}
+</style>
+
+<section class="slide title-slide" data-title="Main Title">
+  <div class="badge fx">SESSION 07 OF 08 · MACHINE LEARNING FUNDAMENTALS</div>
+  <h1 class="fx d1">Ensembles &amp; <em>Model Tuning</em></h1>
+  <p class="fx d2">Why a crowd of weak models beats one clever one, how boosting corrects its own mistakes, and the pipeline discipline that stops your score being a lie.</p>
+  <div class="foot fx d3">codencode Academy · prerequisite: Session 4 Classification, Session 6 Time Series</div>
+</section>
+
+<section class="slide" data-title="Session Plan">
+  <div class="tag fx">Session Plan</div>
+  <h1 class="sh fx d1">What we're doing today</h1>
+  <div class="body">
+    <div class="col cards grid3"><div class="card accent fx d2">
+        <h3><span class="k">M1</span>Bagging &amp; Random Forest</h3>
+        <p>Bias, variance, why averaging works, and the forest you already met in Session 4.</p>
+        <div style="margin-top:10px"><span class="pill mint">45 min</span></div>
+      </div><div class="card accent fx d3">
+        <h3><span class="k">M2</span>Boosting</h3>
+        <p>Gradient boosting, XGBoost and LightGBM — and how they overfit.</p>
+        <div style="margin-top:10px"><span class="pill mint">50 min</span></div>
+      </div><div class="card accent fx d4">
+        <h3><span class="k">M3</span>Tuning &amp; Pipelines</h3>
+        <p>Grid and random search, cross-validation, leakage, and saving a model.</p>
+        <div style="margin-top:10px"><span class="pill mint">50 min</span></div>
+      </div></div>
+  </div>
+  <div class="cards grid3 fx d5"><div class="card"><p><b>Bring</b> — your Session 4 classification notebook</p></div><div class="card"><p><b>Homework 7</b> — tune a boosted model inside a leak-proof Pipeline</p></div><div class="card"><p><b>Push to</b> — <span style='font-family:var(--mono)'>ml-bootcamp/week7/</span></p></div></div>
+</section>
+
+<section class="slide" data-title="Revised Last Week">
+  <div class="tag fx">Revised Last Week · 10 minutes</div>
+  <h1 class="sh fx d1">Session 06 — LSTM &amp; Time Series</h1>
+  <p class="sub fx d2">Quick check before we build on it. Answer out loud — if the room goes quiet on any of these, we go back over it now.</p>
+  <div class="body">
+    <div class="col cards grid3 fx d3"><div class="card"><h3>Why split by date, not at random?</h3><p>A random split puts the future in your training set. The score looks excellent and means nothing.</p></div><div class="card"><h3>What do the three gates do?</h3><p>Forget decides what old memory survives, input what new joins it, output what leaves the cell right now.</p></div><div class="card"><h3>What is the naive baseline?</h3><p>Predict tomorrow = today. Beat that or you have not learned anything worth deploying.</p></div></div>
+  </div>
+  <p class="caption fx d4">You have built a tree, a line, a network and a recurrent cell. Today you stop asking which single model is best — and start combining them, and tuning what you have.</p>
+</section>
+
+<section class="slide" data-title="Learning Outcomes">
+  <div class="tag fx">Learning Outcomes · Condition — Performance — Standard</div>
+  <h1 class="sh fx d1">By the end of today you will be able to…</h1>
+  <div class="body">
+    <div class="col fx d2">
+      <table class="t cps">
+        <tr><th>Component</th><th>Statement</th></tr>
+        <tr><td>Condition</td><td>Given a tabular dataset and a baseline model from an earlier session,</td></tr>
+        <tr><td>Performance</td><td>you will build bagged and boosted ensembles, explain the bias–variance trade-off they exploit, tune their hyperparameters with cross-validated search, and assemble every preprocessing step into a scikit-learn Pipeline,</td></tr>
+        <tr><td>Standard</td><td>producing a model that <b style="color:var(--text)">beats your Session 4 baseline on held-out data</b>, whose cross-validation score is within a few points of its test score, with <b>no transformation fitted before the split</b>, and a saved artefact that reloads and predicts, pushed to <span style="font-family:var(--mono)">week7/</span>.</td></tr>
+      </table>
+      <div style="margin-top:18px"><span class="pill mint">LO1 · Bias–variance &amp; bagging</span><span class="pill mint">LO2 · Random Forest</span><span class="pill mint">LO3 · Gradient boosting</span><span class="pill mint">LO4 · Tune with cross-validated search</span><span class="pill coral">LO5 · Build a leak-proof Pipeline</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="slide" data-title="Content Mapping">
+  <div class="tag fx">Content Mapping</div>
+  <h1 class="sh fx d1">How today maps to your outcomes</h1>
+  <div class="body">
+    <div class="col fx d2">
+      <table class="t">
+        <tr><th>Module</th><th>Topics</th><th style="width:120px">Outcome</th><th style="width:190px">Assessed by</th></tr>
+        <tr><td>Module 1</td><td>1.1 Bias and variance · 1.2 Bagging · 1.3 Random Forest and feature importance</td>
+        <td style="color:var(--mint)">LO1, LO2</td><td>Forest vs single tree</td></tr><tr><td>Module 2</td><td>2.1 How boosting works · 2.2 XGBoost &amp; LightGBM · 2.3 Where boosting overfits</td>
+        <td style="color:var(--mint)">LO3</td><td>Teacher Demo — beating the baseline</td></tr><tr><td>Module 3</td><td>3.1 Grid vs random search · 3.2 Pipelines and leakage · 3.3 Saving a model</td>
+        <td style="color:var(--mint)">LO4, LO5</td><td>Your Turn — tuned, leak-proof, saved</td></tr>
+      </table>
+      <div class="theory" style="margin-top:20px">
+        <div class="lbl">The two ideas that carry the whole session</div>
+        <p><b>Averaging kills variance</b> — many decorrelated wrong answers cancel. And <b>anything fitted before the split leaks</b> — including the scaler you have been fitting on the whole dataset since Session 1.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="slide divider" data-title="Module 1">
+  <div class="num fx">01</div>
+  <h1 class="fx d1">Bagging &amp; Random Forest</h1>
+  <div class="items"><div class="fx d2"><b>1.1</b>Bias and variance — the two ways to be wrong</div><div class="fx d3"><b>1.2</b>Bagging — training on bootstrapped samples</div><div class="fx d4"><b>1.3</b>Random Forest, and reading feature importance</div>
+    <div class="fx d5" style="margin-top:8px"><b style="color:var(--amber)">↓</b><span style="color:var(--amber)">Hands-on: one tree against a forest, on your Session 4 data</span></div>
+  </div>
+</section>
+
+<section class="slide" data-title="1.1 Bias &amp; variance">
+  <div class="tag fx">1.1 · Bias &amp; variance</div>
+  <h1 class="sh fx d1">The two ways a model can be wrong</h1>
+  <div class="body">
+    <div class="col fx d2"><div class="def"><div class="lbl">Definition</div><h4>Bias</h4><p>Error from the model being <b>too simple</b> to capture the pattern. A straight line through a curve is wrong everywhere, and would still be wrong with a million more rows.</p></div><div class="def"><div class="lbl">Definition</div><h4>Variance</h4><p>Error from the model being <b>too sensitive</b> to the particular rows it saw. Change the training sample slightly and it gives a noticeably different answer.</p></div><div class="theory"><div class="lbl">Session 2's overfitting slider, named properly</div><p>The underfit end of that slider was high bias. The overfit end was high variance. Everything today is an attack on the variance end <b>without</b> paying for it in bias.</p></div></div>
+    <div class="col fx d3"><table class="t"><tr><th>Symptom</th><th>Diagnosis</th><th>Fix</th></tr><tr><td>train score low, test low</td><td style="color:var(--coral)">high bias</td><td>a richer model, better features</td></tr><tr><td>train high, test much lower</td><td style="color:var(--amber)">high variance</td><td>more data, regularisation, <b>ensembling</b></td></tr><tr><td>both high, close together</td><td style="color:var(--mint)">healthy</td><td>ship it</td></tr></table><div class="card warn"><h3>A single deep decision tree is the textbook high-variance model</h3><p>It can memorise the training set perfectly. Move one row and the splits reshuffle. That is exactly the weakness a forest is built to cancel.</p></div><div class="cb"><div class="code-head">see it for yourself, in three lines</div><pre class="code sm"><span class="s">from</span> sklearn.tree <span class="s">import</span> DecisionTreeClassifier
+
+<span class="k">for</span> seed <span class="s">in</span> [<span class="n">0</span>, <span class="n">1</span>, <span class="n">2</span>]:
+    t = DecisionTreeClassifier(random_state=seed).fit(X_tr, y_tr)
+    <span class="k">print</span>(seed, <span class="k">round</span>(t.score(X_te, y_te), <span class="n">3</span>))
+
+<span class="c"># three quite different numbers = variance</span></pre></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="1.2 Bagging">
+  <div class="tag fx">1.2 · Bagging</div>
+  <h1 class="sh fx d1">Bootstrap aggregating — many models, one vote</h1>
+  <div class="body">
+    <div class="col fx d2"><div class="def"><div class="lbl">Definition</div><h4>Bagging</h4><p>Train the same kind of model many times, each on a <b>random sample of the rows drawn with replacement</b>, then average their predictions (or take the majority vote for classification).</p></div></div>
+    <div class="col fx d3"><div class="cb"><div class="code-head">bagging by hand, so it is not magic</div><pre class="code sm"><span class="s">import</span> numpy <span class="s">as</span> np
+<span class="s">from</span> sklearn.tree <span class="s">import</span> DecisionTreeClassifier
+
+trees, n = [], <span class="k">len</span>(X_tr)
+<span class="k">for</span> _ <span class="s">in</span> <span class="k">range</span>(<span class="n">100</span>):
+    idx = np.random.choice(n, n, replace=<span class="k">True</span>)   <span class="c"># bootstrap</span>
+    trees.append(DecisionTreeClassifier().fit(X_tr[idx], y_tr[idx]))
+
+<span class="c"># majority vote</span>
+votes = np.array([t.predict(X_te) <span class="k">for</span> t <span class="s">in</span> trees])
+pred  = (votes.mean(axis=<span class="n">0</span>) &gt; <span class="n">0.5</span>).astype(<span class="k">int</span>)</pre></div><div class="theory"><div class="lbl">Why drawing with replacement matters</div><p>Each bootstrap sample contains about <b>63%</b> of the unique rows, some of them repeated. That is what makes the trees different from one another — and different trees are the entire point. Identical trees would average to exactly one tree.</p></div><div class="card accent"><h3>Out-of-bag score — free validation</h3><p>The ~37% of rows a given tree never saw can score that tree. Average that across the forest and you get a validation estimate <b>without holding anything out</b>. <span style="font-family:var(--mono)">oob_score=True</span>.</p></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="Each tree is barely better than a coin. The vote is not.">
+  <div class="tag fx">1.3 · The forest votes</div>
+  <h1 class="sh fx d1">Each tree is barely better than a coin. The vote is not.</h1>
+  <p class="sub fx d2">The dice reroll every couple of seconds. Watch how often 1 tree is wrong versus 15.</p>
+  <div class="body figbody">
+    <div class="figwrap">
+      <svg class="fig" id="forestSvg" viewBox="0 0 1000 400"></svg>
+      <div class="legend"><span><i style="background:#00dcb4"></i>voted correctly</span><span><i style="background:#ff6f91"></i>voted wrongly</span></div>
+      
+    </div>
+    <div class="col figside" style="max-width:370px"><div class="gate"><label><b style="color:var(--mint)">trees in the forest</b><span id="nTreeOut">1</span></label><input type="range" min="1" max="15" step="2" value="1" oninput="forestSet(+this.value)"></div><div class="theory" style="margin-bottom:11px"><div class="lbl">What just happened</div><p id="forestNote">—</p></div><div class="cb"><div class="code-head">Random Forest adds one more source of difference</div><pre class="code sm"><span class="s">from</span> sklearn.ensemble <span class="s">import</span> (
+    RandomForestClassifier)
+
+rf = RandomForestClassifier(
+    n_estimators=<span class="n">300</span>,
+    max_features=<span class="s">"sqrt"</span>,   <span class="c"># ← the forest bit</span>
+    oob_score=<span class="k">True</span>,
+    n_jobs=<span class="n">-1</span>, random_state=<span class="n">42</span>,
+).fit(X_tr, y_tr)</pre></div><div class="card accent"><h3>max_features is what makes it a forest</h3><p>Bagging alone gives correlated trees, because every tree picks the same strongest feature first. Letting each split see only a random subset of features forces genuine disagreement.</p></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="Module 1 Hands-on">
+  <div class="tag fx">Hands-on · Module 1</div>
+  <h1 class="sh fx d1">One tree against a forest, on your own data</h1>
+  <div class="body">
+    <div class="col fx d2">
+      <div class="hands-on">
+        <div class="lbl">18 minutes · pairs</div>
+        <h3>One tree against a forest, on your own data</h3>
+        
+        <div class="steps"><div><b>01</b><span>Load your Session 4 classification dataset and re-fit the single decision tree.</span></div><div><b>02</b><span>Fit a RandomForestClassifier with 300 trees and <span style="font-family:var(--mono)">oob_score=True</span>.</span></div><div><b>03</b><span>Compare train and test accuracy for both. Which one has the bigger gap?</span></div><div><b>04</b><span>Refit the single tree with three different <span style="font-family:var(--mono)">random_state</span> values and note the spread.</span></div><div><b>05</b><span>Do the same for the forest. The spread should be visibly smaller — that is variance reduction, measured.</span></div><div><b>06</b><span>Print <span style="font-family:var(--mono)">rf.feature_importances_</span> against your column names and read the top five.</span></div></div>
+      </div>
+    </div>
+    <div class="col fx d3"><div class="cb"><div class="code-head">the comparison table to produce</div><pre class="code sm"><span class="s">for</span> name, m <span class="s">in</span> [(<span class="s">"tree"</span>, tree), (<span class="s">"forest"</span>, rf)]:
+    <span class="k">print</span>(<span class="s">f"{name:&lt;8} train {m.score(X_tr,y_tr):.3f}"</span>
+          <span class="s">f"  test {m.score(X_te,y_te):.3f}"</span>)
+
+<span class="c"># typical result:</span>
+<span class="c"># tree     train 1.000   test 0.812   ← memorised</span>
+<span class="c"># forest   train 0.994   test 0.889   ← generalised</span>
+
+<span class="c"># feature importance, readable</span>
+imp = <span class="k">sorted</span>(<span class="k">zip</span>(cols, rf.feature_importances_),
+             key=<span class="s">lambda</span> kv: -kv[<span class="n">1</span>])
+<span class="k">for</span> c, v <span class="s">in</span> imp[:<span class="n">5</span>]:
+    <span class="k">print</span>(<span class="s">f"{c:&lt;22} {v:.3f}"</span>)</pre></div><div class="card warn"><h3>Read importance with suspicion</h3><p>It measures how much each feature reduced impurity, which is <b>not</b> causation and is biased toward high-cardinality columns. If an ID column tops your list, you have a leak, not an insight.</p></div></div>
+  </div>
+</section>
+
+<section class="slide divider" data-title="Module 2">
+  <div class="num fx">02</div>
+  <h1 class="fx d1">Boosting</h1>
+  <div class="items"><div class="fx d2"><b>2.1</b>Fitting the next model to what is still wrong</div><div class="fx d3"><b>2.2</b>XGBoost, LightGBM and the parameters that matter</div><div class="fx d4"><b>2.3</b>Where boosting overfits, and how you catch it</div>
+    <div class="fx d5" style="margin-top:8px"><b style="color:var(--amber)">↓</b><span style="color:var(--amber)">Teacher Demo: beating the Session 4 baseline</span></div>
+  </div>
+</section>
+
+<section class="slide" data-title="Each round fits the error the last one left behind">
+  <div class="tag fx">2.1 · Boosting</div>
+  <h1 class="sh fx d1">Each round fits the error the last one left behind</h1>
+  <p class="sub fx d2">Bagging trains its models in parallel and averages. Boosting trains them in sequence, each correcting the last.</p>
+  <div class="body figbody">
+    <div class="figwrap">
+      <svg class="fig" id="boostSvg" viewBox="0 0 1000 390"></svg>
+      <div class="legend"><span><i style="background:#f0b429"></i>actual value</span><span><i style="background:#00dcb4"></i>the model so far</span><span><i style="background:#ff6f91"></i>residual still unexplained</span></div>
+      
+    </div>
+    <div class="col figside" style="max-width:360px"><div class="gate"><label><b style="color:var(--mint)">boosting round</b><span id="rOut">0</span></label><input type="range" id="rSlider" min="0" max="12" step="1" value="0" oninput="boostRound(+this.value)"></div><div class="gate"><label><b style="color:var(--amber)">learning rate</b><span id="lrOut">0.50</span></label><input type="range" min="0.05" max="1" step="0.05" value="0.5" oninput="boostLr(+this.value)"></div><div class="theory" style="margin-bottom:11px"><div class="lbl">What just happened</div><p id="boostNote">—</p></div><div class="def"><div class="lbl">Definition</div><h4>Gradient boosting</h4><p>Models added <b>one at a time</b>, each trained on the residuals the ensemble has not yet explained, and each added at a small fraction (the learning rate) so no single one dominates.</p></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="2.2 XGBoost">
+  <div class="tag fx">2.2 · XGBoost</div>
+  <h1 class="sh fx d1">The libraries, and the five parameters that matter</h1>
+  <div class="body">
+    <div class="col fx d2"><div class="cb"><div class="code-head">the two you will actually use</div><pre class="code sm"><span class="c"># pip install xgboost lightgbm</span>
+<span class="s">from</span> xgboost <span class="s">import</span> XGBClassifier
+
+model = XGBClassifier(
+    n_estimators=<span class="n">600</span>,       <span class="c"># how many rounds</span>
+    learning_rate=<span class="n">0.05</span>,     <span class="c"># how much of each to add</span>
+    max_depth=<span class="n">5</span>,            <span class="c"># how complex each tree is</span>
+    subsample=<span class="n">0.8</span>,          <span class="c"># rows per round</span>
+    colsample_bytree=<span class="n">0.8</span>,   <span class="c"># features per round</span>
+    eval_metric=<span class="s">"logloss"</span>,
+    early_stopping_rounds=<span class="n">50</span>,
+)
+model.fit(X_tr, y_tr, eval_set=[(X_val, y_val)], verbose=<span class="k">False</span>)</pre></div></div>
+    <div class="col fx d3"><table class="t"><tr><th>Parameter</th><th>Raise it to…</th><th>Watch for</th></tr><tr><td style="color:var(--mint)">n_estimators</td><td>fit more of the signal</td><td>overfitting — use early stopping</td></tr><tr><td style="color:var(--mint)">learning_rate</td><td>learn faster</td><td>overshooting; lower is safer</td></tr><tr><td style="color:var(--mint)">max_depth</td><td>capture interactions</td><td>3–8 is almost always right</td></tr><tr><td style="color:var(--mint)">subsample</td><td>—</td><td>0.8 adds useful randomness</td></tr><tr><td style="color:var(--blue)">early_stopping</td><td>—</td><td>needs a validation set, not the test set</td></tr></table><div class="theory"><div class="lbl">The trade-off in one line</div><p>Lower <span style="font-family:var(--mono)">learning_rate</span> and more <span style="font-family:var(--mono)">n_estimators</span> almost always beats the reverse. It costs training time and buys accuracy — and early stopping means you do not have to guess the number.</p></div><div class="card accent"><h3>Why this family still wins on tabular data</h3><p>On spreadsheets — which is most business data — a tuned gradient booster routinely beats a neural network, trains in seconds rather than hours, and needs no scaling. Session 5 is for images, text and sequences; this is for rows and columns.</p></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="2.3 Overfitting">
+  <div class="tag fx">2.3 · Overfitting</div>
+  <h1 class="sh fx d1">Teacher Demo — beating the Session 4 baseline honestly</h1>
+  <div class="body">
+    <div class="col fx d2"><div class="cb"><div class="code-head">the three-way split, and why it exists</div><pre class="code sm"><span class="s">from</span> sklearn.model_selection <span class="s">import</span> train_test_split
+
+<span class="c"># 1) hold out a TEST set and do not look at it again</span>
+X_rest, X_te, y_rest, y_te = train_test_split(
+    X, y, test_size=<span class="n">0.2</span>, stratify=y, random_state=<span class="n">42</span>)
+
+<span class="c"># 2) split the rest into train and validation</span>
+X_tr, X_val, y_tr, y_val = train_test_split(
+    X_rest, y_rest, test_size=<span class="n">0.25</span>, stratify=y_rest, random_state=<span class="n">42</span>)
+
+<span class="c"># validation tunes. test is touched ONCE, at the end.</span></pre></div></div>
+    <div class="col fx d3"><div class="card warn"><h3>Early stopping on the test set is cheating</h3><p>It chooses the number of rounds using the data you are about to report on. The number you then quote is not an estimate of anything — and this is the single most common error in student projects.</p></div><div class="cb"><div class="code-head">how to see the overfit happening</div><pre class="code sm">results = model.evals_result()
+train = results[<span class="s">"validation_0"</span>][<span class="s">"logloss"</span>]
+val   = results[<span class="s">"validation_1"</span>][<span class="s">"logloss"</span>]
+
+plt.plot(train, label=<span class="s">"train"</span>)
+plt.plot(val,   label=<span class="s">"validation"</span>)
+plt.legend(); plt.xlabel(<span class="s">"round"</span>)
+
+<span class="c"># train falls forever. validation bottoms out,</span>
+<span class="c"># then rises — that turn is where to stop.</span></pre></div><div class="theory"><div class="lbl">Always report the baseline next to the model</div><p><span style="font-family:var(--mono)">DummyClassifier(strategy="most_frequent")</span> on an imbalanced dataset can score 95%. If your boosted model scores 96%, you have not built anything — and Session 4's precision, recall and F1 are the numbers that will say so.</p></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="Module 2 Hands-on">
+  <div class="tag fx">Hands-on · Module 2</div>
+  <h1 class="sh fx d1">Beat your Session 4 model — honestly</h1>
+  <div class="body">
+    <div class="col fx d2">
+      <div class="hands-on">
+        <div class="lbl">22 minutes · solo</div>
+        <h3>Beat your Session 4 model — honestly</h3>
+        
+        <div class="steps"><div><b>01</b><span>Make the three-way split from 2.3. Write down the test-set size and then leave it alone.</span></div><div><b>02</b><span>Fit an XGBoost or LightGBM model with early stopping on the validation set.</span></div><div><b>03</b><span>Plot the train and validation loss curves and mark where validation turns upward.</span></div><div><b>04</b><span>Report accuracy, precision, recall and F1 — against a DummyClassifier baseline.</span></div><div><b>05</b><span>Compare to your Session 4 single tree and your Module 1 forest. Three numbers, one table.</span></div><div><b>06</b><span>Write one sentence saying whether the improvement is worth the extra complexity.</span></div></div>
+      </div>
+    </div>
+    <div class="col fx d3"><div class="cb"><div class="code-head">the table your notebook should print</div><pre class="code sm"><span class="s">from</span> sklearn.dummy <span class="s">import</span> DummyClassifier
+<span class="s">from</span> sklearn.metrics <span class="s">import</span> f1_score
+
+models = {
+    <span class="s">"baseline"</span>: DummyClassifier(strategy=<span class="s">"most_frequent"</span>),
+    <span class="s">"tree"</span>:     tree,
+    <span class="s">"forest"</span>:   rf,
+    <span class="s">"boosted"</span>:  model,
+}
+<span class="k">for</span> name, m <span class="s">in</span> models.items():
+    p = m.predict(X_te)
+    <span class="k">print</span>(<span class="s">f"{name:&lt;9} acc {m.score(X_te,y_te):.3f}"</span>
+          <span class="s">f"  f1 {f1_score(y_te, p):.3f}"</span>)</pre></div><div class="card accent"><h3>That last sentence is the graded part</h3><p>A boosted model that beats the forest by 0.4% but takes an hour to tune and nobody can explain is often the wrong answer. Being able to say so is what separates an engineer from a leaderboard chaser.</p></div></div>
+  </div>
+</section>
+
+<section class="slide divider" data-title="Module 3">
+  <div class="num fx">03</div>
+  <h1 class="fx d1">Tuning &amp; Pipelines</h1>
+  <div class="items"><div class="fx d2"><b>3.1</b>Grid search, random search, and what they cost</div><div class="fx d3"><b>3.2</b>Pipelines — and the leakage they prevent</div><div class="fx d4"><b>3.3</b>Saving a model so it works tomorrow</div>
+    <div class="fx d5" style="margin-top:8px"><b style="color:var(--amber)">↓</b><span style="color:var(--amber)">Your Turn: tuned, leak-proof and saved</span></div>
+  </div>
+</section>
+
+<section class="slide" data-title="Every cell is a full model fit — times your CV folds">
+  <div class="tag fx">3.1 · Search</div>
+  <h1 class="sh fx d1">Every cell is a full model fit — times your CV folds</h1>
+  <p class="sub fx d2">Switch to random search and watch it reach the bright region in far fewer fits.</p>
+  <div class="body figbody">
+    <div class="figwrap">
+      <svg class="fig" id="gridSvg" viewBox="0 0 1000 420"></svg>
+      <div class="legend"><span><i style="background:#ff6f91"></i>weak</span><span><i style="background:#f0b429"></i>fair</span><span><i style="background:#00dcb4"></i>strong</span></div>
+      
+    </div>
+    <div class="col figside" style="max-width:360px"><div class="controls" style="justify-content:flex-start;margin-bottom:12px"><button class="btn ghost" id="gridBtn" onclick="gridMode()">GRID SEARCH</button><button class="btn ghost" onclick="gridReset()">RESET</button></div><div class="theory" style="margin-bottom:11px"><div class="lbl">What just happened</div><p id="gridNote">—</p></div><div class="cb"><div class="code-head">both, in four lines each</div><pre class="code sm"><span class="s">from</span> sklearn.model_selection <span class="s">import</span> GridSearchCV
+
+grid = {<span class="s">"max_depth"</span>: [<span class="n">2</span>,<span class="n">4</span>,<span class="n">6</span>,<span class="n">8</span>,<span class="n">10</span>,<span class="n">12</span>],
+        <span class="s">"learning_rate"</span>: [<span class="n">.01</span>,<span class="n">.03</span>,<span class="n">.1</span>,<span class="n">.3</span>,<span class="n">.6</span>,<span class="n">1</span>]}
+
+gs = GridSearchCV(model, grid, cv=<span class="n">5</span>,
+                  scoring=<span class="s">"f1"</span>, n_jobs=<span class="n">-1</span>)
+gs.fit(X_tr, y_tr)
+<span class="k">print</span>(gs.best_params_, gs.best_score_)</pre></div><div class="card warn"><h3>36 cells × 5 folds = 180 fits</h3><p>Add one more parameter with four values and it becomes 720. Grid search is exhaustive and it grows <b>multiplicatively</b> — which is exactly why random search usually wins in practice.</p></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="3.2 Pipelines">
+  <div class="tag fx">3.2 · Pipelines</div>
+  <h1 class="sh fx d1">The leak that inflates almost every student project</h1>
+  <div class="body">
+    <div class="col fx d2"><div class="cb"><div class="code-head">the code you have been writing since Session 1</div><pre class="code sm"><span class="c"># WRONG — and it looks completely reasonable</span>
+scaler = StandardScaler().fit(X)        <span class="e"># fitted on EVERYTHING</span>
+X_scaled = scaler.transform(X)
+
+X_tr, X_te, y_tr, y_te = train_test_split(X_scaled, y)
+
+model.fit(X_tr, y_tr)
+<span class="k">print</span>(model.score(X_te, y_te))   <span class="c"># optimistic. always.</span></pre></div></div>
+    <div class="col fx d3"><div class="def"><div class="lbl">Definition</div><h4>Data leakage</h4><p>Any information from outside the training set reaching the model. The scaler above learned the mean and standard deviation of the <b>test rows</b> — so the test set was never truly unseen.</p></div><div class="cb"><div class="code-head">the fix — and it is not more discipline, it is a Pipeline</div><pre class="code sm"><span class="s">from</span> sklearn.pipeline <span class="s">import</span> Pipeline
+<span class="s">from</span> sklearn.impute <span class="s">import</span> SimpleImputer
+<span class="s">from</span> sklearn.preprocessing <span class="s">import</span> StandardScaler
+
+pipe = Pipeline([
+    (<span class="s">"impute"</span>, SimpleImputer(strategy=<span class="s">"median"</span>)),
+    (<span class="s">"scale"</span>,  StandardScaler()),
+    (<span class="s">"model"</span>,  XGBClassifier()),
+])
+
+<span class="c"># now EVERY step refits inside each CV fold</span>
+scores = cross_val_score(pipe, X_tr, y_tr, cv=<span class="n">5</span>, scoring=<span class="s">"f1"</span>)</pre></div><div class="card warn"><h3>Where leakage hides, in order of frequency</h3><p>A scaler or imputer fitted before the split · target encoding computed on all rows · a feature that could only be known after the outcome · duplicate rows straddling the split · a random split on time-series data.</p></div><div class="theory"><div class="lbl">The symptom to recognise</div><p>Cross-validation says 0.97 and the test set says 0.78. That gap is almost never bad luck — it is something fitted where it should not have been. A Pipeline makes the mistake structurally impossible rather than merely discouraged.</p></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="3.3 Saving">
+  <div class="tag fx">3.3 · Saving</div>
+  <h1 class="sh fx d1">A model that still works next Tuesday</h1>
+  <div class="body">
+    <div class="col fx d2"><div class="cb"><div class="code-head">save the whole pipeline, never just the model</div><pre class="code sm"><span class="s">import</span> joblib
+
+joblib.dump(gs.best_estimator_, <span class="s">"model.joblib"</span>)
+
+<span class="c"># later, in another file, on another machine</span>
+pipe = joblib.load(<span class="s">"model.joblib"</span>)
+pipe.predict(new_rows)   <span class="c"># imputes + scales + predicts</span></pre></div></div>
+    <div class="col fx d3"><div class="card warn"><h3>Saving only the model is the classic mistake</h3><p>The scaler and imputer are part of how predictions are made. Save them separately and somebody will eventually feed raw values to a model that expects scaled ones — silently, and with plausible-looking output.</p></div><table class="t"><tr><th>Also record</th><th>Why</th></tr><tr><td style="color:var(--mint)">library versions</td><td>a pickle from one sklearn may not load in another</td></tr><tr><td style="color:var(--mint)">the column order</td><td>predictions are silently wrong if it changes</td></tr><tr><td style="color:var(--mint)">the test score</td><td>so future-you knows whether a retrain helped</td></tr><tr><td style="color:var(--mint)">the training date</td><td>data drifts; models go stale</td></tr></table><div class="cb"><div class="code-head">a model card in six lines of JSON</div><pre class="code sm"><span class="s">import</span> json, datetime, sklearn
+
+card = {
+    <span class="s">"trained"</span>: datetime.date.today().isoformat(),
+    <span class="s">"sklearn"</span>: sklearn.__version__,
+    <span class="s">"features"</span>: <span class="k">list</span>(X.columns),
+    <span class="s">"params"</span>: gs.best_params_,
+    <span class="s">"test_f1"</span>: <span class="k">float</span>(f1_score(y_te, pipe.predict(X_te))),
+}
+json.dump(card, <span class="k">open</span>(<span class="s">"model_card.json"</span>, <span class="s">"w"</span>), indent=<span class="n">2</span>)</pre></div><div class="theory"><div class="lbl">This is what makes Session 8 easy</div><p>A capstone with a saved pipeline and a model card can be rerun by a stranger. One with a notebook full of cells that must be executed in a particular order cannot — and that is the difference between a project and a demo.</p></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="Module 3 Hands-on">
+  <div class="tag fx">Hands-on · Module 3</div>
+  <h1 class="sh fx d1">Your Turn — tuned, leak-proof and saved</h1>
+  <div class="body">
+    <div class="col fx d2">
+      <div class="hands-on">
+        <div class="lbl">25 minutes · solo</div>
+        <h3>Your Turn — tuned, leak-proof and saved</h3>
+        
+        <div class="steps"><div><b>01</b><span>Rebuild your Module 2 model as a Pipeline with every preprocessing step inside it.</span></div><div><b>02</b><span>Run <span style="font-family:var(--mono)">cross_val_score</span> before tuning and write the number down.</span></div><div><b>03</b><span>Tune with RandomizedSearchCV over at least three hyperparameters, <span style="font-family:var(--mono)">n_iter=30</span>.</span></div><div><b>04</b><span>Compare the cross-validated score to the held-out test score. A gap over five points means go looking for a leak.</span></div><div><b>05</b><span>Save the fitted pipeline with joblib and write the model card from 3.3.</span></div><div><b>06</b><span>In a fresh notebook, load the file and predict on five rows. Push everything to <span style="font-family:var(--mono)">week7/</span>.</span></div></div>
+      </div>
+    </div>
+    <div class="col fx d3"><div class="cb"><div class="code-head">the whole thing, end to end</div><pre class="code sm"><span class="s">from</span> sklearn.model_selection <span class="s">import</span> RandomizedSearchCV
+
+params = {
+    <span class="s">"model__max_depth"</span>:     [<span class="n">3</span>, <span class="n">4</span>, <span class="n">5</span>, <span class="n">6</span>, <span class="n">8</span>],
+    <span class="s">"model__learning_rate"</span>: [<span class="n">.01</span>, <span class="n">.03</span>, <span class="n">.05</span>, <span class="n">.1</span>],
+    <span class="s">"model__subsample"</span>:     [<span class="n">.6</span>, <span class="n">.8</span>, <span class="n">1.0</span>],
+}
+<span class="c"># note the model__ prefix — it names the pipeline step</span>
+
+rs = RandomizedSearchCV(pipe, params, n_iter=<span class="n">30</span>,
+                        cv=<span class="n">5</span>, scoring=<span class="s">"f1"</span>, n_jobs=<span class="n">-1</span>,
+                        random_state=<span class="n">42</span>)
+rs.fit(X_tr, y_tr)
+
+<span class="k">print</span>(<span class="s">"cv  "</span>, <span class="k">round</span>(rs.best_score_, <span class="n">3</span>))
+<span class="k">print</span>(<span class="s">"test"</span>, <span class="k">round</span>(f1_score(y_te, rs.predict(X_te)), <span class="n">3</span>))
+
+joblib.dump(rs.best_estimator_, <span class="s">"model.joblib"</span>)</pre></div><div class="card accent"><h3>The two numbers are the deliverable</h3><p>Cross-validated score and test score, side by side. Close together means you can trust it. Far apart means something leaked — and finding it is worth more than another point of accuracy.</p></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="Recap &amp; Summary">
+  <div class="tag fx">Recap &amp; Summary</div>
+  <h1 class="sh fx d1">What you can do now</h1>
+  <div class="body">
+    <div class="col cards grid3 fx d2"><div class="card accent"><h3><span class="k">M1</span>Bagging &amp; Random Forest</h3><p>Diagnose bias against variance, and cut variance by averaging many decorrelated trees rather than tuning one.</p></div><div class="card accent"><h3><span class="k">M2</span>Boosting</h3><p>Fit each new tree to what is still wrong, control it with the learning rate and early stopping, and always report the baseline beside the score.</p></div><div class="card accent"><h3><span class="k">M3</span>Tuning &amp; Pipelines</h3><p>Search hyperparameters with cross-validation, put every transformation inside a Pipeline so nothing leaks, and save the whole pipeline with a model card.</p></div></div>
+  </div>
+  <div class="body" style="flex:0 0 auto;margin-top:0">
+    <div class="col fx d3"><div class="theory"><div class="lbl">The one line to remember</div><p><b>A crowd of weak, disagreeing models beats one clever one — and a score you cannot reproduce is not a score.</b> Ensembling wins the accuracy; the Pipeline is what makes the number mean something.</p></div></div>
+    <div class="col fx d4"><div class="card"><h3>Next session — Capstone: Planning &amp; Execution</h3><p>Your own dataset, your own question, and everything from the seven sessions behind you — scoped so you finish it, built so a stranger can rerun it, and presented as a finding rather than a metric.</p></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="Review Learning Outcomes">
+  <div class="tag fx">Review Learning Outcomes</div>
+  <h1 class="sh fx d1">Did we get there?</h1>
+  <p class="sub fx d2">Rate yourself 1–5. Anything at 2 or below, flag it now — next session assumes all of this.</p>
+  <div class="body">
+    <div class="col cards grid2 fx d3"><div class="card"><h3><span class="k">LO1</span>I can say whether a model's problem is bias or variance, from its two scores</h3><p style="font-family:var(--mono);color:var(--mint)">1 — 2 — 3 — 4 — 5</p></div><div class="card"><h3><span class="k">LO2</span>I can explain why max_features is what makes a forest, not just bagging</h3><p style="font-family:var(--mono);color:var(--mint)">1 — 2 — 3 — 4 — 5</p></div><div class="card"><h3><span class="k">LO3</span>I tuned a boosted model with early stopping on a validation set, not the test set</h3><p style="font-family:var(--mono);color:var(--mint)">1 — 2 — 3 — 4 — 5</p></div><div class="card"><h3><span class="k">LO4</span>I used cross-validated search and can say what it cost in fits</h3><p style="font-family:var(--mono);color:var(--mint)">1 — 2 — 3 — 4 — 5</p></div><div class="card accent" style="grid-column:1/-1"><h3><span class="k">LO5</span>Every transformation in my project is inside a Pipeline</h3><p style="font-family:var(--mono);color:var(--mint)">1 — 2 — 3 — 4 — 5</p></div></div>
+  </div>
+  <p class="caption fx d4">codencode.my · ML Session 07 complete</p>
+</section>
+</div>
+
+<div id="nav">
+  <button class="navbtn" onclick="go(-1)">PREV</button>
+  <div id="dots"></div>
+  <button class="navbtn" onclick="go(1)">NEXT</button>
+</div>
+
+<script>
+const slides=[...document.querySelectorAll('.slide')];
+let i=0;const dots=document.getElementById('dots');
+slides.forEach((s,n)=>{const d=document.createElement('div');d.className='dot';d.onclick=()=>show(n);dots.appendChild(d);});
+function show(n){
+  if(n<0||n>=slides.length)return;
+  slides[i].classList.remove('active');i=n;void slides[i].offsetWidth;slides[i].classList.add('active');
+  document.getElementById('counter').textContent=String(i+1).padStart(2,'0')+' / '+slides.length;
+  document.getElementById('titlebar').textContent=slides[i].dataset.title||'';
+  document.getElementById('progress').style.width=((i+1)/slides.length*100)+'%';
+  [...dots.children].forEach((d,k)=>d.classList.toggle('on',k===i));
+}
+function go(d){show(i+d);}
+function fs(){document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen();}
+addEventListener('keydown',e=>{
+  if(['ArrowRight',' ','PageDown'].includes(e.key)){e.preventDefault();go(1);}
+  if(['ArrowLeft','PageUp'].includes(e.key)){e.preventDefault();go(-1);}
+  if(e.key==='Home')show(0);
+  if(e.key==='End')show(slides.length-1);
+  if(e.key==='f')fs();
+});
+
+/* ---------- copy-to-clipboard on every code block ---------- */
+(function(){
+  document.querySelectorAll('pre.code').forEach(pre=>{
+    const source = pre.textContent;               // capture BEFORE adding the button
+    const btn = document.createElement('button');
+    btn.className = 'copybtn';
+    btn.type = 'button';
+    btn.textContent = 'COPY';
+    btn.addEventListener('click', async e=>{
+      e.stopPropagation();
+      try{
+        await navigator.clipboard.writeText(source);
+      }catch(err){                                 // file:// fallback
+        const ta=document.createElement('textarea');
+        ta.value=source; ta.style.position='fixed'; ta.style.opacity='0';
+        document.body.appendChild(ta); ta.select();
+        try{document.execCommand('copy');}catch(_){}
+        document.body.removeChild(ta);
+      }
+      btn.textContent='COPIED'; btn.classList.add('done');
+      setTimeout(()=>{btn.textContent='COPY'; btn.classList.remove('done');},1400);
+    });
+    pre.appendChild(btn);
+  });
+})();
+
+
+/* ═══════════ 1.3 — the forest votes ═══════════ */
+(function(){
+  const svg=document.getElementById('forestSvg'); if(!svg) return;
+  // each tree has an accuracy of ~0.62 and errs on a DIFFERENT random subset
+  let nTrees=1, seed=7, votes=[], truth=1;
+  function rnd(){ seed=(seed*1103515245+12345)&0x7fffffff; return seed/0x7fffffff; }
+  function reroll(){
+    votes=[]; for(let i=0;i<15;i++) votes.push(rnd()<0.62 ? truth : 1-truth);
+  }
+  function draw(){
+    const on='#00dcb4', co='#ff6f91', dim='#8b98a5', off='#2a3440';
+    const used=votes.slice(0,nTrees);
+    const yes=used.filter(v=>v===1).length, no=used.length-yes;
+    const verdict = yes>no ? 1 : 0;
+    const right = verdict===truth;
+    let s='';
+    // trees
+    const COLS=5, W=104, H=86, X0=60, Y0=66, GX=18, GY=16;
+    for(let i=0;i<15;i++){
+      const c=i%COLS, r=Math.floor(i/COLS);
+      const x=X0+c*(W+GX), y=Y0+r*(H+GY);
+      const active=i<nTrees;
+      const ok = active && votes[i]===truth;
+      const col = !active ? off : ok ? on : co;
+      s+=`<rect class="ebox" x="${x}" y="${y}" width="${W}" height="${H}" rx="11"
+           fill="${active?(ok?'rgba(0,220,180,.14)':'rgba(255,111,145,.14)'):'#12181f'}"
+           stroke="${col}" stroke-width="${active?2:1.2}" opacity="${active?1:.45}"/>`;
+      s+=`<text x="${x+W/2}" y="${y+32}" text-anchor="middle" font-family="JetBrains Mono,monospace"
+           font-size="11" fill="${active?col:'#48535f'}">tree ${i+1}</text>`;
+      s+=`<text x="${x+W/2}" y="${y+62}" text-anchor="middle" font-family="Space Grotesk,sans-serif"
+           font-size="17" font-weight="700" fill="${active?col:'#2a3440'}">${active?(votes[i]?'YES':'NO'):'—'}</text>`;
+    }
+    // tally
+    const BX=680;
+    s+=`<rect x="${BX}" y="66" width="270" height="130" rx="13" fill="#12181f" stroke="${off}" stroke-width="1.5"/>`;
+    s+=`<text x="${BX+135}" y="98" text-anchor="middle" font-family="JetBrains Mono,monospace"
+         font-size="13" fill="${dim}">the vote</text>`;
+    s+=`<text x="${BX+70}" y="146" text-anchor="middle" font-family="Space Grotesk,sans-serif"
+         font-size="32" font-weight="700" fill="${on}">${yes}</text>`;
+    s+=`<text x="${BX+70}" y="172" text-anchor="middle" font-family="JetBrains Mono,monospace"
+         font-size="12" fill="${dim}">YES</text>`;
+    s+=`<text x="${BX+200}" y="146" text-anchor="middle" font-family="Space Grotesk,sans-serif"
+         font-size="32" font-weight="700" fill="${co}">${no}</text>`;
+    s+=`<text x="${BX+200}" y="172" text-anchor="middle" font-family="JetBrains Mono,monospace"
+         font-size="12" fill="${dim}">NO</text>`;
+    // verdict
+    s+=`<rect class="ebox" x="${BX}" y="216" width="270" height="110" rx="13"
+         fill="${right?'rgba(0,220,180,.12)':'rgba(255,111,145,.12)'}"
+         stroke="${right?on:co}" stroke-width="2.4"/>`;
+    s+=`<text x="${BX+135}" y="248" text-anchor="middle" font-family="JetBrains Mono,monospace"
+         font-size="12" fill="${dim}">forest says</text>`;
+    s+=`<text x="${BX+135}" y="288" text-anchor="middle" font-family="Space Grotesk,sans-serif"
+         font-size="28" font-weight="700" fill="${right?on:co}">${verdict?'YES':'NO'}</text>`;
+    s+=`<text x="${BX+135}" y="312" text-anchor="middle" font-family="JetBrains Mono,monospace"
+         font-size="12" fill="${right?on:co}">${right?'correct':'wrong'}</text>`;
+    s+=`<text x="${BX+135}" y="360" text-anchor="middle" font-family="JetBrains Mono,monospace"
+         font-size="12.5" fill="${dim}">each tree alone is only ~62% right</text>`;
+    svg.innerHTML=s;
+    const g=id=>document.getElementById(id);
+    if(g('nTreeOut')) g('nTreeOut').textContent=nTrees;
+    if(g('forestNote')) g('forestNote').innerHTML = nTrees===1
+      ? 'One tree. Its answer <b>is</b> the forest’s answer, so the forest is exactly as unreliable as it is.'
+      : nTrees<=5
+      ? `${nTrees} trees. A single bad tree can still swing the vote — this is where variance still hurts.`
+      : 'Enough trees that the errors cancel. Each is still wrong 38% of the time; the <b style="color:var(--mint)">majority</b> is wrong far less often.';
+  }
+  window.forestSet=function(v){ nTrees=v; draw(); };
+  window.forestRoll=function(){ reroll(); draw(); };
+  reroll(); draw();
+  setInterval(()=>{ reroll(); draw(); }, 2600);
+})();
+
+/* ═══════════ 2.1 — boosting corrects its own residuals ═══════════ */
+(function(){
+  const svg=document.getElementById('boostSvg'); if(!svg) return;
+  const PTS=[[0,12],[1,19],[2,16],[3,28],[4,33],[5,29],[6,42],[7,48],[8,45],[9,58]];
+  let round=0, lr=0.5;
+  function preds(r){
+    // stump-like additive fit: each round adds lr * residual mean of two halves
+    let p=PTS.map(()=>PTS.reduce((a,b)=>a+b[1],0)/PTS.length);
+    for(let k=0;k<r;k++){
+      const res=PTS.map((pt,i)=>pt[1]-p[i]);
+      const mid=Math.floor(PTS.length/2 + (k%3)-1);
+      const lo=res.slice(0,mid), hi=res.slice(mid);
+      const ml=lo.reduce((a,b)=>a+b,0)/Math.max(1,lo.length);
+      const mh=hi.reduce((a,b)=>a+b,0)/Math.max(1,hi.length);
+      p=p.map((v,i)=>v + lr*(i<mid?ml:mh));
+    }
+    return p;
+  }
+  function draw(){
+    const on='#00dcb4', co='#ff6f91', am='#f0b429', dim='#8b98a5';
+    const P=preds(round);
+    const X=x=>90+x*88, Y=y=>330-y*5.2;
+    let s='';
+    // axes
+    s+=`<line x1="78" y1="336" x2="950" y2="336" stroke="#2a3440" stroke-width="1.6"/>`;
+    s+=`<line x1="78" y1="60" x2="78" y2="336" stroke="#2a3440" stroke-width="1.6"/>`;
+    // residual bars
+    PTS.forEach((pt,i)=>{
+      const yr=Y(pt[1]), yp=Y(P[i]);
+      s+=`<line class="ebox" x1="${X(pt[0])}" y1="${yr}" x2="${X(pt[0])}" y2="${yp}"
+           stroke="${co}" stroke-width="${Math.min(9, 2+Math.abs(pt[1]-P[i])/3)}" opacity=".45"/>`;
+    });
+    // model line
+    let d='';
+    PTS.forEach((pt,i)=>{ d += (i?' L ':'M ')+X(pt[0])+' '+Y(P[i]); });
+    s+=`<path class="ebox" d="${d}" fill="none" stroke="${on}" stroke-width="3"/>`;
+    // actual points
+    PTS.forEach(pt=>{
+      s+=`<circle cx="${X(pt[0])}" cy="${Y(pt[1])}" r="6" fill="#0d1117" stroke="${am}" stroke-width="2.4"/>`;
+    });
+    const sse=PTS.reduce((a,pt,i)=>a+Math.pow(pt[1]-P[i],2),0);
+    s+=`<text x="90" y="46" font-family="JetBrains Mono,monospace" font-size="13" fill="${dim}">
+         round ${round} of 12 &nbsp;·&nbsp; learning rate ${lr.toFixed(2)}</text>`;
+    s+=`<text x="640" y="46" font-family="JetBrains Mono,monospace" font-size="13" fill="${on}">
+         squared error ${Math.round(sse)}</text>`;
+    s+=`<text x="90" y="374" font-family="JetBrains Mono,monospace" font-size="12" fill="${dim}">
+         each red bar is error the ensemble has not explained yet</text>`;
+    svg.innerHTML=s;
+    const g=id=>document.getElementById(id);
+    if(g('rOut')) g('rOut').textContent=round;
+    if(g('lrOut')) g('lrOut').textContent=lr.toFixed(2);
+    if(g('boostNote')) g('boostNote').innerHTML = round===0
+      ? 'Round 0 is just the mean. Every red bar is error the model has not explained yet.'
+      : lr>0.8 && round>6
+      ? 'A high learning rate with many rounds fits the <b style="color:var(--coral)">noise</b> too. This is how boosting overfits.'
+      : round<4
+      ? 'Each round fits a small tree to <b>what is still wrong</b>, then adds a fraction of it.'
+      : 'The red bars are shrinking. Boosting does not average like a forest — it <b style="color:var(--mint)">corrects</b>.';
+  }
+  window.boostRound=function(v){ round=v; draw(); };
+  window.boostLr=function(v){ lr=v; draw(); };
+  draw();
+  let dir=1;
+  setInterval(()=>{ round+=dir; if(round>=12){dir=-1;} if(round<=0){dir=1;}
+    const r=document.getElementById('rSlider'); if(r) r.value=round; draw(); }, 700);
+})();
+
+/* ═══════════ 3.1 — grid search fills in ═══════════ */
+(function(){
+  const svg=document.getElementById('gridSvg'); if(!svg) return;
+  const DEPTH=[2,4,6,8,10,12], LR=[0.01,0.03,0.1,0.3,0.6,1.0];
+  // a plausible validation-score surface: best at depth 6, lr 0.1
+  function score(d,l){
+    const dd=Math.pow(Math.log2(d)-Math.log2(6),2);
+    const ll=Math.pow(Math.log10(l)-Math.log10(0.1),2);
+    return 0.93 - 0.11*dd - 0.07*ll;
+  }
+  let mode=0;            // 0 grid, 1 random
+  let done=0, order=[];
+  function build(){
+    order=[];
+    for(let i=0;i<DEPTH.length;i++) for(let j=0;j<LR.length;j++) order.push([i,j]);
+    if(mode===1){ // random search visits a shuffled subset
+      for(let k=order.length-1;k>0;k--){ const m=Math.floor(Math.random()*(k+1)); [order[k],order[m]]=[order[m],order[k]]; }
+    }
+    done=0;
+  }
+  function draw(){
+    const dim='#8b98a5';
+    const CELL=52, X0=170, Y0=70;
+    let s='';
+    const seen=order.slice(0,done);
+    let best=null;
+    seen.forEach(([i,j])=>{ const v=score(DEPTH[i],LR[j]); if(!best||v>best[2]) best=[i,j,v]; });
+    for(let i=0;i<DEPTH.length;i++){
+      for(let j=0;j<LR.length;j++){
+        const idx=seen.findIndex(([a,b])=>a===i&&b===j);
+        const x=X0+j*CELL, y=Y0+i*CELL;
+        if(idx<0){
+          s+=`<rect x="${x}" y="${y}" width="${CELL-5}" height="${CELL-5}" rx="6"
+               fill="#12181f" stroke="#2a3440" stroke-width="1.1"/>`;
+        } else {
+          const v=score(DEPTH[i],LR[j]);
+          const t=Math.max(0,Math.min(1,(v-0.55)/0.38));
+          const col = t>0.82 ? '#00dcb4' : t>0.6 ? '#f0b429' : '#ff6f91';
+          s+=`<rect class="pop" x="${x}" y="${y}" width="${CELL-5}" height="${CELL-5}" rx="6"
+               fill="${col}" opacity="${0.18+0.6*t}" stroke="${col}" stroke-width="1.4"/>`;
+          s+=`<text x="${x+(CELL-5)/2}" y="${y+30}" text-anchor="middle"
+               font-family="JetBrains Mono,monospace" font-size="11" fill="#0d1117"
+               opacity="${t>0.7?1:0}">${(v*100).toFixed(0)}</text>`;
+        }
+      }
+    }
+    // axis labels
+    DEPTH.forEach((d,i)=>{ s+=`<text x="${X0-16}" y="${Y0+i*CELL+30}" text-anchor="end"
+      font-family="JetBrains Mono,monospace" font-size="12" fill="${dim}">${d}</text>`; });
+    LR.forEach((l,j)=>{ s+=`<text x="${X0+j*CELL+(CELL-5)/2}" y="${Y0+DEPTH.length*CELL+18}"
+      text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="11" fill="${dim}">${l}</text>`; });
+    s+=`<text x="${X0-16}" y="${Y0-14}" text-anchor="end" font-family="JetBrains Mono,monospace"
+         font-size="12" fill="${dim}">max_depth</text>`;
+    s+=`<text x="${X0+3*CELL}" y="${Y0+DEPTH.length*CELL+42}" text-anchor="middle"
+         font-family="JetBrains Mono,monospace" font-size="12" fill="${dim}">learning_rate</text>`;
+    // best marker
+    if(best){
+      const x=X0+best[1]*CELL, y=Y0+best[0]*CELL;
+      s+=`<rect x="${x-3}" y="${y-3}" width="${CELL+1}" height="${CELL+1}" rx="8"
+           fill="none" stroke="#e8eef0" stroke-width="2.2"/>`;
+    }
+    // side panel
+    const PX=560;
+    s+=`<text x="${PX}" y="96" font-family="JetBrains Mono,monospace" font-size="13" fill="${dim}">
+         ${mode?'RandomizedSearchCV':'GridSearchCV'}</text>`;
+    s+=`<text x="${PX}" y="136" font-family="Space Grotesk,sans-serif" font-size="30" font-weight="700"
+         fill="#00dcb4">${done} / 36</text>`;
+    s+=`<text x="${PX}" y="162" font-family="JetBrains Mono,monospace" font-size="12" fill="${dim}">
+         combinations trained &amp; cross-validated</text>`;
+    s+=`<text x="${PX}" y="204" font-family="JetBrains Mono,monospace" font-size="12" fill="${dim}">
+         with 5-fold CV that is ${done*5} fits</text>`;
+    if(best){
+      s+=`<text x="${PX}" y="256" font-family="JetBrains Mono,monospace" font-size="13" fill="${dim}">best so far</text>`;
+      s+=`<text x="${PX}" y="292" font-family="JetBrains Mono,monospace" font-size="17" fill="#e8eef0">
+           depth ${DEPTH[best[0]]}, lr ${LR[best[1]]}</text>`;
+      s+=`<text x="${PX}" y="324" font-family="Space Grotesk,sans-serif" font-size="24" font-weight="700"
+           fill="#00dcb4">${(best[2]*100).toFixed(1)}%</text>`;
+    }
+    svg.innerHTML=s;
+    const n=document.getElementById('gridNote');
+    if(n) n.innerHTML = done===0
+      ? 'Nothing trained yet. Every cell is one full model fit — times the number of CV folds.'
+      : mode===1
+      ? 'Random search samples the space. It usually lands near the best cell in a <b>fraction</b> of the fits, because most hyperparameters barely matter.'
+      : done<12 ? 'Grid search works through every combination in order, whether or not that corner is promising.'
+      : 'The bright region is broad — which is the real lesson. <b>Near</b> the best settings is usually good enough.';
+  }
+  window.gridStep=function(){ if(done<order.length){ done++; draw(); } };
+  window.gridMode=function(){ mode=mode?0:1; build(); draw();
+    const b=document.getElementById('gridBtn'); if(b) b.textContent = mode?'RANDOM SEARCH':'GRID SEARCH'; };
+  window.gridReset=function(){ build(); draw(); };
+  build(); draw();
+  setInterval(()=>{ if(done<order.length) window.gridStep(); else { build(); draw(); } }, 260);
+})();
+
+show(0);
+</script>
+</body>
+</html>
