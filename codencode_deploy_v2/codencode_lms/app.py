@@ -5668,6 +5668,41 @@ def seed_python_fundamentals_quizzes():
         app.logger.warning('Python Fundamentals quiz seed skipped: %s', exc)
 
 
+def seed_python_homework():
+    """Simple homework at Weeks 2 and 5 for Python Fundamentals, matching
+    each session's own 'Your Turn' build. Only ADDS (matched by title) -
+    never edits or removes anything a teacher already created; if a
+    "Homework 2: Conditionals & Logic" already exists it is left exactly
+    as is. Idempotent, never blocks startup."""
+    specs = [
+        (2, 'Homework 2: Conditionals & Logic',
+         'Build two small programs: (1) an ATM that asks for a PIN, allows up to three '
+         'attempts, prints "Welcome" on a correct PIN and "Card locked" after three wrong '
+         'ones; (2) a tax calculator that reads an annual income and prints the tax owed '
+         'per band plus the total and effective rate, using Malaysia’s bracket rates '
+         'from class. Test every boundary value, not just the middle of each band.'),
+        (5, 'Homework 5: Object-Oriented Programming',
+         'Pick something real (a library, a gym, a food-delivery order, a game inventory) '
+         'and design your own class hierarchy. Write a parent class with only what every '
+         'version shares, then two child classes that each override at least one method. '
+         'Give every class a docstring, a __str__, and one protected attribute exposed '
+         'through a read-only property. Write five lines proving the two children behave '
+         'differently.'),
+    ]
+    try:
+        courses = Course.query.filter(db.func.lower(Course.title).like('%python fundamentals%')).all()
+        for course in courses:
+            for session_num, title, description in specs:
+                if Assignment.query.filter_by(course_id=course.id, title=title).first():
+                    continue
+                db.session.add(Assignment(course_id=course.id, session=session_num,
+                                          title=title, description=description, max_points=100))
+            db.session.commit()
+    except Exception as exc:
+        db.session.rollback()
+        app.logger.warning('Python homework seed skipped: %s', exc)
+
+
 def _ml_standalone_courses():
     """The standalone Machine Learning course(s) - title contains "machine
     learning" but NOT "python", so the bundled "Python and Machine Learning"
@@ -6260,6 +6295,7 @@ with app.app_context():
     seed_demo()
     seed_predefined_workshops()
     seed_python_fundamentals_quizzes()
+    seed_python_homework()
     _sync_bundled_materials()
     seed_course_curriculum_materials()
     seed_ml_quizzes()
