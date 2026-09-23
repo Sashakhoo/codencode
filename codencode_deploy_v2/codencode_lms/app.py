@@ -6105,6 +6105,57 @@ def enforce_python_fundamentals_curriculum_materials():
                                course.id, course.title, exc)
 
 
+@app.route('/api/admin/debug/python-fundamentals')
+@admin_required
+def api_debug_python_fundamentals():
+    """Temporary diagnostic: dump exactly what's live for every course
+    matched as Python Fundamentals content, plus whether each of our own
+    pf-session-NN.html files actually exists on disk (bundled_materials/
+    source AND the served uploads/materials/ copy) so a stale-slide report
+    can be root-caused instead of guessed at. Safe to remove once the
+    stale-material issue is confirmed resolved."""
+    from curriculum_seed import PYTHON_SESSIONS
+    bundled_dir = os.path.join(os.path.dirname(__file__), 'bundled_materials')
+    served_dir = os.path.join(app.config['UPLOAD_FOLDER'], 'materials')
+    own_filenames = [fn for _, _, fn in PYTHON_SESSIONS]
+    files = {}
+    for fn in own_filenames:
+        b = os.path.join(bundled_dir, fn)
+        s = os.path.join(served_dir, fn)
+        files[fn] = {
+            'in_bundled_materials': os.path.exists(b),
+            'bundled_size': os.path.getsize(b) if os.path.exists(b) else None,
+            'in_served_uploads': os.path.exists(s),
+            'served_size': os.path.getsize(s) if os.path.exists(s) else None,
+        }
+    courses_out = []
+    for course in _python_target_courses():
+        mats = Material.query.filter_by(course_id=course.id).order_by(Material.session).all()
+        courses_out.append({
+            'course_id': course.id,
+            'course_title': course.title,
+            'course_programme': course.programme,
+            'total_sessions': course.total_sessions,
+            'materials': [
+                {'session': m.session, 'title': m.title, 'filename': m.filename,
+                 'is_own_file': m.filename in own_filenames, 'id': m.id}
+                for m in mats
+            ],
+        })
+    # every course row in the DB whose title even loosely mentions "python",
+    # in case the real course's title doesn't actually contain "fundamentals"
+    all_python_ish = [
+        {'id': c.id, 'title': c.title, 'programme': c.programme}
+        for c in Course.query.filter(db.func.lower(Course.title).like('%python%')).all()
+    ]
+    return jsonify({
+        'own_filenames': own_filenames,
+        'files_on_disk': files,
+        'matched_courses': courses_out,
+        'all_courses_with_python_in_title': all_python_ish,
+    })
+
+
 def seed_course_curriculum_materials():
     """Real per-session lesson decks (curriculum_seed.py) for Python
     Fundamentals and Machine Learning. Each session file already has its own
