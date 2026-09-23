@@ -5713,31 +5713,49 @@ def seed_python_fundamentals_quizzes():
 
 
 def seed_python_homework():
-    """Simple homework at Weeks 2 and 5 for Python Fundamentals - the
-    standalone course AND the "Python and Machine Learning" bundle - matching
-    each session's own 'Your Turn' build. Only ADDS (matched by title) -
-    never edits or removes anything a teacher already created; if a
-    "Homework 2: Conditionals & Logic" already exists it is left exactly
-    as is. Idempotent, never blocks startup."""
+    """Homework at Weeks 2 and 5 for Python Fundamentals - the standalone
+    course AND the "Python and Machine Learning" bundle - each question set
+    taken directly from that session's own 'Your Turn' build. ADDS a missing
+    assignment, and refreshes the description text on one of these four
+    known titles if it's out of date (this is Claude-authored content, not
+    a teacher's) - session, title and points are left alone either way, so
+    a teacher who moved or repointed one keeps that change. Idempotent,
+    never blocks startup."""
     specs = [
         (2, 'Homework 2: Conditionals & Logic',
-         'Build two small programs: (1) an ATM that asks for a PIN, allows up to three '
-         'attempts, prints "Welcome" on a correct PIN and "Card locked" after three wrong '
-         'ones; (2) a tax calculator that reads an annual income and prints the tax owed '
-         'per band plus the total and effective rate, using Malaysia’s bracket rates '
-         'from class. Test every boundary value, not just the middle of each band.'),
+         'Build two small programs and push both to python-bootcamp/week2/.\n\n'
+         'Part A - ATM lock\n'
+         '1. Store a correct PIN. Ask for it up to three times.\n'
+         '2. Correct PIN: print "Welcome" and stop asking.\n'
+         '3. Three wrong PINs in a row: print "Card locked".\n'
+         '4. Test it four ways: right on the first try, right on the third try, '
+         'three wrong in a row, and letters typed instead of digits (it must not crash).\n\n'
+         'Part B - tax calculator\n'
+         '5. Ask for an annual income (RM).\n'
+         '6. Compute tax using the five bands from class: 0-5,000 (0%), 5,000-20,000 (1%), '
+         '20,000-35,000 (3%), 35,000-50,000 (6%), above 50,000 (11%).\n'
+         '7. Print one breakdown line per band that the income actually reaches, then '
+         'the total tax and the effective rate.\n'
+         '8. Check your result for an income of RM 40,000 - it must match the worked '
+         'example shown in Session 2.'),
         (5, 'Homework 5: Object-Oriented Programming',
-         'Pick something real (a library, a gym, a food-delivery order, a game inventory) '
-         'and design your own class hierarchy. Write a parent class with only what every '
-         'version shares, then two child classes that each override at least one method. '
-         'Give every class a docstring, a __str__, and one protected attribute exposed '
-         'through a read-only property. Write five lines proving the two children behave '
-         'differently.'),
+         'Design your own class hierarchy and push it to python-bootcamp/week5/.\n\n'
+         '1. Pick something real: a library, a gym, a food-delivery order, or a game inventory.\n'
+         '2. Write the parent class - only the attributes and methods every version shares.\n'
+         '3. Write two child classes that are genuinely a kind of the parent, each '
+         'overriding at least one method.\n'
+         '4. Give every class a docstring, a __str__ method, and one protected attribute '
+         '(e.g. self._something) exposed through a read-only @property.\n'
+         '5. Write five lines of code that prove the two child classes behave differently '
+         'from each other.'),
     ]
     try:
         for course in _python_target_courses():
             for session_num, title, description in specs:
-                if Assignment.query.filter_by(course_id=course.id, title=title).first():
+                existing = Assignment.query.filter_by(course_id=course.id, title=title).first()
+                if existing:
+                    if existing.description != description:
+                        existing.description = description
                     continue
                 db.session.add(Assignment(course_id=course.id, session=session_num,
                                           title=title, description=description, max_points=100))
@@ -5787,43 +5805,81 @@ def seed_ml_quizzes():
 
 
 def seed_ml_homework_and_assignment():
-    """Simple homework at Weeks 3 and 6 (offset in the bundle course), and
-    the final capstone Assignment at the course's actual last week, for
-    Machine Learning content - the standalone course and the bundle.
-    Only ADDS (matched by title) - never edits or removes anything a
-    teacher already created. Idempotent, never blocks startup."""
+    """Homework at Weeks 3 and 6 (offset in the bundle course), and the
+    final capstone Assignment at the course's actual last week, for Machine
+    Learning content - the standalone course and the bundle. Each question
+    set taken directly from that session's own hands-on lab. ADDS a missing
+    assignment, and refreshes the description text on one of these three
+    known titles if it's out of date (this is Claude-authored content, not
+    a teacher's) - session, title and points are left alone either way, so
+    a teacher who moved or repointed one keeps that change. Idempotent,
+    never blocks startup."""
     specs = [
         (3, 'Homework 3: Regression Model Comparison',
-         'Using the housing dataset from class, fit Linear Regression, Ridge and Lasso. '
-         'Report MAE, RMSE and R² for each in one table, and write one sentence saying '
-         'which model you would ship and why.'),
+         'Using the Malaysia house-price dataset from class:\n'
+         '1. Fit four models on the same train/test split: Linear Regression, '
+         'Ridge (alpha=1.0), Lasso (alpha=0.1), and XGBoost.\n'
+         '2. Cross-validate each with 5 folds, scoring on MAE.\n'
+         '3. Build one results table: model name, mean MAE, standard deviation.\n'
+         '4. For Lasso, count how many coefficients it drove to exactly zero, and list '
+         'which features survived.\n'
+         '5. Name the model you would actually ship, and explain why in one sentence - '
+         'the best score is not automatically the right answer.'),
         (6, 'Homework 6: Sales Forecast with LSTM',
-         'Using the daily sales dataset from class, build an LSTM to forecast the next 30 days. '
-         'Split by date (not randomly), and compare your LSTM’s MAE against the naive baseline '
-         '(predicting tomorrow = today). Submit your notebook and a one-sentence result.'),
+         'Using the daily sales dataset from class:\n'
+         '1. Load the series, sort by date, and fill any missing days.\n'
+         '2. Split by date, not randomly: everything before 2025-07-01 is training, '
+         'the rest is test.\n'
+         '3. Fit your scaler on the training period only, then transform both periods.\n'
+         '4. Window the series into 30-day sequences. Print the shapes and confirm '
+         'they are 3-D: (samples, 30, 1).\n'
+         '5. Train your LSTM with shuffle=False and EarlyStopping.\n'
+         '6. Plot actual vs predicted over the test period, and report your LSTM’s MAE '
+         'against the naive baseline (predicting tomorrow = today) - it must beat naive '
+         'to count as a working model.'),
     ]
     try:
         for course, offset in _ml_target_courses():
             for session_num, title, description in specs:
-                if Assignment.query.filter_by(course_id=course.id, title=title).first():
+                existing = Assignment.query.filter_by(course_id=course.id, title=title).first()
+                if existing:
+                    if existing.description != description:
+                        existing.description = description
                     continue
                 db.session.add(Assignment(course_id=course.id, session=session_num + offset,
                                           title=title, description=description, max_points=100))
             final_title = 'Final Assignment: Capstone Project'
-            if not Assignment.query.filter_by(course_id=course.id, title=final_title).first():
+            final_description = (
+                'Bring your own dataset and a question you care about, and work through the full '
+                'pipeline from class:\n'
+                '1. Write a half-page brief: the question in one sentence (name your target), '
+                'what one row of your data is, where the data comes from, three features you '
+                'expect to matter and why, and a leakage check - would you genuinely have every '
+                'feature at prediction time?\n'
+                '2. Set up a clean repo: data/, notebooks/, src/, requirements.txt, README.md, '
+                'and set random_state=42 everywhere.\n'
+                '3. Load and look - .shape, .dtypes, .describe(), plot the target.\n'
+                '4. Split before you clean anything (by date if it is a time series).\n'
+                '5. Clean and engineer features, fitting only on the training set.\n'
+                '6. Fit a baseline (mean, or the majority class) and write its score down.\n'
+                '7. Fit your real model, cross-validate, then evaluate on the test set once.\n'
+                '8. Run the leakage audit from class before you believe your score.\n'
+                '9. Submit a notebook that runs top to bottom from a clean environment (Restart '
+                'kernel and run all), plus a four-line README: question, data source, how to run '
+                'it, and your finding stated in plain language - not just a metric.'
+            )
+            existing_final = Assignment.query.filter_by(course_id=course.id, title=final_title).first()
+            if existing_final:
+                if existing_final.description != final_description:
+                    existing_final.description = final_description
+            else:
                 # The course's own total_sessions is already the right final week for
                 # either case: 8 for the standalone course, or the bundle's true last
                 # week (Python's 7 + ML's 8) - no extra offset math needed here.
                 final_week = course.total_sessions or (8 + offset)
                 db.session.add(Assignment(
                     course_id=course.id, session=final_week, title=final_title,
-                    description=(
-                        'Bring your own dataset and a question you care about. Scope it, build a '
-                        'complete pipeline (split before cleaning, baseline before modelling, evaluate '
-                        'on the test set once), and submit a notebook that runs top to bottom plus a '
-                        'short README stating your question, data source, how to run it, and your '
-                        'finding in plain language - not just a metric.'),
-                    max_points=100))
+                    description=final_description, max_points=100))
             db.session.commit()
     except Exception as exc:
         db.session.rollback()
