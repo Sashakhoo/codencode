@@ -6053,6 +6053,58 @@ def _sync_bundled_materials():
         app.logger.info('Bundled material sync: %d new, %d updated onto the volume', created, updated)
 
 
+def enforce_python_fundamentals_curriculum_materials():
+    """Owner's rule for Python Fundamentals: sessions 1..7 show OUR OWN
+    pf-session-01..07.html decks, period - nothing else.
+
+    seed_course_curriculum_materials() is deliberately conservative: it
+    never touches a session that already has ANY material under a
+    different filename, so as not to clobber a teacher's own upload. That
+    is the right default everywhere else, but it also means an old,
+    stale deck sitting in one of these 7 sessions from before this
+    curriculum system existed silently blocks our own deck forever -
+    exactly what happened here (a leftover "Codelah"-branded Session 2
+    deck kept showing to students no matter how many times the new
+    pf-session-02.html was pushed).
+
+    This is an ENFORCED, standing rule (like enforce_python_homework_quiz_
+    policy): for every course with Python Fundamentals content, sessions
+    1..len(PYTHON_SESSIONS), delete any material whose filename isn't one
+    of our own pf-session-*.html files (deleting its progress rows first
+    so no orphaned data is left behind), then let seed_course_curriculum_
+    materials() (which must run AFTER this) fill the now-empty slot with
+    the correct file. Only touches sessions in Python's own range - the
+    bundle course's ML content at higher session numbers is never in
+    range and is never touched. Runs on every start; a no-op once only
+    our own files remain. Never blocks startup."""
+    try:
+        from curriculum_seed import PYTHON_SESSIONS
+    except Exception as exc:
+        app.logger.warning('Python Fundamentals material policy skipped (import): %s', exc)
+        return
+    max_session = len(PYTHON_SESSIONS)
+    own_filenames = {fn for _, _, fn in PYTHON_SESSIONS}
+    for course in _python_target_courses():
+        try:
+            removed = 0
+            for m in Material.query.filter(
+                Material.course_id == course.id,
+                Material.session >= 1, Material.session <= max_session,
+                ~Material.filename.in_(own_filenames),
+            ).all():
+                app.logger.info('Python Fundamentals material policy: removing %r (course %s, session %s, file %s)',
+                                m.title, course.id, m.session, m.filename)
+                MaterialProgress.query.filter_by(material_id=m.id).delete()
+                db.session.delete(m)
+                removed += 1
+            if removed:
+                db.session.commit()
+        except Exception as exc:
+            db.session.rollback()
+            app.logger.warning('Python Fundamentals material policy failed for course %s (%r): %s',
+                               course.id, course.title, exc)
+
+
 def seed_course_curriculum_materials():
     """Real per-session lesson decks (curriculum_seed.py) for Python
     Fundamentals and Machine Learning. Each session file already has its own
@@ -6546,6 +6598,7 @@ with app.app_context():
     seed_python_fundamentals_quizzes()
     seed_python_homework()
     _sync_bundled_materials()
+    enforce_python_fundamentals_curriculum_materials()
     seed_course_curriculum_materials()
     seed_ml_quizzes()
     seed_ml_homework_and_assignment()
