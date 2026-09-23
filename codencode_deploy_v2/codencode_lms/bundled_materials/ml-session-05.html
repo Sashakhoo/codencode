@@ -1,0 +1,877 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>ML Session 05 — Neural Networks & Deep Learning | codencode Academy</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0d1117;--panel:#161b22;--panel2:#1c2430;--line:#2a3440;
+  --mint:#00dcb4;--text:#e8eef0;--muted:#8b98a5;--coral:#ff6f91;--amber:#f0b429;--blue:#58a6ff;--purple:#bc8cff;
+  --sans:'Space Grotesk','Inter',system-ui,sans-serif;--body:'Inter',system-ui,sans-serif;
+  --mono:'JetBrains Mono','SF Mono',Consolas,monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:var(--body);height:100vh;overflow:hidden;user-select:none}
+#topbar{position:fixed;top:0;left:0;right:0;height:52px;display:flex;align-items:center;gap:16px;
+  padding:0 24px;background:rgba(13,17,23,.92);border-bottom:1px solid var(--line);z-index:50}
+.wordmark{height:21px;width:auto;display:block;flex-shrink:0}
+#sesslabel{font-size:12px;color:var(--muted);font-family:var(--mono)}
+#titlebar{flex:1;text-align:center;font-size:13px;color:var(--muted);font-family:var(--mono);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#counter{font-family:var(--mono);font-size:12px;color:var(--mint)}
+.btn{background:rgba(0,220,180,.10);border:1px solid rgba(0,220,180,.32);color:var(--mint);
+  font-family:var(--mono);font-size:11px;padding:6px 12px;border-radius:6px;cursor:pointer}
+.btn:hover{background:rgba(0,220,180,.20)}
+#progress{position:fixed;top:52px;left:0;height:2px;background:var(--mint);z-index:51;transition:width .3s}
+#deck{position:absolute;top:54px;bottom:56px;left:0;right:0}
+.slide{position:absolute;inset:0;padding:28px 48px;display:none;flex-direction:column;overflow:hidden}
+.slide.active{display:flex;animation:in .38s ease both}
+@keyframes in{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+.tag{font-family:var(--mono);font-size:11px;letter-spacing:.15em;text-transform:uppercase;color:var(--mint);margin-bottom:7px}
+h1.sh{font-family:var(--sans);font-size:clamp(22px,2.7vw,34px);font-weight:700;line-height:1.14}
+h1.sh::after{content:'';display:block;width:50px;height:4px;background:var(--mint);border-radius:2px;margin-top:10px}
+.sub{color:var(--muted);font-size:14.5px;margin-top:10px;max-width:82ch;line-height:1.6}
+.body{flex:1;display:flex;gap:24px;align-items:center;min-height:0;margin-top:16px;overflow:hidden}
+.body.mid{align-items:center}
+.col{flex:1;min-width:0}
+.figwrap{flex:1.8 1 0;display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:0;min-height:0;max-height:100%;gap:6px}
+svg.fig{width:100%;height:100%;min-height:300px;flex:1 1 auto;display:block}
+.figwrap > .legend,.figwrap > .controls,.figwrap > .gate,.figwrap > .eq{flex:0 0 auto;width:100%}
+
+/* title / divider */
+.title-slide{align-items:center;justify-content:center;text-align:center}
+.title-slide .badge{font-family:var(--mono);font-size:12px;color:var(--mint);border:1px solid rgba(0,220,180,.34);
+  background:rgba(0,220,180,.08);padding:7px 18px;border-radius:20px;margin-bottom:24px}
+.title-slide h1{font-family:var(--sans);font-size:clamp(38px,5.6vw,66px);font-weight:700;line-height:1.05}
+.title-slide h1 em{font-style:normal;color:var(--mint)}
+.title-slide p{color:var(--muted);font-size:17px;margin-top:18px;max-width:62ch}
+.title-slide .foot{margin-top:34px;font-family:var(--mono);font-size:13px;color:var(--muted)}
+.divider{align-items:flex-start;justify-content:center}
+.divider .num{font-family:var(--sans);font-size:112px;font-weight:700;color:rgba(0,220,180,.16);line-height:1}
+.divider h1{font-family:var(--sans);font-size:clamp(32px,4.4vw,52px);font-weight:700;margin-top:-16px}
+.divider .items{margin-top:22px;display:flex;flex-direction:column;gap:11px}
+.divider .items div{font-size:16.5px;color:var(--muted)}
+.divider .items b{color:var(--mint);font-family:var(--mono);font-size:14.5px;margin-right:11px}
+
+/* blocks */
+.cards{display:grid;gap:12px}
+.grid2{grid-template-columns:1fr 1fr}.grid3{grid-template-columns:repeat(3,1fr)}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:15px 17px}
+.card.accent{border-color:rgba(0,220,180,.45);background:var(--panel2)}
+.card.warn{border-color:rgba(255,111,145,.42)}
+.card h3{font-family:var(--sans);font-size:16px;font-weight:600;margin-bottom:5px}
+.card h3 .k{color:var(--mint);font-family:var(--mono);font-size:13.5px;margin-right:8px}
+.card p{color:var(--muted);font-size:13.8px;line-height:1.55}
+.card p b{color:var(--text);font-weight:600}
+
+.def{border-left:3px solid var(--blue);background:linear-gradient(90deg,rgba(88,166,255,.09),transparent 65%);
+  padding:14px 18px;border-radius:0 9px 9px 0;margin-bottom:12px}
+.def .lbl{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;color:var(--blue);text-transform:uppercase}
+.def h4{font-family:var(--sans);font-size:17px;margin:5px 0 6px}
+.def p{color:var(--muted);font-size:14px;line-height:1.6}
+.def p b{color:var(--text);font-weight:600}
+
+.theory{border-left:3px solid var(--amber);background:linear-gradient(90deg,rgba(240,180,41,.08),transparent 65%);
+  padding:14px 18px;border-radius:0 9px 9px 0;margin-bottom:12px}
+.theory .lbl{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;color:var(--amber);text-transform:uppercase}
+.theory p{color:var(--muted);font-size:14px;line-height:1.6;margin-top:6px}
+.theory p b{color:var(--text);font-weight:600}
+
+.formula{background:#0a0e13;border:1px solid var(--line);border-radius:10px;padding:16px 20px;
+  font-family:var(--mono);font-size:19px;color:var(--mint);text-align:center;margin:10px 0;letter-spacing:.02em}
+.formula small{display:block;font-size:12px;color:var(--muted);margin-top:8px;letter-spacing:0}
+
+pre.code{background:#0a0e13;border:1px solid var(--line);border-radius:10px;padding:14px 17px;
+  font-family:var(--mono);font-size:13.2px;line-height:1.68;color:var(--text);overflow:auto}
+pre.code.sm{font-size:12.3px;line-height:1.6}
+pre.code .c{color:var(--muted)}pre.code .s{color:var(--mint)}pre.code .n{color:var(--blue)}
+pre.code .e{color:var(--coral)}pre.code .k{color:var(--purple)}
+.code-head{font-family:var(--mono);font-size:11px;color:var(--muted);background:var(--panel2);
+  border:1px solid var(--line);border-bottom:none;border-radius:10px 10px 0 0;padding:7px 13px}
+.code-head + pre.code{border-radius:0 0 10px 10px}
+
+table.t{width:100%;border-collapse:collapse;font-size:13.5px}
+table.t th{text-align:left;font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--mint);padding:9px 12px;border-bottom:1px solid var(--line)}
+table.t td{padding:10px 12px;border-bottom:1px solid var(--line);color:var(--muted);line-height:1.5;vertical-align:top}
+table.t td:first-child{color:var(--text);font-family:var(--mono);font-size:12.5px;white-space:nowrap}
+table.cps td:first-child{color:var(--mint);font-family:var(--mono);font-size:13px;width:140px}
+
+.pill{display:inline-block;font-family:var(--mono);font-size:11.5px;padding:4px 11px;border-radius:13px;
+  border:1px solid;margin:0 7px 7px 0}
+.pill.mint{color:var(--mint);border-color:rgba(0,220,180,.4);background:rgba(0,220,180,.08)}
+.pill.coral{color:var(--coral);border-color:rgba(255,111,145,.4);background:rgba(255,111,145,.08)}
+.pill.amber{color:var(--amber);border-color:rgba(240,180,41,.4);background:rgba(240,180,41,.08)}
+.pill.blue{color:var(--blue);border-color:rgba(88,166,255,.4);background:rgba(88,166,255,.08)}
+
+.hands-on{border-left:3px solid var(--mint);background:linear-gradient(90deg,rgba(0,220,180,.07),transparent 60%);
+  padding:16px 22px;border-radius:0 10px 10px 0}
+.hands-on .lbl{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;color:var(--mint);text-transform:uppercase}
+.hands-on h3{font-family:var(--sans);font-size:19px;margin:7px 0 9px}
+.hands-on p{color:var(--muted);font-size:14.2px;line-height:1.6}
+.steps{margin-top:12px;display:flex;flex-direction:column;gap:8px}
+.steps div{font-size:14px;color:var(--text);display:flex;gap:11px;align-items:flex-start}
+.steps b{color:var(--mint);font-family:var(--mono);font-size:12.5px;flex-shrink:0}
+.caption{font-size:13px;color:var(--muted);font-style:italic;margin-top:11px;text-align:center}
+
+#nav{position:fixed;bottom:0;left:0;right:0;height:56px;display:flex;align-items:center;justify-content:center;gap:18px;z-index:50}
+.navbtn{background:var(--panel);border:1px solid var(--line);color:var(--muted);font-family:var(--mono);
+  font-size:12px;padding:8px 16px;border-radius:8px;cursor:pointer}
+.navbtn:hover{border-color:var(--mint);color:var(--mint)}
+#dots{display:flex;gap:5px;flex-wrap:wrap;max-width:52vw;justify-content:center}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--line);cursor:pointer}
+.dot.on{background:var(--mint);transform:scale(1.35)}
+
+.fx{opacity:0}
+.slide.active .fx{animation:fade .5s ease forwards}
+@keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.slide.active .d1{animation-delay:.12s}.slide.active .d2{animation-delay:.28s}
+.slide.active .d3{animation-delay:.44s}.slide.active .d4{animation-delay:.6s}
+.slide.active .d5{animation-delay:.78s}.slide.active .d6{animation-delay:.96s}
+.draw{stroke-dasharray:var(--len,300);stroke-dashoffset:var(--len,300)}
+.slide.active .draw{animation:dr .8s ease forwards}
+@keyframes dr{to{stroke-dashoffset:0}}
+.grow{transform-origin:bottom;transform:scaleY(0)}
+.slide.active .grow{animation:gw .7s cubic-bezier(.22,1,.36,1) forwards}
+@keyframes gw{to{transform:scaleY(1)}}
+
+/* ---------- copiable code ---------- */
+pre.code{position:relative;user-select:text}
+.copybtn{position:absolute;top:7px;right:7px;z-index:3;background:rgba(22,27,34,.94);
+  border:1px solid var(--line);color:var(--muted);font-family:var(--mono);font-size:10.5px;
+  letter-spacing:.06em;padding:4px 9px;border-radius:5px;cursor:pointer;opacity:0;transition:.16s}
+pre.code:hover .copybtn{opacity:1}
+.copybtn:hover{border-color:var(--mint);color:var(--mint)}
+.copybtn.done{border-color:var(--mint);color:var(--mint);opacity:1}
+
+/* ---------- figure furniture (legends, controls, sliders) ---------- */
+
+/* ---------- figure slides: stacked on tall screens, side-by-side when wide ---------- */
+.cb{display:block}
+.figbody{flex:1;display:flex;gap:32px;align-items:center;margin-top:24px;min-height:0}
+.figbody > .figwrap{flex:1.8 1 0}
+.figbody > .figside{display:flex;flex-direction:column;gap:12px;min-width:0}
+.figbody > .figside > *{margin-bottom:0}
+@media (max-aspect-ratio: 29/20){
+  .figbody{flex-direction:column;align-items:stretch;gap:16px}
+  .figbody > .figwrap{flex:0 1 auto;width:100%;max-width:none;justify-content:flex-start}
+  .figbody > .figwrap > svg.fig{height:auto;min-height:0;flex:0 0 auto;max-height:100%}
+  .figbody > .figside{max-width:none !important;flex:0 0 auto;display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:14px;align-items:start}
+  .figbody > .figside .controls,.figbody > .figside .legend{justify-content:flex-start}
+}
+
+.legend{display:flex;gap:18px;font-family:var(--mono);font-size:12px;color:var(--muted);
+  margin-top:10px;flex-wrap:wrap;justify-content:center}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px;vertical-align:middle}
+.controls{display:flex;gap:10px;align-items:center;margin-top:12px;flex-wrap:wrap;justify-content:center}
+.btn.ghost{background:transparent;border-color:var(--line);color:var(--muted)}
+.btn.ghost:hover{border-color:var(--mint);color:var(--mint)}
+.gate{margin-bottom:12px}
+.gate label{display:flex;justify-content:space-between;align-items:center;font-family:var(--mono);
+  font-size:12.5px;margin-bottom:6px;gap:12px}
+input[type=range]{width:100%;height:5px;border-radius:3px;appearance:none;background:var(--line);outline:none}
+input[type=range]::-webkit-slider-thumb{appearance:none;width:15px;height:15px;border-radius:50%;
+  background:var(--mint);cursor:pointer;border:2px solid #0d1117}
+.eq{font-family:var(--mono);font-size:12.5px;color:var(--muted);line-height:1.9;background:#0a0e13;
+  border:1px solid var(--line);border-radius:9px;padding:11px 13px}
+.eq b{color:var(--text);font-weight:400}
+</style>
+</head>
+<body>
+
+<div id="topbar">
+  <img class="wordmark" src="data:image/png;base64,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" alt="codencode.my">
+  <div id="sesslabel">ML SESSION 05</div>
+  <div id="titlebar"></div>
+  <div id="counter"></div>
+  <button class="btn" onclick="fs()">FULLSCREEN</button>
+</div>
+<div id="progress"></div>
+
+<div id="deck">
+
+
+<style>
+/* neural network signal animation */
+.nnEdge{stroke:#2a3440;stroke-width:1.1}
+.pulse-dot{r:4.5;fill:#00dcb4;opacity:0}
+.slide.active .pulse-dot.f0{animation:f0 5.4s linear infinite}
+.slide.active .pulse-dot.f1{animation:f1 5.4s linear infinite}
+.slide.active .pulse-dot.f2{animation:f2 5.4s linear infinite}
+.bk-dot{r:4.5;fill:#ff6f91;opacity:0}
+.slide.active .bk-dot.b2{animation:b2 5.4s linear infinite}
+.slide.active .bk-dot.b1{animation:b1 5.4s linear infinite}
+.slide.active .bk-dot.b0{animation:b0 5.4s linear infinite}
+.paused .pulse-dot,.paused .bk-dot,.paused .nnNode,.paused .phase{animation-play-state:paused !important}
+@keyframes f0{0%{offset-distance:0%;opacity:0}2%{opacity:1}14%{offset-distance:100%;opacity:1}
+  17%{opacity:0}100%{offset-distance:100%;opacity:0}}
+@keyframes f1{0%,14%{offset-distance:0%;opacity:0}16%{opacity:1}28%{offset-distance:100%;opacity:1}
+  31%{opacity:0}100%{offset-distance:100%;opacity:0}}
+@keyframes f2{0%,28%{offset-distance:0%;opacity:0}30%{opacity:1}42%{offset-distance:100%;opacity:1}
+  45%{opacity:0}100%{offset-distance:100%;opacity:0}}
+@keyframes b2{0%,54%{offset-distance:100%;opacity:0}56%{opacity:1}68%{offset-distance:0%;opacity:1}
+  71%{opacity:0}100%{offset-distance:0%;opacity:0}}
+@keyframes b1{0%,68%{offset-distance:100%;opacity:0}70%{opacity:1}82%{offset-distance:0%;opacity:1}
+  85%{opacity:0}100%{offset-distance:0%;opacity:0}}
+@keyframes b0{0%,82%{offset-distance:100%;opacity:0}84%{opacity:1}96%{offset-distance:0%;opacity:1}
+  99%{opacity:0}100%{offset-distance:0%;opacity:0}}
+.nnNode{fill:#1c2430;stroke:#2a3440;stroke-width:2}
+.slide.active .nnNode.L0{animation:lit 5.4s linear infinite}
+.slide.active .nnNode.L1{animation:lit 5.4s linear infinite;animation-delay:.76s}
+.slide.active .nnNode.L2{animation:lit 5.4s linear infinite;animation-delay:1.52s}
+.slide.active .nnNode.L3{animation:litOut 5.4s linear infinite;animation-delay:2.28s}
+@keyframes lit{0%,4%{stroke:#2a3440;fill:#1c2430}8%{stroke:#00dcb4;fill:#0d3d34}
+  22%{stroke:#00dcb4;fill:#0d3d34}34%{stroke:#2a3440;fill:#1c2430}100%{stroke:#2a3440;fill:#1c2430}}
+@keyframes litOut{0%,4%{stroke:#2a3440;fill:#1c2430}8%{stroke:#00dcb4;fill:#0d3d34}
+  26%{stroke:#00dcb4;fill:#0d3d34}30%{stroke:#ff6f91;fill:#3d1622}44%{stroke:#ff6f91;fill:#3d1622}
+  56%{stroke:#2a3440;fill:#1c2430}100%{stroke:#2a3440;fill:#1c2430}}
+.phase{opacity:0}
+.slide.active .phase.fwd{animation:phFwd 5.4s linear infinite}
+.slide.active .phase.bwd{animation:phBwd 5.4s linear infinite}
+@keyframes phFwd{0%{opacity:0}3%{opacity:1}44%{opacity:1}48%{opacity:0}100%{opacity:0}}
+@keyframes phBwd{0%,50%{opacity:0}54%{opacity:1}96%{opacity:1}99%{opacity:0}100%{opacity:0}}
+/* conv */
+.cell{stroke:#2a3440;stroke-width:1;fill:#161b22}
+.cell.in-k{fill:rgba(0,220,180,.28);stroke:#00dcb4}
+.outcell{stroke:#2a3440;stroke-width:1;fill:#0a0e13;transition:fill .25s,stroke .25s}
+.outcell.done{fill:rgba(88,166,255,.18);stroke:rgba(88,166,255,.6)}
+.outcell.now{fill:rgba(0,220,180,.4);stroke:#00dcb4}
+#kbox{fill:none;stroke:#00dcb4;stroke-width:2.5;transition:x .28s ease,y .28s ease}
+.lyr{background:#1c2430;border:1px solid #2a3440;border-radius:8px;padding:9px 11px;text-align:center;min-width:86px;position:relative}
+.lyr.conv{border-color:rgba(0,220,180,.5)}.lyr.pool{border-color:rgba(88,166,255,.5)}
+.lyr.dense{border-color:rgba(240,180,41,.5)}
+.lyr b{display:block;font-family:var(--sans);font-size:13.5px}
+.lyr.conv b{color:#00dcb4}.lyr.pool b{color:#58a6ff}.lyr.dense b{color:#f0b429}
+.lyr s{display:block;font-family:var(--mono);font-size:10.5px;color:#8b98a5;text-decoration:none;margin-top:3px}
+.lyr x{position:absolute;top:-8px;right:-8px;width:19px;height:19px;border-radius:50%;background:#161b22;
+  border:1px solid #2a3440;color:#8b98a5;font-size:11px;line-height:17px;cursor:pointer;display:block}
+.lyr x:hover{border-color:#ff6f91;color:#ff6f91}
+#stack{display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:center}
+#stack .ar{color:#8b98a5;font-family:var(--mono)}
+</style>
+
+<section class="slide title-slide" data-title="Main Title">
+  <div class="badge fx">SESSION 05 OF 07 · MACHINE LEARNING FUNDAMENTALS</div>
+  <h1 class="fx d1">Neural Networks &amp; <em>Deep Learning</em></h1>
+  <p class="fx d2">What a neuron actually computes, how signals travel forward and corrections travel back, and how to read a training curve before it wastes your afternoon.</p>
+  <div class="foot fx d3">codencode Academy · prerequisite: Session 4 Classification</div>
+</section>
+
+<section class="slide" data-title="Session Plan">
+  <div class="tag fx">Session Plan</div>
+  <h1 class="sh fx d1">What we're doing today</h1>
+  <div class="body">
+    <div class="col cards grid3"><div class="card accent fx d2">
+        <h3><span class="k">M1</span>Neural Network Foundations</h3>
+        <p>The neuron's arithmetic, forward propagation, and what backpropagation is really doing.</p>
+        <div style="margin-top:10px"><span class="pill mint">55 min</span></div>
+      </div><div class="card accent fx d3">
+        <h3><span class="k">M2</span>Building Networks</h3>
+        <p>Activation functions, the main architectures including CNNs, and a working Keras model.</p>
+        <div style="margin-top:10px"><span class="pill mint">60 min</span></div>
+      </div><div class="card accent fx d4">
+        <h3><span class="k">M3</span>Diagnosing Models</h3>
+        <p>Dropout, reading training curves, and stopping at the right epoch.</p>
+        <div style="margin-top:10px"><span class="pill mint">50 min</span></div>
+      </div></div>
+  </div>
+  <div class="cards grid3 fx d5"><div class="card"><p><b>Stack</b> — TensorFlow / Keras, numpy, matplotlib</p></div><div class="card"><p><b>Dataset</b> — Fashion-MNIST (images, 10 classes)</p></div><div class="card"><p><b>Deliverable</b> — a trained network with its training curve read correctly</p></div></div>
+</section>
+
+<section class="slide" data-title="Revised Last Week">
+  <div class="tag fx">Revised Last Week · 10 minutes</div>
+  <h1 class="sh fx d1">Session 04 — Classification &amp; Random Forest</h1>
+  <p class="sub fx d2">Quick check before we build on it. Answer out loud — if the room goes quiet on any of these, we go back over it now.</p>
+  <div class="body">
+    <div class="col cards grid3 fx d3"><div class="card"><h3>Why not accuracy?</h3><p>On imbalanced data a model that always predicts the majority class scores high and catches nothing.</p></div><div class="card"><h3>Precision vs recall</h3><p>Precision: of what I flagged, how much was real. Recall: of what was real, how much did I catch.</p></div><div class="card"><h3>What sets them?</h3><p>The decision threshold. 0.5 is a default nobody chose — pick it against the cost of each error.</p></div></div>
+  </div>
+  <p class="caption fx d4">Neural networks are just another classifier. Everything about thresholds, confusion matrices and honest reporting applies unchanged.</p>
+</section>
+
+<section class="slide" data-title="Learning Outcomes">
+  <div class="tag fx">Learning Outcomes · Condition — Performance — Standard</div>
+  <h1 class="sh fx d1">By the end of today you will be able to…</h1>
+  <div class="body">
+    <div class="col fx d2">
+      <table class="t cps">
+        <tr><th>Component</th><th>Statement</th></tr>
+        <tr><td>Condition</td><td>Given an image or tabular dataset and a target to predict,</td></tr>
+        <tr><td>Performance</td><td>you will build a feed-forward network in Keras with appropriate activation functions, train it while monitoring validation loss, and diagnose over- or underfitting from the training curves,</td></tr>
+        <tr><td>Standard</td><td>producing a model whose <b style="color:var(--text)">validation loss was still falling</b> when training stopped, with the chosen epoch count and any regularisation justified from the curve.</td></tr>
+      </table>
+      <div style="margin-top:18px"><span class="pill mint">LO1 · The neuron's maths</span><span class="pill mint">LO2 · Forward &amp; backward</span><span class="pill mint">LO3 · Choose activations</span><span class="pill mint">LO4 · Build in Keras</span><span class="pill coral">LO5 · Read training curves</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="slide" data-title="Content Mapping">
+  <div class="tag fx">Content Mapping</div>
+  <h1 class="sh fx d1">How today maps to your outcomes</h1>
+  <div class="body">
+    <div class="col fx d2">
+      <table class="t">
+        <tr><th>Module</th><th>Topics</th><th style="width:120px">Outcome</th><th style="width:190px">Assessed by</th></tr>
+        <tr><td>Module 1</td><td>1.1 What a neuron computes · 1.2 Forward propagation · 1.3 Backpropagation</td>
+        <td style="color:var(--mint)">LO1, LO2</td><td>Forward pass by hand</td></tr><tr><td>Module 2</td><td>2.1 Activation functions · 2.2 Architectures &amp; CNNs · 2.3 Build with Keras</td>
+        <td style="color:var(--mint)">LO3, LO4</td><td>Keras build lab</td></tr><tr><td>Module 3</td><td>3.1 Overfitting &amp; dropout · 3.2 Reading curves · 3.3 Early stopping</td>
+        <td style="color:var(--mint)">LO5</td><td>Curve diagnosis lab</td></tr>
+      </table>
+      <div class="theory" style="margin-top:20px">
+        <div class="lbl">A warning worth giving early</div>
+        <p>Neural networks are <b>not</b> the right default for tabular data — Session 4's boosted trees usually beat them there, with less tuning. Their advantage is images, audio, text and sequences, where the features cannot be hand-engineered.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="slide divider" data-title="Module 1">
+  <div class="num fx">01</div>
+  <h1 class="fx d1">Neural Network Foundations</h1>
+  <div class="items"><div class="fx d2"><b>1.1</b>What one neuron actually computes</div><div class="fx d3"><b>1.2</b>Forward propagation — signals travelling in</div><div class="fx d4"><b>1.3</b>Backpropagation — corrections travelling back</div>
+    <div class="fx d5" style="margin-top:8px"><b style="color:var(--amber)">↓</b><span style="color:var(--amber)">Hands-on: compute a forward pass with a calculator</span></div>
+  </div>
+</section>
+
+<section class="slide" data-title="1.1 What a neuron computes">
+  <div class="tag fx">1.1 · The neuron</div>
+  <h1 class="sh fx d1">One neuron is a weighted sum and a squash</h1>
+  <div class="body">
+    <div class="col fx d2"><div class="def"><div class="lbl">Definition</div><h4>Neuron</h4><p>A unit that multiplies each input by a weight, adds them up with a bias, and passes the total through an activation function.</p></div><div class="formula">z = w₁x₁ + w₂x₂ + … + b<small>the weighted sum — a linear model, nothing more</small></div><div class="formula">a = f(z)<small>the activation — this is what makes it non-linear</small></div><div class="theory"><div class="lbl">Why the activation is the whole trick</div><p>Without <span style="font-family:var(--mono)">f</span>, stacking layers is pointless: a linear function of a linear function is still linear, so a hundred layers would collapse into one. The activation is what lets depth buy you anything.</p></div></div>
+    <div class="col fx d3"><div class="cb"><div class="code-head">one neuron, in four lines of numpy</div><pre class="code sm"><span class="k">import</span> numpy <span class="k">as</span> np
+
+x = np.array([<span class="n">0.5</span>, <span class="n">0.8</span>, <span class="n">0.2</span>])   <span class="c"># inputs</span>
+w = np.array([<span class="n">0.4</span>, <span class="n">-0.6</span>, <span class="n">0.9</span>])  <span class="c"># weights (learned)</span>
+b = <span class="n">0.1</span>                             <span class="c"># bias (learned)</span>
+
+z = np.dot(w, x) + b
+a = <span class="k">max</span>(<span class="n">0</span>, z)                    <span class="c"># ReLU</span>
+
+print(z, a)
+<span class="c"># -0.1  0     ← this neuron stays silent</span></pre></div><div class="card accent"><h3>That is genuinely all of it</h3><p>A network with a million parameters is this exact operation, repeated. Nothing more complicated is happening — there is just a great deal of it.</p></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="Signals go forward. Corrections come back.">
+  <div class="tag fx">1.2 · Forward &amp; backward</div>
+  <h1 class="sh fx d1">Signals go forward. Corrections come back.</h1>
+  <p class="sub fx d2">One full loop of the animation is one training step on one batch.</p>
+  <div class="body figbody">
+    <div class="figwrap">
+      <svg class="fig" id="nnSvg" viewBox="0 0 1000 420"></svg>
+      <div class="legend"><span><i style="background:#00dcb4"></i>forward pass — data flowing in</span><span><i style="background:#ff6f91"></i>backpropagation — error flowing back</span></div>
+      <div class="controls"><button class="btn ghost" onclick="nnPause(this)">PAUSE</button><span style="font-family:var(--mono);font-size:12px;color:var(--muted)">4 → 6 → 6 → 2 · 72 weights</span></div>
+    </div>
+    <div class="col figside" style="max-width:350px"><div class="def"><div class="lbl">Definition</div><h4>Forward propagation</h4><p>Feeding an input through every layer in turn, each neuron computing its weighted sum and activation, until a prediction comes out.</p></div><div class="def"><div class="lbl">Definition</div><h4>Backpropagation</h4><p>Comparing the prediction to the truth, then using the chain rule to work out how much <b>each</b> weight contributed to the error — and nudging every one in the direction that would have reduced it.</p></div><div class="theory"><div class="lbl">One cycle = one training step</div><p>Forward, compare, backward, nudge. Repeat a few thousand times. Training is nothing but that loop, and the nudge size is the learning rate you met in Session 3.</p></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="What backprop is actually computing">
+  <div class="tag fx">1.3 · Backpropagation</div>
+  <h1 class="sh fx d1">What backprop is actually computing</h1>
+  <div class="body">
+    <div class="col fx d2"><div class="theory"><div class="lbl">The question it answers</div><p>"If I nudged <b>this one weight</b> up slightly, would the error go up or down, and by how much?" That is a partial derivative, and backprop computes it for every weight at once — efficiently, by reusing work from layer to layer.</p></div><div class="formula">w := w − lr × ∂L/∂w<small>identical to Session 3's gradient descent — only the gradient is harder to get</small></div><div class="card accent"><h3>Why it is called back-propagation</h3><p>The error is known at the output. To find a first-layer weight's share of the blame you have to pass responsibility backwards through every layer in between, multiplying derivatives as you go — the chain rule, applied layer by layer.</p></div></div>
+    <div class="col fx d3"><div class="cb"><div class="code-head">what Keras hides from you</div><pre class="code sm"><span class="c"># this one line is forward + backward + update</span>
+model.fit(X_train, y_train, epochs=<span class="n">20</span>)
+
+<span class="c"># under it, per batch:</span>
+<span class="c">#   1. forward  — compute predictions</span>
+<span class="c">#   2. loss     — compare with the truth</span>
+<span class="c">#   3. backward — gradient for every weight</span>
+<span class="c">#   4. update   — w -= lr * gradient</span></pre></div><div class="theory"><div class="lbl">Why you should still know it</div><p>Because when training goes wrong — loss stuck, loss NaN, loss exploding — the fix is nearly always in that loop: learning rate too high, activations saturating, or gradients vanishing before they reach the early layers. Session 6 shows that last one happening in slow motion.</p></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="Module 1 Hands-on">
+  <div class="tag fx">Hands-on · Module 1</div>
+  <h1 class="sh fx d1">One forward pass, by hand</h1>
+  <div class="body">
+    <div class="col fx d2">
+      <div class="hands-on">
+        <div class="lbl">20 minutes · pairs</div>
+        <h3>One forward pass, by hand</h3>
+        <p>Two inputs, one hidden layer of two neurons, one output. Calculators out, no code yet.</p>
+        <div class="steps"><div><b>01</b><span>Inputs x = [1.0, 0.5]. Hidden weights w1 = [0.3, 0.8], w2 = [-0.4, 0.6], biases both 0.1.</span></div><div><b>02</b><span>Compute z for each hidden neuron, then apply ReLU.</span></div><div><b>03</b><span>Output weights [0.7, -0.5], bias 0.2. Compute the output z.</span></div><div><b>04</b><span>Apply sigmoid to get a probability.</span></div><div><b>05</b><span>Now reproduce it in numpy and check the two agree to four decimal places.</span></div></div>
+      </div>
+    </div>
+    <div class="col fx d3"><div class="cb"><div class="code-head">your check</div><pre class="code sm"><span class="k">import</span> numpy <span class="k">as</span> np
+
+x  = np.array([<span class="n">1.0</span>, <span class="n">0.5</span>])
+W1 = np.array([[<span class="n">0.3</span>, <span class="n">0.8</span>],
+               [<span class="n">-0.4</span>, <span class="n">0.6</span>]])
+b1 = np.array([<span class="n">0.1</span>, <span class="n">0.1</span>])
+
+z1 = W1 @ x + b1
+a1 = np.maximum(<span class="n">0</span>, z1)            <span class="c"># ReLU</span>
+
+W2 = np.array([<span class="n">0.7</span>, <span class="n">-0.5</span>])
+z2 = W2 @ a1 + <span class="n">0.2</span>
+out = <span class="n">1</span> / (<span class="n">1</span> + np.exp(-z2))    <span class="c"># sigmoid</span>
+
+print(z1, a1, z2, out)</pre></div><div class="theory"><div class="lbl">Do it once, believe it forever</div><p>Every deep network is this, scaled up and repeated. Students who do this by hand stop treating neural networks as magic — which also makes them much better at debugging one.</p></div></div>
+  </div>
+</section>
+
+<section class="slide divider" data-title="Module 2">
+  <div class="num fx">02</div>
+  <h1 class="fx d1">Building Networks</h1>
+  <div class="items"><div class="fx d2"><b>2.1</b>Activation functions — which one, where</div><div class="fx d3"><b>2.2</b>Architectures, and what a CNN does differently</div><div class="fx d4"><b>2.3</b>Building and training in Keras</div>
+    <div class="fx d5" style="margin-top:8px"><b style="color:var(--amber)">↓</b><span style="color:var(--amber)">Hands-on: build, train and evaluate a real network</span></div>
+  </div>
+</section>
+
+<section class="slide" data-title="Three activation functions, and where each belongs">
+  <div class="tag fx">2.1 · Activations</div>
+  <h1 class="sh fx d1">Three activation functions, and where each belongs</h1>
+  <p class="sub fx d2">The shape is the point: where the curve is flat, learning stops.</p>
+  <div class="body figbody">
+    <div class="figwrap">
+      <svg class="fig" id="actSvg" viewBox="0 0 1000 420"></svg>
+      <div class="legend"><span><i style="background:#00dcb4"></i>ReLU</span><span><i style="background:#58a6ff"></i>Sigmoid</span><span><i style="background:#f0b429"></i>tanh</span></div>
+      
+    </div>
+    <div class="col figside" style="max-width:350px"><table class="t"><tr><th>Layer</th><th>Use</th><th>Why</th></tr><tr><td>Hidden layers</td><td style="color:var(--mint)">ReLU</td><td>Fast, and gradients survive for positive inputs</td></tr><tr><td>Binary output</td><td style="color:var(--blue)">Sigmoid</td><td>Gives one probability in (0,1)</td></tr><tr><td>Multi-class output</td><td style="color:var(--purple)">Softmax</td><td>Probabilities across classes that sum to 1</td></tr><tr><td>Regression output</td><td style="color:var(--amber)">None</td><td>You want any real number, unsquashed</td></tr></table><div class="theory"><div class="lbl">The mistake to avoid</div><p>Sigmoid in hidden layers. Its gradient is near zero for large positive or negative inputs, so corrections die on the way back — the vanishing gradient problem, which Session 6 makes visible. ReLU does not have that flat region on the positive side, which is why it took over.</p></div><div class="card warn"><h3>If ReLU neurons go silent</h3><p>A neuron stuck outputting 0 for every input is "dead" — its gradient is zero so it never recovers. <span style="font-family:var(--mono)">LeakyReLU</span> leaks a small negative slope and fixes it.</p></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="A convolution slides a filter and builds a feature map">
+  <div class="tag fx">2.2 · CNNs</div>
+  <h1 class="sh fx d1">A convolution slides a filter and builds a feature map</h1>
+  <p class="sub fx d2">7×7 input, 3×3 filter, stride 1 → a 5×5 feature map, one cell per filter position.</p>
+  <div class="body figbody">
+    <div class="figwrap">
+      <svg class="fig" id="convSvg" viewBox="0 0 1000 420"></svg>
+      <div class="legend"><span><i style="background:#00dcb4"></i>3×3 filter window</span><span><i style="background:#58a6ff"></i>feature map computed so far</span></div>
+      
+    </div>
+    <div class="col figside" style="max-width:350px"><div class="def"><div class="lbl">Definition</div><h4>Convolution</h4><p>Sliding a small grid of weights across an image, computing one number per position. The same filter is reused everywhere, so an edge is detected the same way wherever it appears.</p></div><div class="theory"><div class="lbl">Why not just use Dense layers on images?</div><p>A 200×200 colour image flattened is 120,000 inputs. One dense layer of 128 units would need 15 million weights — and it would have to learn what an edge looks like separately in every position. A conv filter is 9 weights, reused across the whole image.</p></div><div class="card accent" style="margin-bottom:10px"><h3>Layers are blocks you stack</h3><p>Add or remove one and the shapes recompute. Conv deepens; Pool halves width and height.</p></div><div id="stack" style="margin:10px 0"></div><div class="controls" style="justify-content:flex-start"><button class="btn" onclick="addLayer('conv')">+ CONV</button><button class="btn" onclick="addLayer('pool')">+ POOL</button><button class="btn ghost" onclick="resetStack()">RESET</button><button class="btn ghost" id="convBtn" onclick="convToggle()">PAUSE</button></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="A working network is about fifteen lines">
+  <div class="tag fx">2.3 · Keras</div>
+  <h1 class="sh fx d1">A working network is about fifteen lines</h1>
+  <div class="body">
+    <div class="col fx d2"><div class="cb"><div class="code-head">build, compile, train</div><pre class="code"><span class="k">import</span> tensorflow <span class="k">as</span> tf
+<span class="k">from</span> tensorflow.keras <span class="k">import</span> layers, models
+
+model = models.Sequential([
+    layers.Flatten(input_shape=(<span class="n">28</span>, <span class="n">28</span>)),
+    layers.Dense(<span class="n">128</span>, activation=<span class="s">"relu"</span>),
+    layers.Dropout(<span class="n">0.3</span>),
+    layers.Dense(<span class="n">64</span>,  activation=<span class="s">"relu"</span>),
+    layers.Dense(<span class="n">10</span>,  activation=<span class="s">"softmax"</span>),
+])
+
+model.compile(
+    optimizer=<span class="s">"adam"</span>,
+    loss=<span class="s">"sparse_categorical_crossentropy"</span>,
+    metrics=[<span class="s">"accuracy"</span>],
+)
+
+history = model.fit(
+    X_train, y_train,
+    validation_split=<span class="n">0.2</span>,   <span class="c"># ← watch this, not train loss</span>
+    epochs=<span class="n">30</span>, batch_size=<span class="n">64</span>,
+)</pre></div></div>
+    <div class="col fx d3"><table class="t"><tr><th>Choice</th><th>Use</th></tr><tr><td>Binary target</td><td><span style="font-family:var(--mono)">sigmoid</span> + <span style="font-family:var(--mono)">binary_crossentropy</span></td></tr><tr><td>Multi-class, integer labels</td><td><span style="font-family:var(--mono)">softmax</span> + <span style="font-family:var(--mono)">sparse_categorical_crossentropy</span></td></tr><tr><td>Multi-class, one-hot labels</td><td><span style="font-family:var(--mono)">softmax</span> + <span style="font-family:var(--mono)">categorical_crossentropy</span></td></tr><tr><td>Regression</td><td>no activation + <span style="font-family:var(--mono)">mse</span></td></tr></table><div class="card warn"><h3>The mismatch that wastes an hour</h3><p>Using <span style="font-family:var(--mono)">categorical_crossentropy</span> with integer labels. It trains, produces nonsense accuracy, and the error message does not say why. Match the loss to your label format.</p></div><div class="theory"><div class="lbl">Always set validation_split</div><p>Without it you are watching training loss, which falls forever whether or not the model is learning anything useful. Validation loss is the only curve that tells you the truth.</p></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="Module 2 Hands-on">
+  <div class="tag fx">Hands-on · Module 2</div>
+  <h1 class="sh fx d1">Keras build lab</h1>
+  <div class="body">
+    <div class="col fx d2">
+      <div class="hands-on">
+        <div class="lbl">30 minutes · solo</div>
+        <h3>Keras build lab</h3>
+        
+        <div class="steps"><div><b>01</b><span>Load Fashion-MNIST from <span style="font-family:var(--mono)">keras.datasets</span> and scale pixels to 0–1.</span></div><div><b>02</b><span>Build the Sequential model above. Print <span style="font-family:var(--mono)">model.summary()</span> and find the parameter count.</span></div><div><b>03</b><span>Train for 30 epochs with validation_split=0.2.</span></div><div><b>04</b><span>Plot training and validation loss on the same axes.</span></div><div><b>05</b><span>Note the epoch where validation loss bottoms out — that is where you should have stopped.</span></div></div>
+      </div>
+    </div>
+    <div class="col fx d3"><div class="cb"><div class="code-head">loading and scaling</div><pre class="code sm"><span class="k">from</span> tensorflow.keras.datasets <span class="k">import</span> fashion_mnist
+
+(X_tr, y_tr), (X_te, y_te) = fashion_mnist.load_data()
+
+<span class="c"># pixels 0-255 -> 0-1. Networks need scaled inputs.</span>
+X_tr = X_tr / <span class="n">255.0</span>
+X_te = X_te / <span class="n">255.0</span>
+
+print(X_tr.shape)   <span class="c"># (60000, 28, 28)</span>
+print(model.count_params())</pre></div><div class="card warn"><h3>Why scaling matters here too</h3><p>Same reason as Session 1. Unscaled inputs of 0–255 produce enormous first-layer activations, the gradients explode, and the loss becomes NaN in about three batches.</p></div></div>
+  </div>
+</section>
+
+<section class="slide divider" data-title="Module 3">
+  <div class="num fx">03</div>
+  <h1 class="fx d1">Diagnosing Models</h1>
+  <div class="items"><div class="fx d2"><b>3.1</b>Overfitting, and what dropout does about it</div><div class="fx d3"><b>3.2</b>Reading a training curve</div><div class="fx d4"><b>3.3</b>Early stopping — letting Keras decide</div>
+    <div class="fx d5" style="margin-top:8px"><b style="color:var(--amber)">↓</b><span style="color:var(--amber)">Hands-on: diagnose three real training curves</span></div>
+  </div>
+</section>
+
+<section class="slide" data-title="Move the dropout — watch the curves change shape">
+  <div class="tag fx">3.1 · Dropout</div>
+  <h1 class="sh fx d1">Move the dropout — watch the curves change shape</h1>
+  <p class="sub fx d2">Set dropout to 0 and watch validation loss turn upward early. Push it to 0.7 and both curves stall.</p>
+  <div class="body figbody">
+    <div class="figwrap">
+      <svg class="fig" id="curveSvg" viewBox="0 0 1000 420"></svg>
+      <div class="legend"><span><i style="background:#00dcb4"></i>training loss</span><span><i style="background:#f0b429"></i>validation loss</span><span><i style="background:#ff6f91"></i>best epoch</span></div>
+      
+    </div>
+    <div class="col figside" style="max-width:350px"><div class="def"><div class="lbl">Definition</div><h4>Dropout</h4><p>Randomly switching off a fraction of neurons on each training batch, so the network cannot lean on any single one and has to spread what it learns.</p></div><div class="card accent" style="margin-bottom:10px"><h3>Verdict</h3><p id="curveVerdict">—</p></div><div class="gate"><label><b style="color:var(--blue)">dropout rate</b><span id="dropOut">0.30</span></label><input type="range" min="0" max="0.7" step="0.05" value="0.3" oninput="curveDraw(+this.value)"></div><div class="theory"><div class="lbl">Read the gap, not the level</div><p>The distance between the two curves <b>is</b> the overfitting. A model with training loss 0.05 and validation 0.40 has memorised; one with 0.22 and 0.25 has generalised, even though its training loss looks worse.</p></div><div class="card accent"><h3>Dropout only runs during training</h3><p>At prediction time every neuron is active. Keras handles the switch for you — but it is why evaluation accuracy is often slightly better than the training accuracy you saw.</p></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="Four shapes, four diagnoses">
+  <div class="tag fx">3.2 · Reading curves</div>
+  <h1 class="sh fx d1">Four shapes, four diagnoses</h1>
+  <div class="body">
+    <div class="col fx d2"><table class="t"><tr><th>What you see</th><th>Diagnosis</th><th>Do</th></tr><tr><td style="color:var(--mint)">Both falling, small gap</td><td>Healthy</td><td>Keep training</td></tr><tr><td style="color:var(--coral)">Train falls, validation rises</td><td>Overfitting</td><td>Stop earlier, add dropout, get more data</td></tr><tr><td style="color:var(--blue)">Both plateau high</td><td>Underfitting</td><td>Bigger network, train longer, better features</td></tr><tr><td style="color:var(--amber)">Loss spikes or goes NaN</td><td>Learning rate too high</td><td>Drop it 10×; check input scaling</td></tr></table><div class="theory"><div class="lbl">The only epoch count that is right</div><p>Whatever epoch validation loss bottomed out at. Everything after it is the model memorising — and you can see it happening while the training curve keeps looking better.</p></div></div>
+    <div class="col fx d3"><div class="cb"><div class="code-head">plot both, always</div><pre class="code sm"><span class="k">import</span> matplotlib.pyplot <span class="k">as</span> plt
+
+h = history.history
+
+plt.figure(figsize=(<span class="n">7</span>, <span class="n">4</span>))
+plt.plot(h[<span class="s">"loss"</span>],     label=<span class="s">"train"</span>)
+plt.plot(h[<span class="s">"val_loss"</span>], label=<span class="s">"validation"</span>)
+plt.axvline(np.argmin(h[<span class="s">"val_loss"</span>]),
+            color=<span class="s">"red"</span>, linestyle=<span class="s">"--"</span>,
+            label=<span class="s">"best epoch"</span>)
+plt.xlabel(<span class="s">"epoch"</span>); plt.ylabel(<span class="s">"loss"</span>)
+plt.legend(); plt.tight_layout(); plt.show()
+
+print(<span class="s">f"best epoch: {np.argmin(h['val_loss'])}"</span>)</pre></div><div class="card accent"><h3>Plot it before you report anything</h3><p>A final accuracy number with no curve behind it tells you nothing about whether the model was still improving or had been memorising for fifteen epochs.</p></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="Let Keras stop at the right epoch for you">
+  <div class="tag fx">3.3 · Early stopping</div>
+  <h1 class="sh fx d1">Let Keras stop at the right epoch for you</h1>
+  <div class="body">
+    <div class="col fx d2"><div class="def"><div class="lbl">Definition</div><h4>Early stopping</h4><p>A callback that watches validation loss and halts training when it stops improving — optionally restoring the weights from the best epoch.</p></div><div class="theory"><div class="lbl">restore_best_weights is the line people forget</div><p>Without it, training stops at the right time but leaves you holding the weights from five epochs <b>after</b> the best one — which is exactly the overfitted version you were trying to avoid.</p></div></div>
+    <div class="col fx d3"><div class="cb"><div class="code-head">the two callbacks worth always using</div><pre class="code"><span class="k">from</span> tensorflow.keras.callbacks <span class="k">import</span> (
+    EarlyStopping, ReduceLROnPlateau)
+
+stop = EarlyStopping(
+    monitor=<span class="s">"val_loss"</span>,
+    patience=<span class="n">5</span>,                 <span class="c"># wait 5 epochs before giving up</span>
+    restore_best_weights=<span class="k">True</span>,  <span class="c"># ← the important one</span>
+)
+
+reduce = ReduceLROnPlateau(
+    monitor=<span class="s">"val_loss"</span>,
+    factor=<span class="n">0.5</span>,                 <span class="c"># halve the learning rate</span>
+    patience=<span class="n">3</span>,
+)
+
+history = model.fit(
+    X_tr, y_tr,
+    validation_split=<span class="n">0.2</span>,
+    epochs=<span class="n">200</span>,                 <span class="c"># set it high; the callback decides</span>
+    callbacks=[stop, reduce],
+)</pre></div><div class="theory"><div class="lbl">restore_best_weights is the line people forget</div><p>Without it, training stops at the right time but leaves you holding the weights from five epochs <b>after</b> the best one — which is exactly the overfitted version you were trying to avoid.</p></div><div class="card accent"><h3>Set epochs high on purpose</h3><p>With early stopping in place, <span style="font-family:var(--mono)">epochs=200</span> does not mean 200 epochs. It means "train until it stops helping". That is almost always what you actually wanted.</p></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="Module 3 Hands-on">
+  <div class="tag fx">Hands-on · Module 3</div>
+  <h1 class="sh fx d1">Diagnose three curves</h1>
+  <div class="body">
+    <div class="col fx d2">
+      <div class="hands-on">
+        <div class="lbl">25 minutes · pairs</div>
+        <h3>Diagnose three curves</h3>
+        <p>Three models, three training histories. For each: name the shape, the diagnosis, and the single change you would make.</p>
+        <div class="steps"><div><b>01</b><span>Model A — train loss 0.04, validation 0.61, gap widening from epoch 8.</span></div><div><b>02</b><span>Model B — train 0.48, validation 0.51, both flat since epoch 5.</span></div><div><b>03</b><span>Model C — loss becomes NaN at epoch 2.</span></div><div><b>04</b><span>Now retrain your Fashion-MNIST model with EarlyStopping and compare the epoch it chose to the one you read off the plot by eye.</span></div><div><b>05</b><span>Report final test accuracy — and the epoch it actually stopped at.</span></div></div>
+      </div>
+    </div>
+    <div class="col fx d3"><div class="cb"><div class="code-head">the answers, for checking after</div><pre class="code sm"><span class="c"># A — overfitting.  Add dropout, or stop at epoch 8.</span>
+<span class="c"># B — underfitting. Bigger network / train longer / better features.</span>
+<span class="c"># C — exploding.    Learning rate too high, or inputs not scaled.</span>
+
+<span class="c"># check C first — it is almost always this:</span>
+print(X_tr.min(), X_tr.max())   <span class="c"># should be 0.0 1.0</span></pre></div><div class="card warn"><h3>C is the one you will actually hit</h3><p>Forgetting to divide by 255 is the single most common Keras bug in a first course. The loss goes NaN within a few batches and there is no helpful error.</p></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="Recap &amp; Summary">
+  <div class="tag fx">Recap &amp; Summary</div>
+  <h1 class="sh fx d1">What you can do now</h1>
+  <div class="body">
+    <div class="col cards grid3 fx d2"><div class="card accent"><h3><span class="k">M1</span>NN Foundations</h3><p>Explain what a neuron computes, trace a forward pass by hand, and say what backpropagation is working out.</p></div><div class="card accent"><h3><span class="k">M2</span>Building Networks</h3><p>Choose the right activation for each layer, explain what a convolution does, and build a working model in Keras.</p></div><div class="card accent"><h3><span class="k">M3</span>Diagnosing Models</h3><p>Read a training curve, tell overfitting from underfitting from an exploding loss, and stop at the right epoch.</p></div></div>
+  </div>
+  <div class="body" style="flex:0 0 auto;margin-top:0">
+    <div class="col fx d3"><div class="theory"><div class="lbl">The one line to remember</div><p><b>The validation curve is the only one telling you the truth.</b> Training loss falls forever — it will happily keep falling long after the model has stopped learning anything that generalises.</p></div></div>
+    <div class="col fx d4"><div class="card"><h3>Next session — LSTM &amp; Time Series</h3><p>What changes when the order of the data carries meaning: recurrent networks, why plain RNNs forget, and the LSTM gates that fix it — with a cell you can open up and poke at.</p></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="Review Learning Outcomes">
+  <div class="tag fx">Review Learning Outcomes</div>
+  <h1 class="sh fx d1">Did we get there?</h1>
+  <p class="sub fx d2">Rate yourself 1–5. Anything at 2 or below, flag it now — next session assumes all of this.</p>
+  <div class="body">
+    <div class="col cards grid2 fx d3"><div class="card"><h3><span class="k">LO1</span>I can write down what a single neuron computes</h3><p style="font-family:var(--mono);color:var(--mint)">1 — 2 — 3 — 4 — 5</p></div><div class="card"><h3><span class="k">LO2</span>I can explain forward propagation and backpropagation in my own words</h3><p style="font-family:var(--mono);color:var(--mint)">1 — 2 — 3 — 4 — 5</p></div><div class="card"><h3><span class="k">LO3</span>I can pick the right activation for a hidden layer and for each output type</h3><p style="font-family:var(--mono);color:var(--mint)">1 — 2 — 3 — 4 — 5</p></div><div class="card"><h3><span class="k">LO4</span>I can build and train a network in Keras from scratch</h3><p style="font-family:var(--mono);color:var(--mint)">1 — 2 — 3 — 4 — 5</p></div><div class="card accent" style="grid-column:1/-1"><h3><span class="k">LO5</span>I can look at a training curve and say what is wrong and what to change</h3><p style="font-family:var(--mono);color:var(--mint)">1 — 2 — 3 — 4 — 5</p></div></div>
+  </div>
+  <p class="caption fx d4">codencode.my · ML Session 05 complete</p>
+</section>
+</div>
+
+<div id="nav">
+  <button class="navbtn" onclick="go(-1)">PREV</button>
+  <div id="dots"></div>
+  <button class="navbtn" onclick="go(1)">NEXT</button>
+</div>
+
+<script>
+const slides=[...document.querySelectorAll('.slide')];
+let i=0;const dots=document.getElementById('dots');
+slides.forEach((s,n)=>{const d=document.createElement('div');d.className='dot';d.onclick=()=>show(n);dots.appendChild(d);});
+function show(n){
+  if(n<0||n>=slides.length)return;
+  slides[i].classList.remove('active');i=n;void slides[i].offsetWidth;slides[i].classList.add('active');
+  document.getElementById('counter').textContent=String(i+1).padStart(2,'0')+' / '+slides.length;
+  document.getElementById('titlebar').textContent=slides[i].dataset.title||'';
+  document.getElementById('progress').style.width=((i+1)/slides.length*100)+'%';
+  [...dots.children].forEach((d,k)=>d.classList.toggle('on',k===i));
+}
+function go(d){show(i+d);}
+function fs(){document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen();}
+addEventListener('keydown',e=>{
+  if(['ArrowRight',' ','PageDown'].includes(e.key)){e.preventDefault();go(1);}
+  if(['ArrowLeft','PageUp'].includes(e.key)){e.preventDefault();go(-1);}
+  if(e.key==='Home')show(0);
+  if(e.key==='End')show(slides.length-1);
+  if(e.key==='f')fs();
+});
+
+/* ---------- copy-to-clipboard on every code block ---------- */
+(function(){
+  document.querySelectorAll('pre.code').forEach(pre=>{
+    const source = pre.textContent;               // capture BEFORE adding the button
+    const btn = document.createElement('button');
+    btn.className = 'copybtn';
+    btn.type = 'button';
+    btn.textContent = 'COPY';
+    btn.addEventListener('click', async e=>{
+      e.stopPropagation();
+      try{
+        await navigator.clipboard.writeText(source);
+      }catch(err){                                 // file:// fallback
+        const ta=document.createElement('textarea');
+        ta.value=source; ta.style.position='fixed'; ta.style.opacity='0';
+        document.body.appendChild(ta); ta.select();
+        try{document.execCommand('copy');}catch(_){}
+        document.body.removeChild(ta);
+      }
+      btn.textContent='COPIED'; btn.classList.add('done');
+      setTimeout(()=>{btn.textContent='COPY'; btn.classList.remove('done');},1400);
+    });
+    pre.appendChild(btn);
+  });
+})();
+
+
+/* ---------- neural network: forward pass then backprop ---------- */
+(function(){
+  const svg=document.getElementById('nnSvg'); if(!svg) return;
+  const layers=[4,6,6,2], names=['Input','Hidden 1','Hidden 2','Output'];
+  const xs=[130,370,610,860], top=125, span=250;
+  const pos=layers.map((cnt,li)=>{
+    const gap=cnt>1?span/(cnt-1):0, y0=cnt>1?top:top+span/2;
+    return Array.from({length:cnt},(_,k)=>({x:xs[li],y:y0+gap*k}));
+  });
+  let s='';
+  names.forEach((nm,li)=>{
+    s+=`<text x="${xs[li]}" y="56" text-anchor="middle" font-family="Space Grotesk,sans-serif"
+         font-size="15" font-weight="600" fill="#e8eef0">${nm}</text>`;
+    s+=`<text x="${xs[li]}" y="78" text-anchor="middle" font-family="JetBrains Mono,monospace"
+         font-size="11" fill="#8b98a5">${layers[li]} neurons</text>`;
+  });
+  for(let li=0;li<layers.length-1;li++){
+    pos[li].forEach(a=>pos[li+1].forEach(b=>{
+      s+=`<line class="nnEdge" x1="${a.x}" y1="${a.y}" x2="${b.x}" y2="${b.y}"/>`;
+      const p=`path('M ${a.x} ${a.y} L ${b.x} ${b.y}')`;
+      s+=`<circle class="pulse-dot f${li}" style="offset-path:${p}"/>`;
+      s+=`<circle class="bk-dot b${li}" style="offset-path:${p}"/>`;
+    }));
+  }
+  pos.forEach((layer,li)=>layer.forEach(n=>{
+    s+=`<circle class="nnNode L${li}" cx="${n.x}" cy="${n.y}" r="17"/>`;
+  }));
+  s+=`<g class="phase fwd"><rect x="330" y="360" width="340" height="38" rx="19" fill="#00dcb4" opacity="0.12"/>
+      <text x="500" y="385" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="14"
+      fill="#00dcb4" font-weight="600">FORWARD PASS → prediction</text></g>`;
+  s+=`<g class="phase bwd"><rect x="310" y="360" width="380" height="38" rx="19" fill="#ff6f91" opacity="0.12"/>
+      <text x="500" y="385" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="14"
+      fill="#ff6f91" font-weight="600">← BACKPROPAGATION · weights adjust</text></g>`;
+  svg.innerHTML=s;
+})();
+window.nnPause=function(btn){
+  const sl=btn.closest('.slide'); sl.classList.toggle('paused');
+  btn.textContent=sl.classList.contains('paused')?'PLAY':'PAUSE';
+};
+
+/* ---------- activation functions ---------- */
+(function(){
+  const svg=document.getElementById('actSvg'); if(!svg) return;
+  const fns=[
+    ['ReLU','#00dcb4', x=>Math.max(0,x), 'max(0, x)', 'The default. Cheap, and it does not saturate for positive inputs.'],
+    ['Sigmoid','#58a6ff', x=>1/(1+Math.exp(-x)), '1 / (1 + e⁻ˣ)', 'Squashes to (0,1). Use it on a binary output, not in hidden layers.'],
+    ['tanh','#f0b429', x=>Math.tanh(x), '(eˣ − e⁻ˣ)/(eˣ + e⁻ˣ)', 'Squashes to (−1,1). Zero-centred, so often better than sigmoid.'],
+  ];
+  const W=300,H=200,PAD=34;
+  let s='';
+  fns.forEach(([name,col,f,expr,note],i)=>{
+    const ox=40+i*325, oy=70;
+    s+=`<text x="${ox}" y="${oy-24}" font-family="Space Grotesk,sans-serif" font-size="17" font-weight="700" fill="${col}">${name}</text>`;
+    s+=`<rect x="${ox}" y="${oy}" width="${W}" height="${H}" rx="8" fill="#0a0e13" stroke="#2a3440" stroke-width="1.4"/>`;
+    const cx=ox+W/2, cy=oy+H/2;
+    s+=`<line x1="${ox+8}" y1="${cy}" x2="${ox+W-8}" y2="${cy}" stroke="#2a3440" stroke-width="1.2"/>`;
+    s+=`<line x1="${cx}" y1="${oy+8}" x2="${cx}" y2="${oy+H-8}" stroke="#2a3440" stroke-width="1.2"/>`;
+    let d='';
+    for(let k=0;k<=90;k++){
+      const x=-4+8*k/90;
+      const y=Math.max(-1.35,Math.min(1.35,f(x)));
+      d+=(k?' L ':'M ')+(cx+x*((W-2*PAD)/8)).toFixed(1)+' '+(cy-y*((H-2*PAD)/2.7)).toFixed(1);
+    }
+    s+=`<path d="${d}" fill="none" stroke="${col}" stroke-width="3" class="draw" style="--len:600"/>`;
+    s+=`<text x="${ox}" y="${oy+H+26}" font-family="JetBrains Mono,monospace" font-size="13" fill="${col}">${expr}</text>`;
+    const words=note.split(' '); let line='',ln=0;
+    words.forEach(w=>{ if((line+w).length>36){ s+=`<text x="${ox}" y="${oy+H+48+ln*17}" font-family="Inter,sans-serif" font-size="12.5" fill="#8b98a5">${line}</text>`; line=w+' '; ln++; } else line+=w+' '; });
+    s+=`<text x="${ox}" y="${oy+H+48+ln*17}" font-family="Inter,sans-serif" font-size="12.5" fill="#8b98a5">${line}</text>`;
+  });
+  svg.innerHTML=s;
+})();
+
+/* ---------- interactive training curves ---------- */
+(function(){
+  const svg=document.getElementById('curveSvg'); if(!svg) return;
+  const X0=90,X1=640,Y0=320,Y1=60,EPOCHS=40;
+  window.curveDraw=function(drop){
+    // more dropout -> validation loss tracks training loss for longer
+    const gap = 0.55*(1-drop);            // how far val diverges
+    const floor = 0.16 + 0.22*drop;       // heavy dropout underfits a little
+    let tr=[], va=[];
+    for(let e=0;e<=EPOCHS;e++){
+      const t=e/EPOCHS;
+      const trainL = floor*0.45 + 0.95*Math.exp(-3.4*t);
+      const best   = 0.55;
+      const over   = Math.max(0, t-best);
+      const valL   = floor + 0.92*Math.exp(-3.1*t) + gap*Math.pow(over/(1-best),1.7);
+      tr.push(trainL); va.push(valL);
+    }
+    const mxv=Math.max(...tr,...va,1.1);
+    const mx=e=>X0+(X1-X0)*e/EPOCHS, my=v=>Y0-(Y0-Y1)*(v/mxv);
+    let s='';
+    s+=`<line x1="${X0}" y1="${Y0}" x2="${X1+14}" y2="${Y0}" stroke="#2a3440" stroke-width="1.5"/>`;
+    s+=`<line x1="${X0}" y1="${Y0}" x2="${X0}" y2="${Y1-18}" stroke="#2a3440" stroke-width="1.5"/>`;
+    s+=`<text x="${X0-6}" y="${Y1-26}" font-family="JetBrains Mono,monospace" font-size="11" fill="#8b98a5">loss</text>`;
+    s+=`<text x="${X1}" y="${Y0+24}" text-anchor="end" font-family="JetBrains Mono,monospace" font-size="11" fill="#8b98a5">epoch →</text>`;
+    const path=a=>a.map((v,e)=>(e?' L ':'M ')+mx(e).toFixed(1)+' '+my(v).toFixed(1)).join('');
+    s+=`<path d="${path(tr)}" fill="none" stroke="#00dcb4" stroke-width="3"/>`;
+    s+=`<path d="${path(va)}" fill="none" stroke="#f0b429" stroke-width="3"/>`;
+    // best epoch = min validation loss
+    let bi=0; va.forEach((v,i)=>{ if(v<va[bi]) bi=i; });
+    s+=`<line x1="${mx(bi)}" y1="${Y1-12}" x2="${mx(bi)}" y2="${Y0}" stroke="#ff6f91" stroke-width="1.8" stroke-dasharray="5 5"/>`;
+    s+=`<text x="${mx(bi)}" y="${Y1-20}" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="12" fill="#ff6f91">stop here — epoch ${bi}</text>`;
+    s+=`<text x="${X0+14}" y="${Y1+4}" font-family="JetBrains Mono,monospace" font-size="12" fill="#00dcb4">training loss</text>`;
+    s+=`<text x="${X0+140}" y="${Y1+4}" font-family="JetBrains Mono,monospace" font-size="12" fill="#f0b429">validation loss</text>`;
+    // readouts
+    const P=700;
+    const lab=(y,k,v,c)=>`<text x="${P}" y="${y}" font-family="JetBrains Mono,monospace" font-size="12" fill="#8b98a5">${k}</text>`+
+      `<text x="${P+200}" y="${y}" text-anchor="end" font-family="JetBrains Mono,monospace" font-size="19" fill="${c}">${v}</text>`;
+    s+=lab(Y1+10,'dropout',drop.toFixed(2),'#58a6ff');
+    s+=lab(Y1+54,'best val loss',va[bi].toFixed(3),'#f0b429');
+    s+=lab(Y1+98,'final train loss',tr[EPOCHS].toFixed(3),'#00dcb4');
+    s+=lab(Y1+142,'gap at end',(va[EPOCHS]-tr[EPOCHS]).toFixed(3),'#ff6f91');
+    svg.innerHTML=s;
+    const note = drop<0.12 ? ['OVERFITTING','#ff6f91','Validation loss turns upward early and the gap keeps widening.']
+               : drop<0.45 ? ['HEALTHY','#00dcb4','Both curves fall together and the gap stays small.']
+               : ['TOO MUCH DROPOUT','#58a6ff','Both losses plateau high — you have handicapped the network.'];
+    const e=document.getElementById('curveVerdict');
+    if(e) e.innerHTML=`<b style="color:${note[1]}">${note[0]}</b> — ${note[2]}`;
+    const d=document.getElementById('dropOut'); if(d) d.textContent=drop.toFixed(2);
+  };
+  window.curveDraw(0.3);
+})();
+
+/* ---------- CNN sliding filter + swappable layer stack ---------- */
+(function(){
+  const svg=document.getElementById('convSvg'); if(!svg) return;
+  const IN=7,K=3,OUTN=IN-K+1,CS=30;
+  let kx=0,ky=0,timer=null,on=true;
+  let s='';
+  s+=`<text x="10" y="24" font-family="Space Grotesk,sans-serif" font-size="15" font-weight="600" fill="#e8eef0">Input 7×7</text>`;
+  for(let r=0;r<IN;r++)for(let c=0;c<IN;c++)
+    s+=`<rect class="cell" id="c-${r}-${c}" x="${10+c*CS}" y="${40+r*CS}" width="${CS-2}" height="${CS-2}" rx="2"/>`;
+  s+=`<rect id="kbox" x="10" y="40" width="${K*CS-2}" height="${K*CS-2}" rx="3"/>`;
+  s+=`<text x="${10+IN*CS/2}" y="${40+IN*CS+26}" text-anchor="middle" font-family="JetBrains Mono,monospace"
+       font-size="12" fill="#00dcb4">3×3 filter slides, stride 1</text>`;
+  s+=`<path d="M ${30+IN*CS} 145 L ${90+IN*CS} 145" stroke="#00dcb4" stroke-width="2" marker-end="url(#cam)"/>`;
+  s+=`<text x="${60+IN*CS}" y="130" text-anchor="middle" font-family="JetBrains Mono,monospace"
+       font-size="12" fill="#00dcb4">×W + b</text>`;
+  const ox=110+IN*CS;
+  s+=`<text x="${ox}" y="24" font-family="Space Grotesk,sans-serif" font-size="15" font-weight="600" fill="#e8eef0">Feature map 5×5</text>`;
+  for(let r=0;r<OUTN;r++)for(let c=0;c<OUTN;c++)
+    s+=`<rect class="outcell" id="o-${r}-${c}" x="${ox+c*CS}" y="${40+r*CS}" width="${CS-2}" height="${CS-2}" rx="2"/>`;
+  s+=`<text x="${ox}" y="${40+OUTN*CS+26}" font-family="JetBrains Mono,monospace" font-size="12" fill="#58a6ff">one number per filter position</text>`;
+  s+=`<defs><marker id="cam" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7"
+       orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#00dcb4"/></marker></defs>`;
+  svg.innerHTML=s;
+  function drawK(){
+    document.querySelectorAll('.cell').forEach(e=>e.classList.remove('in-k'));
+    for(let r=0;r<K;r++)for(let c=0;c<K;c++){
+      const el=document.getElementById(`c-${ky+r}-${kx+c}`); if(el) el.classList.add('in-k');
+    }
+    const kb=document.getElementById('kbox');
+    kb.setAttribute('x',10+kx*CS); kb.setAttribute('y',40+ky*CS);
+    document.querySelectorAll('.outcell.now').forEach(e=>e.classList.remove('now'));
+    const o=document.getElementById(`o-${ky}-${kx}`);
+    if(o){ o.classList.add('now'); o.classList.add('done'); }
+  }
+  window.convStep=function(){
+    kx++; if(kx>=OUTN){kx=0;ky++;}
+    if(ky>=OUTN){kx=0;ky=0;document.querySelectorAll('.outcell').forEach(e=>e.classList.remove('done','now'));}
+    drawK();
+  };
+  window.convToggle=function(){
+    const b=document.getElementById('convBtn');
+    if(on){clearInterval(timer);on=false;b.textContent='PLAY';}
+    else{timer=setInterval(convStep,520);on=true;b.textContent='PAUSE';}
+  };
+  drawK(); timer=setInterval(convStep,520);
+
+  const DEFAULT=[['conv','Conv 3×3'],['pool','MaxPool 2×2'],['conv','Conv 3×3'],['pool','MaxPool 2×2'],['dense','Dense']];
+  let stack=DEFAULT.map(x=>[...x]);
+  function render(){
+    let size=32,ch=3,html='';
+    stack.forEach((L,idx)=>{
+      if(L[0]==='conv') ch = ch===3 ? 32 : Math.min(ch*2,256);
+      if(L[0]==='pool') size = Math.max(1,Math.floor(size/2));
+      const shape = L[0]==='dense' ? '10 classes' : `${size}×${size}×${ch}`;
+      html+=`<div class="lyr ${L[0]}"><x title="remove layer" onclick="delLayer(${idx})">×</x><b>${L[1]}</b><s>${shape}</s></div>`;
+      if(idx<stack.length-1) html+=`<span class="ar">→</span>`;
+    });
+    const el=document.getElementById('stack'); if(el) el.innerHTML=html;
+  }
+  window.addLayer=function(t){
+    stack.splice(Math.max(0,stack.length-1),0, t==='conv'?['conv','Conv 3×3']:['pool','MaxPool 2×2']);
+    render();
+  };
+  window.delLayer=function(i){ if(stack.length>1){ stack.splice(i,1); render(); } };
+  window.resetStack=function(){ stack=DEFAULT.map(x=>[...x]); render(); };
+  render();
+})();
+
+show(0);
+</script>
+</body>
+</html>

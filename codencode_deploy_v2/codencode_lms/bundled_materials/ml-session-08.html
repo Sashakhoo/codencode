@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>ML Session 08 — Capstone: Project Planning & Execution | codencode Academy</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0d1117;--panel:#161b22;--panel2:#1c2430;--line:#2a3440;
+  --mint:#00dcb4;--text:#e8eef0;--muted:#8b98a5;--coral:#ff6f91;--amber:#f0b429;--blue:#58a6ff;--purple:#bc8cff;
+  --sans:'Space Grotesk','Inter',system-ui,sans-serif;--body:'Inter',system-ui,sans-serif;
+  --mono:'JetBrains Mono','SF Mono',Consolas,monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:var(--body);height:100vh;overflow:hidden;user-select:none}
+#topbar{position:fixed;top:0;left:0;right:0;height:52px;display:flex;align-items:center;gap:16px;
+  padding:0 24px;background:rgba(13,17,23,.92);border-bottom:1px solid var(--line);z-index:50}
+.wordmark{height:21px;width:auto;display:block;flex-shrink:0}
+#sesslabel{font-size:12px;color:var(--muted);font-family:var(--mono)}
+#titlebar{flex:1;text-align:center;font-size:13px;color:var(--muted);font-family:var(--mono);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#counter{font-family:var(--mono);font-size:12px;color:var(--mint)}
+.btn{background:rgba(0,220,180,.10);border:1px solid rgba(0,220,180,.32);color:var(--mint);
+  font-family:var(--mono);font-size:11px;padding:6px 12px;border-radius:6px;cursor:pointer}
+.btn:hover{background:rgba(0,220,180,.20)}
+#progress{position:fixed;top:52px;left:0;height:2px;background:var(--mint);z-index:51;transition:width .3s}
+#deck{position:absolute;top:54px;bottom:56px;left:0;right:0}
+.slide{position:absolute;inset:0;padding:28px 48px;display:none;flex-direction:column;overflow:hidden}
+.slide.active{display:flex;animation:in .38s ease both}
+@keyframes in{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+.tag{font-family:var(--mono);font-size:11px;letter-spacing:.15em;text-transform:uppercase;color:var(--mint);margin-bottom:7px}
+h1.sh{font-family:var(--sans);font-size:clamp(22px,2.7vw,34px);font-weight:700;line-height:1.14}
+h1.sh::after{content:'';display:block;width:50px;height:4px;background:var(--mint);border-radius:2px;margin-top:10px}
+.sub{color:var(--muted);font-size:14.5px;margin-top:10px;max-width:82ch;line-height:1.6}
+.body{flex:1;display:flex;gap:24px;align-items:center;min-height:0;margin-top:16px;overflow:hidden}
+.body.mid{align-items:center}
+.col{flex:1;min-width:0}
+.figwrap{flex:1.8 1 0;display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:0;min-height:0;max-height:100%;gap:6px}
+svg.fig{width:100%;height:100%;min-height:300px;flex:1 1 auto;display:block}
+.figwrap > .legend,.figwrap > .controls,.figwrap > .gate,.figwrap > .eq{flex:0 0 auto;width:100%}
+
+/* title / divider */
+.title-slide{align-items:center;justify-content:center;text-align:center}
+.title-slide .badge{font-family:var(--mono);font-size:12px;color:var(--mint);border:1px solid rgba(0,220,180,.34);
+  background:rgba(0,220,180,.08);padding:7px 18px;border-radius:20px;margin-bottom:24px}
+.title-slide h1{font-family:var(--sans);font-size:clamp(38px,5.6vw,66px);font-weight:700;line-height:1.05}
+.title-slide h1 em{font-style:normal;color:var(--mint)}
+.title-slide p{color:var(--muted);font-size:17px;margin-top:18px;max-width:62ch}
+.title-slide .foot{margin-top:34px;font-family:var(--mono);font-size:13px;color:var(--muted)}
+.divider{align-items:flex-start;justify-content:center}
+.divider .num{font-family:var(--sans);font-size:112px;font-weight:700;color:rgba(0,220,180,.16);line-height:1}
+.divider h1{font-family:var(--sans);font-size:clamp(32px,4.4vw,52px);font-weight:700;margin-top:-16px}
+.divider .items{margin-top:22px;display:flex;flex-direction:column;gap:11px}
+.divider .items div{font-size:16.5px;color:var(--muted)}
+.divider .items b{color:var(--mint);font-family:var(--mono);font-size:14.5px;margin-right:11px}
+
+/* blocks */
+.cards{display:grid;gap:12px}
+.grid2{grid-template-columns:1fr 1fr}.grid3{grid-template-columns:repeat(3,1fr)}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:15px 17px}
+.card.accent{border-color:rgba(0,220,180,.45);background:var(--panel2)}
+.card.warn{border-color:rgba(255,111,145,.42)}
+.card h3{font-family:var(--sans);font-size:16px;font-weight:600;margin-bottom:5px}
+.card h3 .k{color:var(--mint);font-family:var(--mono);font-size:13.5px;margin-right:8px}
+.card p{color:var(--muted);font-size:13.8px;line-height:1.55}
+.card p b{color:var(--text);font-weight:600}
+
+.def{border-left:3px solid var(--blue);background:linear-gradient(90deg,rgba(88,166,255,.09),transparent 65%);
+  padding:14px 18px;border-radius:0 9px 9px 0;margin-bottom:12px}
+.def .lbl{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;color:var(--blue);text-transform:uppercase}
+.def h4{font-family:var(--sans);font-size:17px;margin:5px 0 6px}
+.def p{color:var(--muted);font-size:14px;line-height:1.6}
+.def p b{color:var(--text);font-weight:600}
+
+.theory{border-left:3px solid var(--amber);background:linear-gradient(90deg,rgba(240,180,41,.08),transparent 65%);
+  padding:14px 18px;border-radius:0 9px 9px 0;margin-bottom:12px}
+.theory .lbl{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;color:var(--amber);text-transform:uppercase}
+.theory p{color:var(--muted);font-size:14px;line-height:1.6;margin-top:6px}
+.theory p b{color:var(--text);font-weight:600}
+
+.formula{background:#0a0e13;border:1px solid var(--line);border-radius:10px;padding:16px 20px;
+  font-family:var(--mono);font-size:19px;color:var(--mint);text-align:center;margin:10px 0;letter-spacing:.02em}
+.formula small{display:block;font-size:12px;color:var(--muted);margin-top:8px;letter-spacing:0}
+
+pre.code{background:#0a0e13;border:1px solid var(--line);border-radius:10px;padding:14px 17px;
+  font-family:var(--mono);font-size:13.2px;line-height:1.68;color:var(--text);overflow:auto}
+pre.code.sm{font-size:12.3px;line-height:1.6}
+pre.code .c{color:var(--muted)}pre.code .s{color:var(--mint)}pre.code .n{color:var(--blue)}
+pre.code .e{color:var(--coral)}pre.code .k{color:var(--purple)}
+.code-head{font-family:var(--mono);font-size:11px;color:var(--muted);background:var(--panel2);
+  border:1px solid var(--line);border-bottom:none;border-radius:10px 10px 0 0;padding:7px 13px}
+.code-head + pre.code{border-radius:0 0 10px 10px}
+
+table.t{width:100%;border-collapse:collapse;font-size:13.5px}
+table.t th{text-align:left;font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--mint);padding:9px 12px;border-bottom:1px solid var(--line)}
+table.t td{padding:10px 12px;border-bottom:1px solid var(--line);color:var(--muted);line-height:1.5;vertical-align:top}
+table.t td:first-child{color:var(--text);font-family:var(--mono);font-size:12.5px;white-space:nowrap}
+table.cps td:first-child{color:var(--mint);font-family:var(--mono);font-size:13px;width:140px}
+
+.pill{display:inline-block;font-family:var(--mono);font-size:11.5px;padding:4px 11px;border-radius:13px;
+  border:1px solid;margin:0 7px 7px 0}
+.pill.mint{color:var(--mint);border-color:rgba(0,220,180,.4);background:rgba(0,220,180,.08)}
+.pill.coral{color:var(--coral);border-color:rgba(255,111,145,.4);background:rgba(255,111,145,.08)}
+.pill.amber{color:var(--amber);border-color:rgba(240,180,41,.4);background:rgba(240,180,41,.08)}
+.pill.blue{color:var(--blue);border-color:rgba(88,166,255,.4);background:rgba(88,166,255,.08)}
+
+.hands-on{border-left:3px solid var(--mint);background:linear-gradient(90deg,rgba(0,220,180,.07),transparent 60%);
+  padding:16px 22px;border-radius:0 10px 10px 0}
+.hands-on .lbl{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;color:var(--mint);text-transform:uppercase}
+.hands-on h3{font-family:var(--sans);font-size:19px;margin:7px 0 9px}
+.hands-on p{color:var(--muted);font-size:14.2px;line-height:1.6}
+.steps{margin-top:12px;display:flex;flex-direction:column;gap:8px}
+.steps div{font-size:14px;color:var(--text);display:flex;gap:11px;align-items:flex-start}
+.steps b{color:var(--mint);font-family:var(--mono);font-size:12.5px;flex-shrink:0}
+.caption{font-size:13px;color:var(--muted);font-style:italic;margin-top:11px;text-align:center}
+
+#nav{position:fixed;bottom:0;left:0;right:0;height:56px;display:flex;align-items:center;justify-content:center;gap:18px;z-index:50}
+.navbtn{background:var(--panel);border:1px solid var(--line);color:var(--muted);font-family:var(--mono);
+  font-size:12px;padding:8px 16px;border-radius:8px;cursor:pointer}
+.navbtn:hover{border-color:var(--mint);color:var(--mint)}
+#dots{display:flex;gap:5px;flex-wrap:wrap;max-width:52vw;justify-content:center}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--line);cursor:pointer}
+.dot.on{background:var(--mint);transform:scale(1.35)}
+
+.fx{opacity:0}
+.slide.active .fx{animation:fade .5s ease forwards}
+@keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.slide.active .d1{animation-delay:.12s}.slide.active .d2{animation-delay:.28s}
+.slide.active .d3{animation-delay:.44s}.slide.active .d4{animation-delay:.6s}
+.slide.active .d5{animation-delay:.78s}.slide.active .d6{animation-delay:.96s}
+.draw{stroke-dasharray:var(--len,300);stroke-dashoffset:var(--len,300)}
+.slide.active .draw{animation:dr .8s ease forwards}
+@keyframes dr{to{stroke-dashoffset:0}}
+.grow{transform-origin:bottom;transform:scaleY(0)}
+.slide.active .grow{animation:gw .7s cubic-bezier(.22,1,.36,1) forwards}
+@keyframes gw{to{transform:scaleY(1)}}
+
+/* ---------- copiable code ---------- */
+pre.code{position:relative;user-select:text}
+.copybtn{position:absolute;top:7px;right:7px;z-index:3;background:rgba(22,27,34,.94);
+  border:1px solid var(--line);color:var(--muted);font-family:var(--mono);font-size:10.5px;
+  letter-spacing:.06em;padding:4px 9px;border-radius:5px;cursor:pointer;opacity:0;transition:.16s}
+pre.code:hover .copybtn{opacity:1}
+.copybtn:hover{border-color:var(--mint);color:var(--mint)}
+.copybtn.done{border-color:var(--mint);color:var(--mint);opacity:1}
+
+/* ---------- figure furniture (legends, controls, sliders) ---------- */
+
+/* ---------- figure slides: stacked on tall screens, side-by-side when wide ---------- */
+.cb{display:block}
+.figbody{flex:1;display:flex;gap:32px;align-items:center;margin-top:24px;min-height:0}
+.figbody > .figwrap{flex:1.8 1 0}
+.figbody > .figside{display:flex;flex-direction:column;gap:12px;min-width:0}
+.figbody > .figside > *{margin-bottom:0}
+@media (max-aspect-ratio: 29/20){
+  .figbody{flex-direction:column;align-items:stretch;gap:16px}
+  .figbody > .figwrap{flex:0 1 auto;width:100%;max-width:none;justify-content:flex-start}
+  .figbody > .figwrap > svg.fig{height:auto;min-height:0;flex:0 0 auto;max-height:100%}
+  .figbody > .figside{max-width:none !important;flex:0 0 auto;display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:14px;align-items:start}
+  .figbody > .figside .controls,.figbody > .figside .legend{justify-content:flex-start}
+}
+
+.legend{display:flex;gap:18px;font-family:var(--mono);font-size:12px;color:var(--muted);
+  margin-top:10px;flex-wrap:wrap;justify-content:center}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px;vertical-align:middle}
+.controls{display:flex;gap:10px;align-items:center;margin-top:12px;flex-wrap:wrap;justify-content:center}
+.btn.ghost{background:transparent;border-color:var(--line);color:var(--muted)}
+.btn.ghost:hover{border-color:var(--mint);color:var(--mint)}
+.gate{margin-bottom:12px}
+.gate label{display:flex;justify-content:space-between;align-items:center;font-family:var(--mono);
+  font-size:12.5px;margin-bottom:6px;gap:12px}
+input[type=range]{width:100%;height:5px;border-radius:3px;appearance:none;background:var(--line);outline:none}
+input[type=range]::-webkit-slider-thumb{appearance:none;width:15px;height:15px;border-radius:50%;
+  background:var(--mint);cursor:pointer;border:2px solid #0d1117}
+.eq{font-family:var(--mono);font-size:12.5px;color:var(--muted);line-height:1.9;background:#0a0e13;
+  border:1px solid var(--line);border-radius:9px;padding:11px 13px}
+.eq b{color:var(--text);font-weight:400}
+</style>
+</head>
+<body>
+
+<div id="topbar">
+  <img class="wordmark" src="data:image/png;base64,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" alt="codencode.my">
+  <div id="sesslabel">ML SESSION 08</div>
+  <div id="titlebar"></div>
+  <div id="counter"></div>
+  <button class="btn" onclick="fs()">FULLSCREEN</button>
+</div>
+<div id="progress"></div>
+
+<div id="deck">
+
+
+<style>
+.mile{opacity:0}
+.slide.active .mile{animation:mileIn .55s ease forwards}
+@keyframes mileIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.slide.active .mile.m0{animation-delay:.15s}.slide.active .mile.m1{animation-delay:.4s}
+.slide.active .mile.m2{animation-delay:.65s}.slide.active .mile.m3{animation-delay:.9s}
+.slide.active .mile.m4{animation-delay:1.15s}.slide.active .mile.m5{animation-delay:1.4s}
+.railFill{stroke-dasharray:760;stroke-dashoffset:760}
+.slide.active .railFill{animation:rail 2.2s ease forwards}
+@keyframes rail{to{stroke-dashoffset:0}}
+</style>
+
+<section class="slide title-slide" data-title="Main Title">
+  <div class="badge fx">SESSION 08 OF 08 · MACHINE LEARNING FUNDAMENTALS</div>
+  <h1 class="fx d1">Capstone: Planning &amp; <em>Execution</em></h1>
+  <p class="fx d2">Scoping a project you can actually finish, building it so somebody else can follow, and presenting findings instead of metrics.</p>
+  <div class="foot fx d3">codencode Academy · the final session · bring your own dataset</div>
+</section>
+
+<section class="slide" data-title="Session Plan">
+  <div class="tag fx">Session Plan</div>
+  <h1 class="sh fx d1">What we're doing today</h1>
+  <div class="body">
+    <div class="col cards grid3"><div class="card accent fx d2">
+        <h3><span class="k">M1</span>Planning</h3>
+        <p>What separates a project that finishes from one that stalls, and how to scope yours.</p>
+        <div style="margin-top:10px"><span class="pill mint">45 min</span></div>
+      </div><div class="card accent fx d3">
+        <h3><span class="k">M2</span>Execution</h3>
+        <p>Notebook structure, the evaluation reference, and documenting while you work.</p>
+        <div style="margin-top:10px"><span class="pill mint">60 min</span></div>
+      </div><div class="card accent fx d4">
+        <h3><span class="k">M3</span>Presenting</h3>
+        <p>Turning numbers into findings, charts that make one point, and where to go next.</p>
+        <div style="margin-top:10px"><span class="pill mint">55 min</span></div>
+      </div></div>
+  </div>
+  <div class="cards grid3 fx d5"><div class="card"><p><b>Bring</b> — a dataset and a question you care about</p></div><div class="card"><p><b>Build</b> — most of today is you working, me circulating</p></div><div class="card"><p><b>Leave with</b> — a finished notebook and a three-minute presentation</p></div></div>
+</section>
+
+<section class="slide" data-title="Revised Last Week">
+  <div class="tag fx">Revised Last Week · 10 minutes</div>
+  <h1 class="sh fx d1">Session 07 — Ensembles &amp; Model Tuning</h1>
+  <p class="sub fx d2">Quick check before we build on it. Answer out loud — if the room goes quiet on any of these, we go back over it now.</p>
+  <div class="body">
+    <div class="col cards grid3 fx d3"><div class="card"><h3>Why does a forest beat one tree?</h3><p>Many decorrelated trees each get it wrong differently, and averaging cancels the noise while keeping the signal.</p></div><div class="card"><h3>Where does leakage hide?</h3><p>Any fit that happens before the split — a scaler, an imputer, a target encoding. Put every step inside a Pipeline.</p></div><div class="card"><h3>What is the baseline you must beat?</h3><p>The naive one. A tuned model that only matches DummyClassifier has learned nothing.</p></div></div>
+  </div>
+  <p class="caption fx d4">Seven sessions of technique. Today is the one where it turns into something you can show somebody.</p>
+</section>
+
+<section class="slide" data-title="Learning Outcomes">
+  <div class="tag fx">Learning Outcomes · Condition — Performance — Standard</div>
+  <h1 class="sh fx d1">By the end of today you will be able to…</h1>
+  <div class="body">
+    <div class="col fx d2">
+      <table class="t cps">
+        <tr><th>Component</th><th>Statement</th></tr>
+        <tr><td>Condition</td><td>Given a dataset of your own choosing and the seven sessions behind you,</td></tr>
+        <tr><td>Performance</td><td>you will scope a question, build a complete and reproducible pipeline from raw data to evaluated model, and present your findings to a non-technical audience,</td></tr>
+        <tr><td>Standard</td><td>delivering a repo that <b style="color:var(--text)">runs end to end from a clean environment</b>, a notebook structured so a stranger can follow it, and a three-minute presentation that states a finding rather than a score.</td></tr>
+      </table>
+      <div style="margin-top:18px"><span class="pill mint">LO1 · Scope a project</span><span class="pill mint">LO2 · Structure a notebook</span><span class="pill mint">LO3 · Build reproducibly</span><span class="pill mint">LO4 · Evaluate honestly</span><span class="pill coral">LO5 · Present a finding</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="slide" data-title="Content Mapping">
+  <div class="tag fx">Content Mapping</div>
+  <h1 class="sh fx d1">How today maps to your outcomes</h1>
+  <div class="body">
+    <div class="col fx d2">
+      <table class="t">
+        <tr><th>Module</th><th>Topics</th><th style="width:120px">Outcome</th><th style="width:190px">Assessed by</th></tr>
+        <tr><td>Module 1</td><td>1.1 What makes a good project · 1.2 Choosing question &amp; data · 1.3 Repo structure</td>
+        <td style="color:var(--mint)">LO1</td><td>Project brief</td></tr><tr><td>Module 2</td><td>2.1 The pipeline · 2.2 Evaluation reference · 2.3 Documenting as you go</td>
+        <td style="color:var(--mint)">LO2, LO3, LO4</td><td>Build Time</td></tr><tr><td>Module 3</td><td>3.1 Findings not metrics · 3.2 Charts that land · 3.3 What's next</td>
+        <td style="color:var(--mint)">LO5</td><td>Showcase</td></tr>
+      </table>
+      <div class="theory" style="margin-top:20px">
+        <div class="lbl">What is actually being assessed</div>
+        <p>Not accuracy. A project that honestly reports "the data could not answer this, and here is what would be needed" scores higher than one reporting 0.99 R² with leakage in it. <b>Defensible beats impressive.</b></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="slide divider" data-title="Module 1">
+  <div class="num fx">01</div>
+  <h1 class="fx d1">Planning</h1>
+  <div class="items"><div class="fx d2"><b>1.1</b>What separates a finished project from a stalled one</div><div class="fx d3"><b>1.2</b>Choosing a question and a dataset that fit each other</div><div class="fx d4"><b>1.3</b>Setting up so future-you can still run it</div>
+    <div class="fx d5" style="margin-top:8px"><b style="color:var(--amber)">↓</b><span style="color:var(--amber)">Hands-on: write your project brief and get it checked</span></div>
+  </div>
+</section>
+
+<section class="slide" data-title="Six steps — and the two where projects die">
+  <div class="tag fx">1.1 · The arc</div>
+  <h1 class="sh fx d1">Six steps — and the two where projects die</h1>
+  <p class="sub fx d2">One pass, left to right. Everyone wants to start at step 4.</p>
+  <div class="body figbody">
+    <div class="figwrap">
+      <svg class="fig" id="roadSvg" viewBox="0 0 1000 420"></svg>
+      <div class="legend"><span><i style="background:#00dcb4"></i>scope &amp; clean</span><span><i style="background:#58a6ff"></i>model</span><span><i style="background:#f0b429"></i>evaluate</span><span><i style="background:#ff6f91"></i>present</span></div>
+      
+    </div>
+    <div class="col figside" style="max-width:350px"><div class="theory"><div class="lbl">Step 1 kills more projects than anything else</div><p>"I want to do something with health data" is not a question. "Can I predict which patients miss appointments, from data available the day before?" is. The second one tells you what to collect, what to build, and when you are finished.</p></div><div class="card warn"><h3>Step 5 kills the rest</h3><p>A model with a good score and no sentence attached to it never gets used. The metric is the middle of the story, not the end of it.</p></div><div class="def"><div class="lbl">Definition</div><h4>A finishable project</h4><p>One where you can state the question in a sentence, the data already exists, and you could describe what a good answer looks like <b>before</b> you start modelling.</p></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="Pick the question and the dataset together">
+  <div class="tag fx">1.2 · Scoping</div>
+  <h1 class="sh fx d1">Pick the question and the dataset together</h1>
+  <div class="body">
+    <div class="col fx d2"><table class="t"><tr><th>Too broad</th><th>Right size</th></tr><tr><td style="color:var(--coral)">"Analyse Malaysian house prices"</td><td style="color:var(--mint)">"Which three features best predict price per sq ft in Johor Bahru?"</td></tr><tr><td style="color:var(--coral)">"Do something with customer data"</td><td style="color:var(--mint)">"Can I flag customers likely to churn within 30 days?"</td></tr><tr><td style="color:var(--coral)">"Predict the stock market"</td><td style="color:var(--mint)">"Does a 7-day moving average beat naive prediction on this one stock?"</td></tr></table><div class="theory"><div class="lbl">The four questions to answer before you write code</div><p><b>1.</b> What exactly am I predicting, in one sentence? <b>2.</b> What is one row of my dataset? <b>3.</b> Would I genuinely have every feature at prediction time? <b>4.</b> What would a useful answer look like — and what would a useless one look like?</p></div></div>
+    <div class="col fx d3"><div class="card accent"><h3>Where to find data</h3><p>Kaggle · data.gov.my · Bank Negara · Our World in Data · yfinance for markets · or your own business. Real data you understand beats a clean benchmark you do not.</p></div><div class="card"><h3>Size guidance</h3><p>Aim for at least a few thousand rows and fewer than fifty columns. Smaller than that and you cannot validate anything; much larger and you will spend the session waiting for fits instead of thinking.</p></div><div class="card warn"><h3>The honest failure is allowed</h3><p>If the answer turns out to be "these features do not predict this target", that is a finding. Report it with the evidence and say what data would be needed. That is real work.</p></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="A structure that still runs in six months">
+  <div class="tag fx">1.3 · Setting up</div>
+  <h1 class="sh fx d1">A structure that still runs in six months</h1>
+  <div class="body">
+    <div class="col fx d2"><div class="cb"><div class="code-head">the repo layout</div><pre class="code sm">capstone/
+├── data/
+│   ├── raw/           <span class="c"># never edited, never committed if large</span>
+│   └── processed/     <span class="c"># what your code produces</span>
+├── notebooks/
+│   └── 01_analysis.ipynb
+├── src/
+│   └── features.py    <span class="c"># functions you reuse</span>
+├── requirements.txt
+├── .gitignore
+└── README.md         <span class="c"># question, data source, how to run</span></pre></div><div class="cb"><div class="code-head">requirements, from the environment you actually used</div><pre class="code sm"><span class="c"># create a clean environment first</span>
+python -m venv .venv
+source .venv/bin/activate      <span class="c"># Windows: .venv\Scripts\activate</span>
+
+pip install pandas scikit-learn matplotlib
+pip freeze &gt; requirements.txt</pre></div></div>
+    <div class="col fx d3"><div class="def"><div class="lbl">Definition</div><h4>Reproducible</h4><p>Someone else can clone your repo, install from requirements.txt, run the notebook top to bottom, and get <b>your numbers</b>. If it only works on your laptop, it does not count.</p></div><div class="theory"><div class="lbl">The rule that makes it true</div><p><b>Restart kernel and run all</b>, before you present. Every time. Notebooks accumulate hidden state — variables from cells you deleted, results from code you changed. A notebook that only runs out of order is not a result, it is a memory of one.</p></div><div class="card warn"><h3>Set every random_state</h3><p><span style="font-family:var(--mono)">train_test_split(..., random_state=42)</span> and the same on every model. Without it your numbers change on every run and you cannot tell a real improvement from noise.</p></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="Module 1 Hands-on">
+  <div class="tag fx">Hands-on · Module 1</div>
+  <h1 class="sh fx d1">Write your project brief</h1>
+  <div class="body">
+    <div class="col fx d2">
+      <div class="hands-on">
+        <div class="lbl">20 minutes · solo, then pairs</div>
+        <h3>Write your project brief</h3>
+        <p>Half a page. I will read every one before you start building.</p>
+        <div class="steps"><div><b>01</b><span>The question, in one sentence, with the target named.</span></div><div><b>02</b><span>What one row of your dataset is.</span></div><div><b>03</b><span>Where the data comes from, and how many rows and columns.</span></div><div><b>04</b><span>Three features you expect to matter, and why — in plain language.</span></div><div><b>05</b><span>What a useful answer looks like, and what would make it useless.</span></div><div><b>06</b><span>Your leakage check: would you genuinely have every feature at prediction time?</span></div></div>
+      </div>
+    </div>
+    <div class="col fx d3"><div class="cb"><div class="code-head">brief template</div><pre class="code sm"><span class="c"># Capstone brief</span>
+
+<span class="c">## Question</span>
+Can I predict [TARGET] from [DATA] for [WHO]?
+
+<span class="c">## One row is</span>
+One [customer / day / property / transaction]
+
+<span class="c">## Data</span>
+Source: ...   Rows: ...   Columns: ...
+
+<span class="c">## Features I expect to matter</span>
+1. ... because ...
+2. ... because ...
+3. ... because ...
+
+<span class="c">## Useful looks like</span>
+Beating [baseline] by enough that [decision] changes.
+
+<span class="c">## Leakage check</span>
+Every feature above is knowable at prediction time: YES / NO</pre></div><div class="card accent"><h3>Swap briefs with your partner</h3><p>Their job is to find the leakage and to ask "what is one row?" until you can answer instantly. Ten minutes of that saves a wasted afternoon.</p></div></div>
+  </div>
+</section>
+
+<section class="slide divider" data-title="Module 2">
+  <div class="num fx">02</div>
+  <h1 class="fx d1">Execution</h1>
+  <div class="items"><div class="fx d2"><b>2.1</b>The pipeline, in the order that works</div><div class="fx d3"><b>2.2</b>Evaluation quick reference — everything from Sessions 2–6</div><div class="fx d4"><b>2.3</b>Documenting while you build, not after</div>
+    <div class="fx d5" style="margin-top:8px"><b style="color:var(--amber)">↓</b><span style="color:var(--amber)">Build Time — you work, I circulate</span></div>
+  </div>
+</section>
+
+<section class="slide" data-title="Seven stages, in this order, every time">
+  <div class="tag fx">2.1 · The pipeline</div>
+  <h1 class="sh fx d1">Seven stages, in this order, every time</h1>
+  <div class="body">
+    <div class="col fx d2"><div class="steps" style="margin-bottom:12px"><div><b>01</b><span>Load and look. <span style="font-family:var(--mono)">.shape</span>, <span style="font-family:var(--mono)">.dtypes</span>, <span style="font-family:var(--mono)">.describe()</span>, and plot the target.</span></div><div><b>02</b><span>Split. Before cleaning, before scaling. By date if it is a time series.</span></div><div><b>03</b><span>Clean and engineer — fitting anything on the training set only.</span></div><div><b>04</b><span>Baseline. Mean for regression, majority class for classification. Write the number down.</span></div><div><b>05</b><span>Model. Start simple, then one step up. Cross-validate.</span></div><div><b>06</b><span>Evaluate on the test set. Once.</span></div><div><b>07</b><span>Interpret. Which features mattered, where does it fail, what would you try next.</span></div></div><div class="theory"><div class="lbl">Step 2 is where people go wrong</div><p>Splitting <b>before</b> cleaning feels backwards — you want to fix the data first. But every imputation value, every scaler, every encoder learned from the full dataset carries test information into training. Split first; it costs nothing and removes a whole category of mistake.</p></div></div>
+    <div class="col fx d3"><div class="cb"><div class="code-head">the skeleton — copy this into your notebook</div><pre class="code"><span class="c"># 1. load</span>
+df = pd.read_csv(<span class="s">"data/raw/dataset.csv"</span>)
+
+<span class="c"># 2. split FIRST</span>
+X = df.drop(columns=[TARGET]); y = df[TARGET]
+X_tr, X_te, y_tr, y_te = train_test_split(
+    X, y, test_size=<span class="n">0.2</span>, random_state=<span class="n">42</span>)
+
+<span class="c"># 3. clean + engineer, fit on train only</span>
+pre = ColumnTransformer([...])
+X_tr_p = pre.fit_transform(X_tr)
+X_te_p = pre.transform(X_te)
+
+<span class="c"># 4. baseline</span>
+base = DummyRegressor(strategy=<span class="s">"mean"</span>).fit(X_tr_p, y_tr)
+print(<span class="s">f"baseline {base.score(X_te_p, y_te):.3f}"</span>)
+
+<span class="c"># 5-6. model, then test ONCE</span>
+model = RandomForestRegressor(random_state=<span class="n">42</span>).fit(X_tr_p, y_tr)
+print(<span class="s">f"model    {model.score(X_te_p, y_te):.3f}"</span>)</pre></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="Everything from Sessions 2–6, on one slide">
+  <div class="tag fx">2.2 · Evaluation reference</div>
+  <h1 class="sh fx d1">Everything from Sessions 2–6, on one slide</h1>
+  <div class="body">
+    <div class="col fx d2"><table class="t"><tr><th>Task</th><th>Report</th><th>Baseline to beat</th></tr><tr><td style="color:var(--mint)">Regression</td><td>MAE, RMSE, R² + residual plot</td><td>Predict the mean</td></tr><tr><td style="color:var(--blue)">Binary classification</td><td>Precision, recall, F1 + confusion matrix</td><td>Predict the majority class</td></tr><tr><td style="color:var(--blue)">Imbalanced</td><td>Minority-class precision &amp; recall at your chosen threshold</td><td>Majority class</td></tr><tr><td style="color:var(--purple)">Multi-class</td><td>Per-class report + confusion matrix</td><td>Most common class</td></tr><tr><td style="color:var(--amber)">Time series</td><td>MAE in target units + forecast plot</td><td>Tomorrow = today</td></tr><tr><td style="color:var(--coral)">Clustering</td><td>Do the clusters differ in a way that matters?</td><td>There isn't one — argue it</td></tr></table><div class="theory"><div class="lbl">Three things every evaluation needs</div><p><b>A baseline</b> — otherwise the number is meaningless. <b>A test set touched once</b> — otherwise it is a validation set. <b>A plot</b> — because the score tells you how wrong, and only the plot tells you where.</p></div></div>
+    <div class="col fx d3"><div class="cb"><div class="code-head">the leakage audit — run it before you believe any score</div><pre class="code sm"><span class="c"># 1. is the test set genuinely untouched?</span>
+<span class="c">#    did any fit_transform see X_te?</span>
+
+<span class="c"># 2. is any feature derived from the target?</span>
+print(X.corrwith(y).abs().sort_values(ascending=<span class="k">False</span>).head())
+<span class="c">#    a 0.99 correlation is a bug, not a feature</span>
+
+<span class="c"># 3. time series: is every training date before every test date?</span>
+<span class="k">assert</span> train.index.max() &lt; test.index.min()
+
+<span class="c"># 4. is the score suspiciously good?</span>
+<span class="c">#    R2 &gt; 0.95 or accuracy &gt; 99% -> assume leakage until proven otherwise</span></pre></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="Write it as you go, or you will not write it">
+  <div class="tag fx">2.3 · Documenting</div>
+  <h1 class="sh fx d1">Write it as you go, or you will not write it</h1>
+  <div class="body">
+    <div class="col fx d2"><div class="theory"><div class="lbl">The markdown cell habit</div><p>Before each block of code, one markdown cell saying <b>what you are about to do and why</b>. Not what the code does — the reader can see that. Why you chose median over mean; why you dropped that column; what you expected to happen.</p></div></div>
+    <div class="col fx d3"><div class="card accent"><h3>What a good notebook reads like</h3><p>A short report with code in it — not a transcript of your afternoon. Failed experiments either get deleted or get a sentence explaining what they ruled out.</p></div><div class="card accent"><h3>The README is four lines</h3><p>What question this answers · where the data came from · how to run it · what you found. Someone should be able to decide whether to read further in fifteen seconds.</p></div><div class="cb"><div class="code-head">README template</div><pre class="code sm"><span class="c"># Predicting appointment no-shows</span>
+
+<span class="c">**Question** — can we flag patients likely to miss an</span>
+<span class="c">appointment, using only data available the day before?</span>
+
+<span class="c">**Data** — 110k appointments, Brazil public health,</span>
+<span class="c">Kaggle. 14 columns.</span>
+
+<span class="c">**Run it**</span>
+pip install -r requirements.txt
+jupyter notebook notebooks/01_analysis.ipynb
+
+<span class="c">**Finding** — SMS reminders and lead time are the two</span>
+<span class="c">strongest signals. At a 0.3 threshold the model catches</span>
+<span class="c">62% of no-shows while flagging 24% of all appointments.</span></pre></div><div class="theory"><div class="lbl">Notice what that finding does</div><p>It gives a decision-maker two numbers they can act on — coverage and cost — instead of an F1 score. That is the difference between a project that gets used and one that gets filed.</p></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="Module 2 Hands-on">
+  <div class="tag fx">Hands-on · Module 2</div>
+  <h1 class="sh fx d1">Build Time</h1>
+  <div class="body">
+    <div class="col fx d2">
+      <div class="hands-on">
+        <div class="lbl">60 minutes · solo · I'm circulating</div>
+        <h3>Build Time</h3>
+        <p>Work through the pipeline. Get to an evaluated model, even a mediocre one, before you polish anything.</p>
+        <div class="steps"><div><b>01</b><span>Load, look, plot the target distribution.</span></div><div><b>02</b><span>Split — correctly for your data type.</span></div><div><b>03</b><span>Clean and engineer. Markdown cell before each decision.</span></div><div><b>04</b><span>Baseline. Write the number in a markdown cell.</span></div><div><b>05</b><span>One simple model, then one step up. Cross-validate.</span></div><div><b>06</b><span>Evaluate on test, once. Plot residuals or the confusion matrix.</span></div><div><b>07</b><span>Run the leakage audit from 2.2 before you believe your score.</span></div></div>
+      </div>
+    </div>
+    <div class="col fx d3"><div class="card accent"><h3>If you are stuck for more than fifteen minutes</h3><p>Put your hand up. Being stuck is normal; being stuck silently for an hour is what stops the project finishing today.</p></div><div class="card warn"><h3>If your model barely beats baseline</h3><p>That is a legitimate result and you should report it. Spend your remaining time understanding <b>why</b> — which features were weak, what data would have helped. That analysis is worth more than a lucky score.</p></div><div class="theory"><div class="lbl">Finish rough, then improve</div><p>A complete mediocre pipeline can be improved in the last twenty minutes. A beautiful cleaning step with no model attached cannot be presented at all.</p></div></div>
+  </div>
+</section>
+
+<section class="slide divider" data-title="Module 3">
+  <div class="num fx">03</div>
+  <h1 class="fx d1">Presenting</h1>
+  <div class="items"><div class="fx d2"><b>3.1</b>Turning a metric into a finding</div><div class="fx d3"><b>3.2</b>Charts that make exactly one point</div><div class="fx d4"><b>3.3</b>Where to go after this course</div>
+    <div class="fx d5" style="margin-top:8px"><b style="color:var(--amber)">↓</b><span style="color:var(--amber)">Showcase — three minutes each</span></div>
+  </div>
+</section>
+
+<section class="slide" data-title="Nobody outside this room cares about your F1 score">
+  <div class="tag fx">3.1 · Findings</div>
+  <h1 class="sh fx d1">Nobody outside this room cares about your F1 score</h1>
+  <div class="body">
+    <div class="col fx d2"><table class="t"><tr><th style="color:var(--coral)">Metric</th><th style="color:var(--mint)">Finding</th></tr><tr><td>"F1 of 0.71"</td><td>"We catch 3 in 5 likely no-shows, and 1 in 4 flagged patients would have come anyway."</td></tr><tr><td>"R² of 0.83"</td><td>"Price estimates are typically within RM 38,000 — close enough to set an asking price, not to value a portfolio."</td></tr><tr><td>"MAE of 41 units"</td><td>"Forecasts are off by about 41 units a day, against 58 for the current method — roughly RM 6,000 a month in avoided overstock."</td></tr></table><div class="theory"><div class="lbl">The structure of a finding</div><p><b>What it does</b>, in their units · <b>what it costs</b>, in errors or money · <b>what decision changes</b> because of it. If nothing changes, say so — that is also a finding.</p></div></div>
+    <div class="col fx d3"><div class="card accent"><h3>Your three minutes</h3><p><b>30s</b> the question and why it matters · <b>30s</b> the data · <b>60s</b> what you did, one chart · <b>45s</b> the finding, in their units · <b>15s</b> what you would do with more time.</p></div><div class="card accent"><h3>What earns the most credit</h3><p>Saying "I found leakage in my first version — my 0.99 R² was the target in disguise, and here is the honest 0.71." Catching your own mistake is the strongest thing you can show.</p></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="One chart, one point, labelled">
+  <div class="tag fx">3.2 · Charts</div>
+  <h1 class="sh fx d1">One chart, one point, labelled</h1>
+  <p class="sub fx d2">Same ten numbers in both panels.</p>
+  <div class="body figbody">
+    <div class="figwrap">
+      <svg class="fig" id="chartSvg" viewBox="0 0 1000 420"></svg>
+      <div class="legend"><span><i style="background:#8b98a5"></i>default output</span><span><i style="background:#00dcb4"></i>the version you present</span></div>
+      
+    </div>
+    <div class="col figside" style="max-width:350px"><div class="theory"><div class="lbl">The title states the finding</div><p>Not "Conversion rate over time" — that is a label. <b>"Conversion doubled over ten weeks"</b> is a title. The reader should know your point before they look at the line.</p></div><div class="card" style="margin-bottom:11px"><h3>Do</h3><p>Title that states the finding · units on every axis · highlight the one number that matters · one chart per point</p></div><div class="card warn" style="margin-bottom:11px"><h3 style="color:var(--coral)">Don't</h3><p>Title that just names the axes · raw column names as labels · six series in six colours · one chart carrying three arguments</p></div><div class="card warn"><h3>Three charts, maximum</h3><p>For a three-minute talk: the target's distribution, one chart showing your result, and — if you have it — one showing where the model fails. Nothing else fits.</p></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="Where to go from here">
+  <div class="tag fx">3.3 · What's next</div>
+  <h1 class="sh fx d1">Where to go from here</h1>
+  <div class="body">
+    <div class="col fx d2"><table class="t"><tr><th>If you liked</th><th>Go toward</th></tr><tr><td>Sessions 1–3 — data and regression</td><td>Analytics and data engineering · SQL, dbt, dashboards</td></tr><tr><td>Session 4 — classification and thresholds</td><td>Applied ML in business · risk, churn, fraud</td></tr><tr><td>Sessions 5–6 — networks and sequences</td><td>Deep learning · computer vision or NLP</td></tr><tr><td>The pipeline and reproducibility parts</td><td>MLOps · deployment, monitoring, retraining</td></tr></table><div class="theory"><div class="lbl">The honest next step for most people</div><p>Not another course. Take a dataset from your own work, do this whole pipeline again unaided, and publish it. Two or three of those teach you more than any syllabus — and they are what someone hiring actually looks at.</p></div></div>
+    <div class="col fx d3"><div class="card accent"><h3>Keep the habits, whatever you do next</h3><p>Split before you clean. Baseline before you model. Test set once. Plot the residuals. Report in their units. Those five outlive every library you learned this term.</p></div><div class="card"><h3>Where to practise</h3><p>Kaggle playground competitions for feedback, data.gov.my for local problems worth solving, and your own employer's data for the ones people will actually pay for.</p></div><div class="cb"><div class="code-head">the five-line version of everything</div><pre class="code sm"><span class="c"># 1. split before you clean</span>
+<span class="c"># 2. baseline before you model</span>
+<span class="c"># 3. fit on train, transform test</span>
+<span class="c"># 4. touch the test set once</span>
+<span class="c"># 5. report in the units your reader thinks in</span></pre></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="Module 3 Hands-on">
+  <div class="tag fx">Hands-on · Module 3</div>
+  <h1 class="sh fx d1">Showcase</h1>
+  <div class="body">
+    <div class="col fx d2">
+      <div class="hands-on">
+        <div class="lbl">45 minutes · everyone presents</div>
+        <h3>Showcase</h3>
+        
+        <div class="steps"><div><b>01</b><span>Three minutes each. Timed — I will cut you off, kindly.</span></div><div><b>02</b><span>One slide or one notebook view. No deck required.</span></div><div><b>03</b><span>Open with the question, close with the finding.</span></div><div><b>04</b><span>Show one chart. Say what it shows before you explain how you made it.</span></div><div><b>05</b><span>Name one thing that went wrong and what you did about it.</span></div><div><b>06</b><span>Two questions from the room after each.</span></div></div>
+      </div>
+    </div>
+    <div class="col fx d3"><div class="card accent"><h3>The one sentence you must be able to say</h3><p>"On data it had never seen, this model [does what] to within [how much], which means [who] could now [do what]." If you can say that, you have finished a machine learning project.</p></div><div class="theory"><div class="lbl">What we are listening for</div><p>Not the score. Whether you can explain what you built, defend how you validated it, and say honestly what it cannot do. That is the whole job.</p></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="Recap &amp; Summary">
+  <div class="tag fx">Recap &amp; Summary</div>
+  <h1 class="sh fx d1">What you can do now</h1>
+  <div class="body">
+    <div class="col cards grid3 fx d2"><div class="card accent"><h3><span class="k">M1</span>Planning</h3><p>Scope a question that fits your data and can be finished, and set the project up so it still runs months later.</p></div><div class="card accent"><h3><span class="k">M2</span>Execution</h3><p>Work the pipeline in the right order, evaluate against a baseline, and audit your own work for leakage.</p></div><div class="card accent"><h3><span class="k">M3</span>Presenting</h3><p>Turn a metric into a finding in the reader's units, and make one chart carry one point.</p></div></div>
+  </div>
+  <div class="body" style="flex:0 0 auto;margin-top:0">
+    <div class="col fx d3"><div class="theory"><div class="lbl">The one line to remember</div><p><b>Defensible beats impressive.</b> A modest result you can explain and validate is worth more than a brilliant one you cannot — and every experienced reviewer will trust it more.</p></div></div>
+    <div class="col fx d4"><div class="card"><h3>That's the course</h3><p>Seven sessions: features, the workflow, regression, classification, neural networks, sequences, and a finished project of your own. Keep the repo — it is the most useful thing you leave with.</p></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="Review Learning Outcomes">
+  <div class="tag fx">Review Learning Outcomes</div>
+  <h1 class="sh fx d1">Did we get there?</h1>
+  <p class="sub fx d2">Rate yourself 1–5. Anything at 2 or below, flag it now — next session assumes all of this.</p>
+  <div class="body">
+    <div class="col cards grid2 fx d3"><div class="card"><h3><span class="k">LO1</span>I can scope a question that my data can actually answer</h3><p style="font-family:var(--mono);color:var(--mint)">1 — 2 — 3 — 4 — 5</p></div><div class="card"><h3><span class="k">LO2</span>I can structure a notebook a stranger could follow</h3><p style="font-family:var(--mono);color:var(--mint)">1 — 2 — 3 — 4 — 5</p></div><div class="card"><h3><span class="k">LO3</span>My project runs end to end from a clean environment</h3><p style="font-family:var(--mono);color:var(--mint)">1 — 2 — 3 — 4 — 5</p></div><div class="card"><h3><span class="k">LO4</span>I evaluated against a baseline and audited for leakage</h3><p style="font-family:var(--mono);color:var(--mint)">1 — 2 — 3 — 4 — 5</p></div><div class="card accent" style="grid-column:1/-1"><h3><span class="k">LO5</span>I can state my result as a finding in my audience's units</h3><p style="font-family:var(--mono);color:var(--mint)">1 — 2 — 3 — 4 — 5</p></div></div>
+  </div>
+  <p class="caption fx d4">codencode.my · ML Session 07 · course complete</p>
+</section>
+</div>
+
+<div id="nav">
+  <button class="navbtn" onclick="go(-1)">PREV</button>
+  <div id="dots"></div>
+  <button class="navbtn" onclick="go(1)">NEXT</button>
+</div>
+
+<script>
+const slides=[...document.querySelectorAll('.slide')];
+let i=0;const dots=document.getElementById('dots');
+slides.forEach((s,n)=>{const d=document.createElement('div');d.className='dot';d.onclick=()=>show(n);dots.appendChild(d);});
+function show(n){
+  if(n<0||n>=slides.length)return;
+  slides[i].classList.remove('active');i=n;void slides[i].offsetWidth;slides[i].classList.add('active');
+  document.getElementById('counter').textContent=String(i+1).padStart(2,'0')+' / '+slides.length;
+  document.getElementById('titlebar').textContent=slides[i].dataset.title||'';
+  document.getElementById('progress').style.width=((i+1)/slides.length*100)+'%';
+  [...dots.children].forEach((d,k)=>d.classList.toggle('on',k===i));
+}
+function go(d){show(i+d);}
+function fs(){document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen();}
+addEventListener('keydown',e=>{
+  if(['ArrowRight',' ','PageDown'].includes(e.key)){e.preventDefault();go(1);}
+  if(['ArrowLeft','PageUp'].includes(e.key)){e.preventDefault();go(-1);}
+  if(e.key==='Home')show(0);
+  if(e.key==='End')show(slides.length-1);
+  if(e.key==='f')fs();
+});
+
+/* ---------- copy-to-clipboard on every code block ---------- */
+(function(){
+  document.querySelectorAll('pre.code').forEach(pre=>{
+    const source = pre.textContent;               // capture BEFORE adding the button
+    const btn = document.createElement('button');
+    btn.className = 'copybtn';
+    btn.type = 'button';
+    btn.textContent = 'COPY';
+    btn.addEventListener('click', async e=>{
+      e.stopPropagation();
+      try{
+        await navigator.clipboard.writeText(source);
+      }catch(err){                                 // file:// fallback
+        const ta=document.createElement('textarea');
+        ta.value=source; ta.style.position='fixed'; ta.style.opacity='0';
+        document.body.appendChild(ta); ta.select();
+        try{document.execCommand('copy');}catch(_){}
+        document.body.removeChild(ta);
+      }
+      btn.textContent='COPIED'; btn.classList.add('done');
+      setTimeout(()=>{btn.textContent='COPY'; btn.classList.remove('done');},1400);
+    });
+    pre.appendChild(btn);
+  });
+})();
+
+
+/* ---------- capstone roadmap ---------- */
+(function(){
+  const svg=document.getElementById('roadSvg'); if(!svg) return;
+  const X0=70,X1=930,Y=170;
+  const miles=[
+    ['Scope','question + dataset','#00dcb4'],
+    ['Clean','feature matrix','#00dcb4'],
+    ['Baseline','a number to beat','#58a6ff'],
+    ['Model','fit + tune','#58a6ff'],
+    ['Evaluate','honest metrics','#f0b429'],
+    ['Present','findings','#ff6f91'],
+  ];
+  let s='';
+  s+=`<line x1="${X0}" y1="${Y}" x2="${X1}" y2="${Y}" stroke="#2a3440" stroke-width="4"/>`;
+  s+=`<line class="railFill" x1="${X0}" y1="${Y}" x2="${X1}" y2="${Y}" stroke="#00dcb4" stroke-width="4" opacity=".55"/>`;
+  miles.forEach(([t,sub,col],i)=>{
+    const x=X0+(X1-X0)*i/(miles.length-1);
+    const up=i%2===0;
+    s+=`<g class="mile m${i}">`;
+    s+=`<circle cx="${x}" cy="${Y}" r="13" fill="#0d1117" stroke="${col}" stroke-width="3"/>`;
+    s+=`<circle cx="${x}" cy="${Y}" r="5" fill="${col}"/>`;
+    const ty = up ? Y-44 : Y+62;
+    s+=`<line x1="${x}" y1="${up?Y-16:Y+16}" x2="${x}" y2="${up?Y-30:Y+36}" stroke="${col}" stroke-width="1.5" opacity=".6"/>`;
+    s+=`<text x="${x}" y="${ty}" text-anchor="middle" font-family="Space Grotesk,sans-serif"
+         font-size="17" font-weight="700" fill="${col}">${t}</text>`;
+    s+=`<text x="${x}" y="${ty+20}" text-anchor="middle" font-family="JetBrains Mono,monospace"
+         font-size="11.5" fill="#8b98a5">${sub}</text>`;
+    s+=`<text x="${x}" y="${up?Y+30:Y-22}" text-anchor="middle" font-family="JetBrains Mono,monospace"
+         font-size="11" fill="#2a3440">step ${i+1}</text>`;
+    s+=`</g>`;
+  });
+  s+=`<text x="${X0}" y="330" font-family="Inter,sans-serif" font-size="14" fill="#8b98a5" font-style="italic">`+
+     `Most projects die at step 1 — too broad a question — or step 5, where the metric never becomes a finding.</text>`;
+  svg.innerHTML=s;
+})();
+
+/* ---------- chart before / after ---------- */
+(function(){
+  const svg=document.getElementById('chartSvg'); if(!svg) return;
+  const data=[0.42,0.51,0.47,0.63,0.58,0.71,0.66,0.78,0.74,0.86];
+  function panel(ox, styled){
+    const W=380,H=210,oy=90;
+    let s=`<rect x="${ox}" y="${oy}" width="${W}" height="${H}" rx="8" fill="#0a0e13" stroke="#2a3440" stroke-width="1.4"/>`;
+    const mx=i=>ox+30+(W-60)*i/(data.length-1);
+    const my=v=>oy+H-30-(H-60)*v;
+    if(styled){
+      [0.25,0.5,0.75].forEach(g=>{
+        s+=`<line x1="${ox+28}" y1="${my(g)}" x2="${ox+W-16}" y2="${my(g)}" stroke="#2a3440" stroke-width="1" opacity=".5"/>`;
+      });
+    }
+    s+=`<line x1="${ox+28}" y1="${my(0)}" x2="${ox+W-16}" y2="${my(0)}" stroke="#2a3440" stroke-width="1.4"/>`;
+    const d=data.map((v,i)=>(i?' L ':'M ')+mx(i).toFixed(1)+' '+my(v).toFixed(1)).join('');
+    s+=`<path d="${d}" fill="none" stroke="${styled?'#00dcb4':'#8b98a5'}" stroke-width="${styled?3:2}"/>`;
+    if(styled){
+      data.forEach((v,i)=>{ s+=`<circle cx="${mx(i)}" cy="${my(v)}" r="3.5" fill="#00dcb4"/>`; });
+      const li=data.length-1;
+      s+=`<circle cx="${mx(li)}" cy="${my(data[li])}" r="7" fill="none" stroke="#f0b429" stroke-width="2"/>`;
+      s+=`<text x="${mx(li)-8}" y="${my(data[li])-16}" text-anchor="end" font-family="JetBrains Mono,monospace"
+           font-size="12" fill="#f0b429">+105% since Q1</text>`;
+      s+=`<text x="${ox+28}" y="${oy+22}" font-family="Space Grotesk,sans-serif" font-size="15"
+           font-weight="700" fill="#e8eef0">Conversion doubled over ten weeks</text>`;
+      s+=`<text x="${ox+28}" y="${oy+H-8}" font-family="JetBrains Mono,monospace" font-size="10.5" fill="#8b98a5">week 1 — 10 · conversion rate</text>`;
+      s+=`<text x="${ox+10}" y="${my(0.5)}" font-family="JetBrains Mono,monospace" font-size="10" fill="#8b98a5"
+           transform="rotate(-90 ${ox+10} ${my(0.5)})" text-anchor="middle">rate</text>`;
+    } else {
+      s+=`<text x="${ox+28}" y="${oy+22}" font-family="JetBrains Mono,monospace" font-size="12" fill="#8b98a5">Figure_1</text>`;
+    }
+    return s;
+  }
+  let s='';
+  s+=`<text x="60" y="60" font-family="JetBrains Mono,monospace" font-size="13" fill="#ff6f91">BEFORE — what plt.plot() gives you</text>`;
+  s+=panel(60,false);
+  s+=`<text x="530" y="60" font-family="JetBrains Mono,monospace" font-size="13" fill="#00dcb4">AFTER — same numbers, one point made</text>`;
+  s+=panel(530,true);
+  s+=`<text x="60" y="350" font-family="Inter,sans-serif" font-size="14" fill="#8b98a5" font-style="italic">`+
+     `Identical data. The right one has a title that states the finding, labelled axes, and the one number you want remembered.</text>`;
+  svg.innerHTML=s;
+})();
+
+show(0);
+</script>
+</body>
+</html>

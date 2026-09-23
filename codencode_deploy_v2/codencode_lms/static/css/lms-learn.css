@@ -268,7 +268,7 @@
 
 .lrn-drill-eyebrow { font: 500 11.5px 'JetBrains Mono', monospace; color: var(--lrn-amber); margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
 .lrn-drill-q { font: 700 21px/1.4 'Outfit', 'Inter', sans-serif; letter-spacing: -.01em; margin-bottom: 8px; }
-.lrn-drill-sub { font-size: 13px; color: var(--lrn-text-2); margin-bottom: 22px; line-height: 1.6; }
+.lrn-drill-sub { font-size: 13px; color: var(--lrn-text-2); margin-bottom: 22px; line-height: 1.6; white-space: pre-line; }
 .lrn-code {
   background: var(--lrn-surface-2); border: 1px solid var(--lrn-border);
   border-radius: 12px; padding: 16px 18px; margin-bottom: 22px;

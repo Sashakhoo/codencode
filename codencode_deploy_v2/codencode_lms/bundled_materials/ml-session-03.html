@@ -1,0 +1,773 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>ML Session 03 — Regression Models | codencode Academy</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0d1117;--panel:#161b22;--panel2:#1c2430;--line:#2a3440;
+  --mint:#00dcb4;--text:#e8eef0;--muted:#8b98a5;--coral:#ff6f91;--amber:#f0b429;--blue:#58a6ff;--purple:#bc8cff;
+  --sans:'Space Grotesk','Inter',system-ui,sans-serif;--body:'Inter',system-ui,sans-serif;
+  --mono:'JetBrains Mono','SF Mono',Consolas,monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:var(--body);height:100vh;overflow:hidden;user-select:none}
+#topbar{position:fixed;top:0;left:0;right:0;height:52px;display:flex;align-items:center;gap:16px;
+  padding:0 24px;background:rgba(13,17,23,.92);border-bottom:1px solid var(--line);z-index:50}
+.wordmark{height:21px;width:auto;display:block;flex-shrink:0}
+#sesslabel{font-size:12px;color:var(--muted);font-family:var(--mono)}
+#titlebar{flex:1;text-align:center;font-size:13px;color:var(--muted);font-family:var(--mono);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#counter{font-family:var(--mono);font-size:12px;color:var(--mint)}
+.btn{background:rgba(0,220,180,.10);border:1px solid rgba(0,220,180,.32);color:var(--mint);
+  font-family:var(--mono);font-size:11px;padding:6px 12px;border-radius:6px;cursor:pointer}
+.btn:hover{background:rgba(0,220,180,.20)}
+#progress{position:fixed;top:52px;left:0;height:2px;background:var(--mint);z-index:51;transition:width .3s}
+#deck{position:absolute;top:54px;bottom:56px;left:0;right:0}
+.slide{position:absolute;inset:0;padding:28px 48px;display:none;flex-direction:column;overflow:hidden}
+.slide.active{display:flex;animation:in .38s ease both}
+@keyframes in{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+.tag{font-family:var(--mono);font-size:11px;letter-spacing:.15em;text-transform:uppercase;color:var(--mint);margin-bottom:7px}
+h1.sh{font-family:var(--sans);font-size:clamp(22px,2.7vw,34px);font-weight:700;line-height:1.14}
+h1.sh::after{content:'';display:block;width:50px;height:4px;background:var(--mint);border-radius:2px;margin-top:10px}
+.sub{color:var(--muted);font-size:14.5px;margin-top:10px;max-width:82ch;line-height:1.6}
+.body{flex:1;display:flex;gap:24px;align-items:center;min-height:0;margin-top:16px;overflow:hidden}
+.body.mid{align-items:center}
+.col{flex:1;min-width:0}
+.figwrap{flex:1.8 1 0;display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:0;min-height:0;max-height:100%;gap:6px}
+svg.fig{width:100%;height:100%;min-height:300px;flex:1 1 auto;display:block}
+.figwrap > .legend,.figwrap > .controls,.figwrap > .gate,.figwrap > .eq{flex:0 0 auto;width:100%}
+
+/* title / divider */
+.title-slide{align-items:center;justify-content:center;text-align:center}
+.title-slide .badge{font-family:var(--mono);font-size:12px;color:var(--mint);border:1px solid rgba(0,220,180,.34);
+  background:rgba(0,220,180,.08);padding:7px 18px;border-radius:20px;margin-bottom:24px}
+.title-slide h1{font-family:var(--sans);font-size:clamp(38px,5.6vw,66px);font-weight:700;line-height:1.05}
+.title-slide h1 em{font-style:normal;color:var(--mint)}
+.title-slide p{color:var(--muted);font-size:17px;margin-top:18px;max-width:62ch}
+.title-slide .foot{margin-top:34px;font-family:var(--mono);font-size:13px;color:var(--muted)}
+.divider{align-items:flex-start;justify-content:center}
+.divider .num{font-family:var(--sans);font-size:112px;font-weight:700;color:rgba(0,220,180,.16);line-height:1}
+.divider h1{font-family:var(--sans);font-size:clamp(32px,4.4vw,52px);font-weight:700;margin-top:-16px}
+.divider .items{margin-top:22px;display:flex;flex-direction:column;gap:11px}
+.divider .items div{font-size:16.5px;color:var(--muted)}
+.divider .items b{color:var(--mint);font-family:var(--mono);font-size:14.5px;margin-right:11px}
+
+/* blocks */
+.cards{display:grid;gap:12px}
+.grid2{grid-template-columns:1fr 1fr}.grid3{grid-template-columns:repeat(3,1fr)}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:15px 17px}
+.card.accent{border-color:rgba(0,220,180,.45);background:var(--panel2)}
+.card.warn{border-color:rgba(255,111,145,.42)}
+.card h3{font-family:var(--sans);font-size:16px;font-weight:600;margin-bottom:5px}
+.card h3 .k{color:var(--mint);font-family:var(--mono);font-size:13.5px;margin-right:8px}
+.card p{color:var(--muted);font-size:13.8px;line-height:1.55}
+.card p b{color:var(--text);font-weight:600}
+
+.def{border-left:3px solid var(--blue);background:linear-gradient(90deg,rgba(88,166,255,.09),transparent 65%);
+  padding:14px 18px;border-radius:0 9px 9px 0;margin-bottom:12px}
+.def .lbl{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;color:var(--blue);text-transform:uppercase}
+.def h4{font-family:var(--sans);font-size:17px;margin:5px 0 6px}
+.def p{color:var(--muted);font-size:14px;line-height:1.6}
+.def p b{color:var(--text);font-weight:600}
+
+.theory{border-left:3px solid var(--amber);background:linear-gradient(90deg,rgba(240,180,41,.08),transparent 65%);
+  padding:14px 18px;border-radius:0 9px 9px 0;margin-bottom:12px}
+.theory .lbl{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;color:var(--amber);text-transform:uppercase}
+.theory p{color:var(--muted);font-size:14px;line-height:1.6;margin-top:6px}
+.theory p b{color:var(--text);font-weight:600}
+
+.formula{background:#0a0e13;border:1px solid var(--line);border-radius:10px;padding:16px 20px;
+  font-family:var(--mono);font-size:19px;color:var(--mint);text-align:center;margin:10px 0;letter-spacing:.02em}
+.formula small{display:block;font-size:12px;color:var(--muted);margin-top:8px;letter-spacing:0}
+
+pre.code{background:#0a0e13;border:1px solid var(--line);border-radius:10px;padding:14px 17px;
+  font-family:var(--mono);font-size:13.2px;line-height:1.68;color:var(--text);overflow:auto}
+pre.code.sm{font-size:12.3px;line-height:1.6}
+pre.code .c{color:var(--muted)}pre.code .s{color:var(--mint)}pre.code .n{color:var(--blue)}
+pre.code .e{color:var(--coral)}pre.code .k{color:var(--purple)}
+.code-head{font-family:var(--mono);font-size:11px;color:var(--muted);background:var(--panel2);
+  border:1px solid var(--line);border-bottom:none;border-radius:10px 10px 0 0;padding:7px 13px}
+.code-head + pre.code{border-radius:0 0 10px 10px}
+
+table.t{width:100%;border-collapse:collapse;font-size:13.5px}
+table.t th{text-align:left;font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--mint);padding:9px 12px;border-bottom:1px solid var(--line)}
+table.t td{padding:10px 12px;border-bottom:1px solid var(--line);color:var(--muted);line-height:1.5;vertical-align:top}
+table.t td:first-child{color:var(--text);font-family:var(--mono);font-size:12.5px;white-space:nowrap}
+table.cps td:first-child{color:var(--mint);font-family:var(--mono);font-size:13px;width:140px}
+
+.pill{display:inline-block;font-family:var(--mono);font-size:11.5px;padding:4px 11px;border-radius:13px;
+  border:1px solid;margin:0 7px 7px 0}
+.pill.mint{color:var(--mint);border-color:rgba(0,220,180,.4);background:rgba(0,220,180,.08)}
+.pill.coral{color:var(--coral);border-color:rgba(255,111,145,.4);background:rgba(255,111,145,.08)}
+.pill.amber{color:var(--amber);border-color:rgba(240,180,41,.4);background:rgba(240,180,41,.08)}
+.pill.blue{color:var(--blue);border-color:rgba(88,166,255,.4);background:rgba(88,166,255,.08)}
+
+.hands-on{border-left:3px solid var(--mint);background:linear-gradient(90deg,rgba(0,220,180,.07),transparent 60%);
+  padding:16px 22px;border-radius:0 10px 10px 0}
+.hands-on .lbl{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;color:var(--mint);text-transform:uppercase}
+.hands-on h3{font-family:var(--sans);font-size:19px;margin:7px 0 9px}
+.hands-on p{color:var(--muted);font-size:14.2px;line-height:1.6}
+.steps{margin-top:12px;display:flex;flex-direction:column;gap:8px}
+.steps div{font-size:14px;color:var(--text);display:flex;gap:11px;align-items:flex-start}
+.steps b{color:var(--mint);font-family:var(--mono);font-size:12.5px;flex-shrink:0}
+.caption{font-size:13px;color:var(--muted);font-style:italic;margin-top:11px;text-align:center}
+
+#nav{position:fixed;bottom:0;left:0;right:0;height:56px;display:flex;align-items:center;justify-content:center;gap:18px;z-index:50}
+.navbtn{background:var(--panel);border:1px solid var(--line);color:var(--muted);font-family:var(--mono);
+  font-size:12px;padding:8px 16px;border-radius:8px;cursor:pointer}
+.navbtn:hover{border-color:var(--mint);color:var(--mint)}
+#dots{display:flex;gap:5px;flex-wrap:wrap;max-width:52vw;justify-content:center}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--line);cursor:pointer}
+.dot.on{background:var(--mint);transform:scale(1.35)}
+
+.fx{opacity:0}
+.slide.active .fx{animation:fade .5s ease forwards}
+@keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.slide.active .d1{animation-delay:.12s}.slide.active .d2{animation-delay:.28s}
+.slide.active .d3{animation-delay:.44s}.slide.active .d4{animation-delay:.6s}
+.slide.active .d5{animation-delay:.78s}.slide.active .d6{animation-delay:.96s}
+.draw{stroke-dasharray:var(--len,300);stroke-dashoffset:var(--len,300)}
+.slide.active .draw{animation:dr .8s ease forwards}
+@keyframes dr{to{stroke-dashoffset:0}}
+.grow{transform-origin:bottom;transform:scaleY(0)}
+.slide.active .grow{animation:gw .7s cubic-bezier(.22,1,.36,1) forwards}
+@keyframes gw{to{transform:scaleY(1)}}
+
+/* ---------- copiable code ---------- */
+pre.code{position:relative;user-select:text}
+.copybtn{position:absolute;top:7px;right:7px;z-index:3;background:rgba(22,27,34,.94);
+  border:1px solid var(--line);color:var(--muted);font-family:var(--mono);font-size:10.5px;
+  letter-spacing:.06em;padding:4px 9px;border-radius:5px;cursor:pointer;opacity:0;transition:.16s}
+pre.code:hover .copybtn{opacity:1}
+.copybtn:hover{border-color:var(--mint);color:var(--mint)}
+.copybtn.done{border-color:var(--mint);color:var(--mint);opacity:1}
+
+/* ---------- figure furniture (legends, controls, sliders) ---------- */
+
+/* ---------- figure slides: stacked on tall screens, side-by-side when wide ---------- */
+.cb{display:block}
+.figbody{flex:1;display:flex;gap:32px;align-items:center;margin-top:24px;min-height:0}
+.figbody > .figwrap{flex:1.8 1 0}
+.figbody > .figside{display:flex;flex-direction:column;gap:12px;min-width:0}
+.figbody > .figside > *{margin-bottom:0}
+@media (max-aspect-ratio: 29/20){
+  .figbody{flex-direction:column;align-items:stretch;gap:16px}
+  .figbody > .figwrap{flex:0 1 auto;width:100%;max-width:none;justify-content:flex-start}
+  .figbody > .figwrap > svg.fig{height:auto;min-height:0;flex:0 0 auto;max-height:100%}
+  .figbody > .figside{max-width:none !important;flex:0 0 auto;display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:14px;align-items:start}
+  .figbody > .figside .controls,.figbody > .figside .legend{justify-content:flex-start}
+}
+
+.legend{display:flex;gap:18px;font-family:var(--mono);font-size:12px;color:var(--muted);
+  margin-top:10px;flex-wrap:wrap;justify-content:center}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px;vertical-align:middle}
+.controls{display:flex;gap:10px;align-items:center;margin-top:12px;flex-wrap:wrap;justify-content:center}
+.btn.ghost{background:transparent;border-color:var(--line);color:var(--muted)}
+.btn.ghost:hover{border-color:var(--mint);color:var(--mint)}
+.gate{margin-bottom:12px}
+.gate label{display:flex;justify-content:space-between;align-items:center;font-family:var(--mono);
+  font-size:12.5px;margin-bottom:6px;gap:12px}
+input[type=range]{width:100%;height:5px;border-radius:3px;appearance:none;background:var(--line);outline:none}
+input[type=range]::-webkit-slider-thumb{appearance:none;width:15px;height:15px;border-radius:50%;
+  background:var(--mint);cursor:pointer;border:2px solid #0d1117}
+.eq{font-family:var(--mono);font-size:12.5px;color:var(--muted);line-height:1.9;background:#0a0e13;
+  border:1px solid var(--line);border-radius:9px;padding:11px 13px}
+.eq b{color:var(--text);font-weight:400}
+</style>
+</head>
+<body>
+
+<div id="topbar">
+  <img class="wordmark" src="data:image/png;base64,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" alt="codencode.my">
+  <div id="sesslabel">ML SESSION 03</div>
+  <div id="titlebar"></div>
+  <div id="counter"></div>
+  <button class="btn" onclick="fs()">FULLSCREEN</button>
+</div>
+<div id="progress"></div>
+
+<div id="deck">
+
+<section class="slide title-slide" data-title="Main Title">
+  <div class="badge fx">SESSION 03 OF 07 · MACHINE LEARNING FUNDAMENTALS</div>
+  <h1 class="fx d1">Regression <em>Models</em></h1>
+  <p class="fx d2">Predicting a number. Linear regression and what its coefficients actually mean, regularisation for when you have too many features, and how to read residuals to see what you are still getting wrong.</p>
+  <div class="foot fx d3">codencode Academy · prerequisite: Session 2 Intro to ML</div>
+</section>
+
+<section class="slide" data-title="Session Plan">
+  <div class="tag fx">Session Plan</div>
+  <h1 class="sh fx d1">What we're doing today</h1>
+  <div class="body">
+    <div class="col cards grid3"><div class="card accent fx d2">
+        <h3><span class="k">M1</span>Regression Basics</h3>
+        <p>What regression is, the family of models, and linear regression from the loss function up.</p>
+        <div style="margin-top:10px"><span class="pill mint">55 min</span></div>
+      </div><div class="card accent fx d3">
+        <h3><span class="k">M2</span>Regularised & Boosted</h3>
+        <p>Ridge, Lasso, and XGBoost — what each one is actually for.</p>
+        <div style="margin-top:10px"><span class="pill mint">50 min</span></div>
+      </div><div class="card accent fx d4">
+        <h3><span class="k">M3</span>Evaluation</h3>
+        <p>The four metrics, reading residuals, and the mistakes that produce confident nonsense.</p>
+        <div style="margin-top:10px"><span class="pill mint">55 min</span></div>
+      </div></div>
+  </div>
+  <div class="cards grid3 fx d5"><div class="card"><p><b>Stack</b> — scikit-learn, xgboost, matplotlib</p></div><div class="card"><p><b>Dataset</b> — Malaysia house prices (continuous target)</p></div><div class="card"><p><b>Deliverable</b> — three fitted models, honestly compared</p></div></div>
+</section>
+
+<section class="slide" data-title="Revised Last Week">
+  <div class="tag fx">Revised Last Week · 10 minutes</div>
+  <h1 class="sh fx d1">Session 02 — Intro to Machine Learning</h1>
+  <p class="sub fx d2">Quick check before we build on it. Answer out loud — if the room goes quiet on any of these, we go back over it now.</p>
+  <div class="body">
+    <div class="col cards grid3 fx d3"><div class="card"><h3>Supervised or unsupervised?</h3><p>Does a column hold the answer? If yes, supervised. Regression when that answer is a number.</p></div><div class="card"><h3>Why three splits?</h3><p>Train to learn, validation to tune, test opened once at the end. A reused test set stops being a test set.</p></div><div class="card"><h3>Over or under?</h3><p>Great on train and poor on test means overfitting. Poor on both means underfitting.</p></div></div>
+  </div>
+  <p class="caption fx d4">Today everything is supervised regression — the target is a continuous number, and every model we fit slots into last week's workflow.</p>
+</section>
+
+<section class="slide" data-title="Learning Outcomes">
+  <div class="tag fx">Learning Outcomes · Condition — Performance — Standard</div>
+  <h1 class="sh fx d1">By the end of today you will be able to…</h1>
+  <div class="body">
+    <div class="col fx d2">
+      <table class="t cps">
+        <tr><th>Component</th><th>Statement</th></tr>
+        <tr><td>Condition</td><td>Given a dataset with a continuous target and a stated accuracy requirement,</td></tr>
+        <tr><td>Performance</td><td>you will fit linear, regularised and boosted regression models, select between them using an appropriate metric, and diagnose what the chosen model still gets wrong by inspecting its residuals,</td></tr>
+        <tr><td>Standard</td><td>reporting test-set MAE, RMSE and R² for all three models in one table, with a one-sentence justification for the model you would ship.</td></tr>
+      </table>
+      <div style="margin-top:18px"><span class="pill mint">LO1 · Define regression</span><span class="pill mint">LO2 · Fit linear regression</span><span class="pill mint">LO3 · Apply Ridge &amp; Lasso</span><span class="pill mint">LO4 · Evaluate with the right metric</span><span class="pill coral">LO5 · Read residuals</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="slide" data-title="Content Mapping">
+  <div class="tag fx">Content Mapping</div>
+  <h1 class="sh fx d1">How today maps to your outcomes</h1>
+  <div class="body">
+    <div class="col fx d2">
+      <table class="t">
+        <tr><th>Module</th><th>Topics</th><th style="width:120px">Outcome</th><th style="width:190px">Assessed by</th></tr>
+        <tr><td>Module 1</td><td>1.1 What is regression · 1.2 Types of regression · 1.3 Linear regression &amp; gradient descent</td>
+        <td style="color:var(--mint)">LO1, LO2</td><td>Fit-a-line drill</td></tr><tr><td>Module 2</td><td>2.1 Ridge &amp; Lasso · 2.2 XGBoost regressor · 2.3 Choosing between them</td>
+        <td style="color:var(--mint)">LO3</td><td>Model comparison table</td></tr><tr><td>Module 3</td><td>3.1 Metrics · 3.2 Residual analysis · 3.3 Common mistakes</td>
+        <td style="color:var(--mint)">LO4, LO5</td><td>Real World Lab</td></tr>
+      </table>
+      <div class="theory" style="margin-top:20px">
+        <div class="lbl">Where this sits in the course</div>
+        <p>This is the first family of models you fit properly. Session 4 does the same for classification. The evaluation habits you build today — always three metrics, always look at residuals — carry through every session after.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="slide divider" data-title="Module 1">
+  <div class="num fx">01</div>
+  <h1 class="fx d1">Regression Basics</h1>
+  <div class="items"><div class="fx d2"><b>1.1</b>What regression is, and when it's the right frame</div><div class="fx d3"><b>1.2</b>The family — linear through to boosted trees</div><div class="fx d4"><b>1.3</b>Linear regression, and how it finds the line</div>
+    <div class="fx d5" style="margin-top:8px"><b style="color:var(--amber)">↓</b><span style="color:var(--amber)">Hands-on: fit a line by hand, then let sklearn do it</span></div>
+  </div>
+</section>
+
+<section class="slide" data-title="1.1 What is regression?">
+  <div class="tag fx">1.1 · Definitions</div>
+  <h1 class="sh fx d1">Regression predicts a number on a continuous scale</h1>
+  <div class="body">
+    <div class="col fx d2"><div class="def"><div class="lbl">Definition</div><h4>Regression</h4><p>A supervised task where the target is a <b>continuous number</b> — one that can meaningfully take any value in a range, and where being close counts as being partly right.</p></div><div class="theory"><div class="lbl">The test that separates it from classification</div><p>Ask: is being <b>nearly</b> right worth anything? Predicting RM 495,000 for a RM 500,000 house is almost perfect. Predicting "cat" when the answer is "dog" is just wrong — there is no nearly. Continuous target, partial credit: regression.</p></div><div class="card warn"><h3>Careful with numbers that aren't really numbers</h3><p>Postcode 81100 is stored as a number but is a category — 81100 is not 'less than' 81200 in any useful sense. Star ratings 1–5 are ordinal: ordered, but the gap from 1 to 2 isn't the same as 4 to 5.</p></div></div>
+    <div class="col fx d3"><table class="t"><tr><th>Question</th><th>Target</th><th>Task</th></tr><tr><td>What will this house sell for?</td><td>RM 480,000</td><td style="color:var(--mint)">Regression</td></tr><tr><td>How many units next month?</td><td>1,240</td><td style="color:var(--mint)">Regression</td></tr><tr><td>How many days until failure?</td><td>37.5</td><td style="color:var(--mint)">Regression</td></tr><tr><td>Will this customer churn?</td><td>yes / no</td><td style="color:var(--blue)">Classification</td></tr><tr><td>Which defect type is this?</td><td>one of 12</td><td style="color:var(--blue)">Classification</td></tr></table><div class="theory"><div class="lbl">A useful trick</div><p>A regression output can be turned into a decision with a threshold — predict the number, then act when it crosses a line. Often more useful than classifying directly, because you keep the magnitude.</p></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="1.2 Types of regression">
+  <div class="tag fx">1.2 · The family</div>
+  <h1 class="sh fx d1">Five regressors, and what each is for</h1>
+  <div class="body">
+    <div class="col fx d2"><table class="t"><tr><th>Model</th><th>Fits</th><th>Reach for it when</th></tr><tr><td style="color:var(--mint)">Linear</td><td>A straight line / flat plane</td><td>You need to explain the result to a client</td></tr><tr><td style="color:var(--mint)">Polynomial</td><td>A curve</td><td>The relationship bends, and you know it does</td></tr><tr><td style="color:var(--blue)">Ridge / Lasso</td><td>A penalised straight line</td><td>Many features, or features that move together</td></tr><tr><td style="color:var(--purple)">Random Forest</td><td>Many step functions averaged</td><td>Non-linear tabular data, minimal tuning</td></tr><tr><td style="color:var(--amber)">XGBoost</td><td>Trees correcting trees</td><td>You want the strongest tabular score</td></tr></table><div class="theory"><div class="lbl">The trade you are making</div><p>Left to right you gain accuracy and lose explainability. A linear model hands you a coefficient per feature. XGBoost hands you a number and a shrug — you can get importances, but not "every extra square foot adds RM 310".</p></div></div>
+    <div class="col fx d3"><div class="cb"><div class="code-head">all five share one interface</div><pre class="code sm"><span class="k">from</span> sklearn.linear_model <span class="k">import</span> LinearRegression, Ridge, Lasso
+<span class="k">from</span> sklearn.ensemble <span class="k">import</span> RandomForestRegressor
+<span class="k">from</span> xgboost <span class="k">import</span> XGBRegressor
+
+models = {
+    <span class="s">"linear"</span>: LinearRegression(),
+    <span class="s">"ridge"</span> : Ridge(alpha=<span class="n">1.0</span>),
+    <span class="s">"lasso"</span> : Lasso(alpha=<span class="n">0.1</span>),
+    <span class="s">"forest"</span>: RandomForestRegressor(random_state=<span class="n">42</span>),
+    <span class="s">"xgb"</span>   : XGBRegressor(random_state=<span class="n">42</span>),
+}
+
+<span class="k">for</span> name, m <span class="k">in</span> models.items():
+    m.fit(X_tr, y_tr)
+    print(<span class="s">f"{name:8s} {m.score(X_te, y_te):.3f}"</span>)</pre></div><div class="card"><h3>Always fit the linear one</h3><p>Even when you expect to ship the boosted model. It is your interpretable reference point, and if it wins you have just saved yourself a lot of complexity.</p></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="1.3 Linear regression">
+  <div class="tag fx">1.3 · Linear regression</div>
+  <h1 class="sh fx d1">The line, the loss, and how it gets found</h1>
+  <div class="body">
+    <div class="col fx d2"><div class="formula">ŷ = w₀ + w₁x₁ + w₂x₂ + … + wₙxₙ<small>w₀ is the intercept · each wᵢ is how much ŷ moves per one-unit rise in xᵢ, holding the rest fixed</small></div><div class="formula">MSE = (1/n) Σ (yᵢ − ŷᵢ)²<small>The loss. Squaring makes every error positive and punishes big misses much harder than small ones</small></div><div class="theory"><div class="lbl">What 'fitting' means</div><p>Finding the set of weights that makes that loss as small as possible. For plain linear regression there is a closed-form solution, so sklearn solves it directly. For almost everything else — and always for neural networks — you walk downhill instead, which is the figure on the next slide.</p></div></div>
+    <div class="col fx d3"><div class="cb"><div class="code-head">reading the coefficients</div><pre class="code sm">model = LinearRegression().fit(X_tr, y_tr)
+
+<span class="k">for</span> name, w <span class="k">in</span> <span class="k">zip</span>(X.columns, model.coef_):
+    print(<span class="s">f"{name:16s} {w:>10.2f}"</span>)
+print(<span class="s">f"intercept        {model.intercept_:>10.2f}"</span>)
+
+<span class="c"># size_sqft            310.44</span>
+<span class="c"># bedrooms           8_120.10</span>
+<span class="c"># age_years         -2_940.77</span></pre></div><div class="card accent"><h3>Say it in words</h3><p>"Holding everything else constant, each extra square foot is worth about RM 310, and each year of age costs about RM 2,940." That sentence is why linear regression survives.</p></div><div class="card warn"><h3>Only if you scaled</h3><p>Coefficients are only comparable to each other when the features share a scale. Unscaled, a big coefficient might just mean a small unit.</p></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="How a model walks downhill to the answer">
+  <div class="tag fx">1.3 · Gradient descent</div>
+  <h1 class="sh fx d1">How a model walks downhill to the answer</h1>
+  <p class="sub fx d2">Notice the steps get smaller near the bottom all by themselves — the gradient shrinks as the slope flattens. Nobody schedules that.</p>
+  <div class="body figbody">
+    <div class="figwrap">
+      <svg class="fig" id="gdSvg" viewBox="0 0 1000 420"></svg>
+      <div class="legend"><span><i style="background:#00dcb4"></i>current position</span><span><i style="background:#f0b429"></i>slope at that point</span><span><i style="background:#00dcb4"></i>path so far</span></div>
+      
+    </div>
+    <div class="col figside" style="max-width:350px"><div class="def"><div class="lbl">Definition</div><h4>Gradient descent</h4><p>Start anywhere. Measure the slope. Take a step <b>downhill</b>, sized by the learning rate. Repeat until the slope is flat — that's the minimum.</p></div><div class="card accent" style="margin-bottom:11px"><h3>Verdict</h3><p id="lrVerdict">—</p></div><div class="gate"><label><b style="color:var(--mint)">learning rate</b><span id="lrOut">0.20</span></label><input type="range" min="0.02" max="1.9" step="0.02" value="0.2" oninput="gdLR(this.value)"></div><div class="controls" style="justify-content:flex-start"><button class="btn ghost" id="gdBtn" onclick="gdToggle()">PAUSE</button><button class="btn ghost" onclick="gdStep()">STEP</button><button class="btn ghost" onclick="gdReset()">RESET</button></div><p class="caption" style="text-align:left;margin-top:11px">Try 0.04, then 1.2, then 1.8. Too small and you never arrive; too big and you bounce across the valley; too big again and the loss explodes.</p></div>
+  </div>
+</section>
+
+<section class="slide" data-title="Module 1 Hands-on">
+  <div class="tag fx">Hands-on · Module 1</div>
+  <h1 class="sh fx d1">Fit a line, then read it</h1>
+  <div class="body">
+    <div class="col fx d2">
+      <div class="hands-on">
+        <div class="lbl">20 minutes · pairs</div>
+        <h3>Fit a line, then read it</h3>
+        
+        <div class="steps"><div><b>01</b><span>Fit LinearRegression on two features only: size_sqft and age_years.</span></div><div><b>02</b><span>Print the coefficients and the intercept.</span></div><div><b>03</b><span>Write the model out as a sentence a seller would understand.</span></div><div><b>04</b><span>Predict the price of a 1,500 sq ft, 10-year-old house by hand from the coefficients.</span></div><div><b>05</b><span>Check your arithmetic against <span style="font-family:var(--mono)">model.predict()</span>.</span></div></div>
+      </div>
+    </div>
+    <div class="col fx d3"><div class="cb"><div class="code-head">your check</div><pre class="code sm">X2 = X[[<span class="s">"size_sqft"</span>, <span class="s">"age_years"</span>]]
+m = LinearRegression().fit(X2, y)
+
+by_hand = (m.intercept_
+           + m.coef_[<span class="n">0</span>]*<span class="n">1500</span>
+           + m.coef_[<span class="n">1</span>]*<span class="n">10</span>)
+
+print(by_hand)
+print(m.predict([[<span class="n">1500</span>, <span class="n">10</span>]])[<span class="n">0</span>])
+<span class="c"># the two numbers must match</span></pre></div><div class="theory"><div class="lbl">Why do this by hand once</div><p>Because after today you will never doubt what a coefficient is. Models stop being magic the moment you reproduce one with a calculator.</p></div></div>
+  </div>
+</section>
+
+<section class="slide divider" data-title="Module 2">
+  <div class="num fx">02</div>
+  <h1 class="fx d1">Regularised &amp; Boosted</h1>
+  <div class="items"><div class="fx d2"><b>2.1</b>Ridge and Lasso — penalising complexity</div><div class="fx d3"><b>2.2</b>XGBoost — trees that correct each other</div><div class="fx d4"><b>2.3</b>Choosing between them without guessing</div>
+    <div class="fx d5" style="margin-top:8px"><b style="color:var(--amber)">↓</b><span style="color:var(--amber)">Hands-on: fit all three and build the comparison table</span></div>
+  </div>
+</section>
+
+<section class="slide" data-title="Ridge and Lasso: two ways to rein a model in">
+  <div class="tag fx">2.1 · Regularisation</div>
+  <h1 class="sh fx d1">Ridge and Lasso: two ways to rein a model in</h1>
+  <p class="sub fx d2">Same five coefficients, same increasing penalty, two different penalty shapes.</p>
+  <div class="body figbody">
+    <div class="figwrap">
+      <svg class="fig" id="regSvg" viewBox="0 0 1000 420"></svg>
+      <div class="legend"><span><i style="background:#00dcb4"></i>w₁</span><span><i style="background:#58a6ff"></i>w₂</span><span><i style="background:#f0b429"></i>w₃</span><span><i style="background:#bc8cff"></i>w₄</span><span><i style="background:#ff6f91"></i>w₅</span></div>
+      
+    </div>
+    <div class="col figside" style="max-width:350px"><div class="def"><div class="lbl">Definition</div><h4>Regularisation</h4><p>Adding a penalty for large coefficients to the loss, so the model has to <b>earn</b> every bit of complexity it uses. It trades a little training accuracy for better generalisation.</p></div><div class="formula">Ridge: MSE + α Σ wᵢ²<small>L2 — penalises squared size</small></div><div class="formula">Lasso: MSE + α Σ |wᵢ|<small>L1 — penalises absolute size</small></div><div class="theory"><div class="lbl">Why the shapes differ</div><p>Squaring makes the penalty on a tiny coefficient almost nothing, so Ridge shrinks everything but kills nothing. The absolute value keeps pushing with the same force all the way to zero, so Lasso drives weak features <b>exactly</b> to zero and removes them.</p></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="XGBoost — each tree fixes the last one's mistakes">
+  <div class="tag fx">2.2 · Boosting</div>
+  <h1 class="sh fx d1">XGBoost — each tree fixes the last one's mistakes</h1>
+  <div class="body">
+    <div class="col fx d2"><div class="def"><div class="lbl">Definition</div><h4>Boosting</h4><p>Building models in sequence, where each new one is trained on what the current ensemble is still getting wrong. Errors shrink round by round.</p></div><div class="theory"><div class="lbl">Bagging versus boosting</div><p>A <b>Random Forest</b> grows many trees independently on random subsets and averages them — that reduces variance. <b>Boosting</b> grows trees one at a time, each fitted to the running residual — that reduces bias. Boosting usually scores higher and is easier to overfit.</p></div><div class="card accent"><h3>Why it dominates tabular data</h3><p>Handles non-linearity, interactions and mixed feature types without being asked; needs no scaling; copes with missing values natively. For a table of rows and columns it is the default strong baseline.</p></div></div>
+    <div class="col fx d3"><div class="cb"><div class="code-head">xgboost with sensible starting settings</div><pre class="code sm"><span class="k">from</span> xgboost <span class="k">import</span> XGBRegressor
+
+xgb = XGBRegressor(
+    n_estimators=<span class="n">400</span>,      <span class="c"># how many trees</span>
+    learning_rate=<span class="n">0.05</span>,    <span class="c"># how much each one contributes</span>
+    max_depth=<span class="n">5</span>,           <span class="c"># how complex each tree may be</span>
+    subsample=<span class="n">0.8</span>,         <span class="c"># rows sampled per tree</span>
+    colsample_bytree=<span class="n">0.8</span>,  <span class="c"># features sampled per tree</span>
+    random_state=<span class="n">42</span>,
+)
+xgb.fit(X_tr, y_tr)</pre></div><div class="theory"><div class="lbl">The two dials that matter</div><p><b>learning_rate</b> and <b>n_estimators</b> pull against each other: halve the rate, roughly double the trees. Lower rate with more trees is slower to fit and usually generalises better.</p></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="Pick the model your situation actually calls for">
+  <div class="tag fx">2.3 · Choosing</div>
+  <h1 class="sh fx d1">Pick the model your situation actually calls for</h1>
+  <div class="body">
+    <div class="col fx d2"><table class="t"><tr><th>If…</th><th>Use</th><th>Because</th></tr><tr><td>You must explain every prediction</td><td style="color:var(--mint)">Linear</td><td>Coefficients are the explanation</td></tr><tr><td>More features than you have rows</td><td style="color:var(--blue)">Ridge</td><td>Keeps the fit stable when plain linear cannot</td></tr><tr><td>You suspect most features are noise</td><td style="color:var(--blue)">Lasso</td><td>Zeroes them out for you</td></tr><tr><td>Features move together</td><td style="color:var(--blue)">Ridge</td><td>Shares weight between them instead of picking wildly</td></tr><tr><td>You want the best score on a table</td><td style="color:var(--amber)">XGBoost</td><td>Usually wins, given a little tuning</td></tr><tr><td>You have very little data</td><td style="color:var(--mint)">Linear / Ridge</td><td>Fewer parameters to overfit with</td></tr></table><div class="theory"><div class="lbl">How to actually decide</div><p>Do not argue about it. Fit all of them with default settings, cross-validate, and put the numbers in a table. The argument resolves itself in about forty seconds of compute.</p></div></div>
+    <div class="col fx d3"><div class="cb"><div class="code-head">the deciding table, in one loop</div><pre class="code sm"><span class="k">from</span> sklearn.model_selection <span class="k">import</span> cross_val_score
+<span class="k">import</span> pandas <span class="k">as</span> pd
+
+rows = []
+<span class="k">for</span> name, m <span class="k">in</span> models.items():
+    cv = cross_val_score(m, X, y, cv=<span class="n">5</span>,
+                         scoring=<span class="s">"neg_mean_absolute_error"</span>)
+    rows.append({<span class="s">"model"</span>: name,
+                 <span class="s">"MAE"</span>: -cv.mean(),
+                 <span class="s">"std"</span>: cv.std()})
+
+print(pd.DataFrame(rows).sort_values(<span class="s">"MAE"</span>))</pre></div><div class="card warn"><h3>Read the spread, not just the mean</h3><p>A model averaging MAE 40,000 ± 2,000 is worth more than one averaging 38,000 ± 15,000. The second one is unreliable — on your particular test split it might be far worse.</p></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="Module 2 Hands-on">
+  <div class="tag fx">Hands-on · Module 2</div>
+  <h1 class="sh fx d1">Fit three, compare honestly</h1>
+  <div class="body">
+    <div class="col fx d2">
+      <div class="hands-on">
+        <div class="lbl">25 minutes · solo</div>
+        <h3>Fit three, compare honestly</h3>
+        
+        <div class="steps"><div><b>01</b><span>Fit Linear, Ridge (α=1.0), Lasso (α=0.1) and XGBoost on the same split.</span></div><div><b>02</b><span>Cross-validate each with 5 folds using MAE.</span></div><div><b>03</b><span>Build one DataFrame: model, mean MAE, standard deviation.</span></div><div><b>04</b><span>For Lasso, count how many coefficients it drove to exactly zero.</span></div><div><b>05</b><span>Name the model you would ship, and why — accuracy is not automatically the reason.</span></div></div>
+      </div>
+    </div>
+    <div class="col fx d3"><div class="cb"><div class="code-head">counting what Lasso threw away</div><pre class="code sm">lasso = Lasso(alpha=<span class="n">0.1</span>).fit(X_tr, y_tr)
+
+dropped = (lasso.coef_ == <span class="n">0</span>).sum()
+print(<span class="s">f"{dropped} of {len(lasso.coef_)} features zeroed"</span>)
+
+kept = X.columns[lasso.coef_ != <span class="n">0</span>]
+print(<span class="s">"kept:"</span>, <span class="k">list</span>(kept))</pre></div><div class="theory"><div class="lbl">A result worth reporting</div><p>If Lasso drops 9 of 14 features and barely loses accuracy, you have just learned your dataset is mostly noise — and your next data collection effort should focus on the five that survived.</p></div></div>
+  </div>
+</section>
+
+<section class="slide divider" data-title="Module 3">
+  <div class="num fx">03</div>
+  <h1 class="fx d1">Evaluation</h1>
+  <div class="items"><div class="fx d2"><b>3.1</b>Four metrics, and when each one is the honest choice</div><div class="fx d3"><b>3.2</b>Residuals — what the model still can't see</div><div class="fx d4"><b>3.3</b>The mistakes that produce confident nonsense</div>
+    <div class="fx d5" style="margin-top:8px"><b style="color:var(--amber)">↓</b><span style="color:var(--amber)">Hands-on: Real World Lab — full evaluation report</span></div>
+  </div>
+</section>
+
+<section class="slide" data-title="Four numbers, four different questions">
+  <div class="tag fx">3.1 · Metrics</div>
+  <h1 class="sh fx d1">Four numbers, four different questions</h1>
+  <div class="body">
+    <div class="col fx d2"><div class="formula">MAE = (1/n) Σ |yᵢ − ŷᵢ|<small>Average error, in the target's own units. Robust to outliers</small></div><div class="formula">RMSE = √[ (1/n) Σ (yᵢ − ŷᵢ)² ]<small>Same units, but large errors dominate it</small></div><div class="formula">R² = 1 − SS_res / SS_tot<small>Share of the variation explained. Unitless, comparable across datasets</small></div><div class="theory"><div class="lbl">MAE or RMSE?</div><p>If being wrong by RM 100,000 once is much worse than being wrong by RM 10,000 ten times, use <b>RMSE</b> — it punishes the big miss. If all errors cost the same per ringgit, use <b>MAE</b>. This is a business question, not a statistics question.</p></div></div>
+    <div class="col fx d3"><div class="card accent"><h3>How to report it</h3><p>Always give MAE alongside R². R² tells a technical reader how much structure you captured; MAE tells the client "we are typically off by about RM 38,000", which is the thing they can actually act on.</p></div><div class="cb"><div class="code-head">the full evaluation, one function</div><pre class="code sm"><span class="k">from</span> sklearn.metrics <span class="k">import</span> (
+    mean_absolute_error, mean_squared_error, r2_score)
+
+<span class="k">def</span> report(model, X_te, y_te, name=<span class="s">""</span>):
+    p = model.predict(X_te)
+    <span class="k">return</span> {
+        <span class="s">"model"</span>: name,
+        <span class="s">"MAE"</span>  : mean_absolute_error(y_te, p),
+        <span class="s">"RMSE"</span> : mean_squared_error(y_te, p) ** <span class="n">0.5</span>,
+        <span class="s">"R2"</span>   : r2_score(y_te, p),
+    }
+
+print(pd.DataFrame([report(m, X_te, y_te, n)
+                    <span class="k">for</span> n, m <span class="k">in</span> models.items()]))</pre></div><div class="card warn"><h3>A negative R² is not a bug</h3><p>It means your model does worse than simply predicting the mean every time. Usually a sign of leakage in reverse, a broken split, or features with no signal.</p></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="The residual plot tells you what the score cannot">
+  <div class="tag fx">3.2 · Residuals</div>
+  <h1 class="sh fx d1">The residual plot tells you what the score cannot</h1>
+  <p class="sub fx d2">Left: each red drop is one residual. Right: the same residuals plotted against x — this is the plot you actually read.</p>
+  <div class="body figbody">
+    <div class="figwrap">
+      <svg class="fig" id="resSvg" viewBox="0 0 1000 420"></svg>
+      <div class="legend"><span><i style="background:#e8eef0"></i>actual value</span><span><i style="background:#00dcb4"></i>fitted line</span><span><i style="background:#ff6f91"></i>residual</span></div>
+      
+    </div>
+    <div class="col figside" style="max-width:350px"><div class="def"><div class="lbl">Definition</div><h4>Residual</h4><p>The gap between what actually happened and what the model predicted: <span style="font-family:var(--mono)">residual = y − ŷ</span>. One per sample.</p></div><div class="theory"><div class="lbl">Why plot them</div><p>R² gives you one number for the whole model. The residual plot shows you <b>where</b> it is wrong. Those are completely different questions, and only the second one tells you what to fix.</p></div><table class="t"><tr><th>Pattern</th><th>It means</th></tr><tr><td style="color:var(--mint)">Random cloud</td><td>Good — the model captured the structure</td></tr><tr><td style="color:var(--coral)">A curve</td><td>Real relationship is non-linear; add a term or change model</td></tr><tr><td style="color:var(--coral)">Fanning out</td><td>Error grows with size; try predicting log(y)</td></tr><tr><td style="color:var(--coral)">Clumps</td><td>A group behaves differently; you may be missing a feature</td></tr></table></div>
+  </div>
+</section>
+
+<section class="slide" data-title="Four ways to produce a confident, wrong model">
+  <div class="tag fx">3.3 · Mistakes</div>
+  <h1 class="sh fx d1">Four ways to produce a confident, wrong model</h1>
+  <div class="body">
+    <div class="col fx d2"><div class="card warn"><h3>1 · Reporting the training score</h3><p><span style="font-family:var(--mono);color:var(--coral)">model.score(X_train, y_train)</span> is not a result. It is the model marking its own homework. Report test or cross-validated scores only.</p></div><div class="card warn"><h3>2 · Extrapolating past the data</h3><p>A model trained on 800–2,000 sq ft houses has no idea what a 9,000 sq ft one costs. Linear models will happily give you a confident number anyway; tree models will just repeat their edge value.</p></div><div class="card warn"><h3>3 · Treating a coefficient as a cause</h3><p>"Each bedroom adds RM 8,120" describes a correlation in your data. Adding a partition wall to create a bedroom will not add RM 8,120. Regression finds association, not causation.</p></div><div class="card warn"><h3>4 · Ignoring the units</h3><p>R² = 0.91 sounds excellent until MAE turns out to be RM 82,000 on a RM 400,000 house. Always convert the score back into the client's world before calling it good.</p></div></div>
+    <div class="col fx d3"><div class="theory"><div class="lbl">The habit that catches all four</div><p>Before you present any model, write one sentence in plain language: "On houses it has never seen, this model is typically off by RM X, and it is worst on Y." If you cannot fill in X and Y, you have not finished evaluating.</p></div><div class="cb"><div class="code-head">checking where it's worst</div><pre class="code sm">res = y_te - model.predict(X_te)
+
+out = X_te.copy()
+out[<span class="s">"actual"</span>]   = y_te
+out[<span class="s">"residual"</span>] = res
+
+<span class="c"># the 10 worst misses — look for what they share</span>
+print(out.reindex(res.abs()
+        .sort_values(ascending=<span class="k">False</span>).index).head(<span class="n">10</span>))</pre></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="Module 3 Hands-on">
+  <div class="tag fx">Hands-on · Module 3</div>
+  <h1 class="sh fx d1">Real World Lab — the full evaluation report</h1>
+  <div class="body">
+    <div class="col fx d2">
+      <div class="hands-on">
+        <div class="lbl">30 minutes · solo</div>
+        <h3>Real World Lab — the full evaluation report</h3>
+        
+        <div class="steps"><div><b>01</b><span>Take your best model from Module 2.</span></div><div><b>02</b><span>Produce the metrics table: MAE, RMSE, R² on the test set.</span></div><div><b>03</b><span>Plot residuals against predicted values. Name the pattern you see.</span></div><div><b>04</b><span>Pull the ten worst predictions and look for what they have in common.</span></div><div><b>05</b><span>Write three sentences: how wrong it typically is, where it is worst, and what you would try next.</span></div></div>
+      </div>
+    </div>
+    <div class="col fx d3"><div class="cb"><div class="code-head">the residual plot</div><pre class="code sm"><span class="k">import</span> matplotlib.pyplot <span class="k">as</span> plt
+
+pred = model.predict(X_te)
+res  = y_te - pred
+
+plt.figure(figsize=(<span class="n">7</span>, <span class="n">4</span>))
+plt.scatter(pred, res, alpha=<span class="n">0.6</span>)
+plt.axhline(<span class="n">0</span>, color=<span class="s">"red"</span>, linestyle=<span class="s">"--"</span>)
+plt.xlabel(<span class="s">"predicted price (RM)"</span>)
+plt.ylabel(<span class="s">"residual (RM)"</span>)
+plt.title(<span class="s">"Residuals vs predicted"</span>)
+plt.tight_layout()
+plt.show()</pre></div><div class="card accent"><h3>The three sentences are the deliverable</h3><p>Not the model, not the score — the sentences. That is what a client, a manager or an examiner actually reads, and writing them forces you to have understood your own result.</p></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="Recap &amp; Summary">
+  <div class="tag fx">Recap &amp; Summary</div>
+  <h1 class="sh fx d1">What you can do now</h1>
+  <div class="body">
+    <div class="col cards grid3 fx d2"><div class="card accent"><h3><span class="k">M1</span>Regression Basics</h3><p>Recognise a regression problem, fit a linear model, and explain any coefficient in a sentence a client understands.</p></div><div class="card accent"><h3><span class="k">M2</span>Regularised &amp; Boosted</h3><p>Apply Ridge and Lasso and say what each penalty does, and fit XGBoost when accuracy matters more than explanation.</p></div><div class="card accent"><h3><span class="k">M3</span>Evaluation</h3><p>Report MAE, RMSE and R² together, and read a residual plot to find out what the model still cannot see.</p></div></div>
+  </div>
+  <div class="body" style="flex:0 0 auto;margin-top:0">
+    <div class="col fx d3"><div class="theory"><div class="lbl">The one line to remember</div><p><b>A single score is never the whole result.</b> Three metrics plus a residual plot tells you how wrong you are, where you are wrong, and what to try next — one number tells you none of that.</p></div></div>
+    <div class="col fx d4"><div class="card"><h3>Next session — Classification &amp; Random Forest</h3><p>When the answer is a category instead of a number: decision trees and how they split, Random Forests, the confusion matrix, and why accuracy lies to you on imbalanced data.</p></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="Review Learning Outcomes">
+  <div class="tag fx">Review Learning Outcomes</div>
+  <h1 class="sh fx d1">Did we get there?</h1>
+  <p class="sub fx d2">Rate yourself 1–5. Anything at 2 or below, flag it now — next session assumes all of this.</p>
+  <div class="body">
+    <div class="col cards grid2 fx d3"><div class="card"><h3><span class="k">LO1</span>I can tell a regression problem from a classification one and say why</h3><p style="font-family:var(--mono);color:var(--mint)">1 — 2 — 3 — 4 — 5</p></div><div class="card"><h3><span class="k">LO2</span>I can fit linear regression and explain a coefficient in plain language</h3><p style="font-family:var(--mono);color:var(--mint)">1 — 2 — 3 — 4 — 5</p></div><div class="card"><h3><span class="k">LO3</span>I can say what Ridge and Lasso each do to the coefficients</h3><p style="font-family:var(--mono);color:var(--mint)">1 — 2 — 3 — 4 — 5</p></div><div class="card"><h3><span class="k">LO4</span>I can choose between MAE and RMSE based on the business question</h3><p style="font-family:var(--mono);color:var(--mint)">1 — 2 — 3 — 4 — 5</p></div><div class="card accent" style="grid-column:1/-1"><h3><span class="k">LO5</span>I can read a residual plot and name what the pattern means</h3><p style="font-family:var(--mono);color:var(--mint)">1 — 2 — 3 — 4 — 5</p></div></div>
+  </div>
+  <p class="caption fx d4">codencode.my · ML Session 03 complete</p>
+</section>
+</div>
+
+<div id="nav">
+  <button class="navbtn" onclick="go(-1)">PREV</button>
+  <div id="dots"></div>
+  <button class="navbtn" onclick="go(1)">NEXT</button>
+</div>
+
+<script>
+const slides=[...document.querySelectorAll('.slide')];
+let i=0;const dots=document.getElementById('dots');
+slides.forEach((s,n)=>{const d=document.createElement('div');d.className='dot';d.onclick=()=>show(n);dots.appendChild(d);});
+function show(n){
+  if(n<0||n>=slides.length)return;
+  slides[i].classList.remove('active');i=n;void slides[i].offsetWidth;slides[i].classList.add('active');
+  document.getElementById('counter').textContent=String(i+1).padStart(2,'0')+' / '+slides.length;
+  document.getElementById('titlebar').textContent=slides[i].dataset.title||'';
+  document.getElementById('progress').style.width=((i+1)/slides.length*100)+'%';
+  [...dots.children].forEach((d,k)=>d.classList.toggle('on',k===i));
+}
+function go(d){show(i+d);}
+function fs(){document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen();}
+addEventListener('keydown',e=>{
+  if(['ArrowRight',' ','PageDown'].includes(e.key)){e.preventDefault();go(1);}
+  if(['ArrowLeft','PageUp'].includes(e.key)){e.preventDefault();go(-1);}
+  if(e.key==='Home')show(0);
+  if(e.key==='End')show(slides.length-1);
+  if(e.key==='f')fs();
+});
+
+/* ---------- copy-to-clipboard on every code block ---------- */
+(function(){
+  document.querySelectorAll('pre.code').forEach(pre=>{
+    const source = pre.textContent;               // capture BEFORE adding the button
+    const btn = document.createElement('button');
+    btn.className = 'copybtn';
+    btn.type = 'button';
+    btn.textContent = 'COPY';
+    btn.addEventListener('click', async e=>{
+      e.stopPropagation();
+      try{
+        await navigator.clipboard.writeText(source);
+      }catch(err){                                 // file:// fallback
+        const ta=document.createElement('textarea');
+        ta.value=source; ta.style.position='fixed'; ta.style.opacity='0';
+        document.body.appendChild(ta); ta.select();
+        try{document.execCommand('copy');}catch(_){}
+        document.body.removeChild(ta);
+      }
+      btn.textContent='COPIED'; btn.classList.add('done');
+      setTimeout(()=>{btn.textContent='COPY'; btn.classList.remove('done');},1400);
+    });
+    pre.appendChild(btn);
+  });
+})();
+
+
+/* ---------- interactive gradient descent ---------- */
+(function(){
+  const svg=document.getElementById('gdSvg'); if(!svg) return;
+  const X0=90,X1=700,Y0=330,Y1=60, WMIN=-2, WMAX=8;
+  const J = w => 0.6*Math.pow(w-3,2)+1;           // the loss surface
+  const dJ = w => 1.2*(w-3);                      // its gradient
+  const mx = w => X0+(X1-X0)*(w-WMIN)/(WMAX-WMIN);
+  const my = j => Y0-(Y0-Y1)*Math.min(1, j/16);
+
+  let w=7.6, lr=0.2, trail=[], step=0, timer=null, running=true, diverged=false;
+
+  function draw(){
+    let s='';
+    s+=`<line x1="${X0}" y1="${Y0}" x2="${X1+20}" y2="${Y0}" stroke="#2a3440" stroke-width="1.5"/>`;
+    s+=`<line x1="${X0}" y1="${Y0}" x2="${X0}" y2="${Y1-18}" stroke="#2a3440" stroke-width="1.5"/>`;
+    s+=`<text x="${X1+24}" y="${Y0+5}" font-family="JetBrains Mono,monospace" font-size="12" fill="#8b98a5">w</text>`;
+    s+=`<text x="${X0-6}" y="${Y1-26}" font-family="JetBrains Mono,monospace" font-size="12" fill="#8b98a5">loss J(w)</text>`;
+    let d='';
+    for(let i=0;i<=160;i++){ const ww=WMIN+(WMAX-WMIN)*i/160;
+      d+=(i?' L ':'M ')+mx(ww).toFixed(1)+' '+my(J(ww)).toFixed(1); }
+    s+=`<path d="${d}" fill="none" stroke="#2a3440" stroke-width="3"/>`;
+    // minimum
+    s+=`<line x1="${mx(3)}" y1="${my(J(3))}" x2="${mx(3)}" y2="${Y0}" stroke="#00dcb4"
+         stroke-width="1.4" stroke-dasharray="4 5" opacity=".6"/>`;
+    s+=`<text x="${mx(3)}" y="${Y0+22}" text-anchor="middle" font-family="JetBrains Mono,monospace"
+         font-size="12" fill="#00dcb4">minimum</text>`;
+    // trail
+    trail.forEach((tw,i)=>{
+      const o=0.18+0.5*i/Math.max(1,trail.length);
+      s+=`<circle cx="${mx(tw)}" cy="${my(J(tw))}" r="5" fill="#00dcb4" opacity="${o.toFixed(2)}"/>`;
+    });
+    if(!diverged){
+      // tangent (the slope the step follows)
+      const g=dJ(w), x=mx(w), y=my(J(w)), dx=70;
+      const x2=x+dx, y2=y+ (my(J(w)+g*((WMAX-WMIN)*dx/(X1-X0))) - y);
+      s+=`<line x1="${x-dx}" y1="${2*y-y2}" x2="${x2}" y2="${y2}" stroke="#f0b429" stroke-width="2" opacity=".85"/>`;
+      s+=`<circle cx="${x}" cy="${y}" r="11" fill="#00dcb4" stroke="#0d1117" stroke-width="3"/>`;
+      s+=`<text x="${x}" y="${y-22}" text-anchor="middle" font-family="JetBrains Mono,monospace"
+           font-size="12" fill="#00dcb4">w = ${w.toFixed(2)}</text>`;
+    } else {
+      s+=`<text x="${(X0+X1)/2}" y="${(Y0+Y1)/2}" text-anchor="middle" font-family="Space Grotesk,sans-serif"
+           font-size="26" font-weight="700" fill="#ff6f91">DIVERGED — the step overshot, every time</text>`;
+    }
+    // readout panel
+    const P=740;
+    s+=`<text x="${P}" y="${Y1+6}" font-family="JetBrains Mono,monospace" font-size="12" fill="#8b98a5">step</text>`;
+    s+=`<text x="${P+150}" y="${Y1+6}" text-anchor="end" font-family="JetBrains Mono,monospace" font-size="20" fill="#e8eef0">${step}</text>`;
+    s+=`<text x="${P}" y="${Y1+48}" font-family="JetBrains Mono,monospace" font-size="12" fill="#8b98a5">w</text>`;
+    s+=`<text x="${P+150}" y="${Y1+48}" text-anchor="end" font-family="JetBrains Mono,monospace" font-size="20" fill="#00dcb4">${diverged?'—':w.toFixed(3)}</text>`;
+    s+=`<text x="${P}" y="${Y1+90}" font-family="JetBrains Mono,monospace" font-size="12" fill="#8b98a5">loss</text>`;
+    s+=`<text x="${P+150}" y="${Y1+90}" text-anchor="end" font-family="JetBrains Mono,monospace" font-size="20" fill="#f0b429">${diverged?'∞':J(w).toFixed(3)}</text>`;
+    s+=`<text x="${P}" y="${Y1+132}" font-family="JetBrains Mono,monospace" font-size="12" fill="#8b98a5">gradient</text>`;
+    s+=`<text x="${P+150}" y="${Y1+132}" text-anchor="end" font-family="JetBrains Mono,monospace" font-size="20" fill="#ff6f91">${diverged?'—':dJ(w).toFixed(3)}</text>`;
+    s+=`<line x1="${P}" y1="${Y1+156}" x2="${P+150}" y2="${Y1+156}" stroke="#2a3440" stroke-width="1.4"/>`;
+    s+=`<text x="${P}" y="${Y1+184}" font-family="JetBrains Mono,monospace" font-size="11" fill="#8b98a5">w := w − lr × gradient</text>`;
+    svg.innerHTML=s;
+  }
+  window.gdStep=function(){
+    if(diverged) return;
+    trail.push(w); if(trail.length>26) trail.shift();
+    w = w - lr*dJ(w); step++;
+    if(!isFinite(w) || Math.abs(w)>1e4 || w<WMIN-40 || w>WMAX+40){ diverged=true; }
+    draw();
+    if(!diverged && Math.abs(dJ(w))<0.004){ setTimeout(gdReset, 2200); }
+  };
+  window.gdReset=function(){ w=7.6; trail=[]; step=0; diverged=false; draw(); };
+  window.gdLR=function(v){
+    lr=+v; document.getElementById('lrOut').textContent=lr.toFixed(2);
+    const note = lr<0.08 ? ['CRAWLING','#58a6ff','Correct direction, but it will take forever.']
+               : lr<=0.9 ? ['HEALTHY','#00dcb4','Big steps far away, small steps near the bottom.']
+               : lr<1.67 ? ['OSCILLATING','#f0b429','Overshooting the minimum and bouncing across it.']
+               : ['DIVERGING','#ff6f91','Each step overshoots further than the last. Loss explodes.'];
+    document.getElementById('lrVerdict').innerHTML=`<b style="color:${note[1]}">${note[0]}</b> — ${note[2]}`;
+    gdReset();
+  };
+  window.gdToggle=function(){
+    const b=document.getElementById('gdBtn');
+    if(running){ clearInterval(timer); running=false; b.textContent='PLAY'; }
+    else { timer=setInterval(gdStep,650); running=true; b.textContent='PAUSE'; }
+  };
+  gdLR(0.2);
+  timer=setInterval(gdStep,650);
+})();
+
+/* ---------- residuals ---------- */
+(function(){
+  const svg=document.getElementById('resSvg'); if(!svg) return;
+  const X0=80,X1=560,Y0=330,Y1=60;
+  const pts=[[0.05,.30],[0.13,.36],[0.21,.30],[0.29,.47],[0.37,.44],[0.45,.55],[0.53,.49],
+             [0.61,.62],[0.69,.58],[0.77,.72],[0.85,.66],[0.93,.80]];
+  const a=0.27,b=0.52;                       // fitted line y = a + b x
+  const mx=x=>X0+(X1-X0)*x, my=y=>Y0-(Y0-Y1)*y;
+  let s='';
+  s+=`<line x1="${X0}" y1="${Y0}" x2="${X1+16}" y2="${Y0}" stroke="#2a3440" stroke-width="1.5"/>`;
+  s+=`<line x1="${X0}" y1="${Y0}" x2="${X0}" y2="${Y1-16}" stroke="#2a3440" stroke-width="1.5"/>`;
+  s+=`<line x1="${mx(0)}" y1="${my(a)}" x2="${mx(1)}" y2="${my(a+b)}" stroke="#00dcb4" stroke-width="3"
+       class="draw" style="--len:620"/>`;
+  pts.forEach(([x,y],i)=>{
+    const yh=a+b*x;
+    s+=`<line x1="${mx(x)}" y1="${my(y)}" x2="${mx(x)}" y2="${my(yh)}" stroke="#ff6f91" stroke-width="2"
+         opacity=".75" class="fx d${Math.min(6,1+Math.floor(i/2))}"/>`;
+    s+=`<circle cx="${mx(x)}" cy="${my(y)}" r="5.5" fill="#e8eef0" class="fx d${Math.min(6,1+Math.floor(i/2))}"/>`;
+  });
+  s+=`<text x="${X0}" y="${Y0+24}" font-family="JetBrains Mono,monospace" font-size="11" fill="#8b98a5">feature x →</text>`;
+  s+=`<text x="${mx(0.52)}" y="${my(0.90)}" font-family="JetBrains Mono,monospace" font-size="12" fill="#ff6f91">each red drop = one residual</text>`;
+  // residual plot
+  const BX=650,BW=300,BY=200;
+  s+=`<line x1="${BX}" y1="${BY}" x2="${BX+BW}" y2="${BY}" stroke="#00dcb4" stroke-width="2" opacity=".6"/>`;
+  s+=`<text x="${BX}" y="${BY-92}" font-family="JetBrains Mono,monospace" font-size="12" fill="#8b98a5">residual plot — what good looks like</text>`;
+  pts.forEach(([x,y],i)=>{
+    const r=(y-(a+b*x));
+    s+=`<circle cx="${BX+BW*x}" cy="${BY-r*420}" r="5" fill="#f0b429" class="fx d${Math.min(6,1+Math.floor(i/2))}"/>`;
+  });
+  s+=`<text x="${BX}" y="${BY+120}" font-family="Inter,sans-serif" font-size="13" fill="#8b98a5" font-style="italic">No pattern, scattered either side of zero →</text>`;
+  s+=`<text x="${BX}" y="${BY+142}" font-family="Inter,sans-serif" font-size="13" fill="#8b98a5" font-style="italic">the straight line was a fair choice.</text>`;
+  svg.innerHTML=s;
+})();
+
+/* ---------- ridge / lasso coefficient shrinkage ---------- */
+(function(){
+  const svg=document.getElementById('regSvg'); if(!svg) return;
+  const X0=90,X1=470,Y0=320,Y1=70, X2=570,X3=950;
+  const coefs=[1.0,0.72,-0.55,0.38,-0.22];
+  const COL=['#00dcb4','#58a6ff','#f0b429','#bc8cff','#ff6f91'];
+  const my=v=>(Y0+Y1)/2 - v*((Y0-Y1)/2.4);
+  function panel(x0,x1,title,shrink){
+    let s=`<text x="${x0}" y="${Y1-30}" font-family="Space Grotesk,sans-serif" font-size="16"
+            font-weight="700" fill="#e8eef0">${title}</text>`;
+    s+=`<line x1="${x0}" y1="${my(0)}" x2="${x1}" y2="${my(0)}" stroke="#2a3440" stroke-width="1.5"/>`;
+    s+=`<text x="${x1}" y="${Y0+30}" text-anchor="end" font-family="JetBrains Mono,monospace"
+         font-size="11" fill="#8b98a5">penalty strength α →</text>`;
+    coefs.forEach((c,i)=>{
+      let d='';
+      for(let k=0;k<=60;k++){
+        const t=k/60, v=shrink(c,t);
+        d+=(k?' L ':'M ')+(x0+(x1-x0)*t).toFixed(1)+' '+my(v).toFixed(1);
+      }
+      s+=`<path d="${d}" fill="none" stroke="${COL[i]}" stroke-width="2.6" class="draw" style="--len:520"/>`;
+      s+=`<text x="${x0-8}" y="${my(c)+4}" text-anchor="end" font-family="JetBrains Mono,monospace"
+           font-size="11" fill="${COL[i]}">w${i+1}</text>`;
+    });
+    return s;
+  }
+  let s=panel(X0,X1,'Ridge (L2) — shrinks toward zero', (c,t)=>c/(1+6*t));
+  s+=panel(X2,X3,'Lasso (L1) — snaps to exactly zero',
+           (c,t)=>{ const m=Math.max(0,Math.abs(c)-1.15*t); return Math.sign(c)*m; });
+  s+=`<text x="${X0}" y="${Y0+62}" font-family="Inter,sans-serif" font-size="13.5" fill="#8b98a5">Every coefficient gets smaller, none reach zero.</text>`;
+  s+=`<text x="${X2}" y="${Y0+62}" font-family="Inter,sans-serif" font-size="13.5" fill="#8b98a5">Weak features hit zero and drop out entirely —</text>`;
+  s+=`<text x="${X2}" y="${Y0+82}" font-family="Inter,sans-serif" font-size="13.5" fill="#8b98a5">that is automatic feature selection.</text>`;
+  svg.innerHTML=s;
+})();
+
+show(0);
+</script>
+</body>
+</html>

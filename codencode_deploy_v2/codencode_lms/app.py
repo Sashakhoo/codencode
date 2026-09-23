@@ -1074,10 +1074,11 @@ def _slide_materials_for_course(course):
     # so no legacy demo decks are auto-seeded for it.
     if has_ai_workplace:
         return []
-    if has_ml and not has_python:
-        return [item for item in SLIDE_MATERIALS if item[0] >= 8]
-    # The Python Bootcamp now has its own curriculum uploaded through the admin
-    # panel, so no legacy decks are auto-seeded for Python / Python+ML courses.
+    # Python Fundamentals and Machine Learning Fundamentals both now have
+    # their own real curriculum (curriculum_seed.py / seed_course_curriculum_materials),
+    # so no legacy generic decks are auto-seeded for either - avoids the same
+    # topics (Feature Engineering, Regression, etc.) showing twice under two
+    # different session numbers.
     return []
 
 
@@ -5624,52 +5625,53 @@ def api_search():
     return jsonify({'results': results, 'query': q})
 
 
-def sync_python_fundamentals_materials():
-    """One-time content refresh: replace whatever lesson materials the
-    Python Fundamentals course currently has with the new pf-session-01..07
-    decks. Runs once per course — as soon as any of the new filenames is
-    present it is treated as already synced and left alone, so it never
-    clobbers ordering/publish changes an admin makes afterwards. Never
-    blocks startup."""
-    try:
-        NEW_MATERIALS = [
-            (1, 'Session 01 — Python Basics', 'pf-session-01.html'),
-            (2, 'Session 02 — Conditionals & Logic', 'pf-session-02.html'),
-            (3, 'Session 03 — Loops & Data Structures', 'pf-session-03.html'),
-            (4, 'Session 04 — Functions & Modules', 'pf-session-04.html'),
-            (5, 'Session 05 — Object-Oriented Programming', 'pf-session-05.html'),
-            (6, 'Session 06 — Files, APIs & Project Ideation', 'pf-session-06.html'),
-            (7, 'Session 07 — Building Your Own Software', 'pf-session-07.html'),
-        ]
-        new_filenames = {filename for _, _, filename in NEW_MATERIALS}
-        materials_dir = os.path.join(app.config['UPLOAD_FOLDER'], 'materials')
-        courses = Course.query.filter(db.func.lower(Course.title).like('%python fundamentals%')).all()
-        for course in courses:
-            existing = Material.query.filter_by(course_id=course.id).all()
-            if any(m.filename in new_filenames for m in existing):
-                continue  # already synced on a previous boot
-            for m in existing:
-                db.session.delete(m)
-            db.session.flush()
-            for session_num, title, filename in NEW_MATERIALS:
-                fpath = os.path.join(materials_dir, filename)
-                if not os.path.exists(fpath):
-                    continue
-                db.session.add(Material(
-                    course_id=course.id, session=session_num, title=title,
-                    description='Student HTML slides', filename=filename,
-                    file_type='html', file_size=human_size(fpath),
-                    is_published=True, order_index=session_num,
-                ))
-            db.session.commit()
-            app.logger.info('Python Fundamentals materials refreshed for course #%s', course.id)
-    except Exception as exc:
-        db.session.rollback()
-        app.logger.warning('Python Fundamentals materials sync skipped: %s', exc)
+def _courses_matching(include, exclude=()):
+    q = Course.query
+    for term in include:
+        q = q.filter(db.func.lower(Course.title).like(f'%{term}%'))
+    for term in exclude:
+        q = q.filter(~db.func.lower(Course.title).like(f'%{term}%'))
+    return q.all()
+
+
+def _python_target_courses():
+    """Every course with Python Fundamentals content at sessions 1-7: the
+    standalone course, and the "Python and Machine Learning" bundle course
+    (Python sits unshifted at 1-7 there too - only the ML side is offset).
+    Reads course-matching straight from curriculum_seed.CURRICULUM so this
+    always agrees with where the actual lesson materials were placed."""
+    from curriculum_seed import CURRICULUM
+    seen = {}
+    for spec in CURRICULUM:
+        if 'python fundamentals' not in spec['include'] and 'fixup_ml_cutoff' not in spec:
+            continue
+        for c in _courses_matching(spec['include'], spec.get('exclude', [])):
+            seen[c.id] = c
+    return list(seen.values())
+
+
+def _ml_target_courses():
+    """(course, session_offset) for every course with Machine Learning
+    content: the standalone course at offset 0, and the bundle course with
+    ML sessions shifted by however many Python sessions precede them there
+    (so Week 4 of ML becomes the bundle's actual session 4+offset)."""
+    from curriculum_seed import CURRICULUM
+    out = []
+    for spec in CURRICULUM:
+        is_ml_standalone = 'python' in spec.get('exclude', []) and any('machine learning' in t for t in spec['include'])
+        is_bundle = 'fixup_ml_cutoff' in spec
+        if not (is_ml_standalone or is_bundle):
+            continue
+        offset = spec.get('fixup_ml_cutoff', 0)
+        for c in _courses_matching(spec['include'], spec.get('exclude', [])):
+            out.append((c, offset))
+    return out
 
 
 def seed_python_fundamentals_quizzes():
-    """Week 4 and Week 7 checkpoint MCQ quizzes for Python Fundamentals. Created
+    """Week 4 and Week 7 checkpoint MCQ quizzes for Python Fundamentals -
+    the standalone course AND the "Python and Machine Learning" bundle
+    (Python is unshifted there, so the same week numbers apply). Created
     PUBLISHED (students only see each one once they reach its week), and
     re-published on every start if a teacher unpublishes it. Idempotent by
     (course, title). A deleted quiz is re-created on the next start. To
@@ -5678,8 +5680,7 @@ def seed_python_fundamentals_quizzes():
     try:
         import random
         from quiz_seed_python import PYTHON_FUNDAMENTALS_QUIZZES, RETIRED_TITLES
-        courses = Course.query.filter(db.func.lower(Course.title).like('%python fundamentals%')).all()
-        for course in courses:
+        for course in _python_target_courses():
             for old in Quiz.query.filter(Quiz.course_id == course.id, Quiz.title.in_(RETIRED_TITLES)).all():
                 if not QuizAttempt.query.filter_by(quiz_id=old.id).first():
                     db.session.delete(old)
@@ -5713,6 +5714,463 @@ def seed_python_fundamentals_quizzes():
     except Exception as exc:
         db.session.rollback()
         app.logger.warning('Python Fundamentals quiz seed skipped: %s', exc)
+
+
+def seed_python_homework():
+    """Homework at Weeks 2 and 5 for Python Fundamentals - the standalone
+    course AND the "Python and Machine Learning" bundle - each question set
+    taken directly from that session's own 'Your Turn' build. ADDS a missing
+    assignment, and refreshes the description text on one of these four
+    known titles if it's out of date (this is Claude-authored content, not
+    a teacher's) - session, title and points are left alone either way, so
+    a teacher who moved or repointed one keeps that change. Idempotent,
+    never blocks startup."""
+    specs = [
+        (2, 'Homework 2: Conditionals & Logic',
+         'Build two small programs and push both to python-bootcamp/week2/.\n\n'
+         'Part A - ATM lock\n'
+         '1. Store a correct PIN. Ask for it up to three times.\n'
+         '2. Correct PIN: print "Welcome" and stop asking.\n'
+         '3. Three wrong PINs in a row: print "Card locked".\n'
+         '4. Test it four ways: right on the first try, right on the third try, '
+         'three wrong in a row, and letters typed instead of digits (it must not crash).\n\n'
+         'Part B - tax calculator\n'
+         '5. Ask for an annual income (RM).\n'
+         '6. Compute tax using the five bands from class: 0-5,000 (0%), 5,000-20,000 (1%), '
+         '20,000-35,000 (3%), 35,000-50,000 (6%), above 50,000 (11%).\n'
+         '7. Print one breakdown line per band that the income actually reaches, then '
+         'the total tax and the effective rate.\n'
+         '8. Check your result for an income of RM 40,000 - it must match the worked '
+         'example shown in Session 2.'),
+        (5, 'Homework 5: Object-Oriented Programming',
+         'Design your own class hierarchy and push it to python-bootcamp/week5/.\n\n'
+         '1. Pick something real: a library, a gym, a food-delivery order, or a game inventory.\n'
+         '2. Write the parent class - only the attributes and methods every version shares.\n'
+         '3. Write two child classes that are genuinely a kind of the parent, each '
+         'overriding at least one method.\n'
+         '4. Give every class a docstring, a __str__ method, and one protected attribute '
+         '(e.g. self._something) exposed through a read-only @property.\n'
+         '5. Write five lines of code that prove the two child classes behave differently '
+         'from each other.'),
+    ]
+    try:
+        for course in _python_target_courses():
+            for session_num, title, description in specs:
+                existing = Assignment.query.filter_by(course_id=course.id, title=title).first()
+                if existing:
+                    if existing.description != description:
+                        existing.description = description
+                    continue
+                db.session.add(Assignment(course_id=course.id, session=session_num,
+                                          title=title, description=description, max_points=100))
+            db.session.commit()
+    except Exception as exc:
+        db.session.rollback()
+        app.logger.warning('Python homework seed skipped: %s', exc)
+
+
+def seed_ml_quizzes():
+    """Week 4 and Week 7 checkpoint MCQ quizzes for Machine Learning content -
+    the standalone course, and the "Python and Machine Learning" bundle
+    (ML sessions shifted there, e.g. Week 4 lands at the bundle's actual
+    session 4+offset). Same behaviour as seed_python_fundamentals_quizzes():
+    created PUBLISHED and required, re-published if a teacher unpublishes,
+    idempotent by (course, title), never blocks startup."""
+    try:
+        import random
+        from ml_quiz_seed import ML_QUIZZES
+        for course, offset in _ml_target_courses():
+            for spec in ML_QUIZZES:
+                existing = Quiz.query.filter_by(course_id=course.id, title=spec['title']).first()
+                if existing:
+                    if not existing.is_published:
+                        existing.is_published = True
+                    if not existing.is_required:
+                        existing.is_required = True
+                    continue
+                quiz = Quiz(course_id=course.id, title=spec['title'], description=spec['description'],
+                            session=spec['week'] + offset, pass_score=70, max_attempts=2,
+                            is_published=True, is_required=True)
+                db.session.add(quiz)
+                db.session.flush()
+                for idx, (text_, correct, wrong, explanation) in enumerate(spec['questions']):
+                    qq = QuizQuestion(quiz_id=quiz.id, question_text=text_, question_type='mcq',
+                                      points=1, explanation=explanation, order_index=idx)
+                    db.session.add(qq)
+                    db.session.flush()
+                    choices = [(correct, True)] + [(w, False) for w in wrong]
+                    random.Random(f"ml-{course.id}-{spec['week']}-{idx}").shuffle(choices)
+                    for choice_text, is_correct in choices:
+                        db.session.add(QuizChoice(question_id=qq.id, choice_text=choice_text, is_correct=is_correct))
+        db.session.commit()
+    except Exception as exc:
+        db.session.rollback()
+        app.logger.warning('ML quiz seed skipped: %s', exc)
+
+
+def seed_ml_homework_and_assignment():
+    """Homework at Weeks 3 and 6 (offset in the bundle course), and the
+    final capstone Assignment at the course's actual last week, for Machine
+    Learning content - the standalone course and the bundle. Each question
+    set taken directly from that session's own hands-on lab. ADDS a missing
+    assignment, and refreshes the description text on one of these three
+    known titles if it's out of date (this is Claude-authored content, not
+    a teacher's) - session, title and points are left alone either way, so
+    a teacher who moved or repointed one keeps that change. Idempotent,
+    never blocks startup."""
+    specs = [
+        (3, 'Homework 3: Regression Model Comparison',
+         'Using the Malaysia house-price dataset from class:\n'
+         '1. Fit four models on the same train/test split: Linear Regression, '
+         'Ridge (alpha=1.0), Lasso (alpha=0.1), and XGBoost.\n'
+         '2. Cross-validate each with 5 folds, scoring on MAE.\n'
+         '3. Build one results table: model name, mean MAE, standard deviation.\n'
+         '4. For Lasso, count how many coefficients it drove to exactly zero, and list '
+         'which features survived.\n'
+         '5. Name the model you would actually ship, and explain why in one sentence - '
+         'the best score is not automatically the right answer.'),
+        (6, 'Homework 6: Sales Forecast with LSTM',
+         'Using the daily sales dataset from class:\n'
+         '1. Load the series, sort by date, and fill any missing days.\n'
+         '2. Split by date, not randomly: everything before 2025-07-01 is training, '
+         'the rest is test.\n'
+         '3. Fit your scaler on the training period only, then transform both periods.\n'
+         '4. Window the series into 30-day sequences. Print the shapes and confirm '
+         'they are 3-D: (samples, 30, 1).\n'
+         '5. Train your LSTM with shuffle=False and EarlyStopping.\n'
+         '6. Plot actual vs predicted over the test period, and report your LSTM’s MAE '
+         'against the naive baseline (predicting tomorrow = today) - it must beat naive '
+         'to count as a working model.'),
+    ]
+    try:
+        for course, offset in _ml_target_courses():
+            for session_num, title, description in specs:
+                existing = Assignment.query.filter_by(course_id=course.id, title=title).first()
+                if existing:
+                    if existing.description != description:
+                        existing.description = description
+                    continue
+                db.session.add(Assignment(course_id=course.id, session=session_num + offset,
+                                          title=title, description=description, max_points=100))
+            final_title = 'Final Assignment: Capstone Project'
+            final_description = (
+                'Bring your own dataset and a question you care about, and work through the full '
+                'pipeline from class:\n'
+                '1. Write a half-page brief: the question in one sentence (name your target), '
+                'what one row of your data is, where the data comes from, three features you '
+                'expect to matter and why, and a leakage check - would you genuinely have every '
+                'feature at prediction time?\n'
+                '2. Set up a clean repo: data/, notebooks/, src/, requirements.txt, README.md, '
+                'and set random_state=42 everywhere.\n'
+                '3. Load and look - .shape, .dtypes, .describe(), plot the target.\n'
+                '4. Split before you clean anything (by date if it is a time series).\n'
+                '5. Clean and engineer features, fitting only on the training set.\n'
+                '6. Fit a baseline (mean, or the majority class) and write its score down.\n'
+                '7. Fit your real model, cross-validate, then evaluate on the test set once.\n'
+                '8. Run the leakage audit from class before you believe your score.\n'
+                '9. Submit a notebook that runs top to bottom from a clean environment (Restart '
+                'kernel and run all), plus a four-line README: question, data source, how to run '
+                'it, and your finding stated in plain language - not just a metric.'
+            )
+            existing_final = Assignment.query.filter_by(course_id=course.id, title=final_title).first()
+            if existing_final:
+                if existing_final.description != final_description:
+                    existing_final.description = final_description
+            else:
+                # The course's own total_sessions is already the right final week for
+                # either case: 8 for the standalone course, or the bundle's true last
+                # week (Python's 7 + ML's 8) - no extra offset math needed here.
+                final_week = course.total_sessions or (8 + offset)
+                db.session.add(Assignment(
+                    course_id=course.id, session=final_week, title=final_title,
+                    description=final_description, max_points=100))
+            db.session.commit()
+    except Exception as exc:
+        db.session.rollback()
+        app.logger.warning('ML homework/assignment seed skipped: %s', exc)
+
+
+def _dedupe_quizzes_by_title():
+    """gunicorn runs multiple worker processes, and each one runs every
+    seed_* function independently at boot - two workers can both check
+    "does this quiz exist" at nearly the same moment, both see no, and both
+    insert, producing two identical quizzes. This finds any (course_id,
+    title) group with more than one row and keeps exactly one: whichever
+    copy has student attempts if any do (never discard real attempt data),
+    otherwise the oldest. Never blocks startup."""
+    try:
+        from collections import defaultdict
+        groups = defaultdict(list)
+        for q in Quiz.query.all():
+            groups[(q.course_id, q.title)].append(q)
+        removed = 0
+        for (_, _), rows in groups.items():
+            if len(rows) < 2:
+                continue
+            rows.sort(key=lambda q: (
+                -QuizAttempt.query.filter_by(quiz_id=q.id).count(), q.id))
+            for dup in rows[1:]:
+                QuizAttempt.query.filter_by(quiz_id=dup.id).delete()
+                db.session.delete(dup)
+                removed += 1
+        if removed:
+            db.session.commit()
+            app.logger.info('Dedupe: removed %d duplicate quiz(zes)', removed)
+    except Exception as exc:
+        db.session.rollback()
+        app.logger.warning('Quiz dedupe skipped: %s', exc)
+
+
+def _dedupe_assignments_by_title():
+    """Same race as _dedupe_quizzes_by_title(), for Assignment rows (weekly
+    homework / the final capstone). Keeps whichever copy has student
+    submissions if any do, otherwise the oldest. Never blocks startup."""
+    try:
+        from collections import defaultdict
+        groups = defaultdict(list)
+        for a in Assignment.query.all():
+            groups[(a.course_id, a.title)].append(a)
+        removed = 0
+        for (_, _), rows in groups.items():
+            if len(rows) < 2:
+                continue
+            rows.sort(key=lambda a: (
+                -Submission.query.filter_by(assignment_id=a.id).count(), a.id))
+            for dup in rows[1:]:
+                Submission.query.filter_by(assignment_id=dup.id).delete()
+                db.session.delete(dup)
+                removed += 1
+        if removed:
+            db.session.commit()
+            app.logger.info('Dedupe: removed %d duplicate assignment(s)', removed)
+    except Exception as exc:
+        db.session.rollback()
+        app.logger.warning('Assignment dedupe skipped: %s', exc)
+
+
+def enforce_python_homework_quiz_policy():
+    """Owner's rule for Python content: homework ONLY at Weeks 2 and 5,
+    quiz ONLY at Weeks 4 and 7 - never both on the same week, nothing else.
+    Removes anything else in Python's own session range (any other
+    homework, including old leftovers like "LESSON 1"/"Homework 1"/
+    "Homework 3"/"Homework 4"; any other quiz) for every course with
+    Python content - the standalone course AND the bundle's Python side.
+
+    Only touches sessions 1..len(PYTHON_SESSIONS) - the bundle's ML content
+    at higher session numbers (same course row) is never in range and is
+    never touched. Deletes a removed assignment's submissions / a removed
+    quiz's attempts first so no orphaned child rows are left behind. This
+    is an ENFORCED, standing rule (unlike the additive-only seeds above) -
+    it runs on every start, so anything added outside these four weeks
+    later is removed again on the next deploy. Never blocks startup."""
+    try:
+        from curriculum_seed import PYTHON_SESSIONS
+    except Exception as exc:
+        app.logger.warning('Python homework/quiz policy skipped (import): %s', exc)
+        return
+    max_session = len(PYTHON_SESSIONS)
+    keep_homework = {2, 5}
+    keep_quiz = {4, 7}
+    for course in _python_target_courses():
+        try:
+            removed_a = 0
+            for a in Assignment.query.filter(
+                Assignment.course_id == course.id,
+                Assignment.session >= 1, Assignment.session <= max_session,
+                ~Assignment.session.in_(keep_homework),
+            ).all():
+                app.logger.info('Python homework policy: removing %r (course %s, session %s)',
+                                a.title, course.id, a.session)
+                Submission.query.filter_by(assignment_id=a.id).delete()
+                db.session.delete(a)
+                removed_a += 1
+
+            removed_q = 0
+            for q in Quiz.query.filter(
+                Quiz.course_id == course.id,
+                Quiz.session >= 1, Quiz.session <= max_session,
+                ~Quiz.session.in_(keep_quiz),
+            ).all():
+                app.logger.info('Python quiz policy: removing %r (course %s, session %s)',
+                                q.title, course.id, q.session)
+                QuizAttempt.query.filter_by(quiz_id=q.id).delete()
+                db.session.delete(q)
+                removed_q += 1
+
+            if removed_a or removed_q:
+                db.session.commit()
+        except Exception as exc:
+            db.session.rollback()
+            app.logger.warning('Python homework/quiz policy failed for course %s (%r): %s',
+                               course.id, course.title, exc)
+
+
+def _sync_bundled_materials():
+    """uploads/ sits on Railway's persistent volume, which is mounted OVER
+    whatever the Docker image has at that path - a file placed there via git
+    never actually reaches the running container; the volume's existing
+    content (from whenever it was first populated) wins every deploy, silently.
+    This bit multiple things: new curriculum decks never appeared, and an
+    earlier commit that edited an existing legacy deck's content in place
+    never reached production either.
+
+    So every git-shipped, code-owned material file (session decks, cheat
+    sheets, exercise bundles - anything a student downloads or views that
+    isn't a one-off admin upload) ships from bundled_materials/ instead,
+    outside uploads/ where the volume can't shadow it, and gets synced onto
+    the live uploads/materials/ here on every start: created if missing,
+    overwritten if its content differs from what's in the image (so edits to
+    these specific, known files always propagate), left alone otherwise.
+    Never touches any other file already on the volume (teacher/admin
+    uploads use randomly-generated names and are never in this source dir).
+    Never blocks startup."""
+    src_dir = os.path.join(os.path.dirname(__file__), 'bundled_materials')
+    dst_dir = os.path.join(app.config['UPLOAD_FOLDER'], 'materials')
+    if not os.path.isdir(src_dir):
+        return
+    os.makedirs(dst_dir, exist_ok=True)
+    created, updated = 0, 0
+    for filename in os.listdir(src_dir):
+        src = os.path.join(src_dir, filename)
+        if not os.path.isfile(src):
+            continue
+        dst = os.path.join(dst_dir, filename)
+        try:
+            with open(src, 'rb') as f:
+                src_bytes = f.read()
+            if os.path.exists(dst):
+                with open(dst, 'rb') as f:
+                    if f.read() == src_bytes:
+                        continue
+                updated += 1
+            else:
+                created += 1
+            with open(dst, 'wb') as f:
+                f.write(src_bytes)
+        except Exception as exc:
+            app.logger.warning('Bundled material sync: %s failed: %s', filename, exc)
+    if created or updated:
+        app.logger.info('Bundled material sync: %d new, %d updated onto the volume', created, updated)
+
+
+def seed_course_curriculum_materials():
+    """Real per-session lesson decks (curriculum_seed.py) for Python
+    Fundamentals and Machine Learning. Each session file already has its own
+    slide nav, so it's stored as a single HTML Material (like the site's
+    existing 'Session_NN_Student_*.html' decks) rather than split into
+    LessonSlide rows. Gated by week like any other Material.
+
+    Only ADDS materials that don't already exist (matched by filename) -
+    never edits or removes a material a teacher has already customised.
+    Also never adds a second lesson to a session that already has ANY
+    material under a different filename - a course with its own
+    teacher-curated "Python Basics" for Session 1 never gets a competing
+    "Session 01: Python Basics" from here too. If an earlier run of this
+    function already created that kind of duplicate (matched precisely by
+    one of this spec's own known filenames), it is removed here.
+    Bumps a course's total_sessions up (never down) so every session is
+    reachable. Each course commits on its own, so one course failing (a bad
+    row, a locked file, anything) can never roll back another course's
+    materials in the same run. Idempotent, never blocks startup.
+
+    Assumes _sync_bundled_materials() already ran this start, so every
+    filename curriculum_seed.py references is already on disk."""
+    try:
+        from curriculum_seed import CURRICULUM
+    except Exception as exc:
+        app.logger.warning('Course curriculum material seed skipped (import): %s', exc)
+        return
+    materials_dir = os.path.join(app.config['UPLOAD_FOLDER'], 'materials')
+    for spec in CURRICULUM:
+        try:
+            q = Course.query
+            for term in spec['include']:
+                q = q.filter(db.func.lower(Course.title).like(f'%{term}%'))
+            for term in spec.get('exclude', []):
+                q = q.filter(~db.func.lower(Course.title).like(f'%{term}%'))
+            courses = q.all()
+        except Exception as exc:
+            db.session.rollback()
+            app.logger.warning('Course curriculum material seed: lookup for %r failed: %s',
+                               spec['include'], exc)
+            continue
+        for course in courses:
+            try:
+                # One-time correction: an earlier, looser course-match wrote this
+                # course's ML sessions at 1-N (colliding with its Python sessions)
+                # instead of offset after them. Delete those specific rows so the
+                # add-if-missing loop below recreates them at the right session.
+                cutoff = spec.get('fixup_ml_cutoff')
+                if cutoff:
+                    wrong = Material.query.filter(
+                        Material.course_id == course.id,
+                        Material.filename.like('ml-session-%'),
+                        Material.session <= cutoff,
+                    ).all()
+                    for m in wrong:
+                        db.session.delete(m)
+                    if wrong:
+                        db.session.flush()
+
+                own_filenames = {fn for _, _, fn in spec['sessions']}
+                existing_materials = Material.query.filter_by(course_id=course.id).all()
+                existing_filenames = {m.filename for m in existing_materials}
+
+                # Keep the title in sync for our own known files if a session's
+                # deck got replaced with a new topic (e.g. pf-session-07.html
+                # went from "Vibe Coding & Capstone" to "Building Your Own
+                # Software") - never touches a teacher-set title since this
+                # only matches by filenames this spec itself owns.
+                title_by_filename = {fn: title for _, title, fn in spec['sessions']}
+                for m in existing_materials:
+                    new_title = title_by_filename.get(m.filename)
+                    if new_title and m.title != new_title:
+                        m.title = new_title
+
+                # Cleanup: remove any of OUR OWN files that duplicate a session
+                # which already has a different-filename material (teacher content,
+                # or content from before this per-session check existed).
+                sessions_with_other_material = {
+                    m.session for m in existing_materials
+                    if m.filename not in own_filenames and m.session
+                }
+                for m in existing_materials:
+                    if m.filename in own_filenames and m.session in sessions_with_other_material:
+                        db.session.delete(m)
+                        existing_filenames.discard(m.filename)
+                if sessions_with_other_material:
+                    db.session.flush()
+
+                max_session = max(n for n, _, _ in spec['sessions'])
+                if (course.total_sessions or 0) < max_session:
+                    course.total_sessions = max_session
+                added = 0
+                for session_num, title, filename in spec['sessions']:
+                    if filename in existing_filenames:
+                        continue
+                    if session_num in sessions_with_other_material:
+                        continue
+                    fpath = os.path.join(materials_dir, filename)
+                    if not os.path.exists(fpath):
+                        app.logger.warning(
+                            'Course curriculum material seed: %s missing on disk for course %s (%r)',
+                            filename, course.id, course.title)
+                        continue
+                    db.session.add(Material(
+                        course_id=course.id, session=session_num, title=title,
+                        description='Session slides', filename=filename,
+                        file_type='html', file_size=human_size(fpath),
+                        is_published=True, order_index=session_num,
+                    ))
+                    added += 1
+                db.session.commit()
+                if added:
+                    app.logger.info('Course curriculum material seed: added %d material(s) to course %s (%r)',
+                                    added, course.id, course.title)
+            except Exception as exc:
+                db.session.rollback()
+                app.logger.warning('Course curriculum material seed: course %s (%r) failed: %s',
+                                   course.id, course.title, exc)
 
 
 # ─────────────────────────────────────────────
@@ -6085,8 +6543,15 @@ with app.app_context():
 
     seed_demo()
     seed_predefined_workshops()
-    sync_python_fundamentals_materials()
     seed_python_fundamentals_quizzes()
+    seed_python_homework()
+    _sync_bundled_materials()
+    seed_course_curriculum_materials()
+    seed_ml_quizzes()
+    seed_ml_homework_and_assignment()
+    _dedupe_quizzes_by_title()
+    _dedupe_assignments_by_title()
+    enforce_python_homework_quiz_policy()
     _start_scheduler()
 
 if __name__ == '__main__':
