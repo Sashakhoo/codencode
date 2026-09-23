@@ -5668,6 +5668,93 @@ def seed_python_fundamentals_quizzes():
         app.logger.warning('Python Fundamentals quiz seed skipped: %s', exc)
 
 
+def _ml_standalone_courses():
+    """The standalone Machine Learning course(s) - title contains "machine
+    learning" but NOT "python", so the bundled "Python and Machine Learning"
+    course (a different pacing/structure) is deliberately left untouched."""
+    return Course.query.filter(
+        db.func.lower(Course.title).like('%machine learning%'),
+        ~db.func.lower(Course.title).like('%python%'),
+    ).all()
+
+
+def seed_ml_quizzes():
+    """Week 4 and Week 7 checkpoint MCQ quizzes for the standalone Machine
+    Learning course. Same behaviour as seed_python_fundamentals_quizzes():
+    created PUBLISHED and required, re-published if a teacher unpublishes,
+    idempotent by (course, title), never blocks startup."""
+    try:
+        import random
+        from ml_quiz_seed import ML_QUIZZES
+        for course in _ml_standalone_courses():
+            for spec in ML_QUIZZES:
+                existing = Quiz.query.filter_by(course_id=course.id, title=spec['title']).first()
+                if existing:
+                    if not existing.is_published:
+                        existing.is_published = True
+                    if not existing.is_required:
+                        existing.is_required = True
+                    continue
+                quiz = Quiz(course_id=course.id, title=spec['title'], description=spec['description'],
+                            session=spec['week'], pass_score=70, max_attempts=2, is_published=True,
+                            is_required=True)
+                db.session.add(quiz)
+                db.session.flush()
+                for idx, (text_, correct, wrong, explanation) in enumerate(spec['questions']):
+                    qq = QuizQuestion(quiz_id=quiz.id, question_text=text_, question_type='mcq',
+                                      points=1, explanation=explanation, order_index=idx)
+                    db.session.add(qq)
+                    db.session.flush()
+                    choices = [(correct, True)] + [(w, False) for w in wrong]
+                    random.Random(f"ml-{spec['week']}-{idx}").shuffle(choices)
+                    for choice_text, is_correct in choices:
+                        db.session.add(QuizChoice(question_id=qq.id, choice_text=choice_text, is_correct=is_correct))
+        db.session.commit()
+    except Exception as exc:
+        db.session.rollback()
+        app.logger.warning('ML quiz seed skipped: %s', exc)
+
+
+def seed_ml_homework_and_assignment():
+    """Simple homework at Weeks 3 and 6, and the final capstone Assignment
+    at the course's last week, for the standalone Machine Learning course.
+    Only ADDS (matched by title) - never edits or removes anything a
+    teacher already created. Idempotent, never blocks startup."""
+    specs = [
+        (3, 'Homework 3: Regression Model Comparison',
+         'Using the housing dataset from class, fit Linear Regression, Ridge and Lasso. '
+         'Report MAE, RMSE and R² for each in one table, and write one sentence saying '
+         'which model you would ship and why.'),
+        (6, 'Homework 6: Sales Forecast with LSTM',
+         'Using the daily sales dataset from class, build an LSTM to forecast the next 30 days. '
+         'Split by date (not randomly), and compare your LSTM’s MAE against the naive baseline '
+         '(predicting tomorrow = today). Submit your notebook and a one-sentence result.'),
+    ]
+    try:
+        for course in _ml_standalone_courses():
+            for session_num, title, description in specs:
+                if Assignment.query.filter_by(course_id=course.id, title=title).first():
+                    continue
+                db.session.add(Assignment(course_id=course.id, session=session_num,
+                                          title=title, description=description, max_points=100))
+            final_title = 'Final Assignment: Capstone Project'
+            if not Assignment.query.filter_by(course_id=course.id, title=final_title).first():
+                final_week = course.total_sessions or 8
+                db.session.add(Assignment(
+                    course_id=course.id, session=final_week, title=final_title,
+                    description=(
+                        'Bring your own dataset and a question you care about. Scope it, build a '
+                        'complete pipeline (split before cleaning, baseline before modelling, evaluate '
+                        'on the test set once), and submit a notebook that runs top to bottom plus a '
+                        'short README stating your question, data source, how to run it, and your '
+                        'finding in plain language - not just a metric.'),
+                    max_points=100))
+            db.session.commit()
+    except Exception as exc:
+        db.session.rollback()
+        app.logger.warning('ML homework/assignment seed skipped: %s', exc)
+
+
 def _sync_bundled_materials():
     """uploads/ sits on Railway's persistent volume, which is mounted OVER
     whatever the Docker image has at that path - a file placed there via git
@@ -6175,6 +6262,8 @@ with app.app_context():
     seed_python_fundamentals_quizzes()
     _sync_bundled_materials()
     seed_course_curriculum_materials()
+    seed_ml_quizzes()
+    seed_ml_homework_and_assignment()
     _start_scheduler()
 
 if __name__ == '__main__':
