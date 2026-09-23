@@ -5678,25 +5678,41 @@ def seed_course_curriculum_materials():
     Only ADDS materials that don't already exist (matched by filename) -
     never edits or removes a material a teacher has already customised.
     Bumps a course's total_sessions up (never down) so every session is
-    reachable. Idempotent, never blocks startup."""
+    reachable. Each course commits on its own, so one course failing (a bad
+    row, a locked file, anything) can never roll back another course's
+    materials in the same run. Idempotent, never blocks startup."""
     try:
         from curriculum_seed import CURRICULUM
-        materials_dir = os.path.join(app.config['UPLOAD_FOLDER'], 'materials')
-        for spec in CURRICULUM:
+    except Exception as exc:
+        app.logger.warning('Course curriculum material seed skipped (import): %s', exc)
+        return
+    materials_dir = os.path.join(app.config['UPLOAD_FOLDER'], 'materials')
+    for spec in CURRICULUM:
+        try:
             courses = Course.query.filter(
                 db.func.lower(Course.title).like(f"%{spec['course_match']}%")).all()
-            for course in courses:
+        except Exception as exc:
+            db.session.rollback()
+            app.logger.warning('Course curriculum material seed: lookup for %r failed: %s',
+                               spec['course_match'], exc)
+            continue
+        for course in courses:
+            try:
                 existing_filenames = {
                     m.filename for m in Material.query.filter_by(course_id=course.id).all()
                 }
                 max_session = max(n for n, _, _ in spec['sessions'])
                 if (course.total_sessions or 0) < max_session:
                     course.total_sessions = max_session
+                added = 0
                 for session_num, title, filename in spec['sessions']:
                     if filename in existing_filenames:
                         continue
                     fpath = os.path.join(materials_dir, filename)
                     if not os.path.exists(fpath):
+                        app.logger.warning(
+                            'Course curriculum material seed: %s missing on disk for course %s (%r)',
+                            filename, course.id, course.title)
                         continue
                     db.session.add(Material(
                         course_id=course.id, session=session_num, title=title,
@@ -5704,10 +5720,15 @@ def seed_course_curriculum_materials():
                         file_type='html', file_size=human_size(fpath),
                         is_published=True, order_index=session_num,
                     ))
-        db.session.commit()
-    except Exception as exc:
-        db.session.rollback()
-        app.logger.warning('Course curriculum material seed skipped: %s', exc)
+                    added += 1
+                db.session.commit()
+                if added:
+                    app.logger.info('Course curriculum material seed: added %d material(s) to course %s (%r)',
+                                    added, course.id, course.title)
+            except Exception as exc:
+                db.session.rollback()
+                app.logger.warning('Course curriculum material seed: course %s (%r) failed: %s',
+                                   course.id, course.title, exc)
 
 
 # ─────────────────────────────────────────────
