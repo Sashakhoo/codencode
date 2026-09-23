@@ -5625,8 +5625,53 @@ def api_search():
     return jsonify({'results': results, 'query': q})
 
 
+def _courses_matching(include, exclude=()):
+    q = Course.query
+    for term in include:
+        q = q.filter(db.func.lower(Course.title).like(f'%{term}%'))
+    for term in exclude:
+        q = q.filter(~db.func.lower(Course.title).like(f'%{term}%'))
+    return q.all()
+
+
+def _python_target_courses():
+    """Every course with Python Fundamentals content at sessions 1-7: the
+    standalone course, and the "Python and Machine Learning" bundle course
+    (Python sits unshifted at 1-7 there too - only the ML side is offset).
+    Reads course-matching straight from curriculum_seed.CURRICULUM so this
+    always agrees with where the actual lesson materials were placed."""
+    from curriculum_seed import CURRICULUM
+    seen = {}
+    for spec in CURRICULUM:
+        if 'python fundamentals' not in spec['include'] and 'fixup_ml_cutoff' not in spec:
+            continue
+        for c in _courses_matching(spec['include'], spec.get('exclude', [])):
+            seen[c.id] = c
+    return list(seen.values())
+
+
+def _ml_target_courses():
+    """(course, session_offset) for every course with Machine Learning
+    content: the standalone course at offset 0, and the bundle course with
+    ML sessions shifted by however many Python sessions precede them there
+    (so Week 4 of ML becomes the bundle's actual session 4+offset)."""
+    from curriculum_seed import CURRICULUM
+    out = []
+    for spec in CURRICULUM:
+        is_ml_standalone = 'python' in spec.get('exclude', []) and any('machine learning' in t for t in spec['include'])
+        is_bundle = 'fixup_ml_cutoff' in spec
+        if not (is_ml_standalone or is_bundle):
+            continue
+        offset = spec.get('fixup_ml_cutoff', 0)
+        for c in _courses_matching(spec['include'], spec.get('exclude', [])):
+            out.append((c, offset))
+    return out
+
+
 def seed_python_fundamentals_quizzes():
-    """Week 4 and Week 7 checkpoint MCQ quizzes for Python Fundamentals. Created
+    """Week 4 and Week 7 checkpoint MCQ quizzes for Python Fundamentals -
+    the standalone course AND the "Python and Machine Learning" bundle
+    (Python is unshifted there, so the same week numbers apply). Created
     PUBLISHED (students only see each one once they reach its week), and
     re-published on every start if a teacher unpublishes it. Idempotent by
     (course, title). A deleted quiz is re-created on the next start. To
@@ -5635,8 +5680,7 @@ def seed_python_fundamentals_quizzes():
     try:
         import random
         from quiz_seed_python import PYTHON_FUNDAMENTALS_QUIZZES, RETIRED_TITLES
-        courses = Course.query.filter(db.func.lower(Course.title).like('%python fundamentals%')).all()
-        for course in courses:
+        for course in _python_target_courses():
             for old in Quiz.query.filter(Quiz.course_id == course.id, Quiz.title.in_(RETIRED_TITLES)).all():
                 if not old.is_published and not QuizAttempt.query.filter_by(quiz_id=old.id).first():
                     db.session.delete(old)
@@ -5669,7 +5713,8 @@ def seed_python_fundamentals_quizzes():
 
 
 def seed_python_homework():
-    """Simple homework at Weeks 2 and 5 for Python Fundamentals, matching
+    """Simple homework at Weeks 2 and 5 for Python Fundamentals - the
+    standalone course AND the "Python and Machine Learning" bundle - matching
     each session's own 'Your Turn' build. Only ADDS (matched by title) -
     never edits or removes anything a teacher already created; if a
     "Homework 2: Conditionals & Logic" already exists it is left exactly
@@ -5690,8 +5735,7 @@ def seed_python_homework():
          'differently.'),
     ]
     try:
-        courses = Course.query.filter(db.func.lower(Course.title).like('%python fundamentals%')).all()
-        for course in courses:
+        for course in _python_target_courses():
             for session_num, title, description in specs:
                 if Assignment.query.filter_by(course_id=course.id, title=title).first():
                     continue
@@ -5703,25 +5747,17 @@ def seed_python_homework():
         app.logger.warning('Python homework seed skipped: %s', exc)
 
 
-def _ml_standalone_courses():
-    """The standalone Machine Learning course(s) - title contains "machine
-    learning" but NOT "python", so the bundled "Python and Machine Learning"
-    course (a different pacing/structure) is deliberately left untouched."""
-    return Course.query.filter(
-        db.func.lower(Course.title).like('%machine learning%'),
-        ~db.func.lower(Course.title).like('%python%'),
-    ).all()
-
-
 def seed_ml_quizzes():
-    """Week 4 and Week 7 checkpoint MCQ quizzes for the standalone Machine
-    Learning course. Same behaviour as seed_python_fundamentals_quizzes():
+    """Week 4 and Week 7 checkpoint MCQ quizzes for Machine Learning content -
+    the standalone course, and the "Python and Machine Learning" bundle
+    (ML sessions shifted there, e.g. Week 4 lands at the bundle's actual
+    session 4+offset). Same behaviour as seed_python_fundamentals_quizzes():
     created PUBLISHED and required, re-published if a teacher unpublishes,
     idempotent by (course, title), never blocks startup."""
     try:
         import random
         from ml_quiz_seed import ML_QUIZZES
-        for course in _ml_standalone_courses():
+        for course, offset in _ml_target_courses():
             for spec in ML_QUIZZES:
                 existing = Quiz.query.filter_by(course_id=course.id, title=spec['title']).first()
                 if existing:
@@ -5731,8 +5767,8 @@ def seed_ml_quizzes():
                         existing.is_required = True
                     continue
                 quiz = Quiz(course_id=course.id, title=spec['title'], description=spec['description'],
-                            session=spec['week'], pass_score=70, max_attempts=2, is_published=True,
-                            is_required=True)
+                            session=spec['week'] + offset, pass_score=70, max_attempts=2,
+                            is_published=True, is_required=True)
                 db.session.add(quiz)
                 db.session.flush()
                 for idx, (text_, correct, wrong, explanation) in enumerate(spec['questions']):
@@ -5741,7 +5777,7 @@ def seed_ml_quizzes():
                     db.session.add(qq)
                     db.session.flush()
                     choices = [(correct, True)] + [(w, False) for w in wrong]
-                    random.Random(f"ml-{spec['week']}-{idx}").shuffle(choices)
+                    random.Random(f"ml-{course.id}-{spec['week']}-{idx}").shuffle(choices)
                     for choice_text, is_correct in choices:
                         db.session.add(QuizChoice(question_id=qq.id, choice_text=choice_text, is_correct=is_correct))
         db.session.commit()
@@ -5751,8 +5787,9 @@ def seed_ml_quizzes():
 
 
 def seed_ml_homework_and_assignment():
-    """Simple homework at Weeks 3 and 6, and the final capstone Assignment
-    at the course's last week, for the standalone Machine Learning course.
+    """Simple homework at Weeks 3 and 6 (offset in the bundle course), and
+    the final capstone Assignment at the course's actual last week, for
+    Machine Learning content - the standalone course and the bundle.
     Only ADDS (matched by title) - never edits or removes anything a
     teacher already created. Idempotent, never blocks startup."""
     specs = [
@@ -5766,15 +5803,18 @@ def seed_ml_homework_and_assignment():
          '(predicting tomorrow = today). Submit your notebook and a one-sentence result.'),
     ]
     try:
-        for course in _ml_standalone_courses():
+        for course, offset in _ml_target_courses():
             for session_num, title, description in specs:
                 if Assignment.query.filter_by(course_id=course.id, title=title).first():
                     continue
-                db.session.add(Assignment(course_id=course.id, session=session_num,
+                db.session.add(Assignment(course_id=course.id, session=session_num + offset,
                                           title=title, description=description, max_points=100))
             final_title = 'Final Assignment: Capstone Project'
             if not Assignment.query.filter_by(course_id=course.id, title=final_title).first():
-                final_week = course.total_sessions or 8
+                # The course's own total_sessions is already the right final week for
+                # either case: 8 for the standalone course, or the bundle's true last
+                # week (Python's 7 + ML's 8) - no extra offset math needed here.
+                final_week = course.total_sessions or (8 + offset)
                 db.session.add(Assignment(
                     course_id=course.id, session=final_week, title=final_title,
                     description=(
