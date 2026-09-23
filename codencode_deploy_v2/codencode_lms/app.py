@@ -1074,10 +1074,11 @@ def _slide_materials_for_course(course):
     # so no legacy demo decks are auto-seeded for it.
     if has_ai_workplace:
         return []
-    if has_ml and not has_python:
-        return [item for item in SLIDE_MATERIALS if item[0] >= 8]
-    # The Python Bootcamp now has its own curriculum uploaded through the admin
-    # panel, so no legacy decks are auto-seeded for Python / Python+ML courses.
+    # Python Fundamentals and Machine Learning Fundamentals both now have
+    # their own real curriculum (curriculum_seed.py / seed_course_curriculum_materials),
+    # so no legacy generic decks are auto-seeded for either - avoids the same
+    # topics (Feature Engineering, Regression, etc.) showing twice under two
+    # different session numbers.
     return []
 
 
@@ -5667,6 +5668,48 @@ def seed_python_fundamentals_quizzes():
         app.logger.warning('Python Fundamentals quiz seed skipped: %s', exc)
 
 
+def seed_course_curriculum_materials():
+    """Real per-session lesson decks (curriculum_seed.py) for Python
+    Fundamentals and Machine Learning. Each session file already has its own
+    slide nav, so it's stored as a single HTML Material (like the site's
+    existing 'Session_NN_Student_*.html' decks) rather than split into
+    LessonSlide rows. Gated by week like any other Material.
+
+    Only ADDS materials that don't already exist (matched by filename) -
+    never edits or removes a material a teacher has already customised.
+    Bumps a course's total_sessions up (never down) so every session is
+    reachable. Idempotent, never blocks startup."""
+    try:
+        from curriculum_seed import CURRICULUM
+        materials_dir = os.path.join(app.config['UPLOAD_FOLDER'], 'materials')
+        for spec in CURRICULUM:
+            courses = Course.query.filter(
+                db.func.lower(Course.title).like(f"%{spec['course_match']}%")).all()
+            for course in courses:
+                existing_filenames = {
+                    m.filename for m in Material.query.filter_by(course_id=course.id).all()
+                }
+                max_session = max(n for n, _, _ in spec['sessions'])
+                if (course.total_sessions or 0) < max_session:
+                    course.total_sessions = max_session
+                for session_num, title, filename in spec['sessions']:
+                    if filename in existing_filenames:
+                        continue
+                    fpath = os.path.join(materials_dir, filename)
+                    if not os.path.exists(fpath):
+                        continue
+                    db.session.add(Material(
+                        course_id=course.id, session=session_num, title=title,
+                        description='Session slides', filename=filename,
+                        file_type='html', file_size=human_size(fpath),
+                        is_published=True, order_index=session_num,
+                    ))
+        db.session.commit()
+    except Exception as exc:
+        db.session.rollback()
+        app.logger.warning('Course curriculum material seed skipped: %s', exc)
+
+
 # ─────────────────────────────────────────────
 # Init DB & run
 # ─────────────────────────────────────────────
@@ -6038,6 +6081,7 @@ with app.app_context():
     seed_demo()
     seed_predefined_workshops()
     seed_python_fundamentals_quizzes()
+    seed_course_curriculum_materials()
     _start_scheduler()
 
 if __name__ == '__main__':

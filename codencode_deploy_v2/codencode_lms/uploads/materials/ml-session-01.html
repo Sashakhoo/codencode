@@ -1,0 +1,1017 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>ML Session 01 — Feature Engineering | codencode Academy</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0d1117;--panel:#161b22;--panel2:#1c2430;--line:#2a3440;
+  --mint:#00dcb4;--text:#e8eef0;--muted:#8b98a5;--coral:#ff6f91;--amber:#f0b429;--blue:#58a6ff;--purple:#bc8cff;
+  --sans:'Space Grotesk','Inter',system-ui,sans-serif;--body:'Inter',system-ui,sans-serif;
+  --mono:'JetBrains Mono','SF Mono',Consolas,monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:var(--body);height:100vh;overflow:hidden;user-select:none}
+#topbar{position:fixed;top:0;left:0;right:0;height:52px;display:flex;align-items:center;gap:16px;
+  padding:0 24px;background:rgba(13,17,23,.92);border-bottom:1px solid var(--line);z-index:50}
+.wordmark{height:21px;width:auto;display:block;flex-shrink:0}
+#sesslabel{font-size:12px;color:var(--muted);font-family:var(--mono)}
+#titlebar{flex:1;text-align:center;font-size:13px;color:var(--muted);font-family:var(--mono);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#counter{font-family:var(--mono);font-size:12px;color:var(--mint)}
+.btn{background:rgba(0,220,180,.10);border:1px solid rgba(0,220,180,.32);color:var(--mint);
+  font-family:var(--mono);font-size:11px;padding:6px 12px;border-radius:6px;cursor:pointer}
+.btn:hover{background:rgba(0,220,180,.20)}
+#progress{position:fixed;top:52px;left:0;height:2px;background:var(--mint);z-index:51;transition:width .3s}
+#deck{position:absolute;top:54px;bottom:56px;left:0;right:0}
+.slide{position:absolute;inset:0;padding:28px 48px;display:none;flex-direction:column;overflow:hidden}
+.slide.active{display:flex;animation:in .38s ease both}
+@keyframes in{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+.tag{font-family:var(--mono);font-size:11px;letter-spacing:.15em;text-transform:uppercase;color:var(--mint);margin-bottom:7px}
+h1.sh{font-family:var(--sans);font-size:clamp(22px,2.7vw,34px);font-weight:700;line-height:1.14}
+h1.sh::after{content:'';display:block;width:50px;height:4px;background:var(--mint);border-radius:2px;margin-top:10px}
+.sub{color:var(--muted);font-size:14.5px;margin-top:10px;max-width:82ch;line-height:1.6}
+.body{flex:1;display:flex;gap:24px;align-items:center;min-height:0;margin-top:16px;overflow:hidden}
+.body.mid{align-items:center}
+.col{flex:1;min-width:0}
+.figwrap{flex:1.8 1 0;display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:0;min-height:0;max-height:100%;gap:6px}
+svg.fig{width:100%;height:100%;min-height:300px;flex:1 1 auto;display:block}
+.figwrap > .legend,.figwrap > .controls,.figwrap > .gate,.figwrap > .eq{flex:0 0 auto;width:100%}
+
+/* title / divider */
+.title-slide{align-items:center;justify-content:center;text-align:center}
+.title-slide .badge{font-family:var(--mono);font-size:12px;color:var(--mint);border:1px solid rgba(0,220,180,.34);
+  background:rgba(0,220,180,.08);padding:7px 18px;border-radius:20px;margin-bottom:24px}
+.title-slide h1{font-family:var(--sans);font-size:clamp(38px,5.6vw,66px);font-weight:700;line-height:1.05}
+.title-slide h1 em{font-style:normal;color:var(--mint)}
+.title-slide p{color:var(--muted);font-size:17px;margin-top:18px;max-width:62ch}
+.title-slide .foot{margin-top:34px;font-family:var(--mono);font-size:13px;color:var(--muted)}
+.divider{align-items:flex-start;justify-content:center}
+.divider .num{font-family:var(--sans);font-size:112px;font-weight:700;color:rgba(0,220,180,.16);line-height:1}
+.divider h1{font-family:var(--sans);font-size:clamp(32px,4.4vw,52px);font-weight:700;margin-top:-16px}
+.divider .items{margin-top:22px;display:flex;flex-direction:column;gap:11px}
+.divider .items div{font-size:16.5px;color:var(--muted)}
+.divider .items b{color:var(--mint);font-family:var(--mono);font-size:14.5px;margin-right:11px}
+
+/* blocks */
+.cards{display:grid;gap:12px}
+.grid2{grid-template-columns:1fr 1fr}.grid3{grid-template-columns:repeat(3,1fr)}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:15px 17px}
+.card.accent{border-color:rgba(0,220,180,.45);background:var(--panel2)}
+.card.warn{border-color:rgba(255,111,145,.42)}
+.card h3{font-family:var(--sans);font-size:16px;font-weight:600;margin-bottom:5px}
+.card h3 .k{color:var(--mint);font-family:var(--mono);font-size:13.5px;margin-right:8px}
+.card p{color:var(--muted);font-size:13.8px;line-height:1.55}
+.card p b{color:var(--text);font-weight:600}
+
+.def{border-left:3px solid var(--blue);background:linear-gradient(90deg,rgba(88,166,255,.09),transparent 65%);
+  padding:14px 18px;border-radius:0 9px 9px 0;margin-bottom:12px}
+.def .lbl{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;color:var(--blue);text-transform:uppercase}
+.def h4{font-family:var(--sans);font-size:17px;margin:5px 0 6px}
+.def p{color:var(--muted);font-size:14px;line-height:1.6}
+.def p b{color:var(--text);font-weight:600}
+
+.theory{border-left:3px solid var(--amber);background:linear-gradient(90deg,rgba(240,180,41,.08),transparent 65%);
+  padding:14px 18px;border-radius:0 9px 9px 0;margin-bottom:12px}
+.theory .lbl{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;color:var(--amber);text-transform:uppercase}
+.theory p{color:var(--muted);font-size:14px;line-height:1.6;margin-top:6px}
+.theory p b{color:var(--text);font-weight:600}
+
+.formula{background:#0a0e13;border:1px solid var(--line);border-radius:10px;padding:16px 20px;
+  font-family:var(--mono);font-size:19px;color:var(--mint);text-align:center;margin:10px 0;letter-spacing:.02em}
+.formula small{display:block;font-size:12px;color:var(--muted);margin-top:8px;letter-spacing:0}
+
+pre.code{background:#0a0e13;border:1px solid var(--line);border-radius:10px;padding:14px 17px;
+  font-family:var(--mono);font-size:13.2px;line-height:1.68;color:var(--text);overflow:auto}
+pre.code.sm{font-size:12.3px;line-height:1.6}
+pre.code .c{color:var(--muted)}pre.code .s{color:var(--mint)}pre.code .n{color:var(--blue)}
+pre.code .e{color:var(--coral)}pre.code .k{color:var(--purple)}
+.code-head{font-family:var(--mono);font-size:11px;color:var(--muted);background:var(--panel2);
+  border:1px solid var(--line);border-bottom:none;border-radius:10px 10px 0 0;padding:7px 13px}
+.code-head + pre.code{border-radius:0 0 10px 10px}
+
+table.t{width:100%;border-collapse:collapse;font-size:13.5px}
+table.t th{text-align:left;font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--mint);padding:9px 12px;border-bottom:1px solid var(--line)}
+table.t td{padding:10px 12px;border-bottom:1px solid var(--line);color:var(--muted);line-height:1.5;vertical-align:top}
+table.t td:first-child{color:var(--text);font-family:var(--mono);font-size:12.5px;white-space:nowrap}
+table.cps td:first-child{color:var(--mint);font-family:var(--mono);font-size:13px;width:140px}
+
+.pill{display:inline-block;font-family:var(--mono);font-size:11.5px;padding:4px 11px;border-radius:13px;
+  border:1px solid;margin:0 7px 7px 0}
+.pill.mint{color:var(--mint);border-color:rgba(0,220,180,.4);background:rgba(0,220,180,.08)}
+.pill.coral{color:var(--coral);border-color:rgba(255,111,145,.4);background:rgba(255,111,145,.08)}
+.pill.amber{color:var(--amber);border-color:rgba(240,180,41,.4);background:rgba(240,180,41,.08)}
+.pill.blue{color:var(--blue);border-color:rgba(88,166,255,.4);background:rgba(88,166,255,.08)}
+
+.hands-on{border-left:3px solid var(--mint);background:linear-gradient(90deg,rgba(0,220,180,.07),transparent 60%);
+  padding:16px 22px;border-radius:0 10px 10px 0}
+.hands-on .lbl{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;color:var(--mint);text-transform:uppercase}
+.hands-on h3{font-family:var(--sans);font-size:19px;margin:7px 0 9px}
+.hands-on p{color:var(--muted);font-size:14.2px;line-height:1.6}
+.steps{margin-top:12px;display:flex;flex-direction:column;gap:8px}
+.steps div{font-size:14px;color:var(--text);display:flex;gap:11px;align-items:flex-start}
+.steps b{color:var(--mint);font-family:var(--mono);font-size:12.5px;flex-shrink:0}
+.caption{font-size:13px;color:var(--muted);font-style:italic;margin-top:11px;text-align:center}
+
+#nav{position:fixed;bottom:0;left:0;right:0;height:56px;display:flex;align-items:center;justify-content:center;gap:18px;z-index:50}
+.navbtn{background:var(--panel);border:1px solid var(--line);color:var(--muted);font-family:var(--mono);
+  font-size:12px;padding:8px 16px;border-radius:8px;cursor:pointer}
+.navbtn:hover{border-color:var(--mint);color:var(--mint)}
+#dots{display:flex;gap:5px;flex-wrap:wrap;max-width:52vw;justify-content:center}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--line);cursor:pointer}
+.dot.on{background:var(--mint);transform:scale(1.35)}
+
+.fx{opacity:0}
+.slide.active .fx{animation:fade .5s ease forwards}
+@keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.slide.active .d1{animation-delay:.12s}.slide.active .d2{animation-delay:.28s}
+.slide.active .d3{animation-delay:.44s}.slide.active .d4{animation-delay:.6s}
+.slide.active .d5{animation-delay:.78s}.slide.active .d6{animation-delay:.96s}
+.draw{stroke-dasharray:var(--len,300);stroke-dashoffset:var(--len,300)}
+.slide.active .draw{animation:dr .8s ease forwards}
+@keyframes dr{to{stroke-dashoffset:0}}
+.grow{transform-origin:bottom;transform:scaleY(0)}
+.slide.active .grow{animation:gw .7s cubic-bezier(.22,1,.36,1) forwards}
+@keyframes gw{to{transform:scaleY(1)}}
+
+/* ---------- copiable code ---------- */
+pre.code{position:relative;user-select:text}
+.copybtn{position:absolute;top:7px;right:7px;z-index:3;background:rgba(22,27,34,.94);
+  border:1px solid var(--line);color:var(--muted);font-family:var(--mono);font-size:10.5px;
+  letter-spacing:.06em;padding:4px 9px;border-radius:5px;cursor:pointer;opacity:0;transition:.16s}
+pre.code:hover .copybtn{opacity:1}
+.copybtn:hover{border-color:var(--mint);color:var(--mint)}
+.copybtn.done{border-color:var(--mint);color:var(--mint);opacity:1}
+
+/* ---------- figure furniture (legends, controls, sliders) ---------- */
+
+/* ---------- figure slides: stacked on tall screens, side-by-side when wide ---------- */
+.cb{display:block}
+.figbody{flex:1;display:flex;gap:32px;align-items:center;margin-top:24px;min-height:0}
+.figbody > .figwrap{flex:1.8 1 0}
+.figbody > .figside{display:flex;flex-direction:column;gap:12px;min-width:0}
+.figbody > .figside > *{margin-bottom:0}
+@media (max-aspect-ratio: 29/20){
+  .figbody{flex-direction:column;align-items:stretch;gap:16px}
+  .figbody > .figwrap{flex:0 1 auto;width:100%;max-width:none;justify-content:flex-start}
+  .figbody > .figwrap > svg.fig{height:auto;min-height:0;flex:0 0 auto;max-height:100%}
+  .figbody > .figside{max-width:none !important;flex:0 0 auto;display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:14px;align-items:start}
+  .figbody > .figside .controls,.figbody > .figside .legend{justify-content:flex-start}
+}
+
+.legend{display:flex;gap:18px;font-family:var(--mono);font-size:12px;color:var(--muted);
+  margin-top:10px;flex-wrap:wrap;justify-content:center}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px;vertical-align:middle}
+.controls{display:flex;gap:10px;align-items:center;margin-top:12px;flex-wrap:wrap;justify-content:center}
+.btn.ghost{background:transparent;border-color:var(--line);color:var(--muted)}
+.btn.ghost:hover{border-color:var(--mint);color:var(--mint)}
+.gate{margin-bottom:12px}
+.gate label{display:flex;justify-content:space-between;align-items:center;font-family:var(--mono);
+  font-size:12.5px;margin-bottom:6px;gap:12px}
+input[type=range]{width:100%;height:5px;border-radius:3px;appearance:none;background:var(--line);outline:none}
+input[type=range]::-webkit-slider-thumb{appearance:none;width:15px;height:15px;border-radius:50%;
+  background:var(--mint);cursor:pointer;border:2px solid #0d1117}
+.eq{font-family:var(--mono);font-size:12.5px;color:var(--muted);line-height:1.9;background:#0a0e13;
+  border:1px solid var(--line);border-radius:9px;padding:11px 13px}
+.eq b{color:var(--text);font-weight:400}
+</style>
+</head>
+<body>
+
+<div id="topbar">
+  <img class="wordmark" src="data:image/png;base64,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" alt="codencode.my">
+  <div id="sesslabel">ML SESSION 01</div>
+  <div id="titlebar"></div>
+  <div id="counter"></div>
+  <button class="btn" onclick="fs()">FULLSCREEN</button>
+</div>
+<div id="progress"></div>
+
+<div id="deck">
+
+<!-- 1 ──────── TITLE -->
+<section class="slide title-slide" data-title="Main Title">
+    <div class="badge fx">SESSION 01 OF 07 · MACHINE LEARNING FUNDAMENTALS</div>
+  <h1 class="fx d1">Feature <em>Engineering</em></h1>
+  <p class="fx d2">Before any model can learn anything, somebody has to decide what it gets to look at. That somebody is you — and it matters more than which algorithm you pick.</p>
+  <div class="foot fx d3">codencode Academy · 8 weeks · prerequisite: Python Intermediate</div>
+</section>
+
+<!-- 2 ──────── SESSION PLAN -->
+<section class="slide" data-title="Session Plan">
+  <div class="tag fx">Session Plan</div>
+  <h1 class="sh fx d1">What we're doing today</h1>
+  <div class="body">
+    <div class="col cards grid3">
+      <div class="card accent fx d2">
+        <h3><span class="k">M1</span>Feature Basics</h3>
+        <p>What a feature actually is, the vocabulary you'll hear all course, and the types you'll meet in every dataset.</p>
+        <div style="margin-top:10px"><span class="pill mint">50 min</span></div>
+      </div>
+      <div class="card accent fx d3">
+        <h3><span class="k">M2</span>Cleaning &amp; Encoding</h3>
+        <p>Missing values, turning text into numbers without lying to your model, and putting every column on a fair scale.</p>
+        <div style="margin-top:10px"><span class="pill mint">60 min</span></div>
+      </div>
+      <div class="card accent fx d4">
+        <h3><span class="k">M3</span>Feature Creation</h3>
+        <p>Inventing columns that weren't there, time-series indicators, and the leakage mistake that fools everyone once.</p>
+        <div style="margin-top:10px"><span class="pill mint">55 min</span></div>
+      </div>
+    </div>
+  </div>
+  <div class="cards grid3 fx d5">
+    <div class="card"><p><b>Stack</b> — pandas, numpy, scikit-learn, matplotlib</p></div>
+    <div class="card"><p><b>Dataset</b> — Malaysia house prices 2025 (messy on purpose)</p></div>
+    <div class="card"><p><b>Deliverable</b> — a clean, model-ready feature matrix</p></div>
+  </div>
+</section>
+
+<!-- 3 ──────── ICE BREAKER -->
+<section class="slide" data-title="Ice Breaker Activity">
+  <div class="tag fx">Ice Breaker · 10 minutes</div>
+  <h1 class="sh fx d1">You already do this every day</h1>
+  <p class="sub fx d2">No code. I'll describe a house — you tell me if you'd buy it. Then tell me <b style="color:var(--mint)">which details you actually used</b> to decide, and which you ignored.</p>
+  <div class="body">
+    <div class="col cards grid2 fx d3">
+      <div class="card">
+        <h3>What I'll tell you</h3>
+        <p style="line-height:1.85">Built 2009 · 1,450 sq ft · Johor Bahru, Mount Austin · 3 bedrooms · listing photo taken on a Tuesday · RM 480,000 · 12 min to the nearest school · previous owner's name · freehold · agent's phone number</p>
+      </div>
+      <div class="card accent">
+        <h3 style="color:var(--mint)">The two questions</h3>
+        <p><b>1.</b> Which of those did your brain use?</p>
+        <p style="margin-top:8px"><b>2.</b> Did you use "built 2009" as-is — or did you quietly turn it into "16 years old"?</p>
+        <p style="margin-top:12px;color:var(--mint)">That second one is feature engineering. You did it without being asked.</p>
+      </div>
+    </div>
+  </div>
+  <p class="caption fx d4">Models don't have that instinct. Everything you did automatically, you now have to do explicitly — in code.</p>
+</section>
+
+<!-- 4 ──────── LEARNING OUTCOMES -->
+<section class="slide" data-title="Learning Outcomes">
+  <div class="tag fx">Learning Outcomes · Condition — Performance — Standard</div>
+  <h1 class="sh fx d1">By the end of today you will be able to…</h1>
+  <div class="body">
+    <div class="col fx d2">
+      <table class="t cps">
+        <tr><th>Component</th><th>Statement</th></tr>
+        <tr><td>Condition</td>
+          <td>Given a raw CSV containing missing values, categorical text columns and features on wildly different scales,</td></tr>
+        <tr><td>Performance</td>
+          <td>you will identify each column's type, handle its missing values with a justified strategy, encode categoricals without implying false order, scale numeric features, and engineer at least two new features from existing columns,</td></tr>
+        <tr><td>Standard</td>
+          <td>producing a feature matrix with <b style="color:var(--text)">zero NaN values</b>, <b style="color:var(--text)">all-numeric dtypes</b>, scalers fitted on training data only, and a written one-line justification for every decision.</td></tr>
+      </table>
+      <div style="margin-top:18px">
+        <span class="pill mint">LO1 · Identify feature types</span>
+        <span class="pill mint">LO2 · Handle missing data</span>
+        <span class="pill mint">LO3 · Encode &amp; scale correctly</span>
+        <span class="pill mint">LO4 · Engineer new features</span>
+        <span class="pill coral">LO5 · Avoid data leakage</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 5 ──────── CONTENT MAPPING -->
+<section class="slide" data-title="Content Mapping">
+  <div class="tag fx">Content Mapping</div>
+  <h1 class="sh fx d1">How today maps to your outcomes</h1>
+  <div class="body">
+    <div class="col fx d2">
+      <table class="t">
+        <tr><th>Module</th><th>Topics</th><th style="width:130px">Outcome</th><th style="width:190px">Assessed by</th></tr>
+        <tr><td>Module 1</td>
+          <td>1.1 What are features · 1.2 Why features matter · 1.3 Feature types</td>
+          <td style="color:var(--mint)">LO1</td><td>Column-typing exercise</td></tr>
+        <tr><td>Module 2</td>
+          <td>2.1 Cleaning &amp; missing values · 2.2 Encoding categoricals · 2.3 Scaling</td>
+          <td style="color:var(--mint)">LO2, LO3</td><td>Code Lab — clean the housing CSV</td></tr>
+        <tr><td>Module 3</td>
+          <td>3.1 Creating features · 3.2 Technical indicators · 3.3 Leakage &amp; mistakes</td>
+          <td style="color:var(--mint)">LO4, LO5</td><td>Code Lab — engineer + pipeline</td></tr>
+      </table>
+      <div class="theory" style="margin-top:20px">
+        <div class="lbl">Where this sits in the course</div>
+        <p>Today is deliberately <b>before</b> any model. Session 2 introduces ML itself, Session 3 fits your first regression. Everything you build today is the input those sessions consume — and the single biggest lever on how well they work.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 6 ──────── MODULE 1 DIVIDER -->
+<section class="slide divider" data-title="Module 1">
+  <div class="num fx">01</div>
+  <h1 class="fx d1">Feature Basics</h1>
+  <div class="items">
+    <div class="fx d2"><b>1.1</b>What are features? — definitions and notation</div>
+    <div class="fx d3"><b>1.2</b>Why features matter more than the model</div>
+    <div class="fx d4"><b>1.3</b>Feature types and what each one allows</div>
+    <div class="fx d5" style="margin-top:8px"><b style="color:var(--amber)">↓</b><span style="color:var(--amber)">Hands-on: type every column in a real dataset</span></div>
+  </div>
+</section>
+
+<!-- 7 ──────── 1.1 DEFINITIONS -->
+<section class="slide" data-title="1.1 What are features?">
+  <div class="tag fx">1.1 · Definitions</div>
+  <h1 class="sh fx d1">Feature, sample, target — the vocabulary</h1>
+  <div class="body">
+    <div class="col fx d2">
+      <div class="def">
+        <div class="lbl">Definition</div>
+        <h4>Feature</h4>
+        <p>An individual measurable property of the thing being modelled. In a table, <b>one column of inputs</b>. Also called: variable, predictor, attribute, independent variable, <span style="font-family:var(--mono)">X</span>.</p>
+      </div>
+      <div class="def">
+        <div class="lbl">Definition</div>
+        <h4>Sample</h4>
+        <p><b>One row</b> — one house, one customer, one day of trading. Also called: observation, instance, record, data point.</p>
+      </div>
+      <div class="def">
+        <div class="lbl">Definition</div>
+        <h4>Target</h4>
+        <p>The column you are trying to predict. Also called: label, outcome, dependent variable, <span style="font-family:var(--mono)">y</span>. It is <b>never</b> part of X.</p>
+      </div>
+    </div>
+    <div class="col fx d3">
+      <div class="formula">
+        X ∈ ℝ<sup>n×m</sup> &nbsp;&nbsp; y ∈ ℝ<sup>n</sup>
+        <small>n = number of samples (rows) · m = number of features (columns)</small>
+      </div>
+      <div class="cb"><div class="code-head">splitting X from y</div><pre class="code"><span class="k">import</span> pandas <span class="k">as</span> pd
+
+df = pd.read_csv(<span class="s">"houses.csv"</span>)
+<span class="c"># (1200, 9)  → 1200 samples, 9 columns</span>
+print(df.shape)
+
+y = df[<span class="s">"price"</span>]                <span class="c"># target</span>
+X = df.drop(columns=[<span class="s">"price"</span>])  <span class="c"># features</span>
+
+print(X.shape, y.shape)
+<span class="c"># (1200, 8) (1200,)</span></pre></div>
+      <div class="theory" style="margin-top:14px">
+        <div class="lbl">Watch for</div>
+        <p>The moment <span style="font-family:var(--mono)">price</span> stays in X by accident, your model scores 100% and has learned nothing. That is the simplest form of <b>leakage</b> — we come back to it in 3.3.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 8 ──────── 1.2 WHY FEATURES MATTER -->
+<section class="slide" data-title="1.2 Why features matter">
+  <div class="tag fx">1.2 · Theory</div>
+  <h1 class="sh fx d1">Better features beat better models</h1>
+  <div class="body">
+    <div class="col fx d2">
+      <div class="theory">
+        <div class="lbl">The principle</div>
+        <p>A model can only find patterns that are <b>visible in the representation you hand it</b>. It cannot invent information that isn't there — and it struggles to discover relationships you could have made obvious with one line of arithmetic.</p>
+      </div>
+      <div class="card" style="margin-top:12px">
+        <h3>Same information, two representations</h3>
+        <p style="margin-bottom:10px">Predicting house price. The raw column is the year it was built.</p>
+        <table class="t">
+          <tr><th>Given to the model</th><th>What it must learn</th></tr>
+          <tr><td style="color:var(--coral)">year_built = 2009</td>
+              <td>"Higher year numbers are worth more, but only relative to today, and the relationship shifts every year"</td></tr>
+          <tr><td style="color:var(--mint)">age_years = 16</td>
+              <td>"More age, less value" — a straight line it can fit immediately</td></tr>
+        </table>
+      </div>
+    </div>
+    <div class="col fx d3">
+      <div class="cb"><div class="code-head">one line, materially easier problem</div><pre class="code">df[<span class="s">"age_years"</span>] = <span class="n">2026</span> - df[<span class="s">"year_built"</span>]</pre></div>
+      <div class="cards grid2" style="margin-top:14px">
+        <div class="card warn">
+          <h3 style="color:var(--coral)">Garbage in</h3>
+          <p>No amount of XGBoost tuning rescues a feature set that doesn't contain the signal. The ceiling is set by the data, not the algorithm.</p>
+        </div>
+        <div class="card accent">
+          <h3 style="color:var(--mint)">Where the wins are</h3>
+          <p>In practice, moving from a default model to a tuned one might gain a few percent. Adding the right engineered feature can gain far more.</p>
+        </div>
+      </div>
+      <div class="def" style="margin-top:14px">
+        <div class="lbl">Definition</div>
+        <h4>Feature engineering</h4>
+        <p>The process of using domain knowledge to transform raw data into features that better represent the underlying problem — <b>improving model performance without changing the model</b>.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 9 ──────── 1.3 FEATURE TYPES -->
+<section class="slide" data-title="1.3 Feature types">
+  <div class="tag fx">1.3 · Definitions</div>
+  <h1 class="sh fx d1">Five types — and what each one allows you to do</h1>
+  <div class="body">
+    <div class="col fx d2" style="flex:1.25">
+      <table class="t">
+        <tr><th>Type</th><th>Example</th><th>Legal operations</th><th>Needs</th></tr>
+        <tr><td style="color:var(--mint)">Numerical<br><span style="color:var(--muted);font-size:11px">continuous</span></td>
+          <td>price, size_sqft, temperature</td>
+          <td>+ − × ÷, compare, average</td>
+          <td>Scaling</td></tr>
+        <tr><td style="color:var(--mint)">Numerical<br><span style="color:var(--muted);font-size:11px">discrete</span></td>
+          <td>bedrooms, num_visits</td>
+          <td>Same, but whole numbers only</td>
+          <td>Usually scaling</td></tr>
+        <tr><td style="color:var(--blue)">Categorical<br><span style="color:var(--muted);font-size:11px">nominal</span></td>
+          <td>city, colour, property_type</td>
+          <td>Equality only — no order exists</td>
+          <td>One-hot encoding</td></tr>
+        <tr><td style="color:var(--purple)">Categorical<br><span style="color:var(--muted);font-size:11px">ordinal</span></td>
+          <td>Small/Medium/Large, low/med/high</td>
+          <td>Equality <b style="color:var(--text)">and</b> order — but gaps aren't equal</td>
+          <td>Ordinal encoding</td></tr>
+        <tr><td style="color:var(--amber)">Datetime</td>
+          <td>listed_date, timestamp</td>
+          <td>Difference, extract parts, sort</td>
+          <td>Expansion into parts</td></tr>
+      </table>
+    </div>
+    <div class="col fx d3">
+      <div class="cb"><div class="code-head">find out what you actually have</div><pre class="code sm">df.dtypes
+<span class="c"># price          float64</span>
+<span class="c"># bedrooms         int64</span>
+<span class="c"># city           object   ← text</span>
+<span class="c"># listed_date    object   ← not parsed!</span>
+
+<span class="c"># separate by type</span>
+num_cols = df.select_dtypes(
+    include=<span class="s">"number"</span>).columns
+cat_cols = df.select_dtypes(
+    include=<span class="s">"object"</span>).columns
+
+<span class="c"># how many distinct values?</span>
+df[cat_cols].nunique()</pre></div>
+      <div class="theory" style="margin-top:12px">
+        <div class="lbl">Why nunique matters</div>
+        <p>A text column with 5 distinct values one-hot encodes into 5 columns. One with 8,000 (like an address) becomes 8,000 columns — useless. <b>High cardinality changes your strategy.</b></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 10 ──────── M1 HANDS-ON -->
+<section class="slide" data-title="Module 1 Hands-on">
+  <div class="tag fx">Hands-on · Module 1</div>
+  <h1 class="sh fx d1">Type every column before you touch it</h1>
+  <div class="body">
+    <div class="col fx d2">
+      <div class="hands-on">
+        <div class="lbl">15 minutes · pairs</div>
+        <h3>Audit the housing dataset</h3>
+        <p>Open <span style="font-family:var(--mono)">houses.csv</span>. Produce a table with one row per column — before writing any cleaning code.</p>
+        <div class="steps">
+          <div><b>01</b><span>Load it, print <span style="font-family:var(--mono)">.shape</span>, <span style="font-family:var(--mono)">.dtypes</span> and <span style="font-family:var(--mono)">.head()</span>.</span></div>
+          <div><b>02</b><span>For each column write: type (of the five), % missing, and distinct count.</span></div>
+          <div><b>03</b><span>Flag any column where the dtype is <b>wrong</b> — dates read as text, numbers read as text.</span></div>
+          <div><b>04</b><span>Decide which single column is the target, and say why the rest are fair game.</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="col fx d3">
+      <div class="cb"><div class="code-head">starter</div><pre class="code sm"><span class="k">import</span> pandas <span class="k">as</span> pd
+
+df = pd.read_csv(<span class="s">"houses.csv"</span>)
+
+audit = pd.DataFrame({
+    <span class="s">"dtype"</span>:    df.dtypes.astype(<span class="s">str</span>),
+    <span class="s">"missing_%"</span>: (df.isna().mean()*<span class="n">100</span>).round(<span class="n">1</span>),
+    <span class="s">"distinct"</span>: df.nunique(),
+    <span class="s">"example"</span>:  df.iloc[<span class="n">0</span>],
+})
+print(audit)</pre></div>
+      <div class="card" style="margin-top:14px">
+        <h3>What good looks like</h3>
+        <p>You should be able to point at one column and say "that's nominal categorical with 14 distinct values, 3% missing, so it needs one-hot plus an imputation decision" — without having written a line of cleaning code yet.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 11 ──────── MODULE 2 DIVIDER -->
+<section class="slide divider" data-title="Module 2">
+  <div class="num fx">02</div>
+  <h1 class="fx d1">Cleaning &amp; Encoding</h1>
+  <div class="items">
+    <div class="fx d2"><b>2.1</b>Missing values — five strategies and when each is right</div>
+    <div class="fx d3"><b>2.2</b>Encoding categoricals without inventing order</div>
+    <div class="fx d4"><b>2.3</b>Scaling — why distance-based models demand it</div>
+    <div class="fx d5" style="margin-top:8px"><b style="color:var(--amber)">↓</b><span style="color:var(--amber)">Hands-on: Code Lab — clean the housing CSV</span></div>
+  </div>
+</section>
+
+<!-- 12 ──────── 2.1 MISSING VALUES -->
+<section class="slide" data-title="2.1 Missing values">
+  <div class="tag fx">2.1 · Definitions + Code</div>
+  <h1 class="sh fx d1">Missing values: five strategies, one decision each</h1>
+  <div class="body">
+    <div class="col fx d2" style="flex:1.15">
+      <div class="def" style="margin-bottom:10px">
+        <div class="lbl">Definition</div>
+        <h4>Imputation</h4>
+        <p>Replacing a missing value with a substituted estimate, so the row can still be used instead of thrown away.</p>
+      </div>
+      <table class="t">
+        <tr><th>Strategy</th><th>Use when</th><th>Cost</th></tr>
+        <tr><td>Drop rows</td><td>Very few missing, and they're random</td><td>Lose samples</td></tr>
+        <tr><td>Drop column</td><td>&gt; ~50% missing, low value</td><td>Lose a feature</td></tr>
+        <tr><td style="color:var(--mint)">Median impute</td><td>Numeric, skewed or has outliers</td><td>Shrinks variance</td></tr>
+        <tr><td>Mean impute</td><td>Numeric, roughly symmetric</td><td>Distorted by outliers</td></tr>
+        <tr><td>Mode impute</td><td>Categorical</td><td>Over-weights the common class</td></tr>
+        <tr><td style="color:var(--amber)">Forward fill</td><td>Time series — carry last known value</td><td>Only valid in time order</td></tr>
+      </table>
+    </div>
+    <div class="col fx d3">
+      <div class="cb"><div class="code-head">pandas — inspect first, always</div><pre class="code sm"><span class="c"># how bad is it?</span>
+df.isna().sum().sort_values(ascending=<span class="k">False</span>)
+<span class="c"># lot_size    412</span>
+<span class="c"># city         18</span>
+<span class="c"># price         0</span>
+
+<span class="c"># median for skewed numeric</span>
+df[<span class="s">"lot_size"</span>] = df[<span class="s">"lot_size"</span>].fillna(
+    df[<span class="s">"lot_size"</span>].median())
+
+<span class="c"># mode for categorical</span>
+df[<span class="s">"city"</span>] = df[<span class="s">"city"</span>].fillna(
+    df[<span class="s">"city"</span>].mode()[<span class="n">0</span>])
+
+<span class="c"># time series: carry forward</span>
+df[<span class="s">"close"</span>] = df[<span class="s">"close"</span>].ffill()</pre></div>
+      <div class="theory" style="margin-top:12px">
+        <div class="lbl">Why median over mean</div>
+        <p>One mansion at RM 40 million drags the <b>mean</b> far above every typical house; the <b>median</b> barely moves. For skewed money and size columns, median is the safer default.</p>
+      </div>
+      <div style="margin-top:10px">
+        <span class="pill coral">Missing is sometimes information</span>
+      </div>
+      <p style="font-size:13px;color:var(--muted);margin-top:8px;line-height:1.55">
+        If "no garage size recorded" usually means "no garage", add a
+        <span style="font-family:var(--mono);color:var(--mint)">had_garage</span> flag column before you impute — you're keeping the signal instead of erasing it.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 13 ──────── 2.2 ENCODING -->
+<section class="slide" data-title="2.2 Encoding categoricals">
+  <div class="tag fx">2.2 · Theory + Code</div>
+  <h1 class="sh fx d1">Encoding: turning text into numbers without lying</h1>
+  <div class="body">
+    <div class="col fx d2">
+      <div class="card warn">
+        <h3 style="color:var(--coral)">Label encoding — the trap</h3>
+        <p style="margin-bottom:8px">Maps each category to an integer:</p>
+        <pre class="code sm" style="margin-bottom:8px">JB → 0   KL → 1   Penang → 2   Ipoh → 3</pre>
+        <p>The model now believes <b>Ipoh &gt; Penang &gt; KL &gt; JB</b>, and that Ipoh − JB = 3. None of that is true. Fine for <b>tree models</b> (they only split, never compare magnitudes) and for genuinely <b>ordinal</b> data. Wrong for linear models, KNN, SVM and neural nets on nominal data.</p>
+      </div>
+      <div class="card accent" style="margin-top:12px">
+        <h3 style="color:var(--mint)">One-hot encoding — the default</h3>
+        <p>One new binary column per category. No false order, because every category is equidistant from every other.</p>
+        <pre class="code sm" style="margin-top:8px">city_JB  city_KL  city_Penang
+   1        0          0
+   0        1          0</pre>
+      </div>
+    </div>
+    <div class="col fx d3">
+      <div class="cb"><div class="code-head">pandas — quick and readable</div><pre class="code sm">df = pd.get_dummies(
+    df,
+    columns=[<span class="s">"city"</span>, <span class="s">"property_type"</span>],
+    drop_first=<span class="k">True</span>,   <span class="c"># see below</span>
+)</pre></div>
+      <div class="code-head" style="margin-top:12px">sklearn — what you use in a pipeline</div>
+      <pre class="code sm"><span class="k">from</span> sklearn.preprocessing <span class="k">import</span> OneHotEncoder
+
+enc = OneHotEncoder(
+    handle_unknown=<span class="s">"ignore"</span>,  <span class="c"># unseen city at test time</span>
+    sparse_output=<span class="k">False</span>,
+)
+enc.fit(X_train[[<span class="s">"city"</span>]])
+enc.transform(X_test[[<span class="s">"city"</span>]])</pre>
+      <div class="theory" style="margin-top:12px">
+        <div class="lbl">Theory — why drop_first</div>
+        <p>With k categories you only need k−1 columns: if all of them are 0, it must be the dropped one. Keeping all k makes the columns perfectly predictable from each other (<b>multicollinearity</b>), which breaks the coefficient maths in linear models. Trees don't care — keep all k there.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 14 ──────── 2.3 SCALING -->
+<section class="slide" data-title="2.3 Scaling">
+  <div class="tag fx">2.3 · Theory + Formulas</div>
+  <h1 class="sh fx d1">Scaling: give every feature an equal vote</h1>
+  <div class="body">
+    <div class="col fx d2">
+      <div class="theory">
+        <div class="lbl">Why it's needed</div>
+        <p>Distance-based and gradient-based models add features together. If one is measured in hundreds of thousands and another in tens, the big one dominates — not because it matters more, but because its <b>units are bigger</b>.</p>
+      </div>
+      <div class="card warn" style="margin-top:12px">
+        <h3>Worked example — two houses, KNN</h3>
+        <pre class="code sm">A: salary 50,000   age 30
+B: salary 50,100   age 55
+
+distance ≈ √(100² + 25²) = 103
+
+<span class="c"># the 25-year age gap contributes</span>
+<span class="c"># almost nothing. Salary decides.</span></pre>
+      </div>
+      <div class="cards grid2" style="margin-top:12px">
+        <div class="card accent"><h3 style="color:var(--mint)">Needs scaling</h3>
+          <p>KNN · SVM · PCA · K-Means · neural networks · regularised regression</p></div>
+        <div class="card"><h3>Doesn't</h3>
+          <p>Decision trees · Random Forest · XGBoost — they split on thresholds, not distances</p></div>
+      </div>
+    </div>
+    <div class="col fx d3">
+      <div class="formula">z = (x − μ) / σ
+        <small>Standardisation — mean 0, standard deviation 1 · StandardScaler</small></div>
+      <div class="formula">x′ = (x − min) / (max − min)
+        <small>Normalisation — squeezed into [0, 1] · MinMaxScaler</small></div>
+      <div class="code-head" style="margin-top:6px">the only correct order</div>
+      <pre class="code sm"><span class="k">from</span> sklearn.model_selection <span class="k">import</span> train_test_split
+<span class="k">from</span> sklearn.preprocessing <span class="k">import</span> StandardScaler
+
+X_tr, X_te, y_tr, y_te = train_test_split(
+    X, y, test_size=<span class="n">0.2</span>, random_state=<span class="n">42</span>)
+
+scaler = StandardScaler()
+X_tr = scaler.fit_transform(X_tr)  <span class="c"># fit on TRAIN</span>
+X_te = scaler.transform(X_te)      <span class="c"># transform only</span></pre>
+      <div style="margin-top:10px">
+        <span class="pill coral">fit_transform on test = leakage</span>
+        <span class="pill amber">RobustScaler if heavy outliers</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 15 ──────── M2 HANDS-ON -->
+<section class="slide" data-title="Module 2 Hands-on">
+  <div class="tag fx">Hands-on · Module 2</div>
+  <h1 class="sh fx d1">Code Lab: make the housing data model-ready</h1>
+  <div class="body">
+    <div class="col fx d2">
+      <div class="hands-on">
+        <div class="lbl">25 minutes · solo</div>
+        <h3>From raw CSV to an all-numeric matrix</h3>
+        <div class="steps">
+          <div><b>01</b><span>Split into train/test <b>first</b> — before any cleaning.</span></div>
+          <div><b>02</b><span>Impute missing values, with a one-line comment justifying each choice.</span></div>
+          <div><b>03</b><span>One-hot the nominal columns; ordinal-encode <span style="font-family:var(--mono)">size_band</span>.</span></div>
+          <div><b>04</b><span>Standardise the numeric columns — fit on train only.</span></div>
+          <div><b>05</b><span>Assert your result: no NaN, all numeric, train and test have identical columns.</span></div>
+        </div>
+      </div>
+      <div class="code-head" style="margin-top:14px">your finish line</div>
+      <pre class="code sm"><span class="k">assert</span> X_tr.isna().sum().sum() == <span class="n">0</span>
+<span class="k">assert</span> <span class="k">all</span>(X_tr.dtypes != <span class="s">"object"</span>)
+<span class="k">assert</span> <span class="k">list</span>(X_tr.columns) == <span class="k">list</span>(X_te.columns)</pre>
+    </div>
+    <div class="col fx d3">
+      <div class="cb"><div class="code-head">the grown-up way — one pipeline</div><pre class="code sm"><span class="k">from</span> sklearn.compose <span class="k">import</span> ColumnTransformer
+<span class="k">from</span> sklearn.pipeline <span class="k">import</span> Pipeline
+<span class="k">from</span> sklearn.impute <span class="k">import</span> SimpleImputer
+<span class="k">from</span> sklearn.preprocessing <span class="k">import</span> (
+    StandardScaler, OneHotEncoder)
+
+num = Pipeline([
+    (<span class="s">"impute"</span>, SimpleImputer(strategy=<span class="s">"median"</span>)),
+    (<span class="s">"scale"</span>,  StandardScaler()),
+])
+cat = Pipeline([
+    (<span class="s">"impute"</span>, SimpleImputer(strategy=<span class="s">"most_frequent"</span>)),
+    (<span class="s">"encode"</span>, OneHotEncoder(handle_unknown=<span class="s">"ignore"</span>)),
+])
+
+pre = ColumnTransformer([
+    (<span class="s">"num"</span>, num, num_cols),
+    (<span class="s">"cat"</span>, cat, cat_cols),
+])
+
+X_tr = pre.fit_transform(X_tr)
+X_te = pre.transform(X_te)</pre></div>
+      <p class="caption">A pipeline makes leakage structurally hard — it can only ever learn from what you fit it on.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 16 ──────── MODULE 3 DIVIDER -->
+<section class="slide divider" data-title="Module 3">
+  <div class="num fx">03</div>
+  <h1 class="fx d1">Feature Creation</h1>
+  <div class="items">
+    <div class="fx d2"><b>3.1</b>Creating features that weren't in the file</div>
+    <div class="fx d3"><b>3.2</b>Technical indicators — features for time series</div>
+    <div class="fx d4"><b>3.3</b>Common mistakes, and data leakage</div>
+    <div class="fx d5" style="margin-top:8px"><b style="color:var(--amber)">↓</b><span style="color:var(--amber)">Hands-on: engineer three features and prove they help</span></div>
+  </div>
+</section>
+
+<!-- 17 ──────── 3.1 CREATING FEATURES -->
+<section class="slide" data-title="3.1 Creating new features">
+  <div class="tag fx">3.1 · Code</div>
+  <h1 class="sh fx d1">Four ways to make a column that wasn't there</h1>
+  <div class="body">
+    <div class="col fx d2">
+      <div class="card accent">
+        <h3><span class="k">1</span>Domain ratios</h3>
+        <p>Combine two columns into the thing people actually compare.</p>
+        <pre class="code sm" style="margin-top:8px">df[<span class="s">"price_per_sqft"</span>] = (
+    df[<span class="s">"price"</span>] / df[<span class="s">"size_sqft"</span>])
+
+df[<span class="s">"bmi"</span>] = df[<span class="s">"weight_kg"</span>] / df[<span class="s">"height_m"</span>]**<span class="n">2</span></pre>
+      </div>
+      <div class="card" style="margin-top:12px">
+        <h3><span class="k">2</span>Datetime expansion</h3>
+        <p>A timestamp is useless raw — its parts are not.</p>
+        <pre class="code sm" style="margin-top:8px">d = pd.to_datetime(df[<span class="s">"listed_date"</span>])
+df[<span class="s">"month"</span>]      = d.dt.month
+df[<span class="s">"dayofweek"</span>]  = d.dt.dayofweek
+df[<span class="s">"is_weekend"</span>] = d.dt.dayofweek >= <span class="n">5</span>
+df[<span class="s">"days_listed"</span>] = (pd.Timestamp.today()-d).dt.days</pre>
+      </div>
+    </div>
+    <div class="col fx d3">
+      <div class="card">
+        <h3><span class="k">3</span>Binning</h3>
+        <p>Turn a continuous column into meaningful bands when the relationship isn't a straight line.</p>
+        <pre class="code sm" style="margin-top:8px">df[<span class="s">"age_group"</span>] = pd.cut(
+    df[<span class="s">"age_years"</span>],
+    bins=[<span class="n">0</span>, <span class="n">5</span>, <span class="n">15</span>, <span class="n">30</span>, <span class="n">200</span>],
+    labels=[<span class="s">"new"</span>,<span class="s">"recent"</span>,<span class="s">"mature"</span>,<span class="s">"old"</span>])</pre>
+      </div>
+      <div class="card" style="margin-top:12px">
+        <h3><span class="k">4</span>Interactions</h3>
+        <p>When the effect of one feature depends on another.</p>
+        <pre class="code sm" style="margin-top:8px">df[<span class="s">"rooms_x_size"</span>] = (
+    df[<span class="s">"bedrooms"</span>] * df[<span class="s">"size_sqft"</span>])</pre>
+      </div>
+      <div class="theory" style="margin-top:12px">
+        <div class="lbl">The discipline</div>
+        <p>Every new feature needs a <b>sentence of reasoning</b> before it's added. "Buyers compare price per square foot" is a reason. "I multiplied two columns to see what happens" is noise — and more columns with no signal makes the model worse, not better.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 18 ──────── 3.2 TECHNICAL INDICATORS -->
+<section class="slide" data-title="3.2 Technical indicators">
+  <div class="tag fx">3.2 · Time series features</div>
+  <h1 class="sh fx d1">Giving a non-sequential model a sense of history</h1>
+  <div class="body">
+    <div class="col fx d2">
+      <div class="def">
+        <div class="lbl">Definition</div>
+        <h4>Lag feature</h4>
+        <p>A past value of a column, copied onto the current row so the model can see it. <span style="font-family:var(--mono)">lag_1</span> = yesterday's value.</p>
+      </div>
+      <div class="def">
+        <div class="lbl">Definition</div>
+        <h4>Rolling window</h4>
+        <p>A statistic computed over the previous <span style="font-family:var(--mono)">n</span> rows — a moving average smooths noise; a rolling standard deviation measures volatility.</p>
+      </div>
+      <div class="code-head" style="margin-top:6px">pandas</div>
+      <pre class="code sm">df = df.sort_values(<span class="s">"date"</span>)   <span class="c"># order matters!</span>
+
+df[<span class="s">"lag_1"</span>]  = df[<span class="s">"close"</span>].shift(<span class="n">1</span>)
+df[<span class="s">"lag_7"</span>]  = df[<span class="s">"close"</span>].shift(<span class="n">7</span>)
+df[<span class="s">"ma_7"</span>]   = df[<span class="s">"close"</span>].rolling(<span class="n">7</span>).mean()
+df[<span class="s">"ma_30"</span>]  = df[<span class="s">"close"</span>].rolling(<span class="n">30</span>).mean()
+df[<span class="s">"vol_7"</span>]  = df[<span class="s">"close"</span>].rolling(<span class="n">7</span>).std()
+df[<span class="s">"return"</span>] = df[<span class="s">"close"</span>].pct_change()
+
+df = df.dropna()   <span class="c"># first rows have no history</span></pre>
+    </div>
+    <div class="col fx d3">
+      <div class="figwrap">
+        <svg class="fig" viewBox="0 0 520 300" aria-label="Price series with a 7-day moving average overlaid">
+          <line x1="40" y1="250" x2="500" y2="250" stroke="#2a3440" stroke-width="1.5"/>
+          <line x1="40" y1="250" x2="40" y2="30" stroke="#2a3440" stroke-width="1.5"/>
+          <polyline class="draw" style="--len:1400" fill="none" stroke="#8b98a5" stroke-width="1.8" opacity="0.75"
+            points="40,180 68,150 96,196 124,140 152,172 180,118 208,158 236,104 264,142 292,88 320,130 348,76 376,116 404,70 432,104 460,62 488,92"/>
+          <polyline class="draw" style="--len:1400" fill="none" stroke="#00dcb4" stroke-width="3"
+            points="40,178 68,172 96,168 124,162 152,158 180,150 208,146 236,138 264,132 292,124 320,118 348,110 376,104 404,96 432,90 460,82 488,78"/>
+          <text x="300" y="215" font-family="JetBrains Mono,monospace" font-size="12" fill="#8b98a5" class="fx d4">raw close — noisy</text>
+          <text x="300" y="60" font-family="JetBrains Mono,monospace" font-size="12" fill="#00dcb4" class="fx d5">ma_7 — the trend underneath</text>
+          <text x="40" y="282" font-family="JetBrains Mono,monospace" font-size="11" fill="#8b98a5" class="fx d5">time →</text>
+        </svg>
+      </div>
+      <div class="card warn" style="margin-top:6px">
+        <h3 style="color:var(--coral)">The rule that keeps you honest</h3>
+        <p>Every one of these looks <b>backwards only</b>. The moment a feature uses a future row — <span style="font-family:var(--mono)">shift(-1)</span>, a centred rolling window, or a statistic computed over the whole series — you have leaked the future into the past.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 19 ──────── 3.3 LEAKAGE -->
+<section class="slide" data-title="3.3 Common mistakes &amp; leakage">
+  <div class="tag fx">3.3 · The one that catches everyone</div>
+  <h1 class="sh fx d1">Data leakage: the 99% score that means nothing</h1>
+  <div class="body">
+    <div class="col fx d2">
+      <div class="def" style="border-left-color:var(--coral);background:linear-gradient(90deg,rgba(255,111,145,.09),transparent 65%)">
+        <div class="lbl" style="color:var(--coral)">Definition</div>
+        <h4>Data leakage</h4>
+        <p>When information that would not be available at prediction time gets into the training features — so the model looks brilliant in validation and <b>fails in production</b>.</p>
+      </div>
+      <table class="t" style="margin-top:10px">
+        <tr><th>The mistake</th><th>What leaked</th></tr>
+        <tr><td style="color:var(--coral)">Scaling before the split</td>
+          <td>Test set's mean and σ influenced the training transform</td></tr>
+        <tr><td style="color:var(--coral)">Imputing before the split</td>
+          <td>Test set's median filled training rows</td></tr>
+        <tr><td style="color:var(--coral)">A feature derived from the target</td>
+          <td>The answer itself, in disguise</td></tr>
+        <tr><td style="color:var(--coral)">Shuffling time series</td>
+          <td>Future rows landed in the training set</td></tr>
+        <tr><td style="color:var(--coral)">A column recorded after the event</td>
+          <td>e.g. <span style="font-family:var(--mono)">days_to_sale</span> when predicting whether it sells</td></tr>
+      </table>
+    </div>
+    <div class="col fx d3">
+      <div class="card warn">
+        <h3 style="color:var(--coral)">Wrong</h3>
+        <pre class="code sm" style="margin-top:6px">scaler = StandardScaler()
+X = scaler.fit_transform(X)        <span class="e"># whole dataset</span>
+X_tr, X_te = train_test_split(X)   <span class="e"># too late</span></pre>
+      </div>
+      <div class="card accent" style="margin-top:12px">
+        <h3 style="color:var(--mint)">Right</h3>
+        <pre class="code sm" style="margin-top:6px">X_tr, X_te = train_test_split(X, test_size=<span class="n">.2</span>)
+
+scaler = StandardScaler()
+X_tr = scaler.fit_transform(X_tr)  <span class="c"># learn here</span>
+X_te = scaler.transform(X_te)      <span class="c"># apply there</span></pre>
+      </div>
+      <div class="theory" style="margin-top:12px">
+        <div class="lbl">How to catch it</div>
+        <p>If your validation score is suspiciously high — 0.99 R², 100% accuracy — <b>assume leakage before you celebrate</b>. Ask of every feature: would I genuinely have this value at the moment I need the prediction? For time series, split by date, never at random.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 20 ──────── M3 HANDS-ON -->
+<section class="slide" data-title="Module 3 Hands-on">
+  <div class="tag fx">Hands-on · Module 3</div>
+  <h1 class="sh fx d1">Code Lab: engineer three features and prove they earned their place</h1>
+  <div class="body">
+    <div class="col fx d2">
+      <div class="hands-on">
+        <div class="lbl">25 minutes · solo, then compare in pairs</div>
+        <h3>Add, justify, measure</h3>
+        <div class="steps">
+          <div><b>01</b><span>Start from your clean matrix from Module 2.</span></div>
+          <div><b>02</b><span>Add exactly three engineered features — one ratio, one from the date, one of your own.</span></div>
+          <div><b>03</b><span>Write one sentence per feature saying why a buyer or seller would care.</span></div>
+          <div><b>04</b><span>Fit the same baseline model before and after. Report both scores.</span></div>
+          <div><b>05</b><span>Audit for leakage: could each feature be computed on the day of prediction?</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="col fx d3">
+      <div class="cb"><div class="code-head">measuring whether it helped</div><pre class="code sm"><span class="k">from</span> sklearn.ensemble <span class="k">import</span> RandomForestRegressor
+<span class="k">from</span> sklearn.model_selection <span class="k">import</span> cross_val_score
+
+model = RandomForestRegressor(random_state=<span class="n">42</span>)
+
+base = cross_val_score(model, X_base, y, cv=<span class="n">5</span>,
+                       scoring=<span class="s">"r2"</span>).mean()
+eng  = cross_val_score(model, X_eng,  y, cv=<span class="n">5</span>,
+                       scoring=<span class="s">"r2"</span>).mean()
+
+print(<span class="s">f"baseline   {base:.3f}"</span>)
+print(<span class="s">f"engineered {eng:.3f}"</span>)
+print(<span class="s">f"gain       {eng-base:+.3f}"</span>)</pre></div>
+      <div class="card" style="margin-top:12px">
+        <h3>Honest result &gt; impressive result</h3>
+        <p>If your three features gained nothing, say so and explain why you thought they would. That's a real finding — and far more useful than a number you can't account for.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 21 ──────── RECAP -->
+<section class="slide" data-title="Recap &amp; Summary">
+  <div class="tag fx">Recap &amp; Summary</div>
+  <h1 class="sh fx d1">What you can do now</h1>
+  <div class="body">
+    <div class="col cards grid3 fx d2">
+      <div class="card accent"><h3><span class="k">M1</span>Feature Basics</h3>
+        <p>Name every part of a dataset correctly, and classify any column into one of five types — which then decides its treatment.</p></div>
+      <div class="card accent"><h3><span class="k">M2</span>Cleaning &amp; Encoding</h3>
+        <p>Impute with a justified strategy, one-hot without inventing order, and scale with the fit/transform split done right.</p></div>
+      <div class="card accent"><h3><span class="k">M3</span>Feature Creation</h3>
+        <p>Build ratios, date parts, bins and lags — and spot the leakage that makes a great score meaningless.</p></div>
+    </div>
+  </div>
+  <div class="body" style="flex:0 0 auto;margin-top:0">
+    <div class="col fx d3">
+      <div class="theory">
+        <div class="lbl">The one line to remember</div>
+        <p><b>The model can only be as good as what you show it.</b> Every hour spent on features is usually worth more than an hour spent tuning hyperparameters — and today was that hour.</p>
+      </div>
+    </div>
+    <div class="col fx d4">
+      <div class="card">
+        <h3>Next session — Intro to Machine Learning</h3>
+        <p>Supervised vs unsupervised, the train/validate/test workflow, overfitting, and the metrics that tell you whether a model is actually any good. You'll fit your first model on the matrix you built today.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 22 ──────── REVIEW LOs -->
+<section class="slide" data-title="Review Learning Outcomes">
+  <div class="tag fx">Review Learning Outcomes</div>
+  <h1 class="sh fx d1">Did we get there?</h1>
+  <p class="sub fx d2">Rate yourself 1–5. Anything at 2 or below, flag it now — Session 2 assumes all of this.</p>
+  <div class="body">
+    <div class="col cards grid2 fx d3">
+      <div class="card"><h3><span class="k">LO1</span>I can classify any column into one of the five feature types</h3>
+        <p style="font-family:var(--mono);color:var(--mint)">1 — 2 — 3 — 4 — 5</p></div>
+      <div class="card"><h3><span class="k">LO2</span>I can choose and justify a missing-value strategy</h3>
+        <p style="font-family:var(--mono);color:var(--mint)">1 — 2 — 3 — 4 — 5</p></div>
+      <div class="card"><h3><span class="k">LO3</span>I can encode and scale without leaking test data</h3>
+        <p style="font-family:var(--mono);color:var(--mint)">1 — 2 — 3 — 4 — 5</p></div>
+      <div class="card"><h3><span class="k">LO4</span>I can engineer a new feature and explain why it should help</h3>
+        <p style="font-family:var(--mono);color:var(--mint)">1 — 2 — 3 — 4 — 5</p></div>
+      <div class="card accent" style="grid-column:1/-1"><h3><span class="k">LO5</span>I can name three ways leakage happens — and how the pipeline prevents each</h3>
+        <p style="font-family:var(--mono);color:var(--mint)">1 — 2 — 3 — 4 — 5</p></div>
+    </div>
+  </div>
+  <p class="caption fx d4">codencode.my · ML Session 01 complete</p>
+</section>
+
+</div>
+
+<div id="nav">
+  <button class="navbtn" onclick="go(-1)">PREV</button>
+  <div id="dots"></div>
+  <button class="navbtn" onclick="go(1)">NEXT</button>
+</div>
+
+<script>
+const slides=[...document.querySelectorAll('.slide')];
+let i=0;const dots=document.getElementById('dots');
+slides.forEach((s,n)=>{const d=document.createElement('div');d.className='dot';d.onclick=()=>show(n);dots.appendChild(d);});
+function show(n){
+  if(n<0||n>=slides.length)return;
+  slides[i].classList.remove('active');i=n;void slides[i].offsetWidth;slides[i].classList.add('active');
+  document.getElementById('counter').textContent=String(i+1).padStart(2,'0')+' / '+slides.length;
+  document.getElementById('titlebar').textContent=slides[i].dataset.title||'';
+  document.getElementById('progress').style.width=((i+1)/slides.length*100)+'%';
+  [...dots.children].forEach((d,k)=>d.classList.toggle('on',k===i));
+}
+function go(d){show(i+d);}
+function fs(){document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen();}
+addEventListener('keydown',e=>{
+  if(['ArrowRight',' ','PageDown'].includes(e.key)){e.preventDefault();go(1);}
+  if(['ArrowLeft','PageUp'].includes(e.key)){e.preventDefault();go(-1);}
+  if(e.key==='Home')show(0);
+  if(e.key==='End')show(slides.length-1);
+  if(e.key==='f')fs();
+});
+
+/* ---------- copy-to-clipboard on every code block ---------- */
+(function(){
+  document.querySelectorAll('pre.code').forEach(pre=>{
+    const source = pre.textContent;               // capture BEFORE adding the button
+    const btn = document.createElement('button');
+    btn.className = 'copybtn';
+    btn.type = 'button';
+    btn.textContent = 'COPY';
+    btn.addEventListener('click', async e=>{
+      e.stopPropagation();
+      try{
+        await navigator.clipboard.writeText(source);
+      }catch(err){                                 // file:// fallback
+        const ta=document.createElement('textarea');
+        ta.value=source; ta.style.position='fixed'; ta.style.opacity='0';
+        document.body.appendChild(ta); ta.select();
+        try{document.execCommand('copy');}catch(_){}
+        document.body.removeChild(ta);
+      }
+      btn.textContent='COPIED'; btn.classList.add('done');
+      setTimeout(()=>{btn.textContent='COPY'; btn.classList.remove('done');},1400);
+    });
+    pre.appendChild(btn);
+  });
+})();
+
+show(0);
+</script>
+</body>
+</html>

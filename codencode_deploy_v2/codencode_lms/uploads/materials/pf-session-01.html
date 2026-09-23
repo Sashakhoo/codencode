@@ -1,0 +1,972 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Session 01 — Python Basics | codencode Academy</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0d1117; --panel:#161b22; --panel2:#1c2430; --line:#2a3440;
+  --mint:#00dcb4; --mint-d:#00a888; --text:#e8eef0; --muted:#8b98a5;
+  --coral:#ff6f91; --amber:#f0b429; --blue:#58a6ff;
+  --sans:'Space Grotesk','Inter',system-ui,sans-serif;
+  --body:'Inter',system-ui,sans-serif;
+  --mono:'JetBrains Mono','SF Mono',Consolas,monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:var(--body);height:100vh;overflow:hidden;user-select:none}
+
+/* ---------- chrome ---------- */
+#topbar{position:fixed;top:0;left:0;right:0;height:52px;display:flex;align-items:center;
+  gap:16px;padding:0 24px;background:rgba(13,17,23,.92);border-bottom:1px solid var(--line);z-index:50;backdrop-filter:blur(8px)}
+.wordmark{height:21px;width:auto;display:block;flex-shrink:0}
+#sesslabel{font-size:12px;color:var(--muted);font-family:var(--mono);letter-spacing:.04em}
+#titlebar{flex:1;text-align:center;font-size:13px;color:var(--muted);font-family:var(--mono);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#counter{font-family:var(--mono);font-size:12px;color:var(--mint)}
+.btn{background:rgba(0,220,180,.10);border:1px solid rgba(0,220,180,.32);color:var(--mint);
+  font-family:var(--mono);font-size:11px;padding:6px 12px;border-radius:6px;cursor:pointer}
+.btn:hover{background:rgba(0,220,180,.20)}
+#progress{position:fixed;top:52px;left:0;height:2px;background:var(--mint);z-index:51;transition:width .3s ease}
+#nav{position:fixed;bottom:0;left:0;right:0;height:56px;display:flex;align-items:center;justify-content:center;
+  gap:20px;z-index:50}
+.navbtn{background:var(--panel);border:1px solid var(--line);color:var(--muted);font-family:var(--mono);
+  font-size:12px;padding:8px 16px;border-radius:8px;cursor:pointer}
+.navbtn:hover{border-color:var(--mint);color:var(--mint)}
+#dots{display:flex;gap:6px;flex-wrap:wrap;max-width:50vw;justify-content:center}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--line);cursor:pointer;transition:.2s}
+.dot.on{background:var(--mint);transform:scale(1.35)}
+
+/* ---------- slides ---------- */
+#deck{position:absolute;top:54px;bottom:56px;left:0;right:0}
+.slide{position:absolute;inset:0;padding:40px 60px;display:none;flex-direction:column;overflow:hidden}
+.slide.active{display:flex;animation:slideIn .4s ease both}
+@keyframes slideIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+
+.tag{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--mint);margin-bottom:12px}
+h1.sh{font-family:var(--sans);font-size:clamp(26px,3.2vw,40px);font-weight:700;line-height:1.12;margin-bottom:8px}
+h1.sh::after{content:'';display:block;width:56px;height:4px;background:var(--mint);border-radius:2px;margin-top:14px}
+.sub{color:var(--muted);font-size:16px;margin-top:14px;max-width:70ch;line-height:1.6}
+.body{flex:1;display:flex;gap:32px;align-items:center;margin-top:24px;min-height:0}
+.col{flex:1;min-width:0}
+
+/* title slide */
+.title-slide{align-items:center;justify-content:center;text-align:center}
+.title-slide .badge{font-family:var(--mono);font-size:12px;color:var(--mint);border:1px solid rgba(0,220,180,.34);
+  background:rgba(0,220,180,.08);padding:7px 18px;border-radius:20px;margin-bottom:26px}
+.title-slide h1{font-family:var(--sans);font-size:clamp(40px,6vw,72px);font-weight:700;line-height:1.05}
+.title-slide h1 em{font-style:normal;color:var(--mint)}
+.title-slide p{color:var(--muted);font-size:18px;margin-top:20px;max-width:60ch}
+.title-slide .foot{margin-top:38px;font-family:var(--mono);font-size:13px;color:var(--muted)}
+
+/* section divider */
+.divider{align-items:flex-start;justify-content:center}
+.divider .num{font-family:var(--sans);font-size:120px;font-weight:700;color:rgba(0,220,180,.16);line-height:1}
+.divider h1{font-family:var(--sans);font-size:clamp(34px,4.6vw,56px);font-weight:700;margin-top:-18px}
+.divider .items{margin-top:26px;display:flex;flex-direction:column;gap:12px}
+.divider .items div{font-size:17px;color:var(--muted)}
+.divider .items b{color:var(--mint);font-family:var(--mono);font-size:15px;margin-right:12px}
+
+/* cards / lists */
+.cards{display:grid;gap:14px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:18px 20px}
+.card.accent{border-color:rgba(0,220,180,.45);background:var(--panel2)}
+.card h3{font-family:var(--sans);font-size:17px;font-weight:600;margin-bottom:6px}
+.card h3 .k{color:var(--mint);font-family:var(--mono);font-size:14px;margin-right:8px}
+.card p{color:var(--muted);font-size:14.5px;line-height:1.55}
+.grid2{grid-template-columns:1fr 1fr}
+.grid3{grid-template-columns:repeat(3,1fr)}
+
+table.cps{width:100%;border-collapse:collapse;font-size:15px}
+table.cps th{text-align:left;font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--mint);padding:10px 14px;border-bottom:1px solid var(--line)}
+table.cps td{padding:14px;border-bottom:1px solid var(--line);color:var(--text);line-height:1.5;vertical-align:top}
+table.cps td:first-child{color:var(--mint);font-family:var(--mono);font-size:13px;width:150px;white-space:nowrap}
+
+pre.code{background:#0a0e13;border:1px solid var(--line);border-radius:10px;padding:18px 20px;
+  font-family:var(--mono);font-size:14.5px;line-height:1.75;overflow:auto;color:var(--text)}
+pre.code .c{color:var(--muted)}
+pre.code .s{color:var(--mint)}
+pre.code .n{color:var(--blue)}
+pre.code .e{color:var(--coral)}
+.code-head{font-family:var(--mono);font-size:11px;color:var(--muted);background:var(--panel2);
+  border:1px solid var(--line);border-bottom:none;border-radius:10px 10px 0 0;padding:8px 14px}
+.code-head + pre.code{border-radius:0 0 10px 10px}
+
+.pill{display:inline-block;font-family:var(--mono);font-size:11.5px;padding:5px 12px;border-radius:14px;
+  border:1px solid;margin:0 8px 8px 0}
+.pill.mint{color:var(--mint);border-color:rgba(0,220,180,.4);background:rgba(0,220,180,.08)}
+.pill.coral{color:var(--coral);border-color:rgba(255,111,145,.4);background:rgba(255,111,145,.08)}
+.pill.amber{color:var(--amber);border-color:rgba(240,180,41,.4);background:rgba(240,180,41,.08)}
+.pill.blue{color:var(--blue);border-color:rgba(88,166,255,.4);background:rgba(88,166,255,.08)}
+
+.hands-on{border-left:3px solid var(--mint);background:linear-gradient(90deg,rgba(0,220,180,.07),transparent 60%);
+  padding:18px 24px;border-radius:0 10px 10px 0}
+.hands-on .lbl{font-family:var(--mono);font-size:11px;letter-spacing:.14em;color:var(--mint);text-transform:uppercase}
+.hands-on h3{font-family:var(--sans);font-size:20px;margin:8px 0 10px}
+.hands-on p{color:var(--muted);font-size:15px;line-height:1.6}
+.steps{margin-top:14px;display:flex;flex-direction:column;gap:9px}
+.steps div{font-size:14.5px;color:var(--text);display:flex;gap:12px;align-items:flex-start}
+.steps b{color:var(--mint);font-family:var(--mono);font-size:13px;flex-shrink:0}
+
+svg.fig{width:100%;height:100%;min-height:300px;flex:1 1 auto;display:block}
+.figwrap{flex:1.8 1 0;display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:0;min-height:0;max-height:100%;gap:6px}
+.figwrap > .legend,.figwrap > .controls,.figwrap > .gate,.figwrap > .eq{flex:0 0 auto;width:100%}
+.caption{font-size:13.5px;color:var(--muted);font-style:italic;margin-top:14px;text-align:center}
+
+/* ---------- animation primitives (restart on slide entry) ---------- */
+.fx{opacity:0}
+.slide.active .fx{animation:fadeUp .55s ease forwards}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.slide.active .d1{animation-delay:.15s}.slide.active .d2{animation-delay:.35s}
+.slide.active .d3{animation-delay:.55s}.slide.active .d4{animation-delay:.75s}
+.slide.active .d5{animation-delay:.95s}.slide.active .d6{animation-delay:1.15s}
+.slide.active .d7{animation-delay:1.35s}.slide.active .d8{animation-delay:1.55s}
+.slide.active .d9{animation-delay:1.75s}.slide.active .d10{animation-delay:1.95s}
+
+.draw{stroke-dasharray:var(--len,300);stroke-dashoffset:var(--len,300);opacity:1}
+.slide.active .draw{animation:drawIn .6s ease forwards}
+@keyframes drawIn{to{stroke-dashoffset:0}}
+
+.slide.active .pulse{animation:pulse 2.2s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.45}}
+
+.slide.active .travel{animation:travel 4.5s linear infinite}
+@keyframes travel{0%{offset-distance:0%}100%{offset-distance:100%}}
+
+.slide.active .grow{transform-origin:bottom;animation:grow .8s cubic-bezier(.22,1,.36,1) forwards}
+@keyframes grow{from{transform:scaleY(0)}to{transform:scaleY(1)}}
+
+.slide.active .cycle1{animation:hl 6s ease-in-out infinite}
+.slide.active .cycle2{animation:hl 6s ease-in-out infinite 2s}
+.slide.active .cycle3{animation:hl 6s ease-in-out infinite 4s}
+@keyframes hl{0%,8%{opacity:0}14%,28%{opacity:1}36%,100%{opacity:0}}
+
+.slide.active .typing{animation:typing 1.4s steps(18) forwards;white-space:nowrap;overflow:hidden;
+  display:inline-block;width:0}
+@keyframes typing{to{width:100%}}
+
+/* ---------- copiable code ---------- */
+pre.code{position:relative;user-select:text}
+.copybtn{position:absolute;top:7px;right:7px;z-index:3;background:rgba(22,27,34,.94);
+  border:1px solid var(--line);color:var(--muted);font-family:var(--mono);font-size:10.5px;
+  letter-spacing:.06em;padding:4px 9px;border-radius:5px;cursor:pointer;opacity:0;transition:.16s}
+pre.code:hover .copybtn{opacity:1}
+.copybtn:hover{border-color:var(--mint);color:var(--mint)}
+.copybtn.done{border-color:var(--mint);color:var(--mint);opacity:1}
+
+
+/* ---------- figure slides: stacked on tall screens, side-by-side when wide ---------- */
+.cb{display:block}
+.figbody{flex:1;display:flex;gap:32px;align-items:center;margin-top:24px;min-height:0}
+.figbody > .figwrap{flex:1.8 1 0}
+.figbody > .figside{display:flex;flex-direction:column;gap:12px;min-width:0}
+.figbody > .figside > *{margin-bottom:0}
+@media (max-aspect-ratio: 29/20){
+  .figbody{flex-direction:column;align-items:stretch;gap:16px}
+  .figbody > .figwrap{flex:0 1 auto;width:100%;max-width:none;justify-content:flex-start}
+  .figbody > .figwrap > svg.fig{height:auto;min-height:0;flex:0 0 auto;max-height:100%}
+  .figbody > .figside{max-width:none !important;flex:0 0 auto;display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:14px;align-items:start}
+  .figbody > .figside .controls,.figbody > .figside .legend{justify-content:flex-start}
+}
+
+/* ---------- figure furniture ---------- */
+.legend{display:flex;gap:18px;font-family:var(--mono);font-size:12px;color:var(--muted);
+  margin-top:6px;flex-wrap:wrap;justify-content:center}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px;vertical-align:middle}
+.controls{display:flex;gap:10px;align-items:center;margin-top:12px;flex-wrap:wrap;justify-content:center}
+.btn.ghost{background:transparent;border-color:var(--line);color:var(--muted)}
+.btn.ghost:hover{border-color:var(--mint);color:var(--mint)}
+.gate{margin-bottom:12px}
+.gate label{display:flex;justify-content:space-between;align-items:center;font-family:var(--mono);
+  font-size:12.5px;margin-bottom:6px;gap:12px}
+input[type=range]{width:100%;height:5px;border-radius:3px;appearance:none;background:var(--line);outline:none}
+input[type=range]::-webkit-slider-thumb{appearance:none;width:15px;height:15px;border-radius:50%;
+  background:var(--mint);cursor:pointer;border:2px solid #0d1117}
+.eq{font-family:var(--mono);font-size:12.5px;color:var(--muted);line-height:1.9;background:#0a0e13;
+  border:1px solid var(--line);border-radius:9px;padding:11px 13px}
+.eq b{color:var(--text);font-weight:400}
+.def{border-left:3px solid var(--blue);background:linear-gradient(90deg,rgba(88,166,255,.09),transparent 65%);
+  padding:14px 18px;border-radius:0 9px 9px 0;margin-bottom:12px}
+.def .lbl{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;color:var(--blue);text-transform:uppercase}
+.def h4{font-family:var(--sans);font-size:17px;margin:5px 0 6px}
+.def p{color:var(--muted);font-size:14px;line-height:1.6}
+.def p b{color:var(--text);font-weight:600}
+.theory{border-left:3px solid var(--amber);background:linear-gradient(90deg,rgba(240,180,41,.08),transparent 65%);
+  padding:14px 18px;border-radius:0 9px 9px 0;margin-bottom:12px}
+.theory .lbl{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;color:var(--amber);text-transform:uppercase}
+.theory p{color:var(--muted);font-size:14px;line-height:1.6;margin-top:6px}
+.theory p b{color:var(--text);font-weight:600}
+.formula{background:#0a0e13;border:1px solid var(--line);border-radius:10px;padding:16px 20px;
+  font-family:var(--mono);font-size:19px;color:var(--mint);text-align:center;margin:10px 0}
+.formula small{display:block;font-size:12px;color:var(--muted);margin-top:8px}
+table.t{width:100%;border-collapse:collapse;font-size:13.5px}
+table.t th{text-align:left;font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--mint);padding:9px 12px;border-bottom:1px solid var(--line)}
+table.t td{padding:10px 12px;border-bottom:1px solid var(--line);color:var(--muted);line-height:1.5;vertical-align:top}
+table.t td:first-child{color:var(--text);font-family:var(--mono);font-size:12.5px}
+table.cps td:first-child{color:var(--mint);font-family:var(--mono);font-size:13px;width:140px}
+pre.code.sm{font-size:12.3px;line-height:1.6}
+.card.warn{border-color:rgba(255,111,145,.42)}
+.divider .num{font-family:var(--sans);font-size:112px;font-weight:700;color:rgba(0,220,180,.16);line-height:1}
+</style>
+</head>
+<body>
+
+<div id="topbar">
+  <img class="wordmark" src="data:image/png;base64,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" alt="codencode.my">
+  <div id="sesslabel">SESSION 01</div>
+  <div id="titlebar"></div>
+  <div id="counter"></div>
+  <button class="btn" onclick="fs()">FULLSCREEN</button>
+</div>
+<div id="progress"></div>
+
+<div id="deck">
+
+<!-- 1 ─────────────────────────────── MAIN TITLE -->
+<section class="slide title-slide" data-title="Main Title">
+    <div class="badge fx">SESSION 01 OF 07 · PYTHON FUNDAMENTALS</div>
+  <h1 class="fx d1">Python <em>Basics</em></h1>
+  <p class="fx d2">Variables, data types, and getting Python running on your own machine — plus the two tools you'll use every week after this: Git and AI.</p>
+  <div class="foot fx d3">codencode Academy · 6 weeks + 1 project week</div>
+</section>
+
+<!-- 2 ─────────────────────────────── SESSION PLAN -->
+<section class="slide" data-title="Session Plan">
+  <div class="tag fx">Session Plan</div>
+  <h1 class="sh fx d1">What we're doing today</h1>
+  <div class="body">
+    <div class="col cards grid3">
+      <div class="card accent fx d2">
+        <h3><span class="k">M1</span>Python Foundations</h3>
+        <p>What Python is, variables, and talking to the program with print() and input().</p>
+        <div style="margin-top:12px"><span class="pill mint">45 min</span></div>
+      </div>
+      <div class="card accent fx d3">
+        <h3><span class="k">M2</span>Data &amp; Debugging</h3>
+        <p>Converting between types, the mistakes everyone makes, and reading error messages.</p>
+        <div style="margin-top:12px"><span class="pill mint">45 min</span></div>
+      </div>
+      <div class="card accent fx d4">
+        <h3><span class="k">M3</span>Version Control &amp; AI</h3>
+        <p>Git and GitHub so your work is never lost, and where AI fits into your workflow.</p>
+        <div style="margin-top:12px"><span class="pill mint">50 min</span></div>
+      </div>
+    </div>
+  </div>
+  <div class="cards grid3 fx d5" style="margin-top:4px">
+    <div class="card"><p><b style="color:var(--text)">Hands-on ×3</b> — one build at the end of every module</p></div>
+    <div class="card"><p><b style="color:var(--text)">Homework 1</b> — Variables &amp; Git, pushed to your repo</p></div>
+    <div class="card"><p><b style="color:var(--text)">Bring</b> — laptop, charger, a GitHub account</p></div>
+  </div>
+</section>
+
+<!-- 3 ─────────────────────────────── ICE BREAKER -->
+<section class="slide" data-title="Ice Breaker Activity">
+  <div class="tag fx">Ice Breaker · 10 minutes</div>
+  <h1 class="sh fx d1">Same job, two ways</h1>
+  <p class="sub fx d2">No laptops yet. Look at these two sets of instructions and tell me which one a computer could follow — and what's wrong with the other.</p>
+  <div class="body">
+    <div class="col fx d3">
+      <div class="cb"><div class="code-head">A — how a person says it</div><pre class="code"><span class="c"># Make me a drink</span>
+Get a cup
+Put in some coffee
+Add hot water
+Stir it a bit
+Bring it over</pre></div>
+      <div style="margin-top:14px"><span class="pill coral">How much is "some"?</span><span class="pill coral">"a bit" = ?</span><span class="pill coral">Which cup?</span></div>
+    </div>
+    <div class="col fx d4">
+      <div class="cb"><div class="code-head">B — how a computer needs it</div><pre class="code"><span class="c"># Make me a drink</span>
+cup = <span class="s">"mug_01"</span>
+coffee_grams = <span class="n">12</span>
+water_ml = <span class="n">220</span>
+stir_seconds = <span class="n">5</span>
+deliver_to = <span class="s">"table_3"</span></pre></div>
+      <div style="margin-top:14px"><span class="pill mint">Every value named</span><span class="pill mint">Every value exact</span></div>
+    </div>
+  </div>
+  <p class="caption fx d5">That's the whole job today: turning vague human instructions into named, exact values. Those names are called <b style="color:var(--mint)">variables</b>.</p>
+</section>
+
+<!-- 4 ─────────────────────────────── LEARNING OUTCOMES -->
+<section class="slide" data-title="Learning Outcomes">
+  <div class="tag fx">Learning Outcomes</div>
+  <h1 class="sh fx d1">By the end of today you will be able to…</h1>
+  <div class="body">
+    <div class="col fx d2">
+      <table class="cps">
+        <tr><th>Component</th><th>Statement</th></tr>
+        <tr>
+          <td>Condition</td>
+          <td>Given a working Python environment and a short written brief,</td>
+        </tr>
+        <tr>
+          <td>Performance</td>
+          <td>you will declare variables of the correct type, convert between types, read an error message to locate a bug, and push your work to GitHub,</td>
+        </tr>
+        <tr>
+          <td>Standard</td>
+          <td>so that your script runs with no syntax errors, produces the expected output for three test inputs, and appears in your <span style="font-family:var(--mono);color:var(--mint)">python-bootcamp/week1/</span> folder on GitHub.</td>
+        </tr>
+      </table>
+      <div style="margin-top:22px">
+        <span class="pill mint">LO1 · Variables &amp; types</span>
+        <span class="pill mint">LO2 · Type casting</span>
+        <span class="pill mint">LO3 · Reading errors</span>
+        <span class="pill mint">LO4 · Git basics</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 5 ─────────────────────────────── CONTENT MAPPING -->
+<section class="slide" data-title="Content Mapping">
+  <div class="tag fx">Content Mapping</div>
+  <h1 class="sh fx d1">How today maps to your outcomes</h1>
+  <div class="body">
+    <div class="col fx d2">
+      <table class="cps">
+        <tr><th>Module</th><th>Topics</th><th style="width:120px">Outcome</th><th style="width:150px">Assessed by</th></tr>
+        <tr>
+          <td>Module 1</td>
+          <td>1.1 What is Python? · 1.2 Variables · 1.3 print() &amp; input()</td>
+          <td style="color:var(--mint);font-family:var(--mono);font-size:13px">LO1</td>
+          <td style="color:var(--muted);font-size:13.5px">Profile Card build</td>
+        </tr>
+        <tr>
+          <td>Module 2</td>
+          <td>2.1 Type casting &amp; type() · 2.2 Casting mistakes &amp; operators · 2.3 Reading errors</td>
+          <td style="color:var(--mint);font-family:var(--mono);font-size:13px">LO2, LO3</td>
+          <td style="color:var(--muted);font-size:13.5px">BMI calculator</td>
+        </tr>
+        <tr>
+          <td>Module 3</td>
+          <td>3.1 Git &amp; GitHub · 3.2 Vibe coding · 3.3 Your weekly workflow</td>
+          <td style="color:var(--mint);font-family:var(--mono);font-size:13px">LO4</td>
+          <td style="color:var(--muted);font-size:13.5px">Homework 1 pushed</td>
+        </tr>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- 6 ─────────────────────────────── MODULE 1 DIVIDER -->
+<section class="slide divider" data-title="Module 1">
+  <div class="num fx">01</div>
+  <h1 class="fx d1">Python Foundations</h1>
+  <div class="items">
+    <div class="fx d2"><b>1.1</b>What is Python, and why did everyone pick it?</div>
+    <div class="fx d3"><b>1.2</b>Variables — labelled boxes for your data</div>
+    <div class="fx d4"><b>1.3</b>print() and input() — talking to your program</div>
+    <div class="fx d5" style="margin-top:10px"><b style="color:var(--amber)">↓</b><span style="color:var(--amber)">Hands-on: your first script</span></div>
+  </div>
+</section>
+
+<!-- 7 ─────────────────────────────── 1.1 -->
+<section class="slide" data-title="1.1 What is Python?">
+  <div class="tag fx">1.1</div>
+  <h1 class="sh fx d1">What is Python?</h1>
+  <div class="body">
+    <div class="col cards fx d2">
+      <div class="card accent">
+        <h3>A language you can almost read out loud</h3>
+        <p>Python was designed to look like plain English. Less punctuation, fewer symbols, fewer ways to get it subtly wrong.</p>
+      </div>
+      <div class="card">
+        <h3>What people build with it</h3>
+        <p>Data analysis and dashboards · machine learning · automation scripts · web backends · anything repetitive you'd rather not do by hand.</p>
+      </div>
+      <div class="card">
+        <h3>Why we teach it first</h3>
+        <p>It's the language of the Machine Learning track you may take next — and the one AI coding assistants write best.</p>
+      </div>
+    </div>
+    <div class="col fx d3">
+      <div class="cb"><div class="code-head">the same task, two languages</div><pre class="code"><span class="c">// Java</span>
+public class Main {
+  public static void main(String[] a){
+    System.out.println(<span class="s">"Hello"</span>);
+  }
+}
+
+<span class="c"># Python</span>
+print(<span class="s">"Hello"</span>)</pre></div>
+      <p class="caption">Five lines of ceremony, or one line that says what it does.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 8 ─────────────────── 1.2 VARIABLES (ANIMATED) -->
+<section class="slide" data-title="1.2 Variables">
+  <div class="tag fx">1.2</div>
+  <h1 class="sh fx d1">Variables are labelled boxes</h1>
+  <div class="body figbody">
+    <div class="figwrap">
+      <svg class="fig" viewBox="0 0 1000 420" aria-label="Variables as labelled boxes in memory">
+        <!-- code side -->
+        <rect x="10" y="40" width="380" height="150" rx="10" fill="#0a0e13" stroke="#2a3440" stroke-width="1.5" class="fx"/>
+        <text x="30" y="30" font-family="JetBrains Mono,monospace" font-size="13" fill="#8b98a5" class="fx">student.py</text>
+        <text x="34" y="80"  font-family="JetBrains Mono,monospace" font-size="17" fill="#e8eef0" class="fx d1">name  = "Aisyah"</text>
+        <text x="34" y="122" font-family="JetBrains Mono,monospace" font-size="17" fill="#e8eef0" class="fx d3">age   = 17</text>
+        <text x="34" y="164" font-family="JetBrains Mono,monospace" font-size="17" fill="#e8eef0" class="fx d5">price = 49.90</text>
+
+        <text x="620" y="30" font-family="JetBrains Mono,monospace" font-size="12" fill="#8b98a5"
+              letter-spacing="2" class="fx">MEMORY</text>
+
+        <!-- arrows -->
+        <line x1="400" y1="74"  x2="600" y2="85"  stroke="#00dcb4" stroke-width="2" marker-end="url(#ar)"
+              class="draw d2" style="--len:210"/>
+        <line x1="400" y1="116" x2="600" y2="195" stroke="#00dcb4" stroke-width="2" marker-end="url(#ar)"
+              class="draw d4" style="--len:230"/>
+        <line x1="400" y1="158" x2="600" y2="305" stroke="#00dcb4" stroke-width="2" marker-end="url(#ar)"
+              class="draw d6" style="--len:260"/>
+
+        <!-- boxes -->
+        <g class="fx d2">
+          <rect x="610" y="45" width="330" height="80" rx="10" fill="#1c2430" stroke="#00dcb4" stroke-width="2"/>
+          <text x="630" y="72"  font-family="JetBrains Mono,monospace" font-size="15" fill="#00dcb4" font-weight="600">name</text>
+          <text x="630" y="104" font-family="JetBrains Mono,monospace" font-size="20" fill="#e8eef0">"Aisyah"</text>
+          <text x="920" y="104" font-family="JetBrains Mono,monospace" font-size="13" fill="#8b98a5" text-anchor="end">str</text>
+        </g>
+        <g class="fx d4">
+          <rect x="610" y="155" width="330" height="80" rx="10" fill="#1c2430" stroke="#00dcb4" stroke-width="2"/>
+          <text x="630" y="182" font-family="JetBrains Mono,monospace" font-size="15" fill="#00dcb4" font-weight="600">age</text>
+          <text x="630" y="214" font-family="JetBrains Mono,monospace" font-size="20" fill="#e8eef0">17</text>
+          <text x="920" y="214" font-family="JetBrains Mono,monospace" font-size="13" fill="#8b98a5" text-anchor="end">int</text>
+        </g>
+        <g class="fx d6">
+          <rect x="610" y="265" width="330" height="80" rx="10" fill="#1c2430" stroke="#00dcb4" stroke-width="2"/>
+          <text x="630" y="292" font-family="JetBrains Mono,monospace" font-size="15" fill="#00dcb4" font-weight="600">price</text>
+          <text x="630" y="324" font-family="JetBrains Mono,monospace" font-size="20" fill="#e8eef0">49.90</text>
+          <text x="920" y="324" font-family="JetBrains Mono,monospace" font-size="13" fill="#8b98a5" text-anchor="end">float</text>
+        </g>
+        <defs><marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7"
+          orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#00dcb4"/></marker></defs>
+      </svg>
+    </div>
+  </div>
+  <div class="cards grid3 fx d8">
+    <div class="card"><p><b style="color:var(--mint);font-family:var(--mono)">snake_case</b> — lowercase with underscores: <span style="font-family:var(--mono)">first_name</span></p></div>
+    <div class="card"><p><b style="color:var(--coral);font-family:var(--mono)">not 2fast</b> — can't start with a number, no spaces, no dashes</p></div>
+    <div class="card"><p><b style="color:var(--amber);font-family:var(--mono)">name it well</b> — <span style="font-family:var(--mono)">x</span> tells you nothing in three weeks</p></div>
+  </div>
+</section>
+
+<!-- 9 ─────────────────────────────── 1.3 -->
+<section class="slide" data-title="1.3 print() and input()">
+  <div class="tag fx">1.3</div>
+  <h1 class="sh fx d1">print() and input() — talking to your program</h1>
+  <div class="body">
+    <div class="col fx d2">
+      <div class="cb"><div class="code-head">greet.py</div><pre class="code">name = input(<span class="s">"What's your name? "</span>)
+age  = input(<span class="s">"How old are you? "</span>)
+
+print(<span class="s">"Hello, "</span> + name)
+print(<span class="s">f"Next year you'll be {int(age)+1}"</span>)</pre></div>
+      <div style="margin-top:16px">
+        <span class="pill mint">input() always gives you a string</span>
+        <span class="pill blue">f-strings drop values straight in</span>
+      </div>
+    </div>
+    <div class="col fx d3">
+      <div class="cb"><div class="code-head">terminal</div><pre class="code"><span class="c">$ python greet.py</span>
+What's your name? <span class="s">Aisyah</span>
+How old are you? <span class="s">17</span>
+Hello, Aisyah
+Next year you'll be 18</pre></div>
+      <div class="card" style="margin-top:18px">
+        <h3><span class="k">f</span>Why f-strings win</h3>
+        <p><span style="font-family:var(--mono);color:var(--coral)">"Hi " + name + ", you are " + str(age)</span><br>
+        <span style="font-family:var(--mono);color:var(--mint)">f"Hi {name}, you are {age}"</span></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 10 ────────────────────── MODULE 1 HANDS-ON -->
+<section class="slide" data-title="Module 1 Hands-on">
+  <div class="tag fx">Hands-on · Module 1</div>
+  <h1 class="sh fx d1">Build: your Profile Card</h1>
+  <div class="body">
+    <div class="col fx d2">
+      <div class="hands-on">
+        <div class="lbl">15 minutes · pairs</div>
+        <h3>Ask four things, print one card</h3>
+        <p>Write a script that asks the user four questions, stores each answer in a well-named variable, and prints a tidy profile card back.</p>
+        <div class="steps">
+          <div><b>01</b><span>Ask for name, age, favourite subject, and a dream job.</span></div>
+          <div><b>02</b><span>Store each answer in its own variable — proper snake_case names.</span></div>
+          <div><b>03</b><span>Print a card with a border line above and below.</span></div>
+          <div><b>04</b><span>Use f-strings, not <span style="font-family:var(--mono)">+</span> joining.</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="col fx d3">
+      <div class="cb"><div class="code-head">expected output</div><pre class="code">==============================
+  <span class="s">PROFILE CARD</span>
+==============================
+  Name     : Aisyah
+  Age      : 17
+  Subject  : Biology
+  Dream job: Marine biologist
+==============================</pre></div>
+      <p class="caption">Stretch: add a line that prints how many years until they turn 30.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 11 ─────────────────────────────── MODULE 2 DIVIDER -->
+<section class="slide divider" data-title="Module 2">
+  <div class="num fx">02</div>
+  <h1 class="fx d1">Data &amp; Debugging</h1>
+  <div class="items">
+    <div class="fx d2"><b>2.1</b>Type casting and type() — changing what a value is</div>
+    <div class="fx d3"><b>2.2</b>The casting mistakes everyone makes, and operators</div>
+    <div class="fx d4"><b>2.3</b>Reading an error message instead of fearing it</div>
+    <div class="fx d5" style="margin-top:10px"><b style="color:var(--amber)">↓</b><span style="color:var(--amber)">Hands-on: BMI + tip calculator</span></div>
+  </div>
+</section>
+
+<!-- 12 ─────────────────────────────── 2.1 -->
+<section class="slide" data-title="2.1 Type casting">
+  <div class="tag fx">2.1</div>
+  <h1 class="sh fx d1">Type casting &amp; type()</h1>
+  <div class="body">
+    <div class="figwrap fx d2">
+      <svg class="fig" viewBox="0 0 980 300" aria-label="Casting a string to an int and back">
+        <g class="fx d2">
+          <rect x="20" y="90" width="240" height="96" rx="10" fill="#161b22" stroke="#2a3440" stroke-width="1.5"/>
+          <text x="140" y="130" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="22" fill="#e8eef0">"17"</text>
+          <text x="140" y="162" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="14" fill="#8b98a5">str</text>
+        </g>
+        <line x1="270" y1="138" x2="400" y2="138" stroke="#00dcb4" stroke-width="2" marker-end="url(#ar2)"
+              class="draw d3" style="--len:140"/>
+        <text x="335" y="120" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="15"
+              fill="#00dcb4" class="fx d3">int()</text>
+        <g class="fx d4">
+          <rect x="410" y="90" width="240" height="96" rx="10" fill="#1c2430" stroke="#00dcb4" stroke-width="2"/>
+          <text x="530" y="130" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="22" fill="#00dcb4">17</text>
+          <text x="530" y="162" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="14" fill="#8b98a5">int</text>
+        </g>
+        <line x1="660" y1="138" x2="790" y2="138" stroke="#58a6ff" stroke-width="2" marker-end="url(#ar3)"
+              class="draw d5" style="--len:140"/>
+        <text x="725" y="120" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="15"
+              fill="#58a6ff" class="fx d5">float()</text>
+        <g class="fx d6">
+          <rect x="800" y="90" width="160" height="96" rx="10" fill="#161b22" stroke="#58a6ff" stroke-width="1.8"/>
+          <text x="880" y="130" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="22" fill="#58a6ff">17.0</text>
+          <text x="880" y="162" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="14" fill="#8b98a5">float</text>
+        </g>
+        <text x="20" y="245" font-family="JetBrains Mono,monospace" font-size="15" fill="#8b98a5" class="fx d7">
+          type(age)  →  &lt;class 'int'&gt;
+        </text>
+        <text x="20" y="275" font-family="Inter,sans-serif" font-size="14" fill="#8b98a5" font-style="italic" class="fx d7">
+          When you're not sure what you're holding, ask type() before you do anything else with it.
+        </text>
+        <defs>
+          <marker id="ar2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7"
+            orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#00dcb4"/></marker>
+          <marker id="ar3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7"
+            orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#58a6ff"/></marker>
+        </defs>
+      </svg>
+    </div>
+  </div>
+  <div class="cards grid2 fx d8">
+    <div class="card"><h3><span class="k">int()</span>whole numbers</h3><p>Chops the decimal off — it does not round. <span style="font-family:var(--mono);color:var(--amber)">int(9.99) → 9</span></p></div>
+    <div class="card"><h3><span class="k">str()</span>text</h3><p>Needed any time you join a number onto a string the old way.</p></div>
+  </div>
+</section>
+
+<!-- 13 ─────────────────────────────── 2.2 -->
+<section class="slide" data-title="2.2 Casting mistakes &amp; operators">
+  <div class="tag fx">2.2</div>
+  <h1 class="sh fx d1">The mistakes everyone makes</h1>
+  <div class="body">
+    <div class="col fx d2">
+      <div class="cb"><div class="code-head">what goes wrong</div><pre class="code">age = input(<span class="s">"Age? "</span>)   <span class="c"># "17" — a string!</span>
+print(age + <span class="n">1</span>)         <span class="e"># TypeError</span>
+
+<span class="c"># the fix</span>
+age = <span class="s">int</span>(input(<span class="s">"Age? "</span>))
+print(age + <span class="n">1</span>)         <span class="c"># 18</span>
+
+<span class="c"># and the sneaky one</span>
+print(<span class="s">"5"</span> + <span class="s">"5"</span>)       <span class="c"># "55", not 10</span>
+print(<span class="n">5</span> + <span class="n">5</span>)           <span class="c"># 10</span></pre></div>
+    </div>
+    <div class="col fx d3">
+      <div class="cb"><div class="code-head">operators you'll use today</div><pre class="code"><span class="n">7</span> + <span class="n">2</span>    <span class="c"># 9   add</span>
+<span class="n">7</span> - <span class="n">2</span>    <span class="c"># 5   subtract</span>
+<span class="n">7</span> * <span class="n">2</span>    <span class="c"># 14  multiply</span>
+<span class="n">7</span> / <span class="n">2</span>    <span class="c"># 3.5 divide → always float</span>
+<span class="n">7</span> // <span class="n">2</span>   <span class="c"># 3   floor divide</span>
+<span class="n">7</span> % <span class="n">2</span>    <span class="c"># 1   remainder</span>
+<span class="n">7</span> ** <span class="n">2</span>   <span class="c"># 49  power</span></pre></div>
+      <div style="margin-top:14px"><span class="pill amber">% is how you test odd/even</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- 14 ────────────────── 2.3 DEBUGGING (ANIMATED) -->
+<section class="slide" data-title="2.3 Reading errors">
+  <div class="tag fx">2.3</div>
+  <h1 class="sh fx d1">An error message is a map, not a telling-off</h1>
+  <div class="body figbody">
+    <div class="figwrap">
+      <svg class="fig" viewBox="0 0 1020 400" aria-label="Annotated Python traceback">
+        <rect x="10" y="20" width="520" height="200" rx="10" fill="#0a0e13" stroke="#2a3440" stroke-width="1.5" class="fx"/>
+        <text x="28" y="52" font-family="JetBrains Mono,monospace" font-size="15" fill="#8b98a5" class="fx">Traceback (most recent call last):</text>
+        <text x="28" y="88" font-family="JetBrains Mono,monospace" font-size="15" fill="#e8eef0" class="fx d2">  File "bmi.py", line 4, in &lt;module&gt;</text>
+        <text x="28" y="124" font-family="JetBrains Mono,monospace" font-size="15" fill="#e8eef0" class="fx d3">    weight = int(input("Weight? "))</text>
+        <text x="28" y="164" font-family="JetBrains Mono,monospace" font-size="15" fill="#ff6f91" class="fx d4">ValueError: invalid literal for int()</text>
+        <text x="28" y="192" font-family="JetBrains Mono,monospace" font-size="15" fill="#ff6f91" class="fx d4">with base 10: 'sixty'</text>
+
+        <!-- callouts -->
+        <g class="fx d5">
+          <line x1="545" y1="82" x2="535" y2="84" stroke="#58a6ff" stroke-width="1.6"/>
+          <rect x="552" y="58" width="452" height="50" rx="8" fill="#161b22" stroke="#2a3440" stroke-width="1.4"/>
+          <text x="572" y="78" font-family="Inter,sans-serif" font-size="14" fill="#58a6ff" font-weight="600">1 · Which file, which line</text>
+          <text x="572" y="98" font-family="Inter,sans-serif" font-size="13" fill="#8b98a5">Go straight there — bmi.py, line 4</text>
+        </g>
+        <g class="fx d6">
+          <line x1="545" y1="130" x2="535" y2="124" stroke="#00dcb4" stroke-width="1.6"/>
+          <rect x="552" y="118" width="452" height="50" rx="8" fill="#161b22" stroke="#2a3440" stroke-width="1.4"/>
+          <text x="572" y="138" font-family="Inter,sans-serif" font-size="14" fill="#00dcb4" font-weight="600">2 · The exact line that ran</text>
+          <text x="572" y="158" font-family="Inter,sans-serif" font-size="13" fill="#8b98a5">Python shows you the guilty code</text>
+        </g>
+        <g class="fx d7">
+          <line x1="545" y1="180" x2="535" y2="170" stroke="#ff6f91" stroke-width="1.6"/>
+          <rect x="552" y="178" width="452" height="50" rx="8" fill="#161b22" stroke="#2a3440" stroke-width="1.4"/>
+          <text x="572" y="198" font-family="Inter,sans-serif" font-size="14" fill="#ff6f91" font-weight="600">3 · The error type</text>
+          <text x="572" y="218" font-family="Inter,sans-serif" font-size="13" fill="#8b98a5">ValueError — right type, impossible value</text>
+        </g>
+        <g class="fx d8">
+          <rect x="552" y="238" width="452" height="50" rx="8" fill="#161b22" stroke="#f0b429" stroke-width="1.4"/>
+          <text x="572" y="258" font-family="Inter,sans-serif" font-size="14" fill="#f0b429" font-weight="600">4 · Why it failed</text>
+          <text x="572" y="278" font-family="Inter,sans-serif" font-size="13" fill="#8b98a5">'sixty' is not a number int() can read</text>
+        </g>
+
+        <rect x="10" y="252" width="520" height="118" rx="10" fill="#1c2430" stroke="#00dcb4" stroke-width="1.6" class="fx d9"/>
+        <text x="32" y="282" font-family="Inter,sans-serif" font-size="15" fill="#00dcb4" font-weight="700" class="fx d9">Read it bottom-up</text>
+        <text x="32" y="310" font-family="Inter,sans-serif" font-size="14" fill="#e8eef0" class="fx d9">The last line names the problem.</text>
+        <text x="32" y="334" font-family="Inter,sans-serif" font-size="14" fill="#e8eef0" class="fx d9">Then look up to find where it happened.</text>
+        <text x="32" y="358" font-family="Inter,sans-serif" font-size="14" fill="#8b98a5" class="fx d9">Paste the last line into Google — someone has had it.</text>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<!-- 15 ────────────────────── MODULE 2 HANDS-ON -->
+<section class="slide" data-title="Module 2 Hands-on">
+  <div class="tag fx">Hands-on · Module 2</div>
+  <h1 class="sh fx d1">Build: BMI + Tip Calculator</h1>
+  <div class="body">
+    <div class="col fx d2">
+      <div class="hands-on">
+        <div class="lbl">20 minutes · solo</div>
+        <h3>Two small calculators, one skill</h3>
+        <p>Both need input cast to numbers, both need rounded output. Break one on purpose and read the error.</p>
+        <div class="steps">
+          <div><b>01</b><span>BMI: ask weight (kg) and height (m), print BMI to 1 decimal place.</span></div>
+          <div><b>02</b><span>Tip: ask bill and tip %, print tip amount and total.</span></div>
+          <div><b>03</b><span>Type letters instead of a number. Read the error out loud.</span></div>
+          <div><b>04</b><span>Push both files to <span style="font-family:var(--mono)">python-bootcamp/week1/</span></span></div>
+        </div>
+      </div>
+    </div>
+    <div class="col fx d3">
+      <div class="cb"><div class="code-head">expected output</div><pre class="code"><span class="c">$ python bmi.py</span>
+Weight in kg? <span class="s">62</span>
+Height in m?  <span class="s">1.65</span>
+Your BMI is 22.8
+
+<span class="c">$ python tip.py</span>
+Bill amount? <span class="s">84.50</span>
+Tip percent? <span class="s">10</span>
+Tip: RM 8.45
+Total: RM 92.95</pre></div>
+      <div style="margin-top:14px"><span class="pill mint">round(value, 1)</span><span class="pill blue">f"{value:.2f}"</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- 16 ─────────────────────────────── MODULE 3 DIVIDER -->
+<section class="slide divider" data-title="Module 3">
+  <div class="num fx">03</div>
+  <h1 class="fx d1">Version Control &amp; AI Tools</h1>
+  <div class="items">
+    <div class="fx d2"><b>3.1</b>Git &amp; GitHub — save your code forever</div>
+    <div class="fx d3"><b>3.2</b>Vibe coding — where AI fits, and where it doesn't</div>
+    <div class="fx d4"><b>3.3</b>Your weekly workflow from here on</div>
+    <div class="fx d5" style="margin-top:10px"><b style="color:var(--amber)">↓</b><span style="color:var(--amber)">Hands-on: first push to GitHub</span></div>
+  </div>
+</section>
+
+<!-- 17 ──────────────────── 3.1 GIT (ANIMATED) -->
+<section class="slide" data-title="3.1 Git &amp; GitHub">
+  <div class="tag fx">3.1</div>
+  <h1 class="sh fx d1">Where your code actually lives</h1>
+  <div class="body figbody">
+    <div class="figwrap">
+      <svg class="fig" viewBox="0 0 1060 400" aria-label="Git flow from working directory to GitHub">
+        <rect x="10" y="30" width="700" height="34" rx="17" fill="#8b98a5" opacity="0.08" class="fx"/>
+        <text x="30" y="52" font-family="JetBrains Mono,monospace" font-size="12" fill="#8b98a5" class="fx">YOUR LAPTOP</text>
+        <rect x="740" y="30" width="310" height="34" rx="17" fill="#00dcb4" opacity="0.12" class="fx d1"/>
+        <text x="760" y="52" font-family="JetBrains Mono,monospace" font-size="12" fill="#00dcb4" class="fx d1">THE CLOUD</text>
+
+        <g class="fx d1">
+          <rect x="10" y="100" width="200" height="110" rx="10" fill="#161b22" stroke="#2a3440" stroke-width="1.5"/>
+          <text x="110" y="145" text-anchor="middle" font-family="Space Grotesk,sans-serif" font-size="17" fill="#e8eef0" font-weight="700">Working</text>
+          <text x="110" y="168" text-anchor="middle" font-family="Space Grotesk,sans-serif" font-size="17" fill="#e8eef0" font-weight="700">Directory</text>
+          <text x="110" y="194" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="12" fill="#8b98a5">your editor</text>
+        </g>
+        <g class="fx d3">
+          <rect x="250" y="100" width="200" height="110" rx="10" fill="#161b22" stroke="#2a3440" stroke-width="1.5"/>
+          <text x="350" y="145" text-anchor="middle" font-family="Space Grotesk,sans-serif" font-size="17" fill="#e8eef0" font-weight="700">Staging</text>
+          <text x="350" y="168" text-anchor="middle" font-family="Space Grotesk,sans-serif" font-size="17" fill="#e8eef0" font-weight="700">Area</text>
+          <text x="350" y="194" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="12" fill="#8b98a5">picked to save</text>
+        </g>
+        <g class="fx d5">
+          <rect x="490" y="100" width="200" height="110" rx="10" fill="#161b22" stroke="#2a3440" stroke-width="1.5"/>
+          <text x="590" y="145" text-anchor="middle" font-family="Space Grotesk,sans-serif" font-size="17" fill="#e8eef0" font-weight="700">Local</text>
+          <text x="590" y="168" text-anchor="middle" font-family="Space Grotesk,sans-serif" font-size="17" fill="#e8eef0" font-weight="700">Repo</text>
+          <text x="590" y="194" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="12" fill="#8b98a5">saved history</text>
+        </g>
+        <g class="fx d7">
+          <rect x="740" y="100" width="200" height="110" rx="10" fill="#1c2430" stroke="#00dcb4" stroke-width="2"/>
+          <text x="840" y="158" text-anchor="middle" font-family="Space Grotesk,sans-serif" font-size="19" fill="#00dcb4" font-weight="700">GitHub</text>
+          <text x="840" y="194" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="12" fill="#8b98a5">safe + shareable</text>
+        </g>
+
+        <line x1="216" y1="155" x2="244" y2="155" stroke="#00dcb4" stroke-width="2" marker-end="url(#ag)" class="draw d2" style="--len:34"/>
+        <line x1="456" y1="155" x2="484" y2="155" stroke="#00dcb4" stroke-width="2" marker-end="url(#ag)" class="draw d4" style="--len:34"/>
+        <line x1="696" y1="155" x2="734" y2="155" stroke="#00dcb4" stroke-width="2" marker-end="url(#ag)" class="draw d6" style="--len:44"/>
+        <text x="230" y="140" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="12" fill="#00dcb4" class="fx d2">add</text>
+        <text x="470" y="140" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="12" fill="#00dcb4" class="fx d4">commit</text>
+        <text x="715" y="140" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="12" fill="#00dcb4" class="fx d6">push</text>
+
+        <!-- travelling commit dot -->
+        <circle r="7" fill="#00dcb4" class="travel" style="offset-path:path('M 110 240 L 840 240');opacity:.9"/>
+        <path d="M 110 240 L 840 240" fill="none" stroke="#2a3440" stroke-width="1.5" stroke-dasharray="4 6"/>
+
+        <path d="M 840 285 Q 475 340 110 285" fill="none" stroke="#8b98a5" stroke-width="2"
+              marker-end="url(#agm)" class="draw d8" style="--len:760"/>
+        <text x="475" y="332" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="12" fill="#8b98a5" class="fx d8">git pull — bring down what's new</text>
+
+        <text x="10" y="385" font-family="Inter,sans-serif" font-size="15" fill="#8b98a5" font-style="italic" class="fx d9">
+          Pull before you start. Push before you stop. Commit every time something works.
+        </text>
+        <defs>
+          <marker id="ag" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7"
+            orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#00dcb4"/></marker>
+          <marker id="agm" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7"
+            orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#8b98a5"/></marker>
+        </defs>
+      </svg>
+    </div>
+  </div>
+  <div class="cards grid2 fx d10" style="margin-top:6px">
+    <div class="card"><p style="font-family:var(--mono);font-size:13.5px;color:var(--mint)">git add .  →  git commit -m "message"  →  git push</p></div>
+    <div class="card"><p>A commit message says <b style="color:var(--text)">why</b>, not what. "fix BMI rounding" beats "update file".</p></div>
+  </div>
+</section>
+
+<!-- 18 ─────────────────────────────── 3.2 -->
+<section class="slide" data-title="3.2 Vibe coding">
+  <div class="tag fx">3.2</div>
+  <h1 class="sh fx d1">Vibe coding — your AI pair, not your replacement</h1>
+  <div class="body">
+    <div class="col cards fx d2">
+      <div class="card accent">
+        <h3 style="color:var(--mint)">Good uses, from week one</h3>
+        <p>Explaining an error you don't understand · suggesting a better variable name · writing the boring boilerplate · reviewing code you already wrote.</p>
+      </div>
+      <div class="card">
+        <h3 style="color:var(--coral)">Where it hurts you</h3>
+        <p>Pasting code you can't read · asking for the whole answer before trying · trusting output you haven't run · skipping the error message.</p>
+      </div>
+    </div>
+    <div class="col fx d3">
+      <div class="cb"><div class="code-head">the rule for this course</div><pre class="code"><span class="c"># After AI gives you code, always:</span>
+<span class="n">1.</span> Run it.
+<span class="n">2.</span> Read every line.
+<span class="n">3.</span> Change one thing on purpose
+   and predict what breaks.
+<span class="n">4.</span> If you can't explain it,
+   you don't own it yet.</pre></div>
+      <div style="margin-top:16px">
+        <span class="pill mint">Claude</span><span class="pill mint">ChatGPT</span><span class="pill mint">GitHub Copilot</span>
+      </div>
+      <p class="caption">Full treatment in Session 7 — today just set the habit.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 19 ─────────────────────────────── 3.3 -->
+<section class="slide" data-title="3.3 Your weekly workflow">
+  <div class="tag fx">3.3</div>
+  <h1 class="sh fx d1">Your workflow, every week from now</h1>
+  <div class="body">
+    <div class="col cards grid2 fx d2">
+      <div class="card"><h3><span class="k">01</span>Pull first</h3><p><span style="font-family:var(--mono);color:var(--mint)">git pull</span> before you write anything.</p></div>
+      <div class="card"><h3><span class="k">02</span>Work in your week folder</h3><p><span style="font-family:var(--mono);color:var(--mint)">week1/</span>, <span style="font-family:var(--mono);color:var(--mint)">week2/</span> … one folder per session.</p></div>
+      <div class="card"><h3><span class="k">03</span>Run it often</h3><p>Don't write 40 lines then run. Run every few lines.</p></div>
+      <div class="card"><h3><span class="k">04</span>Commit when it works</h3><p>Working code is a save point. Take it.</p></div>
+      <div class="card"><h3><span class="k">05</span>Push before you close the laptop</h3><p>If it's not on GitHub, it doesn't exist.</p></div>
+      <div class="card accent"><h3><span class="k">06</span>Stuck 20 min?</h3><p>Error message → Google → AI → ask in the group. In that order.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- 20 ────────────────────── MODULE 3 HANDS-ON -->
+<section class="slide" data-title="Module 3 Hands-on">
+  <div class="tag fx">Hands-on · Module 3</div>
+  <h1 class="sh fx d1">Build: your first push</h1>
+  <div class="body">
+    <div class="col fx d2">
+      <div class="hands-on">
+        <div class="lbl">15 minutes · everyone finishes this before leaving</div>
+        <h3>Get today's work onto GitHub</h3>
+        <div class="steps">
+          <div><b>01</b><span>Create a repo called <span style="font-family:var(--mono)">python-bootcamp</span> on GitHub.</span></div>
+          <div><b>02</b><span>Clone it, make a <span style="font-family:var(--mono)">week1/</span> folder.</span></div>
+          <div><b>03</b><span>Move profile.py, bmi.py and tip.py into it.</span></div>
+          <div><b>04</b><span>add → commit → push.</span></div>
+          <div><b>05</b><span>Open the repo in your browser. See your files there? Done.</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="col fx d3">
+      <div class="cb"><div class="code-head">terminal</div><pre class="code"><span class="c">$ git clone https://github.com/you/python-bootcamp.git</span>
+<span class="c">$ cd python-bootcamp</span>
+<span class="c">$ mkdir week1</span>
+<span class="c"># move your three files in</span>
+<span class="c">$ git add .</span>
+<span class="c">$ git commit -m <span class="s">"week 1: profile, bmi, tip"</span></span>
+<span class="c">$ git push</span></pre></div>
+      <div style="margin-top:14px"><span class="pill amber">Paste your repo link in the class group</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- 21 ─────────────────────────────── RECAP -->
+<section class="slide" data-title="Recap &amp; Summary">
+  <div class="tag fx">Recap &amp; Summary</div>
+  <h1 class="sh fx d1">What you can do now that you couldn't this morning</h1>
+  <div class="body">
+    <div class="col cards grid3 fx d2">
+      <div class="card accent"><h3><span class="k">M1</span>Foundations</h3><p>Store any value in a well-named variable, and get information in and out of a program.</p></div>
+      <div class="card accent"><h3><span class="k">M2</span>Data &amp; Debugging</h3><p>Convert between types on purpose, and read a traceback to find the broken line.</p></div>
+      <div class="card accent"><h3><span class="k">M3</span>Git &amp; AI</h3><p>Save your work to GitHub, and use AI without outsourcing your thinking.</p></div>
+    </div>
+  </div>
+  <div class="body" style="flex:0 0 auto;margin-top:0">
+    <div class="col fx d3">
+      <div class="card">
+        <h3>Homework 1 — Variables &amp; Git</h3>
+        <p>Four scripts, all pushed to <span style="font-family:var(--mono);color:var(--mint)">python-bootcamp/week1/</span>. Graded on: correct types, sensible variable names, no crash on odd input, and the code actually being on GitHub.</p>
+      </div>
+    </div>
+    <div class="col fx d4">
+      <div class="card">
+        <h3>Next session — Conditionals &amp; Logic</h3>
+        <p>Making your programs decide: grade bands, an ATM that locks after three wrong PINs, and a tax calculator that gets the brackets right.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 22 ─────────────────────────────── REVIEW LOs -->
+<section class="slide" data-title="Review Learning Outcomes">
+  <div class="tag fx">Review Learning Outcomes</div>
+  <h1 class="sh fx d1">Did we get there?</h1>
+  <p class="sub fx d2">Rate yourself honestly — 1 to 5. Anything at 2 or below, tell me before you leave and we'll fix it now rather than next week.</p>
+  <div class="body">
+    <div class="col cards fx d3">
+      <div class="card"><h3><span class="k">LO1</span>I can declare variables of the right type and name them well</h3>
+        <p style="font-family:var(--mono);color:var(--mint)">1 — 2 — 3 — 4 — 5</p></div>
+      <div class="card"><h3><span class="k">LO2</span>I can convert between str, int and float on purpose</h3>
+        <p style="font-family:var(--mono);color:var(--mint)">1 — 2 — 3 — 4 — 5</p></div>
+      <div class="card"><h3><span class="k">LO3</span>I can read an error message and find the broken line</h3>
+        <p style="font-family:var(--mono);color:var(--mint)">1 — 2 — 3 — 4 — 5</p></div>
+      <div class="card accent"><h3><span class="k">LO4</span>My week 1 work is on GitHub right now</h3>
+        <p style="font-family:var(--mono);color:var(--mint)">Yes — Not yet</p></div>
+    </div>
+  </div>
+  <p class="caption fx d4">codencode.my · Session 01 complete</p>
+</section>
+
+</div>
+
+<div id="nav">
+  <button class="navbtn" onclick="go(-1)">PREV</button>
+  <div id="dots"></div>
+  <button class="navbtn" onclick="go(1)">NEXT</button>
+</div>
+
+<script>
+const slides=[...document.querySelectorAll('.slide')];
+let i=0;
+const dots=document.getElementById('dots');
+slides.forEach((s,n)=>{const d=document.createElement('div');d.className='dot';
+  d.onclick=()=>show(n);dots.appendChild(d);});
+function show(n){
+  if(n<0||n>=slides.length)return;
+  slides[i].classList.remove('active');
+  i=n;
+  // force reflow so entry animations restart cleanly
+  void slides[i].offsetWidth;
+  slides[i].classList.add('active');
+  document.getElementById('counter').textContent=String(i+1).padStart(2,'0')+' / '+slides.length;
+  document.getElementById('titlebar').textContent=slides[i].dataset.title||'';
+  document.getElementById('progress').style.width=((i+1)/slides.length*100)+'%';
+  [...dots.children].forEach((d,n2)=>d.classList.toggle('on',n2===i));
+}
+function go(d){show(i+d);}
+function fs(){document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen();}
+addEventListener('keydown',e=>{
+  if(['ArrowRight',' ','PageDown'].includes(e.key)){e.preventDefault();go(1);}
+  if(['ArrowLeft','PageUp'].includes(e.key)){e.preventDefault();go(-1);}
+  if(e.key==='Home')show(0);
+  if(e.key==='End')show(slides.length-1);
+  if(e.key==='f')fs();
+});
+
+/* ---------- copy-to-clipboard on every code block ---------- */
+(function(){
+  document.querySelectorAll('pre.code').forEach(pre=>{
+    const source = pre.textContent;               // capture BEFORE adding the button
+    const btn = document.createElement('button');
+    btn.className = 'copybtn';
+    btn.type = 'button';
+    btn.textContent = 'COPY';
+    btn.addEventListener('click', async e=>{
+      e.stopPropagation();
+      try{
+        await navigator.clipboard.writeText(source);
+      }catch(err){                                 // file:// fallback
+        const ta=document.createElement('textarea');
+        ta.value=source; ta.style.position='fixed'; ta.style.opacity='0';
+        document.body.appendChild(ta); ta.select();
+        try{document.execCommand('copy');}catch(_){}
+        document.body.removeChild(ta);
+      }
+      btn.textContent='COPIED'; btn.classList.add('done');
+      setTimeout(()=>{btn.textContent='COPY'; btn.classList.remove('done');},1400);
+    });
+    pre.appendChild(btn);
+  });
+})();
+
+show(0);
+</script>
+</body>
+</html>

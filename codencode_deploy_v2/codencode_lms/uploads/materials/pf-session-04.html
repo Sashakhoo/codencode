@@ -1,0 +1,882 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Session 04 — Functions & Modules | codencode Academy</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0d1117; --panel:#161b22; --panel2:#1c2430; --line:#2a3440;
+  --mint:#00dcb4; --mint-d:#00a888; --text:#e8eef0; --muted:#8b98a5;
+  --coral:#ff6f91; --amber:#f0b429; --blue:#58a6ff;
+  --sans:'Space Grotesk','Inter',system-ui,sans-serif;
+  --body:'Inter',system-ui,sans-serif;
+  --mono:'JetBrains Mono','SF Mono',Consolas,monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:var(--body);height:100vh;overflow:hidden;user-select:none}
+
+/* ---------- chrome ---------- */
+#topbar{position:fixed;top:0;left:0;right:0;height:52px;display:flex;align-items:center;
+  gap:16px;padding:0 24px;background:rgba(13,17,23,.92);border-bottom:1px solid var(--line);z-index:50;backdrop-filter:blur(8px)}
+.wordmark{height:21px;width:auto;display:block;flex-shrink:0}
+#sesslabel{font-size:12px;color:var(--muted);font-family:var(--mono);letter-spacing:.04em}
+#titlebar{flex:1;text-align:center;font-size:13px;color:var(--muted);font-family:var(--mono);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#counter{font-family:var(--mono);font-size:12px;color:var(--mint)}
+.btn{background:rgba(0,220,180,.10);border:1px solid rgba(0,220,180,.32);color:var(--mint);
+  font-family:var(--mono);font-size:11px;padding:6px 12px;border-radius:6px;cursor:pointer}
+.btn:hover{background:rgba(0,220,180,.20)}
+#progress{position:fixed;top:52px;left:0;height:2px;background:var(--mint);z-index:51;transition:width .3s ease}
+#nav{position:fixed;bottom:0;left:0;right:0;height:56px;display:flex;align-items:center;justify-content:center;
+  gap:20px;z-index:50}
+.navbtn{background:var(--panel);border:1px solid var(--line);color:var(--muted);font-family:var(--mono);
+  font-size:12px;padding:8px 16px;border-radius:8px;cursor:pointer}
+.navbtn:hover{border-color:var(--mint);color:var(--mint)}
+#dots{display:flex;gap:6px;flex-wrap:wrap;max-width:50vw;justify-content:center}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--line);cursor:pointer;transition:.2s}
+.dot.on{background:var(--mint);transform:scale(1.35)}
+
+/* ---------- slides ---------- */
+#deck{position:absolute;top:54px;bottom:56px;left:0;right:0}
+.slide{position:absolute;inset:0;padding:40px 60px;display:none;flex-direction:column;overflow:hidden}
+.slide.active{display:flex;animation:slideIn .4s ease both}
+@keyframes slideIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+
+.tag{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--mint);margin-bottom:12px}
+h1.sh{font-family:var(--sans);font-size:clamp(26px,3.2vw,40px);font-weight:700;line-height:1.12;margin-bottom:8px}
+h1.sh::after{content:'';display:block;width:56px;height:4px;background:var(--mint);border-radius:2px;margin-top:14px}
+.sub{color:var(--muted);font-size:16px;margin-top:14px;max-width:70ch;line-height:1.6}
+.body{flex:1;display:flex;gap:32px;align-items:center;margin-top:24px;min-height:0}
+.col{flex:1;min-width:0}
+
+/* title slide */
+.title-slide{align-items:center;justify-content:center;text-align:center}
+.title-slide .badge{font-family:var(--mono);font-size:12px;color:var(--mint);border:1px solid rgba(0,220,180,.34);
+  background:rgba(0,220,180,.08);padding:7px 18px;border-radius:20px;margin-bottom:26px}
+.title-slide h1{font-family:var(--sans);font-size:clamp(40px,6vw,72px);font-weight:700;line-height:1.05}
+.title-slide h1 em{font-style:normal;color:var(--mint)}
+.title-slide p{color:var(--muted);font-size:18px;margin-top:20px;max-width:60ch}
+.title-slide .foot{margin-top:38px;font-family:var(--mono);font-size:13px;color:var(--muted)}
+
+/* section divider */
+.divider{align-items:flex-start;justify-content:center}
+.divider .num{font-family:var(--sans);font-size:120px;font-weight:700;color:rgba(0,220,180,.16);line-height:1}
+.divider h1{font-family:var(--sans);font-size:clamp(34px,4.6vw,56px);font-weight:700;margin-top:-18px}
+.divider .items{margin-top:26px;display:flex;flex-direction:column;gap:12px}
+.divider .items div{font-size:17px;color:var(--muted)}
+.divider .items b{color:var(--mint);font-family:var(--mono);font-size:15px;margin-right:12px}
+
+/* cards / lists */
+.cards{display:grid;gap:14px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:18px 20px}
+.card.accent{border-color:rgba(0,220,180,.45);background:var(--panel2)}
+.card h3{font-family:var(--sans);font-size:17px;font-weight:600;margin-bottom:6px}
+.card h3 .k{color:var(--mint);font-family:var(--mono);font-size:14px;margin-right:8px}
+.card p{color:var(--muted);font-size:14.5px;line-height:1.55}
+.grid2{grid-template-columns:1fr 1fr}
+.grid3{grid-template-columns:repeat(3,1fr)}
+
+table.cps{width:100%;border-collapse:collapse;font-size:15px}
+table.cps th{text-align:left;font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--mint);padding:10px 14px;border-bottom:1px solid var(--line)}
+table.cps td{padding:14px;border-bottom:1px solid var(--line);color:var(--text);line-height:1.5;vertical-align:top}
+table.cps td:first-child{color:var(--mint);font-family:var(--mono);font-size:13px;width:150px;white-space:nowrap}
+
+pre.code{background:#0a0e13;border:1px solid var(--line);border-radius:10px;padding:18px 20px;
+  font-family:var(--mono);font-size:14.5px;line-height:1.75;overflow:auto;color:var(--text)}
+pre.code .c{color:var(--muted)}
+pre.code .s{color:var(--mint)}
+pre.code .n{color:var(--blue)}
+pre.code .e{color:var(--coral)}
+.code-head{font-family:var(--mono);font-size:11px;color:var(--muted);background:var(--panel2);
+  border:1px solid var(--line);border-bottom:none;border-radius:10px 10px 0 0;padding:8px 14px}
+.code-head + pre.code{border-radius:0 0 10px 10px}
+
+.pill{display:inline-block;font-family:var(--mono);font-size:11.5px;padding:5px 12px;border-radius:14px;
+  border:1px solid;margin:0 8px 8px 0}
+.pill.mint{color:var(--mint);border-color:rgba(0,220,180,.4);background:rgba(0,220,180,.08)}
+.pill.coral{color:var(--coral);border-color:rgba(255,111,145,.4);background:rgba(255,111,145,.08)}
+.pill.amber{color:var(--amber);border-color:rgba(240,180,41,.4);background:rgba(240,180,41,.08)}
+.pill.blue{color:var(--blue);border-color:rgba(88,166,255,.4);background:rgba(88,166,255,.08)}
+
+.hands-on{border-left:3px solid var(--mint);background:linear-gradient(90deg,rgba(0,220,180,.07),transparent 60%);
+  padding:18px 24px;border-radius:0 10px 10px 0}
+.hands-on .lbl{font-family:var(--mono);font-size:11px;letter-spacing:.14em;color:var(--mint);text-transform:uppercase}
+.hands-on h3{font-family:var(--sans);font-size:20px;margin:8px 0 10px}
+.hands-on p{color:var(--muted);font-size:15px;line-height:1.6}
+.steps{margin-top:14px;display:flex;flex-direction:column;gap:9px}
+.steps div{font-size:14.5px;color:var(--text);display:flex;gap:12px;align-items:flex-start}
+.steps b{color:var(--mint);font-family:var(--mono);font-size:13px;flex-shrink:0}
+
+svg.fig{width:100%;height:100%;min-height:300px;flex:1 1 auto;display:block}
+.figwrap{flex:1.8 1 0;display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:0;min-height:0;max-height:100%;gap:6px}
+.figwrap > .legend,.figwrap > .controls,.figwrap > .gate,.figwrap > .eq{flex:0 0 auto;width:100%}
+.caption{font-size:13.5px;color:var(--muted);font-style:italic;margin-top:14px;text-align:center}
+
+/* ---------- animation primitives (restart on slide entry) ---------- */
+.fx{opacity:0}
+.slide.active .fx{animation:fadeUp .55s ease forwards}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.slide.active .d1{animation-delay:.15s}.slide.active .d2{animation-delay:.35s}
+.slide.active .d3{animation-delay:.55s}.slide.active .d4{animation-delay:.75s}
+.slide.active .d5{animation-delay:.95s}.slide.active .d6{animation-delay:1.15s}
+.slide.active .d7{animation-delay:1.35s}.slide.active .d8{animation-delay:1.55s}
+.slide.active .d9{animation-delay:1.75s}.slide.active .d10{animation-delay:1.95s}
+
+.draw{stroke-dasharray:var(--len,300);stroke-dashoffset:var(--len,300);opacity:1}
+.slide.active .draw{animation:drawIn .6s ease forwards}
+@keyframes drawIn{to{stroke-dashoffset:0}}
+
+.slide.active .pulse{animation:pulse 2.2s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.45}}
+
+.slide.active .travel{animation:travel 4.5s linear infinite}
+@keyframes travel{0%{offset-distance:0%}100%{offset-distance:100%}}
+
+.slide.active .grow{transform-origin:bottom;animation:grow .8s cubic-bezier(.22,1,.36,1) forwards}
+@keyframes grow{from{transform:scaleY(0)}to{transform:scaleY(1)}}
+
+.slide.active .cycle1{animation:hl 6s ease-in-out infinite}
+.slide.active .cycle2{animation:hl 6s ease-in-out infinite 2s}
+.slide.active .cycle3{animation:hl 6s ease-in-out infinite 4s}
+@keyframes hl{0%,8%{opacity:0}14%,28%{opacity:1}36%,100%{opacity:0}}
+
+.slide.active .typing{animation:typing 1.4s steps(18) forwards;white-space:nowrap;overflow:hidden;
+  display:inline-block;width:0}
+@keyframes typing{to{width:100%}}
+
+/* ---------- copiable code ---------- */
+pre.code{position:relative;user-select:text}
+.copybtn{position:absolute;top:7px;right:7px;z-index:3;background:rgba(22,27,34,.94);
+  border:1px solid var(--line);color:var(--muted);font-family:var(--mono);font-size:10.5px;
+  letter-spacing:.06em;padding:4px 9px;border-radius:5px;cursor:pointer;opacity:0;transition:.16s}
+pre.code:hover .copybtn{opacity:1}
+.copybtn:hover{border-color:var(--mint);color:var(--mint)}
+.copybtn.done{border-color:var(--mint);color:var(--mint);opacity:1}
+
+
+/* ---------- figure slides: stacked on tall screens, side-by-side when wide ---------- */
+.cb{display:block}
+.figbody{flex:1;display:flex;gap:32px;align-items:center;margin-top:24px;min-height:0}
+.figbody > .figwrap{flex:1.8 1 0}
+.figbody > .figside{display:flex;flex-direction:column;gap:12px;min-width:0}
+.figbody > .figside > *{margin-bottom:0}
+@media (max-aspect-ratio: 29/20){
+  .figbody{flex-direction:column;align-items:stretch;gap:16px}
+  .figbody > .figwrap{flex:0 1 auto;width:100%;max-width:none;justify-content:flex-start}
+  .figbody > .figwrap > svg.fig{height:auto;min-height:0;flex:0 0 auto;max-height:100%}
+  .figbody > .figside{max-width:none !important;flex:0 0 auto;display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:14px;align-items:start}
+  .figbody > .figside .controls,.figbody > .figside .legend{justify-content:flex-start}
+}
+
+/* ---------- figure furniture ---------- */
+.legend{display:flex;gap:18px;font-family:var(--mono);font-size:12px;color:var(--muted);
+  margin-top:6px;flex-wrap:wrap;justify-content:center}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px;vertical-align:middle}
+.controls{display:flex;gap:10px;align-items:center;margin-top:12px;flex-wrap:wrap;justify-content:center}
+.btn.ghost{background:transparent;border-color:var(--line);color:var(--muted)}
+.btn.ghost:hover{border-color:var(--mint);color:var(--mint)}
+.gate{margin-bottom:12px}
+.gate label{display:flex;justify-content:space-between;align-items:center;font-family:var(--mono);
+  font-size:12.5px;margin-bottom:6px;gap:12px}
+input[type=range]{width:100%;height:5px;border-radius:3px;appearance:none;background:var(--line);outline:none}
+input[type=range]::-webkit-slider-thumb{appearance:none;width:15px;height:15px;border-radius:50%;
+  background:var(--mint);cursor:pointer;border:2px solid #0d1117}
+.eq{font-family:var(--mono);font-size:12.5px;color:var(--muted);line-height:1.9;background:#0a0e13;
+  border:1px solid var(--line);border-radius:9px;padding:11px 13px}
+.eq b{color:var(--text);font-weight:400}
+.def{border-left:3px solid var(--blue);background:linear-gradient(90deg,rgba(88,166,255,.09),transparent 65%);
+  padding:14px 18px;border-radius:0 9px 9px 0;margin-bottom:12px}
+.def .lbl{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;color:var(--blue);text-transform:uppercase}
+.def h4{font-family:var(--sans);font-size:17px;margin:5px 0 6px}
+.def p{color:var(--muted);font-size:14px;line-height:1.6}
+.def p b{color:var(--text);font-weight:600}
+.theory{border-left:3px solid var(--amber);background:linear-gradient(90deg,rgba(240,180,41,.08),transparent 65%);
+  padding:14px 18px;border-radius:0 9px 9px 0;margin-bottom:12px}
+.theory .lbl{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;color:var(--amber);text-transform:uppercase}
+.theory p{color:var(--muted);font-size:14px;line-height:1.6;margin-top:6px}
+.theory p b{color:var(--text);font-weight:600}
+.formula{background:#0a0e13;border:1px solid var(--line);border-radius:10px;padding:16px 20px;
+  font-family:var(--mono);font-size:19px;color:var(--mint);text-align:center;margin:10px 0}
+.formula small{display:block;font-size:12px;color:var(--muted);margin-top:8px}
+table.t{width:100%;border-collapse:collapse;font-size:13.5px}
+table.t th{text-align:left;font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--mint);padding:9px 12px;border-bottom:1px solid var(--line)}
+table.t td{padding:10px 12px;border-bottom:1px solid var(--line);color:var(--muted);line-height:1.5;vertical-align:top}
+table.t td:first-child{color:var(--text);font-family:var(--mono);font-size:12.5px}
+table.cps td:first-child{color:var(--mint);font-family:var(--mono);font-size:13px;width:140px}
+pre.code.sm{font-size:12.3px;line-height:1.6}
+.card.warn{border-color:rgba(255,111,145,.42)}
+.divider .num{font-family:var(--sans);font-size:112px;font-weight:700;color:rgba(0,220,180,.16);line-height:1}
+</style>
+</head>
+<body>
+
+<div id="topbar">
+  <img class="wordmark" src="data:image/png;base64,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" alt="codencode.my">
+  <div id="sesslabel">SESSION 04</div>
+  <div id="titlebar"></div>
+  <div id="counter"></div>
+  <button class="btn" onclick="fs()">FULLSCREEN</button>
+</div>
+<div id="progress"></div>
+
+<div id="deck">
+
+
+<style>
+.fnbox{transition:all .35s cubic-bezier(.22,1,.36,1)}
+.trace{font-family:var(--mono);font-size:13px;background:#0a0e13;border:1px solid var(--line);
+  border-radius:10px;padding:12px;height:126px;overflow:hidden;display:flex;
+  flex-direction:column-reverse;gap:3px;margin-bottom:11px}
+.trace div{color:var(--muted)}.trace div.new{color:var(--mint)}
+.cnt{font-family:var(--mono);font-size:24px;font-weight:600}
+@keyframes pulseIn{0%{opacity:0;transform:translateY(8px)}100%{opacity:1;transform:none}}
+</style>
+
+<section class="slide title-slide" data-title="Main Title">
+  <div class="badge fx">SESSION 04 OF 07 · PYTHON FUNDAMENTALS</div>
+  <h1 class="fx d1">Functions <em>&amp; Modules</em></h1>
+  <p class="fx d2">Cutting a long script into named pieces that each do one job — so you can test them, fix them, and use them again without copying a single line.</p>
+  <div class="foot fx d3">codencode Academy · prerequisite: Session 3 Loops &amp; Data Structures</div>
+</section>
+
+<section class="slide" data-title="Session Plan">
+  <div class="tag fx">Session Plan</div>
+  <h1 class="sh fx d1">What we're doing today</h1>
+  <div class="body">
+    <div class="col cards grid3"><div class="card accent fx d2">
+        <h3><span class="k">M1</span>Writing Functions</h3>
+        <p>Why we split code up, how a call actually works, and getting a value back out.</p>
+        <div style="margin-top:10px"><span class="pill mint">45 min</span></div>
+      </div><div class="card accent fx d3">
+        <h3><span class="k">M2</span>Arguments &amp; Scope</h3>
+        <p>Default and keyword arguments, where variables live, and writing docstrings.</p>
+        <div style="margin-top:10px"><span class="pill mint">50 min</span></div>
+      </div><div class="card accent fx d4">
+        <h3><span class="k">M3</span>Modules</h3>
+        <p>Splitting into files, importing, the standard library, and the call stack in a traceback.</p>
+        <div style="margin-top:10px"><span class="pill mint">45 min</span></div>
+      </div></div>
+  </div>
+  <div class="cards grid3 fx d5"><div class="card"><p><b>Bring</b> — your week3 contact book, it is about to be refactored</p></div><div class="card"><p><b>Homework 4</b> — Functions &amp; Modules, one toolkit module</p></div><div class="card"><p><b>Push to</b> — <span style='font-family:var(--mono)'>python-bootcamp/week4/</span></p></div></div>
+</section>
+
+<section class="slide" data-title="Revised Last Week">
+  <div class="tag fx">Revised Last Week · 10 minutes</div>
+  <h1 class="sh fx d1">Session 03 — Loops &amp; Data Structures</h1>
+  <p class="sub fx d2">Quick check before we build on it. Answer out loud — if the room goes quiet on any of these, we go back over it now.</p>
+  <div class="body">
+    <div class="col cards grid3 fx d3"><div class="card"><h3>for or while?</h3><p>for when you have a collection or know the count. while when you are waiting for a condition to change.</p></div><div class="card"><h3>List or dictionary?</h3><p>"Give me the third one" → list. "Give me Aisyah's phone number" → dictionary.</p></div><div class="card"><h3>How many times does a nested loop's body run?</h3><p>Outer count × inner count. 3 and 3 is 9; 1,000 and 1,000 is a million.</p></div></div>
+  </div>
+  <p class="caption fx d4">Your contact book works — and it is one 120-line file where everything can reach everything. Today we cut it up.</p>
+</section>
+
+<section class="slide" data-title="Learning Outcomes">
+  <div class="tag fx">Learning Outcomes · Condition — Performance — Standard</div>
+  <h1 class="sh fx d1">By the end of today you will be able to…</h1>
+  <div class="body">
+    <div class="col fx d2">
+      <table class="t cps">
+        <tr><th>Component</th><th>Statement</th></tr>
+        <tr><td>Condition</td><td>Given a script that repeats logic or has grown too long to hold in your head,</td></tr>
+        <tr><td>Performance</td><td>you will extract the repeated work into functions with clear names, parameters and return values, give them default and keyword arguments where useful, and move related functions into an importable module,</td></tr>
+        <tr><td>Standard</td><td>producing code where <b style="color:var(--text)">no logic is written twice</b>, every function does one nameable job and is under about twenty lines, each has a docstring, and the module imports cleanly from another file.</td></tr>
+      </table>
+      <div style="margin-top:18px"><span class="pill mint">LO1 · Define and call functions</span><span class="pill mint">LO2 · Parameters &amp; return values</span><span class="pill mint">LO3 · Default &amp; keyword arguments</span><span class="pill mint">LO4 · Local vs global scope</span><span class="pill coral">LO5 · Write and import a module</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="slide" data-title="Content Mapping">
+  <div class="tag fx">Content Mapping</div>
+  <h1 class="sh fx d1">How today maps to your outcomes</h1>
+  <div class="body">
+    <div class="col fx d2">
+      <table class="t">
+        <tr><th>Module</th><th>Topics</th><th style="width:120px">Outcome</th><th style="width:190px">Assessed by</th></tr>
+        <tr><td>Module 1</td><td>1.1 Why functions · 1.2 def, call, return · 1.3 Parameters vs arguments</td>
+        <td style="color:var(--mint)">LO1, LO2</td><td>Refactor drill</td></tr><tr><td>Module 2</td><td>2.1 Scope · 2.2 Default &amp; keyword arguments · 2.3 Docstrings and naming</td>
+        <td style="color:var(--mint)">LO3, LO4</td><td>Teacher Demo — the toolkit</td></tr><tr><td>Module 3</td><td>3.1 The call stack · 3.2 Modules &amp; import · 3.3 The standard library</td>
+        <td style="color:var(--mint)">LO5</td><td>Your Turn — refactor the contact book</td></tr>
+      </table>
+      <div class="theory" style="margin-top:20px">
+        <div class="lbl">The test for a good function</div>
+        <p>You can describe what it does in <b>one short sentence with no "and"</b>. "Works out the total of a cart" is a function. "Works out the total <i>and</i> prints the receipt <i>and</i> saves the file" is three.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="slide divider" data-title="Module 1">
+  <div class="num fx">01</div>
+  <h1 class="fx d1">Writing Functions</h1>
+  <div class="items"><div class="fx d2"><b>1.1</b>Why a 200-line script becomes unmaintainable</div><div class="fx d3"><b>1.2</b>def, the call, and return</div><div class="fx d4"><b>1.3</b>Parameters versus arguments</div>
+    <div class="fx d5" style="margin-top:8px"><b style="color:var(--amber)">↓</b><span style="color:var(--amber)">Hands-on: refactor three repeated blocks into one function</span></div>
+  </div>
+</section>
+
+<section class="slide" data-title="1.1 Why functions">
+  <div class="tag fx">1.1 · Why functions</div>
+  <h1 class="sh fx d1">The same eight lines, in four different places</h1>
+  <div class="body">
+    <div class="col fx d2"><div class="def"><div class="lbl">Definition</div><h4>Function</h4><p>A named block of code that takes input, does <b>one</b> job, and usually hands a value back. You write it once and call it by name wherever you need it.</p></div><div class="cb"><div class="code-head">the problem</div><pre class="code sm"><span class="c"># in three places in your contact book...</span>
+<span class="k">print</span>(<span class="s">"="</span> * <span class="n">40</span>)
+<span class="k">for</span> i, c <span class="s">in</span> <span class="k">enumerate</span>(book, <span class="n">1</span>):
+    <span class="k">print</span>(<span class="s">f"{i}. {c['name']}"</span>)
+<span class="k">print</span>(<span class="s">"="</span> * <span class="n">40</span>)
+
+<span class="e"># change the format -> edit 3 places</span>
+<span class="e"># forget one -> a bug nobody notices for a month</span></pre></div></div>
+    <div class="col fx d3"><div class="cb"><div class="code-head">the fix</div><pre class="code sm"><span class="s">def</span> show_book(book):
+    <span class="s">"""Print every contact as a numbered list."""</span>
+    <span class="k">print</span>(<span class="s">"="</span> * <span class="n">40</span>)
+    <span class="k">for</span> i, c <span class="s">in</span> <span class="k">enumerate</span>(book, <span class="n">1</span>):
+        <span class="k">print</span>(<span class="s">f"{i}. {c['name']}"</span>)
+    <span class="k">print</span>(<span class="s">"="</span> * <span class="n">40</span>)
+
+<span class="c"># now, everywhere:</span>
+show_book(book)</pre></div><div class="theory"><div class="lbl">Three things you gain, in order of importance</div><p><b>One place to fix it.</b> Then: you can <b>test it on its own</b> without running the whole program. Then: the calling code reads like the description of what it does, not like the machinery.</p></div><div class="card accent"><h3>The name is the documentation</h3><p><span style="font-family:var(--mono)">calculate_total(cart)</span> tells the reader everything. <span style="font-family:var(--mono)">do_it(x)</span> tells them nothing. Verb first, then the thing.</p></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="Watch a call: values in, one value out">
+  <div class="tag fx">1.2 · def, call, return</div>
+  <h1 class="sh fx d1">Watch a call: values in, one value out</h1>
+  <p class="sub fx d2">Defining a function runs nothing. Only the call makes the body execute.</p>
+  <div class="body figbody">
+    <div class="figwrap">
+      <svg class="fig" id="callSvg" viewBox="0 0 1000 380"></svg>
+      <div class="legend"><span><i style="background:#00dcb4"></i>the caller</span><span><i style="background:#f0b429"></i>arguments going in</span><span><i style="background:#00dcb4"></i>return value coming back</span></div>
+      
+    </div>
+    <div class="col figside" style="max-width:390px"><div class="controls" style="justify-content:flex-start;margin-bottom:12px"><button class="btn ghost" id="callBtn" onclick="callToggle()">PAUSE</button><button class="btn ghost" onclick="callStep()">STEP</button></div><div class="theory" style="margin-bottom:11px"><div class="lbl">What just happened</div><p id="callNote">—</p></div><div class="cb"><div class="code-head">the code being animated</div><pre class="code sm"><span class="s">def</span> area(width, height):
+    result = width * height
+    <span class="s">return</span> result
+
+a = area(<span class="n">5</span>, <span class="n">3</span>)
+<span class="k">print</span>(a)   <span class="c"># 15</span></pre></div><div class="card warn"><h3>return is not print</h3><p><span style="font-family:var(--mono)">print</span> shows a human something. <span style="font-family:var(--mono)">return</span> hands a value to the code. A function that prints instead of returning cannot be used in a calculation.</p></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="1.3 Parameters">
+  <div class="tag fx">1.3 · Parameters</div>
+  <h1 class="sh fx d1">Parameters, arguments, and returning more than one thing</h1>
+  <div class="body">
+    <div class="col fx d2"><div class="def"><div class="lbl">Definition</div><h4>Parameter vs argument</h4><p>The <b>parameter</b> is the name in the definition — <span style="font-family:var(--mono)">def greet(name)</span>. The <b>argument</b> is the actual value you pass in — <span style="font-family:var(--mono)">greet("Aisyah")</span>.</p></div><div class="cb"><div class="code-head">returning nothing, one thing, or several</div><pre class="code sm"><span class="c"># returns nothing -> None</span>
+<span class="s">def</span> greet(name):
+    <span class="k">print</span>(<span class="s">f"Hi {name}"</span>)
+
+<span class="c"># returns one value</span>
+<span class="s">def</span> total(cart):
+    <span class="s">return</span> <span class="k">sum</span>(i[<span class="s">"price"</span>] * i[<span class="s">"qty"</span>] <span class="s">for</span> i <span class="s">in</span> cart)
+
+<span class="c"># returns several — really one tuple</span>
+<span class="s">def</span> stats(nums):
+    <span class="s">return</span> <span class="k">min</span>(nums), <span class="k">max</span>(nums), <span class="k">sum</span>(nums)/<span class="k">len</span>(nums)
+
+lo, hi, avg = stats([<span class="n">4</span>, <span class="n">9</span>, <span class="n">2</span>])</pre></div></div>
+    <div class="col fx d3"><div class="cb"><div class="code-head">return exits immediately — use it as a guard</div><pre class="code sm"><span class="s">def</span> average(nums):
+    <span class="s">if</span> <span class="s">not</span> nums:
+        <span class="s">return</span> <span class="n">0</span>        <span class="c"># out now, no crash</span>
+    <span class="s">return</span> <span class="k">sum</span>(nums) / <span class="k">len</span>(nums)
+
+<span class="c"># without the guard, an empty list gives</span>
+<span class="e"># ZeroDivisionError: division by zero</span></pre></div><div class="theory"><div class="lbl">Session 2's guard clause, now with teeth</div><p>In Session 2 the guard just stopped a branch. In a function it can <b>leave entirely</b>, which is what makes the pattern worth having. Handle the empty case, the negative case, the None case at the top — then write the real logic unindented.</p></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="Module 1 Hands-on">
+  <div class="tag fx">Hands-on · Module 1</div>
+  <h1 class="sh fx d1">Refactor three repeated blocks into one function</h1>
+  <div class="body">
+    <div class="col fx d2">
+      <div class="hands-on">
+        <div class="lbl">15 minutes · pairs</div>
+        <h3>Refactor three repeated blocks into one function</h3>
+        
+        <div class="steps"><div><b>01</b><span>Open your week3 shopping list. Find code that appears more than once.</span></div><div><b>02</b><span>Extract it into a function with a verb-first name and the right parameters.</span></div><div><b>03</b><span>Make it <b>return</b> a value rather than print, wherever it produces a result.</span></div><div><b>04</b><span>Call it from all the places the old code was, and delete the duplicates.</span></div><div><b>05</b><span>Run it. The output must be identical to before — a refactor changes structure, never behaviour.</span></div><div><b>06</b><span>Stretch: add a guard clause for the empty-cart case.</span></div></div>
+      </div>
+    </div>
+    <div class="col fx d3"><div class="cb"><div class="code-head">before and after</div><pre class="code sm"><span class="c"># BEFORE — printing, so unusable elsewhere</span>
+<span class="s">def</span> total(cart):
+    t = <span class="n">0</span>
+    <span class="k">for</span> i <span class="s">in</span> cart:
+        t += i[<span class="s">"price"</span>] * i[<span class="s">"qty"</span>]
+    <span class="k">print</span>(t)          <span class="e"># dead end</span>
+
+<span class="c"># AFTER — returns, so it composes</span>
+<span class="s">def</span> total(cart):
+    <span class="s">"""Total price of every item in the cart."""</span>
+    <span class="s">return</span> <span class="k">sum</span>(i[<span class="s">"price"</span>] * i[<span class="s">"qty"</span>] <span class="s">for</span> i <span class="s">in</span> cart)
+
+<span class="k">print</span>(<span class="s">f"RM {total(cart):.2f}"</span>)
+<span class="k">print</span>(<span class="s">f"with tax: RM {total(cart) * 1.06:.2f}"</span>)</pre></div><div class="card accent"><h3>The rule you can apply mechanically</h3><p>If a function's job is to <b>work something out</b>, it returns. If its job is to <b>show something</b>, it prints. Never both — that is two functions.</p></div></div>
+  </div>
+</section>
+
+<section class="slide divider" data-title="Module 2">
+  <div class="num fx">02</div>
+  <h1 class="fx d1">Arguments &amp; Scope</h1>
+  <div class="items"><div class="fx d2"><b>2.1</b>Where a variable lives, and for how long</div><div class="fx d3"><b>2.2</b>Default and keyword arguments</div><div class="fx d4"><b>2.3</b>Docstrings, naming, and the twenty-line rule</div>
+    <div class="fx d5" style="margin-top:8px"><b style="color:var(--amber)">↓</b><span style="color:var(--amber)">Teacher Demo: building a reusable toolkit</span></div>
+  </div>
+</section>
+
+<section class="slide" data-title="A local scope opens on the call and dies on the return">
+  <div class="tag fx">2.1 · Scope</div>
+  <h1 class="sh fx d1">A local scope opens on the call and dies on the return</h1>
+  <p class="sub fx d2">Inside can read outside. Outside can never read inside. That is the whole rule.</p>
+  <div class="body figbody">
+    <div class="figwrap">
+      <svg class="fig" id="scopeSvg" viewBox="0 0 1000 430"></svg>
+      <div class="legend"><span><i style="background:#00dcb4"></i>global — whole program</span><span><i style="background:#f0b429"></i>local — only while running</span><span><i style="background:#ff6f91"></i>gone</span></div>
+      
+    </div>
+    <div class="col figside" style="max-width:370px"><div class="controls" style="justify-content:flex-start;margin-bottom:12px"><button class="btn ghost" onclick="scopeStep()">STEP</button></div><div class="theory" style="margin-bottom:11px"><div class="lbl">What just happened</div><p id="scopeNote">—</p></div><div class="cb"><div class="code-head">the code on screen</div><pre class="code sm">TAX_RATE = <span class="n">0.06</span>       <span class="c"># global</span>
+
+<span class="s">def</span> total(price):
+    tax = price * TAX_RATE   <span class="c"># reads global</span>
+    <span class="s">return</span> price + tax    <span class="c"># tax is local</span>
+
+<span class="k">print</span>(total(<span class="n">100</span>))
+<span class="k">print</span>(tax)  <span class="e"># NameError</span></pre></div><div class="card accent"><h3>Why this is a feature</h3><p>You can name a variable <span style="font-family:var(--mono)">i</span> or <span style="font-family:var(--mono)">total</span> inside a function without caring what the rest of the program called things.</p></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="2.2 Default arguments">
+  <div class="tag fx">2.2 · Default &amp; keyword arguments</div>
+  <h1 class="sh fx d1">Sensible defaults, and calls that read like English</h1>
+  <div class="body">
+    <div class="col fx d2"><div class="def"><div class="lbl">Definition</div><h4>Default argument</h4><p>A value given in the definition that is used when the caller does not supply one — <span style="font-family:var(--mono)">def total(price, rate=0.06)</span>.</p></div><div class="cb"><div class="code-head">defaults make the common case short</div><pre class="code sm"><span class="s">def</span> total(price, rate=<span class="n">0.06</span>, discount=<span class="n">0</span>):
+    <span class="s">"""Price after discount, plus tax at rate."""</span>
+    net = price * (<span class="n">1</span> - discount)
+    <span class="s">return</span> net * (<span class="n">1</span> + rate)
+
+total(<span class="n">100</span>)                    <span class="c"># 106.0  — both defaults</span>
+total(<span class="n">100</span>, <span class="n">0.10</span>)              <span class="c"># 110.0  — override rate</span>
+total(<span class="n">100</span>, discount=<span class="n">0.2</span>)      <span class="c"># 84.8   — skip rate, name discount</span></pre></div></div>
+    <div class="col fx d3"><div class="cb"><div class="code-head">keyword arguments kill the mystery call</div><pre class="code sm"><span class="c"># what do these mean? nobody knows</span>
+send(<span class="s">"Aisyah"</span>, <span class="k">True</span>, <span class="k">False</span>, <span class="n">3</span>)
+
+<span class="c"># self-explanatory, and order stops mattering</span>
+send(<span class="s">"Aisyah"</span>, urgent=<span class="k">True</span>,
+     archive=<span class="k">False</span>, retries=<span class="n">3</span>)</pre></div><div class="card warn"><h3>The mutable default trap</h3><p><span style="font-family:var(--mono)">def add(item, cart=[])</span> creates the list <b>once</b>, when the function is defined — so every call shares it and the cart keeps growing. Use <span style="font-family:var(--mono)">cart=None</span> then <span style="font-family:var(--mono)">if cart is None: cart = []</span>.</p></div><div class="theory"><div class="lbl">Defaults come last</div><p><span style="font-family:var(--mono)">def f(a, b=1, c=2)</span> is fine; <span style="font-family:var(--mono)">def f(a=1, b)</span> is a SyntaxError — Python would have no way to know which value you meant.</p></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="2.3 Teacher Demo">
+  <div class="tag fx">2.3 · Docstrings</div>
+  <h1 class="sh fx d1">Teacher Demo — a function worth reusing</h1>
+  <div class="body">
+    <div class="col fx d2"><div class="cb"><div class="code-head">toolkit.py — the shape to copy</div><pre class="code"><span class="s">"""Small helpers used across the bootcamp projects."""</span>
+
+<span class="s">def</span> ask_number(prompt, minimum=<span class="k">None</span>, maximum=<span class="k">None</span>):
+    <span class="s">"""Ask until the user types a number inside the range.</span>
+
+<span class="s">    prompt  -- what to show the user</span>
+<span class="s">    minimum -- lowest allowed value, or None</span>
+<span class="s">    maximum -- highest allowed value, or None</span>
+<span class="s">    Returns a float. Never raises.</span>
+<span class="s">    """</span>
+    <span class="s">while</span> <span class="k">True</span>:
+        <span class="s">try</span>:
+            value = <span class="k">float</span>(<span class="k">input</span>(prompt))
+        <span class="s">except</span> ValueError:
+            <span class="k">print</span>(<span class="s">"Numbers only."</span>); <span class="s">continue</span>
+        <span class="s">if</span> minimum <span class="s">is</span> <span class="s">not</span> <span class="k">None</span> <span class="s">and</span> value &lt; minimum:
+            <span class="k">print</span>(<span class="s">f"At least {minimum}."</span>); <span class="s">continue</span>
+        <span class="s">if</span> maximum <span class="s">is</span> <span class="s">not</span> <span class="k">None</span> <span class="s">and</span> value &gt; maximum:
+            <span class="k">print</span>(<span class="s">f"At most {maximum}."</span>); <span class="s">continue</span>
+        <span class="s">return</span> value</pre></div></div>
+    <div class="col fx d3"><div class="def"><div class="lbl">Definition</div><h4>Docstring</h4><p>A string on the first line of a function that says what it does. <span style="font-family:var(--mono)">help(ask_number)</span> prints it, and every editor shows it when you hover the name.</p></div><div class="theory"><div class="lbl">Notice all three ideas at once</div><p>Session 2's <b>try/except</b> for bad input, Session 3's <b>while</b> loop to keep asking, and today's <b>default arguments</b> so the simple call stays simple. This one function is the course so far.</p></div><div class="card accent"><h3>The twenty-line rule</h3><p>If a function will not fit on one screen, it is doing more than one job. Split it. The number is not sacred — the point is that you can hold the whole thing in your head at once.</p></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="Module 2 Hands-on">
+  <div class="tag fx">Hands-on · Module 2</div>
+  <h1 class="sh fx d1">Build your own toolkit function</h1>
+  <div class="body">
+    <div class="col fx d2">
+      <div class="hands-on">
+        <div class="lbl">20 minutes · solo</div>
+        <h3>Build your own toolkit function</h3>
+        
+        <div class="steps"><div><b>01</b><span>Create <span style="font-family:var(--mono)">toolkit.py</span> and type <span style="font-family:var(--mono)">ask_number</span> out yourself.</span></div><div><b>02</b><span>Test it: a valid number, letters, empty input, a number below the minimum.</span></div><div><b>03</b><span>Add <span style="font-family:var(--mono)">ask_choice(prompt, options)</span> that only accepts one of the given options.</span></div><div><b>04</b><span>Add <span style="font-family:var(--mono)">money(value)</span> that returns a string like "RM 1,234.50".</span></div><div><b>05</b><span>Give every one a docstring, then run <span style="font-family:var(--mono)">help(toolkit)</span> and read it back.</span></div><div><b>06</b><span>Stretch: make ask_choice case-insensitive without changing what it returns.</span></div></div>
+      </div>
+    </div>
+    <div class="col fx d3"><div class="cb"><div class="code-head">what good tests look like before you have learned testing</div><pre class="code sm"><span class="c"># at the bottom of toolkit.py, temporarily</span>
+<span class="k">print</span>(money(<span class="n">1234.5</span>))        <span class="c"># RM 1,234.50</span>
+<span class="k">print</span>(money(<span class="n">0</span>))             <span class="c"># RM 0.00</span>
+<span class="k">print</span>(money(<span class="n">-20</span>))           <span class="c"># RM -20.00 ?</span>
+
+<span class="c"># three lines, thirty seconds, and you now</span>
+<span class="c"># know the function works at the edges too</span></pre></div><div class="card accent"><h3>Edge cases again</h3><p>Zero, negative, empty, and very large. The same instinct as Session 2's boundary testing — it is the single most useful habit in this course.</p></div></div>
+  </div>
+</section>
+
+<section class="slide divider" data-title="Module 3">
+  <div class="num fx">03</div>
+  <h1 class="fx d1">Modules</h1>
+  <div class="items"><div class="fx d2"><b>3.1</b>The call stack — and what a traceback is really telling you</div><div class="fx d3"><b>3.2</b>Splitting into files, and import</div><div class="fx d4"><b>3.3</b>The standard library you already have</div>
+    <div class="fx d5" style="margin-top:8px"><b style="color:var(--amber)">↓</b><span style="color:var(--amber)">Your Turn: refactor the contact book into modules</span></div>
+  </div>
+</section>
+
+<section class="slide" data-title="Functions stack up, then unwind">
+  <div class="tag fx">3.1 · The call stack</div>
+  <h1 class="sh fx d1">Functions stack up, then unwind</h1>
+  <p class="sub fx d2">Each call pushes a frame. Each return pops one. When the stack is empty, the program ends.</p>
+  <div class="body figbody">
+    <div class="figwrap">
+      <svg class="fig" id="stackSvg" viewBox="0 0 1000 430"></svg>
+      <div class="legend"><span><i style="background:#58a6ff"></i>main</span><span><i style="background:#00dcb4"></i>receipt</span><span><i style="background:#f0b429"></i>line_total</span><span><i style="background:#bc8cff"></i>with_tax</span></div>
+      
+    </div>
+    <div class="col figside" style="max-width:380px"><div class="controls" style="justify-content:flex-start;margin-bottom:11px"><button class="btn ghost" onclick="stackStep()">STEP</button><button class="btn ghost" onclick="stackReset()">RESET</button></div><div class="trace" id="stackTrace"></div><div class="card accent"><h3>This is what a traceback is</h3><p>When Python crashes it prints the stack — every frame, outermost first. The <b>last</b> line is where it actually broke; the lines above are how it got there.</p></div><div class="theory"><div class="lbl">Read a traceback from the bottom up</div><p>Bottom line: the error. Line above: the function and line number that raised it. Keep going up only if that function looks innocent and you need to know who called it with bad data.</p></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="3.2 Modules &amp; import">
+  <div class="tag fx">3.2 · Modules</div>
+  <h1 class="sh fx d1">One file becomes three</h1>
+  <div class="body">
+    <div class="col fx d2"><div class="def"><div class="lbl">Definition</div><h4>Module</h4><p>Any <span style="font-family:var(--mono)">.py</span> file. Import it and you get everything defined inside — functions, constants, classes.</p></div><div class="cb"><div class="code-head">the three import forms</div><pre class="code sm"><span class="c"># 1 — the whole module (clearest)</span>
+<span class="s">import</span> toolkit
+n = toolkit.ask_number(<span class="s">"Age? "</span>)
+
+<span class="c"># 2 — just what you need</span>
+<span class="s">from</span> toolkit <span class="s">import</span> ask_number, money
+n = ask_number(<span class="s">"Age? "</span>)
+
+<span class="c"># 3 — with a shorter name</span>
+<span class="s">import</span> toolkit <span class="s">as</span> tk
+n = tk.ask_number(<span class="s">"Age? "</span>)
+
+<span class="e"># from toolkit import *  — never do this.</span>
+<span class="e"># You lose track of where names came from.</span></pre></div></div>
+    <div class="col fx d3"><div class="cb"><div class="code-head">the line you will see in every Python file</div><pre class="code sm"><span class="c"># contacts.py</span>
+<span class="s">def</span> main():
+    book = load()
+    menu(book)
+
+<span class="s">if</span> __name__ == <span class="s">"__main__"</span>:
+    main()</pre></div><div class="theory"><div class="lbl">What that if actually does</div><p><span style="font-family:var(--mono)">__name__</span> is <span style="font-family:var(--mono)">"__main__"</span> when the file is <b>run</b>, and the module's name when it is <b>imported</b>. So the guard means: run the program if I am the program, but stay quiet if someone is just borrowing my functions.</p></div><div class="card warn"><h3>Circular imports</h3><p>If a.py imports b.py and b.py imports a.py, Python gives up. The fix is almost always to move the shared thing into a third file that both import.</p></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="3.3 Standard library">
+  <div class="tag fx">3.3 · Standard library</div>
+  <h1 class="sh fx d1">Hundreds of modules you already have installed</h1>
+  <div class="body">
+    <div class="col fx d2"><table class="t"><tr><th>Module</th><th>For</th><th>You will use it in</th></tr><tr><td style="color:var(--mint)">math</td><td>sqrt, floor, pi, trig</td><td>anywhere numeric</td></tr><tr><td style="color:var(--mint)">random</td><td>randint, choice, shuffle</td><td>games, sampling</td></tr><tr><td style="color:var(--mint)">datetime</td><td>dates, times, differences</td><td>logs, deadlines</td></tr><tr><td style="color:var(--mint)">json</td><td>save/load structured data</td><td>Session 3 onwards</td></tr><tr><td style="color:var(--mint)">os / pathlib</td><td>files and folders</td><td>Session 6</td></tr><tr><td style="color:var(--mint)">statistics</td><td>mean, median, stdev</td><td>the ML track</td></tr><tr><td style="color:var(--blue)">requests</td><td>calling web APIs</td><td>Session 6 (pip install)</td></tr></table><div class="card accent"><h3>Batteries included</h3><p>Everything above except <span style="font-family:var(--mono)">requests</span> is already on your machine. Before you write a helper, spend one minute checking whether Python ships one.</p></div></div>
+    <div class="col fx d3"><div class="cb"><div class="code-head">a taste of each</div><pre class="code sm"><span class="s">import</span> math, random, datetime, statistics
+
+<span class="k">print</span>(math.sqrt(<span class="n">144</span>))                <span class="c"># 12.0</span>
+<span class="k">print</span>(random.randint(<span class="n">1</span>, <span class="n">6</span>))            <span class="c"># a dice roll</span>
+<span class="k">print</span>(random.choice([<span class="s">"JB"</span>, <span class="s">"KL"</span>, <span class="s">"Ipoh"</span>]))
+
+today = datetime.date.today()
+<span class="k">print</span>(today.strftime(<span class="s">"%d %B %Y"</span>))
+
+<span class="k">print</span>(statistics.mean([<span class="n">4</span>, <span class="n">9</span>, <span class="n">2</span>]))     <span class="c"># 5</span></pre></div><div class="theory"><div class="lbl">How to explore one</div><p><span style="font-family:var(--mono)">import math</span> then <span style="font-family:var(--mono)">dir(math)</span> lists everything in it, and <span style="font-family:var(--mono)">help(math.floor)</span> explains any of them — without leaving your terminal.</p></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="Module 3 Hands-on">
+  <div class="tag fx">Hands-on · Module 3</div>
+  <h1 class="sh fx d1">Your Turn — refactor the contact book into modules</h1>
+  <div class="body">
+    <div class="col fx d2">
+      <div class="hands-on">
+        <div class="lbl">25 minutes · solo</div>
+        <h3>Your Turn — refactor the contact book into modules</h3>
+        
+        <div class="steps"><div><b>01</b><span>Split your contact book into three files: <span style="font-family:var(--mono)">storage.py</span>, <span style="font-family:var(--mono)">contacts.py</span>, <span style="font-family:var(--mono)">main.py</span>.</span></div><div><b>02</b><span>storage.py holds save and load. contacts.py holds add, find, show, remove. main.py holds the menu loop only.</span></div><div><b>03</b><span>Every function gets a docstring and does exactly one job.</span></div><div><b>04</b><span>Give find a default argument so it can search by name or by city.</span></div><div><b>05</b><span>Add the <span style="font-family:var(--mono)">if __name__ == "__main__"</span> guard to main.py.</span></div><div><b>06</b><span>Run it and confirm it behaves identically to the week3 version, then push to <span style="font-family:var(--mono)">week4/</span>.</span></div></div>
+      </div>
+    </div>
+    <div class="col fx d3"><div class="cb"><div class="code-head">main.py — this is all it should contain</div><pre class="code sm"><span class="s">from</span> storage <span class="s">import</span> load, save
+<span class="s">from</span> contacts <span class="s">import</span> add, find, show
+<span class="s">from</span> toolkit <span class="s">import</span> ask_choice
+
+<span class="s">def</span> main():
+    <span class="s">"""Run the contact book menu until the user quits."""</span>
+    book = load()
+    <span class="s">while</span> <span class="k">True</span>:
+        c = ask_choice(<span class="s">"[1] show [2] add [3] find [q] quit: "</span>,
+                       [<span class="s">"1"</span>, <span class="s">"2"</span>, <span class="s">"3"</span>, <span class="s">"q"</span>])
+        <span class="s">if</span> c == <span class="s">"q"</span>: save(book); <span class="s">break</span>
+        <span class="s">if</span> c == <span class="s">"1"</span>: show(book)
+        <span class="s">if</span> c == <span class="s">"2"</span>: add(book)
+        <span class="s">if</span> c == <span class="s">"3"</span>: find(book)
+
+<span class="s">if</span> __name__ == <span class="s">"__main__"</span>:
+    main()</pre></div><div class="card accent"><h3>The mark of a good split</h3><p>main.py reads like a description of the program, with no logic in it at all. Anyone can open it and understand what the software does in fifteen seconds.</p></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="Recap &amp; Summary">
+  <div class="tag fx">Recap &amp; Summary</div>
+  <h1 class="sh fx d1">What you can do now</h1>
+  <div class="body">
+    <div class="col cards grid3 fx d2"><div class="card accent"><h3><span class="k">M1</span>Writing Functions</h3><p>Extract repeated logic into named functions that take parameters and return values rather than printing.</p></div><div class="card accent"><h3><span class="k">M2</span>Arguments &amp; Scope</h3><p>Use default and keyword arguments, know where each variable lives, and document every function.</p></div><div class="card accent"><h3><span class="k">M3</span>Modules</h3><p>Split a program across files, import cleanly, read a traceback as a call stack, and reach for the standard library first.</p></div></div>
+  </div>
+  <div class="body" style="flex:0 0 auto;margin-top:0">
+    <div class="col fx d3"><div class="theory"><div class="lbl">The one line to remember</div><p><b>One function, one job, one sentence.</b> If you need the word "and" to describe what it does, you have written two functions stuck together.</p></div></div>
+    <div class="col fx d4"><div class="card"><h3>Next session — Object-Oriented Programming</h3><p>Your contact book has data in one place and the functions that work on it in another. Next we bind them together into objects that carry their own data and know how to behave.</p></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="Review Learning Outcomes">
+  <div class="tag fx">Review Learning Outcomes</div>
+  <h1 class="sh fx d1">Did we get there?</h1>
+  <p class="sub fx d2">Rate yourself 1–5. Anything at 2 or below, flag it now — next session assumes all of this.</p>
+  <div class="body">
+    <div class="col cards grid2 fx d3"><div class="card"><h3><span class="k">LO1</span>I can define a function and explain why defining it runs nothing</h3><p style="font-family:var(--mono);color:var(--mint)">1 — 2 — 3 — 4 — 5</p></div><div class="card"><h3><span class="k">LO2</span>My functions return values instead of printing them</h3><p style="font-family:var(--mono);color:var(--mint)">1 — 2 — 3 — 4 — 5</p></div><div class="card"><h3><span class="k">LO3</span>I can use default and keyword arguments, and I know the mutable-default trap</h3><p style="font-family:var(--mono);color:var(--mint)">1 — 2 — 3 — 4 — 5</p></div><div class="card"><h3><span class="k">LO4</span>I can say which variables are local and why the outside cannot see them</h3><p style="font-family:var(--mono);color:var(--mint)">1 — 2 — 3 — 4 — 5</p></div><div class="card accent" style="grid-column:1/-1"><h3><span class="k">LO5</span>I split my program into modules and imported them cleanly</h3><p style="font-family:var(--mono);color:var(--mint)">1 — 2 — 3 — 4 — 5</p></div></div>
+  </div>
+  <p class="caption fx d4">codencode.my · Session 04 complete</p>
+</section>
+</div>
+
+<div id="nav">
+  <button class="navbtn" onclick="go(-1)">PREV</button>
+  <div id="dots"></div>
+  <button class="navbtn" onclick="go(1)">NEXT</button>
+</div>
+
+<script>
+const slides=[...document.querySelectorAll('.slide')];
+let i=0;
+const dots=document.getElementById('dots');
+slides.forEach((s,n)=>{const d=document.createElement('div');d.className='dot';
+  d.onclick=()=>show(n);dots.appendChild(d);});
+function show(n){
+  if(n<0||n>=slides.length)return;
+  slides[i].classList.remove('active');
+  i=n;
+  // force reflow so entry animations restart cleanly
+  void slides[i].offsetWidth;
+  slides[i].classList.add('active');
+  document.getElementById('counter').textContent=String(i+1).padStart(2,'0')+' / '+slides.length;
+  document.getElementById('titlebar').textContent=slides[i].dataset.title||'';
+  document.getElementById('progress').style.width=((i+1)/slides.length*100)+'%';
+  [...dots.children].forEach((d,n2)=>d.classList.toggle('on',n2===i));
+}
+function go(d){show(i+d);}
+function fs(){document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen();}
+addEventListener('keydown',e=>{
+  if(['ArrowRight',' ','PageDown'].includes(e.key)){e.preventDefault();go(1);}
+  if(['ArrowLeft','PageUp'].includes(e.key)){e.preventDefault();go(-1);}
+  if(e.key==='Home')show(0);
+  if(e.key==='End')show(slides.length-1);
+  if(e.key==='f')fs();
+});
+
+/* ---------- copy-to-clipboard on every code block ---------- */
+(function(){
+  document.querySelectorAll('pre.code').forEach(pre=>{
+    const source = pre.textContent;               // capture BEFORE adding the button
+    const btn = document.createElement('button');
+    btn.className = 'copybtn';
+    btn.type = 'button';
+    btn.textContent = 'COPY';
+    btn.addEventListener('click', async e=>{
+      e.stopPropagation();
+      try{
+        await navigator.clipboard.writeText(source);
+      }catch(err){                                 // file:// fallback
+        const ta=document.createElement('textarea');
+        ta.value=source; ta.style.position='fixed'; ta.style.opacity='0';
+        document.body.appendChild(ta); ta.select();
+        try{document.execCommand('copy');}catch(_){}
+        document.body.removeChild(ta);
+      }
+      btn.textContent='COPIED'; btn.classList.add('done');
+      setTimeout(()=>{btn.textContent='COPY'; btn.classList.remove('done');},1400);
+    });
+    pre.appendChild(btn);
+  });
+})();
+
+
+/* ═══════════ 1.2 — the call: argument in, return value out ═══════════ */
+(function(){
+  const svg=document.getElementById('callSvg'); if(!svg) return;
+  let phase=0, timer=null, running=true;          // 0 idle 1 arg 2 inside 3 return
+  const PH=['waiting','argument travels in','the body runs','value comes back out'];
+  function draw(){
+    const on='#00dcb4', am='#f0b429', off='#2a3440', dim='#8b98a5';
+    let s='';
+    // caller box
+    s+=`<rect x="40" y="140" width="250" height="120" rx="13" fill="#12181f"
+         stroke="${phase===0||phase===3?on:off}" stroke-width="${phase===3?2.6:1.6}"/>`;
+    s+=`<text x="165" y="176" text-anchor="middle" font-family="JetBrains Mono,monospace"
+         font-size="13" fill="${dim}">the caller</text>`;
+    s+=`<text x="165" y="212" text-anchor="middle" font-family="JetBrains Mono,monospace"
+         font-size="17" fill="#e8eef0">area(5, 3)</text>`;
+    s+=`<text x="165" y="240" text-anchor="middle" font-family="JetBrains Mono,monospace"
+         font-size="15" fill="${phase===3?on:off}">→ ${phase===3?'15':'?'}</text>`;
+    // function box
+    const live = phase===2;
+    s+=`<rect class="fnbox" x="${live?556:566}" y="${live?96:106}" width="${live?400:380}" height="${live?220:200}" rx="15"
+         fill="${live?'rgba(0,220,180,.09)':'#12181f'}" stroke="${live?on:off}" stroke-width="${live?2.8:1.6}"/>`;
+    s+=`<text x="756" y="142" text-anchor="middle" font-family="JetBrains Mono,monospace"
+         font-size="13" fill="${live?on:dim}">def area(width, height):</text>`;
+    s+=`<text x="756" y="186" text-anchor="middle" font-family="JetBrains Mono,monospace"
+         font-size="16" fill="${live?'#e8eef0':'#48535f'}">result = width * height</text>`;
+    s+=`<text x="756" y="222" text-anchor="middle" font-family="JetBrains Mono,monospace"
+         font-size="16" fill="${live?'#e8eef0':'#48535f'}">return result</text>`;
+    s+=`<text x="756" y="266" text-anchor="middle" font-family="JetBrains Mono,monospace"
+         font-size="13" fill="${live?am:'#48535f'}">local: width=5  height=3  result=${live?'15':'—'}</text>`;
+    // arrows
+    const inCol = phase===1?am:off, outCol = phase===3?on:off;
+    s+=`<path d="M 300 178 C 400 178 440 158 552 158" fill="none" stroke="${inCol}"
+         stroke-width="${phase===1?3:1.5}" marker-end="url(#fnIn)"/>`;
+    s+=`<text x="426" y="146" text-anchor="middle" font-family="JetBrains Mono,monospace"
+         font-size="13" fill="${phase===1?am:dim}">arguments 5, 3</text>`;
+    s+=`<path d="M 552 246 C 440 246 400 226 302 226" fill="none" stroke="${outCol}"
+         stroke-width="${phase===3?3:1.5}" marker-end="url(#fnOut)"/>`;
+    s+=`<text x="426" y="278" text-anchor="middle" font-family="JetBrains Mono,monospace"
+         font-size="13" fill="${phase===3?on:dim}">return value 15</text>`;
+    // travelling dot
+    if(phase===1||phase===3){
+      const p = phase===1 ? 'M 300 178 C 400 178 440 158 552 158' : 'M 552 246 C 440 246 400 226 302 226';
+      s+=`<circle r="7" fill="${phase===1?am:on}">
+            <animateMotion dur="1s" repeatCount="indefinite" path="${p}"/></circle>`;
+    }
+    s+=`<text x="500" y="352" text-anchor="middle" font-family="Space Grotesk,sans-serif"
+         font-size="17" font-weight="700" fill="${phase===0?dim:phase===1?am:on}">${PH[phase]}</text>`;
+    s+=`<defs>
+      <marker id="fnIn" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="${inCol}"/></marker>
+      <marker id="fnOut" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="${outCol}"/></marker>
+    </defs>`;
+    svg.innerHTML=s;
+    const n=document.getElementById('callNote');
+    if(n) n.innerHTML=[
+      'Nothing has happened yet. The function is <b>defined</b> but not <b>called</b> — defining it runs no code.',
+      'The values 5 and 3 are copied into the parameters <b style="color:var(--amber)">width</b> and <b style="color:var(--amber)">height</b>.',
+      'The body runs. <b>result</b> exists only in here — it is a <b>local</b> variable.',
+      '<b style="color:var(--mint)">return</b> hands 15 back to the caller and the function\'s local names vanish.'][phase];
+  }
+  window.callStep=function(){ phase=(phase+1)%4; draw(); };
+  window.callToggle=function(){ const b=document.getElementById('callBtn');
+    if(running){clearInterval(timer);running=false;b.textContent='PLAY';}
+    else{timer=setInterval(callStep,1700);running=true;b.textContent='PAUSE';} };
+  draw(); timer=setInterval(callStep,1700);
+})();
+
+/* ═══════════ 2.1 — scope: local vs global ═══════════ */
+(function(){
+  const svg=document.getElementById('scopeSvg'); if(!svg) return;
+  let step=0, timer=null;                         // 0..3
+  function draw(){
+    const on='#00dcb4', co='#ff6f91', dim='#8b98a5', off='#2a3440';
+    const inside = step===1||step===2;
+    let s='';
+    // global frame
+    s+=`<rect x="40" y="50" width="900" height="320" rx="16" fill="#12181f" stroke="${on}" stroke-width="1.8"/>`;
+    s+=`<text x="64" y="80" font-family="JetBrains Mono,monospace" font-size="13" fill="${on}">GLOBAL scope — lives for the whole program</text>`;
+    s+=`<rect x="70" y="100" width="300" height="60" rx="10" fill="rgba(0,220,180,.10)" stroke="${on}" stroke-width="1.6"/>`;
+    s+=`<text x="220" y="136" text-anchor="middle" font-family="JetBrains Mono,monospace"
+         font-size="17" fill="#e8eef0">TAX_RATE = 0.06</text>`;
+    // local frame
+    if(inside){
+      s+=`<rect x="450" y="120" width="440" height="200" rx="14" fill="rgba(240,180,41,.08)"
+           stroke="#f0b429" stroke-width="2.2" style="animation:pulseIn .4s"/>`;
+      s+=`<text x="472" y="150" font-family="JetBrains Mono,monospace" font-size="13" fill="#f0b429">LOCAL scope — only while total() runs</text>`;
+      s+=`<rect x="480" y="168" width="290" height="54" rx="10" fill="#12181f" stroke="#f0b429" stroke-width="1.5"/>`;
+      s+=`<text x="625" y="202" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="16" fill="#e8eef0">price = 100</text>`;
+      s+=`<rect x="480" y="236" width="290" height="54" rx="10" fill="#12181f" stroke="#f0b429" stroke-width="1.5"/>`;
+      s+=`<text x="625" y="270" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="16" fill="#e8eef0">tax   = ${step===2?'6.0':'—'}</text>`;
+      if(step===2){
+        s+=`<path d="M 372 140 C 412 148 420 184 476 196" fill="none" stroke="${on}" stroke-width="2.4" marker-end="url(#scA)"/>`;
+        s+=`<text x="410" y="108" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="12" fill="${on}">readable from inside</text>`;
+      }
+    } else {
+      s+=`<rect x="450" y="120" width="440" height="200" rx="14" fill="none" stroke="${off}"
+           stroke-width="1.6" stroke-dasharray="7 6"/>`;
+      s+=`<text x="670" y="230" text-anchor="middle" font-family="JetBrains Mono,monospace"
+           font-size="15" fill="${step===3?co:'#48535f'}">${step===3?'price and tax are GONE':'no local scope yet'}</text>`;
+      if(step===3){
+        s+=`<text x="670" y="262" text-anchor="middle" font-family="JetBrains Mono,monospace"
+             font-size="13" fill="${co}">print(price) → NameError</text>`;
+      }
+    }
+    s+=`<text x="490" y="410" text-anchor="middle" font-family="Space Grotesk,sans-serif" font-size="17"
+         font-weight="700" fill="${step===3?co:step===0?dim:'#f0b429'}">${
+      ['before the call','total(100) starts — a fresh local scope opens',
+       'the body reads TAX_RATE from the global scope','the function returned — local scope destroyed'][step]}</text>`;
+    s+=`<defs><marker id="scA" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#00dcb4"/></marker></defs>`;
+    svg.innerHTML=s;
+    const n=document.getElementById('scopeNote');
+    if(n) n.innerHTML=[
+      'Only the global names exist. <b>TAX_RATE</b> is visible everywhere.',
+      'Calling the function opens a <b style="color:var(--amber)">new local scope</b>. Its parameters live there.',
+      'Inside can <b>read</b> outside. Outside can never read inside.',
+      'The function ended, so every local name was thrown away. Touch one and you get a <b style="color:var(--coral)">NameError</b>.'][step];
+  }
+  window.scopeStep=function(){ step=(step+1)%4; draw(); };
+  draw(); timer=setInterval(window.scopeStep,2000);
+})();
+
+/* ═══════════ 3.1 — call stack ═══════════ */
+(function(){
+  const svg=document.getElementById('stackSvg'); if(!svg) return;
+  const SEQ=[[],['main'],['main','receipt'],['main','receipt','line_total'],
+             ['main','receipt','line_total'],['main','receipt'],['main','receipt','with_tax'],
+             ['main','receipt'],['main'],[]];
+  const NOTE=['nothing running yet',
+    'main() called — frame pushed','receipt() called from main',
+    'line_total() called from receipt','line_total returns 250.00 — frame popped',
+    'back in receipt','with_tax() called','with_tax returns 265.00',
+    'receipt finished','main finished — stack empty'];
+  let k=0, timer=null;
+  const COL={main:'#58a6ff',receipt:'#00dcb4',line_total:'#f0b429',with_tax:'#bc8cff'};
+  function draw(){
+    const frames=SEQ[k];
+    let s='';
+    const X=300, W=400, H=64, BOT=330;
+    s+=`<line x1="${X-40}" y1="${BOT+8}" x2="${X+W+40}" y2="${BOT+8}" stroke="#2a3440" stroke-width="2"/>`;
+    s+=`<text x="${X+W/2}" y="${BOT+34}" text-anchor="middle" font-family="JetBrains Mono,monospace"
+         font-size="12" fill="#8b98a5">bottom of the stack</text>`;
+    if(!frames.length){
+      s+=`<text x="${X+W/2}" y="${BOT-40}" text-anchor="middle" font-family="JetBrains Mono,monospace"
+           font-size="15" fill="#48535f">stack is empty</text>`;
+    }
+    frames.forEach((f,i)=>{
+      const y=BOT-(i+1)*(H+10);
+      const top=i===frames.length-1;
+      const c=COL[f];
+      s+=`<rect class="fnbox" x="${X}" y="${y}" width="${W}" height="${H}" rx="11"
+           fill="${top?'rgba(255,255,255,.04)':'#12181f'}" stroke="${c}" stroke-width="${top?2.6:1.5}"
+           opacity="${top?1:.6}"/>`;
+      s+=`<text x="${X+22}" y="${y+40}" font-family="JetBrains Mono,monospace" font-size="17" fill="${c}">${f}()</text>`;
+      if(top) s+=`<text x="${X+W-22}" y="${y+40}" text-anchor="end" font-family="JetBrains Mono,monospace"
+                   font-size="12" fill="#8b98a5">running</text>`;
+    });
+    s+=`<text x="500" y="410" text-anchor="middle" font-family="Space Grotesk,sans-serif"
+         font-size="17" font-weight="700" fill="#00dcb4">${NOTE[k]}</text>`;
+    svg.innerHTML=s;
+    const t=document.getElementById('stackTrace');
+    if(t && k>0){
+      [...t.children].forEach(c=>c.classList.remove('new'));
+      const d=document.createElement('div'); d.className='new'; d.textContent=NOTE[k];
+      t.prepend(d); if(t.children.length>6) t.lastChild.remove();
+    }
+  }
+  window.stackStep=function(){ k=(k+1)%SEQ.length;
+    if(k===0){const t=document.getElementById('stackTrace'); if(t)t.innerHTML='';} draw(); };
+  window.stackReset=function(){ k=0; const t=document.getElementById('stackTrace'); if(t)t.innerHTML=''; draw(); };
+  draw(); timer=setInterval(window.stackStep,1500);
+})();
+
+show(0);
+</script>
+</body>
+</html>

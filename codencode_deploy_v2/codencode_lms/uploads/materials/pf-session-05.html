@@ -1,0 +1,889 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Session 05 — Object-Oriented Programming | codencode Academy</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0d1117; --panel:#161b22; --panel2:#1c2430; --line:#2a3440;
+  --mint:#00dcb4; --mint-d:#00a888; --text:#e8eef0; --muted:#8b98a5;
+  --coral:#ff6f91; --amber:#f0b429; --blue:#58a6ff;
+  --sans:'Space Grotesk','Inter',system-ui,sans-serif;
+  --body:'Inter',system-ui,sans-serif;
+  --mono:'JetBrains Mono','SF Mono',Consolas,monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:var(--body);height:100vh;overflow:hidden;user-select:none}
+
+/* ---------- chrome ---------- */
+#topbar{position:fixed;top:0;left:0;right:0;height:52px;display:flex;align-items:center;
+  gap:16px;padding:0 24px;background:rgba(13,17,23,.92);border-bottom:1px solid var(--line);z-index:50;backdrop-filter:blur(8px)}
+.wordmark{height:21px;width:auto;display:block;flex-shrink:0}
+#sesslabel{font-size:12px;color:var(--muted);font-family:var(--mono);letter-spacing:.04em}
+#titlebar{flex:1;text-align:center;font-size:13px;color:var(--muted);font-family:var(--mono);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#counter{font-family:var(--mono);font-size:12px;color:var(--mint)}
+.btn{background:rgba(0,220,180,.10);border:1px solid rgba(0,220,180,.32);color:var(--mint);
+  font-family:var(--mono);font-size:11px;padding:6px 12px;border-radius:6px;cursor:pointer}
+.btn:hover{background:rgba(0,220,180,.20)}
+#progress{position:fixed;top:52px;left:0;height:2px;background:var(--mint);z-index:51;transition:width .3s ease}
+#nav{position:fixed;bottom:0;left:0;right:0;height:56px;display:flex;align-items:center;justify-content:center;
+  gap:20px;z-index:50}
+.navbtn{background:var(--panel);border:1px solid var(--line);color:var(--muted);font-family:var(--mono);
+  font-size:12px;padding:8px 16px;border-radius:8px;cursor:pointer}
+.navbtn:hover{border-color:var(--mint);color:var(--mint)}
+#dots{display:flex;gap:6px;flex-wrap:wrap;max-width:50vw;justify-content:center}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--line);cursor:pointer;transition:.2s}
+.dot.on{background:var(--mint);transform:scale(1.35)}
+
+/* ---------- slides ---------- */
+#deck{position:absolute;top:54px;bottom:56px;left:0;right:0}
+.slide{position:absolute;inset:0;padding:40px 60px;display:none;flex-direction:column;overflow:hidden}
+.slide.active{display:flex;animation:slideIn .4s ease both}
+@keyframes slideIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+
+.tag{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--mint);margin-bottom:12px}
+h1.sh{font-family:var(--sans);font-size:clamp(26px,3.2vw,40px);font-weight:700;line-height:1.12;margin-bottom:8px}
+h1.sh::after{content:'';display:block;width:56px;height:4px;background:var(--mint);border-radius:2px;margin-top:14px}
+.sub{color:var(--muted);font-size:16px;margin-top:14px;max-width:70ch;line-height:1.6}
+.body{flex:1;display:flex;gap:32px;align-items:center;margin-top:24px;min-height:0}
+.col{flex:1;min-width:0}
+
+/* title slide */
+.title-slide{align-items:center;justify-content:center;text-align:center}
+.title-slide .badge{font-family:var(--mono);font-size:12px;color:var(--mint);border:1px solid rgba(0,220,180,.34);
+  background:rgba(0,220,180,.08);padding:7px 18px;border-radius:20px;margin-bottom:26px}
+.title-slide h1{font-family:var(--sans);font-size:clamp(40px,6vw,72px);font-weight:700;line-height:1.05}
+.title-slide h1 em{font-style:normal;color:var(--mint)}
+.title-slide p{color:var(--muted);font-size:18px;margin-top:20px;max-width:60ch}
+.title-slide .foot{margin-top:38px;font-family:var(--mono);font-size:13px;color:var(--muted)}
+
+/* section divider */
+.divider{align-items:flex-start;justify-content:center}
+.divider .num{font-family:var(--sans);font-size:120px;font-weight:700;color:rgba(0,220,180,.16);line-height:1}
+.divider h1{font-family:var(--sans);font-size:clamp(34px,4.6vw,56px);font-weight:700;margin-top:-18px}
+.divider .items{margin-top:26px;display:flex;flex-direction:column;gap:12px}
+.divider .items div{font-size:17px;color:var(--muted)}
+.divider .items b{color:var(--mint);font-family:var(--mono);font-size:15px;margin-right:12px}
+
+/* cards / lists */
+.cards{display:grid;gap:14px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:18px 20px}
+.card.accent{border-color:rgba(0,220,180,.45);background:var(--panel2)}
+.card h3{font-family:var(--sans);font-size:17px;font-weight:600;margin-bottom:6px}
+.card h3 .k{color:var(--mint);font-family:var(--mono);font-size:14px;margin-right:8px}
+.card p{color:var(--muted);font-size:14.5px;line-height:1.55}
+.grid2{grid-template-columns:1fr 1fr}
+.grid3{grid-template-columns:repeat(3,1fr)}
+
+table.cps{width:100%;border-collapse:collapse;font-size:15px}
+table.cps th{text-align:left;font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--mint);padding:10px 14px;border-bottom:1px solid var(--line)}
+table.cps td{padding:14px;border-bottom:1px solid var(--line);color:var(--text);line-height:1.5;vertical-align:top}
+table.cps td:first-child{color:var(--mint);font-family:var(--mono);font-size:13px;width:150px;white-space:nowrap}
+
+pre.code{background:#0a0e13;border:1px solid var(--line);border-radius:10px;padding:18px 20px;
+  font-family:var(--mono);font-size:14.5px;line-height:1.75;overflow:auto;color:var(--text)}
+pre.code .c{color:var(--muted)}
+pre.code .s{color:var(--mint)}
+pre.code .n{color:var(--blue)}
+pre.code .e{color:var(--coral)}
+.code-head{font-family:var(--mono);font-size:11px;color:var(--muted);background:var(--panel2);
+  border:1px solid var(--line);border-bottom:none;border-radius:10px 10px 0 0;padding:8px 14px}
+.code-head + pre.code{border-radius:0 0 10px 10px}
+
+.pill{display:inline-block;font-family:var(--mono);font-size:11.5px;padding:5px 12px;border-radius:14px;
+  border:1px solid;margin:0 8px 8px 0}
+.pill.mint{color:var(--mint);border-color:rgba(0,220,180,.4);background:rgba(0,220,180,.08)}
+.pill.coral{color:var(--coral);border-color:rgba(255,111,145,.4);background:rgba(255,111,145,.08)}
+.pill.amber{color:var(--amber);border-color:rgba(240,180,41,.4);background:rgba(240,180,41,.08)}
+.pill.blue{color:var(--blue);border-color:rgba(88,166,255,.4);background:rgba(88,166,255,.08)}
+
+.hands-on{border-left:3px solid var(--mint);background:linear-gradient(90deg,rgba(0,220,180,.07),transparent 60%);
+  padding:18px 24px;border-radius:0 10px 10px 0}
+.hands-on .lbl{font-family:var(--mono);font-size:11px;letter-spacing:.14em;color:var(--mint);text-transform:uppercase}
+.hands-on h3{font-family:var(--sans);font-size:20px;margin:8px 0 10px}
+.hands-on p{color:var(--muted);font-size:15px;line-height:1.6}
+.steps{margin-top:14px;display:flex;flex-direction:column;gap:9px}
+.steps div{font-size:14.5px;color:var(--text);display:flex;gap:12px;align-items:flex-start}
+.steps b{color:var(--mint);font-family:var(--mono);font-size:13px;flex-shrink:0}
+
+svg.fig{width:100%;height:100%;min-height:300px;flex:1 1 auto;display:block}
+.figwrap{flex:1.8 1 0;display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:0;min-height:0;max-height:100%;gap:6px}
+.figwrap > .legend,.figwrap > .controls,.figwrap > .gate,.figwrap > .eq{flex:0 0 auto;width:100%}
+.caption{font-size:13.5px;color:var(--muted);font-style:italic;margin-top:14px;text-align:center}
+
+/* ---------- animation primitives (restart on slide entry) ---------- */
+.fx{opacity:0}
+.slide.active .fx{animation:fadeUp .55s ease forwards}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.slide.active .d1{animation-delay:.15s}.slide.active .d2{animation-delay:.35s}
+.slide.active .d3{animation-delay:.55s}.slide.active .d4{animation-delay:.75s}
+.slide.active .d5{animation-delay:.95s}.slide.active .d6{animation-delay:1.15s}
+.slide.active .d7{animation-delay:1.35s}.slide.active .d8{animation-delay:1.55s}
+.slide.active .d9{animation-delay:1.75s}.slide.active .d10{animation-delay:1.95s}
+
+.draw{stroke-dasharray:var(--len,300);stroke-dashoffset:var(--len,300);opacity:1}
+.slide.active .draw{animation:drawIn .6s ease forwards}
+@keyframes drawIn{to{stroke-dashoffset:0}}
+
+.slide.active .pulse{animation:pulse 2.2s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.45}}
+
+.slide.active .travel{animation:travel 4.5s linear infinite}
+@keyframes travel{0%{offset-distance:0%}100%{offset-distance:100%}}
+
+.slide.active .grow{transform-origin:bottom;animation:grow .8s cubic-bezier(.22,1,.36,1) forwards}
+@keyframes grow{from{transform:scaleY(0)}to{transform:scaleY(1)}}
+
+.slide.active .cycle1{animation:hl 6s ease-in-out infinite}
+.slide.active .cycle2{animation:hl 6s ease-in-out infinite 2s}
+.slide.active .cycle3{animation:hl 6s ease-in-out infinite 4s}
+@keyframes hl{0%,8%{opacity:0}14%,28%{opacity:1}36%,100%{opacity:0}}
+
+.slide.active .typing{animation:typing 1.4s steps(18) forwards;white-space:nowrap;overflow:hidden;
+  display:inline-block;width:0}
+@keyframes typing{to{width:100%}}
+
+/* ---------- copiable code ---------- */
+pre.code{position:relative;user-select:text}
+.copybtn{position:absolute;top:7px;right:7px;z-index:3;background:rgba(22,27,34,.94);
+  border:1px solid var(--line);color:var(--muted);font-family:var(--mono);font-size:10.5px;
+  letter-spacing:.06em;padding:4px 9px;border-radius:5px;cursor:pointer;opacity:0;transition:.16s}
+pre.code:hover .copybtn{opacity:1}
+.copybtn:hover{border-color:var(--mint);color:var(--mint)}
+.copybtn.done{border-color:var(--mint);color:var(--mint);opacity:1}
+
+
+/* ---------- figure slides: stacked on tall screens, side-by-side when wide ---------- */
+.cb{display:block}
+.figbody{flex:1;display:flex;gap:32px;align-items:center;margin-top:24px;min-height:0}
+.figbody > .figwrap{flex:1.8 1 0}
+.figbody > .figside{display:flex;flex-direction:column;gap:12px;min-width:0}
+.figbody > .figside > *{margin-bottom:0}
+@media (max-aspect-ratio: 29/20){
+  .figbody{flex-direction:column;align-items:stretch;gap:16px}
+  .figbody > .figwrap{flex:0 1 auto;width:100%;max-width:none;justify-content:flex-start}
+  .figbody > .figwrap > svg.fig{height:auto;min-height:0;flex:0 0 auto;max-height:100%}
+  .figbody > .figside{max-width:none !important;flex:0 0 auto;display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:14px;align-items:start}
+  .figbody > .figside .controls,.figbody > .figside .legend{justify-content:flex-start}
+}
+
+/* ---------- figure furniture ---------- */
+.legend{display:flex;gap:18px;font-family:var(--mono);font-size:12px;color:var(--muted);
+  margin-top:6px;flex-wrap:wrap;justify-content:center}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px;vertical-align:middle}
+.controls{display:flex;gap:10px;align-items:center;margin-top:12px;flex-wrap:wrap;justify-content:center}
+.btn.ghost{background:transparent;border-color:var(--line);color:var(--muted)}
+.btn.ghost:hover{border-color:var(--mint);color:var(--mint)}
+.gate{margin-bottom:12px}
+.gate label{display:flex;justify-content:space-between;align-items:center;font-family:var(--mono);
+  font-size:12.5px;margin-bottom:6px;gap:12px}
+input[type=range]{width:100%;height:5px;border-radius:3px;appearance:none;background:var(--line);outline:none}
+input[type=range]::-webkit-slider-thumb{appearance:none;width:15px;height:15px;border-radius:50%;
+  background:var(--mint);cursor:pointer;border:2px solid #0d1117}
+.eq{font-family:var(--mono);font-size:12.5px;color:var(--muted);line-height:1.9;background:#0a0e13;
+  border:1px solid var(--line);border-radius:9px;padding:11px 13px}
+.eq b{color:var(--text);font-weight:400}
+.def{border-left:3px solid var(--blue);background:linear-gradient(90deg,rgba(88,166,255,.09),transparent 65%);
+  padding:14px 18px;border-radius:0 9px 9px 0;margin-bottom:12px}
+.def .lbl{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;color:var(--blue);text-transform:uppercase}
+.def h4{font-family:var(--sans);font-size:17px;margin:5px 0 6px}
+.def p{color:var(--muted);font-size:14px;line-height:1.6}
+.def p b{color:var(--text);font-weight:600}
+.theory{border-left:3px solid var(--amber);background:linear-gradient(90deg,rgba(240,180,41,.08),transparent 65%);
+  padding:14px 18px;border-radius:0 9px 9px 0;margin-bottom:12px}
+.theory .lbl{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;color:var(--amber);text-transform:uppercase}
+.theory p{color:var(--muted);font-size:14px;line-height:1.6;margin-top:6px}
+.theory p b{color:var(--text);font-weight:600}
+.formula{background:#0a0e13;border:1px solid var(--line);border-radius:10px;padding:16px 20px;
+  font-family:var(--mono);font-size:19px;color:var(--mint);text-align:center;margin:10px 0}
+.formula small{display:block;font-size:12px;color:var(--muted);margin-top:8px}
+table.t{width:100%;border-collapse:collapse;font-size:13.5px}
+table.t th{text-align:left;font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--mint);padding:9px 12px;border-bottom:1px solid var(--line)}
+table.t td{padding:10px 12px;border-bottom:1px solid var(--line);color:var(--muted);line-height:1.5;vertical-align:top}
+table.t td:first-child{color:var(--text);font-family:var(--mono);font-size:12.5px}
+table.cps td:first-child{color:var(--mint);font-family:var(--mono);font-size:13px;width:140px}
+pre.code.sm{font-size:12.3px;line-height:1.6}
+.card.warn{border-color:rgba(255,111,145,.42)}
+.divider .num{font-family:var(--sans);font-size:112px;font-weight:700;color:rgba(0,220,180,.16);line-height:1}
+</style>
+</head>
+<body>
+
+<div id="topbar">
+  <img class="wordmark" src="data:image/png;base64,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" alt="codencode.my">
+  <div id="sesslabel">SESSION 05</div>
+  <div id="titlebar"></div>
+  <div id="counter"></div>
+  <button class="btn" onclick="fs()">FULLSCREEN</button>
+</div>
+<div id="progress"></div>
+
+<div id="deck">
+
+
+<style>
+.objbox{transition:all .4s cubic-bezier(.22,1,.36,1)}
+.trace{font-family:var(--mono);font-size:13px;background:#0a0e13;border:1px solid var(--line);
+  border-radius:10px;padding:12px;height:126px;overflow:hidden;display:flex;
+  flex-direction:column-reverse;gap:3px;margin-bottom:11px}
+.trace div{color:var(--muted)}.trace div.new{color:var(--mint)}
+@keyframes popIn{0%{opacity:0;transform:scale(.88)}100%{opacity:1;transform:none}}
+.pop{animation:popIn .4s cubic-bezier(.22,1,.36,1)}
+</style>
+
+<section class="slide title-slide" data-title="Main Title">
+  <div class="badge fx">SESSION 05 OF 07 · PYTHON FUNDAMENTALS</div>
+  <h1 class="fx d1">Object-Oriented <em>Programming</em></h1>
+  <p class="fx d2">Binding data and the code that works on it into one thing. Your contact book becomes contacts; your bank script becomes accounts that know how to protect themselves.</p>
+  <div class="foot fx d3">codencode Academy · prerequisite: Session 4 Functions &amp; Modules</div>
+</section>
+
+<section class="slide" data-title="Session Plan">
+  <div class="tag fx">Session Plan</div>
+  <h1 class="sh fx d1">What we're doing today</h1>
+  <div class="body">
+    <div class="col cards grid3"><div class="card accent fx d2">
+        <h3><span class="k">M1</span>Classes &amp; Objects</h3>
+        <p>Why objects exist, the class as a blueprint, __init__, attributes and methods.</p>
+        <div style="margin-top:10px"><span class="pill mint">50 min</span></div>
+      </div><div class="card accent fx d3">
+        <h3><span class="k">M2</span>Inheritance</h3>
+        <p>Reusing a class, overriding a method, super(), and __str__.</p>
+        <div style="margin-top:10px"><span class="pill mint">45 min</span></div>
+      </div><div class="card accent fx d4">
+        <h3><span class="k">M3</span>Applied OOP</h3>
+        <p>Encapsulation, the Bank Account build, and when NOT to use a class.</p>
+        <div style="margin-top:10px"><span class="pill mint">45 min</span></div>
+      </div></div>
+  </div>
+  <div class="cards grid3 fx d5"><div class="card"><p><b>Bring</b> — your week4 modules; the contact book is being rewritten again</p></div><div class="card"><p><b>Homework 5</b> — OOP, one class hierarchy of your own</p></div><div class="card"><p><b>Push to</b> — <span style='font-family:var(--mono)'>python-bootcamp/week5/</span></p></div></div>
+</section>
+
+<section class="slide" data-title="Revised Last Week">
+  <div class="tag fx">Revised Last Week · 10 minutes</div>
+  <h1 class="sh fx d1">Session 04 — Functions &amp; Modules</h1>
+  <p class="sub fx d2">Quick check before we build on it. Answer out loud — if the room goes quiet on any of these, we go back over it now.</p>
+  <div class="body">
+    <div class="col cards grid3 fx d3"><div class="card"><h3>What makes a good function?</h3><p>One job you can name in a sentence with no "and" in it — and it returns a value rather than printing.</p></div><div class="card"><h3>Where does a local variable go?</h3><p>It is destroyed the moment the function returns. Touch it afterwards and you get a NameError.</p></div><div class="card"><h3>What does the __main__ guard do?</h3><p>Runs the program when the file is run, stays silent when the file is imported.</p></div></div>
+  </div>
+  <p class="caption fx d4">You have a dictionary of contact data over here and functions that work on it over there. Nothing stops anyone passing the wrong dictionary to the wrong function. Today we fix that.</p>
+</section>
+
+<section class="slide" data-title="Learning Outcomes">
+  <div class="tag fx">Learning Outcomes · Condition — Performance — Standard</div>
+  <h1 class="sh fx d1">By the end of today you will be able to…</h1>
+  <div class="body">
+    <div class="col fx d2">
+      <table class="t cps">
+        <tr><th>Component</th><th>Statement</th></tr>
+        <tr><td>Condition</td><td>Given a program where related data and the functions that operate on it have drifted apart,</td></tr>
+        <tr><td>Performance</td><td>you will model each real-world thing as a class with attributes set in __init__ and methods that act on self, build a child class that inherits and overrides where it differs, and protect state behind methods,</td></tr>
+        <tr><td>Standard</td><td>producing classes where <b style="color:var(--text)">no attribute is changed from outside a method</b>, shared behaviour is written exactly once in the parent, every class has a working <span style="font-family:var(--mono)">__str__</span>, and the code is pushed to <span style="font-family:var(--mono)">week5/</span>.</td></tr>
+      </table>
+      <div style="margin-top:18px"><span class="pill mint">LO1 · Define a class and create objects</span><span class="pill mint">LO2 · __init__, attributes, methods</span><span class="pill mint">LO3 · Inheritance &amp; overriding</span><span class="pill mint">LO4 · Encapsulation</span><span class="pill coral">LO5 · Judge when a class is wrong</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="slide" data-title="Content Mapping">
+  <div class="tag fx">Content Mapping</div>
+  <h1 class="sh fx d1">How today maps to your outcomes</h1>
+  <div class="body">
+    <div class="col fx d2">
+      <table class="t">
+        <tr><th>Module</th><th>Topics</th><th style="width:120px">Outcome</th><th style="width:190px">Assessed by</th></tr>
+        <tr><td>Module 1</td><td>1.1 Why objects · 1.2 class, __init__, self · 1.3 Attributes vs methods</td>
+        <td style="color:var(--mint)">LO1, LO2</td><td>Guided mini-exercise</td></tr><tr><td>Module 2</td><td>2.1 Inheritance · 2.2 Overriding &amp; super() · 2.3 __str__ and dunder methods</td>
+        <td style="color:var(--mint)">LO3</td><td>Teacher Demo — Bank Account</td></tr><tr><td>Module 3</td><td>3.1 Encapsulation · 3.2 Composition · 3.3 When not to use a class</td>
+        <td style="color:var(--mint)">LO4, LO5</td><td>Your Turn — your own hierarchy</td></tr>
+      </table>
+      <div class="theory" style="margin-top:20px">
+        <div class="lbl">The one-sentence version of today</div>
+        <p>A <b>class</b> is a blueprint. An <b>object</b> is one thing built from it, carrying its own data. A <b>method</b> is a function that belongs to the blueprint and acts on whichever object it was called on.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="slide divider" data-title="Module 1">
+  <div class="num fx">01</div>
+  <h1 class="fx d1">Classes &amp; Objects</h1>
+  <div class="items"><div class="fx d2"><b>1.1</b>The problem objects were invented to solve</div><div class="fx d3"><b>1.2</b>class, __init__, and the self everyone trips on</div><div class="fx d4"><b>1.3</b>Attributes are data, methods are behaviour</div>
+    <div class="fx d5" style="margin-top:8px"><b style="color:var(--amber)">↓</b><span style="color:var(--amber)">Hands-on: a guided mini-exercise before the big demo</span></div>
+  </div>
+</section>
+
+<section class="slide" data-title="1.1 Why objects">
+  <div class="tag fx">1.1 · Why objects</div>
+  <h1 class="sh fx d1">The data and the code have drifted apart</h1>
+  <div class="body">
+    <div class="col fx d2"><div class="cb"><div class="code-head">where you are now — Session 4's shape</div><pre class="code sm">acc = {<span class="s">"owner"</span>: <span class="s">"Aisyah"</span>, <span class="s">"balance"</span>: <span class="n">500</span>}
+
+<span class="s">def</span> withdraw(account, amount):
+    <span class="s">if</span> amount &gt; account[<span class="s">"balance"</span>]:
+        <span class="s">return</span> <span class="k">False</span>
+    account[<span class="s">"balance"</span>] -= amount
+    <span class="s">return</span> <span class="k">True</span>
+
+<span class="e"># nothing stops this:</span>
+acc[<span class="s">"balance"</span>] = <span class="n">-9999</span>
+acc[<span class="s">"balnce"</span>]  = <span class="n">200</span>   <span class="e"># typo, silently a new key</span></pre></div></div>
+    <div class="col fx d3"><div class="def"><div class="lbl">Definition</div><h4>Object</h4><p>One thing that carries its <b>own data</b> and knows <b>its own behaviour</b>. The balance and the code that may change it live in the same place, so the code can enforce the rules.</p></div><div class="cb"><div class="code-head">where you will be by the end of today</div><pre class="code sm">acc = Account(<span class="s">"Aisyah"</span>, <span class="n">500</span>)
+
+acc.deposit(<span class="n">100</span>)
+acc.withdraw(<span class="n">2000</span>)   <span class="c"># refused, politely</span>
+<span class="k">print</span>(acc.balance)    <span class="c"># 600</span></pre></div><div class="theory"><div class="lbl">The argument in one line</div><p>If the only way to change a balance is a method you wrote, then every rule about balances is enforced in one place — and impossible to forget.</p></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="One blueprint, many objects, separate data">
+  <div class="tag fx">1.2 · class &amp; object</div>
+  <h1 class="sh fx d1">One blueprint, many objects, separate data</h1>
+  <p class="sub fx d2">Deposit into the first account and watch the second stay exactly where it was.</p>
+  <div class="body figbody">
+    <div class="figwrap">
+      <svg class="fig" id="classSvg" viewBox="0 0 1000 400"></svg>
+      <div class="legend"><span><i style="background:#58a6ff"></i>the class — a blueprint</span><span><i style="background:#00dcb4"></i>object 1</span><span><i style="background:#f0b429"></i>object 2</span></div>
+      
+    </div>
+    <div class="col figside" style="max-width:380px"><div class="controls" style="justify-content:flex-start;margin-bottom:12px"><button class="btn ghost" onclick="objNew()">NEW ACCOUNT</button><button class="btn ghost" onclick="objDeposit()">DEPOSIT 100</button><button class="btn ghost" onclick="objReset()">RESET</button></div><div class="theory" style="margin-bottom:11px"><div class="lbl">What just happened</div><p id="classNote">—</p></div><div class="cb"><div class="code-head">the code on screen</div><pre class="code sm"><span class="s">class</span> Account:
+    <span class="s">def</span> __init__(self, owner, balance=<span class="n">0</span>):
+        self.owner = owner
+        self.balance = balance
+
+a = Account(<span class="s">"Aisyah"</span>, <span class="n">500</span>)
+b = Account(<span class="s">"Wei Ming"</span>, <span class="n">1200</span>)
+a.deposit(<span class="n">100</span>)     <span class="c"># b is untouched</span></pre></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="1.3 self">
+  <div class="tag fx">1.3 · self</div>
+  <h1 class="sh fx d1">self, and the three lines everyone gets wrong first</h1>
+  <div class="body">
+    <div class="col fx d2"><div class="def"><div class="lbl">Definition</div><h4>self</h4><p>The object the method was called on. Python passes it automatically: <span style="font-family:var(--mono)">a.deposit(100)</span> becomes <span style="font-family:var(--mono)">Account.deposit(a, 100)</span> behind the scenes.</p></div><div class="cb"><div class="code-head">the full class, with methods</div><pre class="code sm"><span class="s">class</span> Account:
+    <span class="s">"""A bank account with an owner and a balance."""</span>
+
+    <span class="s">def</span> __init__(self, owner, balance=<span class="n">0</span>):
+        self.owner = owner        <span class="c"># attribute</span>
+        self.balance = balance
+
+    <span class="s">def</span> deposit(self, amount):
+        <span class="s">"""Add money. Refuses zero or negative."""</span>
+        <span class="s">if</span> amount &lt;= <span class="n">0</span>:
+            <span class="s">return</span> <span class="k">False</span>
+        self.balance += amount
+        <span class="s">return</span> <span class="k">True</span>
+
+    <span class="s">def</span> withdraw(self, amount):
+        <span class="s">"""Take money out if there is enough."""</span>
+        <span class="s">if</span> amount &gt; self.balance:
+            <span class="s">return</span> <span class="k">False</span>
+        self.balance -= amount
+        <span class="s">return</span> <span class="k">True</span></pre></div></div>
+    <div class="col fx d3"><div class="card warn"><h3>Mistake 1 — forgetting self in the definition</h3><p><span style="font-family:var(--mono)">def deposit(amount):</span> gives you <i>takes 1 positional argument but 2 were given</i>. Python passed the object; your definition had no room for it.</p></div><div class="card warn"><h3>Mistake 2 — forgetting self inside the body</h3><p><span style="font-family:var(--mono)">balance += amount</span> creates a local variable that dies at the return. The object never changes and there is no error at all — the worst kind of bug.</p></div><div class="card warn"><h3>Mistake 3 — calling __init__ yourself</h3><p>You never write <span style="font-family:var(--mono)">acc.__init__()</span>. Writing <span style="font-family:var(--mono)">Account("Aisyah", 500)</span> calls it for you.</p></div><div class="theory"><div class="lbl">__init__ is a setup, not a constructor</div><p>Python has already made the empty object by the time it runs — its job is filling in the attributes, which is why it returns nothing.</p></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="Module 1 Hands-on">
+  <div class="tag fx">Hands-on · Module 1</div>
+  <h1 class="sh fx d1">Guided mini-exercise — Student, in ten minutes</h1>
+  <div class="body">
+    <div class="col fx d2">
+      <div class="hands-on">
+        <div class="lbl">12 minutes · together, then solo</div>
+        <h3>Guided mini-exercise — Student, in ten minutes</h3>
+        
+        <div class="steps"><div><b>01</b><span>Together: write <span style="font-family:var(--mono)">class Student</span> with name and a list of scores.</span></div><div><b>02</b><span>Together: add <span style="font-family:var(--mono)">add_score(self, score)</span> that appends to the list.</span></div><div><b>03</b><span>Solo: add <span style="font-family:var(--mono)">average(self)</span> that returns the mean — with a guard for no scores.</span></div><div><b>04</b><span>Solo: add <span style="font-family:var(--mono)">grade(self)</span> that reuses your Session 2 band logic.</span></div><div><b>05</b><span>Create two students, give them different scores, and confirm the averages do not affect each other.</span></div></div>
+      </div>
+    </div>
+    <div class="col fx d3"><div class="cb"><div class="code-head">the starting point — type this with me</div><pre class="code sm"><span class="s">class</span> Student:
+    <span class="s">def</span> __init__(self, name):
+        self.name = name
+        self.scores = []      <span class="c"># each student, own list</span>
+
+    <span class="s">def</span> add_score(self, score):
+        self.scores.append(score)
+
+    <span class="s">def</span> average(self):
+        <span class="c"># your turn — guard the empty case first</span>
+        <span class="s">pass</span>
+
+a = Student(<span class="s">"Aisyah"</span>)
+a.add_score(<span class="n">80</span>); a.add_score(<span class="n">92</span>)
+<span class="k">print</span>(a.average())   <span class="c"># 86.0</span></pre></div><div class="card accent"><h3>Why this exercise before the bank</h3><p>Small enough to finish, and it makes you write <span style="font-family:var(--mono)">self</span> fifteen times in ten minutes. By the demo it will have stopped being strange.</p></div></div>
+  </div>
+</section>
+
+<section class="slide divider" data-title="Module 2">
+  <div class="num fx">02</div>
+  <h1 class="fx d1">Inheritance</h1>
+  <div class="items"><div class="fx d2"><b>2.1</b>Writing shared behaviour exactly once</div><div class="fx d3"><b>2.2</b>Overriding a method, and calling super()</div><div class="fx d4"><b>2.3</b>__str__ and the other dunder methods</div>
+    <div class="fx d5" style="margin-top:8px"><b style="color:var(--amber)">↓</b><span style="color:var(--amber)">Teacher Demo: the Bank Account family</span></div>
+  </div>
+</section>
+
+<section class="slide" data-title="A child gets everything the parent has">
+  <div class="tag fx">2.1 · Inheritance</div>
+  <h1 class="sh fx d1">A child gets everything the parent has</h1>
+  <p class="sub fx d2">The animation loops between the two children. Both get deposit and withdraw free.</p>
+  <div class="body figbody">
+    <div class="figwrap">
+      <svg class="fig" id="inhSvg" viewBox="0 0 1000 400"></svg>
+      <div class="legend"><span><i style="background:#58a6ff"></i>parent — Account</span><span><i style="background:#00dcb4"></i>SavingsAccount</span><span><i style="background:#bc8cff"></i>CurrentAccount</span></div>
+      
+    </div>
+    <div class="col figside" style="max-width:370px"><div class="controls" style="justify-content:flex-start;margin-bottom:12px"><button class="btn ghost" onclick="inhPick(1)">SAVINGS</button><button class="btn ghost" onclick="inhPick(2)">CURRENT</button></div><div class="theory" style="margin-bottom:11px"><div class="lbl">What just happened</div><p id="inhNote">—</p></div><div class="def"><div class="lbl">Definition</div><h4>Inheritance</h4><p>A class built <b>on top of</b> another. The child starts with every attribute and method the parent has, and only writes what is different.</p></div><div class="card warn"><h3>The honest warning</h3><p>Inheritance is over-used by beginners. Only reach for it when the child genuinely <b>is a</b> kind of the parent. A Car is a Vehicle — fine. A Car has an Engine, so Engine is <b>not</b> a parent of Car.</p></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="2.2 super()">
+  <div class="tag fx">2.2 · super()</div>
+  <h1 class="sh fx d1">Overriding, and extending rather than replacing</h1>
+  <div class="body">
+    <div class="col fx d2"><div class="cb"><div class="code-head">the child classes</div><pre class="code sm"><span class="s">class</span> SavingsAccount(Account):
+    <span class="s">"""An Account that earns interest."""</span>
+
+    <span class="s">def</span> __init__(self, owner, balance=<span class="n">0</span>, rate=<span class="n">0.03</span>):
+        <span class="k">super</span>().__init__(owner, balance)   <span class="c"># parent setup</span>
+        self.rate = rate                  <span class="c"># then the extra</span>
+
+    <span class="s">def</span> add_interest(self):
+        <span class="s">"""Apply one period of interest."""</span>
+        self.balance += self.balance * self.rate
+
+
+<span class="s">class</span> CurrentAccount(Account):
+    <span class="s">"""An Account allowed to go overdrawn."""</span>
+
+    <span class="s">def</span> __init__(self, owner, balance=<span class="n">0</span>, overdraft=<span class="n">1000</span>):
+        <span class="k">super</span>().__init__(owner, balance)
+        self.overdraft = overdraft
+
+    <span class="s">def</span> withdraw(self, amount):        <span class="c"># overrides</span>
+        <span class="s">if</span> amount &gt; self.balance + self.overdraft:
+            <span class="s">return</span> <span class="k">False</span>
+        self.balance -= amount
+        <span class="s">return</span> <span class="k">True</span></pre></div></div>
+    <div class="col fx d3"><div class="def"><div class="lbl">Definition</div><h4>super()</h4><p>A reference to the parent class. <span style="font-family:var(--mono)">super().__init__(...)</span> runs the parent's setup so you do not copy those lines into every child.</p></div><div class="theory"><div class="lbl">Override means replace, super means extend</div><p><span style="font-family:var(--mono)">CurrentAccount.withdraw</span> replaces the parent's entirely. If you only wanted to <i>add</i> something — logging, say — you would call <span style="font-family:var(--mono)">super().withdraw(amount)</span> inside your version and build around it.</p></div><div class="card warn"><h3>Forgetting super().__init__</h3><p>The child's own attributes get set, the parent's do not, and the first method that touches <span style="font-family:var(--mono)">self.balance</span> raises AttributeError. Always call it first.</p></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="2.3 Teacher Demo">
+  <div class="tag fx">2.3 · Dunder methods</div>
+  <h1 class="sh fx d1">Teacher Demo — making your object behave like a built-in</h1>
+  <div class="body">
+    <div class="col fx d2"><div class="cb"><div class="code-head">without __str__</div><pre class="code sm">a = Account(<span class="s">"Aisyah"</span>, <span class="n">500</span>)
+<span class="k">print</span>(a)
+<span class="e"># &lt;__main__.Account object at 0x7f8b1c0d2e50&gt;</span>
+<span class="c"># technically true, completely useless</span></pre></div><div class="cb"><div class="code-head">with __str__</div><pre class="code sm"><span class="s">class</span> Account:
+    ...
+    <span class="s">def</span> __str__(self):
+        <span class="s">"""How this account looks when printed."""</span>
+        <span class="s">return</span> <span class="s">f"{self.owner}: RM {self.balance:,.2f}"</span>
+
+<span class="k">print</span>(a)        <span class="c"># Aisyah: RM 500.00</span></pre></div></div>
+    <div class="col fx d3"><table class="t"><tr><th>Method</th><th>Triggered by</th><th>Should return</th></tr><tr><td style="color:var(--mint)">__init__</td><td>Account(...)</td><td>nothing</td></tr><tr><td style="color:var(--mint)">__str__</td><td>print(obj), str(obj)</td><td>a readable string</td></tr><tr><td style="color:var(--mint)">__repr__</td><td>the REPL, a list of objects</td><td>a precise string</td></tr><tr><td style="color:var(--mint)">__len__</td><td>len(obj)</td><td>an int</td></tr><tr><td style="color:var(--mint)">__eq__</td><td>a == b</td><td>True / False</td></tr></table><div class="theory"><div class="lbl">Dunder is just "double underscore"</div><p>You never call these directly. You write them, and Python calls them when someone uses the ordinary syntax — which is how your own class starts to feel like part of the language.</p></div><div class="card accent"><h3>Write __str__ on every class</h3><p>It costs two lines and it makes every print, every log line and every debugging session readable. It is the highest-value habit in this session.</p></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="Module 2 Hands-on">
+  <div class="tag fx">Hands-on · Module 2</div>
+  <h1 class="sh fx d1">Extend the Bank Account family</h1>
+  <div class="body">
+    <div class="col fx d2">
+      <div class="hands-on">
+        <div class="lbl">20 minutes · solo</div>
+        <h3>Extend the Bank Account family</h3>
+        
+        <div class="steps"><div><b>01</b><span>Type out Account, SavingsAccount and CurrentAccount yourself.</span></div><div><b>02</b><span>Add <span style="font-family:var(--mono)">__str__</span> to all three — the children should show their extra field.</span></div><div><b>03</b><span>Create one of each, run the same sequence of deposits and withdrawals on both, and compare.</span></div><div><b>04</b><span>Withdraw RM 2,000 from a savings account with RM 500 and from a current account with RM 500. Explain the difference out loud.</span></div><div><b>05</b><span>Add a FixedDeposit child that refuses withdraw entirely and says why.</span></div><div><b>06</b><span>Stretch: add a transaction log — a list on the object that every method appends to.</span></div></div>
+      </div>
+    </div>
+    <div class="col fx d3"><div class="cb"><div class="code-head">the test that proves inheritance works</div><pre class="code sm">s = SavingsAccount(<span class="s">"Aisyah"</span>, <span class="n">500</span>)
+c = CurrentAccount(<span class="s">"Wei Ming"</span>, <span class="n">500</span>)
+
+<span class="k">print</span>(s.withdraw(<span class="n">2000</span>))   <span class="c"># False — parent rule</span>
+<span class="k">print</span>(c.withdraw(<span class="n">2000</span>))   <span class="c"># True  — overdraft</span>
+
+s.add_interest()
+<span class="k">print</span>(s)                 <span class="c"># Aisyah: RM 515.00</span>
+<span class="k">print</span>(c)                 <span class="c"># Wei Ming: RM -1,500.00</span>
+
+<span class="c"># deposit was written once, in the parent,</span>
+<span class="c"># and both of these can use it</span></pre></div><div class="card accent"><h3>The moment it clicks</h3><p>You never wrote <span style="font-family:var(--mono)">deposit</span> in either child, and both have it. That is the whole payoff of inheritance in one line.</p></div></div>
+  </div>
+</section>
+
+<section class="slide divider" data-title="Module 3">
+  <div class="num fx">03</div>
+  <h1 class="fx d1">Applied OOP</h1>
+  <div class="items"><div class="fx d2"><b>3.1</b>Encapsulation — why the balance should be hard to break</div><div class="fx d3"><b>3.2</b>Composition — has-a, not is-a</div><div class="fx d4"><b>3.3</b>When a class is the wrong answer</div>
+    <div class="fx d5" style="margin-top:8px"><b style="color:var(--amber)">↓</b><span style="color:var(--amber)">Your Turn: design and build your own hierarchy</span></div>
+  </div>
+</section>
+
+<section class="slide" data-title="Guarded or not — try to break the balance">
+  <div class="tag fx">3.1 · Encapsulation</div>
+  <h1 class="sh fx d1">Guarded or not — try to break the balance</h1>
+  <p class="sub fx d2">Switch to UNGUARDED and set the balance directly — nothing stops it going to RM -9,999.</p>
+  <div class="body figbody">
+    <div class="figwrap">
+      <svg class="fig" id="encSvg" viewBox="0 0 1000 340"></svg>
+      <div class="legend"><span><i style="background:#00dcb4"></i>guarded</span><span><i style="background:#ff6f91"></i>refused / broken</span></div>
+      
+    </div>
+    <div class="col figside" style="max-width:400px"><div class="controls" style="justify-content:flex-start;margin-bottom:12px"><button class="btn ghost" onclick="encW(100)">− 100</button><button class="btn ghost" onclick="encW(5000)">− 5000</button><button class="btn ghost" onclick="encHack()">SET DIRECTLY</button><button class="btn ghost" id="encBtn" onclick="encToggle()">GUARDED</button></div><div class="def"><div class="lbl">Definition</div><h4>Encapsulation</h4><p>Keeping an object's data reachable only through its own methods, so the object can enforce its rules and you cannot put it into an impossible state.</p></div><div class="cb"><div class="code-head">the convention</div><pre class="code sm"><span class="s">def</span> __init__(self, owner, balance=<span class="n">0</span>):
+    self.owner = owner
+    self._balance = balance   <span class="c"># _ = internal</span>
+
+@property
+<span class="s">def</span> balance(self):
+    <span class="s">return</span> self._balance   <span class="c"># read-only</span></pre></div><div class="card warn"><h3>Python trusts you</h3><p>A leading underscore is a <b>convention</b>, not a lock. Python will not stop you — the community treats ignoring it as your own fault.</p></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="3.2 Composition">
+  <div class="tag fx">3.2 · Composition</div>
+  <h1 class="sh fx d1">has-a beats is-a more often than you would think</h1>
+  <div class="body">
+    <div class="col fx d2"><div class="def"><div class="lbl">Definition</div><h4>Composition</h4><p>Building a class out of <b>other objects</b> it owns, instead of inheriting from them. A Bank <b>has</b> Accounts; it is not a kind of Account.</p></div><div class="cb"><div class="code-head">composition in practice</div><pre class="code sm"><span class="s">class</span> Bank:
+    <span class="s">"""Holds many accounts and can report on them."""</span>
+
+    <span class="s">def</span> __init__(self, name):
+        self.name = name
+        self.accounts = []       <span class="c"># has-a</span>
+
+    <span class="s">def</span> open_account(self, owner, opening=<span class="n">0</span>):
+        acc = Account(owner, opening)
+        self.accounts.append(acc)
+        <span class="s">return</span> acc
+
+    <span class="s">def</span> total_held(self):
+        <span class="s">return</span> <span class="k">sum</span>(a.balance <span class="s">for</span> a <span class="s">in</span> self.accounts)
+
+    <span class="s">def</span> __len__(self):
+        <span class="s">return</span> <span class="k">len</span>(self.accounts)</pre></div></div>
+    <div class="col fx d3"><div class="theory"><div class="lbl">The test that decides it</div><p>Say it out loud. "A SavingsAccount <b>is an</b> Account" — true, so inherit. "A Bank <b>is an</b> Account" — nonsense, so compose. If the sentence sounds wrong, the inheritance is wrong.</p></div><div class="card warn"><h3>Why this matters in practice</h3><p>Deep inheritance chains are the most common way an OOP codebase becomes unreadable. Three classes deep and nobody can say where a method actually came from. Composition stays flat.</p></div><div class="cb"><div class="code-head">using it</div><pre class="code sm">b = Bank(<span class="s">"CodenBank"</span>)
+b.open_account(<span class="s">"Aisyah"</span>, <span class="n">500</span>)
+b.open_account(<span class="s">"Kumar"</span>, <span class="n">1200</span>)
+
+<span class="k">print</span>(<span class="k">len</span>(b))            <span class="c"># 2 — because of __len__</span>
+<span class="k">print</span>(b.total_held())  <span class="c"># 1700</span></pre></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="3.3 When not to">
+  <div class="tag fx">3.3 · When not to</div>
+  <h1 class="sh fx d1">Not everything should be a class</h1>
+  <div class="body">
+    <div class="col fx d2"><div class="card accent"><h3>Use a class when…</h3><p>The thing has <b>state that changes over time</b> and <b>rules about how it may change</b>. An account, a game character, a shopping cart, a connection.</p></div><div class="card accent"><h3>Use a plain function when…</h3><p>You are transforming input into output with nothing to remember. <span style="font-family:var(--mono)">calculate_tax(income)</span> does not need an object.</p></div><div class="card accent"><h3>Use a dictionary when…</h3><p>It is just data being carried around, with no behaviour attached. A row from a CSV, a config, a JSON response.</p></div><div class="card warn"><h3>The smell to watch for</h3><p>A class with an <span style="font-family:var(--mono)">__init__</span> and exactly one other method that you call once. That is a function wearing a costume.</p></div></div>
+    <div class="col fx d3"><div class="cb"><div class="code-head">the same job, three honest ways</div><pre class="code sm"><span class="c"># 1 — a function. Correct: nothing to remember.</span>
+<span class="s">def</span> tax(income):
+    <span class="s">return</span> income * <span class="n">0.06</span>
+
+<span class="c"># 2 — a dict. Correct: data, no rules.</span>
+row = {<span class="s">"name"</span>: <span class="s">"Aisyah"</span>, <span class="s">"city"</span>: <span class="s">"JB"</span>}
+
+<span class="c"># 3 — a class. Correct: state AND rules.</span>
+<span class="s">class</span> Account:
+    <span class="s">def</span> withdraw(self, amount): ...
+
+<span class="c"># the wrong version of 1:</span>
+<span class="s">class</span> TaxCalculator:
+    <span class="s">def</span> __init__(self, rate): self.rate = rate
+    <span class="s">def</span> calc(self, income): <span class="s">return</span> income * self.rate
+<span class="e"># a function with extra steps</span></pre></div><div class="theory"><div class="lbl">Judgement is the outcome, not syntax</div><p>Anyone can learn <span style="font-family:var(--mono)">class</span> in ten minutes. Knowing when it earns its keep is the part that takes a career — and LO5 is asking you to start.</p></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="Module 3 Hands-on">
+  <div class="tag fx">Hands-on · Module 3</div>
+  <h1 class="sh fx d1">Your Turn — design your own hierarchy</h1>
+  <div class="body">
+    <div class="col fx d2">
+      <div class="hands-on">
+        <div class="lbl">25 minutes · solo</div>
+        <h3>Your Turn — design your own hierarchy</h3>
+        
+        <div class="steps"><div><b>01</b><span>Pick something real: a library, a gym, a food-delivery order, a game inventory.</span></div><div><b>02</b><span>Write the parent class — only what <b>every</b> version shares.</span></div><div><b>03</b><span>Write two children that genuinely <i>are a</i> kind of the parent, each overriding at least one method.</span></div><div><b>04</b><span>Give every class a docstring, a <span style="font-family:var(--mono)">__str__</span>, and one protected attribute with a read-only property.</span></div><div><b>05</b><span>Write five lines that prove the children behave differently, then push to <span style="font-family:var(--mono)">week5/</span>.</span></div></div>
+      </div>
+    </div>
+    <div class="col fx d3"><div class="cb"><div class="code-head">a worked skeleton to copy the shape of</div><pre class="code sm"><span class="s">class</span> LibraryItem:
+    <span class="s">"""Anything the library lends out."""</span>
+    <span class="s">def</span> __init__(self, title, days=<span class="n">14</span>):
+        self.title = title
+        self.days = days
+        self._out = <span class="k">False</span>
+
+    <span class="s">def</span> borrow(self):
+        <span class="s">if</span> self._out: <span class="s">return</span> <span class="k">False</span>
+        self._out = <span class="k">True</span>; <span class="s">return</span> <span class="k">True</span>
+
+    <span class="s">def</span> __str__(self):
+        <span class="s">return</span> <span class="s">f"{self.title} ({self.days}d)"</span>
+
+<span class="s">class</span> DVD(LibraryItem):
+    <span class="s">def</span> __init__(self, title):
+        <span class="k">super</span>().__init__(title, days=<span class="n">3</span>)
+
+<span class="s">class</span> Reference(LibraryItem):
+    <span class="s">def</span> borrow(self):
+        <span class="k">print</span>(<span class="s">"Reference items stay in the library."</span>)
+        <span class="s">return</span> <span class="k">False</span></pre></div><div class="card accent"><h3>Before you write a line, say the sentences</h3><p>"A DVD <b>is a</b> LibraryItem." "A Reference book <b>is a</b> LibraryItem." Both true, so the hierarchy is sound. If you cannot say it, do not build it.</p></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="Recap &amp; Summary">
+  <div class="tag fx">Recap &amp; Summary</div>
+  <h1 class="sh fx d1">What you can do now</h1>
+  <div class="body">
+    <div class="col cards grid3 fx d2"><div class="card accent"><h3><span class="k">M1</span>Classes &amp; Objects</h3><p>Define a class, set attributes in __init__, write methods that act on self, and create independent objects.</p></div><div class="card accent"><h3><span class="k">M2</span>Inheritance</h3><p>Write shared behaviour once in a parent, override where a child differs, extend with super(), and print nicely with __str__.</p></div><div class="card accent"><h3><span class="k">M3</span>Applied OOP</h3><p>Guard state behind methods, prefer composition when the relationship is has-a, and recognise when a function or dict is the better answer.</p></div></div>
+  </div>
+  <div class="body" style="flex:0 0 auto;margin-top:0">
+    <div class="col fx d3"><div class="theory"><div class="lbl">The one line to remember</div><p><b>A class earns its place when there is state <i>and</i> rules about that state.</b> If there is no data to protect, you have written a function with extra ceremony.</p></div></div>
+    <div class="col fx d4"><div class="card"><h3>Next session — Files, APIs &amp; Project Ideation</h3><p>Your objects still vanish when the program closes. Next we save them properly, pull real data off the internet, and start shaping the capstone project.</p></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="Review Learning Outcomes">
+  <div class="tag fx">Review Learning Outcomes</div>
+  <h1 class="sh fx d1">Did we get there?</h1>
+  <p class="sub fx d2">Rate yourself 1–5. Anything at 2 or below, flag it now — next session assumes all of this.</p>
+  <div class="body">
+    <div class="col cards grid2 fx d3"><div class="card"><h3><span class="k">LO1</span>I can define a class and create objects that hold separate data</h3><p style="font-family:var(--mono);color:var(--mint)">1 — 2 — 3 — 4 — 5</p></div><div class="card"><h3><span class="k">LO2</span>I know what self is and why my method needs it in both places</h3><p style="font-family:var(--mono);color:var(--mint)">1 — 2 — 3 — 4 — 5</p></div><div class="card"><h3><span class="k">LO3</span>I can write a child class, override a method and call super()</h3><p style="font-family:var(--mono);color:var(--mint)">1 — 2 — 3 — 4 — 5</p></div><div class="card"><h3><span class="k">LO4</span>My object's state can only be changed through its own methods</h3><p style="font-family:var(--mono);color:var(--mint)">1 — 2 — 3 — 4 — 5</p></div><div class="card accent" style="grid-column:1/-1"><h3><span class="k">LO5</span>I can say out loud why my class is a class and not a function</h3><p style="font-family:var(--mono);color:var(--mint)">1 — 2 — 3 — 4 — 5</p></div></div>
+  </div>
+  <p class="caption fx d4">codencode.my · Session 05 complete</p>
+</section>
+</div>
+
+<div id="nav">
+  <button class="navbtn" onclick="go(-1)">PREV</button>
+  <div id="dots"></div>
+  <button class="navbtn" onclick="go(1)">NEXT</button>
+</div>
+
+<script>
+const slides=[...document.querySelectorAll('.slide')];
+let i=0;
+const dots=document.getElementById('dots');
+slides.forEach((s,n)=>{const d=document.createElement('div');d.className='dot';
+  d.onclick=()=>show(n);dots.appendChild(d);});
+function show(n){
+  if(n<0||n>=slides.length)return;
+  slides[i].classList.remove('active');
+  i=n;
+  // force reflow so entry animations restart cleanly
+  void slides[i].offsetWidth;
+  slides[i].classList.add('active');
+  document.getElementById('counter').textContent=String(i+1).padStart(2,'0')+' / '+slides.length;
+  document.getElementById('titlebar').textContent=slides[i].dataset.title||'';
+  document.getElementById('progress').style.width=((i+1)/slides.length*100)+'%';
+  [...dots.children].forEach((d,n2)=>d.classList.toggle('on',n2===i));
+}
+function go(d){show(i+d);}
+function fs(){document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen();}
+addEventListener('keydown',e=>{
+  if(['ArrowRight',' ','PageDown'].includes(e.key)){e.preventDefault();go(1);}
+  if(['ArrowLeft','PageUp'].includes(e.key)){e.preventDefault();go(-1);}
+  if(e.key==='Home')show(0);
+  if(e.key==='End')show(slides.length-1);
+  if(e.key==='f')fs();
+});
+
+/* ---------- copy-to-clipboard on every code block ---------- */
+(function(){
+  document.querySelectorAll('pre.code').forEach(pre=>{
+    const source = pre.textContent;               // capture BEFORE adding the button
+    const btn = document.createElement('button');
+    btn.className = 'copybtn';
+    btn.type = 'button';
+    btn.textContent = 'COPY';
+    btn.addEventListener('click', async e=>{
+      e.stopPropagation();
+      try{
+        await navigator.clipboard.writeText(source);
+      }catch(err){                                 // file:// fallback
+        const ta=document.createElement('textarea');
+        ta.value=source; ta.style.position='fixed'; ta.style.opacity='0';
+        document.body.appendChild(ta); ta.select();
+        try{document.execCommand('copy');}catch(_){}
+        document.body.removeChild(ta);
+      }
+      btn.textContent='COPIED'; btn.classList.add('done');
+      setTimeout(()=>{btn.textContent='COPY'; btn.classList.remove('done');},1400);
+    });
+    pre.appendChild(btn);
+  });
+})();
+
+
+/* ═══════════ 1.2 — one class, many independent objects ═══════════ */
+(function(){
+  const svg=document.getElementById('classSvg'); if(!svg) return;
+  let objs=[], nextId=0;
+  const NAMES=['Aisyah','Wei Ming','Kumar'];
+  const COL=['#00dcb4','#f0b429','#bc8cff'];
+  function draw(){
+    let s='';
+    // the class — the blueprint
+    s+=`<rect x="40" y="70" width="290" height="270" rx="16" fill="#12181f" stroke="#58a6ff"
+         stroke-width="2" stroke-dasharray="8 5"/>`;
+    s+=`<text x="185" y="104" text-anchor="middle" font-family="JetBrains Mono,monospace"
+         font-size="13" fill="#58a6ff">THE CLASS — a blueprint</text>`;
+    s+=`<text x="185" y="146" text-anchor="middle" font-family="Space Grotesk,sans-serif"
+         font-size="24" font-weight="700" fill="#e8eef0">Account</text>`;
+    ['owner','balance','deposit()','withdraw()'].forEach((a,i)=>{
+      s+=`<text x="70" y="${190+i*34}" font-family="JetBrains Mono,monospace" font-size="15"
+           fill="${i<2?'#8b98a5':'#58a6ff'}">${i<2?'· '+a:'· '+a}</text>`;
+    });
+    s+=`<text x="185" y="326" text-anchor="middle" font-family="JetBrains Mono,monospace"
+         font-size="12" fill="#48535f">holds no data itself</text>`;
+    // the objects
+    const X0=420, W=250, GAP=26;
+    objs.forEach((o,i)=>{
+      const x=X0+i*(W+GAP), c=COL[o.id%3];
+      s+=`<g class="pop"><rect class="objbox" x="${x}" y="110" width="${W}" height="190" rx="14"
+           fill="rgba(255,255,255,.03)" stroke="${c}" stroke-width="2"/>`;
+      s+=`<text x="${x+W/2}" y="142" text-anchor="middle" font-family="JetBrains Mono,monospace"
+           font-size="12" fill="${c}">OBJECT · its own data</text>`;
+      s+=`<text x="${x+W/2}" y="182" text-anchor="middle" font-family="Space Grotesk,sans-serif"
+           font-size="21" font-weight="700" fill="#e8eef0">${o.owner}</text>`;
+      s+=`<text x="${x+W/2}" y="224" text-anchor="middle" font-family="JetBrains Mono,monospace"
+           font-size="13" fill="#8b98a5">balance</text>`;
+      s+=`<text x="${x+W/2}" y="258" text-anchor="middle" font-family="JetBrains Mono,monospace"
+           font-size="24" fill="${c}">RM ${o.bal}</text>`;
+      s+=`<text x="${x+W/2}" y="288" text-anchor="middle" font-family="JetBrains Mono,monospace"
+           font-size="11" fill="#48535f">shares the blueprint's methods</text></g>`;
+      s+=`<path d="M 334 ${200} C 370 200 ${x-40} 200 ${x-6} ${196}" fill="none"
+           stroke="${c}" stroke-width="1.4" opacity=".4" stroke-dasharray="5 4"/>`;
+    });
+    if(!objs.length){
+      s+=`<text x="700" y="210" text-anchor="middle" font-family="JetBrains Mono,monospace"
+           font-size="15" fill="#48535f">no objects yet — press NEW ACCOUNT</text>`;
+    }
+    svg.innerHTML=s;
+    const n=document.getElementById('classNote');
+    if(n) n.innerHTML = !objs.length
+      ? 'The class exists but holds nothing. Defining a class creates <b>no data</b> — exactly like defining a function runs no code.'
+      : `${objs.length} object${objs.length>1?'s':''} from <b>one</b> blueprint. Each has its <b>own</b> balance — change one and the others do not move.`;
+  }
+  window.objNew=function(){ if(objs.length>=2) return;
+    objs.push({id:nextId, owner:NAMES[nextId%3], bal:(nextId===0?500:1200)}); nextId++; draw(); };
+  window.objDeposit=function(){ if(!objs.length) return; objs[0].bal+=100; draw();
+    const n=document.getElementById('classNote');
+    if(n) n.innerHTML='Deposited into the <b>first</b> object only. The second one is untouched — that is what "its own data" means.'; };
+  window.objReset=function(){ objs=[]; nextId=0; draw(); };
+  draw(); setTimeout(objNew,600); setTimeout(objNew,1700);
+})();
+
+/* ═══════════ 2.2 — inheritance tree, signals flowing down ═══════════ */
+(function(){
+  const svg=document.getElementById('inhSvg'); if(!svg) return;
+  let sel=1;   // 0 base, 1 savings, 2 current
+  function draw(){
+    const base='#58a6ff', sv='#00dcb4', cu='#bc8cff';
+    let s='';
+    const BX=380, BY=60, BW=250, BH=110;
+    // base class
+    s+=`<rect x="${BX}" y="${BY}" width="${BW}" height="${BH}" rx="14" fill="#12181f"
+         stroke="${base}" stroke-width="2.2"/>`;
+    s+=`<text x="${BX+BW/2}" y="${BY+40}" text-anchor="middle" font-family="Space Grotesk,sans-serif"
+         font-size="21" font-weight="700" fill="#e8eef0">Account</text>`;
+    s+=`<text x="${BX+BW/2}" y="${BY+68}" text-anchor="middle" font-family="JetBrains Mono,monospace"
+         font-size="13" fill="${base}">deposit()  ·  withdraw()</text>`;
+    s+=`<text x="${BX+BW/2}" y="${BY+92}" text-anchor="middle" font-family="JetBrains Mono,monospace"
+         font-size="12" fill="#8b98a5">the parent — written once</text>`;
+    // children
+    const kids=[['SavingsAccount',150,sv,'add_interest()','inherits both, adds one'],
+                ['CurrentAccount',640,cu,'withdraw()  ← overridden','inherits, but replaces withdraw']];
+    kids.forEach(([name,x,c,extra,note],i)=>{
+      const on = sel===i+1;
+      s+=`<rect class="objbox" x="${x}" y="250" width="${on?290:270}" height="${on?140:128}" rx="14"
+           fill="${on?'rgba(255,255,255,.04)':'#12181f'}" stroke="${c}" stroke-width="${on?2.6:1.6}"
+           opacity="${on?1:.7}"/>`;
+      const cw = x+(on?145:135);
+      s+=`<text x="${cw}" y="288" text-anchor="middle" font-family="Space Grotesk,sans-serif"
+           font-size="19" font-weight="700" fill="#e8eef0">${name}</text>`;
+      s+=`<text x="${cw}" y="318" text-anchor="middle" font-family="JetBrains Mono,monospace"
+           font-size="13" fill="#8b98a5">deposit()  ·  withdraw()</text>`;
+      s+=`<text x="${cw}" y="344" text-anchor="middle" font-family="JetBrains Mono,monospace"
+           font-size="13" fill="${c}">${extra}</text>`;
+      if(on) s+=`<text x="${cw}" y="372" text-anchor="middle" font-family="JetBrains Mono,monospace"
+                  font-size="12" fill="#8b98a5">${note}</text>`;
+      // arrow from parent
+      const sx = BX+BW/2, sy=BY+BH;
+      s+=`<path d="M ${sx} ${sy} C ${sx} 210 ${cw} 200 ${cw} 246" fill="none"
+           stroke="${c}" stroke-width="${on?2.6:1.4}" opacity="${on?1:.45}" marker-end="url(#inh${i})"/>`;
+      if(on){
+        s+=`<circle r="6" fill="${c}"><animateMotion dur="1.4s" repeatCount="indefinite"
+              path="M ${sx} ${sy} C ${sx} 210 ${cw} 200 ${cw} 246"/></circle>`;
+        s+=`<text x="${(sx+cw)/2}" y="196" text-anchor="middle" font-family="JetBrains Mono,monospace"
+             font-size="12" fill="${c}">inherits</text>`;
+      }
+      s+=`<defs><marker id="inh${i}" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7"
+            orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="${c}"/></marker></defs>`;
+    });
+    svg.innerHTML=s;
+    const n=document.getElementById('inhNote');
+    if(n) n.innerHTML = sel===1
+      ? '<b style="color:var(--mint)">SavingsAccount</b> writes only <span style="font-family:var(--mono)">add_interest</span>. Everything else arrives free from the parent.'
+      : '<b style="color:var(--purple)">CurrentAccount</b> defines its own <span style="font-family:var(--mono)">withdraw</span>, which <b>overrides</b> the parent\'s — the child version wins.';
+  }
+  window.inhPick=function(i){ sel=i; draw(); };
+  draw(); setInterval(()=>{ sel = sel===1?2:1; draw(); }, 3200);
+})();
+
+/* ═══════════ 3.1 — encapsulation: the guarded balance ═══════════ */
+(function(){
+  const svg=document.getElementById('encSvg'); if(!svg) return;
+  let bal=500, msg=['','#8b98a5'], guarded=true;
+  function draw(){
+    const on='#00dcb4', co='#ff6f91';
+    let s='';
+    // the object shell
+    s+=`<rect x="250" y="60" width="500" height="250" rx="18" fill="#12181f"
+         stroke="${guarded?on:co}" stroke-width="2.4"/>`;
+    s+=`<text x="500" y="96" text-anchor="middle" font-family="JetBrains Mono,monospace"
+         font-size="13" fill="${guarded?on:co}">${guarded?'GUARDED — all changes go through withdraw()':'UNGUARDED — anything can write the balance'}</text>`;
+    s+=`<rect x="330" y="128" width="340" height="86" rx="12"
+         fill="${guarded?'rgba(0,220,180,.10)':'rgba(255,111,145,.10)'}"
+         stroke="${guarded?on:co}" stroke-width="1.8"/>`;
+    s+=`<text x="500" y="160" text-anchor="middle" font-family="JetBrains Mono,monospace"
+         font-size="13" fill="#8b98a5">self._balance</text>`;
+    s+=`<text x="500" y="196" text-anchor="middle" font-family="JetBrains Mono,monospace"
+         font-size="30" fill="${bal<0?co:on}">RM ${bal}</text>`;
+    s+=`<text x="500" y="254" text-anchor="middle" font-family="JetBrains Mono,monospace"
+         font-size="14" fill="${msg[1]}">${msg[0]||'&nbsp;'}</text>`;
+    s+=`<text x="500" y="284" text-anchor="middle" font-family="JetBrains Mono,monospace"
+         font-size="12" fill="#48535f">${guarded?'withdraw() refuses anything it should not allow'
+                                                 :'acc._balance = -9999 works, and nothing stops it'}</text>`;
+    svg.innerHTML=s;
+  }
+  window.encW=function(n){
+    if(guarded && n>bal){ msg=[`withdraw(${n}) refused — insufficient funds`,'#ff6f91']; }
+    else { bal-=n; msg=[`withdraw(${n}) ok`,'#00dcb4']; }
+    draw(); };
+  window.encHack=function(){
+    if(guarded){ msg=['the method will not let you — that is the point','#f0b429']; }
+    else { bal=-9999; msg=['balance set directly to a nonsense value','#ff6f91']; }
+    draw(); };
+  window.encToggle=function(){ guarded=!guarded; bal=500; msg=['','#8b98a5'];
+    const b=document.getElementById('encBtn'); if(b) b.textContent = guarded?'GUARDED':'UNGUARDED';
+    draw(); };
+  window.encReset=function(){ bal=500; msg=['','#8b98a5']; draw(); };
+  draw();
+})();
+
+show(0);
+</script>
+</body>
+</html>

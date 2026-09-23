@@ -1,0 +1,825 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Session 02 — Conditionals & Logic | codencode Academy</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0d1117; --panel:#161b22; --panel2:#1c2430; --line:#2a3440;
+  --mint:#00dcb4; --mint-d:#00a888; --text:#e8eef0; --muted:#8b98a5;
+  --coral:#ff6f91; --amber:#f0b429; --blue:#58a6ff;
+  --sans:'Space Grotesk','Inter',system-ui,sans-serif;
+  --body:'Inter',system-ui,sans-serif;
+  --mono:'JetBrains Mono','SF Mono',Consolas,monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:var(--body);height:100vh;overflow:hidden;user-select:none}
+
+/* ---------- chrome ---------- */
+#topbar{position:fixed;top:0;left:0;right:0;height:52px;display:flex;align-items:center;
+  gap:16px;padding:0 24px;background:rgba(13,17,23,.92);border-bottom:1px solid var(--line);z-index:50;backdrop-filter:blur(8px)}
+.wordmark{height:21px;width:auto;display:block;flex-shrink:0}
+#sesslabel{font-size:12px;color:var(--muted);font-family:var(--mono);letter-spacing:.04em}
+#titlebar{flex:1;text-align:center;font-size:13px;color:var(--muted);font-family:var(--mono);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#counter{font-family:var(--mono);font-size:12px;color:var(--mint)}
+.btn{background:rgba(0,220,180,.10);border:1px solid rgba(0,220,180,.32);color:var(--mint);
+  font-family:var(--mono);font-size:11px;padding:6px 12px;border-radius:6px;cursor:pointer}
+.btn:hover{background:rgba(0,220,180,.20)}
+#progress{position:fixed;top:52px;left:0;height:2px;background:var(--mint);z-index:51;transition:width .3s ease}
+#nav{position:fixed;bottom:0;left:0;right:0;height:56px;display:flex;align-items:center;justify-content:center;
+  gap:20px;z-index:50}
+.navbtn{background:var(--panel);border:1px solid var(--line);color:var(--muted);font-family:var(--mono);
+  font-size:12px;padding:8px 16px;border-radius:8px;cursor:pointer}
+.navbtn:hover{border-color:var(--mint);color:var(--mint)}
+#dots{display:flex;gap:6px;flex-wrap:wrap;max-width:50vw;justify-content:center}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--line);cursor:pointer;transition:.2s}
+.dot.on{background:var(--mint);transform:scale(1.35)}
+
+/* ---------- slides ---------- */
+#deck{position:absolute;top:54px;bottom:56px;left:0;right:0}
+.slide{position:absolute;inset:0;padding:40px 60px;display:none;flex-direction:column;overflow:hidden}
+.slide.active{display:flex;animation:slideIn .4s ease both}
+@keyframes slideIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+
+.tag{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--mint);margin-bottom:12px}
+h1.sh{font-family:var(--sans);font-size:clamp(26px,3.2vw,40px);font-weight:700;line-height:1.12;margin-bottom:8px}
+h1.sh::after{content:'';display:block;width:56px;height:4px;background:var(--mint);border-radius:2px;margin-top:14px}
+.sub{color:var(--muted);font-size:16px;margin-top:14px;max-width:70ch;line-height:1.6}
+.body{flex:1;display:flex;gap:32px;align-items:center;margin-top:24px;min-height:0}
+.col{flex:1;min-width:0}
+
+/* title slide */
+.title-slide{align-items:center;justify-content:center;text-align:center}
+.title-slide .badge{font-family:var(--mono);font-size:12px;color:var(--mint);border:1px solid rgba(0,220,180,.34);
+  background:rgba(0,220,180,.08);padding:7px 18px;border-radius:20px;margin-bottom:26px}
+.title-slide h1{font-family:var(--sans);font-size:clamp(40px,6vw,72px);font-weight:700;line-height:1.05}
+.title-slide h1 em{font-style:normal;color:var(--mint)}
+.title-slide p{color:var(--muted);font-size:18px;margin-top:20px;max-width:60ch}
+.title-slide .foot{margin-top:38px;font-family:var(--mono);font-size:13px;color:var(--muted)}
+
+/* section divider */
+.divider{align-items:flex-start;justify-content:center}
+.divider .num{font-family:var(--sans);font-size:120px;font-weight:700;color:rgba(0,220,180,.16);line-height:1}
+.divider h1{font-family:var(--sans);font-size:clamp(34px,4.6vw,56px);font-weight:700;margin-top:-18px}
+.divider .items{margin-top:26px;display:flex;flex-direction:column;gap:12px}
+.divider .items div{font-size:17px;color:var(--muted)}
+.divider .items b{color:var(--mint);font-family:var(--mono);font-size:15px;margin-right:12px}
+
+/* cards / lists */
+.cards{display:grid;gap:14px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:18px 20px}
+.card.accent{border-color:rgba(0,220,180,.45);background:var(--panel2)}
+.card h3{font-family:var(--sans);font-size:17px;font-weight:600;margin-bottom:6px}
+.card h3 .k{color:var(--mint);font-family:var(--mono);font-size:14px;margin-right:8px}
+.card p{color:var(--muted);font-size:14.5px;line-height:1.55}
+.grid2{grid-template-columns:1fr 1fr}
+.grid3{grid-template-columns:repeat(3,1fr)}
+
+table.cps{width:100%;border-collapse:collapse;font-size:15px}
+table.cps th{text-align:left;font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--mint);padding:10px 14px;border-bottom:1px solid var(--line)}
+table.cps td{padding:14px;border-bottom:1px solid var(--line);color:var(--text);line-height:1.5;vertical-align:top}
+table.cps td:first-child{color:var(--mint);font-family:var(--mono);font-size:13px;width:150px;white-space:nowrap}
+
+pre.code{background:#0a0e13;border:1px solid var(--line);border-radius:10px;padding:18px 20px;
+  font-family:var(--mono);font-size:14.5px;line-height:1.75;overflow:auto;color:var(--text)}
+pre.code .c{color:var(--muted)}
+pre.code .s{color:var(--mint)}
+pre.code .n{color:var(--blue)}
+pre.code .e{color:var(--coral)}
+.code-head{font-family:var(--mono);font-size:11px;color:var(--muted);background:var(--panel2);
+  border:1px solid var(--line);border-bottom:none;border-radius:10px 10px 0 0;padding:8px 14px}
+.code-head + pre.code{border-radius:0 0 10px 10px}
+
+.pill{display:inline-block;font-family:var(--mono);font-size:11.5px;padding:5px 12px;border-radius:14px;
+  border:1px solid;margin:0 8px 8px 0}
+.pill.mint{color:var(--mint);border-color:rgba(0,220,180,.4);background:rgba(0,220,180,.08)}
+.pill.coral{color:var(--coral);border-color:rgba(255,111,145,.4);background:rgba(255,111,145,.08)}
+.pill.amber{color:var(--amber);border-color:rgba(240,180,41,.4);background:rgba(240,180,41,.08)}
+.pill.blue{color:var(--blue);border-color:rgba(88,166,255,.4);background:rgba(88,166,255,.08)}
+
+.hands-on{border-left:3px solid var(--mint);background:linear-gradient(90deg,rgba(0,220,180,.07),transparent 60%);
+  padding:18px 24px;border-radius:0 10px 10px 0}
+.hands-on .lbl{font-family:var(--mono);font-size:11px;letter-spacing:.14em;color:var(--mint);text-transform:uppercase}
+.hands-on h3{font-family:var(--sans);font-size:20px;margin:8px 0 10px}
+.hands-on p{color:var(--muted);font-size:15px;line-height:1.6}
+.steps{margin-top:14px;display:flex;flex-direction:column;gap:9px}
+.steps div{font-size:14.5px;color:var(--text);display:flex;gap:12px;align-items:flex-start}
+.steps b{color:var(--mint);font-family:var(--mono);font-size:13px;flex-shrink:0}
+
+svg.fig{width:100%;height:100%;min-height:300px;flex:1 1 auto;display:block}
+.figwrap{flex:1.8 1 0;display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:0;min-height:0;max-height:100%;gap:6px}
+.figwrap > .legend,.figwrap > .controls,.figwrap > .gate,.figwrap > .eq{flex:0 0 auto;width:100%}
+.caption{font-size:13.5px;color:var(--muted);font-style:italic;margin-top:14px;text-align:center}
+
+/* ---------- animation primitives (restart on slide entry) ---------- */
+.fx{opacity:0}
+.slide.active .fx{animation:fadeUp .55s ease forwards}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.slide.active .d1{animation-delay:.15s}.slide.active .d2{animation-delay:.35s}
+.slide.active .d3{animation-delay:.55s}.slide.active .d4{animation-delay:.75s}
+.slide.active .d5{animation-delay:.95s}.slide.active .d6{animation-delay:1.15s}
+.slide.active .d7{animation-delay:1.35s}.slide.active .d8{animation-delay:1.55s}
+.slide.active .d9{animation-delay:1.75s}.slide.active .d10{animation-delay:1.95s}
+
+.draw{stroke-dasharray:var(--len,300);stroke-dashoffset:var(--len,300);opacity:1}
+.slide.active .draw{animation:drawIn .6s ease forwards}
+@keyframes drawIn{to{stroke-dashoffset:0}}
+
+.slide.active .pulse{animation:pulse 2.2s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.45}}
+
+.slide.active .travel{animation:travel 4.5s linear infinite}
+@keyframes travel{0%{offset-distance:0%}100%{offset-distance:100%}}
+
+.slide.active .grow{transform-origin:bottom;animation:grow .8s cubic-bezier(.22,1,.36,1) forwards}
+@keyframes grow{from{transform:scaleY(0)}to{transform:scaleY(1)}}
+
+.slide.active .cycle1{animation:hl 6s ease-in-out infinite}
+.slide.active .cycle2{animation:hl 6s ease-in-out infinite 2s}
+.slide.active .cycle3{animation:hl 6s ease-in-out infinite 4s}
+@keyframes hl{0%,8%{opacity:0}14%,28%{opacity:1}36%,100%{opacity:0}}
+
+.slide.active .typing{animation:typing 1.4s steps(18) forwards;white-space:nowrap;overflow:hidden;
+  display:inline-block;width:0}
+@keyframes typing{to{width:100%}}
+
+/* ---------- copiable code ---------- */
+pre.code{position:relative;user-select:text}
+.copybtn{position:absolute;top:7px;right:7px;z-index:3;background:rgba(22,27,34,.94);
+  border:1px solid var(--line);color:var(--muted);font-family:var(--mono);font-size:10.5px;
+  letter-spacing:.06em;padding:4px 9px;border-radius:5px;cursor:pointer;opacity:0;transition:.16s}
+pre.code:hover .copybtn{opacity:1}
+.copybtn:hover{border-color:var(--mint);color:var(--mint)}
+.copybtn.done{border-color:var(--mint);color:var(--mint);opacity:1}
+
+
+/* ---------- figure slides: stacked on tall screens, side-by-side when wide ---------- */
+.cb{display:block}
+.figbody{flex:1;display:flex;gap:32px;align-items:center;margin-top:24px;min-height:0}
+.figbody > .figwrap{flex:1.8 1 0}
+.figbody > .figside{display:flex;flex-direction:column;gap:12px;min-width:0}
+.figbody > .figside > *{margin-bottom:0}
+@media (max-aspect-ratio: 29/20){
+  .figbody{flex-direction:column;align-items:stretch;gap:16px}
+  .figbody > .figwrap{flex:0 1 auto;width:100%;max-width:none;justify-content:flex-start}
+  .figbody > .figwrap > svg.fig{height:auto;min-height:0;flex:0 0 auto;max-height:100%}
+  .figbody > .figside{max-width:none !important;flex:0 0 auto;display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:14px;align-items:start}
+  .figbody > .figside .controls,.figbody > .figside .legend{justify-content:flex-start}
+}
+
+/* ---------- figure furniture ---------- */
+.legend{display:flex;gap:18px;font-family:var(--mono);font-size:12px;color:var(--muted);
+  margin-top:6px;flex-wrap:wrap;justify-content:center}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px;vertical-align:middle}
+.controls{display:flex;gap:10px;align-items:center;margin-top:12px;flex-wrap:wrap;justify-content:center}
+.btn.ghost{background:transparent;border-color:var(--line);color:var(--muted)}
+.btn.ghost:hover{border-color:var(--mint);color:var(--mint)}
+.gate{margin-bottom:12px}
+.gate label{display:flex;justify-content:space-between;align-items:center;font-family:var(--mono);
+  font-size:12.5px;margin-bottom:6px;gap:12px}
+input[type=range]{width:100%;height:5px;border-radius:3px;appearance:none;background:var(--line);outline:none}
+input[type=range]::-webkit-slider-thumb{appearance:none;width:15px;height:15px;border-radius:50%;
+  background:var(--mint);cursor:pointer;border:2px solid #0d1117}
+.eq{font-family:var(--mono);font-size:12.5px;color:var(--muted);line-height:1.9;background:#0a0e13;
+  border:1px solid var(--line);border-radius:9px;padding:11px 13px}
+.eq b{color:var(--text);font-weight:400}
+.def{border-left:3px solid var(--blue);background:linear-gradient(90deg,rgba(88,166,255,.09),transparent 65%);
+  padding:14px 18px;border-radius:0 9px 9px 0;margin-bottom:12px}
+.def .lbl{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;color:var(--blue);text-transform:uppercase}
+.def h4{font-family:var(--sans);font-size:17px;margin:5px 0 6px}
+.def p{color:var(--muted);font-size:14px;line-height:1.6}
+.def p b{color:var(--text);font-weight:600}
+.theory{border-left:3px solid var(--amber);background:linear-gradient(90deg,rgba(240,180,41,.08),transparent 65%);
+  padding:14px 18px;border-radius:0 9px 9px 0;margin-bottom:12px}
+.theory .lbl{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;color:var(--amber);text-transform:uppercase}
+.theory p{color:var(--muted);font-size:14px;line-height:1.6;margin-top:6px}
+.theory p b{color:var(--text);font-weight:600}
+.formula{background:#0a0e13;border:1px solid var(--line);border-radius:10px;padding:16px 20px;
+  font-family:var(--mono);font-size:19px;color:var(--mint);text-align:center;margin:10px 0}
+.formula small{display:block;font-size:12px;color:var(--muted);margin-top:8px}
+table.t{width:100%;border-collapse:collapse;font-size:13.5px}
+table.t th{text-align:left;font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--mint);padding:9px 12px;border-bottom:1px solid var(--line)}
+table.t td{padding:10px 12px;border-bottom:1px solid var(--line);color:var(--muted);line-height:1.5;vertical-align:top}
+table.t td:first-child{color:var(--text);font-family:var(--mono);font-size:12.5px}
+table.cps td:first-child{color:var(--mint);font-family:var(--mono);font-size:13px;width:140px}
+pre.code.sm{font-size:12.3px;line-height:1.6}
+.card.warn{border-color:rgba(255,111,145,.42)}
+.divider .num{font-family:var(--sans);font-size:112px;font-weight:700;color:rgba(0,220,180,.16);line-height:1}
+</style>
+</head>
+<body>
+
+<div id="topbar">
+  <img class="wordmark" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA64AAACQCAYAAAAInjYyAAA1+0lEQVR42u29eZQlV3Wn++2Ie3POrCoNTLIAgwZAuN221KYfkyuZNQ9Y+dw87DbP9sPGNvRzu22w3a7MZmibfqubBbgx9HLz8FuAyRJSqVRCEsIuvW63n70s4TZQGpGZbCZJqHIe7o3Y7484kXmVleMd4978fWvFyqzMyhsRO/Y5Z//O3ueEIYRoK+4eAVGTPi41s1RWFUIIceaAcySCwxH3AIfr/Iz8byfvSZma0ngjhBBCCCGEEEIIIcRmmEwgRHtw98jMUne/BvhnQJX6M68pUAL+zMzuyT9bVhZCCMGRIxFTUylfPXEpI0MvZ24hwby+8cYtZWgwZmH1bi664v61zxZCiDZTkgmEaBtREJz/K/CmJn1mTFbIlX+2EEKI/c7hw5m4TLmKsw5MgkMc1/dZ1QTOPghL3/4t4P61zxZCCAlXIXqeebJsa7WBNpj/7aLMKYQQYlOcRZ6cqzK/WP9441TpK5fA+jJRLLMKISRchdgvRDVtr9Rg+41kTiGEEJtiRFg+zlid441n403iZRlUCNHpAFoIIYQQQojNxC+kKUR2AMgWpwghhISrEEIIIYQQQggh4SqEEEIIIYQQQsJVCCGEEEL0BO4QeVYqfPgxl0GEEBKuQgghhBCiiOJVG3oKISRchRBCCCFEkTFlWoUQEq5CCCGEEEIIIYSEqxBCCCGEqBNXzCiEkHAVQtQfScgEQgghWjfKmJE6EN7jyo0ad4QQEq5CiD3TLxMIIYRoOYbJCEIICVchRL2MyQRCCCGEEELCVQhRZFSyJYQQQgghJFyFEEIIIYQQQggJVyGEEEIIIYQQQsJVCCGEEELUhWtpihBCwlUIIYQQQhQRA9wBhrMfTMomQggJVyGEEEIIUUgFOygbCCEkXIUQQgghRJFRqbAQQsJVCCGEEEIIIYSQcBVCCCGEEEIIIeEqhBBCCCGEEEJIuAohhBBCCCGEkHAVQgghhBBCCCEkXIUQQgghhBBCCAlXIYQQQgghhBDdTqlVH+zu1gsGMrO2vbes6DZrpy1aYNfd2LbV92e90C6Keg/d6p9Fsmk325AeGXNo9zNwNyYnM9tNThbk+RtYl74z1CmGH973sOEYj3T7gINtPjRbWy+iEG1VCNE64Wpq0HsOXItuM3ePgbRbnm0QA5GZJRTjxemVcF1pl/poDLiZpQW9vij0PV1n36K0qaI/460F69GIrJ2L3dstgknInnXmf1NTBbq+6RhuTLtOHBRFcE8fSrkM52Hv0gmAIxFcYthEQsfnAmyHNjSVqkMRosuFq7sPAf0FEQz19FIOzJtZtV2Bq7uXgNEC2syAJTNbzgVC0QPbmomAJATjTw/+7tvcYwVYqnn+rWhvq8BAF4rWfAIAdx8FRoKtiuKfq2a20C3+WcD+0oBFM1vJBax1gxB0tyBsEr4y3cfo0DBpxeFg94060YLx948tMf6W5baI1ryNPHr3AdJkDIDK4iKDljBXNkaHO+CLpyEqG88ensPGq2sCppuEgU/H3HOuwT3A4Q5eyNdLnDxp2HzcTMdp26RK7p9+b5lvfncka9dk/pEOL/F1qm0z5bmPRVnfEtpE3lZDTPSU6xU7xhJAt1XHtD1h0+wqrE5MjrfqHkrNdkgzS939MuBY+PxuLd9yYN7dJ8zsi60Khmts9q+AXwmCoIhrj5fc/R7gnWb23SIHtnljCR3kO4GfAZ4JxDsE7lVgpYXC1YAUOFAjZLthoInNLHH31wC/CbwYGAwivDDC1d3/DjhiZve6e6ldk06NTKyESYC7gfML4A+L7v6XwAfM7G8KL179SBYsfu3jA/CMSSJupJqMkJaAhe4bccxTLj6/yqMnJnn+VX+MT8dZtqnJnDxZwqzKV25+OWNDv0218mOQjABGX98SVU8ZcqO60AHhWs5Gv28sz/CNu+5k5on3Ym/6HtPTMRMTBfbFMIFy/2efyaN99/DsxT7Sy8A66Id+jmELjtsB5hcAKzV0f6kDFiZdp7yFtowxS/i76Ys56+A7+dr3X0nCCJTzdmIwv8L5Vq2ZuGrtc/WhiIoP4qFNmBvPftoS37rzPuYW3oPZF9euW+wkPrq24qyd42EvVK226h6aHSjlIvUgcF4PtLGnsz513yoBnn/upcAFBbfHvwR+wt0Pm9n3ixjYBrHqQaT+KfBGDRUN2bNkZlV3/2XgPxf8cs8DXuHuV5vZ/1t08boeqfNjQF9Brue5wIS7/7qZfaiwNsyzcH9xbBTru5WDo+PMzEMcQ6lL50qrCYwMwfziD2U/OLf5N3LvR8tcNl7hwVsnGB74JH3lEukKWJxHGsNYh+3nQGRPY2TwQuysK3n42NVcdN39LRPyTWEym+wsxYcoly8ijtqWnNzWjgYkaeZbjQ8GAP04Fsqhmz/B62FS5f7jP8lI/y0M9h/CHaJoPVLK/KP9S1xrn2d+9wMDz8Z5HQ8evxazP8uuf7yK2CyWyCdrLwJeUGPFrTy3Asx1WnuRTdA/bGZPtrOay90HaE4FpgFzecVkm5/5KFmFYaP3EAGz+T20aoa/SpZZStk+y1VkUtazcO1gMZwzobiZuCrwQuAud399EK+FKcusEa0R8BnghtD5xRQv81/46LpGtL4N+MMuaNNJ6OiPu/uruyHzGvx1oabNW4evJX++HwwTUx9w97KZVQrkmFmm9SvTIwyXb2N46Cd5/PQqTgm6eIMmo8ryaoxZayoZ7v1omcveWuHBmycYGvw0laqxvFotZHs2c55YTRgefB59/Xfz0M2vwW54gJNHSoxPFVsYVKtVKhZheCE2DMuyhtakHqJ1avxkEH1fvuUwowPHcR/lBzNVoig6w46dyEZt9ixXVhP6+4YZ6j/OqWPXYuNfkHjdVnwkwPuBa7vs2r/r7v/RzP5DHme2KptYE7PcCHygJoatNyYqk1XK/XG74qGapNYHgWuadA+/A/yRu5dKLXTQaJsZle4II7J7sDY26qhGMBeRchCv/xT4vLu/riiZ1w2Z1ly0VlmrLxJ7tGfZzCo1ojUJ/lnk8uZSuM4x4HPu/oZQ5l908VqU/tJqrqMK/Cd3XzCz/1IY8epHIixKOfnxAQaHb2Nk+Cc5PVvFor7Mct28sbAb1qIxJwumKzx48+UMDX+KpGokiWNW1PZsmEXMLyUMDzwLG7qbh2/+SS664dFCZl6PXhKemY0RRSWqiYMVY8mPdUGbOHmyxPh4lYdueQUDgydI02FWqwlRVNriHqwQdjQrsVJJ6S8PMTJwnAePX42NK/O6w9ROiHOru4gniuK8zwDe7+5PN7PfcPeSuyctLucdAs5q4md1goNNvIcfqg2YWsFSiz9fdFYcVIEfJctsjYX1jx171hsyrdM1orWkx1WXPUtbiNZuUAVxuN5zgTvd/cdD1li+sDcBG4fg4mPu/vPBHzo7CZSVBzvTv9fHc849ytjw4SBa9Wy3496PlrHxKg/e+gaGh28mSSOqiWNW/PE5spiF5YRy6Tz6Bu/k1E3PwSaSbMfhApISd4VQLKJofeCWSxkcuhWzYVYqKdYl1XqRRaxUUmAwZF5fg41XOXlS/dKGHjx8HQvxRMz6pO1WhxXkSMmyhv/a3d8dJsJb7Z/52zCq4Ws9RyV87dREX7WJ9zDWauG6UrDZEtEa8foS4PYgXtNOiNewEVOeaZ0GrpdobVi0VrtUtG4mXm9394slXusSr/mA/V/CJnWVjtnwyJEIm3S+Ml3msp+4ibHRqzg9J9G6Y4M+WcrKg299A8MDt5CkA1Sr3SFaa8Xr/FJCf98FjIzczd/e8tzCitc41msA6xGt93/2xxkcvAvjECurCZF1V9IjF6/uQ4wO3cqpW17NuMTrVtbq0mvO497fdfd3hZiilZO5zRbfnYwjmnFErXYgCdb9I15f3inxWnOu2vLgikTrvhatG8XrM8jK2iVe6x90HPh0EK/tt6EfiZicdL5ytMzw8E2MjVzNk7PVApe5Fke02niVB255PUMDx0jSAVaraVeJ1qeI18UqfeULOTRwd+Ezr2L3ovWBWy5leOQu4uhsllcTzLrzma6J13SI0aGbOXXsJRKvPTcexiHufZ+7/1pHJ3M18yFEU8TrSLvE6xZrWitoTatE65ni9dnA3e5+UbhHBbt7G6zzr7XitT3t7EjYPfi+j5UYGr6JUYnWPYnWB299GUODn8W9n9Vq2nWZrKd4opWYW6zJvH76uRKvPSBah4buJLJzWF7pXtG6UbziY4wNfm5NvLrEa23v1APiNSHbwPBnNSEu4Sq6W7wedff+VotXbcQk0VqHeD2/RrwmEq91jxOfdvc3tmWmeS3TOt3H2T/0WWVa9yhaH7jlpQz13w5kawa7WbSuC4P1zOtZhz5fGPF646n8/Z6zVBMnilr1LnCJ1u4QrwlwFqODd3Dq2Eswidea9jBaIwK7VbzmG6l+wt1vkHiVcBXdK17fANzSSvG6xUZMKg+uz5ZWI1p/tQdFa614rZJlXm939x+SeK1rsM6/fjLs2Ny6zKsfiWDSs0zrqDKtexWtD976MoaHPgcc6BnRuuaJVloTrwcPFKtsOE1SCdbditbB3hOt6z4as7SaYhxibOhzPHTslftdvNbswNvXC7fD+h4Qn3H3K9paiSThKkRTxevlrRKv22zEpM6iTkEXOtt3AR/qUdFa658JcAFZ5vV8ide6xgsH+kMbf0NLMq/5RkynjpazTOvQ1Tw5I9G6G1GQi9bBgUy0LveYaK0Vr3OLCQP9KhvuNtF6//FsI6Yo6k3RutZbWsTSaoqnZzE4eAcPabfhPJTrlV4oj6OAaXd/lda8SriK7havNzdTvGojpiaOGk/NtP428L4eF63U+E4VeEEQr8q81jdmpMAAcMzdX9/UMqmNGzGNjlzN6bmKdg/eyW5BFDx468sYGrgdY4zlld4UrevCIGZuMcnKhg/ezZduegE2kXDyiHylqKL1gVsuZbg/bMTUw6K1VrwuV1JSH2Jw8FZOHXuN1rz2VEVCPpk7TPZ6yFepbFjCVXSveL2CLCvT16h43bCmtbY8WJnWOkQrENWI1veG59XronWjf16MMq+Nitf+IF7f0JTBunYjpoGhz66VB6ud7ywK1jZi6r+drDw4IYp6f3zPxWu5fAFjI3/GV469iPGpzmW1PFWZ8Fai9Us9Xh68nXhdDeJ1dOjWtczrPhSvIf4Y6NHxMBevr5Z4lXAV3SsOLg+B7UC94tXdIzNLWc+0qjz4qdgebJmL1sTd3x1EaxJsa/vQP19A9qocZV7rH6wHWC8brn+wdn/qRkwHR6/Smtbd2C3PtN70Mgb7Pwd2gOXVFGP/+HL+ntdy/CxGBz/Pw8delGW1OlA2XIrLgOHSr08RrQ/ccikHh+7s+fLgHcVrMsTA4HFOBfF670f3RRwTYo88Xhnu4fFwY+ZVcaqEq+gycVChgbLhXLS6+xBwE+u7ByuYXWe5DtH6B8Dvsj/Kg3cjXjtZNtzNEe5W4nVvg/X0dIxZeOVNTaZVonVn0bq2EdNoKA9e7e3y4O3E68JyQik6j77+u/nKsRdlZcNtymodvSTrQ9N4hFJsuDv7/X32vmH3YLP9KVqfIl6rKZ4OMjqYZV4ve2tlH2Zee3VWJx8Ph4AT7n6d1ry2LngTjbTAxgPdOBvjenKQK/PUNa83mNmKu1vNDnO7Ea3HgVdLtG7K3B5F6/uBfyNbrvV/SY14fZ2Zfasmy7+jTRs4t3nW8Iegq7NjG8Xr9WZ2Z76GeleidWIi4W8/fpADT/80o0NvkGjdBWvlwSHT6oz17EZMexWvwwPPYoS7OXX0dVwyfmrNx7Zv0AZHM9vdc2rvY/G5RPg0fNX7MJN/5v55/83/C4MDtxHZ2ftatNaK10o1pa+crXl98NY3YuN34tMxtoOPim4aDweBm9z9F8zs/3b32Mz0fFshXGvS+Y0EY7XbRHedDq35Pt/WfluB1QRnTILtV8K5irqdvjXgY/ma15vd/Y3AqruzlXgNwjYXrbc2QbR6wWwateu55O0xiNY/At7aJFtawdptvTbduGHTuJl9ZyfxGny34YHI3avhGtIubucbxet1ZnbXjhMAfiTCJhK+dNPzGB2+heGBf8LpufpFqxd1zNmp6wn9oJHgGNH2kyZMT8chk/V6hoaO4j6abcRU55pWL2Jdq4HV4YtPEa+jd/Hwsddx0XX3Z742lW4zkDelPfPV4zF9ZWe1klCEpQdmjmN12bJe1v3zMMNDtwEjDYlWL2jdtdU5Q2GhbLhcGmJ44DYevvV67NoTuEfsMGHaI8LO9sE95jHJx939mWb27yVemxeblDYJxhqhWhOMdfvMb97JlrfpTyPg5WRZk3qD+Tzoe174+74edLi8bPgK4L+a2ZtqNlzaVGg1UbTmDm/7uLF7k0RrUW1pTfDPfMOmY+4+DixvVhmQ/8zdzwZe2ECwm7f788g2Oer2/rJWvH7W3f85cGrLwToXEl+747kY9zDQfz4zc9W6dw82g/5yMW1olh2bCdi13wFJEjM6BDNzg9sE8RFmCV89/mr6+4+R+kD2ntY6RasZxLEVa17PwFOod5+jdfF6Hmn/5/n7Ey+DK7+Jc6Z4dTfMnIduO4/RgR9hcfkgKTFxtLeTpx5Dukpqr8DMKJdKBcm8GkkKaZv0UO6fDx5/OUP9t+E+Et4jXL+Ij2Pbsv10kjSt/5IsZF4plejr+1O+dudlwENFFq81Sakd/+tmdxzmH4bJspHNGLcLH3eF+OB97j5mZu+SeG2I1U2Fa6jF3qkp9oe/8y3EXgKMAV+nmFnXuRCk2oaGFgErwHyN0wF8d2NjrAloy2S73D69Sdf2JNmaxahAvXRui7NpbEOkchCv/8LdP2VmJ7ZoxHm29cNBtDaye3A+mfAN4PEOdpR5SWh/+PczazrvVg40+Stv3hFEazN2Yp4BFkJb94L4ZwocorHdCvPJlZ8Aft7MPhT6w+omfVwVuBr4eBP7pLkO2tRq+sBzG2gnUbDNMPAeM7tu22TJySMlqtVPcHD0/PDKm/p80wzStMrK6rcKF92aQeqLGCtPsauZ4264J8BslmH0hJn5EthXsv/0mJ8hssB58Pg5EH8SswFWV5O6RUFmtwppuogVqMTYw47VkQ3UvclRZDGLyxXOOnAeP5j595i9ienpM+/x6NEISIj5j4yNToBBXGcz9CBm5hYWMJvBibEOZgvdDCMBDmA23PINo3L/vP/msylFnyGORlhYThoSrQBpspDFlQWrwXYfbqjdmEVUKlUOHhhmZm4Ss5/e1EcL05VZI5VrHmKSvKIwZftkj+3yZ3V5VI022ekzreY69/psrGZMfKe7f83MPibx2lDsmQVruRHd/S3AbwUjx9s8wMEQ/PoWDhEB/whcEkRYoabKrM7ZrG3+bgY4p+be621IJeAXgbuCfYtUOpgCnwdewvoutI0EyD8FnNjYadSsaz0feFONXRrpoGLg35nZf93N2tpWC8lwTV8Axhu05U7nMiAJ5/w/GvRPWM/U/nqYrOmjGaV1jRMFwfknZDtON+qfKfB64EM79FsD4feNZLDzv30v8IcdtGl+3+cAXwrCs94Kkjzqf4m7j5rZ3Bntbjqs53rk+EsY7H8lp+dSzMp1t/FyKWK18g8Mpi/mWfctwyUGpwoy5kxSdwZl45q3e+7JSjAfPv5THBx5Oj+YqRJF9e7iXGVspMTc/KeJ43eSJn1UvNpxc1WtxHC8ymr1FxgZ/nfMzVfB6s3Cx8wvOmYv5yvTfbx4YjWUza77xo25n0RjzC0mLCw30H94lYNjZWzlYywv/B5jY31UZjvXR/aNxcz2rzK48G5Gh/4Vsw3Ycjfk/vnIiVcxNvwsZubq98/a/sdK11FauZ/VgZi00tm4aHnVGOhzLDYs+QL9fRezvJLWL2AtZmHRwV/Fw58b46IrZteqAAqjz9eqjM4jm9jMKypXamL82ue2sGHsNLJs2TLria9OCvSojec31pcCfcDdvwB8bTf7aIitJy5KNf94FVmpXDNYBSrd9mC2KIXwHcROzPrrRKIGHogBs2Y2X1DbVJvkeAacXyMsN+NcmlsyHdU8q04GZ0kYANoyKIVzjQRB0qws/nwRfdTdV5vknxFwcAf/BBit8WdrsD0sFsGmTdz90Mgm3/rZbPOwG8/N7XUJfX3O0kqjkyoZC6Vk23WMHWFqZ1sdObLuP5OTYb3rJmPO4bXu7NmAN5yAigyMWZ57+XcKN+A8etvjDd9fPp47fQyfO5TFJVvMx3iarL1CqN5XCTlOZBGRLfHiifnCTNk/fOK7bSk2yv0zTc8iirxp54ySf+Q51327cD768PFKU5LA7oYzyGr1IDDL5GTh6qJDbDwNvJT1yeFKODYK1+VNhGsl6IIojAsPsn22tXZ8zauBzmlwnMgb/yPA3wb9M7zF+fNlL8MhZjwAvKiB8TAhS/r9jpn9fD2vhhTrlDZ8n9JYBiEPQCpAVCMEi5Rx9R1+18lrLQWb5SXXRZnlaPZmPNEu/KgXiUKpTDcTBx8tdXgSoHbiKGmyf85v8P1W+2inbZrfZ7OzMb7Db0tETSz/e3w+WhOCU1NFCvx829/VXuvU1G4eV1L3xjBnRqQljhyJuPGSEkdPdb49X3JJiVOnqrg14f2H5kSRgS/zxOhCGOS3HP2bdg9JGmei+b4SXNo5m953X4lLL63yyO1tjmLi5vbHXurjyJGIw4cj7rmns+Pn/fcbL3qRc8kl1vTS5b5S4WKDmmzrIeCiDfFbmc2XHg3t8LH3AK9hfV+ETa2xwYf6gPvI9oKpd6IzCWPccTP7jT3a4WLgftYTAHt99nkl0k+5+zvN7LFOVwD2inBdYj2F3shsQL5rmAeHRw9n9+0jz8gVxWb583O9UL2Zz1c+2jz/7JRNy71i05o23t5zp1Sbuu7umedmE4+TkxRMuDbbcE0MmM2ZmkqZPJny4gJkq0+eTJmaSnnzieY9P7OUSy9t30RwZJ6tYT7pHS35PBnO//CJNrtn2lxB52nw0UkYH++0j2aTfO7GIyfYB+STmrWbKq09mT1+1toO+mF5YrrNeLe04d+L7r7YpHsaDNVFedZ4S8+jeYmbPOs6BrwMOBa0kta61ikycx6XOYQQYleMyQR1ck/4Wop+QDWhadlDIbbi6FH5mBANTB9sIcb2cqwlxvL3oLu77XDk/6eZr9FJwzvGEzNLtzkcaGbiLa/o/Kc19hN1UJtxXZQ5hBBCtJTDYbfc1OaoJhrAhRBi/4jfhd1WY/ZgxZ8Bz9lmMkDsgmiDQZvtoEKIM9vYvNqJEEIIIfYZq/v0vvP474BcoDFatTX6ENli6lWZWIgzqHbxtedlO1FBdsaLwnSssnZCCNFrRGlEGHPodObt6FHjxhs13jRHwAlRCOGaO2RfC0Wx6H5m9nkH1s33PRBec1WUSakUmva6JiGEEEUi6VsI70Iu1q67D9+m93AK0QPCNafTr5URxUYio3vF9gXu/nyK9zqcdpffqH8TQoiWs3oZX79jlKRawqPOisVqYpRixxIj9WHStOlvxRFCdEa4CrEbESS6hzh8/W3gXQX2qbhN/jkklxBCiBbHCHH0KdwhKkC4GuerY8KbTFYr+T+EUPwr4SrUsIWeT0fYTRm0hKsQQrSaZC3JWqS1pVrnKurxGYA5mULCVfQei2Qvhi5rgCh0B9xrYjq/r3zX54it11WpVFgIIbqrj+/FaxHdxYpMIOEqeo9VsvWTZZlCAYTuTwghhBCKL4Rq80VRG7YatxBCCCGEEELCVQghhBBCCCGEhKsQQgghhBBCCCHhKoQQQgghhBDboGVoEq5CCCGEEEIIUWgWZAIJVyGEEEK0B72KSQgh6mOxw+dP9QgkXIUQQoje5p78GxvEpV1FGzFz4gjMFzAcPxKhCZR95wW6j6Zwusfs2VHhKiMKIYQQRSZmCHeN2KITMb+yRfuTFKjKDE1BEz5NFK6zMocQQghR5LBH6VYhRFtF1hKdL7EV4gzhuiJzCCGEEEIIIYQosnBV4ZEQQqgvFEIIIYQoHCWZQAixR7yH78uBih6xEEIIIYSEqxCiu+nVjGQU7m1Oj1gIIQqF9+TY49qsR2zp70LCVQihDnVL0iBev69HLIQQBSDOV7RZD4pWN/r7YGl5hv75JwCYnHSmpvTcxZgEbHuFqwwtxNZ04wCcADHwCeDdoe/o1e3xH6u5Z1H/GKBxQAhRb/+RjZNJ+iZK8UMk1RIe9dbreCpAyY20usCzJ5aCPle/KQD6ZYL2CtchoE/mFeKMwRhgpAsFbH7tT5jZo/tidkEBRCMB5wLaqV4I0TB99/Lc1z0iO4h9Gi+KNgnXMk/dsVgIsU43t42yu0f0dsbVJVqbMujKhkKIxohXh8nGnIhsOUcPMgk2lephC9E54aqARYjeFXWpu6dmpoFWCCFE60ijFLMUd9CYI8S+R1lRIYSoQ8DLBEKIfYbecS2EkHAVQoguY0YmEELsK1zvuBZCSLgKsd/QrHX3o5I1IcR+EazhbTQ+m/1gUjYRQki4CrFPBOuTNeGAEPs0GHb5vxCKGIUQYtfUbs602yDCd/E7B6Kw+6h5Fwcobd6AxoLNogLZrKuf3yZ27eTQWwq2vB+4vottaTVfWy3yOyKptKtwCzm69t0qaeq4W5bNaZAn5iL8SARHDT/Sxc9v0tv4LkfjyJEIHgu26zCnHos4ciTC2t3+mzrGGe4G94Wve3n0k7a3ZOY2//nUqQifjnmE9k4SRVFzzxWl0dquwr061zU5CVPaVVgUJgbqGuFaYv0VBr6NIW0Xho6BpX2y62gKJOGrN/AZAKvBZoWzm7sn4T6TBj4m2eUkSbMDqJVg19UOm3El2PI48Ltt7Ji8xj+tAR91IAmirtKGaxa9yI15K4+jrP7Q0ia0BefSq5ewa3rAb6Z2CGfMcMJOq/WOFZbi7jhVpqZSpjreN65PZgD8zO2roc9p4B5Jg9DZ2Scsipsi7swAW6X+PtJ3evx78JXMlo/c/h1iMxxvy4jjHjdVKJf6FihoXNTBeKwpT1ITtIVmpYlxUOTuJbLkyU4x1l7OaVv8LM4THK0Wro+Gk5R3IT5sk5uz8LuV0GFe6O6PBxHiNf9nMPxsiew9kEWfVfi2mS1v8/uRINTjBs6R/+357v4coK9BgdhMLAwYY028z6UtnD73kyeA5WAHmuAjF7j7jwbf7rRdY+B/AjcDN4TgptzC8602aTIgfxZD7n52uI9W2bI/9BPtHlQ92OlxM5txd9PA3gImT2U2HbRHWa6kxGYkqWN1pl2zgbjMw7e/gK/ftcxqEuFp9z23/sSxkYg0eoIfHj+NY1hNGzicyzGfZ6AvYj7qo1xnd5wkfZRigEOcOvEcxryPRev8mJNYCfcV3J9FXzmir9xHVOc9pmnE8CCsrFaZmNhi0vQSC//3MUqxZc5U93BjVBNwfxYPHj+HUiVidY82LQ0MAv278t/+xElKI6RJOfv/fTVXUjW85JR5JknyWpZWqpRKMdVqilmLMuuPebDwN0jT5sV1ldUf46ETw8TEpFFviddy6kTlmLmVx3jxNd88o81LcO7LeYkNmqwZLJpZNWiudlANEywtmRAthZsB+Bzw0i1EaS4elsNh24jaOeDpwN3AcM3f+gZhXA2CqKjCNQ1B7GuA/+7usdkZg1AK/AVwfrj3egaEXBgeAD7WwOe0uhHNACc2TETUY9MycNdmQYSZebDzk+7+YbKsZKUBe+QRz78NRxFsacArgV8ELgOeHdpCU9+pXDOwLQF/BVxc49P1cjbwc8BPb9NPNKVfYr0CpJ39Q/4cfgP4UPCfKqK5TE2luEeYfYuvnvhtRod/n9n5KqnHdYjXiEoV3M8jtv9JddWJdhP6FZBqXGUsKnF64feAP4CTMYxXzxQG/tcsLn+LJElIkzpUnYHjPDFTxvlp+vyNLFtEVACjxe4QOe4pjz/5YPYc62yCRkK5FOP8RbCbnVGCnZetR9EHWVx+M3EcUU2cqI5JFLOY2XmA/51SNAF9XqsldzdCpGWMGHz7/KgZVCPH0z6i2M4clmNI04Rzz4n57uN3sbg0wdDQTRgRq9WUqAXiNZpIOHIkYmXxz5lJ/5KzDryUH8xUiaJSXU9vzSb2GWLP7jnuMb1W9ZSxvohK5QRwNbjB9qLU3eMQLzYcJgDzZraiQalY2iNkK08CXweeG3RBPTN4+d+83d1/DPgu2R4rc8BC0HOr4d9ROM/sHmK7sZpYbYxs9mwUOAicC7xkbZxucoCYB7pV4P9rSnTuvhQESv92c01d4kTRVqLAzCrARJNs9nLgvxfQLrl4+KKZXd1kcZVs9rOwDvX3gHOAX2qFsOuwLQfM7Afu/nrgOHBhq+4x+Op1DfpmZGapu/9mFlDvORzrFkqhvZcQrcUsZXo65oKr/oCHjpc5NPZuZueTIGjrEQ1GZH1dvSwoTUvEUYRt4X8WsoYXXn0zf/f/3Mm5B+uL4qM+ozKTstj/DErRlymXh6kmNGWdceM2gKEBWFx+gAuufFGTfe5Me01M5D53Lw/d+kuMjXyUpZWEJInqrgAAI45H6+xs2f18XUgQe+3WIrW/dmdhKcX9MS6+7hYevPUGhgY+xUB5iJVKglk9kx627eg2OemYrfLorTcwv3gXB0d/lJm5KhbV36fm99er61urVciSH7DN8rp8HAYuAu7ZEFPslSTEmr8KfMbda5NYos2aYmPMFp71rLtPkCV6DtUpXnPf+Cfh6NiI3xLhWjOTs1PgvdPFpUGw5mvi2p01adoQuptZgiasNYhrOhGn8axYs8kbS76xUTNKRHfa/CbbfN/sl8NmRr9M4yW1RfLDaihDfdDdX0E27/+KAgv0iKdWR1R6VNxttQyi5R3xvmRiIuHkyRIXj7+Hh47DWWPvZnYhIU3rEw1J2t2RrZGQpLZjhJ71nQsNn++BY4/jvkrqQ6RpUfrHlCSJsozjkQibSndbPtnQJIpPx9i1H+Ph4xEjQx9haTUhbUC8Vqvt8cXs8mzL8c0sIrLHgzi/lYeOXc7g4DEG+w+xtLJ38bpT6Z9ZeG7Xfo8vTr8W4xgHRl/KzHwVs0bGjG6NI3ceRpIU8IPce2+Zyy6r7MLfy8DTmnQBz9BA1HYO7qSnQqIgNrO/cffLgTvD39Wbed24Rty2+LrX2MY3+b52n6S4Fe022mCsZIcj3e4A0iBI8k6mFw52mh1p5KgRcUW3GTXPuNHDd7JpNifgsZm9DfjPobOuNjZCFGe0CrNqfWb2PeD1wLEgBrth1tN6/NgNFUTjHB4P4vWa93B6/t8wNBATxWldm7uYWVcfYLsWSu7WwBHhbgyVSmAWdvDtPhs0tUebSPCTJS665o+YXfx1Rodi4iipe5Ohdtpru/HNAHwZs5S/nB7k4uv+GwuLr8X92wwPxqS+u0locyeqfY/r0W3KmKeyaoofn3iMFb+cxZW/4MBoCU97ZfxuIm7ZPJUNEH9reAc9wwZhULvp4l6PSu9OBhTel2yXXUgSMuF/DVwOPE79iaO8kiw/8v1qonDsNf7ZLBbMPyuuOU9LbK23coli9iyZeM1nnX4F+EgXCbvdkoSSkCWyjZr+pAfvsVeZkQmaMoQ74+NV/GSJC6/6v5idfztD/fWL1/3TQXrdB2Rfq4vapfUpNg1++IJr/hOz8+9kZKhEFPWAH4aJgJVzK5w8WeKF19/H/NKrqCaPMjoU417d82ftxMREwvR0zEVXzLKaXsnC0v/g4Fij4rVHtauD+wD9A4NA9kqkvQmGRo7yPrT4XBfFwdUgXv8KeDXwbVq7MWZXIOEqukW85pnXnhJ2oSQkyr61fwn8ocRrl0gu0VzRcO9Hy1x87YeYX/w1hiVeW87gSB9GpBdPbfDDkydLXHDVH3B67l0NZ16Lxvh4lZNHSrzwuoeYWRxnpfJlxkZKexOvu6RWvD4xdyXzS3/OgbHWnKvbhSvElDzuwNkP7EOLL3dZjJiL1y8BrwW+s9/Fq4Sr6Cbx2pOZ11CCnS/I/1XggxKvYt9x2VsrWeb16g8zM/92hgdiYonXppNndFZsGKyMzPtUDo/nZcO/z+xCnnntIfE6VcWnY37k+m/x+BOvYmn5r5pQyru1eHWPuGxihq9/90rmF+/IMq8SrxuEa4m0kmU/J7cOFcLXofwv0QRqXSFXF8aIuXi9P4jXfZ15lXAV3SReow2Z10qP3WO+rvcdZK9jkXgV+6yxh3LNi6/9EHMLv8bQQEwcSby2JGBOZNPNw1pf88Ms8/o+DoyUMEu6NDu9yaZNIRt62f/2OPNzr2Vh8QscapGgNEvxIxHjb1nmG9+7gbmFOzg0qrLh/NFkPtVPVM5KhbdRroFyjXAV+ycOzsXrKeB1+1m8SriKbhR2v0JzNmwqqkCPzeztKPPaXcGgaK54vfDqDzMz9/aGNmwSom7CxmEXXfM7PDn7+xwYLRFR7To/dN98gjfPhr54Yp4nvnUFswu3cGisBFuI12wvqGxt/z3n7q3/s/Du5vG3LFPlemYX7+DQgRK4NrnLDOT4rndFVz8o8bqvxauEq+hWYderZcO19/gO4I/YPrusQawz6KXtrRav+ZrXucVfY1jiVbTbB/GsbNhjLrz6XZye/X3GRktEXZZ5TWxmmwEny4Ze+tYqP3zFG5mZ/wQHx7Ix1Tcdbeofa/NzXXTFCt/43g3MLtzBwbGyMq9C1C1eLwee3G/iVcJVdLOw69UNm2rv8ZeBT7B1dnlUXtERZtfCW9Eaate8zi1kGzapbFi0W7xC9p7XNfE6UsK6aLyxHd41b1MpeLb2+flX/hwz8x/cOrvsjcWMNrVeNvzgI9czM38nhw6obFiI+sTrl/ajeG2VcK3nfUBC1CPsfqXHxWtkZj/H+qtyNmZeB+QRHQppRRusXFs2PP92hgaVeRXt7owdJlJOnixl4nX+/duW1HbrPU5OOtPTMc+/8h2cnn8PoyObvA4oajwwzsXrFe9YIbHrmF3Iyoa1YZMQ9YjXv94gXnv+NWetEq6LwKpcS7RJ2NWK117csCkKr8r5U87MvCqAl3DdH+I137BpWBs2iba3dufw4STLvF71W/xg9iOZeO2G8WaX7141c26cCNnlK/8ts7O/yfBgTBQ5bilRBJ5kZceHmyReL7piJVvzunBHtjnUPs68WlVjimhUvJ4Ouq6nxWurhOtqLwkIUXhhV7vmtRc3bCK86/VngWNow6YioIm5TojX2g2b9Koc0d7O2OHGlOnpmAuvehun5z/CwdFy4TOv0R7e1WmsZ5cvuOY/MDP/S/T3RUREpKk3NWTMN2x6injdbxs2eZhX8BVKpYXsZ5Nqa6IR8Trb6+JVpcKiF4Rd7ZrXT9J7mdc0G+GoAhNBvA6QrWdQ4N72SANYX+Mq2ileazdsGuyPzyxlFKLF4vXGIF6ff+XbmJn7SOHfS2p7jPMMZzyvcrjmoywv/wtKsRPHRtzkfk8bNuWRckI1lGHvrFvV34mtxOtfAdcDSz0oXr3VwlWITojXCPiZIF57MfNq4Z5uBG4iW88QywM6gvrOTvCUDZsW/0/GhuNsl1eJV9EJ8XrV25hZ+BPO6sE1mmvvsr36T1ldvYZqNSVNM5l1TzPPs8WGTfsl82oGZhXiyk73m/dx8zVjkPo9sVG8/jlwDdmSTesh8TrSjuAr7YFG5R0438ajXeepPdKaI6k5ii7sPPvW3sxTM69pgfzJG7jHNNxfFfhp4I9rBjENYM3z/92wUNPHpQ0eRXp2aROP1gbUF139AU7P/262y2uU4j2wo6K7E0Xe1raQif7sa6eP2uvpFvH6vMt/jtOzn8rWaHqRxpvMn2hgUsfGq9mmVNfeyfeevBb3hwE4fLi591i7YdM3v5+XDZdxr+LeC7Hk1n5k5uDLPFZeAmBycqd77YQ9VEHZPeK1bGZfAH4q+EpEb+w2PJh/U2rxSbZT+93QENpZ8hyFc+0mg+Z7uP56bF/7+77wdawLGq2H+CfPvKbha1GIGvUpM0vd3cwsAX7B3fvCz/fVC6hbNAjv5fksh//fyORfXxv64b3aZbDBe4o29P+tE68nj5S48Kr38shtzoGR91KpwtIKW2dfDazg404cGZ60p4rCYsOSMuWSkSS22z18WkqSxpRLsLJaKn4vYo57yuSkMTn5Zv7+djj30Js4PQfVJPND67BRS7E13L+Mj1dxjzA7UXPvzRfnuXi1tyxz8uM38Bw+yVkHbmBpGVYqkLqHNaG9I6IciGNjtVrhJfMLuwyNF8P4M9CAgN3rRO1qOGe+PKmeZ5CwxwxgiOmiEPcssj5RbBvuYzekNJY88A7//W5tVgmZ1zvcfQL4FNBPqyeUN48n4ia3ltYETO6eO+ZXgUvp3pI6Cw21XZuwLADfCQ42HB74VoGxNcEBkk06pYisNr4SjqVwXYvAXXsUzR0Vr+H7n3X3+4C3ARcUwBeTYOvVJtyjZd/aapvbRLdMOu30HDbz4+ombWOrzvNJ4JtNuI4y2U6ARbHLV0P/k9b5nNPQd32NVq8zH5/Kdnm1q9/HV088SH/5XUT2o8Sl8qYiLE0hKXDVlBOxWk1wFlt6nslJZ2oKKr5AxHepVkdJ05RCKFdPWa2UQvvqgijBfC2h+fyr3syjt3+VUvzzmD2LvrKRJJB6B/2pstIUW5plGylByBC2yp5TKUdC2TC8kb+//ReJ418CXkw57iOK8kmBXlGu+TrER7CJTNjZljGW1wjXfByut82WN3zdKdZYrOnb6yX/2+E6/34+3G+pzlg4bkD31Iqwltq8SXFwXjZ8s7uPAx8AfoIeWeLUsoHK3QeB5wJP2+Q8DswUWATlawlPA98zs5avtQhZwlGyLMxAcLC+0Mhr7RSRZT9th+tfrWnovuF3KzWdHyHAXA2fvRLuvQqsWisHqdba02o63j7geTQ2Q9kMn1oIx2PN8qmQffVW2zLY8WnAs+jusi0j21gp2SIwMOBJM5vdRXsdbNL1rLSjj9llmxlqVv9pZsttuvBoLQP0yJ0XEK0+g9RKG4dyPFkiLi9STSPKBY18V9NZRu17nHfNYlvO9w93n83ybEw6WBx7REvG8nCVF7/hB90z4NQIjgeOjTI8/FxWls/Gknmsb7UjPuexk648ifd/n4uuWOmyAdzWJgYAvn7XD5NWnkbCEMYsiVehapRL3TsWVUK/NNS3QHXhMX74+tO77KdLQYT0UX/204MQ+5qZfW03cUQQQIeoP2vnQTT+g5n99W5jl5r444XAM1nP3HqwwcguYpJ83E+BR8zsH/YSO7n7EPDPGtRMuc3/0cwealPsFptZEuKVVwI/ApzF+hKzjTaaofG9YYwsAffjwC804KM51eA3f2hmvxr8X4jtOw13j4Ljd+P1a/MiIXq+o5pWOxedxuSHatdCFCwGjjp03pd5RuKNUQlfPxw+t1Rq4UXnZQy2zexD8UeiVqzl2N5msLc1qNt+5F5Ov8X9O12cYQuzTYV6PVM7fapFbbrn+/rdzgQ3yR+8YM+YrruvvMzOjxhHL9n6Hm68seB92SQw5duUCzb7gRe3PXdftY9jEwl5P3n0qHXc3yYnYWqqe8fwzdp14dtwPW1+ck8l2E2ckE/3kHWMObOCb89PNJxzzzFQEGDWzntukc29nTFgvi8K63t4tJqYLCs+hhBCCCGEEEIIUTRyge/u14ZMabXZGVe9i1AIIYQQQgghRCPkWd3+XMs2+wQSrkIIIYQQQgghmsFIqz5YwlUIIYQQQgghRDMYbvLnmYSrEEIIIYQQQohmMtrkz1uUcBVCCCGEEEII0UyGmvx5cxKuQgghhBBCCCGaQnj9TjPXuDrwvfwfJZlYCCGEEEIIIQoj/oxdvle+SJiZh+tPwrHnj9jwvQFfzk0j4SqEEEIIIYQQBRF/tOBVMu3R3N4PPAOIw9EoXwT+xt3NzBIJVyGEEEIIIYTorOqLzCx19xcC7wcOAoeCAHSemo0sKgPhmu8GFsIRA8vAbPh+JXwfARVgJvxtGn7u4ft54MtmVglZ3K4wgBBCCCGEEEL0snCNzSxx99cE4detfN/Mnt6KD1bGVQghhBBCCCGKQYVsfWhKc8pt26a9CWtz3X2MLNtqrJc9Wx2f52aWSrgKIYQQQgghRLGwIFiN7noDTC5cB4BBM5sNa1Obtl5Xr8MRQgghhBBCCNEs4d2S5agSrkIIIYQQQgghCo2EqxBCCCGEEEIICVchhBBCCCGEEELCVQghhBBCCCGEhKsQQgghhBBCCCHhKoQQQgghhBBCSLgKIYQQQgghhJBwFUIIIYQQQgghJFyFEEIIIYQQQki4CiGEEEIIIYQQO9MPjITvTcJVCCGEEEIIIUTRsFZpzJJsK4QQQgghhBCFIQlHNyUZPYjWavhewlUIIYQQQgghepQIiMPRjZRapTElXIUQQgghhBCis6Th698CNwDnAEPh581cK+pBHC+Go5mfWwb6gH+s+ZkQQgghhBBCCLE/MJlACCGEEEIIITqPuxvdWyack5hZ07Ot/z/tod8OamWypAAAAABJRU5ErkJggg==" alt="codencode.my">
+  <div id="sesslabel">SESSION 02</div>
+  <div id="titlebar"></div>
+  <div id="counter"></div>
+  <button class="btn" onclick="fs()">FULLSCREEN</button>
+</div>
+<div id="progress"></div>
+
+<div id="deck">
+
+
+<style>
+.band{transform-origin:bottom;transform:scaleY(0)}
+.slide.active .band{animation:bandIn .6s cubic-bezier(.22,1,.36,1) forwards}
+.slide.active .band.k0{animation-delay:.15s}.slide.active .band.k1{animation-delay:.3s}
+.slide.active .band.k2{animation-delay:.45s}.slide.active .band.k3{animation-delay:.6s}
+.slide.active .band.k4{animation-delay:.75s}
+@keyframes bandIn{to{transform:scaleY(1)}}
+.pin{transition:fill .25s,stroke .25s}
+</style>
+
+<section class="slide title-slide" data-title="Main Title">
+  <div class="badge fx">SESSION 02 OF 07 · PYTHON FUNDAMENTALS</div>
+  <h1 class="fx d1">Conditionals <em>&amp; Logic</em></h1>
+  <p class="fx d2">Teaching your programs to decide. Grade bands, an ATM that locks after three wrong PINs, and a tax calculator that gets the brackets right.</p>
+  <div class="foot fx d3">codencode Academy · prerequisite: Session 1 Python Basics</div>
+</section>
+
+<section class="slide" data-title="Session Plan">
+  <div class="tag fx">Session Plan</div>
+  <h1 class="sh fx d1">What we're doing today</h1>
+  <div class="body">
+    <div class="col cards grid3"><div class="card accent fx d2">
+        <h3><span class="k">M1</span>Decision Basics</h3>
+        <p>Why programs need to branch, the if/elif/else structure, and the operators that drive it.</p>
+        <div style="margin-top:10px"><span class="pill mint">45 min</span></div>
+      </div><div class="card accent fx d3">
+        <h3><span class="k">M2</span>Robust Conditionals</h3>
+        <p>Keeping logic flat and readable, and not crashing on bad input.</p>
+        <div style="margin-top:10px"><span class="pill mint">45 min</span></div>
+      </div><div class="card accent fx d4">
+        <h3><span class="k">M3</span>Applied Logic</h3>
+        <p>Three real builds: grade report, ATM lock, tax calculator.</p>
+        <div style="margin-top:10px"><span class="pill mint">50 min</span></div>
+      </div></div>
+  </div>
+  <div class="cards grid3 fx d5"><div class="card"><p><b>Bring</b> — your week1 folder from last session</p></div><div class="card"><p><b>Homework 2</b> — Conditionals &amp; Logic, four scripts</p></div><div class="card"><p><b>Push to</b> — <span style='font-family:var(--mono)'>python-bootcamp/week2/</span></p></div></div>
+</section>
+
+<section class="slide" data-title="Revised Last Week">
+  <div class="tag fx">Revised Last Week · 10 minutes</div>
+  <h1 class="sh fx d1">Session 01 — Python Basics</h1>
+  <p class="sub fx d2">Quick check before we build on it. Answer out loud — if the room goes quiet on any of these, we go back over it now.</p>
+  <div class="body">
+    <div class="col cards grid3 fx d3"><div class="card"><h3>What is a variable?</h3><p>A labelled box holding a value. The name is yours to choose; the type is what kind of value fits.</p></div><div class="card"><h3>Why cast?</h3><p>input() always gives you a string. Add 1 to it and Python raises a TypeError — int() fixes it.</p></div><div class="card"><h3>How do you read an error?</h3><p>Bottom line names the error, then look up for the file and line that caused it.</p></div></div>
+  </div>
+  <p class="caption fx d4">Last week your programs ran top to bottom, every line, every time. Today they start choosing.</p>
+</section>
+
+<section class="slide" data-title="Learning Outcomes">
+  <div class="tag fx">Learning Outcomes · Condition — Performance — Standard</div>
+  <h1 class="sh fx d1">By the end of today you will be able to…</h1>
+  <div class="body">
+    <div class="col fx d2">
+      <table class="t cps">
+        <tr><th>Component</th><th>Statement</th></tr>
+        <tr><td>Condition</td><td>Given a written brief describing rules with conditions and boundaries,</td></tr>
+        <tr><td>Performance</td><td>you will write branching logic using if, elif and else with correct comparison and logical operators, keep the structure flat using guard clauses, and handle input that is not a valid number,</td></tr>
+        <tr><td>Standard</td><td>producing scripts that give the <b style="color:var(--text)">correct answer at every boundary value</b>, never crash on letters typed into a number prompt, and are pushed to <span style="font-family:var(--mono)">week2/</span>.</td></tr>
+      </table>
+      <div style="margin-top:18px"><span class="pill mint">LO1 · if / elif / else</span><span class="pill mint">LO2 · Comparison &amp; logic operators</span><span class="pill mint">LO3 · Flat, readable branching</span><span class="pill mint">LO4 · Handle bad input</span><span class="pill coral">LO5 · Get the boundaries right</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="slide" data-title="Content Mapping">
+  <div class="tag fx">Content Mapping</div>
+  <h1 class="sh fx d1">How today maps to your outcomes</h1>
+  <div class="body">
+    <div class="col fx d2">
+      <table class="t">
+        <tr><th>Module</th><th>Topics</th><th style="width:120px">Outcome</th><th style="width:190px">Assessed by</th></tr>
+        <tr><td>Module 1</td><td>1.1 Why decisions · 1.2 if / elif / else · 1.3 Comparison &amp; logical operators</td>
+        <td style="color:var(--mint)">LO1, LO2</td><td>Grade-band drill</td></tr><tr><td>Module 2</td><td>2.1 Nested vs guard clauses · 2.2 Handling bad input · 2.3 Reading multi-branch logic</td>
+        <td style="color:var(--mint)">LO3, LO4</td><td>Teacher Demo — grade report</td></tr><tr><td>Module 3</td><td>3.1 ATM PIN lock · 3.2 Tax calculator · 3.3 Debugging conditionals</td>
+        <td style="color:var(--mint)">LO5</td><td>Your Turn — ATM + tax</td></tr>
+      </table>
+      <div class="theory" style="margin-top:20px">
+        <div class="lbl">The thing that actually catches people</div>
+        <p>Not the syntax — <b>the boundaries</b>. Is 80 an A or a B? Is exactly RM 5,000 taxed? Almost every bug in this session will be a <span style="font-family:var(--mono)">&gt;</span> that should have been <span style="font-family:var(--mono)">&gt;=</span>.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="slide divider" data-title="Module 1">
+  <div class="num fx">01</div>
+  <h1 class="fx d1">Decision Basics</h1>
+  <div class="items"><div class="fx d2"><b>1.1</b>Why a program needs to decide anything</div><div class="fx d3"><b>1.2</b>if, elif, else — and the order they run in</div><div class="fx d4"><b>1.3</b>Comparison and logical operators</div>
+    <div class="fx d5" style="margin-top:8px"><b style="color:var(--amber)">↓</b><span style="color:var(--amber)">Hands-on: grade bands, and the boundary trap</span></div>
+  </div>
+</section>
+
+<section class="slide" data-title="1.1 Why decisions">
+  <div class="tag fx">1.1 · Why decisions</div>
+  <h1 class="sh fx d1">Every useful program branches</h1>
+  <div class="body">
+    <div class="col fx d2"><div class="def"><div class="lbl">Definition</div><h4>Conditional</h4><p>A piece of code that runs <b>only if</b> something is true. It is how a program stops doing the same thing every time and starts responding to what it is given.</p></div><div class="theory"><div class="lbl">What changed since last week</div><p>Session 1's scripts ran every line, top to bottom, in order. That is fine for a calculator that always does the same sum — but useless for anything that has to react. An ATM that dispenses cash regardless of the PIN is not an ATM.</p></div></div>
+    <div class="col fx d3"><div class="card accent"><h3>Where you have already met one today</h3><p>Your phone decided whether to show a notification. The toll gate decided whether your Touch 'n Go had enough balance. Grab decided which driver was nearest. All conditionals.</p></div><div class="cb"><div class="code-head">the shape of every decision</div><pre class="code sm"><span class="s">if</span> <span class="c">&lt;something that is True or False&gt;</span>:
+    <span class="c"># this runs only when it is True</span>
+    do_something()
+
+<span class="c"># indentation is not decoration —</span>
+<span class="c"># it is how Python knows what is inside the if</span></pre></div><div class="card warn"><h3>The colon and the indent</h3><p>Forget the <span style="font-family:var(--mono)">:</span> and you get a SyntaxError. Forget the indent and you get an IndentationError. Both are among the most common first-month errors — and both are obvious once you read the message.</p></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="Move the score — watch which branch runs">
+  <div class="tag fx">1.2 · if / elif / else</div>
+  <h1 class="sh fx d1">Move the score — watch which branch runs</h1>
+  <p class="sub fx d2">Drag through 100 → 80 → 79 → 60 → 59. The boundaries are where bugs live.</p>
+  <div class="body figbody">
+    <div class="figwrap">
+      <svg class="fig" id="ifSvg" viewBox="0 0 1000 420"></svg>
+      <div class="legend"><span><i style="background:#00dcb4"></i>the branch that runs</span><span><i style="background:#ff6f91"></i>tested and False</span></div>
+      
+    </div>
+    <div class="col figside" style="max-width:350px"><div class="gate"><label><b style="color:var(--mint)">score</b><span id="scoreOut">85</span></label><input type="range" min="0" max="100" step="1" value="85" oninput="ifDraw(+this.value)"></div><div class="card accent" style="margin-bottom:11px"><h3>Result</h3><p style="font-family:var(--mono);font-size:28px" id="gradeOut">A</p></div><div class="theory"><div class="lbl">What just happened</div><p id="ifNote">—</p></div><div class="card accent"><h3>Python stops at the first True</h3><p>It checks top to bottom and runs <b>exactly one</b> branch. Once something matches, everything below it is skipped — which is why order matters.</p></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="1.3 Operators">
+  <div class="tag fx">1.3 · Operators</div>
+  <h1 class="sh fx d1">The operators that produce True and False</h1>
+  <div class="body">
+    <div class="col fx d2"><table class="t"><tr><th>Operator</th><th>Means</th><th>Example</th></tr><tr><td style="color:var(--mint)">==</td><td>equal to</td><td>age == 18</td></tr><tr><td style="color:var(--mint)">!=</td><td>not equal to</td><td>name != ""</td></tr><tr><td style="color:var(--mint)">&gt; &nbsp; &lt;</td><td>greater / less than</td><td>score &gt; 80</td></tr><tr><td style="color:var(--mint)">&gt;= &nbsp; &lt;=</td><td>or equal to</td><td>score &gt;= 80</td></tr><tr><td style="color:var(--blue)">and</td><td>both must be True</td><td>age &gt;= 18 and has_ic</td></tr><tr><td style="color:var(--blue)">or</td><td>either is enough</td><td>is_weekend or is_holiday</td></tr><tr><td style="color:var(--blue)">not</td><td>flips it</td><td>not is_locked</td></tr></table><div class="card warn"><h3>= versus ==</h3><p>One equals sign <b>assigns</b>: <span style="font-family:var(--mono)">score = 80</span> puts 80 in the box. Two equals signs <b>ask</b>: <span style="font-family:var(--mono)">score == 80</span> gives True or False. Mixing them up is the single most common conditional bug.</p></div></div>
+    <div class="col fx d3"><div class="cb"><div class="code-head">and / or, and why order can matter</div><pre class="code sm">age = <span class="n">17</span>
+has_licence = <span class="k">False</span>
+
+<span class="k">print</span>(age &gt;= <span class="n">18</span> <span class="s">and</span> has_licence)   <span class="c"># False — both must hold</span>
+<span class="k">print</span>(age &gt;= <span class="n">18</span> <span class="s">or</span>  has_licence)   <span class="c"># False — neither holds</span>
+<span class="k">print</span>(<span class="s">not</span> has_licence)            <span class="c"># True</span>
+
+<span class="c"># chaining works and reads nicely</span>
+<span class="k">print</span>(<span class="n">60</span> &lt;= score &lt; <span class="n">80</span>)          <span class="c"># True if in the B band</span></pre></div><div class="theory"><div class="lbl">The chained form is worth learning</div><p><span style="font-family:var(--mono)">60 &lt;= score &lt; 80</span> does what the maths notation suggests, and most other languages cannot do it. It is clearer than <span style="font-family:var(--mono)">score &gt;= 60 and score &lt; 80</span> and harder to get wrong.</p></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="Module 1 Hands-on">
+  <div class="tag fx">Hands-on · Module 1</div>
+  <h1 class="sh fx d1">Grade bands, and the boundary trap</h1>
+  <div class="body">
+    <div class="col fx d2">
+      <div class="hands-on">
+        <div class="lbl">15 minutes · pairs</div>
+        <h3>Grade bands, and the boundary trap</h3>
+        <p>Write the grade function, then attack your partner's version with edge cases.</p>
+        <div class="steps"><div><b>01</b><span>Write a script that turns a score into a grade: 80+ = A, 60–79 = B, 40–59 = C, below 40 = Fail.</span></div><div><b>02</b><span>Test it with 100, 80, 79, 60, 59, 40, 39 and 0.</span></div><div><b>03</b><span>Swap with your partner. Try to find a score where their grade is wrong.</span></div><div><b>04</b><span>Fix any boundary you got wrong, and say out loud which operator was the problem.</span></div><div><b>05</b><span>Stretch: add a rule that any score above 100 or below 0 prints "invalid score".</span></div></div>
+      </div>
+    </div>
+    <div class="col fx d3"><div class="cb"><div class="code-head">the boundary bug, and the fix</div><pre class="code sm"><span class="c"># WRONG — what grade does exactly 80 get?</span>
+<span class="s">if</span> score &gt; <span class="n">80</span>:
+    grade = <span class="s">"A"</span>
+<span class="s">elif</span> score &gt; <span class="n">60</span>:
+    grade = <span class="s">"B"</span>
+
+<span class="c"># 80 falls through to the elif and gets a B.</span>
+
+<span class="c"># RIGHT</span>
+<span class="s">if</span> score &gt;= <span class="n">80</span>:
+    grade = <span class="s">"A"</span>
+<span class="s">elif</span> score &gt;= <span class="n">60</span>:
+    grade = <span class="s">"B"</span></pre></div><div class="theory"><div class="lbl">Always test the edges</div><p>Not 85 and 45 — those work in almost any version. Test <b>exactly</b> 80, exactly 60, one below each. Two minutes of that finds bugs that survive a hundred random tests.</p></div></div>
+  </div>
+</section>
+
+<section class="slide divider" data-title="Module 2">
+  <div class="num fx">02</div>
+  <h1 class="fx d1">Robust Conditionals</h1>
+  <div class="items"><div class="fx d2"><b>2.1</b>Nested pyramids, and how to flatten them</div><div class="fx d3"><b>2.2</b>Not crashing when someone types "sixty"</div><div class="fx d4"><b>2.3</b>Reading somebody else's branching logic</div>
+    <div class="fx d5" style="margin-top:8px"><b style="color:var(--amber)">↓</b><span style="color:var(--amber)">Teacher Demo: the grade report generator</span></div>
+  </div>
+</section>
+
+<section class="slide" data-title="Flatten it — your future self will thank you">
+  <div class="tag fx">2.1 · Guard clauses</div>
+  <h1 class="sh fx d1">Flatten it — your future self will thank you</h1>
+  <div class="body">
+    <div class="col fx d2"><div class="code-head">before — four levels deep</div><pre class="code sm"><span class="s">def</span> withdraw(user, amount):
+    <span class="s">if</span> user.active:
+        <span class="s">if</span> user.balance &gt;= amount:
+            <span class="s">if</span> amount &gt; <span class="n">0</span>:
+                user.balance -= amount
+                <span class="s">return</span> <span class="k">True</span>
+            <span class="s">else</span>:
+                <span class="s">return</span> <span class="k">False</span>
+        <span class="s">else</span>:
+            <span class="s">return</span> <span class="k">False</span>
+    <span class="s">else</span>:
+        <span class="s">return</span> <span class="k">False</span></pre></div>
+    <div class="col fx d3"><div class="code-head">after — guard clauses</div><pre class="code sm"><span class="s">def</span> withdraw(user, amount):
+    <span class="s">if</span> <span class="s">not</span> user.active:
+        <span class="s">return</span> <span class="k">False</span>
+    <span class="s">if</span> user.balance &lt; amount:
+        <span class="s">return</span> <span class="k">False</span>
+    <span class="s">if</span> amount &lt;= <span class="n">0</span>:
+        <span class="s">return</span> <span class="k">False</span>
+
+    <span class="c"># the real work, unindented</span>
+    user.balance -= amount
+    <span class="s">return</span> <span class="k">True</span></pre><div class="def"><div class="lbl">Definition</div><h4>Guard clause</h4><p>A check at the top of a function that deals with a bad case and <b>returns immediately</b>, so the rest of the function can assume everything is fine.</p></div><div class="theory"><div class="lbl">The rule of thumb</div><p>Handle the failures first and get out. What is left at the bottom is the thing the function is actually for — and it sits at one level of indentation instead of four.</p></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="Someone will type 'sixty' into your number box">
+  <div class="tag fx">2.2 · Bad input</div>
+  <h1 class="sh fx d1">Someone will type "sixty" into your number box</h1>
+  <div class="body">
+    <div class="col fx d2"><div class="theory"><div class="lbl">Why this belongs in a conditionals lesson</div><p>Because the naive fix is a conditional, and it does not work. You cannot check "is this text a number?" with <span style="font-family:var(--mono)">if</span> alone — you have to <b>try it and catch the failure</b>.</p></div></div>
+    <div class="col fx d3"><div class="cb"><div class="code-head">what happens, and the fix</div><pre class="code sm">age = <span class="k">int</span>(<span class="k">input</span>(<span class="s">"Age? "</span>))
+<span class="e"># user types "sixty" -> ValueError</span>
+
+<span class="c"># the fix — try it, catch the failure</span>
+<span class="s">try</span>:
+    age = <span class="k">int</span>(<span class="k">input</span>(<span class="s">"Age? "</span>))
+<span class="s">except</span> ValueError:
+    <span class="k">print</span>(<span class="s">"Please type a whole number."</span>)
+    age = <span class="k">None</span></pre></div><div class="cb"><div class="code-head">the pattern you will reuse all course</div><pre class="code sm"><span class="s">def</span> ask_number(prompt):
+    <span class="s">while</span> <span class="k">True</span>:
+        <span class="s">try</span>:
+            <span class="s">return</span> <span class="k">float</span>(<span class="k">input</span>(prompt))
+        <span class="s">except</span> ValueError:
+            <span class="k">print</span>(<span class="s">"Numbers only — try again."</span>)</pre></div><div class="card accent"><h3>A preview, not the full lesson</h3><p>Error handling properly is Session 6. Today you need just enough that your ATM and tax calculator do not crash when someone fat-fingers a letter — because the homework rubric checks exactly that.</p></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="2.3 Teacher Demo">
+  <div class="tag fx">2.3 · Reading logic</div>
+  <h1 class="sh fx d1">Teacher Demo — the grade report generator</h1>
+  <div class="body">
+    <div class="col fx d2"><div class="cb"><div class="code-head">read this before you run it — what does 85 print?</div><pre class="code"><span class="s">def</span> report(name, score):
+    <span class="s">if</span> score &lt; <span class="n">0</span> <span class="s">or</span> score &gt; <span class="n">100</span>:
+        <span class="s">return</span> <span class="s">f"{name}: invalid score"</span>
+
+    <span class="s">if</span> score &gt;= <span class="n">80</span>:
+        grade, note = <span class="s">"A"</span>, <span class="s">"excellent"</span>
+    <span class="s">elif</span> score &gt;= <span class="n">60</span>:
+        grade, note = <span class="s">"B"</span>, <span class="s">"good"</span>
+    <span class="s">elif</span> score &gt;= <span class="n">40</span>:
+        grade, note = <span class="s">"C"</span>, <span class="s">"passed"</span>
+    <span class="s">else</span>:
+        grade, note = <span class="s">"F"</span>, <span class="s">"resit needed"</span>
+
+    star = <span class="s">" *"</span> <span class="s">if</span> score &gt;= <span class="n">95</span> <span class="s">else</span> <span class="s">""</span>
+    <span class="s">return</span> <span class="s">f"{name}: {grade} ({note}){star}"</span></pre></div></div>
+    <div class="col fx d3"><div class="def"><div class="lbl">Definition</div><h4>Ternary expression</h4><p><span style="font-family:var(--mono)">a if condition else b</span> — a one-line if/else that produces a value. Good for short choices; bad for anything you would have to read twice.</p></div><div class="theory"><div class="lbl">Note the guard clause at the top</div><p>The invalid-score check returns immediately, so the grade logic below never has to worry about nonsense input. That is 2.1 applied to a real function.</p></div><div class="cb"><div class="code-head">run it on the edges</div><pre class="code sm"><span class="k">for</span> s <span class="s">in</span> [<span class="n">100</span>, <span class="n">95</span>, <span class="n">94</span>, <span class="n">80</span>, <span class="n">79</span>, <span class="n">60</span>, <span class="n">40</span>, <span class="n">0</span>, <span class="n">-5</span>, <span class="n">105</span>]:
+    <span class="k">print</span>(report(<span class="s">"Aisyah"</span>, s))</pre></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="Module 2 Hands-on">
+  <div class="tag fx">Hands-on · Module 2</div>
+  <h1 class="sh fx d1">Build the grade report yourself</h1>
+  <div class="body">
+    <div class="col fx d2">
+      <div class="hands-on">
+        <div class="lbl">20 minutes · solo</div>
+        <h3>Build the grade report yourself</h3>
+        
+        <div class="steps"><div><b>01</b><span>Type the report function out — do not copy-paste. You will notice more.</span></div><div><b>02</b><span>Run it on all ten test values above. Check every one by hand.</span></div><div><b>03</b><span>Add a fifth band: 90+ is an A+.</span></div><div><b>04</b><span>Add a guard clause that rejects an empty name.</span></div><div><b>05</b><span>Break it on purpose: pass a string as the score. Read the error, then handle it.</span></div></div>
+      </div>
+    </div>
+    <div class="col fx d3"><div class="cb"><div class="code-head">where it should end up</div><pre class="code sm"><span class="k">print</span>(report(<span class="s">"Aisyah"</span>, <span class="n">96</span>))
+<span class="c"># Aisyah: A+ (excellent) *</span>
+
+<span class="k">print</span>(report(<span class="s">"Wei Ming"</span>, <span class="n">60</span>))
+<span class="c"># Wei Ming: B (good)</span>
+
+<span class="k">print</span>(report(<span class="s">""</span>, <span class="n">70</span>))
+<span class="c"># error: name is required</span></pre></div><div class="card warn"><h3>Adding the A+ band is a trap</h3><p>If you put <span style="font-family:var(--mono)">elif score &gt;= 90</span> <b>after</b> the 80 check, it never runs — 96 already matched A and stopped. Order matters, and this is where you feel it.</p></div></div>
+  </div>
+</section>
+
+<section class="slide divider" data-title="Module 3">
+  <div class="num fx">03</div>
+  <h1 class="fx d1">Applied Logic</h1>
+  <div class="items"><div class="fx d2"><b>3.1</b>An ATM that locks after three wrong PINs</div><div class="fx d3"><b>3.2</b>A tax calculator that gets the brackets right</div><div class="fx d4"><b>3.3</b>Debugging conditional logic</div>
+    <div class="fx d5" style="margin-top:8px"><b style="color:var(--amber)">↓</b><span style="color:var(--amber)">Your Turn: build both, push to week2/</span></div>
+  </div>
+</section>
+
+<section class="slide" data-title="Three attempts, then the card is kept">
+  <div class="tag fx">3.1 · ATM lock</div>
+  <h1 class="sh fx d1">Three attempts, then the card is kept</h1>
+  <p class="sub fx d2">Watch the attempts burn down. Press CORRECT PIN mid-way and the counter resets.</p>
+  <div class="body figbody">
+    <div class="figwrap">
+      <svg class="fig" id="pinSvg" viewBox="0 0 1000 420"></svg>
+      <div class="legend"><span><i style="background:#ff6f91"></i>attempt used</span><span><i style="background:#8b98a5"></i>still available</span></div>
+      
+    </div>
+    <div class="col figside" style="max-width:350px"><div class="def"><div class="lbl">Definition</div><h4>Counter pattern</h4><p>A variable that starts at zero and increases each time something happens, with a conditional watching it. The backbone of retry limits, scoring, and anything that counts.</p></div><div class="controls" style="justify-content:flex-start;margin-bottom:12px"><button class="btn ghost" onclick="pinWrong()">WRONG PIN</button><button class="btn ghost" onclick="pinRight()">CORRECT PIN</button><button class="btn ghost" onclick="pinReset()">RESET</button></div><div class="card accent"><h3>The three pieces</h3><p>A <b>counter</b> from 0 · a <b>loop</b> that asks again · a <b>conditional</b> that stops at 3. Miss one and it either never locks or locks at once.</p></div><div class="theory"><div class="lbl">The bug to expect</div><p>Checking the lock <b>before</b> incrementing gives four attempts instead of three. One-line fix, twenty minutes to find if you are not testing as you go.</p></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="Move the income — see which bands get taxed">
+  <div class="tag fx">3.2 · Tax brackets</div>
+  <h1 class="sh fx d1">Move the income — see which bands get taxed</h1>
+  <p class="sub fx d2">Each bar is one bracket. The shaded part is how much of your income falls inside it.</p>
+  <div class="body figbody">
+    <div class="figwrap">
+      <svg class="fig" id="taxSvg" viewBox="0 0 1000 420"></svg>
+      <div class="legend"><span><i style="background:#8b98a5"></i>0%</span><span><i style="background:#58a6ff"></i>1%</span><span><i style="background:#00dcb4"></i>3%</span><span><i style="background:#f0b429"></i>6%</span><span><i style="background:#ff6f91"></i>11%</span></div>
+      
+    </div>
+    <div class="col figside" style="max-width:350px"><div class="gate"><label><b style="color:var(--mint)">annual income</b><span id="incOut">RM 40,000</span></label><input type="range" min="0" max="80000" step="1000" value="40000" oninput="taxDraw(+this.value)"></div><div class="eq">total tax &nbsp;<b id="taxOut">—</b><br>effective rate &nbsp;<b id="effOut">—</b></div><div class="theory" style="margin-top:11px"><div class="lbl">Why this matters</div><p id="taxNote">—</p></div><div class="card warn"><h3>The misunderstanding this fixes</h3><p>People think crossing into a higher bracket taxes <b>all</b> their income at the higher rate — and turn down raises because of it. Only the money <i>inside</i> each band is taxed at that band's rate.</p></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="Four conditional bugs, and how to spot each">
+  <div class="tag fx">3.3 · Debugging</div>
+  <h1 class="sh fx d1">Four conditional bugs, and how to spot each</h1>
+  <div class="body">
+    <div class="col fx d2"><div class="card warn"><h3>1 · Wrong boundary operator</h3><p><span style="font-family:var(--mono)">&gt;</span> where you meant <span style="font-family:var(--mono)">&gt;=</span>. Symptom: exactly one value gets the wrong answer. Test every boundary.</p></div><div class="card warn"><h3>2 · Branches in the wrong order</h3><p>A narrower condition placed after a wider one never runs. Symptom: a branch that looks correct but is never reached. Print inside it to confirm.</p></div><div class="card warn"><h3>3 · = instead of ==</h3><p>Python catches this with a SyntaxError inside an if — which is lucky, because in many languages it silently assigns and passes.</p></div><div class="card warn"><h3>4 · Forgetting else</h3><p>If nothing matches, nothing happens — silently. Symptom: no output and no error. Always have an else, even if it only prints "unexpected input".</p></div></div>
+    <div class="col fx d3"><div class="cb"><div class="code-head">the debugging move that finds all four</div><pre class="code sm"><span class="s">if</span> score &gt;= <span class="n">80</span>:
+    <span class="k">print</span>(<span class="s">"DEBUG: took the A branch"</span>)   <span class="c"># ← temporary</span>
+    grade = <span class="s">"A"</span>
+<span class="s">elif</span> score &gt;= <span class="n">60</span>:
+    <span class="k">print</span>(<span class="s">"DEBUG: took the B branch"</span>)
+    grade = <span class="s">"B"</span>
+<span class="s">else</span>:
+    <span class="k">print</span>(<span class="s">"DEBUG: fell through to else"</span>)
+    grade = <span class="s">"F"</span>
+
+<span class="c"># run it, read which branch fired, delete the prints</span></pre></div><div class="theory"><div class="lbl">Print which branch ran</div><p>You are never guessing about conditionals — you can always just ask the program which path it took. Thirty seconds of temporary prints beats twenty minutes of staring.</p></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="Module 3 Hands-on">
+  <div class="tag fx">Hands-on · Module 3</div>
+  <h1 class="sh fx d1">Your Turn — ATM lock and tax calculator</h1>
+  <div class="body">
+    <div class="col fx d2">
+      <div class="hands-on">
+        <div class="lbl">25 minutes · solo</div>
+        <h3>Your Turn — ATM lock and tax calculator</h3>
+        
+        <div class="steps"><div><b>01</b><span><b>ATM</b> — store a correct PIN. Ask up to three times. Correct: "Welcome" and stop. Three wrong: "Card locked".</span></div><div><b>02</b><span>Test it: right first try · right on the third · three wrong · letters instead of digits.</span></div><div><b>03</b><span><b>Tax</b> — ask for annual income. Compute tax using the five bands from 3.2.</span></div><div><b>04</b><span>Print a breakdown line per band, then the total and the effective rate.</span></div><div><b>05</b><span>Check RM 40,000 against the figure on that slide — they must match.</span></div><div><b>06</b><span>Push both to <span style="font-family:var(--mono)">python-bootcamp/week2/</span>.</span></div></div>
+      </div>
+    </div>
+    <div class="col fx d3"><div class="cb"><div class="code-head">tax — the structure that keeps it honest</div><pre class="code sm">income = ask_number(<span class="s">"Annual income? RM "</span>)
+
+bands = [
+    (<span class="n">0</span>,     <span class="n">5000</span>,  <span class="n">0.00</span>),
+    (<span class="n">5000</span>,  <span class="n">20000</span>, <span class="n">0.01</span>),
+    (<span class="n">20000</span>, <span class="n">35000</span>, <span class="n">0.03</span>),
+    (<span class="n">35000</span>, <span class="n">50000</span>, <span class="n">0.06</span>),
+    (<span class="n">50000</span>, <span class="k">float</span>(<span class="s">"inf"</span>), <span class="n">0.11</span>),
+]
+
+total = <span class="n">0</span>
+<span class="k">for</span> low, high, rate <span class="s">in</span> bands:
+    in_band = <span class="k">max</span>(<span class="n">0</span>, <span class="k">min</span>(income, high) - low)
+    total += in_band * rate
+    <span class="s">if</span> in_band &gt; <span class="n">0</span>:
+        <span class="k">print</span>(low, high, rate, in_band)
+
+<span class="k">print</span>(<span class="s">f"Total: RM {total:,.2f}"</span>)</pre></div><div class="card accent"><h3>The min/max line is the whole trick</h3><p><span style="font-family:var(--mono)">max(0, min(income, high) - low)</span> gives exactly how much of your income sits inside that band — 0 if you never reached it, the full band if you passed straight through.</p></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="Recap &amp; Summary">
+  <div class="tag fx">Recap &amp; Summary</div>
+  <h1 class="sh fx d1">What you can do now</h1>
+  <div class="body">
+    <div class="col cards grid3 fx d2"><div class="card accent"><h3><span class="k">M1</span>Decision Basics</h3><p>Write if/elif/else that runs exactly one branch, and use comparison and logical operators correctly.</p></div><div class="card accent"><h3><span class="k">M2</span>Robust Conditionals</h3><p>Flatten nested logic into guard clauses, and stop a program crashing on input that is not a number.</p></div><div class="card accent"><h3><span class="k">M3</span>Applied Logic</h3><p>Build a counter-based retry limit and a banded calculation that gets every boundary right.</p></div></div>
+  </div>
+  <div class="body" style="flex:0 0 auto;margin-top:0">
+    <div class="col fx d3"><div class="theory"><div class="lbl">The one line to remember</div><p><b>Test the boundaries, not the middle.</b> Almost every conditional bug lives at exactly the value where one branch becomes another — and random testing will never find it.</p></div></div>
+    <div class="col fx d4"><div class="card"><h3>Next session — Loops &amp; Data Structures</h3><p>Doing something many times without writing it many times: for and while loops, lists and dictionaries, and a contact book that saves itself to a file.</p></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="Review Learning Outcomes">
+  <div class="tag fx">Review Learning Outcomes</div>
+  <h1 class="sh fx d1">Did we get there?</h1>
+  <p class="sub fx d2">Rate yourself 1–5. Anything at 2 or below, flag it now — next session assumes all of this.</p>
+  <div class="body">
+    <div class="col cards grid2 fx d3"><div class="card"><h3><span class="k">LO1</span>I can write if / elif / else and say which branch will run</h3><p style="font-family:var(--mono);color:var(--mint)">1 — 2 — 3 — 4 — 5</p></div><div class="card"><h3><span class="k">LO2</span>I know the difference between = and ==, and when to use and / or</h3><p style="font-family:var(--mono);color:var(--mint)">1 — 2 — 3 — 4 — 5</p></div><div class="card"><h3><span class="k">LO3</span>I can turn nested conditions into guard clauses</h3><p style="font-family:var(--mono);color:var(--mint)">1 — 2 — 3 — 4 — 5</p></div><div class="card"><h3><span class="k">LO4</span>My script does not crash when someone types letters into a number prompt</h3><p style="font-family:var(--mono);color:var(--mint)">1 — 2 — 3 — 4 — 5</p></div><div class="card accent" style="grid-column:1/-1"><h3><span class="k">LO5</span>I tested every boundary value, not just the middle of each band</h3><p style="font-family:var(--mono);color:var(--mint)">1 — 2 — 3 — 4 — 5</p></div></div>
+  </div>
+  <p class="caption fx d4">codencode.my · Session 02 complete</p>
+</section>
+</div>
+
+<div id="nav">
+  <button class="navbtn" onclick="go(-1)">PREV</button>
+  <div id="dots"></div>
+  <button class="navbtn" onclick="go(1)">NEXT</button>
+</div>
+
+<script>
+const slides=[...document.querySelectorAll('.slide')];
+let i=0;
+const dots=document.getElementById('dots');
+slides.forEach((s,n)=>{const d=document.createElement('div');d.className='dot';
+  d.onclick=()=>show(n);dots.appendChild(d);});
+function show(n){
+  if(n<0||n>=slides.length)return;
+  slides[i].classList.remove('active');
+  i=n;
+  // force reflow so entry animations restart cleanly
+  void slides[i].offsetWidth;
+  slides[i].classList.add('active');
+  document.getElementById('counter').textContent=String(i+1).padStart(2,'0')+' / '+slides.length;
+  document.getElementById('titlebar').textContent=slides[i].dataset.title||'';
+  document.getElementById('progress').style.width=((i+1)/slides.length*100)+'%';
+  [...dots.children].forEach((d,n2)=>d.classList.toggle('on',n2===i));
+}
+function go(d){show(i+d);}
+function fs(){document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen();}
+addEventListener('keydown',e=>{
+  if(['ArrowRight',' ','PageDown'].includes(e.key)){e.preventDefault();go(1);}
+  if(['ArrowLeft','PageUp'].includes(e.key)){e.preventDefault();go(-1);}
+  if(e.key==='Home')show(0);
+  if(e.key==='End')show(slides.length-1);
+  if(e.key==='f')fs();
+});
+
+/* ---------- copy-to-clipboard on every code block ---------- */
+(function(){
+  document.querySelectorAll('pre.code').forEach(pre=>{
+    const source = pre.textContent;               // capture BEFORE adding the button
+    const btn = document.createElement('button');
+    btn.className = 'copybtn';
+    btn.type = 'button';
+    btn.textContent = 'COPY';
+    btn.addEventListener('click', async e=>{
+      e.stopPropagation();
+      try{
+        await navigator.clipboard.writeText(source);
+      }catch(err){                                 // file:// fallback
+        const ta=document.createElement('textarea');
+        ta.value=source; ta.style.position='fixed'; ta.style.opacity='0';
+        document.body.appendChild(ta); ta.select();
+        try{document.execCommand('copy');}catch(_){}
+        document.body.removeChild(ta);
+      }
+      btn.textContent='COPIED'; btn.classList.add('done');
+      setTimeout(()=>{btn.textContent='COPY'; btn.classList.remove('done');},1400);
+    });
+    pre.appendChild(btn);
+  });
+})();
+
+
+/* ---------- interactive if / elif / else ---------- */
+(function(){
+  const svg=document.getElementById('ifSvg'); if(!svg) return;
+  window.ifDraw=function(score){
+    const branch = score>=80 ? 0 : score>=60 ? 1 : 2;
+    const grade  = ['A','B','Try again'][branch];
+    const CX=290, CY1=120, CY2=250;
+    const on='#00dcb4', off='#2a3440', dim='#8b98a5';
+    let s='';
+    s+=`<rect x="40" y="36" width="230" height="46" rx="10" fill="#0a0e13" stroke="#2a3440" stroke-width="1.5"/>`;
+    s+=`<text x="155" y="65" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="16" fill="#e8eef0">score = ${score}</text>`;
+    s+=`<line x1="155" y1="84" x2="155" y2="${CY1-46}" stroke="${dim}" stroke-width="1.8" marker-end="url(#ifa)"/>`;
+
+    function diamond(cx,cy,label,active,taken){
+      const col = active ? (taken?on:'#ff6f91') : off;
+      let o=`<path d="M ${cx} ${cy-46} L ${cx+160} ${cy} L ${cx} ${cy+46} L ${cx-160} ${cy} Z"
+             fill="${active?'#1c2430':'#12181f'}" stroke="${col}" stroke-width="${active?2.4:1.6}"/>`;
+      o+=`<text x="${cx}" y="${cy+6}" text-anchor="middle" font-family="JetBrains Mono,monospace"
+           font-size="15" fill="${active?'#e8eef0':dim}">${label}</text>`;
+      return o;
+    }
+    // if
+    s+=diamond(CX,CY1,'score &gt;= 80 ?', true, branch===0);
+    s+=`<text x="${CX-172}" y="${CY1-52}" font-family="JetBrains Mono,monospace" font-size="13" fill="${branch===0?on:dim}">if</text>`;
+    s+=`<line x1="${CX+162}" y1="${CY1}" x2="${600}" y2="${CY1}" stroke="${branch===0?on:off}" stroke-width="${branch===0?2.6:1.5}" marker-end="url(#${branch===0?'ifo':'ifa'})"/>`;
+    s+=`<text x="${(CX+600)/2}" y="${CY1-10}" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="12" fill="${branch===0?on:dim}">True</text>`;
+    s+=`<rect x="606" y="${CY1-26}" width="300" height="52" rx="9" fill="${branch===0?'#0d3d34':'#12181f'}" stroke="${branch===0?on:off}" stroke-width="${branch===0?2.2:1.4}"/>`;
+    s+=`<text x="756" y="${CY1+6}" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="15" fill="${branch===0?on:dim}">print("Grade A")</text>`;
+    // down to elif
+    s+=`<line x1="${CX}" y1="${CY1+48}" x2="${CX}" y2="${CY2-48}" stroke="${branch===0?off:dim}" stroke-width="1.8" marker-end="url(#ifa)"/>`;
+    s+=`<text x="${CX+12}" y="${(CY1+CY2)/2}" font-family="JetBrains Mono,monospace" font-size="12" fill="${branch===0?off:dim}">False</text>`;
+    // elif
+    s+=diamond(CX,CY2,'score &gt;= 60 ?', branch!==0, branch===1);
+    s+=`<text x="${CX-172}" y="${CY2-52}" font-family="JetBrains Mono,monospace" font-size="13" fill="${branch===1?on:dim}">elif</text>`;
+    s+=`<line x1="${CX+162}" y1="${CY2}" x2="${600}" y2="${CY2}" stroke="${branch===1?on:off}" stroke-width="${branch===1?2.6:1.5}" marker-end="url(#${branch===1?'ifo':'ifa'})"/>`;
+    s+=`<text x="${(CX+600)/2}" y="${CY2-10}" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="12" fill="${branch===1?on:dim}">True</text>`;
+    s+=`<rect x="606" y="${CY2-26}" width="300" height="52" rx="9" fill="${branch===1?'#0d3d34':'#12181f'}" stroke="${branch===1?on:off}" stroke-width="${branch===1?2.2:1.4}"/>`;
+    s+=`<text x="756" y="${CY2+6}" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="15" fill="${branch===1?on:dim}">print("Grade B")</text>`;
+    // else
+    s+=`<line x1="${CX}" y1="${CY2+48}" x2="${CX}" y2="340" stroke="${branch===2?dim:off}" stroke-width="1.8" marker-end="url(#ifa)"/>`;
+    s+=`<text x="${CX+12}" y="310" font-family="JetBrains Mono,monospace" font-size="12" fill="${branch===2?dim:off}">False</text>`;
+    s+=`<text x="${CX-172}" y="365" font-family="JetBrains Mono,monospace" font-size="13" fill="${branch===2?on:dim}">else</text>`;
+    s+=`<rect x="${CX-150}" y="346" width="300" height="52" rx="9" fill="${branch===2?'#0d3d34':'#12181f'}" stroke="${branch===2?on:off}" stroke-width="${branch===2?2.2:1.4}"/>`;
+    s+=`<text x="${CX}" y="378" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="15" fill="${branch===2?on:dim}">print("Try again")</text>`;
+    s+=`<defs>
+      <marker id="ifa" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#8b98a5"/></marker>
+      <marker id="ifo" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#00dcb4"/></marker>
+    </defs>`;
+    svg.innerHTML=s;
+    const g=id=>document.getElementById(id);
+    if(g('scoreOut')) g('scoreOut').textContent=score;
+    if(g('gradeOut')){ g('gradeOut').textContent=grade;
+      g('gradeOut').style.color = branch===0?'#00dcb4':branch===1?'#58a6ff':'#ff6f91'; }
+    if(g('ifNote')) g('ifNote').innerHTML =
+      branch===0 ? 'The <b style="color:var(--mint)">if</b> was True, so Python ran it and <b>skipped everything below</b>.'
+      : branch===1 ? 'The if was False, so Python tried the <b style="color:var(--mint)">elif</b> — True, so it stops there.'
+      : 'Both tests failed, so <b style="color:var(--mint)">else</b> catches it. Something always runs.';
+  };
+  window.ifDraw(85);
+})();
+
+/* ---------- live tax calculator ---------- */
+(function(){
+  const svg=document.getElementById('taxSvg'); if(!svg) return;
+  const BANDS=[[0,5000,0.00],[5000,20000,0.01],[20000,35000,0.03],[35000,50000,0.06],[50000,Infinity,0.11]];
+  const COL=['#8b98a5','#58a6ff','#00dcb4','#f0b429','#ff6f91'];
+  window.taxDraw=function(income){
+    const X0=70, BW=150, GAP=34, Y0=300, MAXH=190;
+    let s='', total=0, rows=[];
+    BANDS.forEach(([lo,hi,rate],i)=>{
+      const inBand = Math.max(0, Math.min(income,hi) - lo);
+      const tax = inBand*rate;
+      total += tax;
+      rows.push([lo,hi,rate,inBand,tax]);
+      const x=X0+i*(BW+GAP);
+      const cap = isFinite(hi) ? hi-lo : 30000;
+      const fill = cap>0 ? Math.min(1, inBand/cap) : 0;
+      s+=`<rect x="${x}" y="${Y0-MAXH}" width="${BW}" height="${MAXH}" rx="8" fill="#12181f" stroke="#2a3440" stroke-width="1.4"/>`;
+      if(fill>0){
+        const h=MAXH*fill;
+        s+=`<rect x="${x}" y="${Y0-h}" width="${BW}" height="${h}" rx="8" fill="${COL[i]}" opacity=".30"/>`;
+        s+=`<rect x="${x}" y="${Y0-h}" width="${BW}" height="${h}" rx="8" fill="none" stroke="${COL[i]}" stroke-width="2"/>`;
+      }
+      s+=`<text x="${x+BW/2}" y="${Y0-MAXH-14}" text-anchor="middle" font-family="Space Grotesk,sans-serif"
+           font-size="19" font-weight="700" fill="${fill>0?COL[i]:'#2a3440'}">${(rate*100).toFixed(0)}%</text>`;
+      const label = isFinite(hi) ? `${(lo/1000)}k – ${(hi/1000)}k` : `${(lo/1000)}k +`;
+      s+=`<text x="${x+BW/2}" y="${Y0+22}" text-anchor="middle" font-family="JetBrains Mono,monospace"
+           font-size="12" fill="#8b98a5">${label}</text>`;
+      s+=`<text x="${x+BW/2}" y="${Y0+42}" text-anchor="middle" font-family="JetBrains Mono,monospace"
+           font-size="12" fill="${fill>0?'#e8eef0':'#2a3440'}">RM ${Math.round(tax).toLocaleString()}</text>`;
+    });
+    s+=`<line x1="${X0-16}" y1="${Y0}" x2="${X0+5*(BW+GAP)}" y2="${Y0}" stroke="#2a3440" stroke-width="2"/>`;
+    s+=`<text x="${X0-16}" y="${Y0+72}" font-family="JetBrains Mono,monospace" font-size="12" fill="#8b98a5">shaded = income taxed at that rate</text>`;
+    svg.innerHTML=s;
+    const g=id=>document.getElementById(id);
+    if(g('incOut')) g('incOut').textContent='RM '+income.toLocaleString();
+    if(g('taxOut')) g('taxOut').textContent='RM '+Math.round(total).toLocaleString();
+    if(g('effOut')) g('effOut').textContent=income? (total/income*100).toFixed(1)+'%' : '0.0%';
+    const top = rows.filter(r=>r[3]>0).pop();
+    if(g('taxNote')) g('taxNote').innerHTML = income<=5000
+      ? 'Below RM 5,000 — nothing is taxed at all.'
+      : `Top rate reached: <b style="color:var(--mint)">${(top[2]*100).toFixed(0)}%</b>. `+
+        `But the effective rate is only <b style="color:var(--amber)">${(total/income*100).toFixed(1)}%</b> — because the lower bands are still taxed low.`;
+  };
+  window.taxDraw(40000);
+})();
+
+/* ---------- ATM pin lock ---------- */
+(function(){
+  const svg=document.getElementById('pinSvg'); if(!svg) return;
+  let attempts=0, locked=false, timer=null;
+  function draw(){
+    let s='';
+    const X0=140, BW=180, GAP=40, Y=120;
+    for(let i=0;i<3;i++){
+      const used = i<attempts;
+      const col = used ? '#ff6f91' : '#2a3440';
+      const x=X0+i*(BW+GAP);
+      s+=`<rect class="pin" x="${x}" y="${Y}" width="${BW}" height="92" rx="12"
+           fill="${used?'rgba(255,111,145,.14)':'#12181f'}" stroke="${col}" stroke-width="2.2"/>`;
+      s+=`<text x="${x+BW/2}" y="${Y+42}" text-anchor="middle" font-family="Space Grotesk,sans-serif"
+           font-size="17" font-weight="700" fill="${used?'#ff6f91':'#8b98a5'}">attempt ${i+1}</text>`;
+      s+=`<text x="${x+BW/2}" y="${Y+70}" text-anchor="middle" font-family="JetBrains Mono,monospace"
+           font-size="13" fill="${used?'#ff6f91':'#2a3440'}">${used?'wrong PIN':'—'}</text>`;
+    }
+    const msg = locked ? ['CARD LOCKED','#ff6f91','Three wrong attempts. The loop stops, the card is kept.']
+              : attempts===0 ? ['READY','#00dcb4','Enter your PIN. You have three attempts.']
+              : [`${3-attempts} LEFT`,'#f0b429',`Wrong ${attempts} time${attempts>1?'s':''}. Still ${3-attempts} to go.`];
+    s+=`<rect x="${X0}" y="250" width="${3*BW+2*GAP}" height="60" rx="12"
+         fill="${msg[1]}" opacity=".12"/>`;
+    s+=`<text x="${X0+(3*BW+2*GAP)/2}" y="278" text-anchor="middle" font-family="Space Grotesk,sans-serif"
+         font-size="20" font-weight="700" fill="${msg[1]}">${msg[0]}</text>`;
+    s+=`<text x="${X0+(3*BW+2*GAP)/2}" y="300" text-anchor="middle" font-family="JetBrains Mono,monospace"
+         font-size="13" fill="#8b98a5">${msg[2]}</text>`;
+    svg.innerHTML=s;
+  }
+  window.pinWrong=function(){ if(locked) return; attempts++; if(attempts>=3) locked=true; draw(); };
+  window.pinRight=function(){ if(locked) return; attempts=0; draw();
+    const t=svg.querySelector('text'); };
+  window.pinReset=function(){ attempts=0; locked=false; draw(); };
+  draw();
+  timer=setInterval(()=>{ if(locked){ setTimeout(pinReset,1800); clearInterval(timer);
+    timer=setInterval(arguments.callee,1400); } else pinWrong(); },1400);
+})();
+
+show(0);
+</script>
+</body>
+</html>
