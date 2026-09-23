@@ -5830,6 +5830,64 @@ def seed_ml_homework_and_assignment():
         app.logger.warning('ML homework/assignment seed skipped: %s', exc)
 
 
+def _dedupe_quizzes_by_title():
+    """gunicorn runs multiple worker processes, and each one runs every
+    seed_* function independently at boot - two workers can both check
+    "does this quiz exist" at nearly the same moment, both see no, and both
+    insert, producing two identical quizzes. This finds any (course_id,
+    title) group with more than one row and keeps exactly one: whichever
+    copy has student attempts if any do (never discard real attempt data),
+    otherwise the oldest. Never blocks startup."""
+    try:
+        from collections import defaultdict
+        groups = defaultdict(list)
+        for q in Quiz.query.all():
+            groups[(q.course_id, q.title)].append(q)
+        removed = 0
+        for (_, _), rows in groups.items():
+            if len(rows) < 2:
+                continue
+            rows.sort(key=lambda q: (
+                -QuizAttempt.query.filter_by(quiz_id=q.id).count(), q.id))
+            for dup in rows[1:]:
+                QuizAttempt.query.filter_by(quiz_id=dup.id).delete()
+                db.session.delete(dup)
+                removed += 1
+        if removed:
+            db.session.commit()
+            app.logger.info('Dedupe: removed %d duplicate quiz(zes)', removed)
+    except Exception as exc:
+        db.session.rollback()
+        app.logger.warning('Quiz dedupe skipped: %s', exc)
+
+
+def _dedupe_assignments_by_title():
+    """Same race as _dedupe_quizzes_by_title(), for Assignment rows (weekly
+    homework / the final capstone). Keeps whichever copy has student
+    submissions if any do, otherwise the oldest. Never blocks startup."""
+    try:
+        from collections import defaultdict
+        groups = defaultdict(list)
+        for a in Assignment.query.all():
+            groups[(a.course_id, a.title)].append(a)
+        removed = 0
+        for (_, _), rows in groups.items():
+            if len(rows) < 2:
+                continue
+            rows.sort(key=lambda a: (
+                -Submission.query.filter_by(assignment_id=a.id).count(), a.id))
+            for dup in rows[1:]:
+                Submission.query.filter_by(assignment_id=dup.id).delete()
+                db.session.delete(dup)
+                removed += 1
+        if removed:
+            db.session.commit()
+            app.logger.info('Dedupe: removed %d duplicate assignment(s)', removed)
+    except Exception as exc:
+        db.session.rollback()
+        app.logger.warning('Assignment dedupe skipped: %s', exc)
+
+
 def _sync_bundled_materials():
     """uploads/ sits on Railway's persistent volume, which is mounted OVER
     whatever the Docker image has at that path - a file placed there via git
@@ -5887,6 +5945,12 @@ def seed_course_curriculum_materials():
 
     Only ADDS materials that don't already exist (matched by filename) -
     never edits or removes a material a teacher has already customised.
+    Also never adds a second lesson to a session that already has ANY
+    material under a different filename - a course with its own
+    teacher-curated "Python Basics" for Session 1 never gets a competing
+    "Session 01: Python Basics" from here too. If an earlier run of this
+    function already created that kind of duplicate (matched precisely by
+    one of this spec's own known filenames), it is removed here.
     Bumps a course's total_sessions up (never down) so every session is
     reachable. Each course commits on its own, so one course failing (a bad
     row, a locked file, anything) can never roll back another course's
@@ -5931,15 +5995,32 @@ def seed_course_curriculum_materials():
                     if wrong:
                         db.session.flush()
 
-                existing_filenames = {
-                    m.filename for m in Material.query.filter_by(course_id=course.id).all()
+                own_filenames = {fn for _, _, fn in spec['sessions']}
+                existing_materials = Material.query.filter_by(course_id=course.id).all()
+                existing_filenames = {m.filename for m in existing_materials}
+
+                # Cleanup: remove any of OUR OWN files that duplicate a session
+                # which already has a different-filename material (teacher content,
+                # or content from before this per-session check existed).
+                sessions_with_other_material = {
+                    m.session for m in existing_materials
+                    if m.filename not in own_filenames and m.session
                 }
+                for m in existing_materials:
+                    if m.filename in own_filenames and m.session in sessions_with_other_material:
+                        db.session.delete(m)
+                        existing_filenames.discard(m.filename)
+                if sessions_with_other_material:
+                    db.session.flush()
+
                 max_session = max(n for n, _, _ in spec['sessions'])
                 if (course.total_sessions or 0) < max_session:
                     course.total_sessions = max_session
                 added = 0
                 for session_num, title, filename in spec['sessions']:
                     if filename in existing_filenames:
+                        continue
+                    if session_num in sessions_with_other_material:
                         continue
                     fpath = os.path.join(materials_dir, filename)
                     if not os.path.exists(fpath):
@@ -6340,6 +6421,8 @@ with app.app_context():
     seed_course_curriculum_materials()
     seed_ml_quizzes()
     seed_ml_homework_and_assignment()
+    _dedupe_quizzes_by_title()
+    _dedupe_assignments_by_title()
     _start_scheduler()
 
 if __name__ == '__main__':
