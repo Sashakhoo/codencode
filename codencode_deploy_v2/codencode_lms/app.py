@@ -5624,6 +5624,50 @@ def api_search():
     return jsonify({'results': results, 'query': q})
 
 
+def sync_python_fundamentals_materials():
+    """One-time content refresh: replace whatever lesson materials the
+    Python Fundamentals course currently has with the new pf-session-01..07
+    decks. Runs once per course — as soon as any of the new filenames is
+    present it is treated as already synced and left alone, so it never
+    clobbers ordering/publish changes an admin makes afterwards. Never
+    blocks startup."""
+    try:
+        NEW_MATERIALS = [
+            (1, 'Session 01 — Python Basics', 'pf-session-01.html'),
+            (2, 'Session 02 — Conditionals & Logic', 'pf-session-02.html'),
+            (3, 'Session 03 — Loops & Data Structures', 'pf-session-03.html'),
+            (4, 'Session 04 — Functions & Modules', 'pf-session-04.html'),
+            (5, 'Session 05 — Object-Oriented Programming', 'pf-session-05.html'),
+            (6, 'Session 06 — Files, APIs & Project Ideation', 'pf-session-06.html'),
+            (7, 'Session 07 — Building Your Own Software', 'pf-session-07.html'),
+        ]
+        new_filenames = {filename for _, _, filename in NEW_MATERIALS}
+        materials_dir = os.path.join(app.config['UPLOAD_FOLDER'], 'materials')
+        courses = Course.query.filter(db.func.lower(Course.title).like('%python fundamentals%')).all()
+        for course in courses:
+            existing = Material.query.filter_by(course_id=course.id).all()
+            if any(m.filename in new_filenames for m in existing):
+                continue  # already synced on a previous boot
+            for m in existing:
+                db.session.delete(m)
+            db.session.flush()
+            for session_num, title, filename in NEW_MATERIALS:
+                fpath = os.path.join(materials_dir, filename)
+                if not os.path.exists(fpath):
+                    continue
+                db.session.add(Material(
+                    course_id=course.id, session=session_num, title=title,
+                    description='Student HTML slides', filename=filename,
+                    file_type='html', file_size=human_size(fpath),
+                    is_published=True, order_index=session_num,
+                ))
+            db.session.commit()
+            app.logger.info('Python Fundamentals materials refreshed for course #%s', course.id)
+    except Exception as exc:
+        db.session.rollback()
+        app.logger.warning('Python Fundamentals materials sync skipped: %s', exc)
+
+
 def seed_python_fundamentals_quizzes():
     """Week 4 and Week 7 checkpoint MCQ quizzes for Python Fundamentals. Created
     PUBLISHED (students only see each one once they reach its week), and
@@ -5637,8 +5681,12 @@ def seed_python_fundamentals_quizzes():
         courses = Course.query.filter(db.func.lower(Course.title).like('%python fundamentals%')).all()
         for course in courses:
             for old in Quiz.query.filter(Quiz.course_id == course.id, Quiz.title.in_(RETIRED_TITLES)).all():
-                if not old.is_published and not QuizAttempt.query.filter_by(quiz_id=old.id).first():
+                if not QuizAttempt.query.filter_by(quiz_id=old.id).first():
                     db.session.delete(old)
+                elif old.is_published:
+                    # Someone already attempted this quiz — keep the record but
+                    # stop showing it to students now that it has been replaced.
+                    old.is_published = False
             for spec in PYTHON_FUNDAMENTALS_QUIZZES:
                 existing = Quiz.query.filter_by(course_id=course.id, title=spec['title']).first()
                 if existing:
@@ -6037,6 +6085,7 @@ with app.app_context():
 
     seed_demo()
     seed_predefined_workshops()
+    sync_python_fundamentals_materials()
     seed_python_fundamentals_quizzes()
     _start_scheduler()
 

@@ -1,0 +1,1067 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Session 07 — Building Your Own Software | codencode Academy</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0d1117; --panel:#161b22; --panel2:#1c2430; --line:#2a3440;
+  --mint:#00dcb4; --mint-d:#00a888; --text:#e8eef0; --muted:#8b98a5;
+  --coral:#ff6f91; --amber:#f0b429; --blue:#58a6ff;
+  --sans:'Space Grotesk','Inter',system-ui,sans-serif;
+  --body:'Inter',system-ui,sans-serif;
+  --mono:'JetBrains Mono','SF Mono',Consolas,monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:var(--body);height:100vh;overflow:hidden;user-select:none}
+
+/* ---------- chrome ---------- */
+#topbar{position:fixed;top:0;left:0;right:0;height:52px;display:flex;align-items:center;
+  gap:16px;padding:0 24px;background:rgba(13,17,23,.92);border-bottom:1px solid var(--line);z-index:50;backdrop-filter:blur(8px)}
+.wordmark{height:21px;width:auto;display:block;flex-shrink:0}
+#sesslabel{font-size:12px;color:var(--muted);font-family:var(--mono);letter-spacing:.04em}
+#titlebar{flex:1;text-align:center;font-size:13px;color:var(--muted);font-family:var(--mono);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#counter{font-family:var(--mono);font-size:12px;color:var(--mint)}
+.btn{background:rgba(0,220,180,.10);border:1px solid rgba(0,220,180,.32);color:var(--mint);
+  font-family:var(--mono);font-size:11px;padding:6px 12px;border-radius:6px;cursor:pointer}
+.btn:hover{background:rgba(0,220,180,.20)}
+#progress{position:fixed;top:52px;left:0;height:2px;background:var(--mint);z-index:51;transition:width .3s ease}
+#nav{position:fixed;bottom:0;left:0;right:0;height:56px;display:flex;align-items:center;justify-content:center;
+  gap:20px;z-index:50}
+.navbtn{background:var(--panel);border:1px solid var(--line);color:var(--muted);font-family:var(--mono);
+  font-size:12px;padding:8px 16px;border-radius:8px;cursor:pointer}
+.navbtn:hover{border-color:var(--mint);color:var(--mint)}
+#dots{display:flex;gap:6px;flex-wrap:wrap;max-width:50vw;justify-content:center}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--line);cursor:pointer;transition:.2s}
+.dot.on{background:var(--mint);transform:scale(1.35)}
+
+/* ---------- slides ---------- */
+#deck{position:absolute;top:54px;bottom:56px;left:0;right:0}
+.slide{position:absolute;inset:0;padding:40px 60px;display:none;flex-direction:column;overflow:hidden}
+.slide.active{display:flex;animation:slideIn .4s ease both}
+@keyframes slideIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+
+.tag{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--mint);margin-bottom:12px}
+h1.sh{font-family:var(--sans);font-size:clamp(26px,3.2vw,40px);font-weight:700;line-height:1.12;margin-bottom:8px}
+h1.sh::after{content:'';display:block;width:56px;height:4px;background:var(--mint);border-radius:2px;margin-top:14px}
+.sub{color:var(--muted);font-size:16px;margin-top:14px;max-width:70ch;line-height:1.6}
+.body{flex:1;display:flex;gap:32px;align-items:center;margin-top:24px;min-height:0}
+.col{flex:1;min-width:0}
+
+/* title slide */
+.title-slide{align-items:center;justify-content:center;text-align:center}
+.title-slide .badge{font-family:var(--mono);font-size:12px;color:var(--mint);border:1px solid rgba(0,220,180,.34);
+  background:rgba(0,220,180,.08);padding:7px 18px;border-radius:20px;margin-bottom:26px}
+.title-slide h1{font-family:var(--sans);font-size:clamp(40px,6vw,72px);font-weight:700;line-height:1.05}
+.title-slide h1 em{font-style:normal;color:var(--mint)}
+.title-slide p{color:var(--muted);font-size:18px;margin-top:20px;max-width:60ch}
+.title-slide .foot{margin-top:38px;font-family:var(--mono);font-size:13px;color:var(--muted)}
+
+/* section divider */
+.divider{align-items:flex-start;justify-content:center}
+.divider .num{font-family:var(--sans);font-size:120px;font-weight:700;color:rgba(0,220,180,.16);line-height:1}
+.divider h1{font-family:var(--sans);font-size:clamp(34px,4.6vw,56px);font-weight:700;margin-top:-18px}
+.divider .items{margin-top:26px;display:flex;flex-direction:column;gap:12px}
+.divider .items div{font-size:17px;color:var(--muted)}
+.divider .items b{color:var(--mint);font-family:var(--mono);font-size:15px;margin-right:12px}
+
+/* cards / lists */
+.cards{display:grid;gap:14px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:18px 20px}
+.card.accent{border-color:rgba(0,220,180,.45);background:var(--panel2)}
+.card h3{font-family:var(--sans);font-size:17px;font-weight:600;margin-bottom:6px}
+.card h3 .k{color:var(--mint);font-family:var(--mono);font-size:14px;margin-right:8px}
+.card p{color:var(--muted);font-size:14.5px;line-height:1.55}
+.grid2{grid-template-columns:1fr 1fr}
+.grid3{grid-template-columns:repeat(3,1fr)}
+
+table.cps{width:100%;border-collapse:collapse;font-size:15px}
+table.cps th{text-align:left;font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--mint);padding:10px 14px;border-bottom:1px solid var(--line)}
+table.cps td{padding:14px;border-bottom:1px solid var(--line);color:var(--text);line-height:1.5;vertical-align:top}
+table.cps td:first-child{color:var(--mint);font-family:var(--mono);font-size:13px;width:150px;white-space:nowrap}
+
+pre.code{background:#0a0e13;border:1px solid var(--line);border-radius:10px;padding:18px 20px;
+  font-family:var(--mono);font-size:14.5px;line-height:1.75;overflow:auto;color:var(--text)}
+pre.code .c{color:var(--muted)}
+pre.code .s{color:var(--mint)}
+pre.code .n{color:var(--blue)}
+pre.code .e{color:var(--coral)}
+.code-head{font-family:var(--mono);font-size:11px;color:var(--muted);background:var(--panel2);
+  border:1px solid var(--line);border-bottom:none;border-radius:10px 10px 0 0;padding:8px 14px}
+.code-head + pre.code{border-radius:0 0 10px 10px}
+
+.pill{display:inline-block;font-family:var(--mono);font-size:11.5px;padding:5px 12px;border-radius:14px;
+  border:1px solid;margin:0 8px 8px 0}
+.pill.mint{color:var(--mint);border-color:rgba(0,220,180,.4);background:rgba(0,220,180,.08)}
+.pill.coral{color:var(--coral);border-color:rgba(255,111,145,.4);background:rgba(255,111,145,.08)}
+.pill.amber{color:var(--amber);border-color:rgba(240,180,41,.4);background:rgba(240,180,41,.08)}
+.pill.blue{color:var(--blue);border-color:rgba(88,166,255,.4);background:rgba(88,166,255,.08)}
+
+.hands-on{border-left:3px solid var(--mint);background:linear-gradient(90deg,rgba(0,220,180,.07),transparent 60%);
+  padding:18px 24px;border-radius:0 10px 10px 0}
+.hands-on .lbl{font-family:var(--mono);font-size:11px;letter-spacing:.14em;color:var(--mint);text-transform:uppercase}
+.hands-on h3{font-family:var(--sans);font-size:20px;margin:8px 0 10px}
+.hands-on p{color:var(--muted);font-size:15px;line-height:1.6}
+.steps{margin-top:14px;display:flex;flex-direction:column;gap:9px}
+.steps div{font-size:14.5px;color:var(--text);display:flex;gap:12px;align-items:flex-start}
+.steps b{color:var(--mint);font-family:var(--mono);font-size:13px;flex-shrink:0}
+
+svg.fig{width:100%;height:100%;min-height:300px;flex:1 1 auto;display:block}
+.figwrap{flex:1.8 1 0;display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:0;min-height:0;max-height:100%;gap:6px}
+.figwrap > .legend,.figwrap > .controls,.figwrap > .gate,.figwrap > .eq{flex:0 0 auto;width:100%}
+.caption{font-size:13.5px;color:var(--muted);font-style:italic;margin-top:14px;text-align:center}
+
+/* ---------- animation primitives (restart on slide entry) ---------- */
+.fx{opacity:0}
+.slide.active .fx{animation:fadeUp .55s ease forwards}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.slide.active .d1{animation-delay:.15s}.slide.active .d2{animation-delay:.35s}
+.slide.active .d3{animation-delay:.55s}.slide.active .d4{animation-delay:.75s}
+.slide.active .d5{animation-delay:.95s}.slide.active .d6{animation-delay:1.15s}
+.slide.active .d7{animation-delay:1.35s}.slide.active .d8{animation-delay:1.55s}
+.slide.active .d9{animation-delay:1.75s}.slide.active .d10{animation-delay:1.95s}
+
+.draw{stroke-dasharray:var(--len,300);stroke-dashoffset:var(--len,300);opacity:1}
+.slide.active .draw{animation:drawIn .6s ease forwards}
+@keyframes drawIn{to{stroke-dashoffset:0}}
+
+.slide.active .pulse{animation:pulse 2.2s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.45}}
+
+.slide.active .travel{animation:travel 4.5s linear infinite}
+@keyframes travel{0%{offset-distance:0%}100%{offset-distance:100%}}
+
+.slide.active .grow{transform-origin:bottom;animation:grow .8s cubic-bezier(.22,1,.36,1) forwards}
+@keyframes grow{from{transform:scaleY(0)}to{transform:scaleY(1)}}
+
+.slide.active .cycle1{animation:hl 6s ease-in-out infinite}
+.slide.active .cycle2{animation:hl 6s ease-in-out infinite 2s}
+.slide.active .cycle3{animation:hl 6s ease-in-out infinite 4s}
+@keyframes hl{0%,8%{opacity:0}14%,28%{opacity:1}36%,100%{opacity:0}}
+
+.slide.active .typing{animation:typing 1.4s steps(18) forwards;white-space:nowrap;overflow:hidden;
+  display:inline-block;width:0}
+@keyframes typing{to{width:100%}}
+
+/* ---------- copiable code ---------- */
+pre.code{position:relative;user-select:text}
+.copybtn{position:absolute;top:7px;right:7px;z-index:3;background:rgba(22,27,34,.94);
+  border:1px solid var(--line);color:var(--muted);font-family:var(--mono);font-size:10.5px;
+  letter-spacing:.06em;padding:4px 9px;border-radius:5px;cursor:pointer;opacity:0;transition:.16s}
+pre.code:hover .copybtn{opacity:1}
+.copybtn:hover{border-color:var(--mint);color:var(--mint)}
+.copybtn.done{border-color:var(--mint);color:var(--mint);opacity:1}
+
+
+/* ---------- figure slides: stacked on tall screens, side-by-side when wide ---------- */
+.cb{display:block}
+.figbody{flex:1;display:flex;gap:32px;align-items:center;margin-top:24px;min-height:0}
+.figbody > .figwrap{flex:1.8 1 0}
+.figbody > .figside{display:flex;flex-direction:column;gap:12px;min-width:0}
+.figbody > .figside > *{margin-bottom:0}
+@media (max-aspect-ratio: 29/20){
+  .figbody{flex-direction:column;align-items:stretch;gap:16px}
+  .figbody > .figwrap{flex:0 1 auto;width:100%;max-width:none;justify-content:flex-start}
+  .figbody > .figwrap > svg.fig{height:auto;min-height:0;flex:0 0 auto;max-height:100%}
+  .figbody > .figside{max-width:none !important;flex:0 0 auto;display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:14px;align-items:start}
+  .figbody > .figside .controls,.figbody > .figside .legend{justify-content:flex-start}
+}
+
+/* ---------- figure furniture ---------- */
+.legend{display:flex;gap:18px;font-family:var(--mono);font-size:12px;color:var(--muted);
+  margin-top:6px;flex-wrap:wrap;justify-content:center}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px;vertical-align:middle}
+.controls{display:flex;gap:10px;align-items:center;margin-top:12px;flex-wrap:wrap;justify-content:center}
+.btn.ghost{background:transparent;border-color:var(--line);color:var(--muted)}
+.btn.ghost:hover{border-color:var(--mint);color:var(--mint)}
+.gate{margin-bottom:12px}
+.gate label{display:flex;justify-content:space-between;align-items:center;font-family:var(--mono);
+  font-size:12.5px;margin-bottom:6px;gap:12px}
+input[type=range]{width:100%;height:5px;border-radius:3px;appearance:none;background:var(--line);outline:none}
+input[type=range]::-webkit-slider-thumb{appearance:none;width:15px;height:15px;border-radius:50%;
+  background:var(--mint);cursor:pointer;border:2px solid #0d1117}
+.eq{font-family:var(--mono);font-size:12.5px;color:var(--muted);line-height:1.9;background:#0a0e13;
+  border:1px solid var(--line);border-radius:9px;padding:11px 13px}
+.eq b{color:var(--text);font-weight:400}
+.def{border-left:3px solid var(--blue);background:linear-gradient(90deg,rgba(88,166,255,.09),transparent 65%);
+  padding:14px 18px;border-radius:0 9px 9px 0;margin-bottom:12px}
+.def .lbl{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;color:var(--blue);text-transform:uppercase}
+.def h4{font-family:var(--sans);font-size:17px;margin:5px 0 6px}
+.def p{color:var(--muted);font-size:14px;line-height:1.6}
+.def p b{color:var(--text);font-weight:600}
+.theory{border-left:3px solid var(--amber);background:linear-gradient(90deg,rgba(240,180,41,.08),transparent 65%);
+  padding:14px 18px;border-radius:0 9px 9px 0;margin-bottom:12px}
+.theory .lbl{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;color:var(--amber);text-transform:uppercase}
+.theory p{color:var(--muted);font-size:14px;line-height:1.6;margin-top:6px}
+.theory p b{color:var(--text);font-weight:600}
+.formula{background:#0a0e13;border:1px solid var(--line);border-radius:10px;padding:16px 20px;
+  font-family:var(--mono);font-size:19px;color:var(--mint);text-align:center;margin:10px 0}
+.formula small{display:block;font-size:12px;color:var(--muted);margin-top:8px}
+table.t{width:100%;border-collapse:collapse;font-size:13.5px}
+table.t th{text-align:left;font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--mint);padding:9px 12px;border-bottom:1px solid var(--line)}
+table.t td{padding:10px 12px;border-bottom:1px solid var(--line);color:var(--muted);line-height:1.5;vertical-align:top}
+table.t td:first-child{color:var(--text);font-family:var(--mono);font-size:12.5px}
+table.cps td:first-child{color:var(--mint);font-family:var(--mono);font-size:13px;width:140px}
+pre.code.sm{font-size:12.3px;line-height:1.6}
+.card.warn{border-color:rgba(255,111,145,.42)}
+.divider .num{font-family:var(--sans);font-size:112px;font-weight:700;color:rgba(0,220,180,.16);line-height:1}
+</style>
+</head>
+<body>
+
+<div id="topbar">
+  <img class="wordmark" src="data:image/png;base64,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" alt="codencode.my">
+  <div id="sesslabel">SESSION 07</div>
+  <div id="titlebar"></div>
+  <div id="counter"></div>
+  <button class="btn" onclick="fs()">FULLSCREEN</button>
+</div>
+<div id="progress"></div>
+
+<div id="deck">
+
+
+<style>
+.vbox{transition:all .35s cubic-bezier(.22,1,.36,1)}
+.trace{font-family:var(--mono);font-size:12.5px;background:#0a0e13;border:1px solid var(--line);
+  border-radius:10px;padding:12px;height:118px;overflow:hidden;display:flex;
+  flex-direction:column-reverse;gap:3px;margin-bottom:11px}
+.trace div{color:var(--muted)}.trace div.new{color:var(--mint)}
+@keyframes popIn{0%{opacity:0;transform:scale(.9)}100%{opacity:1;transform:none}}
+.pop{animation:popIn .35s cubic-bezier(.22,1,.36,1)}
+
+/* ---------- inline illustrations ---------- */
+.illwrap{background:#0a0e13;border:1px solid var(--line);border-radius:11px;
+  padding:12px 14px;margin-bottom:12px}
+.ill{width:100%;height:auto;display:block}
+@keyframes illGlow{0%,100%{opacity:.3}50%{opacity:1}}
+.slide.active .ig1{animation:illGlow 3.2s ease-in-out infinite}
+.slide.active .ig2{animation:illGlow 3.2s ease-in-out infinite .8s}
+.slide.active .ig3{animation:illGlow 3.2s ease-in-out infinite 1.6s}
+.slide.active .ig4{animation:illGlow 3.2s ease-in-out infinite 2.4s}
+@keyframes illDash{to{stroke-dashoffset:-28}}
+.slide.active .idash{stroke-dasharray:7 6;animation:illDash 1.4s linear infinite}
+@keyframes illRise{from{transform:translateY(6px);opacity:0}to{transform:none;opacity:1}}
+.slide.active .ir1{animation:illRise .5s ease .1s both}
+.slide.active .ir2{animation:illRise .5s ease .25s both}
+.slide.active .ir3{animation:illRise .5s ease .4s both}
+.slide.active .ir4{animation:illRise .5s ease .55s both}
+.slide.active .ir5{animation:illRise .5s ease .7s both}
+.slide.active .ir6{animation:illRise .5s ease .85s both}
+@keyframes illRing{to{stroke-dashoffset:0}}
+.slide.active .iring{stroke-dasharray:360;stroke-dashoffset:360;
+  animation:illRing 1.4s cubic-bezier(.22,1,.36,1) .3s forwards}
+</style>
+
+<section class="slide title-slide" data-title="Main Title">
+  <div class="badge fx">SESSION 07 OF 07 · PYTHON FUNDAMENTALS</div>
+  <h1 class="fx d1">Building Your Own <em>Software</em></h1>
+  <p class="fx d2">Specifying it properly, wiring a frontend to a backend through an API, and using an AI assistant to build each layer — without losing control of a single line.</p>
+  <div class="foot fx d3">codencode Academy · prerequisite: Session 6 Files, APIs &amp; Project Ideation</div>
+</section>
+
+<section class="slide" data-title="Session Plan">
+  <div class="tag fx">Session Plan</div>
+  <h1 class="sh fx d1">What we're doing today</h1>
+  <div class="body">
+    <div class="col cards grid3"><div class="card accent fx d2">
+        <h3><span class="k">M1</span>Specifying It</h3>
+        <p>Who the user is, what the system must do, and how well it must do it.</p>
+        <div style="margin-top:10px"><span class="pill mint">50 min</span></div>
+      </div><div class="card accent fx d3">
+        <h3><span class="k">M2</span>The Architecture</h3>
+        <p>Frontend, API, logic and database — and how a single click travels through all four.</p>
+        <div style="margin-top:10px"><span class="pill mint">50 min</span></div>
+      </div><div class="card accent fx d4">
+        <h3><span class="k">M3</span>Building With AI</h3>
+        <p>A prompt per layer, the build order, and the five-minute demo.</p>
+        <div style="margin-top:10px"><span class="pill mint">50 min</span></div>
+      </div></div>
+  </div>
+  <div class="cards grid3 fx d5"><div class="card"><p><b>Bring</b> — your Session 6 project brief and your repo</p></div><div class="card"><p><b>Homework 7</b> — the finished capstone, demonstrated live</p></div><div class="card"><p><b>Leave with</b> — a spec, an architecture diagram and a working slice</p></div></div>
+</section>
+
+<section class="slide" data-title="Revised Last Week">
+  <div class="tag fx">Revised Last Week · 10 minutes</div>
+  <h1 class="sh fx d1">Session 06 — Files, APIs &amp; Project Ideation</h1>
+  <p class="sub fx d2">Quick check before we build on it. Answer out loud — if the room goes quiet on any of these, we go back over it now.</p>
+  <div class="body">
+    <div class="col cards grid3 fx d3"><div class="card"><h3>What are the three file tests?</h3><p>Works · file missing · file corrupt. Every program that reads a file must survive all three.</p></div><div class="card"><h3>What do you check before .json()?</h3><p>The status code — and always pass a timeout, or a dead server hangs your program forever.</p></div><div class="card"><h3>What makes an MVP?</h3><p>A complete version of a small idea, not a broken version of a big one. Three features, maximum.</p></div></div>
+  </div>
+  <p class="caption fx d4">Last week you <b>called</b> somebody else’s API. Today you find out what was on the other end of it — and then you build one.</p>
+</section>
+
+<section class="slide" data-title="Learning Outcomes">
+  <div class="tag fx">Learning Outcomes · Condition — Performance — Standard</div>
+  <h1 class="sh fx d1">By the end of today you will be able to…</h1>
+  <div class="body">
+    <div class="col fx d2">
+      <table class="t cps">
+        <tr><th>Component</th><th>Statement</th></tr>
+        <tr><td>Condition</td><td>Given a real problem belonging to an identifiable group of users,</td></tr>
+        <tr><td>Performance</td><td>you will write user stories with acceptance criteria, separate functional from non-functional requirements, design the frontend–API–backend–database path for one feature, and direct an AI assistant with prompts derived from your own specification,</td></tr>
+        <tr><td>Standard</td><td>producing a one-page spec with <b style="color:var(--text)">named users, numbered testable requirements and measurable non-functional targets</b>, an architecture diagram of four labelled layers, one feature working end to end through all of them, and every generated line explainable when challenged.</td></tr>
+      </table>
+      <div style="margin-top:18px"><span class="pill mint">LO1 · Identify and describe the user</span><span class="pill mint">LO2 · Functional requirements</span><span class="pill mint">LO3 · Non-functional requirements</span><span class="pill mint">LO4 · Frontend / API / backend / DB</span><span class="pill coral">LO5 · Direct AI from your own spec</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="slide" data-title="Content Mapping">
+  <div class="tag fx">Content Mapping</div>
+  <h1 class="sh fx d1">How today maps to your outcomes</h1>
+  <div class="body">
+    <div class="col fx d2">
+      <table class="t">
+        <tr><th>Module</th><th>Topics</th><th style="width:120px">Outcome</th><th style="width:190px">Assessed by</th></tr>
+        <tr><td>Module 1</td><td>1.1 Who is the user · 1.2 Functional requirements · 1.3 Non-functional requirements</td>
+        <td style="color:var(--mint)">LO1, LO2, LO3</td><td>Write your one-page spec</td></tr><tr><td>Module 2</td><td>2.1 The relay · 2.2 Designing the API · 2.3 The vibe coding loop &amp; review</td>
+        <td style="color:var(--mint)">LO4</td><td>Teacher Demo — the first endpoint</td></tr><tr><td>Module 3</td><td>3.1 The prompt library · 3.2 Build order · 3.3 The demo</td>
+        <td style="color:var(--mint)">LO5</td><td>Your Turn — build and present</td></tr>
+      </table>
+      <div class="theory" style="margin-top:20px">
+        <div class="lbl">The sentence this whole session exists to prevent</div>
+        <p>“I asked it to build me an app and it gave me something, but it is not what I wanted and I do not know how to fix it.” Every word of that is a <b>specification</b> failure, not a coding one.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="slide divider" data-title="Module 1">
+  <div class="num fx">01</div>
+  <h1 class="fx d1">Specifying It</h1>
+  <div class="items"><div class="fx d2"><b>1.1</b>Who is the user, specifically</div><div class="fx d3"><b>1.2</b>Functional requirements — what it must do</div><div class="fx d4"><b>1.3</b>Non-functional requirements — how well</div>
+    <div class="fx d5" style="margin-top:8px"><b style="color:var(--amber)">↓</b><span style="color:var(--amber)">Hands-on: write the one-page spec for your capstone</span></div>
+  </div>
+</section>
+
+<section class="slide" data-title="1.1 The user">
+  <div class="tag fx">1.1 · The user</div>
+  <h1 class="sh fx d1">“People” is not a user. Name one.</h1>
+  <div class="body">
+    <div class="col fx d2"><div class="def"><div class="lbl">Definition</div><h4>Persona</h4><p>One specific, named, imaginary person who stands in for a whole group of real users. You give them a device, a context, a level of patience and one thing they are trying to get done.</p></div><div class="illwrap"><svg class="ill" viewBox="0 0 620 190" style="max-height:215px"><g class="ir1"><rect x="10" y="14" width="190" height="162" rx="13" fill="rgba(0,220,180,.08)" stroke="#00dcb4" stroke-width="2.4" opacity="1"/><rect x="30" y="36" width="34" height="56" rx="6" fill="none" stroke="#00dcb4" stroke-width="1.8" opacity="1"/><circle cx="47" cy="57" r="6" fill="#00dcb4" opacity="0.85"/><path d="M 36 80 q 11 -14 22 0" fill="none" stroke="#00dcb4" stroke-width="1.8" opacity="0.85"/><text x="88" y="56" font-family="Space Grotesk,sans-serif" font-size="17" font-weight="700" fill="#e8eef0">Farah</text><text x="88" y="78" font-family="JetBrains Mono,monospace" font-size="12" fill="#00dcb4">teacher, 34</text><text x="30" y="118" font-family="JetBrains Mono,monospace" font-size="11.5" fill="#8b98a5">90s between classes</text><text x="30" y="136" font-family="JetBrains Mono,monospace" font-size="11.5" fill="#8b98a5">one hand free</text><text x="30" y="160" font-family="JetBrains Mono,monospace" font-size="11" fill="#00dcb4">← the MVP user</text></g><g class="ir2"><rect x="212" y="14" width="190" height="162" rx="13" fill="#12181f" stroke="#58a6ff" stroke-width="1.4" opacity="0.72"/><rect x="232" y="36" width="34" height="56" rx="6" fill="none" stroke="#58a6ff" stroke-width="1.8" opacity="0.7"/><circle cx="249" cy="57" r="6" fill="#58a6ff" opacity="0.595"/><path d="M 238 80 q 11 -14 22 0" fill="none" stroke="#58a6ff" stroke-width="1.8" opacity="0.595"/><text x="290" y="56" font-family="Space Grotesk,sans-serif" font-size="17" font-weight="700" fill="#e8eef0">Wei Ming</text><text x="290" y="78" font-family="JetBrains Mono,monospace" font-size="12" fill="#58a6ff">student, 16</text><text x="232" y="118" font-family="JetBrains Mono,monospace" font-size="11.5" fill="#8b98a5">phone, at night</text><text x="232" y="136" font-family="JetBrains Mono,monospace" font-size="11.5" fill="#8b98a5">wants the homework list</text><text x="232" y="160" font-family="JetBrains Mono,monospace" font-size="11" fill="#48535f">later</text></g><g class="ir3"><rect x="414" y="14" width="190" height="162" rx="13" fill="#12181f" stroke="#bc8cff" stroke-width="1.4" opacity="0.72"/><rect x="434" y="36" width="34" height="56" rx="6" fill="none" stroke="#bc8cff" stroke-width="1.8" opacity="0.7"/><circle cx="451" cy="57" r="6" fill="#bc8cff" opacity="0.595"/><path d="M 440 80 q 11 -14 22 0" fill="none" stroke="#bc8cff" stroke-width="1.8" opacity="0.595"/><text x="492" y="56" font-family="Space Grotesk,sans-serif" font-size="17" font-weight="700" fill="#e8eef0">Rajan</text><text x="492" y="78" font-family="JetBrains Mono,monospace" font-size="12" fill="#bc8cff">parent, 47</text><text x="434" y="118" font-family="JetBrains Mono,monospace" font-size="11.5" fill="#8b98a5">checks once a week</text><text x="434" y="136" font-family="JetBrains Mono,monospace" font-size="11.5" fill="#8b98a5">is my son attending?</text><text x="434" y="160" font-family="JetBrains Mono,monospace" font-size="11" fill="#48535f">later</text></g></svg></div></div>
+    <div class="col fx d3"><div class="card accent"><h3>Why one name beats a description</h3><p>"Teachers are busy" changes nothing. "Farah has 90 seconds and one hand free" rules out a form with six fields — the persona makes design decisions <b>for</b> you.</p></div><div class="theory"><div class="lbl">Three personas, one MVP</div><p>You list every user you can think of, then build for <b>one</b>. The other two get their features in Out of Scope — which is Session 6's scoping board, applied to people instead of features.</p></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="1.1b User stories">
+  <div class="tag fx">1.1b · User stories</div>
+  <h1 class="sh fx d1">One sentence, three clauses, and a test</h1>
+  <div class="body">
+    <div class="col fx d2"><div class="def"><div class="lbl">Definition</div><h4>User story</h4><p>One sentence in a fixed shape: <b>As a</b> &lt;role&gt;, <b>I want</b> &lt;capability&gt;, <b>so that</b> &lt;benefit&gt;. The third clause is the one everybody skips and the one that stops you building the wrong feature.</p></div><div class="cb"><div class="code-head">stories, with acceptance criteria</div><pre class="code sm">US-1  As a teacher, I want to mark a student present
+      in one tap, so that I can finish the register
+      before the next class starts.
+
+  Given I am on the register for today’s class
+  When  I tap a student’s name
+  Then  their status toggles and is saved at once
+  And   the page still works if I lose signal
+
+US-2  As a parent, I want to see last month’s
+      attendance, so that I know my son is going.</pre></div></div>
+    <div class="col fx d3"><div class="illwrap"><svg class="ill" viewBox="0 0 620 186" style="max-height:180px"><g class="ir1"><rect x="8" y="14" width="176" height="52" rx="10" fill="#12181f" stroke="#58a6ff" stroke-width="1.8"/><text x="96" y="38" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="12" fill="#58a6ff">As a</text><text x="96" y="57" text-anchor="middle" font-family="Space Grotesk,sans-serif" font-size="15" font-weight="700" fill="#e8eef0">teacher</text></g><g class="ir2"><rect x="200" y="14" width="212" height="52" rx="10" fill="#12181f" stroke="#00dcb4" stroke-width="1.8"/><text x="306" y="38" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="12" fill="#00dcb4">I want</text><text x="306" y="57" text-anchor="middle" font-family="Space Grotesk,sans-serif" font-size="15" font-weight="700" fill="#e8eef0">to mark in one tap</text></g><g class="ir3"><rect x="428" y="14" width="184" height="52" rx="10" fill="#12181f" stroke="#f0b429" stroke-width="1.8"/><text x="520" y="38" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="12" fill="#f0b429">so that</text><text x="520" y="57" text-anchor="middle" font-family="Space Grotesk,sans-serif" font-size="15" font-weight="700" fill="#e8eef0">I finish in time</text></g><path d="M 186 40 L 198 40" stroke="#8b98a5" stroke-width="1.6"/><path d="M 414 40 L 426 40" stroke="#8b98a5" stroke-width="1.6"/><path class="idash" d="M 310 70 L 310 96" stroke="#00dcb4" stroke-width="2"/><g class="ir4"><rect x="118" y="100" width="386" height="74" rx="11" fill="rgba(0,220,180,.07)" stroke="#00dcb4" stroke-width="1.8"/><text x="140" y="124" font-family="JetBrains Mono,monospace" font-size="12" fill="#00dcb4">GIVEN</text><text x="206" y="124" font-family="JetBrains Mono,monospace" font-size="12" fill="#8b98a5">the register is open</text><text x="140" y="144" font-family="JetBrains Mono,monospace" font-size="12" fill="#00dcb4">WHEN</text><text x="206" y="144" font-family="JetBrains Mono,monospace" font-size="12" fill="#8b98a5">I tap a name</text><text x="140" y="164" font-family="JetBrains Mono,monospace" font-size="12" fill="#00dcb4">THEN</text><text x="206" y="164" font-family="JetBrains Mono,monospace" font-size="12" fill="#8b98a5">the status saves at once</text><text x="470" y="144" text-anchor="middle" font-size="26" fill="#00dcb4">✓</text></g><text x="310" y="92" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="11" fill="#8b98a5">becomes a test</text></svg></div><div class="card accent"><h3>Why Given / When / Then</h3><p>It converts an opinion into a <b>test</b>. "It should be easy to use" cannot be checked by anyone. "Given the register is open, when I tap a name, then the status saves" either happens or it does not.</p></div><div class="theory"><div class="lbl">The “so that” clause is the filter</div><p>If you cannot finish it, the feature has no reason to exist. Half the features that get cut in Module 1 are cut by trying to write that clause and failing.</p></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="Sort them — which are features, which are qualities?">
+  <div class="tag fx">1.2 · Functional</div>
+  <h1 class="sh fx d1">Sort them — which are features, which are qualities?</h1>
+  <p class="sub fx d2">Click any card to move it between columns. The pattern emerges once all eight are right.</p>
+  <div class="body figbody">
+    <div class="figwrap">
+      <svg class="fig" id="reqSvg" viewBox="0 0 1000 420"></svg>
+      <div class="legend"><span><i style="background:#00dcb4"></i>functional</span><span><i style="background:#58a6ff"></i>non-functional</span><span><i style="background:#ff6f91"></i>wrong column</span></div>
+      
+    </div>
+    <div class="col figside" style="max-width:360px"><div class="controls" style="justify-content:flex-start;margin-bottom:12px"><button class="btn ghost" onclick="reqSolve()">SHOW ANSWER</button><button class="btn ghost" onclick="reqShuffle()">SHUFFLE</button></div><div class="theory" style="margin-bottom:11px"><div class="lbl">What just happened</div><p id="reqNote">—</p></div><div class="def"><div class="lbl">Definition</div><h4>Functional requirement</h4><p>Something the system <b>does</b>, written so it can be demonstrated. Numbered, testable, and traceable back to a user story.</p></div><div class="card accent"><h3>The test for a good FR</h3><p>Could you write a checklist item that a stranger could tick? If not, it is either too vague or it is actually non-functional.</p></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="1.2b Writing FRs">
+  <div class="tag fx">1.2b · Writing FRs</div>
+  <h1 class="sh fx d1">Numbered, testable, traceable</h1>
+  <div class="body">
+    <div class="col fx d2"><div class="cb"><div class="code-head">the functional requirements for the Class Tracker</div><pre class="code">FR-1  The system shall let a teacher mark a student
+      present, absent or late for a given class date.
+      [from US-1]
+
+FR-2  The system shall save a mark immediately and
+      show a confirmation within 1 second. [US-1]
+
+FR-3  The system shall prevent two marks for the same
+      student on the same date. [US-1]
+
+FR-4  The system shall show a parent the attendance
+      history for their own child only. [US-2]
+
+FR-5  The system shall let a teacher export a class
+      register for a month as CSV. [US-3]
+
+FR-6  The system shall record homework with a title
+      and a due date, visible to students. [US-4]</pre></div></div>
+    <div class="col fx d3"><div class="illwrap"><svg class="ill" viewBox="0 0 620 284" style="max-height:215px"><g class="ir1"><rect x="10" y="18" width="150" height="42" rx="9" fill="#12181f" stroke="#58a6ff" stroke-width="1.6"/><text x="85" y="44" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="13" fill="#58a6ff">US-1</text></g><g class="ir2"><rect x="10" y="72" width="150" height="42" rx="9" fill="#12181f" stroke="#58a6ff" stroke-width="1.6"/><text x="85" y="98" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="13" fill="#58a6ff">US-2</text></g><g class="ir3"><rect x="10" y="126" width="150" height="42" rx="9" fill="#12181f" stroke="#58a6ff" stroke-width="1.6"/><text x="85" y="152" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="13" fill="#58a6ff">US-3</text></g><g class="ir2"><rect x="330" y="12" width="278" height="32" rx="8" fill="#12181f" stroke="#00dcb4" stroke-width="1.6"/><text x="348" y="33" font-family="JetBrains Mono,monospace" font-size="12" fill="#e8eef0">FR-1  mark a student</text></g><path d="M 162 39 C 240 39 250 28 326 28" fill="none" stroke="#00dcb4" stroke-width="1.5" opacity=".55"/><g class="ir3"><rect x="330" y="52" width="278" height="32" rx="8" fill="#12181f" stroke="#00dcb4" stroke-width="1.6"/><text x="348" y="73" font-family="JetBrains Mono,monospace" font-size="12" fill="#e8eef0">FR-2  confirm in 1s</text></g><path d="M 162 39 C 240 39 250 68 326 68" fill="none" stroke="#00dcb4" stroke-width="1.5" opacity=".55"/><g class="ir4"><rect x="330" y="92" width="278" height="32" rx="8" fill="#12181f" stroke="#00dcb4" stroke-width="1.6"/><text x="348" y="113" font-family="JetBrains Mono,monospace" font-size="12" fill="#e8eef0">FR-3  no duplicate marks</text></g><path d="M 162 39 C 240 39 250 108 326 108" fill="none" stroke="#00dcb4" stroke-width="1.5" opacity=".55"/><g class="ir5"><rect x="330" y="132" width="278" height="32" rx="8" fill="#12181f" stroke="#00dcb4" stroke-width="1.6"/><text x="348" y="153" font-family="JetBrains Mono,monospace" font-size="12" fill="#e8eef0">FR-4  parent sees own child</text></g><path d="M 162 93 C 240 93 250 148 326 148" fill="none" stroke="#00dcb4" stroke-width="1.5" opacity=".55"/><g class="ir6"><rect x="330" y="172" width="278" height="32" rx="8" fill="#12181f" stroke="#00dcb4" stroke-width="1.6"/><text x="348" y="193" font-family="JetBrains Mono,monospace" font-size="12" fill="#e8eef0">FR-5  export CSV</text></g><path d="M 162 147 C 240 147 250 188 326 188" fill="none" stroke="#00dcb4" stroke-width="1.5" opacity=".55"/><g class="ir7"><rect x="330" y="212" width="278" height="32" rx="8" fill="rgba(255,111,145,.10)" stroke="#ff6f91" stroke-width="1.6"/><text x="348" y="233" font-family="JetBrains Mono,monospace" font-size="12" fill="#ff6f91">FR-6  dark mode toggle</text></g><text x="330" y="272" font-family="JetBrains Mono,monospace" font-size="11.5" fill="#ff6f91">FR-6 traces to nothing — either a missing story, or a missing reason to build it</text></svg></div><div class="card accent"><h3>“The system shall” is not pretentious</h3><p>It is the phrase the whole industry uses because it forces a subject and a verb. The moment you write "it would be nice if…" you have written a wish, not a requirement.</p></div><div class="theory"><div class="lbl">Three is still the limit</div><p>Six FRs are listed above; your MVP gets <b>three</b>. Session 6's scoping board applies unchanged — the other three go in Out of Scope and become your roadmap slide.</p></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="1.3 Non-functional">
+  <div class="tag fx">1.3 · Non-functional</div>
+  <h1 class="sh fx d1">The requirements that get you fired, not praised</h1>
+  <div class="body">
+    <div class="col fx d2"><div class="def"><div class="lbl">Definition</div><h4>Non-functional requirement</h4><p>A constraint on <b>how well</b> the system works rather than what it does. Performance, security, usability, reliability, portability, legal. Each one must carry a <b>number</b> or it is an opinion.</p></div></div>
+    <div class="col fx d3"><table class="t"><tr><th style="width:118px">Category</th><th>Bad (unmeasurable)</th><th>Good (testable)</th></tr><tr><td style="color:var(--mint)">Performance</td><td>"must be fast"</td><td>register loads in &lt; 2s on 4G</td></tr><tr><td style="color:var(--mint)">Security</td><td>"must be secure"</td><td>only the assigned teacher may edit a register</td></tr><tr><td style="color:var(--mint)">Usability</td><td>"easy to use"</td><td>a teacher marks 12 students in &lt; 60s</td></tr><tr><td style="color:var(--mint)">Reliability</td><td>"no crashes"</td><td>no data loss if signal drops mid-save</td></tr><tr><td style="color:var(--mint)">Portability</td><td>"works everywhere"</td><td>Chrome and Safari on a phone, no install</td></tr><tr><td style="color:var(--coral)">Legal</td><td>—</td><td>student data stored in Malaysia, PDPA-compliant</td></tr></table><div class="illwrap"><svg class="ill" viewBox="0 0 620 156" style="max-height:132px"><g class="ir1"><rect x="8" y="12" width="94" height="112" rx="11" fill="#12181f" stroke="#00dcb4" stroke-width="1.5" opacity=".9"/><g transform="translate(55,52)"><path d="M -16 8 A 18 18 0 0 1 16 8" fill="none" stroke="#00dcb4" stroke-width="2.2"/><path d="M 0 8 L 11 -4" stroke="#00dcb4" stroke-width="2.2" stroke-linecap="round"/></g><text x="55" y="90" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="10.5" fill="#00dcb4">speed</text><text x="55" y="110" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="10" fill="#8b98a5">&lt; 2s on 4G</text></g><g class="ir2"><rect x="109" y="12" width="94" height="112" rx="11" fill="#12181f" stroke="#58a6ff" stroke-width="1.5" opacity=".9"/><g transform="translate(156,52)"><rect x="-11" y="-2" width="22" height="16" rx="3" fill="none" stroke="#58a6ff" stroke-width="2.2"/><path d="M -6 -2 v -6 a 6 6 0 0 1 12 0 v 6" fill="none" stroke="#58a6ff" stroke-width="2.2"/></g><text x="156" y="90" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="10.5" fill="#58a6ff">security</text><text x="156" y="110" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="10" fill="#8b98a5">right teacher</text></g><g class="ir3"><rect x="210" y="12" width="94" height="112" rx="11" fill="#12181f" stroke="#f0b429" stroke-width="1.5" opacity=".9"/><g transform="translate(257,52)"><path d="M -4 12 v -16 a 4 4 0 0 1 8 0 v 8" fill="none" stroke="#f0b429" stroke-width="2.2"/><path d="M 4 4 a 5 5 0 0 1 10 0 v 6 a 8 8 0 0 1 -8 8 h -6" fill="none" stroke="#f0b429" stroke-width="2.2"/></g><text x="257" y="90" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="10.5" fill="#f0b429">usability</text><text x="257" y="110" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="10" fill="#8b98a5">12 in 60s</text></g><g class="ir4"><rect x="311" y="12" width="94" height="112" rx="11" fill="#12181f" stroke="#bc8cff" stroke-width="1.5" opacity=".9"/><g transform="translate(358,52)"><path d="M 0 -13 L 13 -7 v 9 a 15 15 0 0 1 -13 14 a 15 15 0 0 1 -13 -14 v -9 Z" fill="none" stroke="#bc8cff" stroke-width="2.2"/><path d="M -5 1 l 4 4 l 7 -8" fill="none" stroke="#bc8cff" stroke-width="2.2"/></g><text x="358" y="90" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="10.5" fill="#bc8cff">reliability</text><text x="358" y="110" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="10" fill="#8b98a5">no data lost</text></g><g class="ir5"><rect x="412" y="12" width="94" height="112" rx="11" fill="#12181f" stroke="#00dcb4" stroke-width="1.5" opacity=".9"/><g transform="translate(459,52)"><rect x="-8" y="-13" width="16" height="27" rx="3" fill="none" stroke="#00dcb4" stroke-width="2.2"/><line x1="-3" y1="10" x2="3" y2="10" stroke="#00dcb4" stroke-width="2.2"/></g><text x="459" y="90" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="10.5" fill="#00dcb4">portability</text><text x="459" y="110" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="10" fill="#8b98a5">no install</text></g><g class="ir6"><rect x="513" y="12" width="94" height="112" rx="11" fill="#12181f" stroke="#ff6f91" stroke-width="1.5" opacity=".9"/><g transform="translate(560,52)"><path d="M 0 -13 v 26 M -13 -6 h 26" stroke="#ff6f91" stroke-width="2.2"/><path d="M -13 -6 l -5 10 h 10 Z M 13 -6 l -5 10 h 10 Z" fill="none" stroke="#ff6f91" stroke-width="2"/></g><text x="560" y="90" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="10.5" fill="#ff6f91">legal</text><text x="560" y="110" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="10" fill="#8b98a5">PDPA 2010</text></g><text x="310" y="146" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="11.5" fill="#8b98a5">every one of them carries a number or a named standard</text></svg></div><div class="card warn"><h3>The two beginners always forget</h3><p><b>Security</b> — because the app works fine when you are the only user. And <b>legal</b> — because PDPA applies the moment you store somebody's child's name, and "I did not know" is not a defence.</p></div><div class="theory"><div class="lbl">Why NFRs decide the architecture</div><p>"Works on a phone with no install" rules out a desktop app. These constraints choose your stack <b>before</b> you write a line.</p></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="1.3b Writing NFRs">
+  <div class="tag fx">1.3b · Writing NFRs</div>
+  <h1 class="sh fx d1">Every one of them carries a number</h1>
+  <div class="body">
+    <div class="col fx d2"><div class="cb"><div class="code-head">the NFRs for the Class Tracker, written properly</div><pre class="code sm">NFR-1 Any page shall render in under 2 seconds on a
+      4G connection.
+
+NFR-2 A register shall be editable only by the teacher
+      assigned to that class.
+
+NFR-3 A parent shall see only their own child’s data.
+
+NFR-4 No attendance mark shall be lost if the browser
+      is closed after the confirmation appears.
+
+NFR-5 The app shall work on a phone browser with no
+      installation.
+
+NFR-6 Personal data shall be held in Malaysia and
+      handled in line with the PDPA 2010.</pre></div></div>
+    <div class="col fx d3"><div class="card accent"><h3>Read NFR-4 again</h3><p>"No mark shall be lost if the browser is closed after the confirmation appears." That single sentence decides that you save <b>before</b> you show the tick — an architecture decision, written as a requirement.</p></div><div class="card warn"><h3>How to test an NFR</h3><p>Throttle your browser to 4G in DevTools for NFR-1. Log in as the wrong teacher for NFR-2. Turn off wi-fi mid-save for NFR-4. If you cannot think of the test, the NFR is not measurable yet.</p></div><div class="theory"><div class="lbl">NFRs are where professional work shows</div><p>Anybody can build the happy path. The difference between a student project and a product is entirely in this list — and it is the part nobody demos, so say it out loud when you present.</p></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="Module 1 Hands-on">
+  <div class="tag fx">Hands-on · Module 1</div>
+  <h1 class="sh fx d1">Write the one-page spec for your capstone</h1>
+  <div class="body">
+    <div class="col fx d2">
+      <div class="hands-on">
+        <div class="lbl">20 minutes · solo, then swap</div>
+        <h3>Write the one-page spec for your capstone</h3>
+        
+        <div class="steps"><div><b>01</b><span>Name <b>one</b> persona. Device, context, patience, and the one job they need done.</span></div><div><b>02</b><span>Write three user stories in the As-a / I-want / So-that shape.</span></div><div><b>03</b><span>Add Given-When-Then acceptance criteria to your most important story.</span></div><div><b>04</b><span>Write five numbered FRs, each tagged with the story it came from.</span></div><div><b>05</b><span>Write four NFRs, each with a number or a named standard in it.</span></div><div><b>06</b><span>Swap with a partner. Their job: find one FR they could not tick, and one NFR with no number.</span></div></div>
+      </div>
+    </div>
+    <div class="col fx d3"><div class="cb"><div class="code-head">the one-page spec — the whole shape</div><pre class="code sm"># Class Tracker — Specification v1
+
+## User
+Cikgu Farah, 34, tuition teacher. Phone, 90 seconds
+between classes, 12 students.
+
+## Stories
+US-1 As a teacher, I want to mark attendance in one
+     tap, so that I finish before the next class.
+
+## Functional (MVP = FR-1, FR-2, FR-3)
+FR-1 ... [US-1]
+
+## Non-functional
+NFR-1 Any page renders in under 2s on 4G.
+
+## Out of scope
+Payments, multi-branch, parent login, notifications.
+
+## Demo sequence
+1. open register  2. mark 3 students  3. refresh
+4. show they persisted</pre></div><div class="card accent"><h3>This page is your prompt</h3><p>In Module 3 you will paste sections of it straight into an AI assistant. A spec that is too vague to build from is also too vague to prompt from — the two failures are the same failure.</p></div></div>
+  </div>
+</section>
+
+<section class="slide divider" data-title="Module 2">
+  <div class="num fx">02</div>
+  <h1 class="fx d1">The Architecture</h1>
+  <div class="items"><div class="fx d2"><b>2.1</b>Frontend, API, backend, database — one click through all four</div><div class="fx d3"><b>2.2</b>Designing the API — routes, verbs and JSON shapes</div><div class="fx d4"><b>2.3</b>The vibe coding loop, and reviewing what it wrote</div>
+    <div class="fx d5" style="margin-top:8px"><b style="color:var(--amber)">↓</b><span style="color:var(--amber)">Teacher Demo: the first endpoint, end to end</span></div>
+  </div>
+</section>
+
+<section class="slide" data-title="One tap, four layers, and the whole trip back">
+  <div class="tag fx">2.1 · The relay</div>
+  <h1 class="sh fx d1">One tap, four layers, and the whole trip back</h1>
+  <p class="sub fx d2">Step through the seven hops. Notice the payload changing shape at every boundary.</p>
+  <div class="body figbody">
+    <div class="figwrap">
+      <svg class="fig" id="relaySvg" viewBox="0 0 1000 390"></svg>
+      <div class="legend"><span><i style="background:#58a6ff"></i>browser</span><span><i style="background:#00dcb4"></i>API</span><span><i style="background:#f0b429"></i>logic</span><span><i style="background:#bc8cff"></i>database</span></div>
+      
+    </div>
+    <div class="col figside" style="max-width:370px"><div class="controls" style="justify-content:flex-start;margin-bottom:12px"><button class="btn ghost" id="relayBtn" onclick="relayToggle()">PAUSE</button><button class="btn ghost" onclick="relayStep()">STEP</button></div><div class="theory" style="margin-bottom:11px"><div class="lbl">What just happened</div><p id="relayNote">—</p></div><div class="card accent"><h3>Where your six sessions live</h3><p><b>LOGIC</b> is the box you already know how to fill. Functions, classes, error handling, files — all of it. The other three boxes are plumbing around it.</p></div><div class="card warn"><h3>The rule that keeps it sane</h3><p>The frontend <b>never</b> touches the database. Everything goes through the API, so all your rules live in one place — which is Session 5's encapsulation, applied to a whole system.</p></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="2.2 Designing the API">
+  <div class="tag fx">2.2 · Designing the API</div>
+  <h1 class="sh fx d1">The contract between the two halves</h1>
+  <div class="body">
+    <div class="col fx d2"><div class="def"><div class="lbl">Definition</div><h4>API endpoint</h4><p>One URL plus one HTTP verb, with an agreed request shape and response shape. Together your endpoints are the <b>only</b> way the frontend can do anything.</p></div></div>
+    <div class="col fx d3"><table class="t"><tr><th style="width:74px">Verb</th><th>Route</th><th>Does</th><th style="width:86px">Returns</th></tr><tr><td style="color:var(--mint)">GET</td><td>/classes/{id}/register</td><td>today's register</td><td>200 + list</td></tr><tr><td style="color:var(--amber)">POST</td><td>/attendance</td><td>mark a student</td><td>201 + {id}</td></tr><tr><td style="color:var(--blue)">PATCH</td><td>/attendance/{id}</td><td>change a mark</td><td>200</td></tr><tr><td style="color:var(--coral)">DELETE</td><td>/attendance/{id}</td><td>remove a mark</td><td>204</td></tr><tr><td style="color:var(--mint)">GET</td><td>/students/{id}/history</td><td>a parent's view</td><td>200 + list</td></tr></table><div class="illwrap"><svg class="ill" viewBox="0 0 620 166" style="max-height:132px"><g class="ir1"><rect x="8" y="16" width="236" height="118" rx="12" fill="#12181f" stroke="#f0b429" stroke-width="1.8"/><rect x="24" y="30" width="58" height="22" rx="5" fill="rgba(240,180,41,.18)" stroke="#f0b429" stroke-width="1.4"/><text x="53" y="46" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="12" fill="#f0b429">POST</text><text x="92" y="46" font-family="JetBrains Mono,monospace" font-size="13" fill="#e8eef0">/attendance</text><line x1="24" y1="62" x2="228" y2="62" stroke="#2a3440" stroke-width="1.2"/><text x="24" y="84" font-family="JetBrains Mono,monospace" font-size="11.5" fill="#8b98a5">{</text><text x="40" y="102" font-family="JetBrains Mono,monospace" font-size="11.5" fill="#e8eef0">"student_id": 12,</text><text x="40" y="118" font-family="JetBrains Mono,monospace" font-size="11.5" fill="#e8eef0">"status": "present"</text><text x="24" y="132" font-family="JetBrains Mono,monospace" font-size="11.5" fill="#8b98a5">}</text></g><g class="ir2"><rect x="266" y="44" width="88" height="62" rx="11" fill="#12181f" stroke="#00dcb4" stroke-width="2"/><text x="310" y="70" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="11" fill="#00dcb4">your</text><text x="310" y="88" text-anchor="middle" font-family="Space Grotesk,sans-serif" font-size="15" font-weight="700" fill="#e8eef0">API</text></g><path class="idash" d="M 248 75 L 262 75" stroke="#f0b429" stroke-width="2"/><path class="idash" d="M 358 75 L 372 75" stroke="#00dcb4" stroke-width="2"/><g class="ir3"><rect x="376" y="16" width="236" height="118" rx="12" fill="#12181f" stroke="#00dcb4" stroke-width="1.8"/><rect x="392" y="30" width="46" height="22" rx="5" fill="rgba(0,220,180,.18)" stroke="#00dcb4" stroke-width="1.4"/><text x="415" y="46" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="12" fill="#00dcb4">201</text><text x="448" y="46" font-family="JetBrains Mono,monospace" font-size="13" fill="#e8eef0">Created</text><line x1="392" y1="62" x2="596" y2="62" stroke="#2a3440" stroke-width="1.2"/><text x="392" y="84" font-family="JetBrains Mono,monospace" font-size="11.5" fill="#8b98a5">{</text><text x="408" y="102" font-family="JetBrains Mono,monospace" font-size="11.5" fill="#e8eef0">"id": 4471,</text><text x="408" y="118" font-family="JetBrains Mono,monospace" font-size="11.5" fill="#e8eef0">"status": "present"</text><text x="392" y="132" font-family="JetBrains Mono,monospace" font-size="11.5" fill="#8b98a5">}</text></g><text x="126" y="156" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="11" fill="#8b98a5">the request</text><text x="494" y="156" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="11" fill="#8b98a5">the response</text></svg></div><div class="card warn"><h3>Routes are nouns, verbs are verbs</h3><p><span style="font-family:var(--mono)">POST /attendance</span>, never <span style="font-family:var(--mono)">POST /createAttendance</span>. The verb is already in the HTTP method — repeating it in the URL is the most common beginner tell.</p></div><div class="theory"><div class="lbl">Design the routes before you write any code</div><p>The route table <i>is</i> the contract. Once it exists the two halves can be built independently — by two people, or by you on two evenings.</p></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="2.2b The two halves">
+  <div class="tag fx">2.2b · The two halves</div>
+  <h1 class="sh fx d1">Twenty lines of Python, ten of JavaScript</h1>
+  <div class="body">
+    <div class="col fx d2"><div class="cb"><div class="code-head">the backend — FastAPI, shorter than you expect</div><pre class="code sm"><span class="s">from</span> fastapi <span class="s">import</span> FastAPI, HTTPException
+<span class="s">from</span> pydantic <span class="s">import</span> BaseModel
+
+app = FastAPI()
+
+<span class="s">class</span> Mark(BaseModel):          <span class="c"># the request shape</span>
+    student_id: <span class="k">int</span>
+    status: <span class="k">str</span>               <span class="c"># present | absent | late</span>
+
+@app.post(<span class="s">"/attendance"</span>, status_code=<span class="n">201</span>)
+<span class="s">def</span> mark(m: Mark):
+    <span class="s">"""FR-1: record one attendance mark."""</span>
+    <span class="s">if</span> m.status <span class="s">not</span> <span class="s">in</span> {<span class="s">"present"</span>, <span class="s">"absent"</span>, <span class="s">"late"</span>}:
+        <span class="s">raise</span> HTTPException(<span class="n">422</span>, <span class="s">"bad status"</span>)
+    <span class="s">if</span> already_marked_today(m.student_id):      <span class="c"># FR-3</span>
+        <span class="s">raise</span> HTTPException(<span class="n">409</span>, <span class="s">"already marked"</span>)
+    new_id = save(m.student_id, m.status)
+    <span class="s">return</span> {<span class="s">"id"</span>: new_id, <span class="s">"status"</span>: m.status}</pre></div><div class="theory"><div class="lbl">Notice the docstring</div><p><span style="font-family:var(--mono)">"""FR-1: record one attendance mark."""</span> — every endpoint names the requirement it satisfies. Six months later that line tells you why the function exists and whether it is still needed.</p></div></div>
+    <div class="col fx d3"><div class="cb"><div class="code-head">the frontend — plain JavaScript, no framework needed</div><pre class="code sm"><span class="k">async function</span> mark(studentId, status) {
+  <span class="k">const</span> r = <span class="k">await</span> fetch(<span class="s">"/attendance"</span>, {
+    method: <span class="s">"POST"</span>,
+    headers: { <span class="s">"Content-Type"</span>: <span class="s">"application/json"</span> },
+    body: JSON.stringify({ student_id: studentId, status })
+  });
+  <span class="s">if</span> (!r.ok) { alert(<span class="s">"Could not save"</span>); <span class="s">return</span>; }
+  <span class="k">const</span> data = <span class="k">await</span> r.json();
+  document.getElementById(<span class="s">"s"</span>+studentId).textContent = <span class="s">"✓"</span>;
+}</pre></div><div class="card accent"><h3>Three lines of that JavaScript are the whole frontend job</h3><p>Send JSON · check <span style="font-family:var(--mono)">r.ok</span> · update the screen. Everything else a framework offers is convenience you do not need this week.</p></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="2.3 Vibe coding">
+  <div class="tag fx">2.3 · Vibe coding</div>
+  <h1 class="sh fx d1">The loop, and the four questions before anything stays</h1>
+  <div class="body">
+    <div class="col fx d2"><div class="def"><div class="lbl">Definition</div><h4>Vibe coding</h4><p>Building software by describing what you want to an AI assistant, then reviewing, running and refining what it produces. The word is casual; the discipline required is not.</p></div></div>
+    <div class="col fx d3"><div class="illwrap"><svg class="ill" viewBox="0 0 620 214" style="max-height:158px"><circle class="iring" cx="310" cy="102" r="74" fill="none" stroke="#2a3440" stroke-width="2"/><circle class="ig1" cx="309.99961798666925" cy="28.000000000499227" r="30" fill="#12181f" stroke="#00dcb4" stroke-width="1.8"/><text x="309.99961798666925" y="32.00000000049923" text-anchor="middle" font-family="Space Grotesk,sans-serif" font-size="10.5" font-weight="700" fill="#00dcb4">DESCRIBE</text><circle class="ig2" cx="408.909854084947" cy="79.13269071356045" r="30" fill="#12181f" stroke="#58a6ff" stroke-width="1.8"/><text x="408.909854084947" y="83.13269071356045" text-anchor="middle" font-family="Space Grotesk,sans-serif" font-size="10.5" font-weight="700" fill="#58a6ff">GENERATE</text><circle class="ig3" cx="371.12948080510273" cy="161.8673534456777" r="30" fill="#12181f" stroke="#f0b429" stroke-width="1.8"/><text x="371.12948080510273" y="165.8673534456777" text-anchor="middle" font-family="Space Grotesk,sans-serif" font-size="10.5" font-weight="700" fill="#f0b429">RUN IT</text><circle class="ig4" cx="248.8699010850038" cy="161.86703390477484" r="30" fill="rgba(255,111,145,.14)" stroke="#ff6f91" stroke-width="2.6"/><text x="248.8699010850038" y="165.86703390477484" text-anchor="middle" font-family="Space Grotesk,sans-serif" font-size="10.5" font-weight="700" fill="#ff6f91">READ IT</text><circle class="ig4" cx="211.09038201547838" cy="79.13217368730487" r="30" fill="#12181f" stroke="#00dcb4" stroke-width="1.8"/><text x="211.09038201547838" y="83.13217368730487" text-anchor="middle" font-family="Space Grotesk,sans-serif" font-size="10.5" font-weight="700" fill="#00dcb4">REFINE</text><text x="310" y="98" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="11" fill="#8b98a5">the loop</text><text x="310" y="118" text-anchor="middle" font-family="Space Grotesk,sans-serif" font-size="15" font-weight="700" fill="#00dcb4">five steps</text><text x="310" y="204" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="11.5" fill="#ff6f91">READ IT is the one everybody skips</text></svg></div><div class="card accent"><h3>Small loops, not big ones</h3><p>Ask for <b>one function</b> or <b>one endpoint</b>, never one application. A tight loop you can check at every turn beats a thousand-line answer you will never fully read.</p></div><div class="card warn"><h3>1 · Do I understand every line?  2 · Did it invent anything?</h3><p>If you cannot explain a line, ask it to — then decide whether you need it at all. And made-up function names are the classic failure: run it, and an ImportError tells you at once.</p></div><div class="card warn"><h3>3 · Does it handle my edge cases?  4 · Is it doing more than I asked?</h3><p>Your FRs already name the edges — duplicate mark, unknown student, lost signal. Test them yourself. Then delete every endpoint, dependency and config option the spec did not ask for.</p></div><div class="card accent"><h3>You own every line in your repo</h3><p>Not the model. In the demo you will be asked about a line chosen at random, and "the AI wrote that" is not an answer.</p></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="Module 2 Hands-on">
+  <div class="tag fx">Hands-on · Module 2</div>
+  <h1 class="sh fx d1">Teacher Demo — the first endpoint, end to end</h1>
+  <div class="body">
+    <div class="col fx d2">
+      <div class="hands-on">
+        <div class="lbl">22 minutes · follow along</div>
+        <h3>Teacher Demo — the first endpoint, end to end</h3>
+        
+        <div class="steps"><div><b>01</b><span>Draw your four boxes on paper. Label what lives in each for <b>your</b> project.</span></div><div><b>02</b><span>Write the route table for your three MVP FRs — verb, route, request shape, response shape.</span></div><div><b>03</b><span>Install FastAPI and uvicorn, and get <span style="font-family:var(--mono)">GET /health</span> returning <span style="font-family:var(--mono)">{"ok": true}</span>.</span></div><div><b>04</b><span>Open <span style="font-family:var(--mono)">/docs</span> — FastAPI generates the API documentation for free.</span></div><div><b>05</b><span>Add your first real POST endpoint and call it from the browser docs page.</span></div><div><b>06</b><span>Only then write the HTML button that calls it. Backend first, frontend second.</span></div></div>
+      </div>
+    </div>
+    <div class="col fx d3"><div class="cb"><div class="code-head">from nothing to a running API in four commands</div><pre class="code sm"><span class="c"># 1 — install</span>
+pip install fastapi uvicorn
+
+<span class="c"># 2 — main.py</span>
+<span class="s">from</span> fastapi <span class="s">import</span> FastAPI
+app = FastAPI()
+
+@app.get(<span class="s">"/health"</span>)
+<span class="s">def</span> health():
+    <span class="s">return</span> {<span class="s">"ok"</span>: <span class="k">True</span>}
+
+<span class="c"># 3 — run it</span>
+uvicorn main:app --reload
+
+<span class="c"># 4 — open these two</span>
+<span class="c">#   http://127.0.0.1:8000/health</span>
+<span class="c">#   http://127.0.0.1:8000/docs   ← free UI</span></pre></div><div class="card accent"><h3>Backend before frontend, always</h3><p>An endpoint you can test in <span style="font-family:var(--mono)">/docs</span> is proof the logic works. Build the button first and any bug could be in either half — and you will spend an hour finding out which.</p></div></div>
+  </div>
+</section>
+
+<section class="slide divider" data-title="Module 3">
+  <div class="num fx">03</div>
+  <h1 class="fx d1">Building With AI</h1>
+  <div class="items"><div class="fx d2"><b>3.1</b>A prompt for each layer</div><div class="fx d3"><b>3.2</b>Build order — what to make first</div><div class="fx d4"><b>3.3</b>The five-minute demo</div>
+    <div class="fx d5" style="margin-top:8px"><b style="color:var(--amber)">↓</b><span style="color:var(--amber)">Your Turn: build the slice, then present it</span></div>
+  </div>
+</section>
+
+<section class="slide" data-title="Click the parts — watch the prompt become a spec">
+  <div class="tag fx">3.1 · The prompt library</div>
+  <h1 class="sh fx d1">Click the parts — watch the prompt become a spec</h1>
+  <p class="sub fx d2">Six out of six is a specification, not a wish. Click any row to add or remove it.</p>
+  <div class="body figbody">
+    <div class="figwrap">
+      <svg class="fig" id="promptSvg" viewBox="0 0 1000 420"></svg>
+      <div class="legend"><span><i style="background:#00dcb4"></i>included</span><span><i style="background:#2a3440"></i>missing</span></div>
+      
+    </div>
+    <div class="col figside" style="max-width:350px"><div class="theory" style="margin-bottom:11px"><div class="lbl">What you would get back</div><p id="promptNote">—</p></div><div class="def"><div class="lbl">Definition</div><h4>A buildable prompt</h4><p>One that states the <b>stack</b>, the <b>one thing</b> to build, the data <b>shapes</b>, the <b>rules</b>, the <b>edge cases</b> and one <b>example</b>. Everything you leave out, the model invents.</p></div><div class="card accent"><h3>Your FR line is most of the prompt already</h3><p>"FR-3: the system shall prevent two marks for the same student on the same date" <b>is</b> the edge-case clause. Module 1 was not paperwork — it was prompt engineering with a different name.</p></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="3.1b Prompts 1 and 2">
+  <div class="tag fx">3.1b · Prompts 1 &amp; 2</div>
+  <h1 class="sh fx d1">Scaffold the project, then one endpoint</h1>
+  <div class="body">
+    <div class="col fx d2"><div class="illwrap"><svg class="ill" viewBox="0 0 620 196" style="max-height:170px"><g class="ir1"><rect x="8" y="10" width="500" height="24" rx="6" fill="#12181f" stroke="#00dcb4" stroke-width="1.5" opacity=".92"/><text x="22" y="27" font-family="JetBrains Mono,monospace" font-size="11.5" fill="#00dcb4">stack &amp; role</text><text x="150" y="27" font-family="JetBrains Mono,monospace" font-size="11" fill="#8b98a5">Python 3.12, FastAPI, SQLite</text></g><g class="ir2"><rect x="12" y="40" width="492" height="24" rx="6" fill="#12181f" stroke="#00dcb4" stroke-width="1.5" opacity=".92"/><text x="26" y="57" font-family="JetBrains Mono,monospace" font-size="11.5" fill="#00dcb4">the ONE job</text><text x="154" y="57" font-family="JetBrains Mono,monospace" font-size="11" fill="#8b98a5">one POST /attendance endpoint</text></g><g class="ir3"><rect x="16" y="70" width="484" height="24" rx="6" fill="#12181f" stroke="#58a6ff" stroke-width="1.5" opacity=".92"/><text x="30" y="87" font-family="JetBrains Mono,monospace" font-size="11.5" fill="#58a6ff">shapes</text><text x="158" y="87" font-family="JetBrains Mono,monospace" font-size="11" fill="#8b98a5">body → 201 + {id}</text></g><g class="ir4"><rect x="20" y="100" width="476" height="24" rx="6" fill="#12181f" stroke="#58a6ff" stroke-width="1.5" opacity=".92"/><text x="34" y="117" font-family="JetBrains Mono,monospace" font-size="11.5" fill="#58a6ff">rules</text><text x="162" y="117" font-family="JetBrains Mono,monospace" font-size="11" fill="#8b98a5">unknown id → 404</text></g><g class="ir5"><rect x="24" y="130" width="468" height="24" rx="6" fill="#12181f" stroke="#f0b429" stroke-width="1.5" opacity=".92"/><text x="38" y="147" font-family="JetBrains Mono,monospace" font-size="11.5" fill="#f0b429">edge cases</text><text x="166" y="147" font-family="JetBrains Mono,monospace" font-size="11" fill="#8b98a5">duplicate → 409, no second row</text></g><g class="ir6"><rect x="28" y="160" width="460" height="24" rx="6" fill="#12181f" stroke="#f0b429" stroke-width="1.5" opacity=".92"/><text x="42" y="177" font-family="JetBrains Mono,monospace" font-size="11.5" fill="#f0b429">one example</text><text x="170" y="177" font-family="JetBrains Mono,monospace" font-size="11" fill="#8b98a5">{12,'present'} → {4471}</text></g><path class="idash" d="M 528 24 L 528 178" stroke="#00dcb4" stroke-width="2"/><text x="576" y="86" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="11" fill="#00dcb4">a</text><text x="576" y="106" text-anchor="middle" font-family="Space Grotesk,sans-serif" font-size="13" font-weight="700" fill="#00dcb4">spec</text><text x="576" y="126" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="11" fill="#8b98a5">not a wish</text></svg></div><div class="cb"><div class="code-head">PROMPT 1 · scaffold the project</div><pre class="code sm">I am a beginner building a small web app in Python 3.12.
+Stack: FastAPI + uvicorn + SQLite, standard library
+elsewhere, no ORM, no frontend framework.
+
+Create the folder structure and empty files for:
+  main.py      FastAPI app and routes only
+  models.py    dataclasses for Student, Attendance
+  storage.py   all SQLite access, nothing else
+  static/      index.html, app.js, style.css
+
+Show me the tree and the contents of main.py with a
+single GET /health endpoint. Nothing else yet.</pre></div></div>
+    <div class="col fx d3"><div class="cb"><div class="code-head">PROMPT 2 · one endpoint, from one FR</div><pre class="code sm">Python 3.12, FastAPI, SQLite via sqlite3.
+
+Write ONE endpoint: POST /attendance
+
+Request body: {"student_id": int, "status": str}
+status must be one of present | absent | late.
+Response 201: {"id": int, "status": str}
+
+Rules:
+  - unknown student_id  -> 404
+  - invalid status      -> 422
+  - already marked today for that student -> 409,
+    and do NOT create a second row   [FR-3]
+
+Example: POST {"student_id":12,"status":"present"}
+         -> 201 {"id":4471,"status":"present"}
+
+Add a docstring naming the FR. No extra endpoints.</pre></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="3.1c Prompts 3 and 4">
+  <div class="tag fx">3.1c · Prompts 3 &amp; 4</div>
+  <h1 class="sh fx d1">The frontend, and the one for when it breaks</h1>
+  <div class="body">
+    <div class="col fx d2"><div class="cb"><div class="code-head">PROMPT 3 · the frontend for that endpoint</div><pre class="code sm">Plain HTML + CSS + vanilla JavaScript. No framework,
+no build step, no npm. Must work in a phone browser.
+
+Build the register screen for a teacher:
+  - a list of 12 student names
+  - tapping a name POSTs to /attendance and shows a
+    tick next to it
+  - if the request fails, show an inline message and
+    leave the row untouched  [NFR-4]
+  - target: 12 students marked in under 60s [NFR-3]
+
+Dark theme, large tap targets, one file per concern.</pre></div></div>
+    <div class="col fx d3"><div class="cb"><div class="code-head">PROMPT 4 · the debugging prompt</div><pre class="code sm">Python 3.12, FastAPI. I get this error:
+
+  [paste the FULL traceback, not a summary]
+
+Here is the endpoint and the function it calls:
+  [paste both]
+
+I expected a 409 for a duplicate mark; I got a 500.
+Why is this happening, and what is the smallest
+change that fixes it properly?</pre></div><div class="card accent"><h3>Notice what all four have in common</h3><p>A stack, one job, the shapes, the rules, an example. And the rules are lifted from your FRs and NFRs <b>word for word</b>.</p></div><div class="card warn"><h3>Paste the whole traceback</h3><p>All of it, verbatim. Session 4's call stack is exactly the information the model needs — paraphrasing throws away the file, the line number and the chain of calls.</p></div><div class="theory"><div class="lbl">Ask why, not just what</div><p>"Why does this happen?" teaches you something you keep. "Fix it" gets you a patch you will not understand the next time it breaks — and it will break again.</p></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="3.2 Build order">
+  <div class="tag fx">3.2 · Build order</div>
+  <h1 class="sh fx d1">Finish the spine before you decorate anything</h1>
+  <div class="body">
+    <div class="col fx d2"><div class="theory"><div class="lbl">Build the thinnest end-to-end slice first</div><p>One path that goes all the way through: tap, request, validate, save, respond, update. Ugly is fine. Once that runs you have a demo, and everything after it is improvement rather than risk.</p></div><div class="illwrap"><svg class="ill" viewBox="0 0 620 250" style="max-height:250px"><g class="ir1"><rect x="12" y="170" width="88" height="18" rx="6" fill="#00dcb4" opacity=".18"/><rect x="12" y="170" width="88" height="18" rx="6" fill="none" stroke="#00dcb4" stroke-width="1.6"/><text x="56" y="164" text-anchor="middle" font-family="Space Grotesk,sans-serif" font-size="14" font-weight="700" fill="#00dcb4">1</text><text x="56" y="202" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="10" fill="#8b98a5">data</text><text x="56" y="216" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="10" fill="#8b98a5">model</text></g><g class="ir2"><rect x="110" y="146" width="88" height="42" rx="6" fill="#00dcb4" opacity=".18"/><rect x="110" y="146" width="88" height="42" rx="6" fill="none" stroke="#00dcb4" stroke-width="1.6"/><text x="154" y="140" text-anchor="middle" font-family="Space Grotesk,sans-serif" font-size="14" font-weight="700" fill="#00dcb4">2</text><text x="154" y="202" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="10" fill="#8b98a5">one</text><text x="154" y="216" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="10" fill="#8b98a5">endpoint</text></g><g class="ir3"><rect x="208" y="122" width="88" height="66" rx="6" fill="#00dcb4" opacity=".18"/><rect x="208" y="122" width="88" height="66" rx="6" fill="none" stroke="#00dcb4" stroke-width="1.6"/><text x="252" y="116" text-anchor="middle" font-family="Space Grotesk,sans-serif" font-size="14" font-weight="700" fill="#00dcb4">3</text><text x="252" y="202" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="10" fill="#8b98a5">simplest</text><text x="252" y="216" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="10" fill="#8b98a5">frontend</text></g><g class="ir4"><rect x="306" y="98" width="88" height="90" rx="6" fill="#f0b429" opacity=".18"/><rect x="306" y="98" width="88" height="90" rx="6" fill="none" stroke="#f0b429" stroke-width="1.6"/><text x="350" y="92" text-anchor="middle" font-family="Space Grotesk,sans-serif" font-size="14" font-weight="700" fill="#f0b429">4</text><text x="350" y="202" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="10" fill="#8b98a5">FR-2,</text><text x="350" y="216" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="10" fill="#8b98a5">FR-3</text></g><g class="ir5"><rect x="404" y="74" width="88" height="114" rx="6" fill="#f0b429" opacity=".18"/><rect x="404" y="74" width="88" height="114" rx="6" fill="none" stroke="#f0b429" stroke-width="1.6"/><text x="448" y="68" text-anchor="middle" font-family="Space Grotesk,sans-serif" font-size="14" font-weight="700" fill="#f0b429">5</text><text x="448" y="202" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="10" fill="#8b98a5">errors</text><text x="448" y="216" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="10" fill="#8b98a5">+ NFRs</text></g><g class="ir6"><rect x="502" y="50" width="88" height="138" rx="6" fill="#ff6f91" opacity=".18"/><rect x="502" y="50" width="88" height="138" rx="6" fill="none" stroke="#ff6f91" stroke-width="1.6"/><text x="546" y="44" text-anchor="middle" font-family="Space Grotesk,sans-serif" font-size="14" font-weight="700" fill="#ff6f91">6</text><text x="546" y="202" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="10" fill="#8b98a5">styling</text><text x="546" y="216" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="10" fill="#8b98a5"></text></g><path class="idash" d="M 306 30 L 306 96" stroke="#00dcb4" stroke-width="2"/><text x="316" y="26" font-family="JetBrains Mono,monospace" font-size="11.5" fill="#00dcb4">you have a demo from here</text><text x="12" y="240" font-family="JetBrains Mono,monospace" font-size="11" fill="#8b98a5">steps 1–3 are the spine · 4–5 make it real · 6 only if the rest work</text></svg></div></div>
+    <div class="col fx d3"><div class="card accent"><h3>Why the frontend is step three</h3><p>An endpoint you can test in <span style="font-family:var(--mono)">/docs</span> proves the logic with no UI at all. Build the button first and any bug could be in either half.</p></div><div class="card warn"><h3>The trap, every single cohort</h3><p>Somebody spends the week on a beautiful frontend for an API that cannot yet save a row. The frontend is step three for a reason.</p></div><div class="cb"><div class="code-head">commit as you go — one per working requirement</div><pre class="code sm">git commit -m <span class="s">"FR-1: POST /attendance saves a mark"</span>
+git commit -m <span class="s">"FR-3: duplicate mark returns 409"</span>
+git commit -m <span class="s">"NFR-4: inline error, row untouched"</span>
+
+<span class="c"># the message names the requirement, so the</span>
+<span class="c"># history IS your progress report</span></pre></div><div class="theory"><div class="lbl">Ask early</div><p>Stuck for more than 40 minutes, message the group. Being stuck quietly for four days is the single most common reason a capstone does not get finished.</p></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="Five minutes — and half of it is the demo itself">
+  <div class="tag fx">3.3 · The demo</div>
+  <h1 class="sh fx d1">Five minutes — and half of it is the demo itself</h1>
+  <p class="sub fx d2">The playhead runs the real timings. Notice how little room there is for anything but the demo.</p>
+  <div class="body figbody">
+    <div class="figwrap">
+      <svg class="fig" id="demoSvg" viewBox="0 0 1000 400"></svg>
+      <div class="legend"><span><i style="background:#58a6ff"></i>the user</span><span><i style="background:#00dcb4"></i>live demo</span><span><i style="background:#bc8cff"></i>architecture</span><span><i style="background:#f0b429"></i>what broke</span></div>
+      
+    </div>
+    <div class="col figside" style="max-width:360px"><div class="controls" style="justify-content:flex-start;margin-bottom:12px"><button class="btn ghost" id="demoBtn" onclick="demoToggle()">PAUSE</button><button class="btn ghost" onclick="demoReset()">RESET</button></div><div class="card accent"><h3>Open with the person, not the tech</h3><p>"Cikgu Farah has 90 seconds between classes" lands. "I built a FastAPI backend" does not — and the architecture slide is 60 seconds later anyway.</p></div><div class="card warn"><h3>Rehearse it once, out loud, in order</h3><p>Every demo that fails, fails in the first thirty seconds, on something nobody tried <b>in sequence</b>. Have a screenshot ready in case the network dies.</p></div><div class="theory"><div class="lbl">“What broke” is not a weakness</div><p>It is the most interesting thirty seconds of any demo. A 500 you traced to a missing <span style="font-family:var(--mono)">UNIQUE</span> constraint proves the work is yours far better than a flawless run does.</p></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="Module 3 Hands-on">
+  <div class="tag fx">Hands-on · Module 3</div>
+  <h1 class="sh fx d1">Your Turn — build the slice, then present</h1>
+  <div class="body">
+    <div class="col fx d2">
+      <div class="hands-on">
+        <div class="lbl">45 minutes build · 5 minutes each to present</div>
+        <h3>Your Turn — build the slice, then present</h3>
+        
+        <div class="steps"><div><b>01</b><span>Work through the build order. Use the four prompts, one layer at a time.</span></div><div><b>02</b><span>Run the four review questions on <b>every</b> generated block before you commit it.</span></div><div><b>03</b><span>Get one FR working all the way through: tap → API → logic → database → screen.</span></div><div><b>04</b><span>Break it on purpose — bad input, duplicate, no network. Fix what falls over.</span></div><div><b>05</b><span>At the 45-minute mark stop adding. Rehearse the demo once, out loud, in order.</span></div><div><b>06</b><span>Present: the user, the live demo, the four boxes, what broke, what is next. Push with your spec as README.</span></div></div>
+      </div>
+    </div>
+    <div class="col fx d3"><div class="cb"><div class="code-head">the last checklist before you present</div><pre class="code sm"><span class="c"># it runs from a clean start</span>
+rm data/*.db &amp;&amp; uvicorn main:app   <span class="c"># must not crash</span>
+
+<span class="c"># each MVP FR can be demonstrated</span>
+<span class="c">#   FR-1 mark a student      ✓</span>
+<span class="c">#   FR-2 confirmation &lt; 1s   ✓</span>
+<span class="c">#   FR-3 duplicate → 409     ✓</span>
+
+<span class="c"># the NFRs were actually tested</span>
+<span class="c">#   phone browser · offline · wrong user</span>
+
+<span class="c"># README holds the spec</span>
+<span class="c"># commits name the requirements</span>
+<span class="c"># I can explain any line if asked</span></pre></div><div class="card accent"><h3>The one that is graded hardest</h3><p>The last line. A smaller system you fully understand scores above a larger one you cannot explain — here, and in every interview you will ever sit.</p></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="Recap &amp; Summary">
+  <div class="tag fx">Recap &amp; Summary</div>
+  <h1 class="sh fx d1">What you can do now</h1>
+  <div class="body">
+    <div class="col cards grid3 fx d2"><div class="card accent"><h3><span class="k">M1</span>Specifying It</h3><p>Name a real user, write stories with acceptance criteria, and separate numbered testable FRs from measurable NFRs.</p></div><div class="card accent"><h3><span class="k">M2</span>The Architecture</h3><p>Route every action through frontend → API → logic → database, keep all rules in the API, and build the backend first.</p></div><div class="card accent"><h3><span class="k">M3</span>Building With AI</h3><p>Turn each FR into a prompt with stack, shapes, rules, edge cases and an example — then review every generated line against four questions.</p></div></div>
+  </div>
+  <div class="body" style="flex:0 0 auto;margin-top:0">
+    <div class="col fx d3"><div class="theory"><div class="lbl">The one line to remember</div><p><b>A vague specification and a vague prompt are the same failure.</b> The hour you spend in Module 1 is the hour you do not spend arguing with a model that guessed wrong.</p></div></div>
+    <div class="col fx d4"><div class="card"><h3>That is the course</h3><p>You can read an error, model a problem, store data that survives, design and build an API, specify software for a named user, and finish something small. Next: Python Intermediate, or the Machine Learning track.</p></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="Review Learning Outcomes">
+  <div class="tag fx">Review Learning Outcomes</div>
+  <h1 class="sh fx d1">Did we get there?</h1>
+  <p class="sub fx d2">Rate yourself 1–5. Anything at 2 or below, flag it now — next session assumes all of this.</p>
+  <div class="body">
+    <div class="col cards grid2 fx d3"><div class="card"><h3><span class="k">LO1</span>I can name my user, their device, their context and their one job</h3><p style="font-family:var(--mono);color:var(--mint)">1 — 2 — 3 — 4 — 5</p></div><div class="card"><h3><span class="k">LO2</span>My FRs are numbered, testable, and traced to a user story</h3><p style="font-family:var(--mono);color:var(--mint)">1 — 2 — 3 — 4 — 5</p></div><div class="card"><h3><span class="k">LO3</span>Every NFR I wrote has a number or a named standard in it</h3><p style="font-family:var(--mono);color:var(--mint)">1 — 2 — 3 — 4 — 5</p></div><div class="card"><h3><span class="k">LO4</span>I can draw the four layers and say what lives in each</h3><p style="font-family:var(--mono);color:var(--mint)">1 — 2 — 3 — 4 — 5</p></div><div class="card accent" style="grid-column:1/-1"><h3><span class="k">LO5</span>I can explain any line in my project if someone picks one at random</h3><p style="font-family:var(--mono);color:var(--mint)">1 — 2 — 3 — 4 — 5</p></div></div>
+  </div>
+  <p class="caption fx d4">codencode.my · Python Fundamentals complete</p>
+</section>
+</div>
+
+<div id="nav">
+  <button class="navbtn" onclick="go(-1)">PREV</button>
+  <div id="dots"></div>
+  <button class="navbtn" onclick="go(1)">NEXT</button>
+</div>
+
+<script>
+const slides=[...document.querySelectorAll('.slide')];
+let i=0;
+const dots=document.getElementById('dots');
+slides.forEach((s,n)=>{const d=document.createElement('div');d.className='dot';
+  d.onclick=()=>show(n);dots.appendChild(d);});
+function show(n){
+  if(n<0||n>=slides.length)return;
+  slides[i].classList.remove('active');
+  i=n;
+  // force reflow so entry animations restart cleanly
+  void slides[i].offsetWidth;
+  slides[i].classList.add('active');
+  document.getElementById('counter').textContent=String(i+1).padStart(2,'0')+' / '+slides.length;
+  document.getElementById('titlebar').textContent=slides[i].dataset.title||'';
+  document.getElementById('progress').style.width=((i+1)/slides.length*100)+'%';
+  [...dots.children].forEach((d,n2)=>d.classList.toggle('on',n2===i));
+}
+function go(d){show(i+d);}
+function fs(){document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen();}
+addEventListener('keydown',e=>{
+  if(['ArrowRight',' ','PageDown'].includes(e.key)){e.preventDefault();go(1);}
+  if(['ArrowLeft','PageUp'].includes(e.key)){e.preventDefault();go(-1);}
+  if(e.key==='Home')show(0);
+  if(e.key==='End')show(slides.length-1);
+  if(e.key==='f')fs();
+});
+
+/* ---------- copy-to-clipboard on every code block ---------- */
+(function(){
+  document.querySelectorAll('pre.code').forEach(pre=>{
+    const source = pre.textContent;               // capture BEFORE adding the button
+    const btn = document.createElement('button');
+    btn.className = 'copybtn';
+    btn.type = 'button';
+    btn.textContent = 'COPY';
+    btn.addEventListener('click', async e=>{
+      e.stopPropagation();
+      try{
+        await navigator.clipboard.writeText(source);
+      }catch(err){                                 // file:// fallback
+        const ta=document.createElement('textarea');
+        ta.value=source; ta.style.position='fixed'; ta.style.opacity='0';
+        document.body.appendChild(ta); ta.select();
+        try{document.execCommand('copy');}catch(_){}
+        document.body.removeChild(ta);
+      }
+      btn.textContent='COPIED'; btn.classList.add('done');
+      setTimeout(()=>{btn.textContent='COPY'; btn.classList.remove('done');},1400);
+    });
+    pre.appendChild(btn);
+  });
+})();
+
+
+/* ═══════════ 1.2 — sort the requirements ═══════════ */
+(function(){
+  const svg=document.getElementById('reqSvg'); if(!svg) return;
+  // truth: 1 = functional, 0 = non-functional
+  const REQS=[
+    ['Teacher can mark a student present or absent',1,'It is something the system DOES.'],
+    ['Parent can see last month’s attendance',1,'A capability, for a named user.'],
+    ['System sends a WhatsApp alert after 3 absences',1,'An action the system performs.'],
+    ['Teacher can export the register as CSV',1,'A feature you can demo.'],
+    ['Any page loads in under 2 seconds on 4G',0,'A quality of HOW it works.'],
+    ['Only the assigned teacher can edit a register',0,'A security constraint, not a feature.'],
+    ['Data is stored in Malaysia and meets PDPA',0,'A legal and operational constraint.'],
+    ['Works on a phone browser without install',0,'A portability constraint.'],
+  ];
+  let placed=REQS.map(()=>Math.random()<0.5?1:0), auto=true;
+  function draw(){
+    const on='#00dcb4', co='#ff6f91', dim='#8b98a5', blue='#58a6ff';
+    let s='';
+    const LX=50, RX=510, W=440, H=46, GAP=8;
+    s+=`<text x="${LX}" y="52" font-family="JetBrains Mono,monospace" font-size="13" fill="${on}">FUNCTIONAL — what it does</text>`;
+    s+=`<text x="${RX}" y="52" font-family="JetBrains Mono,monospace" font-size="13" fill="${blue}">NON-FUNCTIONAL — how well it does it</text>`;
+    let li=0, ri=0, right=0;
+    REQS.forEach(([txt,truth,why],i)=>{
+      const f = placed[i]===1;
+      const ok = placed[i]===truth;
+      if(ok) right++;
+      const x = f?LX:RX, y = 66 + (f?li++:ri++)*(H+GAP);
+      const c = ok ? (f?on:blue) : co;
+      s+=`<rect class="vbox" x="${x}" y="${y}" width="${W}" height="${H}" rx="9"
+           fill="${ok?(f?'rgba(0,220,180,.10)':'rgba(88,166,255,.10)'):'rgba(255,111,145,.12)'}"
+           stroke="${c}" stroke-width="${ok?1.7:2.2}" style="cursor:pointer" onclick="reqFlip(${i})"/>`;
+      s+=`<text x="${x+16}" y="${y+29}" font-family="JetBrains Mono,monospace" font-size="12.5"
+           fill="${ok?'#e8eef0':co}" style="pointer-events:none">${txt}</text>`;
+      s+=`<text x="${x+W-14}" y="${y+29}" text-anchor="end" font-family="JetBrains Mono,monospace"
+           font-size="13" fill="${c}" style="pointer-events:none">${ok?'✓':'✗'}</text>`;
+    });
+    s+=`<text x="${LX}" y="402" font-family="Space Grotesk,sans-serif" font-size="18" font-weight="700"
+         fill="${right===8?on:right>=6?'#f0b429':co}">${right} / 8 in the right column</text>`;
+    s+=`<text x="${LX+260}" y="402" font-family="JetBrains Mono,monospace" font-size="12.5" fill="${dim}">
+         click any card to move it</text>`;
+    svg.innerHTML=s;
+    const n=document.getElementById('reqNote');
+    if(n){
+      const wrong=REQS.findIndex((r,i)=>placed[i]!==r[1]);
+      n.innerHTML = wrong<0
+        ? 'All eight sorted. Notice the pattern: <b style="color:var(--mint)">functional</b> requirements start with a <b>user</b> and a <b>verb</b>. <b style="color:var(--blue)">Non-functional</b> ones are adjectives with numbers attached.'
+        : `<b style="color:var(--coral)">"${REQS[wrong][0]}"</b> is in the wrong column. ${REQS[wrong][2]}`;
+    }
+  }
+  window.reqFlip=function(i){ auto=false; placed[i]=placed[i]?0:1; draw(); };
+  window.reqSolve=function(){ auto=false; placed=REQS.map(r=>r[1]); draw(); };
+  window.reqShuffle=function(){ placed=REQS.map(()=>Math.random()<0.5?1:0); draw(); };
+  draw();
+  setInterval(()=>{ if(auto) draw(); }, 2000);
+})();
+
+/* ═══════════ 2.1 — the relay: browser -> API -> logic -> database ═══════════ */
+(function(){
+  const svg=document.getElementById('relaySvg'); if(!svg) return;
+  const HOPS=[
+    ['BROWSER','#58a6ff','the frontend','HTML + CSS + JS in the student’s phone'],
+    ['API','#00dcb4','the doorway','FastAPI route: POST /attendance'],
+    ['LOGIC','#f0b429','your Python','validate, apply rules, decide'],
+    ['DATABASE','#bc8cff','the memory','SQLite / Postgres — the only thing that persists'],
+  ];
+  const PAYLOAD=[
+    'form submitted',
+    'POST /attendance  {"student_id": 12, "status": "present"}',
+    'validated object  Attendance(student=12, status=PRESENT)',
+    'INSERT INTO attendance ... → row id 4471',
+    '{"id": 4471, "status": "present"}  201 Created',
+    'HTTP 201 travelling back',
+    'the tick appears next to the name',
+  ];
+  let k=0, timer=null, running=true;
+  function draw(){
+    const dim='#8b98a5', off='#2a3440';
+    // k: 0..3 going right, 4..6 coming back
+    const activeIdx = k<=3 ? k : (6-k);
+    const forward = k<=3;
+    let s='';
+    const X0=40, W=212, GAP=24, Y=100, H=150;
+    HOPS.forEach(([name,c,role,detail],i)=>{
+      const on = i===activeIdx;
+      const x=X0+i*(W+GAP);
+      s+=`<rect class="vbox" x="${x}" y="${on?Y-10:Y}" width="${W}" height="${on?H+20:H}" rx="15"
+           fill="${on?'rgba(255,255,255,.05)':'#12181f'}" stroke="${on?c:off}" stroke-width="${on?2.8:1.5}"/>`;
+      s+=`<text x="${x+W/2}" y="${(on?Y-10:Y)+36}" text-anchor="middle" font-family="Space Grotesk,sans-serif"
+           font-size="${on?19:16}" font-weight="700" fill="${on?'#e8eef0':dim}">${name}</text>`;
+      s+=`<text x="${x+W/2}" y="${(on?Y-10:Y)+62}" text-anchor="middle" font-family="JetBrains Mono,monospace"
+           font-size="12" fill="${c}">${role}</text>`;
+      // wrap detail into two lines
+      const words=detail.split(' '); let l1='',l2='';
+      words.forEach(w=>{ if((l1+' '+w).trim().length<=26) l1=(l1+' '+w).trim(); else l2=(l2+' '+w).trim(); });
+      s+=`<text x="${x+W/2}" y="${(on?Y-10:Y)+96}" text-anchor="middle" font-family="JetBrains Mono,monospace"
+           font-size="11" fill="${on?dim:'#48535f'}">${l1}</text>`;
+      s+=`<text x="${x+W/2}" y="${(on?Y-10:Y)+114}" text-anchor="middle" font-family="JetBrains Mono,monospace"
+           font-size="11" fill="${on?dim:'#48535f'}">${l2}</text>`;
+      // arrows between
+      if(i<3){
+        const ax=x+W+2, bx=x+W+GAP-2;
+        const lit = forward ? (i===k-1||i===k) && k>0 && k<=3 && i===k-1
+                            : (i===activeIdx);
+        const litFwd = forward && i===k-1;
+        const litBack = !forward && i===activeIdx;
+        const col = (litFwd||litBack) ? HOPS[i][1] : off;
+        s+=`<path d="M ${forward?ax:bx} ${Y+H/2-14} L ${forward?bx:ax} ${Y+H/2-14}"
+             stroke="${litFwd?col:off}" stroke-width="${litFwd?3:1.4}" marker-end="url(#rF${i})"/>`;
+        s+=`<path d="M ${bx} ${Y+H/2+14} L ${ax} ${Y+H/2+14}"
+             stroke="${litBack?col:off}" stroke-width="${litBack?3:1.4}" marker-end="url(#rB${i})"/>`;
+        s+=`<defs>
+          <marker id="rF${i}" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="${litFwd?col:off}"/></marker>
+          <marker id="rB${i}" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="${litBack?col:off}"/></marker>
+        </defs>`;
+      }
+    });
+    // payload bar
+    const c=HOPS[activeIdx][1];
+    s+=`<rect class="vbox" x="40" y="300" width="900" height="66" rx="13"
+         fill="${forward?'rgba(0,220,180,.07)':'rgba(188,140,255,.07)'}" stroke="${c}" stroke-width="1.8"/>`;
+    s+=`<text x="60" y="326" font-family="JetBrains Mono,monospace" font-size="12" fill="${dim}">
+         ${forward?'travelling in →':'← travelling back'}</text>`;
+    s+=`<text x="60" y="352" font-family="JetBrains Mono,monospace" font-size="15" fill="#e8eef0">${PAYLOAD[k]}</text>`;
+    svg.innerHTML=s;
+    const n=document.getElementById('relayNote');
+    if(n) n.innerHTML=[
+      'The teacher taps a button. Nothing has left the phone yet — this is <b style="color:var(--blue)">frontend</b>, and it is only a form.',
+      'The browser sends <b>JSON over HTTP</b> to one named route. This is the whole contract between the two halves.',
+      'Your Python validates and applies the rules. <b>This is the part you actually wrote in sessions 1 to 6.</b>',
+      'Only here does anything become permanent. Everything above this line forgets on refresh.',
+      'The database hands back the new row. The logic turns it into a <b>response</b>.',
+      'The API answers with a status code and JSON — Session 6’s <span style="font-family:var(--mono)">200</span> and <span style="font-family:var(--mono)">201</span>, now from the other side.',
+      'The frontend updates the screen. <b>The user never knew any of that happened.</b>'][k];
+  }
+  window.relayStep=function(){ k=(k+1)%7; draw(); };
+  window.relayToggle=function(){ const b=document.getElementById('relayBtn');
+    if(running){clearInterval(timer);running=false;b.textContent='PLAY';}
+    else{timer=setInterval(relayStep,1700);running=true;b.textContent='PAUSE';} };
+  draw(); timer=setInterval(relayStep,1700);
+})();
+
+/* ═══════════ 3.1 — build a prompt, watch the score ═══════════ */
+(function(){
+  const svg=document.getElementById('promptSvg'); if(!svg) return;
+  const PARTS=[
+    ['Role &amp; stack','"Python 3.12, FastAPI, SQLite, no ORM"',1],
+    ['The one thing to build','"one POST /attendance endpoint"',1],
+    ['Input &amp; output shape','"body {student_id:int, status:str} → 201 + {id}"',0],
+    ['Rules &amp; constraints','"reject unknown student_id with 404"',0],
+    ['Edge cases','"duplicate mark for today → 409, not a second row"',0],
+    ['Example call','"POST {id:12,status:\'present\'} → {id:4471}"',0],
+  ];
+  let on=PARTS.map(p=>p[2]);
+  function draw(){
+    let s='';
+    const X0=50, W=560, H=50, GAP=9;
+    PARTS.forEach(([name,eg],i)=>{
+      const y=60+i*(H+GAP), a=on[i];
+      s+=`<rect class="vbox" x="${X0}" y="${y}" width="${W}" height="${H}" rx="10"
+           fill="${a?'rgba(0,220,180,.10)':'#12181f'}" stroke="${a?'#00dcb4':'#2a3440'}"
+           stroke-width="${a?2:1.4}" style="cursor:pointer" onclick="promptToggle(${i})"/>`;
+      s+=`<text x="${X0+52}" y="${y+22}" font-family="Space Grotesk,sans-serif" font-size="14.5"
+           font-weight="700" fill="${a?'#e8eef0':'#8b98a5'}" style="pointer-events:none">${name}</text>`;
+      s+=`<text x="${X0+52}" y="${y+40}" font-family="JetBrains Mono,monospace" font-size="11.5"
+           fill="${a?'#8b98a5':'#48535f'}" style="pointer-events:none">${eg}</text>`;
+      s+=`<text x="${X0+26}" y="${y+31}" text-anchor="middle" font-family="JetBrains Mono,monospace"
+           font-size="17" fill="${a?'#00dcb4':'#2a3440'}" style="pointer-events:none">${a?'✓':'○'}</text>`;
+    });
+    const n = on.reduce((a,b)=>a+b,0);
+    const bands=[['unusable','#ff6f91'],['unusable','#ff6f91'],['generic code','#f0b429'],
+                 ['workable','#f0b429'],['good','#00dcb4'],['a specification','#00dcb4'],['a specification','#00dcb4']];
+    const v=bands[n];
+    s+=`<text x="790" y="76" text-anchor="middle" font-family="JetBrains Mono,monospace"
+         font-size="13" fill="#8b98a5">prompt quality</text>`;
+    for(let i=0;i<6;i++){
+      const y=310-i*36;
+      s+=`<rect x="700" y="${y}" width="180" height="26" rx="6"
+           fill="${i<n?v[1]:'#12181f'}" opacity="${i<n?.28:1}" stroke="${i<n?v[1]:'#2a3440'}" stroke-width="1.4"/>`;
+    }
+    s+=`<text x="790" y="356" text-anchor="middle" font-family="Space Grotesk,sans-serif"
+         font-size="24" font-weight="700" fill="${v[1]}">${n} / 6</text>`;
+    s+=`<text x="790" y="382" text-anchor="middle" font-family="JetBrains Mono,monospace"
+         font-size="14" fill="${v[1]}">${v[0]}</text>`;
+    svg.innerHTML=s;
+    const t=document.getElementById('promptNote');
+    if(t) t.innerHTML = n<=1
+      ? '"Build me an attendance app." You will get something — generic, wrong-shaped, and faster to rewrite than to fix.'
+      : n<=3 ? 'Enough to get running code. You will spend twenty minutes correcting assumptions it had to invent.'
+      : n<=4 ? 'Now it knows the shape of your data and what must not break. Most of the guessing is gone.'
+      : 'Six out of six is your <b>FR line, rewritten as a prompt</b>. That is the whole point of Module 1.';
+  }
+  window.promptToggle=function(i){ on[i]=on[i]?0:1; draw(); };
+  draw();
+})();
+
+/* ═══════════ 3.3 — the five-minute demo run sheet ═══════════ */
+(function(){
+  const svg=document.getElementById('demoSvg'); if(!svg) return;
+  const SEGS=[['The user &amp; problem',40,'#58a6ff','Name the person. One sentence on what it costs them.'],
+              ['Live demo',150,'#00dcb4','The sequence you rehearsed. No detours.'],
+              ['The architecture',60,'#bc8cff','Frontend, API, logic, database. Four boxes.'],
+              ['What broke',30,'#f0b429','One honest bug and how the traceback found it.'],
+              ['What is next',20,'#8b98a5','Your out-of-scope list, now a roadmap.']];
+  const TOTAL=SEGS.reduce((a,b)=>a+b[1],0);
+  let t=0, timer=null, running=true;
+  function draw(){
+    const X0=60, W=880, Y=150, H=64;
+    let s='', x=X0, acc=0, cur=0;
+    SEGS.forEach(([name,dur,c],i)=>{
+      const w = W*dur/TOTAL;
+      const live = t>=acc && t<acc+dur;
+      if(live) cur=i;
+      s+=`<rect class="vbox" x="${x}" y="${live?Y-8:Y}" width="${w-4}" height="${live?H+16:H}" rx="10"
+           fill="${live?'rgba(255,255,255,.05)':'#12181f'}" stroke="${c}" stroke-width="${live?2.6:1.4}"
+           opacity="${live?1:.6}"/>`;
+      s+=`<text x="${x+w/2-2}" y="${Y+30}" text-anchor="middle" font-family="Space Grotesk,sans-serif"
+           font-size="${live?15:12.5}" font-weight="700" fill="${live?'#e8eef0':'#8b98a5'}">${name}</text>`;
+      s+=`<text x="${x+w/2-2}" y="${Y+52}" text-anchor="middle" font-family="JetBrains Mono,monospace"
+           font-size="12" fill="${c}">${dur}s</text>`;
+      x+=w; acc+=dur;
+    });
+    const px = X0 + W*t/TOTAL;
+    s+=`<line x1="${px}" y1="${Y-34}" x2="${px}" y2="${Y+H+30}" stroke="#ff6f91" stroke-width="2"/>`;
+    s+=`<circle cx="${px}" cy="${Y-34}" r="6" fill="#ff6f91"/>`;
+    const m=Math.floor(t/60), sec=String(t%60).padStart(2,'0');
+    s+=`<text x="${px}" y="${Y-48}" text-anchor="middle" font-family="JetBrains Mono,monospace"
+         font-size="14" fill="#ff6f91">${m}:${sec}</text>`;
+    s+=`<text x="500" y="300" text-anchor="middle" font-family="Space Grotesk,sans-serif"
+         font-size="18" font-weight="700" fill="${SEGS[cur][2]}">${SEGS[cur][0]}</text>`;
+    s+=`<text x="500" y="328" text-anchor="middle" font-family="JetBrains Mono,monospace"
+         font-size="13" fill="#8b98a5">${SEGS[cur][3]}</text>`;
+    s+=`<text x="500" y="370" text-anchor="middle" font-family="JetBrains Mono,monospace"
+         font-size="12" fill="#48535f">five minutes total — half of it is the demo itself</text>`;
+    svg.innerHTML=s;
+  }
+  window.demoToggle=function(){ const b=document.getElementById('demoBtn');
+    if(running){clearInterval(timer);running=false;b.textContent='PLAY';}
+    else{timer=setInterval(tick,90);running=true;b.textContent='PAUSE';} };
+  window.demoReset=function(){ t=0; draw(); };
+  function tick(){ t=(t+2)%TOTAL; draw(); }
+  draw(); timer=setInterval(tick,90);
+})();
+
+show(0);
+</script>
+</body>
+</html>

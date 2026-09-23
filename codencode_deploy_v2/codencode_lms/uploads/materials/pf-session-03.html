@@ -1,0 +1,934 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Session 03 — Loops & Data Structures | codencode Academy</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0d1117; --panel:#161b22; --panel2:#1c2430; --line:#2a3440;
+  --mint:#00dcb4; --mint-d:#00a888; --text:#e8eef0; --muted:#8b98a5;
+  --coral:#ff6f91; --amber:#f0b429; --blue:#58a6ff;
+  --sans:'Space Grotesk','Inter',system-ui,sans-serif;
+  --body:'Inter',system-ui,sans-serif;
+  --mono:'JetBrains Mono','SF Mono',Consolas,monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:var(--body);height:100vh;overflow:hidden;user-select:none}
+
+/* ---------- chrome ---------- */
+#topbar{position:fixed;top:0;left:0;right:0;height:52px;display:flex;align-items:center;
+  gap:16px;padding:0 24px;background:rgba(13,17,23,.92);border-bottom:1px solid var(--line);z-index:50;backdrop-filter:blur(8px)}
+.wordmark{height:21px;width:auto;display:block;flex-shrink:0}
+#sesslabel{font-size:12px;color:var(--muted);font-family:var(--mono);letter-spacing:.04em}
+#titlebar{flex:1;text-align:center;font-size:13px;color:var(--muted);font-family:var(--mono);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#counter{font-family:var(--mono);font-size:12px;color:var(--mint)}
+.btn{background:rgba(0,220,180,.10);border:1px solid rgba(0,220,180,.32);color:var(--mint);
+  font-family:var(--mono);font-size:11px;padding:6px 12px;border-radius:6px;cursor:pointer}
+.btn:hover{background:rgba(0,220,180,.20)}
+#progress{position:fixed;top:52px;left:0;height:2px;background:var(--mint);z-index:51;transition:width .3s ease}
+#nav{position:fixed;bottom:0;left:0;right:0;height:56px;display:flex;align-items:center;justify-content:center;
+  gap:20px;z-index:50}
+.navbtn{background:var(--panel);border:1px solid var(--line);color:var(--muted);font-family:var(--mono);
+  font-size:12px;padding:8px 16px;border-radius:8px;cursor:pointer}
+.navbtn:hover{border-color:var(--mint);color:var(--mint)}
+#dots{display:flex;gap:6px;flex-wrap:wrap;max-width:50vw;justify-content:center}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--line);cursor:pointer;transition:.2s}
+.dot.on{background:var(--mint);transform:scale(1.35)}
+
+/* ---------- slides ---------- */
+#deck{position:absolute;top:54px;bottom:56px;left:0;right:0}
+.slide{position:absolute;inset:0;padding:40px 60px;display:none;flex-direction:column;overflow:hidden}
+.slide.active{display:flex;animation:slideIn .4s ease both}
+@keyframes slideIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+
+.tag{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--mint);margin-bottom:12px}
+h1.sh{font-family:var(--sans);font-size:clamp(26px,3.2vw,40px);font-weight:700;line-height:1.12;margin-bottom:8px}
+h1.sh::after{content:'';display:block;width:56px;height:4px;background:var(--mint);border-radius:2px;margin-top:14px}
+.sub{color:var(--muted);font-size:16px;margin-top:14px;max-width:70ch;line-height:1.6}
+.body{flex:1;display:flex;gap:32px;align-items:center;margin-top:24px;min-height:0}
+.col{flex:1;min-width:0}
+
+/* title slide */
+.title-slide{align-items:center;justify-content:center;text-align:center}
+.title-slide .badge{font-family:var(--mono);font-size:12px;color:var(--mint);border:1px solid rgba(0,220,180,.34);
+  background:rgba(0,220,180,.08);padding:7px 18px;border-radius:20px;margin-bottom:26px}
+.title-slide h1{font-family:var(--sans);font-size:clamp(40px,6vw,72px);font-weight:700;line-height:1.05}
+.title-slide h1 em{font-style:normal;color:var(--mint)}
+.title-slide p{color:var(--muted);font-size:18px;margin-top:20px;max-width:60ch}
+.title-slide .foot{margin-top:38px;font-family:var(--mono);font-size:13px;color:var(--muted)}
+
+/* section divider */
+.divider{align-items:flex-start;justify-content:center}
+.divider .num{font-family:var(--sans);font-size:120px;font-weight:700;color:rgba(0,220,180,.16);line-height:1}
+.divider h1{font-family:var(--sans);font-size:clamp(34px,4.6vw,56px);font-weight:700;margin-top:-18px}
+.divider .items{margin-top:26px;display:flex;flex-direction:column;gap:12px}
+.divider .items div{font-size:17px;color:var(--muted)}
+.divider .items b{color:var(--mint);font-family:var(--mono);font-size:15px;margin-right:12px}
+
+/* cards / lists */
+.cards{display:grid;gap:14px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:18px 20px}
+.card.accent{border-color:rgba(0,220,180,.45);background:var(--panel2)}
+.card h3{font-family:var(--sans);font-size:17px;font-weight:600;margin-bottom:6px}
+.card h3 .k{color:var(--mint);font-family:var(--mono);font-size:14px;margin-right:8px}
+.card p{color:var(--muted);font-size:14.5px;line-height:1.55}
+.grid2{grid-template-columns:1fr 1fr}
+.grid3{grid-template-columns:repeat(3,1fr)}
+
+table.cps{width:100%;border-collapse:collapse;font-size:15px}
+table.cps th{text-align:left;font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--mint);padding:10px 14px;border-bottom:1px solid var(--line)}
+table.cps td{padding:14px;border-bottom:1px solid var(--line);color:var(--text);line-height:1.5;vertical-align:top}
+table.cps td:first-child{color:var(--mint);font-family:var(--mono);font-size:13px;width:150px;white-space:nowrap}
+
+pre.code{background:#0a0e13;border:1px solid var(--line);border-radius:10px;padding:18px 20px;
+  font-family:var(--mono);font-size:14.5px;line-height:1.75;overflow:auto;color:var(--text)}
+pre.code .c{color:var(--muted)}
+pre.code .s{color:var(--mint)}
+pre.code .n{color:var(--blue)}
+pre.code .e{color:var(--coral)}
+.code-head{font-family:var(--mono);font-size:11px;color:var(--muted);background:var(--panel2);
+  border:1px solid var(--line);border-bottom:none;border-radius:10px 10px 0 0;padding:8px 14px}
+.code-head + pre.code{border-radius:0 0 10px 10px}
+
+.pill{display:inline-block;font-family:var(--mono);font-size:11.5px;padding:5px 12px;border-radius:14px;
+  border:1px solid;margin:0 8px 8px 0}
+.pill.mint{color:var(--mint);border-color:rgba(0,220,180,.4);background:rgba(0,220,180,.08)}
+.pill.coral{color:var(--coral);border-color:rgba(255,111,145,.4);background:rgba(255,111,145,.08)}
+.pill.amber{color:var(--amber);border-color:rgba(240,180,41,.4);background:rgba(240,180,41,.08)}
+.pill.blue{color:var(--blue);border-color:rgba(88,166,255,.4);background:rgba(88,166,255,.08)}
+
+.hands-on{border-left:3px solid var(--mint);background:linear-gradient(90deg,rgba(0,220,180,.07),transparent 60%);
+  padding:18px 24px;border-radius:0 10px 10px 0}
+.hands-on .lbl{font-family:var(--mono);font-size:11px;letter-spacing:.14em;color:var(--mint);text-transform:uppercase}
+.hands-on h3{font-family:var(--sans);font-size:20px;margin:8px 0 10px}
+.hands-on p{color:var(--muted);font-size:15px;line-height:1.6}
+.steps{margin-top:14px;display:flex;flex-direction:column;gap:9px}
+.steps div{font-size:14.5px;color:var(--text);display:flex;gap:12px;align-items:flex-start}
+.steps b{color:var(--mint);font-family:var(--mono);font-size:13px;flex-shrink:0}
+
+svg.fig{width:100%;height:100%;min-height:300px;flex:1 1 auto;display:block}
+.figwrap{flex:1.8 1 0;display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:0;min-height:0;max-height:100%;gap:6px}
+.figwrap > .legend,.figwrap > .controls,.figwrap > .gate,.figwrap > .eq{flex:0 0 auto;width:100%}
+.caption{font-size:13.5px;color:var(--muted);font-style:italic;margin-top:14px;text-align:center}
+
+/* ---------- animation primitives (restart on slide entry) ---------- */
+.fx{opacity:0}
+.slide.active .fx{animation:fadeUp .55s ease forwards}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.slide.active .d1{animation-delay:.15s}.slide.active .d2{animation-delay:.35s}
+.slide.active .d3{animation-delay:.55s}.slide.active .d4{animation-delay:.75s}
+.slide.active .d5{animation-delay:.95s}.slide.active .d6{animation-delay:1.15s}
+.slide.active .d7{animation-delay:1.35s}.slide.active .d8{animation-delay:1.55s}
+.slide.active .d9{animation-delay:1.75s}.slide.active .d10{animation-delay:1.95s}
+
+.draw{stroke-dasharray:var(--len,300);stroke-dashoffset:var(--len,300);opacity:1}
+.slide.active .draw{animation:drawIn .6s ease forwards}
+@keyframes drawIn{to{stroke-dashoffset:0}}
+
+.slide.active .pulse{animation:pulse 2.2s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.45}}
+
+.slide.active .travel{animation:travel 4.5s linear infinite}
+@keyframes travel{0%{offset-distance:0%}100%{offset-distance:100%}}
+
+.slide.active .grow{transform-origin:bottom;animation:grow .8s cubic-bezier(.22,1,.36,1) forwards}
+@keyframes grow{from{transform:scaleY(0)}to{transform:scaleY(1)}}
+
+.slide.active .cycle1{animation:hl 6s ease-in-out infinite}
+.slide.active .cycle2{animation:hl 6s ease-in-out infinite 2s}
+.slide.active .cycle3{animation:hl 6s ease-in-out infinite 4s}
+@keyframes hl{0%,8%{opacity:0}14%,28%{opacity:1}36%,100%{opacity:0}}
+
+.slide.active .typing{animation:typing 1.4s steps(18) forwards;white-space:nowrap;overflow:hidden;
+  display:inline-block;width:0}
+@keyframes typing{to{width:100%}}
+
+/* ---------- copiable code ---------- */
+pre.code{position:relative;user-select:text}
+.copybtn{position:absolute;top:7px;right:7px;z-index:3;background:rgba(22,27,34,.94);
+  border:1px solid var(--line);color:var(--muted);font-family:var(--mono);font-size:10.5px;
+  letter-spacing:.06em;padding:4px 9px;border-radius:5px;cursor:pointer;opacity:0;transition:.16s}
+pre.code:hover .copybtn{opacity:1}
+.copybtn:hover{border-color:var(--mint);color:var(--mint)}
+.copybtn.done{border-color:var(--mint);color:var(--mint);opacity:1}
+
+
+/* ---------- figure slides: stacked on tall screens, side-by-side when wide ---------- */
+.cb{display:block}
+.figbody{flex:1;display:flex;gap:32px;align-items:center;margin-top:24px;min-height:0}
+.figbody > .figwrap{flex:1.8 1 0}
+.figbody > .figside{display:flex;flex-direction:column;gap:12px;min-width:0}
+.figbody > .figside > *{margin-bottom:0}
+@media (max-aspect-ratio: 29/20){
+  .figbody{flex-direction:column;align-items:stretch;gap:16px}
+  .figbody > .figwrap{flex:0 1 auto;width:100%;max-width:none;justify-content:flex-start}
+  .figbody > .figwrap > svg.fig{height:auto;min-height:0;flex:0 0 auto;max-height:100%}
+  .figbody > .figside{max-width:none !important;flex:0 0 auto;display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:14px;align-items:start}
+  .figbody > .figside .controls,.figbody > .figside .legend{justify-content:flex-start}
+}
+
+/* ---------- figure furniture ---------- */
+.legend{display:flex;gap:18px;font-family:var(--mono);font-size:12px;color:var(--muted);
+  margin-top:6px;flex-wrap:wrap;justify-content:center}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px;vertical-align:middle}
+.controls{display:flex;gap:10px;align-items:center;margin-top:12px;flex-wrap:wrap;justify-content:center}
+.btn.ghost{background:transparent;border-color:var(--line);color:var(--muted)}
+.btn.ghost:hover{border-color:var(--mint);color:var(--mint)}
+.gate{margin-bottom:12px}
+.gate label{display:flex;justify-content:space-between;align-items:center;font-family:var(--mono);
+  font-size:12.5px;margin-bottom:6px;gap:12px}
+input[type=range]{width:100%;height:5px;border-radius:3px;appearance:none;background:var(--line);outline:none}
+input[type=range]::-webkit-slider-thumb{appearance:none;width:15px;height:15px;border-radius:50%;
+  background:var(--mint);cursor:pointer;border:2px solid #0d1117}
+.eq{font-family:var(--mono);font-size:12.5px;color:var(--muted);line-height:1.9;background:#0a0e13;
+  border:1px solid var(--line);border-radius:9px;padding:11px 13px}
+.eq b{color:var(--text);font-weight:400}
+.def{border-left:3px solid var(--blue);background:linear-gradient(90deg,rgba(88,166,255,.09),transparent 65%);
+  padding:14px 18px;border-radius:0 9px 9px 0;margin-bottom:12px}
+.def .lbl{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;color:var(--blue);text-transform:uppercase}
+.def h4{font-family:var(--sans);font-size:17px;margin:5px 0 6px}
+.def p{color:var(--muted);font-size:14px;line-height:1.6}
+.def p b{color:var(--text);font-weight:600}
+.theory{border-left:3px solid var(--amber);background:linear-gradient(90deg,rgba(240,180,41,.08),transparent 65%);
+  padding:14px 18px;border-radius:0 9px 9px 0;margin-bottom:12px}
+.theory .lbl{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;color:var(--amber);text-transform:uppercase}
+.theory p{color:var(--muted);font-size:14px;line-height:1.6;margin-top:6px}
+.theory p b{color:var(--text);font-weight:600}
+.formula{background:#0a0e13;border:1px solid var(--line);border-radius:10px;padding:16px 20px;
+  font-family:var(--mono);font-size:19px;color:var(--mint);text-align:center;margin:10px 0}
+.formula small{display:block;font-size:12px;color:var(--muted);margin-top:8px}
+table.t{width:100%;border-collapse:collapse;font-size:13.5px}
+table.t th{text-align:left;font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--mint);padding:9px 12px;border-bottom:1px solid var(--line)}
+table.t td{padding:10px 12px;border-bottom:1px solid var(--line);color:var(--muted);line-height:1.5;vertical-align:top}
+table.t td:first-child{color:var(--text);font-family:var(--mono);font-size:12.5px}
+table.cps td:first-child{color:var(--mint);font-family:var(--mono);font-size:13px;width:140px}
+pre.code.sm{font-size:12.3px;line-height:1.6}
+.card.warn{border-color:rgba(255,111,145,.42)}
+.divider .num{font-family:var(--sans);font-size:112px;font-weight:700;color:rgba(0,220,180,.16);line-height:1}
+</style>
+</head>
+<body>
+
+<div id="topbar">
+  <img class="wordmark" src="data:image/png;base64,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" alt="codencode.my">
+  <div id="sesslabel">SESSION 03</div>
+  <div id="titlebar"></div>
+  <div id="counter"></div>
+  <button class="btn" onclick="fs()">FULLSCREEN</button>
+</div>
+<div id="progress"></div>
+
+<div id="deck">
+
+
+<style>
+/* ---------- dolls (nested loops) ---------- */
+.doll{transition:transform .3s ease}
+.doll .shell{stroke-width:2.5;fill-opacity:.14}
+.doll.on .shell{fill-opacity:.38}
+.dollOuter .shell{stroke:var(--mint);fill:var(--mint)}
+.dollInner .shell{stroke:var(--amber);fill:var(--amber)}
+.dollCore .shell{stroke:var(--coral);fill:var(--coral)}
+.doll.on{filter:drop-shadow(0 0 14px rgba(0,220,180,.45))}
+.doll.dollInner.on{filter:drop-shadow(0 0 14px rgba(240,180,41,.5))}
+.doll.dollCore.on{filter:drop-shadow(0 0 14px rgba(255,111,145,.5))}
+.cnt{font-family:var(--mono);font-size:26px;font-weight:600}
+.trace{font-family:var(--mono);font-size:13px;background:#0a0e13;border:1px solid var(--line);
+  border-radius:10px;padding:12px;height:132px;overflow:hidden;display:flex;
+  flex-direction:column-reverse;gap:3px;margin-bottom:11px}
+.trace div{color:var(--muted)}.trace div.new{color:var(--mint)}
+.cell{transition:all .3s cubic-bezier(.22,1,.36,1)}
+</style>
+
+<section class="slide title-slide" data-title="Main Title">
+  <div class="badge fx">SESSION 03 OF 07 · PYTHON FUNDAMENTALS</div>
+  <h1 class="fx d1">Loops &amp; <em>Data Structures</em></h1>
+  <p class="fx d2">Doing something a thousand times without writing it a thousand times — and somewhere sensible to keep all the data while you do it.</p>
+  <div class="foot fx d3">codencode Academy · prerequisite: Session 2 Conditionals &amp; Logic</div>
+</section>
+
+<section class="slide" data-title="Session Plan">
+  <div class="tag fx">Session Plan</div>
+  <h1 class="sh fx d1">What we're doing today</h1>
+  <div class="body">
+    <div class="col cards grid3"><div class="card accent fx d2">
+        <h3><span class="k">M1</span>Repetition</h3>
+        <p>Why loops exist, the for loop over a sequence, and the while loop that runs until something changes.</p>
+        <div style="margin-top:10px"><span class="pill mint">45 min</span></div>
+      </div><div class="card accent fx d3">
+        <h3><span class="k">M2</span>Data Structures</h3>
+        <p>Lists for ordered things, dictionaries for labelled things, and loops nested inside loops.</p>
+        <div style="margin-top:10px"><span class="pill mint">50 min</span></div>
+      </div><div class="card accent fx d4">
+        <h3><span class="k">M3</span>Applied Loops</h3>
+        <p>A contact book that saves itself, plus the loop patterns you will use forever.</p>
+        <div style="margin-top:10px"><span class="pill mint">45 min</span></div>
+      </div></div>
+  </div>
+  <div class="cards grid3 fx d5"><div class="card"><p><b>Bring</b> — your week2 folder and a working grade script</p></div><div class="card"><p><b>Homework 3</b> — Loops &amp; Data Structures, four scripts</p></div><div class="card"><p><b>Push to</b> — <span style='font-family:var(--mono)'>python-bootcamp/week3/</span></p></div></div>
+</section>
+
+<section class="slide" data-title="Revised Last Week">
+  <div class="tag fx">Revised Last Week · 10 minutes</div>
+  <h1 class="sh fx d1">Session 02 — Conditionals &amp; Logic</h1>
+  <p class="sub fx d2">Quick check before we build on it. Answer out loud — if the room goes quiet on any of these, we go back over it now.</p>
+  <div class="body">
+    <div class="col cards grid3 fx d3"><div class="card"><h3>Why does order matter in if/elif?</h3><p>Python takes the first branch that is True and skips the rest — so a narrower test placed after a wider one never runs.</p></div><div class="card"><h3>Where do conditional bugs live?</h3><p>At the boundaries. Exactly 80, exactly RM 5,000. A <span style='font-family:var(--mono)'>&gt;</span> that should be <span style='font-family:var(--mono)'>&gt;=</span>.</p></div><div class="card"><h3>What is a guard clause?</h3><p>A check at the top that handles the bad case and returns straight away, so the real work sits unindented below.</p></div></div>
+  </div>
+  <p class="caption fx d4">Your ATM asked for a PIN three times. You wrote that by hand, three times over. Today we stop doing that.</p>
+</section>
+
+<section class="slide" data-title="Learning Outcomes">
+  <div class="tag fx">Learning Outcomes · Condition — Performance — Standard</div>
+  <h1 class="sh fx d1">By the end of today you will be able to…</h1>
+  <div class="body">
+    <div class="col fx d2">
+      <table class="t cps">
+        <tr><th>Component</th><th>Statement</th></tr>
+        <tr><td>Condition</td><td>Given a collection of data and a rule describing what to do with each item,</td></tr>
+        <tr><td>Performance</td><td>you will iterate over it with the right loop, store the results in a list or dictionary, access items by index or key, and nest loops where the data has two dimensions,</td></tr>
+        <tr><td>Standard</td><td>producing scripts that handle a collection of <b style="color:var(--text)">any length without editing the code</b>, terminate reliably with no infinite loops, and are pushed to <span style="font-family:var(--mono)">week3/</span>.</td></tr>
+      </table>
+      <div style="margin-top:18px"><span class="pill mint">LO1 · for loops over sequences</span><span class="pill mint">LO2 · while loops &amp; termination</span><span class="pill mint">LO3 · Lists — index, slice, mutate</span><span class="pill mint">LO4 · Dictionaries — key/value</span><span class="pill coral">LO5 · Nested loops</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="slide" data-title="Content Mapping">
+  <div class="tag fx">Content Mapping</div>
+  <h1 class="sh fx d1">How today maps to your outcomes</h1>
+  <div class="body">
+    <div class="col fx d2">
+      <table class="t">
+        <tr><th>Module</th><th>Topics</th><th style="width:120px">Outcome</th><th style="width:190px">Assessed by</th></tr>
+        <tr><td>Module 1</td><td>1.1 Why repeat · 1.2 for + range · 1.3 while, break, continue</td>
+        <td style="color:var(--mint)">LO1, LO2</td><td>Times-table drill</td></tr><tr><td>Module 2</td><td>2.1 Lists · 2.2 Dictionaries · 2.3 Nested loops</td>
+        <td style="color:var(--mint)">LO3, LO4, LO5</td><td>Teacher Demo — contact book</td></tr><tr><td>Module 3</td><td>3.1 Loop patterns · 3.2 Save &amp; load · 3.3 Debugging loops</td>
+        <td style="color:var(--mint)">LO1–LO5</td><td>Your Turn — shopping list + word counter</td></tr>
+      </table>
+      <div class="theory" style="margin-top:20px">
+        <div class="lbl">The mental shift today</div>
+        <p>Stop thinking about <b>one</b> value. Start thinking about <b>a collection</b> and what happens to each item in it. Every program you write from here on is some version of that.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="slide divider" data-title="Module 1">
+  <div class="num fx">01</div>
+  <h1 class="fx d1">Repetition</h1>
+  <div class="items"><div class="fx d2"><b>1.1</b>Why writing it out by hand stops working</div><div class="fx d3"><b>1.2</b>The for loop, and what range() actually gives you</div><div class="fx d4"><b>1.3</b>while, break and continue — running until something changes</div>
+    <div class="fx d5" style="margin-top:8px"><b style="color:var(--amber)">↓</b><span style="color:var(--amber)">Hands-on: times tables, and a countdown that ends</span></div>
+  </div>
+</section>
+
+<section class="slide" data-title="1.1 Why loops">
+  <div class="tag fx">1.1 · Why loops</div>
+  <h1 class="sh fx d1">The same three lines, four hundred times</h1>
+  <div class="body">
+    <div class="col fx d2"><div class="def"><div class="lbl">Definition</div><h4>Loop</h4><p>A block of code that Python runs more than once. You write the body <b>once</b>; the loop decides how many times it runs and what it is working on each time.</p></div><div class="cb"><div class="code-head">what you are doing now</div><pre class="code sm"><span class="k">print</span>(<span class="s">"Aisyah"</span>)
+<span class="k">print</span>(<span class="s">"Wei Ming"</span>)
+<span class="k">print</span>(<span class="s">"Kumar"</span>)
+<span class="c"># ... and 397 more lines</span>
+<span class="e"># add one student -> edit the file</span></pre></div></div>
+    <div class="col fx d3"><div class="cb"><div class="code-head">what you will do from today</div><pre class="code sm">students = [<span class="s">"Aisyah"</span>, <span class="s">"Wei Ming"</span>, <span class="s">"Kumar"</span>]
+
+<span class="k">for</span> name <span class="s">in</span> students:
+    <span class="k">print</span>(name)
+
+<span class="c"># 3 students or 3,000 — same four lines</span></pre></div><div class="theory"><div class="lbl">The real argument for loops is not typing</div><p>It is that the logic lives in <b>one place</b>. Four hundred copied lines means four hundred places a bug can hide and four hundred edits when the rule changes. One loop body means one.</p></div><div class="card accent"><h3>Two kinds, one question</h3><p>Ask yourself: <b>do I know how many times?</b> If yes — or if you have a collection to walk through — use <span style="font-family:var(--mono)">for</span>. If you are waiting for a condition to change, use <span style="font-family:var(--mono)">while</span>.</p></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="Watch the loop variable walk the list">
+  <div class="tag fx">1.2 · The for loop</div>
+  <h1 class="sh fx d1">Watch the loop variable walk the list</h1>
+  <p class="sub fx d2">One pass per item. The loop variable is a fresh label pointed at the next value each time round.</p>
+  <div class="body figbody">
+    <div class="figwrap">
+      <svg class="fig" id="forSvg" viewBox="0 0 1000 440"></svg>
+      <div class="legend"><span><i style="background:#00dcb4"></i>current item</span><span><i style="background:#f0b429"></i>loop variable</span><span><i style="background:#2a5a50"></i>already visited</span></div>
+      
+    </div>
+    <div class="col figside" style="max-width:380px"><div class="controls" style="justify-content:flex-start;margin-bottom:12px"><button class="btn ghost" id="forBtn" onclick="forToggle()">PAUSE</button><button class="btn ghost" onclick="forStep()">STEP</button><button class="btn ghost" onclick="forReset()">RESET</button></div><div class="theory" style="margin-bottom:11px"><div class="lbl">What just happened</div><p id="forNote">—</p></div><div class="cb"><div class="code-head">the code being animated</div><pre class="code sm">scores = [<span class="n">12</span>, <span class="n">7</span>, <span class="n">25</span>, <span class="n">4</span>, <span class="n">18</span>, <span class="n">9</span>]
+total = <span class="n">0</span>
+
+<span class="k">for</span> score <span class="s">in</span> scores:
+    total = total + score
+
+<span class="k">print</span>(total / <span class="k">len</span>(scores))</pre></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="1.2b range()">
+  <div class="tag fx">1.2b · range()</div>
+  <h1 class="sh fx d1">range() and the off-by-one that catches everyone</h1>
+  <div class="body">
+    <div class="col fx d2"><div class="cb"><div class="code-head">range gives you numbers, not a list you can see</div><pre class="code"><span class="k">for</span> i <span class="s">in</span> <span class="k">range</span>(<span class="n">5</span>):
+    <span class="k">print</span>(i)        <span class="c"># 0 1 2 3 4  — five numbers, stops BEFORE 5</span>
+
+<span class="k">for</span> i <span class="s">in</span> <span class="k">range</span>(<span class="n">1</span>, <span class="n">6</span>):
+    <span class="k">print</span>(i)        <span class="c"># 1 2 3 4 5  — start, stop</span>
+
+<span class="k">for</span> i <span class="s">in</span> <span class="k">range</span>(<span class="n">0</span>, <span class="n">21</span>, <span class="n">5</span>):
+    <span class="k">print</span>(i)        <span class="c"># 0 5 10 15 20 — start, stop, step</span>
+
+<span class="k">for</span> i <span class="s">in</span> <span class="k">range</span>(<span class="n">5</span>, <span class="n">0</span>, <span class="n">-1</span>):
+    <span class="k">print</span>(i)        <span class="c"># 5 4 3 2 1 — counting down</span></pre></div></div>
+    <div class="col fx d3"><div class="def"><div class="lbl">Definition</div><h4>Half-open range</h4><p><span style="font-family:var(--mono)">range(a, b)</span> includes <b>a</b> and excludes <b>b</b>. It feels arbitrary until you notice <span style="font-family:var(--mono)">range(len(x))</span> then gives exactly the valid indices, and <span style="font-family:var(--mono)">range(0,5)</span> + <span style="font-family:var(--mono)">range(5,10)</span> tile perfectly with no overlap.</p></div><div class="cb"><div class="code-head">when you need the index as well as the value</div><pre class="code sm"><span class="c"># clumsy</span>
+<span class="k">for</span> i <span class="s">in</span> <span class="k">range</span>(<span class="k">len</span>(students)):
+    <span class="k">print</span>(i, students[i])
+
+<span class="c"># the Python way</span>
+<span class="k">for</span> i, name <span class="s">in</span> <span class="k">enumerate</span>(students):
+    <span class="k">print</span>(<span class="s">f"{i+1}. {name}"</span>)</pre></div><div class="card accent"><h3>The rule</h3><p>If you only need the values, loop over the collection directly. Reach for <span style="font-family:var(--mono)">range()</span> when you genuinely need <b>numbers</b>.</p></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="1.3 while loops">
+  <div class="tag fx">1.3 · while</div>
+  <h1 class="sh fx d1">while — running until something changes</h1>
+  <div class="body">
+    <div class="col fx d2"><div class="cb"><div class="code-head">for versus while</div><pre class="code sm"><span class="c"># for: I know the collection</span>
+<span class="k">for</span> item <span class="s">in</span> cart:
+    total += item.price
+
+<span class="c"># while: I am waiting for a condition</span>
+attempts = <span class="n">0</span>
+<span class="s">while</span> attempts &lt; <span class="n">3</span>:
+    pin = <span class="k">input</span>(<span class="s">"PIN? "</span>)
+    <span class="s">if</span> pin == correct:
+        <span class="k">print</span>(<span class="s">"Welcome"</span>)
+        <span class="s">break</span>
+    attempts += <span class="n">1</span>
+<span class="s">else</span>:
+    <span class="k">print</span>(<span class="s">"Card locked"</span>)</pre></div><div class="theory"><div class="lbl">That is your ATM from last week — properly</div><p>Session 2 you wrote the three attempts out by hand. The <span style="font-family:var(--mono)">while</span> version works for three attempts or thirty, and the <span style="font-family:var(--mono)">else</span> on a loop runs only when it finished <b>without</b> a break — exactly the "ran out of attempts" case.</p></div></div>
+    <div class="col fx d3"><div class="cb"><div class="code-head">break and continue</div><pre class="code sm"><span class="k">for</span> n <span class="s">in</span> numbers:
+    <span class="s">if</span> n &lt; <span class="n">0</span>:
+        <span class="s">continue</span>      <span class="c"># skip this one, go round again</span>
+    <span class="s">if</span> n &gt; <span class="n">100</span>:
+        <span class="s">break</span>         <span class="c"># stop the loop entirely</span>
+    <span class="k">print</span>(n)</pre></div><div class="card warn"><h3>The infinite loop</h3><p><span style="font-family:var(--mono)">while True:</span> with no <span style="font-family:var(--mono)">break</span>, or a counter you forgot to increase, and your terminal hangs. <b>Ctrl+C</b> stops it. Before you run any while loop, point at the line that will eventually make the condition False.</p></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="Module 1 Hands-on">
+  <div class="tag fx">Hands-on · Module 1</div>
+  <h1 class="sh fx d1">Times tables, and a countdown that actually ends</h1>
+  <div class="body">
+    <div class="col fx d2">
+      <div class="hands-on">
+        <div class="lbl">15 minutes · pairs</div>
+        <h3>Times tables, and a countdown that actually ends</h3>
+        
+        <div class="steps"><div><b>01</b><span>Print the 7 times table, 1 through 12, using a for loop and an f-string.</span></div><div><b>02</b><span>Print the even numbers from 2 to 20 — twice: once with an if, once with range's step.</span></div><div><b>03</b><span>Write a countdown from 10 to 1 with a while loop, then print "Liftoff".</span></div><div><b>04</b><span>Deliberately remove the line that changes the counter. Run it. Press Ctrl+C. Put it back.</span></div><div><b>05</b><span>Stretch: sum the numbers 1 to 100 with a loop, then check against 5050.</span></div></div>
+      </div>
+    </div>
+    <div class="col fx d3"><div class="cb"><div class="code-head">the shapes you need</div><pre class="code sm"><span class="c"># times table</span>
+<span class="k">for</span> i <span class="s">in</span> <span class="k">range</span>(<span class="n">1</span>, <span class="n">13</span>):
+    <span class="k">print</span>(<span class="s">f"7 x {i} = {7*i}"</span>)
+
+<span class="c"># countdown</span>
+n = <span class="n">10</span>
+<span class="s">while</span> n &gt; <span class="n">0</span>:
+    <span class="k">print</span>(n)
+    n -= <span class="n">1</span>      <span class="c"># ← delete this and it never ends</span>
+<span class="k">print</span>(<span class="s">"Liftoff"</span>)</pre></div><div class="theory"><div class="lbl">Say it out loud before you run it</div><p>"This loop stops because n goes down by one each time and the test is n &gt; 0." If you cannot finish that sentence, the loop is not finished either.</p></div></div>
+  </div>
+</section>
+
+<section class="slide divider" data-title="Module 2">
+  <div class="num fx">02</div>
+  <h1 class="fx d1">Data Structures</h1>
+  <div class="items"><div class="fx d2"><b>2.1</b>Lists — ordered, indexed, changeable</div><div class="fx d3"><b>2.2</b>Dictionaries — looking things up by name</div><div class="fx d4"><b>2.3</b>Loops inside loops</div>
+    <div class="fx d5" style="margin-top:8px"><b style="color:var(--amber)">↓</b><span style="color:var(--amber)">Teacher Demo: the contact book</span></div>
+  </div>
+</section>
+
+<section class="slide" data-title="Press the buttons — watch the indices move">
+  <div class="tag fx">2.1 · Lists</div>
+  <h1 class="sh fx d1">Press the buttons — watch the indices move</h1>
+  <p class="sub fx d2">Negative indices count from the end — cart[-1] is always the last item.</p>
+  <div class="body figbody">
+    <div class="figwrap">
+      <svg class="fig" id="listSvg" viewBox="0 0 1000 380"></svg>
+      <div class="legend"><span><i style="background:#00dcb4"></i>added</span><span><i style="background:#ff6f91"></i>about to be removed</span></div>
+      
+    </div>
+    <div class="col figside" style="max-width:400px"><div class="controls" style="justify-content:flex-start;margin-bottom:12px"><button class="btn ghost" onclick="listAppend()">append()</button><button class="btn ghost" onclick="listInsert()">insert(0)</button><button class="btn ghost" onclick="listPop()">pop()</button><button class="btn ghost" onclick="listReset()">RESET</button></div><div class="def"><div class="lbl">Definition</div><h4>List</h4><p>An <b>ordered</b>, changeable collection. Position is meaningful, duplicates are allowed, and the first item is at index <b>0</b>.</p></div><div class="card warn"><h3>Watch insert(0) carefully</h3><p>Everything after it shifts one index right — which is why appending is cheap and inserting is not.</p></div><div class="cb"><div class="code-head">the operations on screen</div><pre class="code sm">cart = [<span class="s">"roti"</span>, <span class="s">"telur"</span>, <span class="s">"susu"</span>]
+
+cart.append(<span class="s">"kopi"</span>)    <span class="c"># on the end</span>
+cart.insert(<span class="n">0</span>, <span class="s">"ais"</span>)   <span class="c"># at the front</span>
+cart.pop()                <span class="c"># remove + return the last</span>
+
+<span class="k">print</span>(cart[<span class="n">0</span>], cart[<span class="n">-1</span>])   <span class="c"># first, last</span>
+<span class="k">print</span>(cart[<span class="n">1</span>:<span class="n">3</span>])          <span class="c"># a slice — 1 and 2, not 3</span></pre></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="2.2 Dictionaries">
+  <div class="tag fx">2.2 · Dictionaries</div>
+  <h1 class="sh fx d1">When position is meaningless and names are not</h1>
+  <div class="body">
+    <div class="col fx d2"><div class="def"><div class="lbl">Definition</div><h4>Dictionary</h4><p>A collection of <b>key: value</b> pairs. You look things up by key instead of by position — <span style="font-family:var(--mono)">contact["phone"]</span>, not <span style="font-family:var(--mono)">contact[1]</span>.</p></div><div class="cb"><div class="code-head">list versus dict — the same data, two ways</div><pre class="code sm"><span class="c"># as a list — what is at index 2 again?</span>
+p = [<span class="s">"Aisyah"</span>, <span class="n">17</span>, <span class="s">"JB"</span>, <span class="s">"0127..."</span>]
+<span class="k">print</span>(p[<span class="n">2</span>])            <span class="c"># you have to remember</span>
+
+<span class="c"># as a dict — it says what it is</span>
+p = {
+    <span class="s">"name"</span>:  <span class="s">"Aisyah"</span>,
+    <span class="s">"age"</span>:   <span class="n">17</span>,
+    <span class="s">"city"</span>:  <span class="s">"JB"</span>,
+    <span class="s">"phone"</span>: <span class="s">"0127..."</span>,
+}
+<span class="k">print</span>(p[<span class="s">"city"</span>])</pre></div></div>
+    <div class="col fx d3"><div class="cb"><div class="code-head">the four things you will do constantly</div><pre class="code sm"><span class="c"># 1 — read, safely</span>
+<span class="k">print</span>(p.get(<span class="s">"email"</span>, <span class="s">"not given"</span>))
+<span class="c">#    p["email"] would raise KeyError</span>
+
+<span class="c"># 2 — add or update (same syntax)</span>
+p[<span class="s">"email"</span>] = <span class="s">"a@codencode.my"</span>
+
+<span class="c"># 3 — check before you look</span>
+<span class="s">if</span> <span class="s">"phone"</span> <span class="s">in</span> p:
+    <span class="k">print</span>(p[<span class="s">"phone"</span>])
+
+<span class="c"># 4 — loop over both at once</span>
+<span class="k">for</span> key, value <span class="s">in</span> p.items():
+    <span class="k">print</span>(<span class="s">f"{key:&gt;6}: {value}"</span>)</pre></div><div class="theory"><div class="lbl">Pick by the question you will ask</div><p>"Give me the third one" or "in what order?" → <b>list</b>. "Give me Aisyah's phone number" → <b>dictionary</b>. A contact book is a <b>list of dictionaries</b>, which is exactly what the demo builds next.</p></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="A loop inside a loop — like a Russian doll">
+  <div class="tag fx">2.3 · Nested loops</div>
+  <h1 class="sh fx d1">A loop inside a loop — like a Russian doll</h1>
+  <p class="sub fx d2">Open the outer doll to find the inner one; open that to reach the core. The core is the loop body — it runs the most.</p>
+  <div class="body figbody">
+    <div class="figwrap">
+      <svg class="fig" id="dollSvg" viewBox="0 0 560 380"></svg>
+      <div class="legend"><span><i style="background:#00dcb4"></i>outer loop · i</span><span><i style="background:#f0b429"></i>inner loop · j</span><span><i style="background:#ff6f91"></i>the body · print()</span></div>
+      
+    </div>
+    <div class="col figside" style="max-width:420px"><div class="controls" style="justify-content:flex-start;margin-bottom:11px"><button class="btn ghost" id="dollBtn" onclick="dollToggle()">PAUSE</button><button class="btn ghost" onclick="dollStep()">STEP</button><button class="btn ghost" onclick="dollReset()">RESET</button></div><div class="trace" id="dollTrace"></div><div class="cb"><div class="code-head">3 x 3 = 9 runs of the body</div><pre class="code sm"><span class="k">for</span> i <span class="s">in</span> <span class="k">range</span>(<span class="n">1</span>, <span class="n">4</span>):
+    <span class="k">for</span> j <span class="s">in</span> <span class="k">range</span>(<span class="n">1</span>, <span class="n">4</span>):
+        <span class="k">print</span>(i, <span class="s">"x"</span>, j, <span class="s">"="</span>, i*j)</pre></div><div class="card warn"><h3>The number that matters</h3><p>The inner loop runs <b>completely</b> for every single turn of the outer one. 3 and 3 is 9. 1,000 and 1,000 is a million — and that is how a loop that looks innocent freezes a laptop.</p></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="Module 2 Hands-on">
+  <div class="tag fx">Hands-on · Module 2</div>
+  <h1 class="sh fx d1">Teacher Demo — the contact book</h1>
+  <div class="body">
+    <div class="col fx d2">
+      <div class="hands-on">
+        <div class="lbl">20 minutes · follow along, then extend</div>
+        <h3>Teacher Demo — the contact book</h3>
+        
+        <div class="steps"><div><b>01</b><span>Build a contact book as a list of dictionaries, following along with the demo.</span></div><div><b>02</b><span>Write a loop that prints every contact in a neat numbered table.</span></div><div><b>03</b><span>Write a search: ask for a name, loop through, print the match or "not found".</span></div><div><b>04</b><span>Add a contact from user input, then print the book again to confirm.</span></div><div><b>05</b><span>Stretch: sort the book by name before printing.</span></div></div>
+      </div>
+    </div>
+    <div class="col fx d3"><div class="cb"><div class="code-head">contact_book.py — the core</div><pre class="code sm">book = [
+    {<span class="s">"name"</span>: <span class="s">"Aisyah"</span>, <span class="s">"phone"</span>: <span class="s">"012-3456789"</span>, <span class="s">"city"</span>: <span class="s">"JB"</span>},
+    {<span class="s">"name"</span>: <span class="s">"Wei Ming"</span>, <span class="s">"phone"</span>: <span class="s">"011-2223333"</span>, <span class="s">"city"</span>: <span class="s">"KL"</span>},
+]
+
+<span class="c"># print them all</span>
+<span class="k">for</span> i, c <span class="s">in</span> <span class="k">enumerate</span>(book, start=<span class="n">1</span>):
+    <span class="k">print</span>(<span class="s">f"{i}. {c['name']:&lt;10} {c['phone']:&lt;14} {c['city']}"</span>)
+
+<span class="c"># search</span>
+q = <span class="k">input</span>(<span class="s">"Name? "</span>).strip().lower()
+found = <span class="k">None</span>
+<span class="k">for</span> c <span class="s">in</span> book:
+    <span class="s">if</span> c[<span class="s">"name"</span>].lower() == q:
+        found = c
+        <span class="s">break</span>
+
+<span class="k">print</span>(found <span class="s">if</span> found <span class="s">else</span> <span class="s">"Not found"</span>)</pre></div><div class="card accent"><h3>List of dicts is the shape of everything</h3><p>Every API you call in Session 6 hands you exactly this: a list, each item a dictionary. Get comfortable walking it now and that session becomes easy.</p></div></div>
+  </div>
+</section>
+
+<section class="slide divider" data-title="Module 3">
+  <div class="num fx">03</div>
+  <h1 class="fx d1">Applied Loops</h1>
+  <div class="items"><div class="fx d2"><b>3.1</b>The four loop patterns you will reuse forever</div><div class="fx d3"><b>3.2</b>Saving the book so it survives closing the program</div><div class="fx d4"><b>3.3</b>Debugging loops</div>
+    <div class="fx d5" style="margin-top:8px"><b style="color:var(--amber)">↓</b><span style="color:var(--amber)">Your Turn: shopping list + word counter</span></div>
+  </div>
+</section>
+
+<section class="slide" data-title="3.1 Loop patterns">
+  <div class="tag fx">3.1 · Loop patterns</div>
+  <h1 class="sh fx d1">Four shapes that cover almost everything</h1>
+  <div class="body">
+    <div class="col fx d2"><div class="card accent"><h3>1 · Accumulate</h3><p>Start at zero or empty, add to it each pass. Totals, counts, joining strings. <span style="font-family:var(--mono)">total += x</span></p></div><div class="card accent"><h3>2 · Filter</h3><p>Walk the collection, keep only what passes a test. <span style="font-family:var(--mono)">if ok: keep.append(x)</span></p></div><div class="card accent"><h3>3 · Transform</h3><p>Produce a new item from each old one. Prices to prices-with-tax, names to uppercase names.</p></div><div class="card accent"><h3>4 · Search</h3><p>Walk until you find it, then <span style="font-family:var(--mono)">break</span>. Remember the "found nothing" case.</p></div></div>
+    <div class="col fx d3"><div class="cb"><div class="code-head">all four, and the short form of the first three</div><pre class="code sm"><span class="c"># accumulate</span>
+total = <span class="n">0</span>
+<span class="k">for</span> p <span class="s">in</span> prices: total += p
+
+<span class="c"># filter</span>
+cheap = []
+<span class="k">for</span> p <span class="s">in</span> prices:
+    <span class="s">if</span> p &lt; <span class="n">10</span>: cheap.append(p)
+
+<span class="c"># transform</span>
+with_tax = []
+<span class="k">for</span> p <span class="s">in</span> prices: with_tax.append(p * <span class="n">1.06</span>)
+
+<span class="c"># the comprehension — same thing, one line</span>
+cheap    = [p <span class="s">for</span> p <span class="s">in</span> prices <span class="s">if</span> p &lt; <span class="n">10</span>]
+with_tax = [p * <span class="n">1.06</span> <span class="s">for</span> p <span class="s">in</span> prices]
+total    = <span class="k">sum</span>(prices)</pre></div><div class="theory"><div class="lbl">Write the long form first</div><p>Comprehensions are lovely once the loop is clear in your head. Write the four-line version, get it right, <i>then</i> collapse it. Nobody is impressed by a one-liner that returns the wrong answer.</p></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="3.2 Save &amp; load">
+  <div class="tag fx">3.2 · Saving</div>
+  <h1 class="sh fx d1">Making the contact book survive being closed</h1>
+  <div class="body">
+    <div class="col fx d2"><div class="theory"><div class="lbl">The problem with everything so far</div><p>Close the program and the data is gone. To keep it, write it to a <b>file</b>.</p></div></div>
+    <div class="col fx d3"><div class="cb"><div class="code-head">save and load with JSON</div><pre class="code sm"><span class="s">import</span> json
+<span class="c"># save — dump the whole list of dicts</span>
+<span class="s">with</span> <span class="k">open</span>(<span class="s">"contacts.json"</span>, <span class="s">"w"</span>) <span class="s">as</span> f:
+    json.dump(book, f, indent=<span class="n">2</span>)
+<span class="c"># load — cope with the first ever run</span>
+<span class="s">try</span>:
+    <span class="s">with</span> <span class="k">open</span>(<span class="s">"contacts.json"</span>) <span class="s">as</span> f:
+        book = json.load(f)
+<span class="s">except</span> FileNotFoundError:
+    book = []   <span class="c"># no file yet</span></pre></div><div class="card accent"><h3>JSON</h3><p>Text that looks almost exactly like Python lists and dicts — and it is what APIs speak.</p></div><div class="cb"><div class="code-head">the menu loop that makes it a real program</div><pre class="code sm"><span class="s">while</span> <span class="k">True</span>:
+    choice = <span class="k">input</span>(<span class="s">"[1] list [2] add [3] find [q] quit: "</span>)
+    <span class="s">if</span> choice == <span class="s">"q"</span>:
+        save(book); <span class="s">break</span>
+    <span class="s">elif</span> choice == <span class="s">"1"</span>: show(book)
+    <span class="s">elif</span> choice == <span class="s">"2"</span>: book.append(ask_contact())
+    <span class="s">elif</span> choice == <span class="s">"3"</span>: search(book)</pre></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="3.3 Debugging loops">
+  <div class="tag fx">3.3 · Debugging</div>
+  <h1 class="sh fx d1">Four loop bugs, and how to spot each</h1>
+  <div class="body">
+    <div class="col fx d2"><div class="card warn"><h3>1 · The loop never ends</h3><p>A while whose condition never becomes False — usually a counter you forgot to increase. Symptom: the cursor just sits there. Ctrl+C, then look for the line that should change the condition.</p></div><div class="card warn"><h3>2 · Off by one</h3><p><span style="font-family:var(--mono)">range(1, 10)</span> when you meant <span style="font-family:var(--mono)">range(1, 11)</span>. Symptom: the last item is missing. Print <span style="font-family:var(--mono)">len()</span> of what you produced and compare.</p></div><div class="card warn"><h3>3 · Changing a list while looping over it</h3><p>Removing items mid-loop makes Python skip the next one. Symptom: some items survive that should not. Build a <b>new</b> list instead.</p></div><div class="card warn"><h3>4 · Accumulator reset inside the loop</h3><p><span style="font-family:var(--mono)">total = 0</span> written one indent too far in. Symptom: the total equals the last item. Check the indentation.</p></div></div>
+    <div class="col fx d3"><div class="cb"><div class="code-head">bugs 3 and 4, seen properly</div><pre class="code sm"><span class="c"># BUG 3 — never do this</span>
+<span class="k">for</span> x <span class="s">in</span> nums:
+    <span class="s">if</span> x &lt; <span class="n">0</span>:
+        nums.remove(x)    <span class="e"># skips the next item</span>
+
+<span class="c"># fix — build a new list</span>
+nums = [x <span class="s">for</span> x <span class="s">in</span> nums <span class="s">if</span> x &gt;= <span class="n">0</span>]
+
+<span class="c"># BUG 4 — spot the indent</span>
+<span class="k">for</span> p <span class="s">in</span> prices:
+    total = <span class="n">0</span>          <span class="e"># resets every pass</span>
+    total += p
+
+<span class="c"># fix — outside the loop</span>
+total = <span class="n">0</span>
+<span class="k">for</span> p <span class="s">in</span> prices:
+    total += p</pre></div><div class="theory"><div class="lbl">The one debugging move for loops</div><p><span style="font-family:var(--mono)">print(i, item, total)</span> as the first line of the body. You instantly see how many passes happened, in what order, and where the number went wrong. Delete it afterwards.</p></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="Module 3 Hands-on">
+  <div class="tag fx">Hands-on · Module 3</div>
+  <h1 class="sh fx d1">Your Turn — shopping list and word counter</h1>
+  <div class="body">
+    <div class="col fx d2">
+      <div class="hands-on">
+        <div class="lbl">25 minutes · solo</div>
+        <h3>Your Turn — shopping list and word counter</h3>
+        
+        <div class="steps"><div><b>01</b><span><b>Shopping list</b> — a menu loop: add, remove, show, total, quit. Items are dicts with name, price, qty.</span></div><div><b>02</b><span>Print a receipt with a line per item and a grand total, formatted to two decimals.</span></div><div><b>03</b><span>Save to JSON on quit and load on start, so the list survives a restart.</span></div><div><b>04</b><span><b>Word counter</b> — take a sentence, count how many times each word appears, using a dictionary.</span></div><div><b>05</b><span>Print the words sorted by count, highest first.</span></div><div><b>06</b><span>Push both to <span style="font-family:var(--mono)">python-bootcamp/week3/</span>.</span></div></div>
+      </div>
+    </div>
+    <div class="col fx d3"><div class="cb"><div class="code-head">the word counter — the whole idea in six lines</div><pre class="code sm">text = <span class="k">input</span>(<span class="s">"Sentence: "</span>).lower()
+counts = {}
+
+<span class="k">for</span> word <span class="s">in</span> text.split():
+    word = word.strip(<span class="s">".,!?"</span>)
+    counts[word] = counts.get(word, <span class="n">0</span>) + <span class="n">1</span>
+
+<span class="k">for</span> word, n <span class="s">in</span> <span class="k">sorted</span>(counts.items(),
+                       key=<span class="s">lambda</span> kv: kv[<span class="n">1</span>], reverse=<span class="k">True</span>):
+    <span class="k">print</span>(<span class="s">f"{word:&lt;12} {n}"</span>)</pre></div><div class="card accent"><h3>counts.get(word, 0) + 1 is the trick</h3><p>First time a word appears there is no key yet, so plain <span style="font-family:var(--mono)">counts[word]</span> would raise KeyError. <span style="font-family:var(--mono)">.get(word, 0)</span> says "or zero if it is new" — one line instead of an if.</p></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="Recap &amp; Summary">
+  <div class="tag fx">Recap &amp; Summary</div>
+  <h1 class="sh fx d1">What you can do now</h1>
+  <div class="body">
+    <div class="col cards grid3 fx d2"><div class="card accent"><h3><span class="k">M1</span>Repetition</h3><p>Choose between for and while, use range and enumerate correctly, and guarantee your loops terminate.</p></div><div class="card accent"><h3><span class="k">M2</span>Data Structures</h3><p>Store ordered data in lists and labelled data in dictionaries, and walk both — including nested.</p></div><div class="card accent"><h3><span class="k">M3</span>Applied Loops</h3><p>Recognise accumulate, filter, transform and search, and save a collection to a file so it survives.</p></div></div>
+  </div>
+  <div class="body" style="flex:0 0 auto;margin-top:0">
+    <div class="col fx d3"><div class="theory"><div class="lbl">The one line to remember</div><p><b>Stop writing about one thing; start writing about every thing.</b> A loop body is written once and must be correct for the first item, the last item, and the case where there are none at all.</p></div></div>
+    <div class="col fx d4"><div class="card"><h3>Next session — Functions &amp; Modules</h3><p>Your contact book is getting long. Next we cut it into named pieces that each do one job, can be tested on their own, and can be reused in the next program without copying anything.</p></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="Review Learning Outcomes">
+  <div class="tag fx">Review Learning Outcomes</div>
+  <h1 class="sh fx d1">Did we get there?</h1>
+  <p class="sub fx d2">Rate yourself 1–5. Anything at 2 or below, flag it now — next session assumes all of this.</p>
+  <div class="body">
+    <div class="col cards grid2 fx d3"><div class="card"><h3><span class="k">LO1</span>I can loop over a list and use enumerate when I need the index</h3><p style="font-family:var(--mono);color:var(--mint)">1 — 2 — 3 — 4 — 5</p></div><div class="card"><h3><span class="k">LO2</span>I can write a while loop and point at the line that ends it</h3><p style="font-family:var(--mono);color:var(--mint)">1 — 2 — 3 — 4 — 5</p></div><div class="card"><h3><span class="k">LO3</span>I can index, slice and modify a list, including negative indices</h3><p style="font-family:var(--mono);color:var(--mint)">1 — 2 — 3 — 4 — 5</p></div><div class="card"><h3><span class="k">LO4</span>I can build a dictionary and loop over .items() safely with .get()</h3><p style="font-family:var(--mono);color:var(--mint)">1 — 2 — 3 — 4 — 5</p></div><div class="card accent" style="grid-column:1/-1"><h3><span class="k">LO5</span>I can trace a nested loop and say how many times the body runs</h3><p style="font-family:var(--mono);color:var(--mint)">1 — 2 — 3 — 4 — 5</p></div></div>
+  </div>
+  <p class="caption fx d4">codencode.my · Session 03 complete</p>
+</section>
+</div>
+
+<div id="nav">
+  <button class="navbtn" onclick="go(-1)">PREV</button>
+  <div id="dots"></div>
+  <button class="navbtn" onclick="go(1)">NEXT</button>
+</div>
+
+<script>
+const slides=[...document.querySelectorAll('.slide')];
+let i=0;
+const dots=document.getElementById('dots');
+slides.forEach((s,n)=>{const d=document.createElement('div');d.className='dot';
+  d.onclick=()=>show(n);dots.appendChild(d);});
+function show(n){
+  if(n<0||n>=slides.length)return;
+  slides[i].classList.remove('active');
+  i=n;
+  // force reflow so entry animations restart cleanly
+  void slides[i].offsetWidth;
+  slides[i].classList.add('active');
+  document.getElementById('counter').textContent=String(i+1).padStart(2,'0')+' / '+slides.length;
+  document.getElementById('titlebar').textContent=slides[i].dataset.title||'';
+  document.getElementById('progress').style.width=((i+1)/slides.length*100)+'%';
+  [...dots.children].forEach((d,n2)=>d.classList.toggle('on',n2===i));
+}
+function go(d){show(i+d);}
+function fs(){document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen();}
+addEventListener('keydown',e=>{
+  if(['ArrowRight',' ','PageDown'].includes(e.key)){e.preventDefault();go(1);}
+  if(['ArrowLeft','PageUp'].includes(e.key)){e.preventDefault();go(-1);}
+  if(e.key==='Home')show(0);
+  if(e.key==='End')show(slides.length-1);
+  if(e.key==='f')fs();
+});
+
+/* ---------- copy-to-clipboard on every code block ---------- */
+(function(){
+  document.querySelectorAll('pre.code').forEach(pre=>{
+    const source = pre.textContent;               // capture BEFORE adding the button
+    const btn = document.createElement('button');
+    btn.className = 'copybtn';
+    btn.type = 'button';
+    btn.textContent = 'COPY';
+    btn.addEventListener('click', async e=>{
+      e.stopPropagation();
+      try{
+        await navigator.clipboard.writeText(source);
+      }catch(err){                                 // file:// fallback
+        const ta=document.createElement('textarea');
+        ta.value=source; ta.style.position='fixed'; ta.style.opacity='0';
+        document.body.appendChild(ta); ta.select();
+        try{document.execCommand('copy');}catch(_){}
+        document.body.removeChild(ta);
+      }
+      btn.textContent='COPIED'; btn.classList.add('done');
+      setTimeout(()=>{btn.textContent='COPY'; btn.classList.remove('done');},1400);
+    });
+    pre.appendChild(btn);
+  });
+})();
+
+
+/* ═══════════ 1.2 — for loop walking a list ═══════════ */
+(function(){
+  const svg=document.getElementById('forSvg'); if(!svg) return;
+  const ITEMS=[12,7,25,4,18,9];
+  let idx=-1, total=0, timer=null, running=true;
+  function draw(){
+    const X0=70, W=128, GAP=18, Y=118;
+    let s='';
+    s+=`<text x="${X0}" y="${Y-28}" font-family="JetBrains Mono,monospace" font-size="13" fill="#8b98a5">scores = [ ... ]</text>`;
+    ITEMS.forEach((v,i)=>{
+      const x=X0+i*(W+GAP);
+      const done=i<idx, live=i===idx;
+      const col = live?'#00dcb4' : done?'#2a5a50' : '#2a3440';
+      const fill= live?'rgba(0,220,180,.20)' : done?'rgba(0,220,180,.06)' : '#12181f';
+      s+=`<rect class="cell" x="${x}" y="${live?Y-8:Y}" width="${W}" height="${live?96:80}" rx="11"
+           fill="${fill}" stroke="${col}" stroke-width="${live?2.6:1.5}"/>`;
+      s+=`<text x="${x+W/2}" y="${(live?Y-8:Y)+(live?58:48)}" text-anchor="middle"
+           font-family="JetBrains Mono,monospace" font-size="${live?30:24}"
+           fill="${live?'#00dcb4':done?'#8b98a5':'#48535f'}">${v}</text>`;
+      s+=`<text x="${x+W/2}" y="${Y+104}" text-anchor="middle" font-family="JetBrains Mono,monospace"
+           font-size="12" fill="${live?'#00dcb4':'#48535f'}">index ${i}</text>`;
+    });
+    // the loop variable travelling under the boxes
+    if(idx>=0 && idx<ITEMS.length){
+      const x=X0+idx*(W+GAP)+W/2;
+      s+=`<line x1="${x}" y1="${Y+118}" x2="${x}" y2="${Y+150}" stroke="#f0b429" stroke-width="2"/>`;
+      s+=`<rect x="${x-92}" y="${Y+150}" width="184" height="42" rx="9"
+           fill="rgba(240,180,41,.12)" stroke="#f0b429" stroke-width="1.8"/>`;
+      s+=`<text x="${x}" y="${Y+177}" text-anchor="middle" font-family="JetBrains Mono,monospace"
+           font-size="16" fill="#f0b429">score = ${ITEMS[idx]}</text>`;
+    }
+    // accumulator
+    s+=`<rect x="70" y="${Y+220}" width="360" height="62" rx="11" fill="#12181f" stroke="#2a3440" stroke-width="1.5"/>`;
+    s+=`<text x="90" y="${Y+248}" font-family="JetBrains Mono,monospace" font-size="13" fill="#8b98a5">total</text>`;
+    s+=`<text x="90" y="${Y+272}" font-family="JetBrains Mono,monospace" font-size="24" fill="#00dcb4">${total}</text>`;
+    s+=`<text x="250" y="${Y+260}" font-family="JetBrains Mono,monospace" font-size="13" fill="#8b98a5">
+         ${idx>=0&&idx<ITEMS.length?`total = total + ${ITEMS[idx]}`:'total = 0'}</text>`;
+    if(idx>=ITEMS.length){
+      s+=`<rect x="470" y="${Y+220}" width="440" height="62" rx="11" fill="rgba(0,220,180,.10)" stroke="#00dcb4" stroke-width="1.8"/>`;
+      s+=`<text x="690" y="${Y+250}" text-anchor="middle" font-family="Space Grotesk,sans-serif"
+           font-size="17" font-weight="700" fill="#00dcb4">loop finished — list exhausted</text>`;
+      s+=`<text x="690" y="${Y+271}" text-anchor="middle" font-family="JetBrains Mono,monospace"
+           font-size="13" fill="#8b98a5">average = ${(total/ITEMS.length).toFixed(1)}</text>`;
+    }
+    svg.innerHTML=s;
+    const n=document.getElementById('forNote');
+    if(n) n.innerHTML = idx<0 ? 'Before the loop: <b>total</b> starts at 0 and nothing has been read yet.'
+      : idx>=ITEMS.length ? 'No items left, so Python leaves the loop and carries on with the next line.'
+      : `Pass ${idx+1}: <b style="color:var(--amber)">score</b> is handed the value at index ${idx}, and the body runs once.`;
+  }
+  window.forStep=function(){ idx++; if(idx>ITEMS.length){ idx=-1; total=0; }
+    else if(idx<ITEMS.length) total+=ITEMS[idx]; draw(); };
+  window.forReset=function(){ idx=-1; total=0; draw(); };
+  window.forToggle=function(){ const b=document.getElementById('forBtn');
+    if(running){clearInterval(timer);running=false;b.textContent='PLAY';}
+    else{timer=setInterval(forStep,1050);running=true;b.textContent='PAUSE';} };
+  draw(); timer=setInterval(forStep,1050);
+})();
+
+/* ═══════════ 2.1 — a list you can operate on ═══════════ */
+(function(){
+  const svg=document.getElementById('listSvg'); if(!svg) return;
+  let arr=['roti','telur','susu'];
+  let flash=-1, flashKind='';
+  function draw(){
+    const X0=60, W=150, GAP=16, Y=110;
+    let s='';
+    s+=`<text x="${X0}" y="${Y-30}" font-family="JetBrains Mono,monospace" font-size="14" fill="#8b98a5">
+         cart = [${arr.map(a=>`"${a}"`).join(', ')}]</text>`;
+    if(arr.length===0){
+      s+=`<rect x="${X0}" y="${Y}" width="300" height="86" rx="11" fill="#12181f"
+           stroke="#2a3440" stroke-width="1.5" stroke-dasharray="6 5"/>`;
+      s+=`<text x="${X0+150}" y="${Y+50}" text-anchor="middle" font-family="JetBrains Mono,monospace"
+           font-size="15" fill="#48535f">empty list — len() is 0</text>`;
+    }
+    arr.forEach((v,i)=>{
+      const x=X0+i*(W+GAP);
+      const hit=i===flash;
+      const col = hit ? (flashKind==='add'?'#00dcb4':'#ff6f91') : '#2a3440';
+      s+=`<rect class="cell" x="${x}" y="${Y}" width="${W}" height="86" rx="11"
+           fill="${hit?(flashKind==='add'?'rgba(0,220,180,.18)':'rgba(255,111,145,.18)'):'#12181f'}"
+           stroke="${col}" stroke-width="${hit?2.6:1.5}"/>`;
+      s+=`<text x="${x+W/2}" y="${Y+52}" text-anchor="middle" font-family="JetBrains Mono,monospace"
+           font-size="20" fill="#e8eef0">${v}</text>`;
+      s+=`<text x="${x+W/2}" y="${Y+110}" text-anchor="middle" font-family="JetBrains Mono,monospace"
+           font-size="13" fill="#00dcb4">[${i}]</text>`;
+      s+=`<text x="${x+W/2}" y="${Y+132}" text-anchor="middle" font-family="JetBrains Mono,monospace"
+           font-size="12" fill="#8b98a5">[${i-arr.length}]</text>`;
+    });
+    s+=`<text x="${X0}" y="${Y+196}" font-family="JetBrains Mono,monospace" font-size="13" fill="#8b98a5">
+         mint = normal index &nbsp;·&nbsp; grey = negative index, counted from the end</text>`;
+    s+=`<text x="${X0}" y="${Y+226}" font-family="JetBrains Mono,monospace" font-size="15" fill="#e8eef0">
+         len(cart) = <tspan fill="#00dcb4">${arr.length}</tspan></text>`;
+    svg.innerHTML=s;
+  }
+  function flashAt(i,kind){ flash=i; flashKind=kind; draw();
+    setTimeout(()=>{flash=-1;draw();},700); }
+  const POOL=['kopi','gula','ikan','nasi','sayur','minyak'];
+  window.listAppend=function(){ if(arr.length>=5) return;
+    arr.push(POOL[arr.length%POOL.length]); draw(); flashAt(arr.length-1,'add'); };
+  window.listInsert=function(){ if(arr.length>=5) return;
+    arr.splice(0,0,'ais'); draw(); flashAt(0,'add'); };
+  window.listPop=function(){ if(!arr.length) return;
+    flashAt(arr.length-1,'del'); setTimeout(()=>{arr.pop();draw();},700); };
+  window.listReset=function(){ arr=['roti','telur','susu']; draw(); };
+  draw();
+})();
+
+/* ═══════════ 2.3 — Russian doll nested loops ═══════════ */
+function dollPath(cx,by,w,h){
+  const bw=w/2, nw=w*0.16, ny=by-h*0.62, rh=h*0.20;
+  return `M ${cx-bw} ${by}
+          C ${cx-bw} ${by-h*0.38} ${cx-nw*2.4} ${by-h*0.50} ${cx-nw} ${ny}
+          A ${rh} ${rh} 0 1 1 ${cx+nw} ${ny}
+          C ${cx+nw*2.4} ${by-h*0.50} ${cx+bw} ${by-h*0.38} ${cx+bw} ${by} Z`;
+}
+(function buildDolls(){
+  const svg=document.getElementById('dollSvg'); if(!svg) return;
+  const cx=250,by=340;
+  let s='';
+  const specs=[['dollOuter',232,300,'#00dcb4'],['dollInner',152,198,'#f0b429'],['dollCore',80,106,'#ff6f91']];
+  specs.forEach(([cls,w,h,col])=>{
+    const nw=w*0.16, ny=by-h*0.62, rh=h*0.20;
+    const hcy=ny-Math.sqrt(Math.max(rh*rh-nw*nw,1));
+    s+=`<g class="doll ${cls}" id="${cls}">
+          <path class="shell" d="${dollPath(cx,by,w,h)}"/>
+          <ellipse cx="${cx}" cy="${hcy+rh*0.10}" rx="${rh*0.33}" ry="${rh*0.40}"
+                   fill="#0d1117" stroke="${col}" stroke-width="1.2" opacity="0.45"/>
+        </g>`;
+  });
+  [['outer loop · i','#00dcb4',74,196],['inner loop · j','#f0b429',196,208],['print()','#ff6f91',292,215]]
+    .forEach(([t,col,ty,lx])=>{
+      s+=`<text x="16" y="${ty}" font-family="JetBrains Mono,monospace" font-size="13" fill="${col}">${t}</text>`;
+      s+=`<line x1="124" y1="${ty-4}" x2="${lx}" y2="${ty-4}" stroke="${col}" stroke-width="1.2" opacity="0.5"/>`;
+    });
+  s+=`<text x="430" y="120" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="12" fill="#8b98a5">i =</text>`;
+  s+=`<text class="cnt" id="iVal" x="490" y="121" text-anchor="middle" fill="#00dcb4">–</text>`;
+  s+=`<text x="430" y="190" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="12" fill="#8b98a5">j =</text>`;
+  s+=`<text class="cnt" id="jVal" x="490" y="191" text-anchor="middle" fill="#f0b429">–</text>`;
+  s+=`<line x1="392" y1="220" x2="530" y2="220" stroke="#2a3440" stroke-width="1.5"/>`;
+  s+=`<text x="430" y="262" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="12" fill="#8b98a5">runs</text>`;
+  s+=`<text class="cnt" id="nVal" x="492" y="263" text-anchor="middle" fill="#e8eef0">0</text>`;
+  s+=`<text x="461" y="300" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="11" fill="#8b98a5">of 9</text>`;
+  svg.innerHTML=s;
+})();
+let di=0,dj=0,dn=0,dollTimer=null,dollOn=true;
+function dollRender(){
+  if(!document.getElementById('iVal')) return;
+  document.getElementById('iVal').textContent=di||'–';
+  document.getElementById('jVal').textContent=dj||'–';
+  document.getElementById('nVal').textContent=dn;
+  document.getElementById('dollOuter').classList.toggle('on',di>0);
+  document.getElementById('dollInner').classList.toggle('on',dj>0);
+  const core=document.getElementById('dollCore');
+  core.classList.add('on');setTimeout(()=>core.classList.remove('on'),260);
+}
+function dollStep(){
+  if(!document.getElementById('iVal')) return;
+  if(di===0){di=1;dj=1;}
+  else{dj++;if(dj>3){dj=1;di++;}}
+  if(di>3){dollReset();return;}
+  dn++;
+  const t=document.getElementById('dollTrace');
+  if(t){
+    [...t.children].forEach(c=>c.classList.remove('new'));
+    const d=document.createElement('div');d.className='new';d.textContent=`i=${di}  j=${dj}   ->  ${di} x ${dj} = ${di*dj}`;
+    t.prepend(d);
+    if(t.children.length>7)t.lastChild.remove();
+  }
+  dollRender();
+}
+function dollReset(){ di=0;dj=0;dn=0;
+  const t=document.getElementById('dollTrace'); if(t) t.innerHTML=''; dollRender(); }
+function dollToggle(){
+  const b=document.getElementById('dollBtn');
+  if(dollOn){clearInterval(dollTimer);dollOn=false;b.textContent='PLAY';}
+  else{dollTimer=setInterval(dollStep,900);dollOn=true;b.textContent='PAUSE';}
+}
+if(document.getElementById('dollSvg')) dollTimer=setInterval(dollStep,900);
+
+show(0);
+</script>
+</body>
+</html>

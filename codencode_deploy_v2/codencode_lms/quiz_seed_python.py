@@ -250,9 +250,12 @@ def _pick(picks):
 PYTHON_FUNDAMENTALS_QUIZZES = [
     {
         'week': 4,
-        'title': 'Week 4 Quiz — Weeks 1 to 4 Review',
-        'description': 'Checkpoint on Python basics, control flow, data structures & functions, and NumPy/Pandas.',
-        'questions': _pick([(1, [3, 4, 9, 11]), (2, [1, 6, 10]), (3, [0, 3, 7, 11]), (4, [0, 5, 9, 13])]),
+        'title': 'Week 4 Quiz — Weeks 1 to 3 Review',
+        'description': 'Checkpoint on Python basics, control flow, and data structures & functions — everything covered before Week 4.',
+        # Weeks 1-3 only: Week 4 in the current curriculum is Functions & Modules,
+        # which students haven't reached yet when this checkpoint appears, so it
+        # no longer draws from the old NumPy/Pandas week-4 bank.
+        'questions': _pick([(1, [0, 1, 3, 4, 5]), (2, [0, 1, 2, 4, 5]), (3, [0, 1, 2, 3, 4])]),
     },
     {
         'week': 7,
@@ -262,12 +265,14 @@ PYTHON_FUNDAMENTALS_QUIZZES = [
     },
 ]
 
-# Earlier draft titles that this set replaces (removed only if still unpublished and unattempted).
+# Earlier draft titles that this set replaces (deleted if unattempted, else
+# just unpublished so historical attempt records are kept).
 RETIRED_TITLES = [
     'Week 1 Quiz — Python Basics',
     'Week 2 Quiz — Control Flow',
     'Week 3 Quiz — Data Structures & Functions',
     'Week 4 Quiz — NumPy & Pandas',
+    'Week 4 Quiz — Weeks 1 to 4 Review',  # replaced: no longer tests un-taught NumPy/Pandas content
 ]
 
 assert all(len(q['questions']) == 15 for q in PYTHON_FUNDAMENTALS_QUIZZES), 'each quiz needs 15 questions'
