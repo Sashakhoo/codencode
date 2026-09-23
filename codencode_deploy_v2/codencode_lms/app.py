@@ -5680,13 +5680,24 @@ def seed_course_curriculum_materials():
     Bumps a course's total_sessions up (never down) so every session is
     reachable. Each course commits on its own, so one course failing (a bad
     row, a locked file, anything) can never roll back another course's
-    materials in the same run. Idempotent, never blocks startup."""
+    materials in the same run. Idempotent, never blocks startup.
+
+    uploads/ sits on Railway's persistent volume, which is mounted OVER
+    whatever the Docker image has at that path - files added there via git
+    never actually reach the running container; the volume's existing
+    content wins every deploy. So the source decks ship from
+    curriculum_decks/ (outside uploads/, not shadowed) and are copied onto
+    the volume here, on every start, whenever the volume doesn't have them
+    yet - self-healing even if the volume is ever reset."""
     try:
         from curriculum_seed import CURRICULUM
     except Exception as exc:
         app.logger.warning('Course curriculum material seed skipped (import): %s', exc)
         return
+    import shutil
     materials_dir = os.path.join(app.config['UPLOAD_FOLDER'], 'materials')
+    decks_dir = os.path.join(os.path.dirname(__file__), 'curriculum_decks')
+    os.makedirs(materials_dir, exist_ok=True)
     for spec in CURRICULUM:
         try:
             courses = Course.query.filter(
@@ -5710,10 +5721,17 @@ def seed_course_curriculum_materials():
                         continue
                     fpath = os.path.join(materials_dir, filename)
                     if not os.path.exists(fpath):
-                        app.logger.warning(
-                            'Course curriculum material seed: %s missing on disk for course %s (%r)',
-                            filename, course.id, course.title)
-                        continue
+                        src = os.path.join(decks_dir, filename)
+                        if os.path.exists(src):
+                            shutil.copy2(src, fpath)
+                            app.logger.info(
+                                'Course curriculum material seed: restored %s onto the volume', filename)
+                        else:
+                            app.logger.warning(
+                                'Course curriculum material seed: %s missing from both the volume '
+                                'and curriculum_decks/ for course %s (%r)',
+                                filename, course.id, course.title)
+                            continue
                     db.session.add(Material(
                         course_id=course.id, session=session_num, title=title,
                         description='Session slides', filename=filename,

@@ -1,6 +1,9 @@
 """Real per-course curriculum decks (self-contained HTML slide apps, each with
 its own Prev/Next/Fullscreen nav) - one Material per session, matched to the
-course by title. Files live in uploads/materials/ and ship in the repo."""
+course by title. Source files ship in ../curriculum_decks/ (not uploads/ -
+that's on Railway's persistent volume, which shadows anything git puts
+there) and are copied onto the live uploads/materials/ at startup by
+seed_course_curriculum_materials() in app.py."""
 
 CURRICULUM = [
     {
