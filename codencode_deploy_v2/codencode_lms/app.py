@@ -5944,6 +5944,63 @@ def _dedupe_assignments_by_title():
         app.logger.warning('Assignment dedupe skipped: %s', exc)
 
 
+def enforce_python_homework_quiz_policy():
+    """Owner's rule for Python content: homework ONLY at Weeks 2 and 5,
+    quiz ONLY at Weeks 4 and 7 - never both on the same week, nothing else.
+    Removes anything else in Python's own session range (any other
+    homework, including old leftovers like "LESSON 1"/"Homework 1"/
+    "Homework 3"/"Homework 4"; any other quiz) for every course with
+    Python content - the standalone course AND the bundle's Python side.
+
+    Only touches sessions 1..len(PYTHON_SESSIONS) - the bundle's ML content
+    at higher session numbers (same course row) is never in range and is
+    never touched. Deletes a removed assignment's submissions / a removed
+    quiz's attempts first so no orphaned child rows are left behind. This
+    is an ENFORCED, standing rule (unlike the additive-only seeds above) -
+    it runs on every start, so anything added outside these four weeks
+    later is removed again on the next deploy. Never blocks startup."""
+    try:
+        from curriculum_seed import PYTHON_SESSIONS
+    except Exception as exc:
+        app.logger.warning('Python homework/quiz policy skipped (import): %s', exc)
+        return
+    max_session = len(PYTHON_SESSIONS)
+    keep_homework = {2, 5}
+    keep_quiz = {4, 7}
+    for course in _python_target_courses():
+        try:
+            removed_a = 0
+            for a in Assignment.query.filter(
+                Assignment.course_id == course.id,
+                Assignment.session >= 1, Assignment.session <= max_session,
+                ~Assignment.session.in_(keep_homework),
+            ).all():
+                app.logger.info('Python homework policy: removing %r (course %s, session %s)',
+                                a.title, course.id, a.session)
+                Submission.query.filter_by(assignment_id=a.id).delete()
+                db.session.delete(a)
+                removed_a += 1
+
+            removed_q = 0
+            for q in Quiz.query.filter(
+                Quiz.course_id == course.id,
+                Quiz.session >= 1, Quiz.session <= max_session,
+                ~Quiz.session.in_(keep_quiz),
+            ).all():
+                app.logger.info('Python quiz policy: removing %r (course %s, session %s)',
+                                q.title, course.id, q.session)
+                QuizAttempt.query.filter_by(quiz_id=q.id).delete()
+                db.session.delete(q)
+                removed_q += 1
+
+            if removed_a or removed_q:
+                db.session.commit()
+        except Exception as exc:
+            db.session.rollback()
+            app.logger.warning('Python homework/quiz policy failed for course %s (%r): %s',
+                               course.id, course.title, exc)
+
+
 def _sync_bundled_materials():
     """uploads/ sits on Railway's persistent volume, which is mounted OVER
     whatever the Docker image has at that path - a file placed there via git
@@ -6479,6 +6536,7 @@ with app.app_context():
     seed_ml_homework_and_assignment()
     _dedupe_quizzes_by_title()
     _dedupe_assignments_by_title()
+    enforce_python_homework_quiz_policy()
     _start_scheduler()
 
 if __name__ == '__main__':
