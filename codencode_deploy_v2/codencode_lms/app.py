@@ -1185,9 +1185,17 @@ def api_upload_material(cid):
 @teacher_required
 def api_delete_material(mid):
     mat = Material.query.get_or_404(mid)
-    fpath = os.path.join(app.config['UPLOAD_FOLDER'], 'materials', mat.filename)
-    if os.path.exists(fpath):
-        os.remove(fpath)
+    # Clean up rows that reference this material with no cascade defined,
+    # or Postgres rejects the delete with a ForeignKeyViolation (500).
+    MaterialProgress.query.filter_by(material_id=mid).delete()
+    LastLesson.query.filter_by(material_id=mid).delete()
+    Quiz.query.filter_by(gates_material_id=mid).update({'gates_material_id': None})
+    # Only remove the file from disk if no other Material row still uses it
+    # (the same bundled deck can be shared across courses).
+    if Material.query.filter(Material.filename == mat.filename, Material.id != mid).count() == 0:
+        fpath = os.path.join(app.config['UPLOAD_FOLDER'], 'materials', mat.filename)
+        if os.path.exists(fpath):
+            os.remove(fpath)
     db.session.delete(mat)
     db.session.commit()
     return jsonify({'ok': True})
@@ -2169,9 +2177,17 @@ def admin_upload_material(cid):
 def admin_material_detail(mid):
     mat = Material.query.get_or_404(mid)
     if request.method == 'DELETE':
-        fpath = os.path.join(app.config['UPLOAD_FOLDER'], 'materials', mat.filename)
-        if os.path.exists(fpath):
-            os.remove(fpath)
+        # Clean up rows that reference this material with no cascade defined,
+        # or Postgres rejects the delete with a ForeignKeyViolation (500).
+        MaterialProgress.query.filter_by(material_id=mid).delete()
+        LastLesson.query.filter_by(material_id=mid).delete()
+        Quiz.query.filter_by(gates_material_id=mid).update({'gates_material_id': None})
+        # Only remove the file from disk if no other Material row still uses it
+        # (the same bundled deck can be shared across courses).
+        if Material.query.filter(Material.filename == mat.filename, Material.id != mid).count() == 0:
+            fpath = os.path.join(app.config['UPLOAD_FOLDER'], 'materials', mat.filename)
+            if os.path.exists(fpath):
+                os.remove(fpath)
         db.session.delete(mat)
         db.session.commit()
         return jsonify({'ok': True})
@@ -6089,12 +6105,14 @@ def enforce_python_fundamentals_curriculum_materials():
             removed = 0
             for m in Material.query.filter(
                 Material.course_id == course.id,
-                Material.session >= 1, Material.session <= max_session,
+                db.or_(Material.session == None, Material.session <= max_session),
                 ~Material.filename.in_(own_filenames),
             ).all():
                 app.logger.info('Python Fundamentals material policy: removing %r (course %s, session %s, file %s)',
                                 m.title, course.id, m.session, m.filename)
                 MaterialProgress.query.filter_by(material_id=m.id).delete()
+                LastLesson.query.filter_by(material_id=m.id).delete()
+                Quiz.query.filter_by(gates_material_id=m.id).update({'gates_material_id': None})
                 db.session.delete(m)
                 removed += 1
             if removed:
@@ -6239,6 +6257,9 @@ def seed_course_curriculum_materials():
                 }
                 for m in existing_materials:
                     if m.filename in own_filenames and m.session in sessions_with_other_material:
+                        MaterialProgress.query.filter_by(material_id=m.id).delete()
+                        LastLesson.query.filter_by(material_id=m.id).delete()
+                        Quiz.query.filter_by(gates_material_id=m.id).update({'gates_material_id': None})
                         db.session.delete(m)
                         existing_filenames.discard(m.filename)
                 if sessions_with_other_material:
