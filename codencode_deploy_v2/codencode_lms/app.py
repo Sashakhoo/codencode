@@ -6174,6 +6174,23 @@ def api_debug_python_fundamentals():
     })
 
 
+@app.route('/api/admin/resync-curriculum-materials', methods=['POST'])
+@admin_required
+def api_resync_curriculum_materials():
+    """Manually re-run the curriculum material pipeline right now, without
+    waiting for a deploy. The boot-time seeders only run at app startup, so
+    if an admin deletes a material through the live site (stale or not),
+    nothing recreates it until the next restart - this closes that gap.
+    Runs the same three steps as startup, in the same order: sync the
+    bundled deck files onto the volume, clear anything that isn't one of
+    our own pf-session-NN.html files from Python Fundamentals' 7 sessions,
+    then add back whatever's missing. Safe to call repeatedly."""
+    _sync_bundled_materials()
+    enforce_python_fundamentals_curriculum_materials()
+    seed_course_curriculum_materials()
+    return jsonify({'ok': True})
+
+
 def seed_course_curriculum_materials():
     """Real per-session lesson decks (curriculum_seed.py) for Python
     Fundamentals and Machine Learning. Each session file already has its own
