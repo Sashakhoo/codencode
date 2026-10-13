@@ -162,7 +162,7 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 .dot{width:8px;height:8px;border-radius:50%}
 .dr{background:#ff5f57}.dy{background:#ffbd2e}.dg{background:#28ca41}
 .ttl{font-family:var(--mono);font-size:11px;color:var(--mu);margin-left:8px}
-.tbody{padding:20px;font-family:var(--mono);font-size:13px;line-height:1.8}
+.tbody{padding:22px 26px 26px;font-family:var(--mono);font-size:13px;line-height:1.8}
 .tc{color:var(--cyan)}.tw{color:var(--w)}.tm{color:var(--mu)}.ts2{color:#f9c74f}.tk{color:var(--org)}.tf{color:var(--elec)}.to{color:#b5c3d5;padding-left:12px}
 .cur{display:inline-block;width:8px;height:14px;background:var(--cyan);animation:blink 1s step-end infinite;vertical-align:middle}
 @keyframes blink{50%{opacity:0}}
@@ -175,15 +175,24 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 .wcard3{padding:32px 28px;border-right:1px solid var(--b);position:relative;transition:background .2s;display:flex;flex-direction:column}
 .wcard3:last-child{border-right:none}
 .wcard3:hover{background:var(--cglow)}
-.tcard{border-right:1px solid var(--b);display:flex;flex-direction:column;transition:background .2s}
-.tcard:last-child{border-right:none}
-.tcard:hover{background:var(--cglow)}
-.tphoto{aspect-ratio:4/5;overflow:hidden;border-bottom:1px solid var(--b);background:var(--surf2)}
-.tphoto img{width:100%;height:100%;object-fit:cover;display:block}
-.tbody{padding:22px 26px 26px}
-.tbody h3{font-size:17px;font-weight:800;letter-spacing:-.01em;margin-bottom:8px}
-.tbody p{font-family:var(--mono);font-size:12px;color:var(--mu);line-height:1.7}
-.tbody .lpill{display:inline-block;margin-bottom:12px}
+/* TESTIMONIAL ROLLING CAROUSEL (two rows, opposite directions) */
+.tmarquee{margin-top:48px;display:flex;flex-direction:column;gap:16px;-webkit-mask-image:linear-gradient(90deg,transparent,#000 7%,#000 93%,transparent);mask-image:linear-gradient(90deg,transparent,#000 7%,#000 93%,transparent)}
+.trow{overflow-x:auto;scrollbar-width:none}
+.trow::-webkit-scrollbar{display:none}
+.ttrack{display:flex;width:max-content}
+.tslide{position:relative;flex:0 0 210px;margin-right:16px;aspect-ratio:4/5;border-radius:12px;overflow:hidden;border:1px solid var(--b);background:var(--surf2)}
+.tslide img{width:100%;height:100%;object-fit:cover;display:block}
+.tslide-cap{position:absolute;left:0;right:0;bottom:0;padding:34px 14px 12px;background:linear-gradient(to top,rgba(0,0,0,.82),transparent);color:#fff;opacity:0;transform:translateY(8px);transition:opacity .25s,transform .25s}
+.tslide-cap b{display:block;font-size:14px;font-weight:800;letter-spacing:-.01em}
+.tslide-cap small{display:block;margin-top:2px;font-family:var(--mono);font-size:10px;letter-spacing:.05em;color:var(--cyan)}
+.tslide:hover .tslide-cap{opacity:1;transform:none}
+@media(hover:none){.tslide-cap{opacity:1;transform:none}}
+@media(max-width:768px){.tslide{flex-basis:160px}}
+.tmarquee.live .trow{overflow:hidden}
+.tmarquee.live .ttrack{animation:tscroll 70s linear infinite}
+.tmarquee.live .trow.rev .ttrack{animation-direction:reverse;animation-duration:85s}
+.tmarquee.live:hover .ttrack{animation-play-state:paused}
+@keyframes tscroll{to{transform:translateX(-50%)}}
 .wcard3::before{content:attr(data-n);position:absolute;top:14px;right:14px;font-family:var(--mono);font-size:11px;color:var(--mu2);letter-spacing:.1em}
 .wcard3 h3{font-size:15px;font-weight:700;margin-bottom:8px;letter-spacing:-.01em}
 .wcard3 p{font-family:var(--mono);font-size:12px;color:var(--mu);line-height:1.7}
@@ -360,8 +369,6 @@ footer{background:var(--footer-bg);border-top:1px solid var(--b);padding:56px 0 
   .wcard{border-bottom:1px solid var(--b)}
   .wcard:nth-child(2){border-right:none}
   .wgrid3{grid-template-columns:1fr}
-  .tcard{border-right:none;border-bottom:1px solid var(--b)}
-  .tcard:last-child{border-bottom:none}
   .wcard3{border-right:none;border-bottom:1px solid var(--b)}
   .wcard3:last-child{border-bottom:none}
   .lang-flags-row{grid-template-columns:1fr auto 1fr auto 1fr}
@@ -935,20 +942,23 @@ src="https://www.facebook.com/tr?id=1615909506909427&ev=PageView&noscript=1"
     <div class="lbl">Our Graduates</div>
     <h2 class="h2">Real students.<br><span style="color:var(--cyan)">Real certificates.</span></h2>
     <p class="sub" style="max-width:640px">A few of our graduates with their codencode.my Certificates of Achievement.</p>
-    <div class="wgrid3">
-      <div class="tcard">
-        <div class="tphoto"><img src="/marketing/student-lim-ban-soon.jpg" alt="Lim Ban Soon holding a codencode.my Python Fundamentals Certificate of Achievement" style="object-position:center 22%" loading="lazy" width="800" height="1000"></div>
-        <div class="tbody"><span class="lpill" style="border-color:var(--bs);color:var(--cyan)">Python Fundamentals</span><h3>Lim Ban Soon</h3><p>Completed Python Fundamentals and earned a codencode.my Certificate of Achievement.</p></div>
-      </div>
-      <div class="tcard">
-        <div class="tphoto"><img src="/marketing/student-vanessa-henry.jpg" alt="Vanessa and Henry each holding a codencode.my Python and Machine Learning Certificate of Achievement" style="object-position:center 30%" loading="lazy" width="800" height="1000"></div>
-        <div class="tbody"><span class="lpill" style="border-color:var(--bs);color:var(--cyan)">Python &amp; Machine Learning</span><h3>Vanessa &amp; Henry</h3><p>Completed Python and Machine Learning together and earned their Certificates of Achievement.</p></div>
-      </div>
-      <div class="tcard">
-        <div class="tphoto"><img src="/marketing/student-muhd-fathi.jpg" alt="Muhd Fathi holding a codencode.my Vibe Coding Certificate of Achievement" style="object-position:center 25%" loading="lazy" width="800" height="1000"></div>
-        <div class="tbody"><span class="lpill" style="border-color:var(--bs);color:var(--cyan)">Vibe Coding</span><h3>Muhd Fathi</h3><p>Completed Vibe Coding and earned a codencode.my Certificate of Achievement.</p></div>
-      </div>
-    </div>
+  </div>
+  <!-- Add a student = add one <figure class="tslide"> below. JS clones the set, builds the 2nd row and loops it. -->
+  <div class="tmarquee" id="tmarquee">
+    <div class="trow"><div class="ttrack">
+      <figure class="tslide">
+        <img src="/marketing/student-lim-ban-soon.jpg" alt="Lim Ban Soon holding a codencode.my Python Fundamentals Certificate of Achievement" style="object-position:center 22%" loading="lazy" width="800" height="1000" draggable="false">
+        <figcaption class="tslide-cap"><b>Lim Ban Soon</b><small>Python Fundamentals</small></figcaption>
+      </figure>
+      <figure class="tslide">
+        <img src="/marketing/student-vanessa-henry.jpg" alt="Vanessa and Henry each holding a codencode.my Python and Machine Learning Certificate of Achievement" style="object-position:center 30%" loading="lazy" width="800" height="1000" draggable="false">
+        <figcaption class="tslide-cap"><b>Vanessa &amp; Henry</b><small>Python &amp; Machine Learning</small></figcaption>
+      </figure>
+      <figure class="tslide">
+        <img src="/marketing/student-muhd-fathi.jpg" alt="Muhd Fathi holding a codencode.my Vibe Coding Certificate of Achievement" style="object-position:center 25%" loading="lazy" width="800" height="1000" draggable="false">
+        <figcaption class="tslide-cap"><b>Muhd Fathi</b><small>Vibe Coding</small></figcaption>
+      </figure>
+    </div></div>
   </div>
 </section>
 
@@ -1077,6 +1087,28 @@ src="https://www.facebook.com/tr?id=1615909506909427&ev=PageView&noscript=1"
   document.addEventListener('mouseup',()=>{down=false;sl.style.userSelect=''});
   sl.addEventListener('mouseleave',()=>down=false);
   sl.addEventListener('mousemove',e=>{if(!down)return;e.preventDefault();const x=e.pageX-sl.offsetLeft;sl.scrollLeft=scrollL-(x-startX)*1.5});
+})();
+// Testimonial rolling carousel: row 2 = reversed copy, each row repeated to fill the screen then doubled for a seamless -50% loop
+(function(){
+  const box=document.getElementById('tmarquee');
+  if(!box||matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+  const row1=box.querySelector('.trow');
+  const row2=row1.cloneNode(true);row2.classList.add('rev');
+  const t2=row2.querySelector('.ttrack');
+  Array.from(t2.children).reverse().forEach(n=>t2.appendChild(n));
+  box.appendChild(row2);
+  [row1,row2].forEach(row=>{
+    const track=row.querySelector('.ttrack');
+    const set=Array.from(track.children);
+    const setW=set.reduce((w,n)=>w+n.offsetWidth+16,0)||set.length*226;
+    const reps=Math.ceil(Math.max(2000,screen.width,innerWidth)/setW);
+    const half=[];
+    for(let r=0;r<reps;r++)set.forEach(n=>half.push(r?n.cloneNode(true):n));
+    half.forEach(n=>{if(!n.parentNode)track.appendChild(n)});
+    half.forEach(n=>{const c=n.cloneNode(true);c.setAttribute('aria-hidden','true');track.appendChild(c)});
+    if(row===row2)row.querySelectorAll('.tslide').forEach(n=>n.setAttribute('aria-hidden','true'));
+  });
+  box.classList.add('live');
 })();
 const mobBtn=document.getElementById('mob-btn');
 const mobMenu=document.getElementById('mob-menu');
