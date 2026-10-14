@@ -34,8 +34,8 @@
 {
   "@context":"https://schema.org",
   "@graph":[
-    {"@type":["EducationalOrganization","LocalBusiness"],"@id":"https://codencode.my/#org","name":"codencode.my","url":"https://codencode.my","description":"Codencode Academy (operated by CODE N CODE SOLUTION) provides practical AI, coding, automation and digital skills training in Johor Bahru, Malaysia: Kids & Teens Coding Academy, Adult AI & Digital Skills, Business & Corporate AI Training and Premium 1-to-1 Training. Taught in English, Mandarin and Malay.","telephone":"+60196811628","email":"codencodemy@gmail.com","address":{"@type":"PostalAddress","streetAddress":"Bandar Johor Bahru","addressLocality":"Johor Bahru","addressRegion":"Johor","postalCode":"81300","addressCountry":"MY"},"geo":{"@type":"GeoCoordinates","latitude":1.4927,"longitude":103.7414},"areaServed":[{"@type":"City","name":"Johor Bahru"},{"@type":"City","name":"Penang"},{"@type":"City","name":"Kuala Lumpur"},{"@type":"City","name":"Alor Setar"}],"availableLanguage":[{"@type":"Language","name":"English"},{"@type":"Language","name":"Mandarin Chinese","alternateName":"中文"},{"@type":"Language","name":"Malay","alternateName":"Bahasa Melayu"}],"knowsAbout":["Python programming","Machine Learning","Cybersecurity","Artificial Intelligence","Vibe Coding","Business Process Automation","Corporate AI Training"],"dateModified":"2026-10-13","sameAs":["https://instagram.com/codencode.my","https://www.tiktok.com/@codencode.my"],"aggregateRating":{"@type":"AggregateRating","ratingValue":"4.7","reviewCount":"12","bestRating":"5"}},
-    {"@type":"WebPage","@id":"https://codencode.my/#webpage","url":"https://codencode.my/","name":"codencode.my — Python, Cybersecurity & AI Courses Johor Bahru","isPartOf":{"@id":"https://codencode.my/#org"},"about":{"@id":"https://codencode.my/#org"},"dateModified":"2026-10-13","inLanguage":"en","speakable":{"@type":"SpeakableSpecification","cssSelector":[".h-desc",".faq-list",".sub"]}},
+    {"@type":["EducationalOrganization","LocalBusiness"],"@id":"https://codencode.my/#org","name":"codencode.my","url":"https://codencode.my","description":"Codencode Academy (operated by CODE N CODE SOLUTION) provides practical AI, coding, automation and digital skills training in Johor Bahru, Malaysia: Kids & Teens Coding Academy, Adult AI & Digital Skills, Business & Corporate AI Training and Premium 1-to-1 Training. Taught in English, Mandarin and Malay.","telephone":"+60196811628","email":"codencodemy@gmail.com","address":{"@type":"PostalAddress","streetAddress":"Bandar Johor Bahru","addressLocality":"Johor Bahru","addressRegion":"Johor","postalCode":"81300","addressCountry":"MY"},"geo":{"@type":"GeoCoordinates","latitude":1.4927,"longitude":103.7414},"areaServed":[{"@type":"City","name":"Johor Bahru"},{"@type":"City","name":"Penang"},{"@type":"City","name":"Kuala Lumpur"},{"@type":"City","name":"Alor Setar"}],"availableLanguage":[{"@type":"Language","name":"English"},{"@type":"Language","name":"Mandarin Chinese","alternateName":"中文"},{"@type":"Language","name":"Malay","alternateName":"Bahasa Melayu"}],"knowsAbout":["Python programming","Machine Learning","Cybersecurity","Artificial Intelligence","Vibe Coding","Business Process Automation","Corporate AI Training"],"dateModified":"2026-10-14","sameAs":["https://instagram.com/codencode.my","https://www.tiktok.com/@codencode.my","https://www.facebook.com/share/18i3Fm3PGf/","https://www.linkedin.com/company/codencode-academy"],"logo":"https://codencode.my/marketing/codencode-logo-final.png","image":"https://codencode.my/marketing/codencode-og-1200x630.png","aggregateRating":{"@type":"AggregateRating","ratingValue":"4.7","reviewCount":"12","bestRating":"5"}},
+    {"@type":"WebPage","@id":"https://codencode.my/#webpage","url":"https://codencode.my/","name":"codencode.my — Python, Cybersecurity & AI Courses Johor Bahru","isPartOf":{"@id":"https://codencode.my/#org"},"about":{"@id":"https://codencode.my/#org"},"dateModified":"2026-10-14","inLanguage":"en","speakable":{"@type":"SpeakableSpecification","cssSelector":[".h-desc",".faq-list",".sub"]}},
     {"@type":"Course","name":"Python Fundamentals","description":"6-week + 1-week project online Python course for beginners. Taught in English, Mandarin and Malay. Johor Bahru, Malaysia.","provider":{"@id":"https://codencode.my/#org"},"courseMode":"online","educationalLevel":"Beginner","timeRequired":"P7W"},
     {"@type":"Course","name":"Machine Learning Fundamentals","description":"10-week online machine learning course for intermediate learners. English, Mandarin and Malay. Johor Bahru, Malaysia.","provider":{"@id":"https://codencode.my/#org"},"courseMode":"online","educationalLevel":"Intermediate","timeRequired":"P10W"},
     {"@type":"Course","name":"Cybersecurity Fundamentals","description":"6-week + 1-week project online cybersecurity course. Phishing, password hygiene, network basics, intro pentesting. For beginners and anyone who touches a work laptop. Johor Bahru, Malaysia.","provider":{"@id":"https://codencode.my/#org"},"courseMode":"online","educationalLevel":"Beginner","timeRequired":"P7W"},
@@ -422,6 +422,12 @@ a.wcard{display:flex;flex-direction:column;text-decoration:none;color:inherit}
   .fact:last-child{border-bottom:none}
 }
 
+.grp{font-family:var(--mono);font-size:11px;letter-spacing:.15em;text-transform:uppercase;color:var(--cyan);margin:56px 0 0;display:flex;align-items:center;gap:10px}
+.grp::before{content:'';display:block;width:28px;height:1px;background:var(--cyan)}
+.grp + .course-grid{margin-top:24px}
+.grp + .sub + .course-grid{margin-top:28px}
+@media(min-width:1025px){.course-grid.four{grid-template-columns:repeat(4,1fr)}}
+
 /* FOOTER */
 footer{background:var(--footer-bg);border-top:1px solid var(--b);padding:56px 0 28px;transition:background .25s}
 .fgrid{display:grid;grid-template-columns:1.5fr 1fr 1fr 1fr;gap:40px;padding-bottom:40px;border-bottom:1px solid var(--b);margin-bottom:28px}
@@ -560,7 +566,7 @@ src="https://www.facebook.com/tr?id=1615909506909427&ev=PageView&noscript=1"
 <nav class="topnav" id="navbar">
   <div class="nav-inner">
     <a class="logo" href="/" style="display:flex;align-items:center;">
-      <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAvQAAAEBCAYAAAAXazEhAAATxUlEQVR4nO3da6w0d10H8O/Tmy1QZYshG+MLCCoKL9RoNERlKW2pKJUWkHKJEoGUEi4SQAiYcElEuRQBRdtSBUMqAoZSCyKWtk+3vMQYo0ExKMaY4CYNrPRGr8/jiz1bTk/Pec6Z3dmd+e35fJKTk90zO/PbszP/+c5/Z/5zZPKt2wMAANR0UtcFAAAAixPoAQCgMIEeAAAKE+gBAKAwgR4AAAoT6AEAoDCBHgAAChPoAQCgMIEeAAAKE+gBAKAwgR4AAAoT6AEAoDCBHgAAChPoAQCgMIEeAAAKE+gBAKAwgR4AAAoT6AEAoDCBHgAAChPoAQCgMIEeAAAKE+gBAKAwgR4AAAoT6AEAoDCBHgAAChPoAQCgMIEeAAAKE+gBAKAwgR4AAAoT6AEAoDCBHgAAChPoAQCgMIEeAAAKE+gBAKAwgR4AAAoT6AEAoDCBHgAAChPoAQCgMIEeAAAKE+gBAKAwgR4AAAoT6AEAoDCBHgAAChPoAQCgMIEeAAAKE+gBAKAwgR4AAAoT6AEAoDCBHgAAChPoAQCgMIEeAAAKE+gBAKAwgR4AAAoT6AEAoDCBHgAAChPoAQCgMIEeAAAKE+gBAKAwgR4AAAoT6AEAoDCBHgAAChPoAQCgMIEeAAAKE+gBAKAwgR4AAAoT6AEAoDCBHgAAChPoAQCgMIEeAAAKE+gBAKAwgR4AAAoT6AEAoDCBHgAAChPoAQCgMIEeAAAKE+gBAKAwgR4AAAoT6AEAoDCBHgAAChPoAQCgMIEeAAAKE+gBAKAwgR4AAAoT6AEAoDCBHgAAChPoAQCgMIEeAAAKE+gBAKAwgR4AAAoT6AEAoDCBHgAAChPoAQCgMIEeAAAKE+gBAKAwgR4AAAoT6AEAoDCBHgAAChPoAQCgMIEeAAAKE+gBAKAwgR4AAAoT6AEAoDCBHgAACjul6wKAHG84/ZGVVAG07aThdPxAg+lvnAxG566sGmBj6aEHgH44p+sCgJoEegAAKEygBwCAwgR6AAAoTKAHAIDCBHoAAChMoAcAgMIEegAAKEygBwCAwgR6qMedYgGABwn0AABQmEAP9eihBwAeJNBDPQI9APAggR4AAAoT6KEePfQAwIMEeqhHoAcAHiTQAwBAYQI9APSH/TLQ2CldF8C+Tk/y3Q6Xv8zpHcdbq2Jvr03yx2tYznlJrl/Dctbh75L88grnv85Tgla1jl2a5MoVzfshhtPx1UlevI5l7eJFk8HorxZ98XA6XvU2ftFkMLp2xctIklOH0/G9a1jOSg2n4ycnuSyr3b5vnAxG565w/sACBPr+W0coruyPkpyZ5PdXuIznJPnMCue/Lr+Y5MtrWM7xJB9N8rI1LGtVrkjyQ0nevsJlPHI4Hd+xwvmvzHA6fnGSq9ewqM8Op+NLJ4PRqg+uTlvx/JtY6IB4OB0/PcmNLdeym3O2DuSeOhmM1tGetGmd+9PXJfnQkvP4XMPpL1hyeXN/32Da81taJksS6PtPoN/fu5I8kOQ9K5j3RelfmF9knXhqknHbhZzAS5Pcn+QVa1xm296WWRv5uyuY9xmFw/wLs54wP3fFcDo+PhmMPrLCZZQ+zWWNYX67W4bTcaVQf/aal/fBJGdluU6BZ7VTSiPvTPKMBtO/JckfrKgWGijdiB0SAv3BvDvJ77Q8z4uSXNPyPLtwdtYb5ucuSXJ5B8tt01vTfi/96cPp+K6W57kWw+n4BUk+0cGirxxOx5escP5lR44aTsfnZP1hfu6W4XT8Sx0tu6n7Oljm25K8uYPlrtMjui6AGYG+/wT6g3tvkte3NK9NCfPnJrmpw+VfmvVc47BK70h7vfSnDafjLq+JWdhwOn5+koXPt2/BlcPp+OUdLn9dDnxwMZyOz05ywwprOYhbhtPxUzuu4SC6CPTJrLPpNR0tm0NEoGfTvD+zcxeXcWH6HeYPepB3fpIvrbKQA3p1lj+XtGu/l+RNS87jtOF0fE8bxazbcDr+9SSf6rqOJFetKNQfW8E8F3Wg7XsrzHd5sL7duECo7yrQJ7NrvVb5DVOX+rTtHGoCff/poW/uA5mNfrOI5yT5bIu1dOVXknyx6yK2eW1mn0tl70nyxgVfWz3Mf7rrOrZZVajvi3176HsW5ufGw+n4aV0XcQJdBvpkNmrWSzqugQ0m0PefQL+YDyV5VcPXPC/9uwB2ERck+duui9jF65K8r+silvS+NA/1lcP889KvMD931YrPqe+tnob5uaM9DvVdB/ok+YskF3ddRMv00PeEQN9/Av3iPpzklQec9vlJ/nqFtbTpROvEhUmuW1Mdi3hjVjMa0Tq9L8kbDjjtqYXD/EXp9zZx5XA6bmsUpT7tC/fsod8azaavYX7u6NZBR9/0IdAnySezWaffyCg90adGjN3ZWJbzp9l/6MQXpB/nBy+ryulCb8psqNHKLsv+of60qjcr2grzfb6OZO6K4XR8aQvz6f0Qzls9312NZtPUTT3sqe9LoE9mp9+0NYADJCnQiNE7fex52c8VSe5I8pe7/O1FezxfTd/Oc97PW5Pcmd1vCPYza65lUZdl9h6u2PmH4XT8pCRfXXtFLRhOxxemRpifu3w4Hd8/GYz+bOcfhtPxU5IMMtvXHcvsfhXHM+sFP3lrsmNJnrimWg/iYZ04W+H46NorWc7R4XT8k5PB6J+7LmRL3w6u35/ZOlj9NESdjj0h0Hfn0sx2Kkcy+6Zk+++dz/VJ37/u3cvVmQ25t/18vydkM8L8Y1MrzM+9K7Ovn7+x4/l/6KCWRV2e5M/z8N6/kmE+s31ChW95droqs/OT758/MZyOz0tyfVcFtaxamJ97a2bfgPZBn3ro596b5NbM1t2qBPqeEOi78ZnMTo84qJdnFhoqOjOz3vFVaNqQPDnJv2x7/JQFltn2DWhOTfOeo53v+xcWWO6qbqTT9DP5sTw80DfV9ntp+h6ekORr2x4/qukCJ4NRL25stMDQg38zGYwuXFEtjT6H4XT8xMlgtNSB1Ao+h1NbOO3q0U1fMBmMzkhy95LLfZjhdPzuNLtR0sVZfaC/KrMDufnPsR2P5z+nrmj5X8isDT8ps5ssndvw9R9L8vHUvbhUoO8Jgb4bp3VdwCF1+o7HvQhRLTij6wKWsAk7g53v4eRdp6qh6V0f+xRC+rguPbDAazalXVqHt2fW4XVQP57k3/f4288m+UqDeV2cvb8ZfVyS/2owr2el34MZUEDfTuc4LG7ruoBDaucOv48B4CCWrfvmNopoSZ8CYVtKjmqzATZxXeLEzuq6gJaMui5gCVX3oxtHoO/GXV0XQG+00Rg2nUefgk+falnUzv///btOxUpNBqNbdzzVh/2b3nYOovKBiUDfE31o8GBdNqWHfllP77qAbTYh0G+Syp/HpmzfVetmcY2vu+kR62tPOIceutVVY9iXodIqB8i5Tdqh6eTpn8br13A6viIruCg2yc+vYJ7LaLP96HI79q0eSxPoOUw2pQdvp0Xexxtbr2IxmxDo6aeqBydttEsvaWEerE/ldnBT9qPlVW3wgM2wCTuDTT1QrGZT/u/Ouz98Kgd6ekKg5zDp4w6/jzWtkx1ZvwiT3TvsbUITm9J+VD7lxvraEwI9h9mmNESV30fl2uc24T1sgp2fw6YcnGzK+2BvlQ9MtH89IdB3o/LGW1kfG54+1rROh/39A1TuoacnBHoOM2Gye5twcGs9Yi+L9K5bnw5uE9qP6qyvPSHQc5hoePpnEz+TTXxPwOo4MGFpAj2HWR+C12HfBvvwGSxrE94D/WF9ohLra08c9jABXWvjgrfKDaqeKdpSeTtgMdoP2CLQQ7cO+wgWmxDCNml0lcq191Eb67fPZPNVPjDZhDZ8Iwj0HGZ9aIgO+zb4v10XAD3Th3YJKOaUrguAQ66r3je9fuzmsB9gboTJYHRakvu6rmMNKvdsQ6s03tAtwXrz6GHtxs5tyecAHBoCPXTLNlif4NgPffwcHLCz6azjPSFMQLfu7roA2GaTds6bcjrGJn0mwIoI9N3YlB0Ny3ug6wJgQ/UhCPfxWwP6p3IW68N2RlwU25Wmgf7MJMPMNvr5z21tF7WH/1vy9cMkd7RQRxvu3efxQTyhjUJ2+GCS1y3x+vsXeM18258HjiP5XsN8ZJefEz2/XdPzmL9z8JLLWCTEfV/rVRzMPdsfTAajzw6n4yavPz3JI1qtqD2LdJzM19+Ttj3e7bntfzvR40W2zZ0Wmcej0o+LYvvS9sPGE+i78arMGulju/zsfP6BJB/Y+unCskffX2+linbsHCKxUXLZ8h9tFLLDWxpOfyQPDY3fXmCZfdjZJ8lZSaZdF9Gy40k+kuSSg75gOB13derVCyeD0Se31fFTDV//zOF0fGe7JS3sru0PJoPRjQ0PTjKcjlfx7enRJGcv8frbktyQ5NyDvmA4HS/SJqzCNZPB6Ll7/O3SBvO5Yo/nN/3b7j9M8voG0x9Pck1m68xdmXVa3ZtZrphni+OZ7UNOyiwDnpLZgfnpSR6d5IfbKZ11E+i789sNpn3XyqporknAvzHJ01dVyJZlDjimSZ6W5OZWKlncrUl+Ism/HXD6nYH+5hz8//DTSf7xwJWxkMlg9IrhdHxqkt/qupYmJoPRP+WA69JwOn5Skq+usJzrJoPRs5d4/bHMgvTRlupZ1BeSfCp7h9J9TQaji4bT8e3tlbQ2z9nj+R9IcnmD+Tw+yZuXL6ecNyR5XPb+P+6mybRtcMpNT1Q+bwvaMM5yvWdt+VqSH+m6CNozGYxemuSqrutYod73jk4Go5uTnNdxGXdOBqMrk/zGEvO4YzIYPbKtgnrg5IbTn76SKh6qy+sdTpTFnpvk2jXVsQiBvicEepj1cK/6m4SD+M8kP5j9TwXSgBYxGYwuSXJl13WsSNNQ1onJYHRDkmd2WMLxrTquTrLMNw53TQajvl6v0FTT7LGOQN9nFyW5rusi9mB/1BMCPcwcTT9C/beSnJ/kphNMowEtZDIYXZrkT7uuYwXKrIeTweiLSS7oaPEPfpMxGYyuy3LtzHcng9EmhFvZo7lnJ/l810Xsokw7sOlsVPA9R5Oc03URmY088qx0f24/LZkMRq9K8idd19GyUvuPyWD0+cx6Oruu42iSn1tiFvdMBqPT0v21Acto+u1OqXVthS5I/0K9QN8TNhJ4qJvSYDSJFfpukl/d428a0IImg9Grs1mhvtz+YzIYXZvZOcnr9LBrDSaD0VeSPHmJed43GYzOT91QX27dWbEm/48LMrvQui/sj3rCRgUPd2O6v5AumQ079v27PK8BLWor1C882knPlNx/TAaja5JcvMZF7vp/mgxG/zoZjHbbvg9qHuoXGX63a21dgNr7C7NX5IIkX+y6iC32Rz1RskGGNbgh/Qj1t2c2NjAbYjIYvTKbcaFsiYtidzMZjD6d5MVd15Hk9q1z4hftab9vMhidl+SWFmtaB3fIXs6xzE7LvL7rQiLQ94ZAD3u7Ickzui4is7upPmbbYw1ocVsXylYf0rIvNydbyGQw+kSSl3RdR2bnxJ+b5HMLvv6+rdd/ucWaVq3p3W8Pa0/8iTyQWai/oetC6AeBHk7sS5mNOtO1b2d2+s2HM7tolv7470VetDWk5cdarmWdmoay3pkMRh9P8rKu60hybDIY/dpkMFr0YH0e6k80OlafNL1J1l5Zpc2DyntbnNe63JdZqO/yc9fB1BMCfQ2Vel7W5fokH13jso6k+56Q25O8puMa1uHargto6DH7T7K7rZtPvbPFWtZmMhh9s+sa2jAZjD66RJDuk3sng9E5SS7rupBt9rp4s2l43iurfKfhfE6kzXmt0z2Zjc62rv3hTpuw7WyEI5NvVbybNABAo5tO3b3P309OclaSRyY5NcnXk/xoZt9G3Z3kziS3LVDjujwqyR2Z1fzAtp/5RcjH89ALkneG8ccn+c0klzRY5jtStFNi05zSdQEAAAvaL6Q38UCSW7d+5r7e4vxX7Y6t34vW/M3MAj0FOeUGAIBFyJE94YMAAGARhiDtCYEeAIBFVBwdaCMJ9AAALOJ/ui6AGRfFAgD0z5PyvVF3jqSdISLno9zsNq8zFpjfNUvUQosEegCA/vlqB8u8IbMhO4/FHXpLMQ49AED/HN9/kpVws6iCnEMPAACFCfQAAFCYQA8AAIUJ9AAAUJhADwAAhQn0AABQmEAPAACFCfQAAMy56WhBAj0AAHOnd10AzTkKAwDonzOTPDazgL39rrHHd/ze67n9Hu/82zcWqJGeEOgBAPrnjq0f2JdTbgAAoDCBHgAAChPoAQCgMIEeAAAKE+gBAKAwgR4AAAoT6AEAoDCBHgAAChPoAQCgMIEeAAAKE+gBAKAwgR4AAAoT6AEAoDCBHgAAChPoAQCgMIEeAAAKE+gBAKAwgR4AAAoT6AEAoDCBHgAAChPoAQCgMIEeAAAKE+gBAKAwgR4AAAoT6AEAoDCBHgAAChPoAQCgMIEeAAAKE+gBAKAwgR4AAAoT6AEAoDCBHgAAChPoAQCgMIEeAAAKE+gBAKAwgR4AAAoT6AEAoDCBHgAAChPoAQCgMIEeAAAKE+gBAKAwgR4AAAoT6AEAoDCBHgAAChPoAQCgMIEeAAAKE+gBAKAwgR4AAAoT6AEAoDCBHgAAChPoAQCgMIEeAAAKE+gBAKAwgR4AAAoT6AEAoDCBHgAAChPoAQCgMIEeAAAKE+gBAKAwgR4AAAoT6AEAoDCBHgAAChPoAQCgMIEeAAAKE+gBAKAwgR4AAAoT6AEAoLD/BzVUJulPAxjnAAAAAElFTkSuQmCC" alt="codencode.my" style="height:30px;width:auto;" />
+      <img src="/logo/codencode-wordmark.png" width="756" height="257" alt="codencode.my" style="height:30px;width:auto;" />
     </a>
     <ul class="nav-links">
       <li><a href="#kids">Kids &amp; Teens</a></li>
@@ -725,7 +731,8 @@ src="https://www.facebook.com/tr?id=1615909506909427&ev=PageView&noscript=1"
   <div class="container">
     <div class="lbl">02 · Adult AI &amp; Digital Skills</div>
     <h2 class="h2">Learn AI.<br><span style="color:var(--cyan)">Build real projects.</span></h2>
-    <p class="sub">Practical courses for working adults, entrepreneurs, freelancers, creators and professionals.</p>
+    <p class="sub">Practical AI workshops for working adults, entrepreneurs, freelancers, creators and professionals — plus half-day workshops for your whole team.</p>
+    <h3 class="grp">For individuals &amp; professionals</h3>
     <div class="course-grid">
       <div class="ccard">
         <div class="cbody" style="padding-top:24px">
@@ -760,6 +767,63 @@ src="https://www.facebook.com/tr?id=1615909506909427&ev=PageView&noscript=1"
       </div>
     </div>
     <p class="seg-note">Short workshops · Small-group training · Online or face-to-face · Private training options</p>
+    <h3 class="grp" id="workshops">For teams · AI for ___ · 4 hours, in person</h3>
+    <p class="sub" style="margin-bottom:0;margin-top:14px">4 half-day, in-person AI workshops at Mount Austin, Johor Bahru. 4 hours — for teams and individuals who want hands-on AI skills without a multi-week commitment. Prefer it at your office? <a href="corporate.html" style="color:var(--cyan);text-decoration:none;font-weight:700">See the corporate portfolio →</a></p>
+    <div class="course-grid four">
+
+      <div class="ccard">
+        <div class="ctop">
+          <img width="900" height="600" src="https://images.unsplash.com/photo-1758691737083-0e7fdbde0f05?fm=jpg&amp;q=80&amp;w=900&amp;auto=format&amp;fit=crop" alt="Two colleagues collaborating on a laptop in an office" loading="lazy">
+          <span class="cbadge bb">For Any Team</span>
+        </div>
+        <div class="cbody">
+          <div class="ctitle-row"><h3>AI for Workplace</h3></div>
+          <p>Practical AI tools for general workplace productivity — for any employee who wants to save time on daily tasks.</p>
+          <div class="cmeta"><div class="cmi"><i class="fas fa-clock"></i><span>4 hours</span></div><div class="cmi"><i class="fas fa-map-marker-alt"></i><span>Mount Austin, JB</span></div></div>
+          <a class="btn-out" href="https://wa.me/60196811628?text=Hi%20codencode!%20I'm%20interested%20in%20the%20AI%20for%20Workplace%20workshop%20👋" target="_blank" rel="noopener">Register <i class="fas fa-arrow-right"></i></a>
+        </div>
+      </div>
+
+      <div class="ccard">
+        <div class="ctop">
+          <img width="900" height="600" src="https://images.unsplash.com/photo-1686061593213-98dad7c599b9?fm=jpg&amp;q=80&amp;w=900&amp;auto=format&amp;fit=crop" alt="Computer screen showing a marketing analytics dashboard" loading="lazy">
+          <span class="cbadge bo">For Marketing</span>
+        </div>
+        <div class="cbody">
+          <div class="ctitle-row"><h3>AI for Marketing</h3></div>
+          <p>Practical AI tools for content, campaigns and analytics — built for marketing teams.</p>
+          <div class="cmeta"><div class="cmi"><i class="fas fa-clock"></i><span>4 hours</span></div><div class="cmi"><i class="fas fa-map-marker-alt"></i><span>Mount Austin, JB</span></div></div>
+          <a class="btn-out" href="https://wa.me/60196811628?text=Hi%20codencode!%20I'm%20interested%20in%20the%20AI%20for%20Marketing%20workshop%20👋" target="_blank" rel="noopener">Register <i class="fas fa-arrow-right"></i></a>
+        </div>
+      </div>
+
+      <div class="ccard">
+        <div class="ctop">
+          <img width="900" height="600" src="https://images.unsplash.com/photo-1758518730384-be3d205838e8?fm=jpg&amp;q=80&amp;w=900&amp;auto=format&amp;fit=crop" alt="Two HR professionals shaking hands across a table after an interview" loading="lazy">
+          <span class="cbadge bb">For HR</span>
+        </div>
+        <div class="cbody">
+          <div class="ctitle-row"><h3>AI for HR</h3></div>
+          <p>Practical AI tools for hiring, onboarding and people operations — built for HR teams.</p>
+          <div class="cmeta"><div class="cmi"><i class="fas fa-clock"></i><span>4 hours</span></div><div class="cmi"><i class="fas fa-map-marker-alt"></i><span>Mount Austin, JB</span></div></div>
+          <a class="btn-out" href="https://wa.me/60196811628?text=Hi%20codencode!%20I'm%20interested%20in%20the%20AI%20for%20HR%20workshop%20👋" target="_blank" rel="noopener">Register <i class="fas fa-arrow-right"></i></a>
+        </div>
+      </div>
+
+      <div class="ccard">
+        <div class="ctop">
+          <img width="900" height="600" src="https://images.unsplash.com/photo-1707902665498-a202981fb5ac?fm=jpg&amp;q=80&amp;w=900&amp;auto=format&amp;fit=crop" alt="Person at a desk using a calculator and notebook for bookkeeping" loading="lazy">
+          <span class="cbadge bo">For Finance</span>
+        </div>
+        <div class="cbody">
+          <div class="ctitle-row"><h3>AI for Accounting</h3></div>
+          <p>Practical AI tools for bookkeeping, reporting and reconciliation — built for finance teams.</p>
+          <div class="cmeta"><div class="cmi"><i class="fas fa-clock"></i><span>4 hours</span></div><div class="cmi"><i class="fas fa-map-marker-alt"></i><span>Mount Austin, JB</span></div></div>
+          <a class="btn-out" href="https://wa.me/60196811628?text=Hi%20codencode!%20I'm%20interested%20in%20the%20AI%20for%20Accounting%20workshop%20👋" target="_blank" rel="noopener">Register <i class="fas fa-arrow-right"></i></a>
+        </div>
+      </div>
+
+    </div>
   </div>
 </section>
 
@@ -791,84 +855,7 @@ src="https://www.facebook.com/tr?id=1615909506909427&ev=PageView&noscript=1"
   </div>
 </section>
 
-<!-- 03b · 4-HOUR DISCOVERY WORKSHOPS (Business & Corporate) -->
-<section id="workshops" class="sec alt">
-  <div class="container">
-    <div class="lbl">03 · Business &amp; Corporate · 4-hour discovery workshops</div>
-    <h2 class="h2">AI for <span style="color:var(--cyan)">___</span>.<br>Half a day. In person.</h2>
-    <p class="sub" style="margin-bottom:0">5 half-day, in-person AI workshops at Mount Austin, Johor Bahru. 4 hours — for teams and individuals who want hands-on AI skills without a multi-week commitment. Prefer it at your office? <a href="corporate.html" style="color:var(--cyan);text-decoration:none;font-weight:700">See the corporate portfolio →</a></p>
-    <div class="course-grid">
-
-      <div class="ccard">
-        <div class="ctop">
-          <img src="https://images.unsplash.com/photo-1758691737083-0e7fdbde0f05?fm=jpg&amp;q=80&amp;w=900&amp;auto=format&amp;fit=crop" alt="Two colleagues collaborating on a laptop in an office" loading="lazy">
-          <span class="cbadge bb">For Any Team</span>
-        </div>
-        <div class="cbody">
-          <div class="ctitle-row"><h3>AI for Workplace</h3></div>
-          <p>Practical AI tools for general workplace productivity — for any employee who wants to save time on daily tasks.</p>
-          <div class="cmeta"><div class="cmi"><i class="fas fa-clock"></i><span>4 hours</span></div><div class="cmi"><i class="fas fa-map-marker-alt"></i><span>Mount Austin, JB</span></div></div>
-          <a class="btn-out" href="https://wa.me/60196811628?text=Hi%20codencode!%20I'm%20interested%20in%20the%20AI%20for%20Workplace%20workshop%20👋" target="_blank" rel="noopener">Register <i class="fas fa-arrow-right"></i></a>
-        </div>
-      </div>
-
-      <div class="ccard">
-        <div class="ctop">
-          <img src="https://images.unsplash.com/photo-1686061593213-98dad7c599b9?fm=jpg&amp;q=80&amp;w=900&amp;auto=format&amp;fit=crop" alt="Computer screen showing a marketing analytics dashboard" loading="lazy">
-          <span class="cbadge bo">For Marketing</span>
-        </div>
-        <div class="cbody">
-          <div class="ctitle-row"><h3>AI for Marketing</h3></div>
-          <p>Practical AI tools for content, campaigns and analytics — built for marketing teams.</p>
-          <div class="cmeta"><div class="cmi"><i class="fas fa-clock"></i><span>4 hours</span></div><div class="cmi"><i class="fas fa-map-marker-alt"></i><span>Mount Austin, JB</span></div></div>
-          <a class="btn-out" href="https://wa.me/60196811628?text=Hi%20codencode!%20I'm%20interested%20in%20the%20AI%20for%20Marketing%20workshop%20👋" target="_blank" rel="noopener">Register <i class="fas fa-arrow-right"></i></a>
-        </div>
-      </div>
-
-      <div class="ccard">
-        <div class="ctop">
-          <img src="https://images.unsplash.com/photo-1768055105012-4c53791b2877?fm=jpg&amp;q=80&amp;w=900&amp;auto=format&amp;fit=crop" alt="Hand checking off items on an event planning checklist" loading="lazy">
-          <span class="cbadge bg2">For Events</span>
-        </div>
-        <div class="cbody">
-          <div class="ctitle-row"><h3>AI for Event Management</h3></div>
-          <p>Practical AI tools for planning, logistics and vendor coordination — built for event professionals.</p>
-          <div class="cmeta"><div class="cmi"><i class="fas fa-clock"></i><span>4 hours</span></div><div class="cmi"><i class="fas fa-map-marker-alt"></i><span>Mount Austin, JB</span></div></div>
-          <a class="btn-out" href="https://wa.me/60196811628?text=Hi%20codencode!%20I'm%20interested%20in%20the%20AI%20for%20Event%20Management%20workshop%20👋" target="_blank" rel="noopener">Register <i class="fas fa-arrow-right"></i></a>
-        </div>
-      </div>
-
-      <div class="ccard">
-        <div class="ctop">
-          <img src="https://images.unsplash.com/photo-1758518730384-be3d205838e8?fm=jpg&amp;q=80&amp;w=900&amp;auto=format&amp;fit=crop" alt="Two HR professionals shaking hands across a table after an interview" loading="lazy">
-          <span class="cbadge bb">For HR</span>
-        </div>
-        <div class="cbody">
-          <div class="ctitle-row"><h3>AI for HR</h3></div>
-          <p>Practical AI tools for hiring, onboarding and people operations — built for HR teams.</p>
-          <div class="cmeta"><div class="cmi"><i class="fas fa-clock"></i><span>4 hours</span></div><div class="cmi"><i class="fas fa-map-marker-alt"></i><span>Mount Austin, JB</span></div></div>
-          <a class="btn-out" href="https://wa.me/60196811628?text=Hi%20codencode!%20I'm%20interested%20in%20the%20AI%20for%20HR%20workshop%20👋" target="_blank" rel="noopener">Register <i class="fas fa-arrow-right"></i></a>
-        </div>
-      </div>
-
-      <div class="ccard">
-        <div class="ctop">
-          <img src="https://images.unsplash.com/photo-1707902665498-a202981fb5ac?fm=jpg&amp;q=80&amp;w=900&amp;auto=format&amp;fit=crop" alt="Person at a desk using a calculator and notebook for bookkeeping" loading="lazy">
-          <span class="cbadge bo">For Finance</span>
-        </div>
-        <div class="cbody">
-          <div class="ctitle-row"><h3>AI for Accounting</h3></div>
-          <p>Practical AI tools for bookkeeping, reporting and reconciliation — built for finance teams.</p>
-          <div class="cmeta"><div class="cmi"><i class="fas fa-clock"></i><span>4 hours</span></div><div class="cmi"><i class="fas fa-map-marker-alt"></i><span>Mount Austin, JB</span></div></div>
-          <a class="btn-out" href="https://wa.me/60196811628?text=Hi%20codencode!%20I'm%20interested%20in%20the%20AI%20for%20Accounting%20workshop%20👋" target="_blank" rel="noopener">Register <i class="fas fa-arrow-right"></i></a>
-        </div>
-      </div>
-
-    </div>
-  </div>
-</section>
-
-<section id="one-to-one" class="sec ">
+<section id="one-to-one" class="sec alt">
   <div class="container">
     <div class="lbl">04 · Premium 1-to-1 Training</div>
     <h2 class="h2">Personalised learning.<br><span style="color:var(--cyan)">1-to-1.</span></h2>
@@ -889,7 +876,7 @@ src="https://www.facebook.com/tr?id=1615909506909427&ev=PageView&noscript=1"
 </section>
 
 <!-- WHY -->
-<section id="why" class="sec alt">
+<section id="why" class="sec">
   <div class="container">
     <div class="lbl">Why codencode</div>
     <h2 class="h2">Johor Bahru's practical<br>online<br><span style="color:var(--cyan)">coding academy.</span></h2>
@@ -911,7 +898,7 @@ src="https://www.facebook.com/tr?id=1615909506909427&ev=PageView&noscript=1"
         <div class="lang-card-top">
           <div class="wico"><i class="fas fa-language"></i></div>
           <h3>English · 中文 · Bahasa Melayu</h3>
-          <p>The only coding academy in JB that genuinely teaches in all 3 languages. Not translated slides — real trilingual teaching.</p>
+          <p>Every class is taught in English, Mandarin or Bahasa Melayu — not translated slides, real trilingual teaching.</p>
         </div>
         <div class="lang-flags-row">
           <div class="lflag-item lf-en">
@@ -939,7 +926,7 @@ src="https://www.facebook.com/tr?id=1615909506909427&ev=PageView&noscript=1"
 </section>
 
 <!-- COURSES -->
-<section id="courses" class="sec">
+<section id="courses" class="sec alt">
   <div class="container">
     <div class="lbl">Core Subjects · Group Classes</div>
     <h2 class="h2">Pick your<br>weapon.</h2>
@@ -950,7 +937,7 @@ src="https://www.facebook.com/tr?id=1615909506909427&ev=PageView&noscript=1"
 
       <div class="ccard">
         <div class="ctop">
-          <img src="https://images.unsplash.com/photo-1614064548237-096f735f344f?fm=jpg&amp;q=80&amp;w=900&amp;auto=format&amp;fit=crop" alt="Padlock securing a laptop, representing cybersecurity fundamentals" loading="lazy">
+          <img width="900" height="600" src="https://images.unsplash.com/photo-1614064548237-096f735f344f?fm=jpg&amp;q=80&amp;w=900&amp;auto=format&amp;fit=crop" alt="Padlock securing a laptop, representing cybersecurity fundamentals" loading="lazy">
           <span class="cbadge" style="background:#ff4d4d;color:#fff">New</span>
         </div>
         <div class="cbody">
@@ -963,7 +950,7 @@ src="https://www.facebook.com/tr?id=1615909506909427&ev=PageView&noscript=1"
 
       <div class="ccard">
         <div class="ctop">
-          <img src="https://images.unsplash.com/photo-1742072594003-abf6ca86e154?fm=jpg&amp;q=80&amp;w=900&amp;auto=format&amp;fit=crop" alt="Python code displayed on a computer screen" loading="lazy">
+          <img width="900" height="600" src="https://images.unsplash.com/photo-1742072594003-abf6ca86e154?fm=jpg&amp;q=80&amp;w=900&amp;auto=format&amp;fit=crop" alt="Python code displayed on a computer screen" loading="lazy">
           <span class="cbadge bb">Most Popular</span>
         </div>
         <div class="cbody">
@@ -976,7 +963,7 @@ src="https://www.facebook.com/tr?id=1615909506909427&ev=PageView&noscript=1"
 
       <div class="ccard">
         <div class="ctop">
-          <img src="https://images.unsplash.com/photo-1674027444485-cec3da58eef4?fm=jpg&amp;q=80&amp;w=900&amp;auto=format&amp;fit=crop" alt="Abstract visualization of connected data points, representing machine learning" loading="lazy">
+          <img width="900" height="600" src="https://images.unsplash.com/photo-1674027444485-cec3da58eef4?fm=jpg&amp;q=80&amp;w=900&amp;auto=format&amp;fit=crop" alt="Abstract visualization of connected data points, representing machine learning" loading="lazy">
           <span class="cbadge bo">Hot</span>
         </div>
         <div class="cbody">
@@ -997,10 +984,10 @@ src="https://www.facebook.com/tr?id=1615909506909427&ev=PageView&noscript=1"
 </section>
 
 <!-- SEO: Computer Science Course JB / ML Classes Section -->
-<section id="cs-jb" class="sec alt" style="padding-top:64px;padding-bottom:64px;">
+<section id="cs-jb" class="sec" style="padding-top:64px;padding-bottom:64px;">
   <div class="container">
     <div class="lbl">Johor Bahru</div>
-    <h2 class="h2">The #1 computer science<br>course in <span style="color:var(--cyan)">Johor Bahru.</span></h2>
+    <h2 class="h2">Computer science<br>courses in <span style="color:var(--cyan)">Johor Bahru.</span></h2>
     <p class="sub" style="max-width:640px">Looking for a computer science course, cybersecurity classes or machine learning classes near you in Johor Bahru? codencode.my offers online Python, cybersecurity, machine learning and AI courses — plus in-person AI workshops at Mount Austin — all taught in English, Mandarin and Bahasa Melayu. No experience needed.</p>
     <div class="wgrid" style="margin-top:36px">
       <div class="wcard" data-n="01">
@@ -1021,7 +1008,7 @@ src="https://www.facebook.com/tr?id=1615909506909427&ev=PageView&noscript=1"
       <div class="wcard" data-n="04">
         <div class="wico"><i class="fas fa-robot"></i></div>
         <h3>AI Workshop Mount Austin</h3>
-        <p>Half-day, in-person AI workshops for workplace, marketing and event teams — corporate training at Mount Austin, Johor Bahru.</p>
+        <p>Half-day, in-person AI workshops for workplace, marketing, HR and accounting teams — corporate training at Mount Austin, Johor Bahru.</p>
       </div>
     </div>
     <div style="margin-top:28px;display:flex;gap:12px;flex-wrap:wrap;">
@@ -1031,12 +1018,13 @@ src="https://www.facebook.com/tr?id=1615909506909427&ev=PageView&noscript=1"
   </div>
 </section>
 
-<!-- AT A GLANCE (dense, extractable fact table for search snippets & AI answer engines) -->
-<section id="at-a-glance" class="sr-only" aria-hidden="false">
+<!-- AT A GLANCE (visible fact table for search snippets & answer engines) -->
+<section id="at-a-glance" class="sec alt">
   <div class="container">
-    <h2>codencode.my — all programmes at a glance</h2>
-    <div style="overflow-x:auto;margin-top:32px;border:1px solid var(--b)">
-      <table style="width:100%;border-collapse:collapse;font-family:var(--mono);font-size:12.5px">
+    <div class="lbl">At a glance</div>
+    <h2 class="h2">Every programme,<br><span style="color:var(--cyan)">one table.</span></h2>
+    <div style="overflow-x:auto;margin-top:40px;border:1px solid var(--b)">
+      <table style="width:100%;min-width:760px;border-collapse:collapse;font-family:var(--mono);font-size:12.5px">
         <thead>
           <tr style="background:var(--surf2);border-bottom:1px solid var(--b)">
             <th style="text-align:left;padding:12px 16px;color:var(--w)">Offering</th>
@@ -1056,7 +1044,6 @@ src="https://www.facebook.com/tr?id=1615909506909427&ev=PageView&noscript=1"
           <tr style="border-bottom:1px solid var(--b)"><td style="padding:12px 16px">AI for Productivity</td><td style="padding:12px 16px;color:var(--mu)">Adult workshop</td><td style="padding:12px 16px;color:var(--mu)">On enquiry</td><td style="padding:12px 16px;color:var(--mu)">All levels</td><td style="padding:12px 16px;color:var(--mu)">Online or face-to-face</td></tr>
           <tr style="border-bottom:1px solid var(--b)"><td style="padding:12px 16px">AI for Workplace</td><td style="padding:12px 16px;color:var(--mu)">Workshop</td><td style="padding:12px 16px;color:var(--mu)">4 hours</td><td style="padding:12px 16px;color:var(--mu)">All levels</td><td style="padding:12px 16px;color:var(--mu)">In-person, Mount Austin JB</td></tr>
           <tr style="border-bottom:1px solid var(--b)"><td style="padding:12px 16px">AI for Marketing</td><td style="padding:12px 16px;color:var(--mu)">Workshop</td><td style="padding:12px 16px;color:var(--mu)">4 hours</td><td style="padding:12px 16px;color:var(--mu)">All levels</td><td style="padding:12px 16px;color:var(--mu)">In-person, Mount Austin JB</td></tr>
-          <tr style="border-bottom:1px solid var(--b)"><td style="padding:12px 16px">AI for Event Management</td><td style="padding:12px 16px;color:var(--mu)">Workshop</td><td style="padding:12px 16px;color:var(--mu)">4 hours</td><td style="padding:12px 16px;color:var(--mu)">All levels</td><td style="padding:12px 16px;color:var(--mu)">In-person, Mount Austin JB</td></tr>
           <tr style="border-bottom:1px solid var(--b)"><td style="padding:12px 16px">AI for HR</td><td style="padding:12px 16px;color:var(--mu)">Workshop</td><td style="padding:12px 16px;color:var(--mu)">4 hours</td><td style="padding:12px 16px;color:var(--mu)">All levels</td><td style="padding:12px 16px;color:var(--mu)">In-person, Mount Austin JB</td></tr>
           <tr style="border-bottom:1px solid var(--b)"><td style="padding:12px 16px">AI for Accounting</td><td style="padding:12px 16px;color:var(--mu)">Workshop</td><td style="padding:12px 16px;color:var(--mu)">4 hours</td><td style="padding:12px 16px;color:var(--mu)">All levels</td><td style="padding:12px 16px;color:var(--mu)">In-person, Mount Austin JB</td></tr>
           <tr style="border-bottom:1px solid var(--b)"><td style="padding:12px 16px">CCA-001: AI for Workplace Productivity</td><td style="padding:12px 16px;color:var(--mu)">Corporate</td><td style="padding:12px 16px;color:var(--mu)">1 Day / 7 Hours</td><td style="padding:12px 16px;color:var(--mu)">Professional</td><td style="padding:12px 16px;color:var(--mu)">In-house, live online or customised workshop</td></tr>
@@ -1105,7 +1092,7 @@ src="https://www.facebook.com/tr?id=1615909506909427&ev=PageView&noscript=1"
       </article>
       <article class="trainer-card">
         <div class="trainer-photo" data-initials="NA">
-          <img src="marketing/trainer-aisyah-najwa.jpg" alt="Nurin Aisyah Najwa, AI &amp; Coding Trainer" onerror="this.parentElement.classList.add('is-missing')">
+          <img width="1024" height="1280" src="marketing/trainer-aisyah-najwa.jpg" alt="Nurin Aisyah Najwa, AI &amp; Coding Trainer" onerror="this.parentElement.classList.add('is-missing')">
         </div>
         <div class="trainer-body">
           <div class="iname">Nurin Aisyah Najwa</div>
@@ -1210,7 +1197,7 @@ src="https://www.facebook.com/tr?id=1615909506909427&ev=PageView&noscript=1"
       <a class="soc-pill fb" href="https://www.facebook.com/share/18i3Fm3PGf/" target="_blank" rel="noopener" aria-label="Facebook">
         <i class="fab fa-facebook-f"></i> Facebook
       </a>
-      <a class="soc-pill li" href="https://linkedin.com/company/codencode" target="_blank" rel="noopener" aria-label="LinkedIn">
+      <a class="soc-pill li" href="https://www.linkedin.com/company/codencode-academy" target="_blank" rel="noopener" aria-label="LinkedIn">
         <i class="fab fa-linkedin-in"></i> LinkedIn
       </a>
     </div>
@@ -1223,7 +1210,7 @@ src="https://www.facebook.com/tr?id=1615909506909427&ev=PageView&noscript=1"
   <div class="container">
     <div class="fgrid">
       <div class="fab">
-        <a class="logo" href="/" style="display:flex;align-items:center;"><img src="data:image/png;base64,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" alt="codencode.my" style="height:30px;width:auto;" /></a>
+        <a class="logo" href="/" style="display:flex;align-items:center;"><img src="/logo/codencode-wordmark.png" width="756" height="257" alt="codencode.my" style="height:30px;width:auto;" /></a>
         <p>Codencode Academy — practical AI, coding, automation and digital skills training in <strong>Johor Bahru, Malaysia</strong>. Taught in <strong>English, Mandarin and Bahasa Melayu</strong>. Operated by CODE N CODE SOLUTION.</p>
         <p style="margin-top:10px;font-size:11px"><i class="fas fa-map-marker-alt" style="color:var(--cyan);margin-right:5px"></i>Johor Bahru, Johor &nbsp;·&nbsp; <a href="tel:+60196811628" style="color:var(--mu);text-decoration:none">019-6811628</a> &nbsp;·&nbsp; <a href="mailto:codencodemy@gmail.com" style="color:var(--mu);text-decoration:none">codencodemy@gmail.com</a></p>
       </div>
@@ -1269,7 +1256,7 @@ src="https://www.facebook.com/tr?id=1615909506909427&ev=PageView&noscript=1"
       </div>
     </div>
     <div class="fbot">
-      <p class="fcopy">© 2026 <span>codencode.my</span> · All rights reserved · Johor Bahru, Malaysia · Page updated 13 October 2026</p>
+      <p class="fcopy">© 2026 <span>codencode.my</span> · All rights reserved · Johor Bahru, Malaysia · Page updated 14 October 2026</p>
       <p class="fcopy">Built with <span>❤</span> in JB · <a href="paths.html" style="color:var(--mu);text-decoration:none">Your Learning Path →</a></p>
     </div>
   </div>
@@ -1327,7 +1314,7 @@ document.querySelectorAll('.mob-nav a').forEach(a=>a.addEventListener('click',()
 }));
 document.querySelectorAll('a[href^="#"]').forEach(a=>a.addEventListener('click',e=>{
   const t=document.querySelector(a.getAttribute('href'));
-  if(t){e.preventDefault();window.scrollTo({top:t.offsetTop-68,behavior:'smooth'});}
+  if(t){e.preventDefault();window.scrollTo({top:t.getBoundingClientRect().top+window.scrollY-68,behavior:'smooth'});}
 }));
 window.addEventListener('scroll',()=>{
   document.getElementById('navbar').style.borderBottomColor=window.scrollY>50?'var(--bs)':'var(--b)';

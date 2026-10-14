@@ -2,7 +2,7 @@
 
 > Codencode Academy (codencode.my) — practical AI, coding, automation and digital skills training based in Johor Bahru, Malaysia. Four training segments: Kids & Teens Coding Academy, Adult AI & Digital Skills, Business & Corporate AI Training, and Premium 1-to-1 Training. Taught in English, Mandarin (中文) and Bahasa Melayu.
 
-Last updated: 2026-10-13
+Last updated: 2026-10-14
 
 codencode.my (legal entity: CODE N CODE SOLUTION, 202603072017 / AS0511861-M) runs live, instructor-led online courses for beginners through career changers. No prior experience required. Every session is recorded and uploaded within 24 hours. First class is free.
 
@@ -55,7 +55,6 @@ All Core Subjects are taught in English, Mandarin and Bahasa Melayu, delivered o
 ## AI for ___ Workshops (in-person, half-day, one-off, not enrolled programs)
 - AI for Workplace — 4 hours, in-person at Mount Austin, Johor Bahru, Malaysia.
 - AI for Marketing — 4 hours, in-person at Mount Austin, Johor Bahru, Malaysia.
-- AI for Event Management — 4 hours, in-person at Mount Austin, Johor Bahru, Malaysia.
 
 Workshops are single half-day sessions, distinct from the multi-week Core Subjects — they are fixed-format, in-person events, not enrolled courses.
 
