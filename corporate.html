@@ -101,7 +101,8 @@
     "https://instagram.com/codencode.my",
     "https://www.tiktok.com/@codencode.my",
     "https://www.facebook.com/share/18i3Fm3PGf/",
-    "https://www.linkedin.com/company/codencode-academy"
+    "https://www.linkedin.com/company/codencode-academy",
+    "https://share.google/zRqjHddN39P0KPhgs"
    ],
    "logo": "https://codencode.my/marketing/codencode-logo-final.png",
    "image": "https://codencode.my/marketing/codencode-og-1200x630.png",
@@ -973,6 +974,9 @@ footer{background:var(--footer-bg);border-top:1px solid var(--b);padding:56px 0 
   .prog .pdur{margin-left:auto}
   .prog-body{padding:4px 16px 22px}
 }
+.skip-link{position:absolute;left:-9999px;top:8px;z-index:1000;background:var(--cyan);color:#04120d;font-family:var(--mono);font-size:12px;font-weight:700;padding:10px 16px;text-decoration:none}
+.skip-link:focus{left:8px}
+a:focus-visible,button:focus-visible{outline:2px solid var(--cyan);outline-offset:2px}
 </style>
 <!-- Meta Pixel Code -->
 <script>
@@ -990,6 +994,7 @@ fbq('track', 'PageView');
 <!-- End Meta Pixel Code -->
 </head>
 <body>
+<a class="skip-link" href="#main">Skip to main content</a>
 <!-- Meta Pixel Code (noscript fallback) -->
 <noscript><img height="1" width="1" style="display:none"
 src="https://www.facebook.com/tr?id=1615909506909427&ev=PageView&noscript=1"
@@ -1012,7 +1017,7 @@ src="https://www.facebook.com/tr?id=1615909506909427&ev=PageView&noscript=1"
     <div style="display:flex;align-items:center;gap:14px">
       <button class="theme-toggle" id="theme-btn" aria-label="Toggle light/dark theme"><i class="fas fa-sun"></i></button>
       <a class="nav-cta" href="https://wa.me/60196811628?text=Hi%20codencode!%20I%20would%20like%20to%20request%20a%20corporate%20training%20proposal%20%F0%9F%91%8B" target="_blank" rel="noopener">Request Proposal <i class="fab fa-whatsapp"></i></a>
-      <button class="hamburger" id="mob-btn"><i class="fas fa-bars"></i></button>
+      <button class="hamburger" id="mob-btn" aria-label="Open menu" aria-controls="mob-menu" aria-expanded="false"><i class="fas fa-bars"></i></button>
     </div>
   </div>
   <div class="mob-nav" id="mob-menu">
@@ -1025,6 +1030,7 @@ src="https://www.facebook.com/tr?id=1615909506909427&ev=PageView&noscript=1"
     <button class="mob-theme-toggle" id="mob-theme-btn"><i class="fas fa-sun"></i> <span id="mob-theme-label">Light Mode</span></button>
   </div>
 </nav>
+<main id="main" tabindex="-1">
 
 <section class="cp-hero">
   <div class="hglow"></div><div class="hglow2"></div>
@@ -1284,13 +1290,13 @@ src="https://www.facebook.com/tr?id=1615909506909427&ev=PageView&noscript=1"
     <div class="lbl">FAQ</div>
     <h2 class="h2">Corporate training,<br><span style="color:var(--cyan)">your questions.</span></h2>
     <div class="faq-list">
-      <div class="faq-item"><button class="faq-q"><span>Is corporate AI training HRD Corp claimable?</span><i class="fas fa-chevron-down"></i></button><div class="faq-a"><p>For eligible Malaysian employers, HRD Corp claimability may be available subject to confirmed provider status, programme requirements and applicable scheme approval.</p></div></div>
-      <div class="faq-item"><button class="faq-q"><span>Can the training be delivered at our office or online?</span><i class="fas fa-chevron-down"></i></button><div class="faq-a"><p>Yes. Programmes can be delivered in-house at your company premises or an agreed venue, as live online instructor-led sessions, or as customised corporate workshops built around your departments.</p></div></div>
-      <div class="faq-item"><button class="faq-q"><span>How long are the corporate programmes?</span><i class="fas fa-chevron-down"></i></button><div class="faq-a"><p>The portfolio has six programmes: two 1-day programmes of 7 hours (AI for Workplace Productivity and AI Strategy for Management &amp; C-Suite) and four 2-day programmes of 14 hours (Automation, AI Agents &amp; Vibe Coding, Sales &amp; Digital Marketing, and HR &amp; Recruitment Automation).</p></div></div>
-      <div class="faq-item"><button class="faq-q"><span>Which languages and countries do you cover?</span><i class="fas fa-chevron-down"></i></button><div class="faq-a"><p>Training is delivered in English, Bahasa Malaysia and Mandarin Chinese across Malaysia, Vietnam and wider Southeast Asia, subject to arrangements. Vietnamese-language support may be arranged through suitable local partners.</p></div></div>
-      <div class="faq-item"><button class="faq-q"><span>Can the programmes be customised for our industry?</span><i class="fas fa-chevron-down"></i></button><div class="faq-a"><p>Yes. Codencode Academy adapts content to your industry, department and participant competency — for example manufacturing, logistics, HR, sales and marketing, and professional services — following a needs analysis, objective alignment, programme adaptation, delivery and assessment process.</p></div></div>
-      <div class="faq-item"><button class="faq-q"><span>How is corporate training priced?</span><i class="fas fa-chevron-down"></i></button><div class="faq-a"><p>Customised quotations are provided based on programme selection, training duration, participant numbers, delivery location and customisation requirements.</p></div></div>
-      <div class="faq-item"><button class="faq-q"><span>What do participants need to bring?</span><i class="fas fa-chevron-down"></i></button><div class="faq-a"><p>Each participant needs a laptop, an internet connection and access to the relevant software, plus suitable training facilities and approved sample datasets where applicable.</p></div></div>
+      <div class="faq-item"><button class="faq-q" aria-expanded="false"><span>Is corporate AI training HRD Corp claimable?</span><i class="fas fa-chevron-down"></i></button><div class="faq-a"><p>For eligible Malaysian employers, HRD Corp claimability may be available subject to confirmed provider status, programme requirements and applicable scheme approval.</p></div></div>
+      <div class="faq-item"><button class="faq-q" aria-expanded="false"><span>Can the training be delivered at our office or online?</span><i class="fas fa-chevron-down"></i></button><div class="faq-a"><p>Yes. Programmes can be delivered in-house at your company premises or an agreed venue, as live online instructor-led sessions, or as customised corporate workshops built around your departments.</p></div></div>
+      <div class="faq-item"><button class="faq-q" aria-expanded="false"><span>How long are the corporate programmes?</span><i class="fas fa-chevron-down"></i></button><div class="faq-a"><p>The portfolio has six programmes: two 1-day programmes of 7 hours (AI for Workplace Productivity and AI Strategy for Management &amp; C-Suite) and four 2-day programmes of 14 hours (Automation, AI Agents &amp; Vibe Coding, Sales &amp; Digital Marketing, and HR &amp; Recruitment Automation).</p></div></div>
+      <div class="faq-item"><button class="faq-q" aria-expanded="false"><span>Which languages and countries do you cover?</span><i class="fas fa-chevron-down"></i></button><div class="faq-a"><p>Training is delivered in English, Bahasa Malaysia and Mandarin Chinese across Malaysia, Vietnam and wider Southeast Asia, subject to arrangements. Vietnamese-language support may be arranged through suitable local partners.</p></div></div>
+      <div class="faq-item"><button class="faq-q" aria-expanded="false"><span>Can the programmes be customised for our industry?</span><i class="fas fa-chevron-down"></i></button><div class="faq-a"><p>Yes. Codencode Academy adapts content to your industry, department and participant competency — for example manufacturing, logistics, HR, sales and marketing, and professional services — following a needs analysis, objective alignment, programme adaptation, delivery and assessment process.</p></div></div>
+      <div class="faq-item"><button class="faq-q" aria-expanded="false"><span>How is corporate training priced?</span><i class="fas fa-chevron-down"></i></button><div class="faq-a"><p>Customised quotations are provided based on programme selection, training duration, participant numbers, delivery location and customisation requirements.</p></div></div>
+      <div class="faq-item"><button class="faq-q" aria-expanded="false"><span>What do participants need to bring?</span><i class="fas fa-chevron-down"></i></button><div class="faq-a"><p>Each participant needs a laptop, an internet connection and access to the relevant software, plus suitable training facilities and approved sample datasets where applicable.</p></div></div>
     </div>
   </div>
 </section>
@@ -1307,6 +1313,8 @@ src="https://www.facebook.com/tr?id=1615909506909427&ev=PageView&noscript=1"
     </div>
   </div>
 </section>
+
+</main>
 
 <footer>
   <div class="container">
@@ -1332,7 +1340,6 @@ src="https://www.facebook.com/tr?id=1615909506909427&ev=PageView&noscript=1"
         <ul>
           <li><a href="/corporate.html">Corporate AI Portfolio</a></li>
           <li><a href="#team">Training Team</a></li>
-          <li><a href="paths.html">Your Learning Path</a></li>
           <li><a href="compare.html">Compare Academies</a></li>
           <li><a href="/#faq">FAQ</a></li>
           <li><a href="https://wa.me/60196811628?text=Hi%20codencode!%20I'm%20interested%20👋" target="_blank" rel="noopener">Free Trial</a></li>
@@ -1359,7 +1366,7 @@ src="https://www.facebook.com/tr?id=1615909506909427&ev=PageView&noscript=1"
     </div>
     <div class="fbot">
       <p class="fcopy">© 2026 <span>codencode.my</span> · All rights reserved · Johor Bahru, Malaysia · Page updated 14 October 2026</p>
-      <p class="fcopy">Built with <span>❤</span> in JB · <a href="paths.html" style="color:var(--mu);text-decoration:none">Your Learning Path →</a></p>
+      <p class="fcopy">Built with <span>❤</span> in JB</p>
     </div>
   </div>
 </footer>
@@ -1376,6 +1383,7 @@ const mobBtn=document.getElementById('mob-btn');
 const mobMenu=document.getElementById('mob-menu');
 mobBtn.addEventListener('click',()=>{
   mobMenu.classList.toggle('open');
+  mobBtn.setAttribute('aria-expanded',mobMenu.classList.contains('open'));
   mobBtn.querySelector('i').className=mobMenu.classList.contains('open')?'fas fa-times':'fas fa-bars';
 });
 document.querySelectorAll('.mob-nav a').forEach(a=>a.addEventListener('click',()=>{
@@ -1398,6 +1406,7 @@ document.querySelectorAll('.faq-q').forEach(q=>{q.onclick=function(){
   document.querySelectorAll('.faq-a').forEach(el=>el.classList.remove('open'));
   document.querySelectorAll('.faq-q').forEach(el=>el.classList.remove('open'));
   if(!open){a.classList.add('open');this.classList.add('open');}
+    document.querySelectorAll('.faq-q').forEach(el=>el.setAttribute('aria-expanded',el.classList.contains('open')?'true':'false'));
 };});
 addEventListener('hashchange',()=>openProg(location.hash));
 if(location.hash){const t=openProg(location.hash);if(t)setTimeout(()=>window.scrollTo({top:t.getBoundingClientRect().top+scrollY-72}),60);}

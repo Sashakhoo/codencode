@@ -33,7 +33,7 @@
 {
   "@context":"https://schema.org",
   "@graph":[
-    {"@type":["EducationalOrganization","LocalBusiness"],"@id":"https://codencode.my/#org","name":"CodenCode Academy","alternateName":["codencode.my","Codencode Academy"],"url":"https://codencode.my","description":"Codencode Academy (operated by CODE N CODE SOLUTION) provides corporate AI and digital transformation training across Malaysia — in-house or live online — alongside Adult AI & Digital Skills, a Kids & Teens Coding Academy and Premium 1-to-1 Training. Based in Johor Bahru. Taught in English, Mandarin and Malay.","telephone":"+60196811628","email":"codencodemy@gmail.com","address":{"@type":"PostalAddress","streetAddress":"1st Floor - Room 16, 117, Jalan Mutiara Emas 10/19, Taman Mount Austin","addressLocality":"Johor Bahru","addressRegion":"Johor","postalCode":"81100","addressCountry":"MY"},"geo":{"@type":"GeoCoordinates","latitude":1.5478,"longitude":103.7794},"areaServed":[{"@type":"City","name":"Johor Bahru"},{"@type":"City","name":"Penang"},{"@type":"City","name":"Kuala Lumpur"},{"@type":"City","name":"Ipoh"},{"@type":"City","name":"Alor Setar"}],"availableLanguage":[{"@type":"Language","name":"English"},{"@type":"Language","name":"Mandarin Chinese","alternateName":"中文"},{"@type":"Language","name":"Malay","alternateName":"Bahasa Melayu"}],"knowsAbout":["Python programming","Machine Learning","Cybersecurity","Artificial Intelligence","Vibe Coding","Business Process Automation","Corporate AI Training"],"dateModified":"2026-10-14","sameAs":["https://instagram.com/codencode.my","https://www.tiktok.com/@codencode.my","https://www.facebook.com/share/18i3Fm3PGf/","https://www.linkedin.com/company/codencode-academy"],"logo":"https://codencode.my/marketing/codencode-logo-final.png","image":"https://codencode.my/marketing/codencode-og-1200x630.png","aggregateRating":{"@type":"AggregateRating","ratingValue":"4.9","reviewCount":"56","bestRating":"5"}},
+    {"@type":["EducationalOrganization","LocalBusiness"],"@id":"https://codencode.my/#org","name":"CodenCode Academy","alternateName":["codencode.my","Codencode Academy"],"url":"https://codencode.my","description":"Codencode Academy (operated by CODE N CODE SOLUTION) provides corporate AI and digital transformation training across Malaysia — in-house or live online — alongside Adult AI & Digital Skills, a Kids & Teens Coding Academy and Premium 1-to-1 Training. Based in Johor Bahru. Taught in English, Mandarin and Malay.","telephone":"+60196811628","email":"codencodemy@gmail.com","address":{"@type":"PostalAddress","streetAddress":"1st Floor - Room 16, 117, Jalan Mutiara Emas 10/19, Taman Mount Austin","addressLocality":"Johor Bahru","addressRegion":"Johor","postalCode":"81100","addressCountry":"MY"},"geo":{"@type":"GeoCoordinates","latitude":1.5478,"longitude":103.7794},"areaServed":[{"@type":"City","name":"Johor Bahru"},{"@type":"City","name":"Penang"},{"@type":"City","name":"Kuala Lumpur"},{"@type":"City","name":"Ipoh"},{"@type":"City","name":"Alor Setar"}],"availableLanguage":[{"@type":"Language","name":"English"},{"@type":"Language","name":"Mandarin Chinese","alternateName":"中文"},{"@type":"Language","name":"Malay","alternateName":"Bahasa Melayu"}],"knowsAbout":["Python programming","Machine Learning","Cybersecurity","Artificial Intelligence","Vibe Coding","Business Process Automation","Corporate AI Training"],"dateModified":"2026-10-14","sameAs":["https://instagram.com/codencode.my","https://www.tiktok.com/@codencode.my","https://www.facebook.com/share/18i3Fm3PGf/","https://www.linkedin.com/company/codencode-academy","https://share.google/zRqjHddN39P0KPhgs"],"logo":"https://codencode.my/marketing/codencode-logo-final.png","image":"https://codencode.my/marketing/codencode-og-1200x630.png","aggregateRating":{"@type":"AggregateRating","ratingValue":"4.9","reviewCount":"56","bestRating":"5"}},
     {"@type":"WebPage","@id":"https://codencode.my/penang/#webpage","url":"https://codencode.my/penang/","name":"codencode.my — Corporate AI Training Penang","isPartOf":{"@id":"https://codencode.my/#org"},"about":{"@id":"https://codencode.my/#org"},"dateModified":"2026-10-14","contentLocation":{"@type":"City","name":"Penang","containedInPlace":{"@type":"AdministrativeArea","name":"Penang"}},"inLanguage":"en","speakable":{"@type":"SpeakableSpecification","cssSelector":[".h-desc",".faq-list",".sub"]}},
     {"@type":"Course","name":"Python Fundamentals","description":"6-week + 1-week project online Python course for beginners. Taught in English, Mandarin and Malay. Johor Bahru, Malaysia.","provider":{"@id":"https://codencode.my/#org"},"courseMode":"online","educationalLevel":"Beginner","timeRequired":"P7W"},
     {"@type":"Course","name":"Machine Learning Fundamentals","description":"10-week online machine learning course for intermediate learners. English, Mandarin and Malay. Johor Bahru, Malaysia.","provider":{"@id":"https://codencode.my/#org"},"courseMode":"online","educationalLevel":"Intermediate","timeRequired":"P10W"},
@@ -545,6 +545,9 @@ footer{background:var(--footer-bg);border-top:1px solid var(--b);padding:56px 0 
   .soc-pill{width:100%;justify-content:center}
   .fcopy{white-space:normal}
 }
+.skip-link{position:absolute;left:-9999px;top:8px;z-index:1000;background:var(--cyan);color:#04120d;font-family:var(--mono);font-size:12px;font-weight:700;padding:10px 16px;text-decoration:none}
+.skip-link:focus{left:8px}
+a:focus-visible,button:focus-visible{outline:2px solid var(--cyan);outline-offset:2px}
 </style>
 <!-- Meta Pixel Code -->
 <script>
@@ -562,6 +565,7 @@ fbq('track', 'PageView');
 <!-- End Meta Pixel Code -->
 </head>
 <body>
+<a class="skip-link" href="#main">Skip to main content</a>
 <!-- Meta Pixel Code (noscript fallback) -->
 <noscript><img height="1" width="1" style="display:none"
 src="https://www.facebook.com/tr?id=1615909506909427&ev=PageView&noscript=1"
@@ -585,13 +589,12 @@ src="https://www.facebook.com/tr?id=1615909506909427&ev=PageView&noscript=1"
       <li><a href="#kids">Kids &amp; Teens</a></li>
       <li><a href="#one-to-one">1-to-1</a></li>
       <li><a href="#trainer">Trainers</a></li>
-      <li><a href="/paths.html">Your Path</a></li>
       <li><a href="https://wa.me/60196811628?text=Hi%20codencode!%20I'm%20interested%20%F0%9F%91%8B" target="_blank" rel="noopener">Contact</a></li>
     </ul>
     <div style="display:flex;align-items:center;gap:14px">
       <button class="theme-toggle" id="theme-btn" aria-label="Toggle light/dark theme"><i class="fas fa-sun"></i></button>
       <a class="nav-cta" href="https://wa.me/60196811628?text=Hi%20codencode!%20I'd%20like%20a%20corporate%20AI%20training%20proposal%20%F0%9F%91%8B" target="_blank" rel="noopener">Request Proposal <i class="fab fa-whatsapp"></i></a>
-      <button class="hamburger" id="mob-btn"><i class="fas fa-bars"></i></button>
+      <button class="hamburger" id="mob-btn" aria-label="Open menu" aria-controls="mob-menu" aria-expanded="false"><i class="fas fa-bars"></i></button>
     </div>
   </div>
   <div class="mob-nav" id="mob-menu">
@@ -600,11 +603,11 @@ src="https://www.facebook.com/tr?id=1615909506909427&ev=PageView&noscript=1"
     <a href="#kids">Kids &amp; Teens</a>
     <a href="#one-to-one">1-to-1</a>
     <a href="#trainer">Trainers</a>
-    <a href="/paths.html">Your Path</a>
     <a href="https://wa.me/60196811628?text=Hi%20codencode!%20I'd%20like%20a%20corporate%20AI%20training%20proposal%20%F0%9F%91%8B" target="_blank" rel="noopener">Request Proposal → WhatsApp</a>
     <button class="mob-theme-toggle" id="mob-theme-btn"><i class="fas fa-sun"></i> <span id="mob-theme-label">Light Mode</span></button>
   </div>
 </nav>
+<main id="main" tabindex="-1">
 
 <!-- HERO -->
 <section id="hero">
@@ -893,7 +896,7 @@ src="https://www.facebook.com/tr?id=1615909506909427&ev=PageView&noscript=1"
       <div class="panel hl">
         <h3>Start your learning journey</h3>
         <p>Fees are confirmed on enquiry, based on the programme you choose. Tell us your background and goals and we will recommend the right pathway.</p>
-        <div class="seg-cta"><a class="btn-p" href="https://wa.me/60196811628?text=Hi%20codencode!%20I'd%20like%20to%20enquire%20about%201-to-1%20training%20%F0%9F%91%8B" target="_blank" rel="noopener">Enquire About 1-to-1 <i class="fas fa-arrow-right"></i></a><a class="btn-g" href="/paths.html">Find Your Path</a></div>
+        <div class="seg-cta"><a class="btn-p" href="https://wa.me/60196811628?text=Hi%20codencode!%20I'd%20like%20to%20enquire%20about%201-to-1%20training%20%F0%9F%91%8B" target="_blank" rel="noopener">Enquire About 1-to-1 <i class="fas fa-arrow-right"></i></a></div>
       </div>
     </div>
   </div>
@@ -1002,7 +1005,7 @@ src="https://www.facebook.com/tr?id=1615909506909427&ev=PageView&noscript=1"
     </div><!-- end course-slider-wrap -->
     <div class="courses-note">
       <i class="fas fa-compass"></i>
-      <span>Not sure which course fits you? <a href="/paths.html">See your personalised learning path →</a> We'll match your background to the right starting point.</span>
+      <span>Not sure which course fits you? <a href="https://wa.me/60196811628?text=Hi%20codencode!%20I'm%20not%20sure%20which%20course%20fits%20me%20%F0%9F%91%8B" target="_blank" rel="noopener">WhatsApp us →</a> We'll match your background to the right starting point.</span>
     </div>
   </div>
 </section>
@@ -1061,7 +1064,6 @@ src="https://www.facebook.com/tr?id=1615909506909427&ev=PageView&noscript=1"
     </div>
     <div style="margin-top:28px;display:flex;gap:12px;flex-wrap:wrap;">
       <a class="btn-p" href="https://wa.me/60196811628?text=Hi%20codencode!%20I'm%20interested%20👋" target="_blank" rel="noopener">Book Free Trial <i class="fas fa-arrow-right"></i></a>
-      <a class="btn-g" href="/paths.html">Find Your Course →</a>
     </div>
   </div>
 </section>
@@ -1201,18 +1203,18 @@ src="https://www.facebook.com/tr?id=1615909506909427&ev=PageView&noscript=1"
     <div class="lbl">FAQ</div>
     <h2 class="h2">You're probably<br>wondering...</h2>
     <div class="faq-list">
-<div class="faq-item"><button class="faq-q"><span>Can you deliver corporate AI training at our Penang office?</span><i class="fas fa-chevron-down"></i></button><div class="faq-a"><p>Yes. Our corporate programmes (1–2 days each) can be delivered in-house at your Penang office or venue, or live online, in English, Bahasa Malaysia or Mandarin. For eligible Malaysian employers, HRD Corp claimability may be available subject to confirmed provider status, programme requirements and applicable scheme approval. <a href="/corporate.html" style="color:var(--cyan)">See the corporate portfolio →</a></p></div></div>
-<div class="faq-item"><button class="faq-q"><span>Do you offer coding classes for students in Penang?</span><i class="fas fa-chevron-down"></i></button><div class="faq-a"><p>Yes. All codencode.my courses (Python, Machine Learning, Cybersecurity, Vibe Coding) are 100% online via Zoom, so students in Penang join the same live classes as everyone else — no travel needed.</p></div></div>
-<div class="faq-item"><button class="faq-q"><span>I've never coded before. Will I be totally lost?</span><i class="fas fa-chevron-down"></i></button><div class="faq-a"><p>Nope. We start from absolute zero — like "what is a variable?" zero. Slow enough to understand, fast enough to not get bored. Vibe Coding is an even gentler entry point if you want to build something in week one.</p></div></div>
-<div class="faq-item"><button class="faq-q"><span>Which language will my class be in?</span><i class="fas fa-chevron-down"></i></button><div class="faq-a"><p>You choose — English, Mandarin (中文), or Bahasa Melayu. Tell us when you book and we'll match you.</p></div></div>
-<div class="faq-item"><button class="faq-q"><span>What if I miss a class?</span><i class="fas fa-chevron-down"></i></button><div class="faq-a"><p>Every session is recorded and uploaded within 24 hours. If you need help catching up, WhatsApp us and we'll guide you through the missed material.</p></div></div>
-<div class="faq-item"><button class="faq-q"><span>Will I get a certificate?</span><i class="fas fa-chevron-down"></i></button><div class="faq-a"><p>Yes — plus we prep you for Google, Microsoft and AWS exams. <a href="/paths.html" style="color:var(--cyan)">See which certs align to which course →</a></p></div></div>
-<div class="faq-item"><button class="faq-q"><span>Which course should I start with?</span><i class="fas fa-chevron-down"></i></button><div class="faq-a"><p>Total beginners usually start with Python Fundamentals or Cybersecurity Fundamentals. Want to ship something fast with AI tools instead? Start with Vibe Coding. Already comfortable with Python? Move into Machine Learning Fundamentals. Not sure? <a href="/paths.html" style="color:var(--cyan)">See the career path guide</a> or WhatsApp us.</p></div></div>
-<div class="faq-item"><button class="faq-q"><span>Are the AI workshops online or in person?</span><i class="fas fa-chevron-down"></i></button><div class="faq-a"><p>The AI for ___ workshops are half-day, in-person sessions at Mount Austin, while Python, Machine Learning, and Cybersecurity are fully online multi-week programs.</p></div></div>
-<div class="faq-item"><button class="faq-q"><span>Does codencode.my have a branch in Penang?</span><i class="fas fa-chevron-down"></i></button><div class="faq-a"><p>No — our only physical address is in Mount Austin, Johor Bahru, used solely for the half-day AI for ___ workshops. Every Core Subject (Python, Machine Learning, Cybersecurity, Vibe Coding) is delivered live online, so Penang students never travel for the multi-week courses — only the in-person AI workshops require a trip to JB.</p></div></div>
-<div class="faq-item"><button class="faq-q"><span>How do I get course details?</span><i class="fas fa-chevron-down"></i></button><div class="faq-a"><p>WhatsApp us for the latest intake, schedule and enrolment details for Python Fundamentals or any other codencode.my course.</p></div></div>
-      <div class="faq-item"><button class="faq-q"><span>Do you offer coding classes for kids and teens?</span><i class="fas fa-chevron-down"></i></button><div class="faq-a"><p>Yes. The Kids &amp; Teens Coding Academy teaches school-age learners structured Python programming, then Machine Learning or Cybersecurity pathways, in small groups of 3–5 students — 4 classes a month, 1 hour 15 minutes each. Ask about the Trial Starter Pack.</p></div></div>
-      <div class="faq-item"><button class="faq-q"><span>Do you provide corporate AI training in Malaysia?</span><i class="fas fa-chevron-down"></i></button><div class="faq-a"><p>Yes. We deliver six corporate AI programmes of 1–2 days each, in-house, live online or as customised workshops, in English, Bahasa Malaysia and Mandarin. For eligible Malaysian employers, HRD Corp claimability may be available subject to confirmed provider status, programme requirements and applicable scheme approval. <a href="/corporate.html" style="color:var(--cyan)">See the corporate portfolio →</a></p></div></div>
+<div class="faq-item"><button class="faq-q" aria-expanded="false"><span>Can you deliver corporate AI training at our Penang office?</span><i class="fas fa-chevron-down"></i></button><div class="faq-a"><p>Yes. Our corporate programmes (1–2 days each) can be delivered in-house at your Penang office or venue, or live online, in English, Bahasa Malaysia or Mandarin. For eligible Malaysian employers, HRD Corp claimability may be available subject to confirmed provider status, programme requirements and applicable scheme approval. <a href="/corporate.html" style="color:var(--cyan)">See the corporate portfolio →</a></p></div></div>
+<div class="faq-item"><button class="faq-q" aria-expanded="false"><span>Do you offer coding classes for students in Penang?</span><i class="fas fa-chevron-down"></i></button><div class="faq-a"><p>Yes. All codencode.my courses (Python, Machine Learning, Cybersecurity, Vibe Coding) are 100% online via Zoom, so students in Penang join the same live classes as everyone else — no travel needed.</p></div></div>
+<div class="faq-item"><button class="faq-q" aria-expanded="false"><span>I've never coded before. Will I be totally lost?</span><i class="fas fa-chevron-down"></i></button><div class="faq-a"><p>Nope. We start from absolute zero — like "what is a variable?" zero. Slow enough to understand, fast enough to not get bored. Vibe Coding is an even gentler entry point if you want to build something in week one.</p></div></div>
+<div class="faq-item"><button class="faq-q" aria-expanded="false"><span>Which language will my class be in?</span><i class="fas fa-chevron-down"></i></button><div class="faq-a"><p>You choose — English, Mandarin (中文), or Bahasa Melayu. Tell us when you book and we'll match you.</p></div></div>
+<div class="faq-item"><button class="faq-q" aria-expanded="false"><span>What if I miss a class?</span><i class="fas fa-chevron-down"></i></button><div class="faq-a"><p>Every session is recorded and uploaded within 24 hours. If you need help catching up, WhatsApp us and we'll guide you through the missed material.</p></div></div>
+<div class="faq-item"><button class="faq-q" aria-expanded="false"><span>Will I get a certificate?</span><i class="fas fa-chevron-down"></i></button><div class="faq-a"><p>Yes — plus we prep you for Google, Microsoft and AWS exams.</p></div></div>
+<div class="faq-item"><button class="faq-q" aria-expanded="false"><span>Which course should I start with?</span><i class="fas fa-chevron-down"></i></button><div class="faq-a"><p>Total beginners usually start with Python Fundamentals or Cybersecurity Fundamentals. Want to ship something fast with AI tools instead? Start with Vibe Coding. Already comfortable with Python? Move into Machine Learning Fundamentals. Not sure? WhatsApp us and we'll match you to the right starting point.</p></div></div>
+<div class="faq-item"><button class="faq-q" aria-expanded="false"><span>Are the AI workshops online or in person?</span><i class="fas fa-chevron-down"></i></button><div class="faq-a"><p>The AI for ___ workshops are half-day, in-person sessions at Mount Austin, while Python, Machine Learning, and Cybersecurity are fully online multi-week programs.</p></div></div>
+<div class="faq-item"><button class="faq-q" aria-expanded="false"><span>Does codencode.my have a branch in Penang?</span><i class="fas fa-chevron-down"></i></button><div class="faq-a"><p>No — our only physical address is in Mount Austin, Johor Bahru, used solely for the half-day AI for ___ workshops. Every Core Subject (Python, Machine Learning, Cybersecurity, Vibe Coding) is delivered live online, so Penang students never travel for the multi-week courses — only the in-person AI workshops require a trip to JB.</p></div></div>
+<div class="faq-item"><button class="faq-q" aria-expanded="false"><span>How do I get course details?</span><i class="fas fa-chevron-down"></i></button><div class="faq-a"><p>WhatsApp us for the latest intake, schedule and enrolment details for Python Fundamentals or any other codencode.my course.</p></div></div>
+      <div class="faq-item"><button class="faq-q" aria-expanded="false"><span>Do you offer coding classes for kids and teens?</span><i class="fas fa-chevron-down"></i></button><div class="faq-a"><p>Yes. The Kids &amp; Teens Coding Academy teaches school-age learners structured Python programming, then Machine Learning or Cybersecurity pathways, in small groups of 3–5 students — 4 classes a month, 1 hour 15 minutes each. Ask about the Trial Starter Pack.</p></div></div>
+      <div class="faq-item"><button class="faq-q" aria-expanded="false"><span>Do you provide corporate AI training in Malaysia?</span><i class="fas fa-chevron-down"></i></button><div class="faq-a"><p>Yes. We deliver six corporate AI programmes of 1–2 days each, in-house, live online or as customised workshops, in English, Bahasa Malaysia and Mandarin. For eligible Malaysian employers, HRD Corp claimability may be available subject to confirmed provider status, programme requirements and applicable scheme approval. <a href="/corporate.html" style="color:var(--cyan)">See the corporate portfolio →</a></p></div></div>
     </div>
   </div>
 </section>
@@ -1252,6 +1254,8 @@ src="https://www.facebook.com/tr?id=1615909506909427&ev=PageView&noscript=1"
 </section>
 
 
+</main>
+
 <!-- FOOTER -->
 <footer>
   <div class="container">
@@ -1277,7 +1281,6 @@ src="https://www.facebook.com/tr?id=1615909506909427&ev=PageView&noscript=1"
         <ul>
           <li><a href="/corporate.html">Corporate AI Portfolio</a></li>
           <li><a href="#trainer">Trainers</a></li>
-          <li><a href="/paths.html">Your Learning Path</a></li>
           <li><a href="/compare.html">Compare Academies</a></li>
           <li><a href="#faq">FAQ</a></li>
           <li><a href="https://wa.me/60196811628?text=Hi%20codencode!%20I'm%20interested%20👋" target="_blank" rel="noopener">Free Trial</a></li>
@@ -1304,7 +1307,7 @@ src="https://www.facebook.com/tr?id=1615909506909427&ev=PageView&noscript=1"
     </div>
     <div class="fbot">
       <p class="fcopy">© 2026 <span>codencode.my</span> · All rights reserved · Johor Bahru, Malaysia · Page updated 14 October 2026</p>
-      <p class="fcopy">Built with <span>❤</span> in Malaysia · <a href="/paths.html" style="color:var(--mu);text-decoration:none">Your Learning Path →</a></p>
+      <p class="fcopy">Built with <span>❤</span> in Malaysia</p>
     </div>
   </div>
 </footer>
@@ -1353,6 +1356,7 @@ const mobBtn=document.getElementById('mob-btn');
 const mobMenu=document.getElementById('mob-menu');
 mobBtn.addEventListener('click',()=>{
   mobMenu.classList.toggle('open');
+  mobBtn.setAttribute('aria-expanded',mobMenu.classList.contains('open'));
   mobBtn.querySelector('i').className=mobMenu.classList.contains('open')?'fas fa-times':'fas fa-bars';
 });
 document.querySelectorAll('.mob-nav a').forEach(a=>a.addEventListener('click',()=>{
@@ -1397,6 +1401,7 @@ document.querySelectorAll('.faq-q').forEach(q=>{
     document.querySelectorAll('.faq-a').forEach(el=>el.classList.remove('open'));
     document.querySelectorAll('.faq-q').forEach(el=>el.classList.remove('open'));
     if(!open){a.classList.add('open');this.classList.add('open');}
+    document.querySelectorAll('.faq-q').forEach(el=>el.setAttribute('aria-expanded',el.classList.contains('open')?'true':'false'));
   };
 });
 </script>

@@ -137,9 +137,13 @@ footer{border-top:1px solid var(--b);padding:28px 0;position:relative;z-index:1}
   .fbar{justify-content:center;text-align:center}
   .wa{bottom:18px;right:18px;width:48px;height:48px}
 }
+.skip-link{position:absolute;left:-9999px;top:8px;z-index:1000;background:var(--cyan);color:#04120d;font-family:var(--mono);font-size:12px;font-weight:700;padding:10px 16px;text-decoration:none}
+.skip-link:focus{left:8px}
+a:focus-visible,button:focus-visible{outline:2px solid var(--cyan);outline-offset:2px}
 </style>
 </head>
 <body>
+<a class="skip-link" href="#main">Skip to main content</a>
 
 <nav class="topnav">
   <div class="nav-inner">
@@ -149,6 +153,7 @@ footer{border-top:1px solid var(--b);padding:28px 0;position:relative;z-index:1}
     <a class="nav-back" href="/"><i class="fas fa-arrow-left"></i>&nbsp; Back to Home</a>
   </div>
 </nav>
+<main id="main" tabindex="-1">
 
 <div class="page">
 <div class="container">
@@ -281,18 +286,19 @@ footer{border-top:1px solid var(--b);padding:28px 0;position:relative;z-index:1}
     </div>
     <div style="display:flex;flex-direction:column;gap:10px">
       <a class="btn-p" href="https://wa.me/60196811628?text=Hi%20codencode!%20I%20saw%20your%20comparison%20page%20and%20want%20advice%20%F0%9F%99%8B" target="_blank" rel="noopener"><i class="fab fa-whatsapp"></i> Ask Us</a>
-      <a class="btn-g" href="/paths.html"><i class="fas fa-arrow-right"></i> See Career Paths</a>
     </div>
   </div>
 
 </div><!-- /.container -->
 </div><!-- /.page -->
 
+</main>
+
 <footer>
   <div class="container">
     <div class="fbar">
       <div class="fcopy">© 2026 <span>codencode.my</span> · CODE N CODE SOLUTION (202603072017 / AS0511861-M)</div>
-      <div class="fcopy"><a href="/" style="color:var(--mu);text-decoration:none">← Home</a> &nbsp;·&nbsp; <a href="/paths.html" style="color:var(--mu);text-decoration:none">Career Paths</a></div>
+      <div class="fcopy"><a href="/" style="color:var(--mu);text-decoration:none">← Home</a></div>
     </div>
   </div>
 </footer>
