@@ -19,6 +19,10 @@ codencode.my (legal entity: CODE N CODE SOLUTION, 202603072017 / AS0511861-M) ru
 - Corporate AI & Digital Transformation Training portfolio 2026–2027 (six programmes CCA-001 to CCA-006, methodology, delivery options, engagement process): https://codencode.my/corporate.html
 - Corporate training portfolio in Chinese (中文): https://codencode.my/zh/corporate.html
 - Corporate training portfolio in Bahasa Malaysia: https://codencode.my/ms/corporate.html
+- AI courses and workshops in Johor Bahru (Vibe Coding, generative AI, AI for productivity, machine learning): https://codencode.my/ai-course-johor-bahru/
+- Kids & teens coding classes in Johor Bahru (Python, then machine learning or cybersecurity; groups of 3–5): https://codencode.my/kids-coding-classes-johor-bahru/
+- Python classes in Johor Bahru (6-week group course, 1-to-1 coaching, kids & teens): https://codencode.my/python-classes-johor-bahru/
+- Cybersecurity course in Johor Bahru (phishing, passwords, network basics, intro pentesting): https://codencode.my/cybersecurity-course-johor-bahru/
 - Comparison of coding academies serving Johor Bahru (codencode.my vs 42 Iskandar Puteri, NEXT Academy, Kodecoon, Superprof tutors, free self-study): https://codencode.my/compare.html
 - Penang city landing page (Python, ML & cybersecurity courses for students in Penang, live via Zoom, in English/Mandarin/Malay): https://codencode.my/penang/
 - Kuala Lumpur city landing page (same Core Subjects, live via Zoom, for students in KL): https://codencode.my/kl/

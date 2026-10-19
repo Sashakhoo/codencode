@@ -3,7 +3,7 @@
         xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
     <loc>https://codencode.my/</loc>
-    <lastmod>2026-10-14</lastmod>
+    <lastmod>2026-10-19</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
@@ -36,6 +36,30 @@
     <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://codencode.my/zh/corporate.html"/>
     <xhtml:link rel="alternate" hreflang="ms" href="https://codencode.my/ms/corporate.html"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://codencode.my/corporate.html"/>
+  </url>
+  <url>
+    <loc>https://codencode.my/ai-course-johor-bahru/</loc>
+    <lastmod>2026-10-19</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://codencode.my/kids-coding-classes-johor-bahru/</loc>
+    <lastmod>2026-10-19</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://codencode.my/python-classes-johor-bahru/</loc>
+    <lastmod>2026-10-19</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://codencode.my/cybersecurity-course-johor-bahru/</loc>
+    <lastmod>2026-10-19</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
   </url>
   <url>
     <loc>https://codencode.my/compare.html</loc>
