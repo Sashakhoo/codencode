@@ -851,6 +851,26 @@ fbq('init', '1615909506909427');
 fbq('track', 'PageView');
 </script>
 <!-- End Meta Pixel Code -->
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-0500HX1NN1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-0500HX1NN1');
+
+  // Enquiry tracking: WhatsApp, phone and email clicks -> GA4 "generate_lead"
+  document.addEventListener('click', function (e) {
+    var a = e.target.closest && e.target.closest('a[href]');
+    if (!a) return;
+    var h = a.getAttribute('href') || '', m = '';
+    if (h.indexOf('wa.me') > -1) m = 'whatsapp';
+    else if (h.indexOf('tel:') === 0) m = 'phone';
+    else if (h.indexOf('mailto:') === 0) m = 'email';
+    if (m) gtag('event', 'generate_lead', { method: m, link_url: h.slice(0, 100), page_path: location.pathname });
+  });
+</script>
 </head>
 <body>
 <!-- Meta Pixel Code (noscript fallback) -->
@@ -897,10 +917,10 @@ src="https://www.facebook.com/tr?id=1615909506909427&ev=PageView&noscript=1"
     <p class="h-desc" style="max-width:660px">Learn to use AI for real work — build apps with AI tools, create content faster, automate everyday tasks, or go deeper into machine learning. Hands-on, taught live in English, Mandarin or Bahasa Melayu by CodenCode Academy, based in Taman Mount Austin.</p>
     <div class="h-acts"><a class="btn-p" href="https://wa.me/60196811628?text=Hi%20codencode!%20I'd%20like%20to%20enquire%20about%20the%20AI%20course%20in%20Johor%20Bahru%20%F0%9F%91%8B" target="_blank" rel="noopener">Enquire on WhatsApp <i class="fas fa-arrow-right"></i></a><a class="btn-g" href="#options">See course options</a></div>
     <div class="facts" style="max-width:820px">
-      <div class="fact"><b>8 h</b><span>Vibe Coding workshop</span></div>
-      <div class="fact"><b>4 h</b><span>AI workshops for teams</span></div>
-      <div class="fact"><b>10 wk</b><span>Machine Learning course</span></div>
+      <div class="fact"><b>200+</b><span>Students</span></div>
+      <div class="fact"><b>4.9★</b><span>Google rating · 56 reviews</span></div>
       <div class="fact"><b>3</b><span>Teaching languages</span></div>
+      <div class="fact"><b>Free</b><span>First class</span></div>
     </div>
   </div>
 </section>

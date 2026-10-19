@@ -910,6 +910,26 @@ fbq('init', '1615909506909427');
 fbq('track', 'PageView');
 </script>
 <!-- End Meta Pixel Code -->
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-0500HX1NN1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-0500HX1NN1');
+
+  // Enquiry tracking: WhatsApp, phone and email clicks -> GA4 "generate_lead"
+  document.addEventListener('click', function (e) {
+    var a = e.target.closest && e.target.closest('a[href]');
+    if (!a) return;
+    var h = a.getAttribute('href') || '', m = '';
+    if (h.indexOf('wa.me') > -1) m = 'whatsapp';
+    else if (h.indexOf('tel:') === 0) m = 'phone';
+    else if (h.indexOf('mailto:') === 0) m = 'email';
+    if (m) gtag('event', 'generate_lead', { method: m, link_url: h.slice(0, 100), page_path: location.pathname });
+  });
+</script>
 </head>
 <body>
 <!-- Meta Pixel Code (noscript fallback) -->

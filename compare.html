@@ -141,6 +141,26 @@ footer{border-top:1px solid var(--b);padding:28px 0;position:relative;z-index:1}
 .skip-link:focus{left:8px}
 a:focus-visible,button:focus-visible{outline:2px solid var(--cyan);outline-offset:2px}
 </style>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-0500HX1NN1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-0500HX1NN1');
+
+  // Enquiry tracking: WhatsApp, phone and email clicks -> GA4 "generate_lead"
+  document.addEventListener('click', function (e) {
+    var a = e.target.closest && e.target.closest('a[href]');
+    if (!a) return;
+    var h = a.getAttribute('href') || '', m = '';
+    if (h.indexOf('wa.me') > -1) m = 'whatsapp';
+    else if (h.indexOf('tel:') === 0) m = 'phone';
+    else if (h.indexOf('mailto:') === 0) m = 'email';
+    if (m) gtag('event', 'generate_lead', { method: m, link_url: h.slice(0, 100), page_path: location.pathname });
+  });
+</script>
 </head>
 <body>
 <a class="skip-link" href="#main">Skip to main content</a>
