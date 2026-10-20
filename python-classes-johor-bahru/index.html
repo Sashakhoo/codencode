@@ -817,6 +817,25 @@ footer{background:var(--footer-bg);border-top:1px solid var(--b);padding:56px 0 
 .skip-link:focus{left:8px}
 a:focus-visible,button:focus-visible{outline:2px solid var(--cyan);outline-offset:2px}
 .fas,.fab,.far{display:inline-block;min-width:1em}
+/* design polish */
+.panel{transition:background .25s,border-color .25s,box-shadow .25s}
+#learn .seg-split .panel{border-top:2px solid var(--cyan)}
+#learn .seg-split .panel.hl{background:linear-gradient(160deg,var(--cdim) 0%,var(--surf) 62%)}
+.ticks.ic li{display:flex;align-items:center;gap:14px;padding-left:0;margin-bottom:12px}
+.ticks.ic li::before{content:none}
+.ticks.ic li i{flex:0 0 32px;height:32px;display:grid;place-items:center;background:var(--cdim);border:1px solid var(--bs);color:var(--cyan);font-size:13px}
+.ind .panel.opt{position:relative;padding:32px 28px}
+.ind .panel.opt:hover{background:var(--cglow);box-shadow:inset 0 2px 0 var(--cyan)}
+.opt .oi{width:46px;height:46px;display:grid;place-items:center;background:var(--cdim);border:1px solid var(--bs);color:var(--cyan);font-size:19px;margin-bottom:18px}
+.opt .otag{position:absolute;top:20px;right:20px;font-family:var(--mono);font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;padding:4px 9px;background:var(--cyan);color:#06120f}
+#format .ptable th{background:var(--cdim);color:var(--cyan);text-transform:uppercase;font-size:11px;letter-spacing:.1em;border-bottom:1px solid var(--bs)}
+#format .ptable tbody tr{transition:background .2s}
+#format .ptable tbody tr:nth-child(even){background:var(--cglow)}
+#format .ptable tbody tr:hover{background:var(--cdim)}
+.faq-q.open{background:var(--cglow)}
+.faq-item:has(.faq-q.open){box-shadow:inset 3px 0 0 var(--cyan)}
+#contact{background:radial-gradient(ellipse at 85% 0%,var(--cdim) 0%,transparent 55%),var(--surf)}
+@media(max-width:700px){.ind .panel.opt{padding:26px 22px}.opt .otag{top:16px;right:16px}}
 </style>
 <!-- Meta Pixel Code -->
 <script>
@@ -974,8 +993,8 @@ src="https://www.facebook.com/tr?id=1615909506909427&ev=PageView&noscript=1"
     <div class="lbl">Syllabus</div>
     <h2 class="h2">What you'll learn</h2>
     <div class="seg-split">
-      <div class="panel"><h3>What you'll learn</h3><ul class="ticks"><li>Variables, data types and operators</li><li>Conditions and loops</li><li>Lists, dictionaries and functions</li><li>Problem-solving and debugging</li><li>Automating spreadsheets, scraping the web and analysing data</li><li>A working Python project you can show</li></ul></div>
-      <div class="panel hl"><h3>Who it's for</h3><ul class="ticks"><li>Total beginners and career changers — no experience needed</li><li>SPM leavers and students who want a practical skill</li><li>Professionals who want to automate repetitive work</li><li>School-age learners (kids &amp; teens classes)</li></ul><div class="seg-cta"><a class="btn-p" href="https://wa.me/60196811628?text=Hi%20codencode!%20I'd%20like%20to%20enquire%20about%20Python%20classes%20in%20Johor%20Bahru%20%F0%9F%91%8B" target="_blank" rel="noopener">Enquire now <i class="fas fa-arrow-right"></i></a></div></div>
+      <div class="panel"><h3>What you'll learn</h3><ul class="ticks ic"><li><i class="fas fa-cube" aria-hidden="true"></i><span>Variables, data types and operators</span></li><li><i class="fas fa-repeat" aria-hidden="true"></i><span>Conditions and loops</span></li><li><i class="fas fa-list" aria-hidden="true"></i><span>Lists, dictionaries and functions</span></li><li><i class="fas fa-bug" aria-hidden="true"></i><span>Problem-solving and debugging</span></li><li><i class="fas fa-gears" aria-hidden="true"></i><span>Automating spreadsheets, scraping the web and analysing data</span></li><li><i class="fas fa-rocket" aria-hidden="true"></i><span>A working Python project you can show</span></li></ul></div>
+      <div class="panel hl"><h3>Who it's for</h3><ul class="ticks ic"><li><i class="fas fa-seedling" aria-hidden="true"></i><span>Total beginners and career changers — no experience needed</span></li><li><i class="fas fa-graduation-cap" aria-hidden="true"></i><span>SPM leavers and students who want a practical skill</span></li><li><i class="fas fa-briefcase" aria-hidden="true"></i><span>Professionals who want to automate repetitive work</span></li><li><i class="fas fa-child" aria-hidden="true"></i><span>School-age learners (kids &amp; teens classes)</span></li></ul><div class="seg-cta"><a class="btn-p" href="https://wa.me/60196811628?text=Hi%20codencode!%20I'd%20like%20to%20enquire%20about%20Python%20classes%20in%20Johor%20Bahru%20%F0%9F%91%8B" target="_blank" rel="noopener">Enquire now <i class="fas fa-arrow-right"></i></a></div></div>
     </div>
   </div>
 </section>
@@ -985,10 +1004,10 @@ src="https://www.facebook.com/tr?id=1615909506909427&ev=PageView&noscript=1"
     <div class="lbl">Pick your format</div>
     <h2 class="h2">Group, private or kids & teens</h2>
     <div class="ind" style="grid-template-columns:repeat(2,1fr)">
-      <div class="panel"><h3 style="font-size:16px">Python Fundamentals (group)</h3><p style="color:var(--cyan);font-size:11px;margin-bottom:8px">6 weeks + 1 week project · beginner · online via Zoom</p><p>From zero to automating spreadsheets, scraping the web and analysing data. Live, instructor-led, with recordings uploaded within 24 hours.</p></div>
-      <div class="panel"><h3 style="font-size:16px">Private 1-to-1 Python Fundamentals</h3><p style="color:var(--cyan);font-size:11px;margin-bottom:8px">7 weekly private sessions · about 2–2.25 hours each</p><p>Programming fundamentals, problem-solving and Python application development, with dedicated instructor attention and a personalised roadmap.</p></div>
-      <div class="panel"><h3 style="font-size:16px">Kids &amp; Teens Python</h3><p style="color:var(--cyan);font-size:11px;margin-bottom:8px">Small groups of 3–5 · structured 14-lesson foundation</p><p>A structured Python pathway for school-age learners, ending in a working Python project.</p></div>
-      <div class="panel"><h3 style="font-size:16px">Python + Machine Learning</h3><p style="color:var(--cyan);font-size:11px;margin-bottom:8px">10-week group course, or 15 weekly 1-to-1 sessions</p><p>Once you know Python, move into machine learning: train real models and build portfolio projects.</p></div>
+      <div class="panel opt"><span class="otag">Start here</span><div class="oi"><i class="fas fa-users" aria-hidden="true"></i></div><h3 style="font-size:16px">Python Fundamentals (group)</h3><p style="color:var(--cyan);font-size:11px;margin-bottom:8px">6 weeks + 1 week project · beginner · online via Zoom</p><p>From zero to automating spreadsheets, scraping the web and analysing data. Live, instructor-led, with recordings uploaded within 24 hours.</p></div>
+      <div class="panel opt"><div class="oi"><i class="fas fa-user" aria-hidden="true"></i></div><h3 style="font-size:16px">Private 1-to-1 Python Fundamentals</h3><p style="color:var(--cyan);font-size:11px;margin-bottom:8px">7 weekly private sessions · about 2–2.25 hours each</p><p>Programming fundamentals, problem-solving and Python application development, with dedicated instructor attention and a personalised roadmap.</p></div>
+      <div class="panel opt"><div class="oi"><i class="fas fa-child" aria-hidden="true"></i></div><h3 style="font-size:16px">Kids &amp; Teens Python</h3><p style="color:var(--cyan);font-size:11px;margin-bottom:8px">Small groups of 3–5 · structured 14-lesson foundation</p><p>A structured Python pathway for school-age learners, ending in a working Python project.</p></div>
+      <div class="panel opt"><div class="oi"><i class="fas fa-brain" aria-hidden="true"></i></div><h3 style="font-size:16px">Python + Machine Learning</h3><p style="color:var(--cyan);font-size:11px;margin-bottom:8px">10-week group course, or 15 weekly 1-to-1 sessions</p><p>Once you know Python, move into machine learning: train real models and build portfolio projects.</p></div>
     </div>
   </div>
 </section>
