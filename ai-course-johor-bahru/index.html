@@ -294,7 +294,7 @@
      "name": "Can my company send a team?",
      "acceptedAnswer": {
       "@type": "Answer",
-      "text": "Yes. Our corporate portfolio has six programmes of 1–2 days, delivered in-house at your office or live online, and quoted on request. HRD Corp claimability may be available for eligible Malaysian employers, subject to confirmed provider status, programme requirements and applicable scheme approval."
+      "text": "Yes. Our corporate portfolio has six programmes of 1–2 days, delivered in-house at your office or live online, and quoted on request. Codencode Academy is an HRD Corp Registered Training Provider, and our corporate programmes are HRD Corp claimable for eligible Malaysian employers, subject to scheme terms and programme approval."
      }
     },
     {
@@ -331,7 +331,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;700;800&display=swap" rel="stylesheet">
-<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet" crossorigin="anonymous"/>
+<link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+<noscript><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet" crossorigin="anonymous"/></noscript>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -859,9 +860,14 @@ footer{background:var(--footer-bg);border-top:1px solid var(--b);padding:56px 0 
 .skip-link{position:absolute;left:-9999px;top:8px;z-index:1000;background:var(--cyan);color:#04120d;font-family:var(--mono);font-size:12px;font-weight:700;padding:10px 16px;text-decoration:none}
 .skip-link:focus{left:8px}
 a:focus-visible,button:focus-visible{outline:2px solid var(--cyan);outline-offset:2px}
+.fas,.fab,.far{display:inline-block;min-width:1em}
 </style>
 <!-- Meta Pixel Code -->
 <script>
+(function () {
+  var done = false;
+  function load() {
+    if (done) return; done = true;
 !function(f,b,e,v,n,t,s)
 {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
 n.callMethod.apply(n,arguments):n.queue.push(arguments)};
@@ -872,16 +878,31 @@ s.parentNode.insertBefore(t,s)}(window, document,'script',
 'https://connect.facebook.net/en_US/fbevents.js');
 fbq('init', '1615909506909427');
 fbq('track', 'PageView');
+  }
+  // start the pixel on first interaction or 4s after load (keeps first paint fast)
+  ['scroll', 'touchstart', 'mousemove', 'keydown', 'click'].forEach(function (ev) { addEventListener(ev, load, { once: true, passive: true }); });
+  addEventListener('load', function () { setTimeout(load, 4000); });
+})();
 </script>
 <!-- End Meta Pixel Code -->
 <!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-0500HX1NN1"></script>
 <script>
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
   gtag('js', new Date());
 
   gtag('config', 'G-0500HX1NN1');
+
+  // load gtag.js once the visitor interacts (or 4s after page load) so first paint stays fast; events queue in dataLayer meanwhile
+  (function () {
+    var loaded = false;
+    function go() {
+      if (loaded) return; loaded = true;
+      var s = document.createElement('script'); s.async = true; s.src = 'https://www.googletagmanager.com/gtag/js?id=G-0500HX1NN1'; document.head.appendChild(s);
+    }
+    ['scroll', 'touchstart', 'mousemove', 'keydown', 'click'].forEach(function (ev) { addEventListener(ev, go, { once: true, passive: true }); });
+    addEventListener('load', function () { setTimeout(go, 4000); });
+  })();
 
   // Enquiry tracking: WhatsApp, phone and email clicks -> GA4 "generate_lead"
   document.addEventListener('click', function (e) {
@@ -1018,7 +1039,7 @@ src="https://www.facebook.com/tr?id=1615909506909427&ev=PageView&noscript=1"
       <div class="faq-item"><button class="faq-q" aria-expanded="false"><span>Are your AI classes online or in Johor Bahru?</span><i class="fas fa-chevron-down"></i></button><div class="faq-a"><p>It depends on the course. The AI for Workplace, Marketing, HR and Accounting workshops are held in person at our centre in Taman Mount Austin, Johor Bahru. The adult workshops can be online or face-to-face, and Machine Learning Fundamentals runs online via Zoom.</p></div></div>
       <div class="faq-item"><button class="faq-q" aria-expanded="false"><span>Which languages are the classes taught in?</span><i class="fas fa-chevron-down"></i></button><div class="faq-a"><p>Yes. Classes can be taught in English, Mandarin (中文) or Bahasa Melayu — tell us your preference when you enquire.</p></div></div>
       <div class="faq-item"><button class="faq-q" aria-expanded="false"><span>How much does an AI course cost?</span><i class="fas fa-chevron-down"></i></button><div class="faq-a"><p>Fees depend on the programme and format. WhatsApp us for current fees — we reply with a clear quotation, no obligation.</p></div></div>
-      <div class="faq-item"><button class="faq-q" aria-expanded="false"><span>Can my company send a team?</span><i class="fas fa-chevron-down"></i></button><div class="faq-a"><p>Yes. Our corporate portfolio has six programmes of 1–2 days, delivered in-house at your office or live online, and quoted on request. HRD Corp claimability may be available for eligible Malaysian employers, subject to confirmed provider status, programme requirements and applicable scheme approval.</p></div></div>
+      <div class="faq-item"><button class="faq-q" aria-expanded="false"><span>Can my company send a team?</span><i class="fas fa-chevron-down"></i></button><div class="faq-a"><p>Yes. Our corporate portfolio has six programmes of 1–2 days, delivered in-house at your office or live online, and quoted on request. Codencode Academy is an HRD Corp Registered Training Provider, and our corporate programmes are HRD Corp claimable for eligible Malaysian employers, subject to scheme terms and programme approval.</p></div></div>
       <div class="faq-item"><button class="faq-q" aria-expanded="false"><span>What do I get at the end?</span><i class="fas fa-chevron-down"></i></button><div class="faq-a"><p>Hands-on outputs — for example a working application prototype from Vibe Coding or a set of AI-assisted content assets — and graduates of our courses receive a Certificate of Achievement.</p></div></div>
     </div>
   </div>

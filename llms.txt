@@ -36,7 +36,7 @@ codencode.my (legal entity: CODE N CODE SOLUTION, 202603072017 / AS0511861-M) ru
 - CCA-004 AI Agents & Vibe Coding for Business — 2 days / 14 hours.
 - CCA-005 AI for Sales & Digital Marketing — 2 days / 14 hours.
 - CCA-006 AI for HR & Recruitment Automation — 2 days / 14 hours.
-- Delivered in-house, live online or as customised workshops, in English, Bahasa Malaysia and Mandarin; Malaysia, Vietnam and Southeast Asia subject to arrangement. Pricing is a custom quotation. HRD Corp claimability may be available for eligible Malaysian employers, subject to confirmed provider status, programme requirements and scheme approval.
+- Delivered in-house, live online or as customised workshops, in English, Bahasa Malaysia and Mandarin; Malaysia, Vietnam and Southeast Asia subject to arrangement. Pricing is a custom quotation. Codencode Academy is an HRD Corp Registered Training Provider, and our corporate programmes are HRD Corp claimable for eligible Malaysian employers, subject to scheme terms and programme approval.
 
 ## Core Subjects (fully online, multi-week, delivered live via Zoom)
 - Python Fundamentals — 6 weeks + 1 week project, beginner, 100% online.

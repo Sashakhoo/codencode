@@ -66,7 +66,7 @@
       {"@type":"Question","name":"Can I join codencode.my courses from Kuala Lumpur?","acceptedAnswer":{"@type":"Answer","text":"Yes. Our Core Subjects are fully online and live-instructed, so KL-based students attend via Zoom just like students anywhere else in Malaysia. Only the in-person AI workshops require travel to Mount Austin, Johor Bahru."}},
       {"@type":"Question","name":"Is there an online coding course for students in Alor Setar?","acceptedAnswer":{"@type":"Answer","text":"Yes. codencode.my's Python, Machine Learning, Cybersecurity and Vibe Coding courses are fully online, so students in Alor Setar and across Kedah can join live via Zoom with no need to relocate."}},
       {"@type":"Question","name":"Do you offer coding classes for kids and teens?","acceptedAnswer":{"@type":"Answer","text":"Yes. The Kids & Teens Coding Academy teaches school-age learners structured Python programming, then Machine Learning or Cybersecurity pathways, in small groups of 3–5 students — 4 classes a month, 1 hour 15 minutes each. Ask about the Trial Starter Pack."}},
-      {"@type":"Question","name":"Do you provide corporate AI training in Malaysia?","acceptedAnswer":{"@type":"Answer","text":"Yes. We deliver six corporate AI programmes of 1–2 days each, in-house, live online or as customised workshops, in English, Bahasa Malaysia and Mandarin. For eligible Malaysian employers, HRD Corp claimability may be available subject to confirmed provider status, programme requirements and applicable scheme approval."}}
+      {"@type":"Question","name":"Do you provide corporate AI training in Malaysia?","acceptedAnswer":{"@type":"Answer","text":"Yes. We deliver six corporate AI programmes of 1–2 days each, in-house, live online or as customised workshops, in English, Bahasa Malaysia and Mandarin. Codencode Academy is an HRD Corp Registered Training Provider, and our corporate programmes are HRD Corp claimable for eligible Malaysian employers, subject to scheme terms and programme approval."}}
     ]}
   ]
 }
@@ -74,7 +74,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;700;800&display=swap" rel="stylesheet">
-<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet" crossorigin="anonymous"/>
+<link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+<noscript><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet" crossorigin="anonymous"/></noscript>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -564,9 +565,15 @@ footer{background:var(--footer-bg);border-top:1px solid var(--b);padding:56px 0 
 .skip-link{position:absolute;left:-9999px;top:8px;z-index:1000;background:var(--cyan);color:#04120d;font-family:var(--mono);font-size:12px;font-weight:700;padding:10px 16px;text-decoration:none}
 .skip-link:focus{left:8px}
 a:focus-visible,button:focus-visible{outline:2px solid var(--cyan);outline-offset:2px}
+.fas,.fab,.far{display:inline-block;min-width:1em}
+.hrd-badges{display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin:20px 0 4px}.hrd-badges img{width:92px;height:92px;display:block;box-sizing:border-box;padding:4px;background:#fff;border-radius:50%;box-shadow:0 0 0 1px rgba(255,255,255,.25)}
 </style>
 <!-- Meta Pixel Code -->
 <script>
+(function () {
+  var done = false;
+  function load() {
+    if (done) return; done = true;
 !function(f,b,e,v,n,t,s)
 {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
 n.callMethod.apply(n,arguments):n.queue.push(arguments)};
@@ -577,16 +584,31 @@ s.parentNode.insertBefore(t,s)}(window, document,'script',
 'https://connect.facebook.net/en_US/fbevents.js');
 fbq('init', '1615909506909427');
 fbq('track', 'PageView');
+  }
+  // start the pixel on first interaction or 4s after load (keeps first paint fast)
+  ['scroll', 'touchstart', 'mousemove', 'keydown', 'click'].forEach(function (ev) { addEventListener(ev, load, { once: true, passive: true }); });
+  addEventListener('load', function () { setTimeout(load, 4000); });
+})();
 </script>
 <!-- End Meta Pixel Code -->
 <!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-0500HX1NN1"></script>
 <script>
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
   gtag('js', new Date());
 
   gtag('config', 'G-0500HX1NN1');
+
+  // load gtag.js once the visitor interacts (or 4s after page load) so first paint stays fast; events queue in dataLayer meanwhile
+  (function () {
+    var loaded = false;
+    function go() {
+      if (loaded) return; loaded = true;
+      var s = document.createElement('script'); s.async = true; s.src = 'https://www.googletagmanager.com/gtag/js?id=G-0500HX1NN1'; document.head.appendChild(s);
+    }
+    ['scroll', 'touchstart', 'mousemove', 'keydown', 'click'].forEach(function (ev) { addEventListener(ev, go, { once: true, passive: true }); });
+    addEventListener('load', function () { setTimeout(go, 4000); });
+  })();
 
   // Enquiry tracking: WhatsApp, phone and email clicks -> GA4 "generate_lead"
   document.addEventListener('click', function (e) {
@@ -770,7 +792,8 @@ src="https://www.facebook.com/tr?id=1615909506909427&ev=PageView&noscript=1"
         <p>2026–2027 portfolio · six programmes, each delivered as a private corporate session and adapted to your organisation.</p>
         <div class="tbl-wrap"><table class="ptable"><tbody><tr><td class="code"><a href="corporate.html#cca-001">CCA-001</a></td><td><a href="corporate.html#cca-001">AI for Workplace Productivity</a></td><td class="dur">1 Day / 7 Hours</td></tr><tr><td class="code"><a href="corporate.html#cca-002">CCA-002</a></td><td><a href="corporate.html#cca-002">AI Strategy for Management &amp; C-Suite</a></td><td class="dur">1 Day / 7 Hours</td></tr><tr><td class="code"><a href="corporate.html#cca-003">CCA-003</a></td><td><a href="corporate.html#cca-003">AI Automation &amp; Business Process Optimisation</a></td><td class="dur">2 Days / 14 Hours</td></tr><tr><td class="code"><a href="corporate.html#cca-004">CCA-004</a></td><td><a href="corporate.html#cca-004">AI Agents &amp; Vibe Coding for Business</a></td><td class="dur">2 Days / 14 Hours</td></tr><tr><td class="code"><a href="corporate.html#cca-005">CCA-005</a></td><td><a href="corporate.html#cca-005">AI for Sales &amp; Digital Marketing</a></td><td class="dur">2 Days / 14 Hours</td></tr><tr><td class="code"><a href="corporate.html#cca-006">CCA-006</a></td><td><a href="corporate.html#cca-006">AI for HR &amp; Recruitment Automation</a></td><td class="dur">2 Days / 14 Hours</td></tr></tbody></table></div>
         <p style="margin-top:18px">Delivered in-house, live online, as private team sessions or customised workshops — in English, Bahasa Malaysia and Mandarin.</p>
-        <p style="margin-top:10px">For eligible Malaysian employers, HRD Corp claimability may be available subject to confirmed provider status, programme requirements and applicable scheme approval.</p>
+        <p style="margin-top:10px">Codencode Academy is an HRD Corp Registered Training Provider, and our corporate programmes are HRD Corp claimable for eligible Malaysian employers, subject to scheme terms and programme approval.</p>
+        <div class="hrd-badges"><img src="/marketing/hrdcorp-registered-provider.webp" alt="HRD Corp Registered Training Provider badge" width="92" height="92" loading="lazy" decoding="async"><img src="/marketing/hrdcorp-claimable.webp" alt="HRD Corp Claimable badge" width="92" height="92" loading="lazy" decoding="async"></div>
         <div class="seg-cta"><a class="btn-p" href="corporate.html">View Corporate Portfolio <i class="fas fa-arrow-right"></i></a><a class="btn-g" href="https://wa.me/60196811628?text=Hi%20codencode!%20I'd%20like%20a%20corporate%20training%20quotation%20%F0%9F%91%8B">Request a Quotation</a></div>
       </div>
     </div>
@@ -833,7 +856,7 @@ src="https://www.facebook.com/tr?id=1615909506909427&ev=PageView&noscript=1"
 
       <div class="ccard">
         <div class="ctop">
-          <img width="900" height="600" src="https://images.unsplash.com/photo-1758691737083-0e7fdbde0f05?fm=jpg&amp;q=80&amp;w=900&amp;auto=format&amp;fit=crop" alt="Two colleagues collaborating on a laptop in an office" loading="lazy">
+          <img width="900" height="600" src="https://images.unsplash.com/photo-1758691737083-0e7fdbde0f05?fm=jpg&amp;q=70&amp;w=640&amp;auto=format&amp;fit=crop" alt="Two colleagues collaborating on a laptop in an office" loading="lazy">
           <span class="cbadge bb">For Any Team</span>
         </div>
         <div class="cbody">
@@ -846,7 +869,7 @@ src="https://www.facebook.com/tr?id=1615909506909427&ev=PageView&noscript=1"
 
       <div class="ccard">
         <div class="ctop">
-          <img width="900" height="600" src="https://images.unsplash.com/photo-1686061593213-98dad7c599b9?fm=jpg&amp;q=80&amp;w=900&amp;auto=format&amp;fit=crop" alt="Computer screen showing a marketing analytics dashboard" loading="lazy">
+          <img width="900" height="600" src="https://images.unsplash.com/photo-1686061593213-98dad7c599b9?fm=jpg&amp;q=70&amp;w=640&amp;auto=format&amp;fit=crop" alt="Computer screen showing a marketing analytics dashboard" loading="lazy">
           <span class="cbadge bo">For Marketing</span>
         </div>
         <div class="cbody">
@@ -859,7 +882,7 @@ src="https://www.facebook.com/tr?id=1615909506909427&ev=PageView&noscript=1"
 
       <div class="ccard">
         <div class="ctop">
-          <img width="900" height="600" src="https://images.unsplash.com/photo-1758518730384-be3d205838e8?fm=jpg&amp;q=80&amp;w=900&amp;auto=format&amp;fit=crop" alt="Two HR professionals shaking hands across a table after an interview" loading="lazy">
+          <img width="900" height="600" src="https://images.unsplash.com/photo-1758518730384-be3d205838e8?fm=jpg&amp;q=70&amp;w=640&amp;auto=format&amp;fit=crop" alt="Two HR professionals shaking hands across a table after an interview" loading="lazy">
           <span class="cbadge bb">For HR</span>
         </div>
         <div class="cbody">
@@ -872,7 +895,7 @@ src="https://www.facebook.com/tr?id=1615909506909427&ev=PageView&noscript=1"
 
       <div class="ccard">
         <div class="ctop">
-          <img width="900" height="600" src="https://images.unsplash.com/photo-1707902665498-a202981fb5ac?fm=jpg&amp;q=80&amp;w=900&amp;auto=format&amp;fit=crop" alt="Person at a desk using a calculator and notebook for bookkeeping" loading="lazy">
+          <img width="900" height="600" src="https://images.unsplash.com/photo-1707902665498-a202981fb5ac?fm=jpg&amp;q=70&amp;w=640&amp;auto=format&amp;fit=crop" alt="Person at a desk using a calculator and notebook for bookkeeping" loading="lazy">
           <span class="cbadge bo">For Finance</span>
         </div>
         <div class="cbody">
@@ -1004,7 +1027,7 @@ src="https://www.facebook.com/tr?id=1615909506909427&ev=PageView&noscript=1"
 
       <div class="ccard">
         <div class="ctop">
-          <img width="900" height="600" src="https://images.unsplash.com/photo-1614064548237-096f735f344f?fm=jpg&amp;q=80&amp;w=900&amp;auto=format&amp;fit=crop" alt="Padlock securing a laptop, representing cybersecurity fundamentals" loading="lazy">
+          <img width="900" height="600" src="https://images.unsplash.com/photo-1614064548237-096f735f344f?fm=jpg&amp;q=70&amp;w=640&amp;auto=format&amp;fit=crop" alt="Padlock securing a laptop, representing cybersecurity fundamentals" loading="lazy">
           <span class="cbadge" style="background:#ff4d4d;color:#fff">New</span>
         </div>
         <div class="cbody">
@@ -1017,7 +1040,7 @@ src="https://www.facebook.com/tr?id=1615909506909427&ev=PageView&noscript=1"
 
       <div class="ccard">
         <div class="ctop">
-          <img width="900" height="600" src="https://images.unsplash.com/photo-1742072594003-abf6ca86e154?fm=jpg&amp;q=80&amp;w=900&amp;auto=format&amp;fit=crop" alt="Python code displayed on a computer screen" loading="lazy">
+          <img width="900" height="600" src="https://images.unsplash.com/photo-1742072594003-abf6ca86e154?fm=jpg&amp;q=70&amp;w=640&amp;auto=format&amp;fit=crop" alt="Python code displayed on a computer screen" loading="lazy">
           <span class="cbadge bb">Most Popular</span>
         </div>
         <div class="cbody">
@@ -1030,7 +1053,7 @@ src="https://www.facebook.com/tr?id=1615909506909427&ev=PageView&noscript=1"
 
       <div class="ccard">
         <div class="ctop">
-          <img width="900" height="600" src="https://images.unsplash.com/photo-1674027444485-cec3da58eef4?fm=jpg&amp;q=80&amp;w=900&amp;auto=format&amp;fit=crop" alt="Abstract visualization of connected data points, representing machine learning" loading="lazy">
+          <img width="900" height="600" src="https://images.unsplash.com/photo-1674027444485-cec3da58eef4?fm=jpg&amp;q=70&amp;w=640&amp;auto=format&amp;fit=crop" alt="Abstract visualization of connected data points, representing machine learning" loading="lazy">
           <span class="cbadge bo">Hot</span>
         </div>
         <div class="cbody">
@@ -1204,15 +1227,15 @@ src="https://www.facebook.com/tr?id=1615909506909427&ev=PageView&noscript=1"
   <div class="tmarquee" id="tmarquee">
     <div class="trow"><div class="ttrack">
       <figure class="tslide">
-        <img src="/marketing/student-lim-ban-soon.jpg" alt="Lim Ban Soon holding a codencode.my Python Fundamentals Certificate of Achievement" style="object-position:center 22%" loading="lazy" width="800" height="1000" draggable="false">
+        <img src="/marketing/student-lim-ban-soon-400.jpg" srcset="/marketing/student-lim-ban-soon-400.jpg 400w, /marketing/student-lim-ban-soon.jpg 800w" sizes="210px" alt="Lim Ban Soon holding a codencode.my Python Fundamentals Certificate of Achievement" style="object-position:center 22%" loading="lazy" width="800" height="1000" draggable="false">
         <figcaption class="tslide-cap"><b>Lim Ban Soon</b><small>Python Fundamentals</small></figcaption>
       </figure>
       <figure class="tslide">
-        <img src="/marketing/student-vanessa-henry.jpg" alt="Vanessa and Henry each holding a codencode.my Python and Machine Learning Certificate of Achievement" style="object-position:center 30%" loading="lazy" width="800" height="1000" draggable="false">
+        <img src="/marketing/student-vanessa-henry-400.jpg" srcset="/marketing/student-vanessa-henry-400.jpg 400w, /marketing/student-vanessa-henry.jpg 800w" sizes="210px" alt="Vanessa and Henry each holding a codencode.my Python and Machine Learning Certificate of Achievement" style="object-position:center 30%" loading="lazy" width="800" height="1000" draggable="false">
         <figcaption class="tslide-cap"><b>Vanessa &amp; Henry</b><small>Python &amp; Machine Learning</small></figcaption>
       </figure>
       <figure class="tslide">
-        <img src="/marketing/student-muhd-fathi.jpg" alt="Muhd Fathi holding a codencode.my Vibe Coding Certificate of Achievement" style="object-position:center 25%" loading="lazy" width="800" height="1000" draggable="false">
+        <img src="/marketing/student-muhd-fathi-400.jpg" srcset="/marketing/student-muhd-fathi-400.jpg 400w, /marketing/student-muhd-fathi.jpg 800w" sizes="210px" alt="Muhd Fathi holding a codencode.my Vibe Coding Certificate of Achievement" style="object-position:center 25%" loading="lazy" width="800" height="1000" draggable="false">
         <figcaption class="tslide-cap"><b>Muhd Fathi</b><small>Vibe Coding</small></figcaption>
       </figure>
     </div></div>
@@ -1238,7 +1261,7 @@ src="https://www.facebook.com/tr?id=1615909506909427&ev=PageView&noscript=1"
       <div class="faq-item"><button class="faq-q" aria-expanded="false"><span>Can I join codencode.my courses from Kuala Lumpur?</span><i class="fas fa-chevron-down"></i></button><div class="faq-a"><p>Yes. Our Core Subjects are fully online and live-instructed, so KL-based students attend via Zoom just like students anywhere else in Malaysia. Only the in-person AI workshops require travel to Mount Austin, Johor Bahru.</p></div></div>
       <div class="faq-item"><button class="faq-q" aria-expanded="false"><span>Is there an online coding course for students in Alor Setar?</span><i class="fas fa-chevron-down"></i></button><div class="faq-a"><p>Yes. codencode.my's Python, Machine Learning, Cybersecurity and Vibe Coding courses are fully online, so students in Alor Setar and across Kedah can join live via Zoom with no need to relocate.</p></div></div>
       <div class="faq-item"><button class="faq-q" aria-expanded="false"><span>Do you offer coding classes for kids and teens?</span><i class="fas fa-chevron-down"></i></button><div class="faq-a"><p>Yes. The Kids &amp; Teens Coding Academy teaches school-age learners structured Python programming, then Machine Learning or Cybersecurity pathways, in small groups of 3–5 students — 4 classes a month, 1 hour 15 minutes each. Ask about the Trial Starter Pack.</p></div></div>
-      <div class="faq-item"><button class="faq-q" aria-expanded="false"><span>Do you provide corporate AI training in Malaysia?</span><i class="fas fa-chevron-down"></i></button><div class="faq-a"><p>Yes. We deliver six corporate AI programmes of 1–2 days each, in-house, live online or as customised workshops, in English, Bahasa Malaysia and Mandarin. For eligible Malaysian employers, HRD Corp claimability may be available subject to confirmed provider status, programme requirements and applicable scheme approval. <a href="corporate.html" style="color:var(--cyan)">See the corporate portfolio →</a></p></div></div>
+      <div class="faq-item"><button class="faq-q" aria-expanded="false"><span>Do you provide corporate AI training in Malaysia?</span><i class="fas fa-chevron-down"></i></button><div class="faq-a"><p>Yes. We deliver six corporate AI programmes of 1–2 days each, in-house, live online or as customised workshops, in English, Bahasa Malaysia and Mandarin. Codencode Academy is an HRD Corp Registered Training Provider, and our corporate programmes are HRD Corp claimable for eligible Malaysian employers, subject to scheme terms and programme approval. <a href="corporate.html" style="color:var(--cyan)">See the corporate portfolio →</a></p></div></div>
     </div>
   </div>
 </section>
@@ -1371,7 +1394,7 @@ src="https://www.facebook.com/tr?id=1615909506909427&ev=PageView&noscript=1"
     const track=row.querySelector('.ttrack');
     const set=Array.from(track.children);
     const setW=set.reduce((w,n)=>w+n.offsetWidth+16,0)||set.length*226;
-    const reps=Math.ceil(Math.max(2000,screen.width,innerWidth)/setW);
+    const reps=Math.ceil(Math.max(screen.width,innerWidth)*1.1/setW);
     const half=[];
     for(let r=0;r<reps;r++)set.forEach(n=>half.push(r?n.cloneNode(true):n));
     half.forEach(n=>{if(!n.parentNode)track.appendChild(n)});
