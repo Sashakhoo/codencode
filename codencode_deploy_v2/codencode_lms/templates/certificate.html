@@ -4,19 +4,34 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Certificate — {{ cert.cert_number }}</title>
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&family=Lora:ital,wght@0,400;0,600;1,400;1,600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
   <style>
+    /* Fonts are bundled (static/fonts) so screen, print and the PDF export all use the same faces. */
+    @font-face { font-family: 'Allura'; src: url('{{ url_for("static", filename="fonts/Allura-Regular.ttf") }}') format('truetype'); font-weight: 400; }
+    @font-face { font-family: 'Libre Baskerville'; src: url('{{ url_for("static", filename="fonts/LibreBaskerville.ttf") }}') format('truetype'); font-weight: 400 700; }
+    @font-face { font-family: 'Poppins'; src: url('{{ url_for("static", filename="fonts/Poppins-Regular.ttf") }}') format('truetype'); font-weight: 400; }
+    @font-face { font-family: 'Poppins'; src: url('{{ url_for("static", filename="fonts/Poppins-Medium.ttf") }}') format('truetype'); font-weight: 500; }
+    @font-face { font-family: 'Poppins'; src: url('{{ url_for("static", filename="fonts/Poppins-SemiBold.ttf") }}') format('truetype'); font-weight: 600; }
+
+    :root {
+      --turq: #00D5AE;
+      --dark: #006B50;
+      --mint: #B8F5DF;
+      --ink: #101010;
+    }
+
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
-      font-family: 'Lora', serif;
-      background: #f5f0e8;
+      font-family: 'Libre Baskerville', serif;
+      background: #f2f4f3;
       min-height: 100vh;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
       padding: 40px 20px;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
     }
 
     .cert-wrapper {
@@ -25,292 +40,235 @@
       max-width: 100%;
       background: #fff;
       position: relative;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+      box-shadow: 0 12px 40px rgba(0,0,0,0.12);
       overflow: hidden;
     }
 
-    .cert-outer {
-      width: 100%;
-      height: 100%;
-      padding: 5mm;
-      background: linear-gradient(135deg, #0a3d2a 0%, #145a3d 50%, #0a3d2a 100%);
-    }
-
-    .cert-inner {
-      border: 3px solid #00c485;
-      width: 100%;
-      height: 100%;
-      padding: 9mm 14mm;
+    /* The certificate is laid out on a fixed 1123 x 794 px (A4 landscape) page and
+       scaled to the wrapper, so preview, print and PDF share one geometry. */
+    .cert-page {
+      position: absolute;
+      top: 0; left: 0;
+      width: 1123px;
+      height: 794px;
+      transform-origin: top left;
       background: #fff;
-      position: relative;
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      text-align: center;
+      color: var(--ink);
     }
+    .cert-page > * { position: absolute; }
 
-    /* Watermark */
-    .cert-inner::before {
-      content: 'codencode.my';
-      position: absolute;
-      font-family: 'Outfit', sans-serif;
-      font-size: 118px;
-      font-weight: 800;
-      color: rgba(0, 196, 133, 0.04);
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%) rotate(-30deg);
-      white-space: nowrap;
-      pointer-events: none;
-      z-index: 0;
-    }
-
-    .cert-content { position: relative; z-index: 1; width: 100%; }
-    .cert-content.no-recipient {
-      padding-top: 6px;
-    }
-
-    /* Corner decorations */
-    .corner {
-      position: absolute;
-      width: 60px; height: 60px;
-      border-color: #00c485;
-      border-style: solid;
-    }
-    .corner-tl { top: 20px; left: 20px; border-width: 3px 0 0 3px; }
-    .corner-tr { top: 20px; right: 20px; border-width: 3px 3px 0 0; }
-    .corner-bl { bottom: 20px; left: 20px; border-width: 0 0 3px 3px; }
-    .corner-br { bottom: 20px; right: 20px; border-width: 0 3px 3px 0; }
+    .cert-bg { top: 0; left: 0; width: 1123px; height: 794px; z-index: 0; }
 
     /* Brand */
     .brand-logo {
-      display: block;
-      width: 210px;
+      top: 96px;
+      left: 50%;
+      width: 320px;
       height: auto;
-      margin: 0 auto 10px;
-    }
-    .brand-sub {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 10px;
-      letter-spacing: 0.2em;
-      text-transform: uppercase;
-      color: #666;
-      margin-bottom: 14px;
+      transform: translateX(-50%);
     }
 
-    /* Divider */
-    .divider {
-      width: 280px;
-      height: 2px;
-      background: linear-gradient(90deg, transparent, #00c485, transparent);
-      margin: 0 auto 14px;
+    /* Heading */
+    .cert-title {
+      top: 214px;
+      left: 0; right: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 30px;
     }
-
-    /* Certificate heading */
+    .cert-title::before, .cert-title::after {
+      content: '';
+      width: 84px;
+      height: 1.5px;
+      background: var(--dark);
+    }
     .cert-heading {
-      font-family: 'Outfit', sans-serif;
-      font-size: 14px;
-      letter-spacing: 0.34em;
-      text-transform: uppercase;
-      color: #888;
-      margin-bottom: 8px;
-    }
-    .cert-content.no-recipient .cert-heading {
-      font-size: 16px;
-      letter-spacing: 0.36em;
-      margin-bottom: 18px;
-    }
-
-    .cert-of {
-      font-family: 'Outfit', sans-serif;
-      font-size: 46px;
-      font-weight: 800;
-      color: #0a3d2a;
-      letter-spacing: -0.02em;
-      margin-bottom: 8px;
-      line-height: 1.1;
-    }
-    .cert-content.no-recipient .cert-of {
-      font-size: 54px;
-      margin-bottom: 24px;
-    }
-
-    .cert-completion {
-      font-family: 'Outfit', sans-serif;
-      font-size: 18px;
+      font-family: 'Libre Baskerville', serif;
+      font-size: 36px;
       font-weight: 400;
-      color: #555;
-      margin-bottom: 14px;
-    }
-
-    /* Body text */
-    .cert-body-text {
-      font-size: 14px;
-      color: #777;
-      margin-bottom: 8px;
-      line-height: 1.55;
-    }
-    .cert-content.no-recipient .cert-body-text {
-      font-size: 17px;
-      margin-bottom: 16px;
-    }
-    .cert-content.no-recipient .general-completion {
-      margin-top: 0;
-      color: #555;
-    }
-
-    /* Student name */
-    .student-name {
-      font-family: 'Lora', serif;
-      font-size: 54px;
-      font-weight: 600;
-      font-style: italic;
-      color: #0a3d2a;
-      margin-bottom: 4px;
+      letter-spacing: 0.2em;
+      margin-right: -0.2em; /* offset trailing tracking so the word is optically centred */
+      text-transform: uppercase;
+      color: var(--ink);
       line-height: 1.2;
     }
-
-    .name-line {
-      width: 560px;
-      height: 1px;
-      background: linear-gradient(90deg, transparent, #ccc, transparent);
-      margin: 0 auto 14px;
-    }
-
-    /* Course */
-    .course-label {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 11px;
-      letter-spacing: 0.24em;
+    .cert-of {
+      top: 266px;
+      left: 0; right: 0;
+      text-align: center;
+      font-family: 'Poppins', sans-serif;
+      font-size: 17px;
+      font-weight: 600;
+      line-height: 1.5;
+      letter-spacing: 0.42em;
+      text-indent: 0.42em;
       text-transform: uppercase;
-      color: #999;
-      margin-bottom: 8px;
-    }
-    .cert-content.no-recipient .course-label {
-      font-size: 12px;
-      letter-spacing: 0.28em;
-      margin-bottom: 12px;
+      color: var(--turq);
     }
 
-    .course-name {
-      font-family: 'Outfit', sans-serif;
-      font-size: 30px;
-      font-weight: 700;
-      color: #1a2e28;
-      margin-bottom: 12px;
+    /* Body copy */
+    .cert-intro {
+      top: 312px;
+      left: 0; right: 0;
+      text-align: center;
+      font-size: 19px;
+      line-height: 1.4;
     }
-    .cert-content.no-recipient .course-name {
-      font-size: 40px;
-      line-height: 1.12;
+    .student-name {
+      top: 338px;
+      left: 241px;
+      width: 641px;
+      height: 130px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Allura', cursive;
+      font-size: 100px;
+      line-height: 1.1;
+      color: var(--ink);
+      white-space: nowrap;
+      overflow: visible;
+      text-align: center;
+    }
+    .student-name span { display: inline-block; }
+    .student-name.wrap { white-space: normal; line-height: 1; }
+    .student-name.wrap span { max-width: 641px; }
+    .name-line {
+      top: 465px;
+      left: 241px;
+      width: 641px;
+      height: 1.5px;
+      background: var(--dark);
+    }
+    .cert-completed {
+      top: 487px;
+      left: 0; right: 0;
+      text-align: center;
+      font-size: 20px;
+      line-height: 1.4;
+    }
+    .course-name {
+      top: 520px;
+      left: 161px;
+      width: 801px;
+      text-align: center;
+      font-family: 'Poppins', sans-serif;
+      font-size: 36px;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: var(--dark);
+      line-height: 1.2;
+      white-space: nowrap;
+    }
+    .course-name.wrap { white-space: normal; }
+
+    /* Certificates issued without a named recipient (workshops) */
+    .no-recipient .cert-completed { top: 360px; }
+    .no-recipient .course-name { top: 420px; font-size: 44px; }
+
+    /* Footer */
+    .foot-label {
+      font-family: 'Poppins', sans-serif;
+      font-size: 10.5px;
+      font-weight: 500;
+      line-height: 1.5;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: #3a3a3a;
+    }
+    .foot-left { top: 580px; left: 94px; width: 220px; z-index: 1; }
+    .foot-left .foot-label { margin-bottom: 6px; }
+    .cert-date {
+      font-family: 'Poppins', sans-serif;
+      font-size: 17px;
+      font-weight: 400;
+      line-height: 1.5;
+      color: var(--ink);
       margin-bottom: 20px;
     }
-
-    /* Meta info */
-    .cert-meta {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-end;
-      width: 100%;
-      margin-top: 92px;
-      padding-top: 24px;
-      border-top: 1px solid #eee;
-    }
-    .cert-content.no-recipient .cert-meta {
-      margin-top: 112px;
-      padding-top: 24px;
-    }
-
-    .cert-meta-item { text-align: center; }
-
-    /* QR verify block */
-    .cert-qr {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 6px;
-    }
-    .cert-qr img {
-      width: 58px; height: 58px;
-      border: 2px solid #00c485;
-      padding: 3px;
-      background: white;
-    }
-    .cert-qr-label {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 6px;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: #aaa;
-    }
-    .cert-qr-url {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 6px;
-      color: #00874a;
-    }
-    .cert-meta-label {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 8px;
-      letter-spacing: 0.15em;
-      text-transform: uppercase;
-      color: #aaa;
-      margin-bottom: 6px;
-    }
-    .cert-meta-value {
-      font-family: 'Outfit', sans-serif;
-      font-size: 12px;
-      font-weight: 600;
-      color: #333;
-    }
-
     .cert-number-badge {
-      background: #f0faf6;
-      border: 1px solid #00c485;
-      padding: 6px 13px;
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 11px;
-      color: #00874a;
-      letter-spacing: 0.1em;
+      display: block;
+      width: 154px;
+      margin-top: 4px;
+      padding: 7px 14px;
+      border: 1.5px solid var(--turq);
+      text-align: center;
+      font-family: 'Poppins', sans-serif;
+      font-size: 20px;
+      font-weight: 600;
+      line-height: 1.5;
+      color: var(--dark);
     }
 
-    /* Signature area */
-    .signature-area {
-      margin-top: 0;
-      width: 300px;
+    .foot-center {
+      top: 590px;
+      left: 431px;
+      width: 262px;
       text-align: center;
+      z-index: 1;
     }
     .signature-line {
       position: relative;
       width: 100%;
-      height: 64px;
-      border-bottom: 3px solid #0a3d2a;
-      margin-bottom: 8px;
+      height: 70px;
+      border-bottom: 1.5px solid var(--ink);
+      margin-bottom: 10px;
     }
     .signature-image {
-      display: block;
       position: absolute;
       left: 50%;
-      bottom: 5px;
+      bottom: 4px;
       transform: translateX(-50%);
-      width: 220px;
-      height: 58px;
+      width: 170px;
+      height: 66px;
       object-fit: contain;
     }
     .signature-name {
-      font-family: 'Outfit', sans-serif;
-      font-size: 15px;
-      font-weight: 800;
-      color: #0a3d2a;
-      letter-spacing: 0.01em;
-      line-height: 1.15;
+      font-family: 'Poppins', sans-serif;
+      font-size: 17px;
+      font-weight: 600;
+      color: var(--ink);
+      line-height: 1.25;
     }
     .signature-title {
-      font-family: 'Outfit', sans-serif;
-      font-size: 11px;
-      font-weight: 600;
-      letter-spacing: 0.08em;
-      text-transform: none;
-      color: #888;
+      font-family: 'Poppins', sans-serif;
+      font-size: 14px;
+      font-weight: 400;
+      line-height: 1.5;
+      color: #444;
+      margin-top: 2px;
+    }
+
+    .foot-right {
+      top: 576px;
+      left: 744px;
+      width: 280px;
+      text-align: center;
+      z-index: 1;
+    }
+    .foot-right .foot-label { margin-bottom: 8px; }
+    .cert-qr img {
+      display: block;
+      width: 84px; height: 84px;
+      margin: 0 auto;
+      border: 1.5px solid var(--turq);
+      padding: 3px;
+      background: #fff;
+    }
+    .cert-qr-url {
+      font-family: 'Poppins', sans-serif;
+      font-size: 12.5px;
+      line-height: 1.5;
+      color: var(--dark);
+      margin-top: 10px;
+      white-space: nowrap;
+    }
+    .verify-text {
+      font-family: 'Poppins', sans-serif;
+      font-size: 12.5px;
+      color: var(--dark);
       margin-top: 4px;
     }
 
@@ -322,15 +280,15 @@
       justify-content: center;
     }
     .btn-print {
-      background: #00c485;
-      color: #fff;
+      background: var(--turq);
+      color: #04382c;
       border: none;
       padding: 12px 32px;
-      font-family: 'Outfit', sans-serif;
+      font-family: 'Poppins', sans-serif;
       font-size: 14px;
-      font-weight: 700;
+      font-weight: 600;
       cursor: pointer;
-      letter-spacing: 0.05em;
+      letter-spacing: 0.04em;
       transition: opacity 0.2s;
     }
     .btn-print:hover { opacity: 0.85; }
@@ -339,7 +297,7 @@
       color: #666;
       border: 1px solid #ddd;
       padding: 12px 24px;
-      font-family: 'Outfit', sans-serif;
+      font-family: 'Poppins', sans-serif;
       font-size: 14px;
       cursor: pointer;
       transition: all 0.2s;
@@ -358,12 +316,6 @@
         width: 100%;
         height: auto;
         aspect-ratio: 297 / 210;
-        overflow: auto;
-        -webkit-overflow-scrolling: touch;
-      }
-      .cert-outer {
-        min-width: 980px;
-        min-height: 693px;
       }
       .print-actions {
         position: sticky;
@@ -400,6 +352,8 @@
         max-width: none;
       }
       .print-actions { display: none !important; }
+      /* 297mm is 1122.5px, so the 1123px page prints 1:1 with no scaling */
+      .cert-page { transform: none !important; }
       @page {
         size: A4 landscape;
         margin: 0;
@@ -408,68 +362,52 @@
   </style>
 </head>
 <body>
-  <div class="cert-wrapper">
-    <div class="cert-outer">
-      <div class="cert-inner">
-        <div class="corner corner-tl"></div>
-        <div class="corner corner-tr"></div>
-        <div class="corner corner-bl"></div>
-        <div class="corner corner-br"></div>
+  <div class="cert-wrapper" id="cert-wrapper">
+    <div class="cert-page{% if not cert.student %} no-recipient{% endif %}" id="cert-page">
+      <img class="cert-bg" src="{{ url_for('static', filename='img/cert_template.png') }}" alt="" />
 
-        <div class="cert-content{% if not cert.student %} no-recipient{% endif %}">
-          <img class="brand-logo" src="{{ logo_src or url_for('static', filename='img/logo_full.png') }}" alt="codencode.my" />
-          <div class="divider"></div>
+      <img class="brand-logo" src="{{ logo_src or url_for('static', filename='img/logo_full.png') }}" alt="codencode.my" />
 
-          <div class="cert-heading">Certificate</div>
-          <div class="cert-of">of Achievement</div>
-          {% if cert.student %}
-          <div class="cert-body-text">
-            <em>This certifies that</em>
-          </div>
+      <div class="cert-title"><div class="cert-heading">Certificate</div></div>
+      <div class="cert-of">of Achievement</div>
 
-          <div class="student-name">{{ cert.student.name }}</div>
-          <div class="name-line"></div>
+      {% if cert.student %}
+      <div class="cert-intro">This certifies that</div>
+      <div class="student-name" id="student-name"><span>{{ cert.student.name }}</span></div>
+      <div class="name-line"></div>
+      <div class="cert-completed">has successfully completed the course</div>
+      {% else %}
+      <div class="cert-completed">For successful completion of</div>
+      {% endif %}
 
-          <div class="cert-body-text">has successfully completed the course</div>
-          {% else %}
-          <div class="cert-body-text general-completion">For successful completion of</div>
-          {% endif %}
+      <div class="course-name" id="course-name">{{ cert.course.title }}</div>
 
-          <div class="course-label">Course</div>
-          <div class="course-name">{{ cert.course.title }}</div>
+      <div class="foot-left">
+        <div class="foot-label">Date Issued</div>
+        <div class="cert-date">{{ cert.issued_at.strftime('%d %B %Y') }}</div>
+        <div class="foot-label">Certificate No.</div>
+        <div class="cert-number-badge">{{ cert.cert_number }}</div>
+      </div>
 
-          <div class="cert-meta">
-            <div class="cert-meta-item">
-              <div class="cert-meta-label">Date Issued</div>
-              <div class="cert-meta-value">{{ cert.issued_at.strftime('%d %B %Y') }}</div>
-              <div class="cert-meta-label" style="margin-top:10px">Certificate No.</div>
-              <div class="cert-number-badge">{{ cert.cert_number }}</div>
-            </div>
-            <div class="cert-meta-item">
-              <div class="signature-area">
-                <div class="signature-line">
-                  <img class="signature-image" src="{{ signature_src or url_for('static', filename='img/signature.png') }}" alt="Natasya Khoo signature" />
-                </div>
-                <div class="signature-name">Natasya Khoo</div>
-                <div class="signature-title">Managing Director</div>
-              </div>
-            </div>
-            {% if qr_b64 %}
-            <div class="cert-meta-item">
-              <div class="cert-qr">
-                <div class="cert-qr-label">Scan to Verify</div>
-                <img src="data:image/png;base64,{{ qr_b64 }}" alt="Verify certificate" />
-                <div class="cert-qr-url">learn.codencode.my/verify/{{ cert.cert_number }}</div>
-              </div>
-            </div>
-            {% else %}
-            <div class="cert-meta-item">
-              <div class="cert-meta-label">Verify Online</div>
-              <div class="cert-meta-value" style="font-size:10px;color:#00874a">learn.codencode.my/verify/{{ cert.cert_number }}</div>
-            </div>
-            {% endif %}
-          </div>
+      <div class="foot-center">
+        <div class="signature-line">
+          <img class="signature-image" src="{{ signature_src or url_for('static', filename='img/signature.png') }}" alt="Natasya Khoo signature" />
         </div>
+        <div class="signature-name">Natasya Khoo</div>
+        <div class="signature-title">Managing Director</div>
+      </div>
+
+      <div class="foot-right">
+        {% if qr_b64 %}
+        <div class="cert-qr">
+          <div class="foot-label">Scan to Verify</div>
+          <img src="data:image/png;base64,{{ qr_b64 }}" alt="Verify certificate" />
+          <div class="cert-qr-url">learn.codencode.my/verify/{{ cert.cert_number }}</div>
+        </div>
+        {% else %}
+        <div class="foot-label">Verify Online</div>
+        <div class="verify-text">learn.codencode.my/verify/{{ cert.cert_number }}</div>
+        {% endif %}
       </div>
     </div>
   </div>
@@ -482,5 +420,67 @@
       Close
     </button>
   </div>
+
+  <script>
+    (function () {
+      var wrapper = document.getElementById('cert-wrapper');
+      var page = document.getElementById('cert-page');
+
+      // Scale the fixed 1123x794 page to the wrapper (screen only; print uses 297x210mm = 1:1).
+      function scalePage() {
+        var s = wrapper.clientWidth / 1123;
+        page.style.transform = 'scale(' + s + ')';
+      }
+
+      // Shrink text until it fits its box, so any name / course length stays inside the margins.
+      // Names stay on one line while they can; very long ones wrap onto two lines.
+      function fitName(el, maxWidth, maxHeight) {
+        if (!el) return;
+        var inner = el.firstElementChild;
+        el.classList.remove('wrap');
+        el.style.fontSize = '';
+        var size = parseFloat(getComputedStyle(el).fontSize);
+        while (inner.offsetWidth > maxWidth && size > 64) {
+          size -= 2;
+          el.style.fontSize = size + 'px';
+        }
+        if (inner.offsetWidth > maxWidth) {
+          el.classList.add('wrap');
+          while ((inner.offsetWidth > maxWidth || inner.offsetHeight > maxHeight) && size > 30) {
+            size -= 2;
+            el.style.fontSize = size + 'px';
+          }
+        }
+      }
+
+      function fitCourse(el, maxWidth, minSize) {
+        if (!el) return;
+        el.classList.remove('wrap');
+        el.style.fontSize = '';
+        var size = parseFloat(getComputedStyle(el).fontSize);
+        while (el.scrollWidth > maxWidth && size > minSize) {
+          size -= 2;
+          el.style.fontSize = size + 'px';
+        }
+        if (el.scrollWidth > maxWidth) {
+          el.classList.add('wrap');
+          el.style.fontSize = Math.min(size, 30) + 'px';
+        }
+      }
+
+      function layout() {
+        fitName(document.getElementById('student-name'), 641, 124);
+        fitCourse(document.getElementById('course-name'), 801, 26);
+        scalePage();
+      }
+
+      window.addEventListener('resize', scalePage);
+      scalePage();
+      if (document.fonts && document.fonts.ready) {
+        document.fonts.ready.then(layout);
+      }
+      window.addEventListener('load', layout);
+    })();
+  </script>
 </body>
 </html>
