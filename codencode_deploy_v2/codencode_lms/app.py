@@ -38,6 +38,8 @@ from sqlalchemy.orm import joinedload
 from itsdangerous import BadSignature, SignatureExpired, URLSafeSerializer, URLSafeTimedSerializer
 from werkzeug.utils import secure_filename
 
+from staff.extensions import limiter
+
 import io
 import csv
 from models import (db, User, Course, Enrollment, Recording,
@@ -60,8 +62,19 @@ _db_url = os.environ.get('DATABASE_URL', 'sqlite:///codencode_lms.db')
 if _db_url.startswith('postgres://'):
     _db_url = _db_url.replace('postgres://', 'postgresql://', 1)
 
+# Production = running on Railway (or explicitly flagged). There is no
+# hard-coded fallback key: without SECRET_KEY the app refuses to start in
+# production, and local dev gets a random key (sessions reset on restart).
+IS_PRODUCTION = bool(os.environ.get('RAILWAY_ENVIRONMENT') or os.environ.get('RAILWAY_ENVIRONMENT_NAME')
+                     or os.environ.get('FLASK_ENV') == 'production' or os.environ.get('APP_ENV') == 'production')
+_secret_key = os.environ.get('SECRET_KEY', '').strip()
+if not _secret_key:
+    if IS_PRODUCTION:
+        raise RuntimeError('SECRET_KEY is not set. Set it in the Railway service variables.')
+    _secret_key = secrets.token_hex(32)
+
 app.config.update(
-    SECRET_KEY=os.environ.get('SECRET_KEY', 'db9564268b5109bb02c25a568feaaeb8f'),
+    SECRET_KEY=_secret_key,
     SQLALCHEMY_DATABASE_URI=_db_url,
     SQLALCHEMY_TRACK_MODIFICATIONS=False,
     UPLOAD_FOLDER=os.path.join(os.path.dirname(__file__), 'uploads'),
@@ -70,7 +83,20 @@ app.config.update(
     ALLOWED_MATERIAL={'pdf', 'py', 'ipynb', 'zip', 'csv', 'txt', 'docx', 'pptx', 'html'},
     ALLOWED_SUBMISSION={'py', 'ipynb', 'zip', 'pdf', 'txt'},
     ALLOWED_RECEIPT={'pdf', 'jpg', 'jpeg', 'png', 'heic'},
+    # Session cookies: HTTPS-only in production, never readable from JS.
+    SESSION_COOKIE_SECURE=IS_PRODUCTION,
+    SESSION_COOKIE_HTTPONLY=True,
+    SESSION_COOKIE_SAMESITE='Lax',
+    REMEMBER_COOKIE_SECURE=IS_PRODUCTION,
+    REMEMBER_COOKIE_HTTPONLY=True,
+    REMEMBER_COOKIE_SAMESITE='Lax',
 )
+# One sign-in for learn.codencode.my and staff.codencode.my: set
+# SESSION_COOKIE_DOMAIN=.codencode.my (and REMEMBER_COOKIE_DOMAIN) on Railway.
+# Leave unset elsewhere (localhost, *.up.railway.app) or sign-in breaks there.
+for _cookie_key in ('SESSION_COOKIE_DOMAIN', 'REMEMBER_COOKIE_DOMAIN'):
+    if os.environ.get(_cookie_key):
+        app.config[_cookie_key] = os.environ[_cookie_key]
 
 db.init_app(app)
 
@@ -847,6 +873,7 @@ def _verify_reset_token(token, max_age=3600):
 
 
 @app.route('/api/auth/forgot-password', methods=['POST'])
+@limiter.limit('5 per minute; 20 per hour', methods=['POST'])
 def api_forgot_password():
     data = request.get_json(silent=True) or {}
     email = (data.get('email') or '').strip().lower()
@@ -880,6 +907,8 @@ def api_reset_password():
 
 
 @app.route('/api/auth/login', methods=['POST'])
+@limiter.limit('10 per minute; 60 per hour', methods=['POST'],
+               error_message='Too many sign-in attempts. Wait a minute and try again.')
 def api_login():
     data  = request.get_json()
     email = data.get('email', '').strip().lower()
@@ -891,6 +920,9 @@ def api_login():
 
     login_user(user, remember=False)   # session expires when browser closes
     user.last_login = datetime.utcnow()
+    # The plain-text temp password only exists so the welcome/reminder emails
+    # can show it before the first sign-in. Once they have signed in, drop it.
+    user.temp_password = None
     # A6 — log login activity
     try:
         ip = request.headers.get('X-Forwarded-For', request.remote_addr or '').split(',')[0].strip()
@@ -2428,7 +2460,7 @@ def _build_welcome_email(student_name: str, course_title: str,
                          days_before: int = 3) -> str:
     timing_display   = class_timing or 'as scheduled'
     fmt_display      = class_format  or 'Private'
-    password_display = login_password or 'codencode123'
+    password_display = login_password or 'the password you already use (forgot it? reset it on learn.codencode.my)'
     days_label       = f'{days_before} days' if days_before > 1 else 'tomorrow'
     return f"""
     <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;background:#0a1a12;color:#e0ffe8;padding:32px;border-radius:12px">
@@ -2519,7 +2551,7 @@ def _send_reminders_for_day(days_before: int):
                     _build_welcome_email(
                         student.name, course.title, timing, fmt,
                         login_email=student.email,
-                        login_password=student.temp_password or 'codencode123',
+                        login_password=student.temp_password,
                         days_before=days_before
                     )
                 )
@@ -2544,6 +2576,8 @@ def send_welcome_reminders():
 
 def _start_scheduler():
     """Start APScheduler background job — runs daily at 9:00 AM."""
+    if os.environ.get('DISABLE_SCHEDULER') == '1':   # tests, one-off CLI commands
+        return
     try:
         from apscheduler.schedulers.background import BackgroundScheduler
         from apscheduler.triggers.cron import CronTrigger
@@ -2555,6 +2589,8 @@ def _start_scheduler():
             replace_existing=True,
             misfire_grace_time=3600,
         )
+        from staff.jobs import register_jobs as _register_staff_jobs
+        _register_staff_jobs(scheduler, app)
         scheduler.start()
         app.logger.info('[Scheduler] Welcome reminder job scheduled — runs daily at 09:00')
     except Exception as exc:
@@ -3010,8 +3046,17 @@ def email_class_schedule(student, course, cohort, zoom_link):
     )
 
 
-def _zoom_verify_webhook_signature(secret_token, timestamp, raw_body, signature_header):
+def _zoom_verify_webhook_signature(secret_token, timestamp, raw_body, signature_header, max_age=300):
     if not signature_header or not signature_header.startswith('v0='):
+        return False
+    # Reject replays: Zoom's timestamp (ms or s since epoch) must be within 5 minutes.
+    try:
+        ts = int(timestamp)
+        if ts > 10 ** 11:
+            ts //= 1000
+        if abs(time.time() - ts) > max_age:
+            return False
+    except (TypeError, ValueError):
         return False
     message = f'v0:{timestamp}:{raw_body}'
     expected = 'v0=' + hmac.new(secret_token.encode(), message.encode(), hashlib.sha256).hexdigest()
@@ -3019,11 +3064,13 @@ def _zoom_verify_webhook_signature(secret_token, timestamp, raw_body, signature_
 
 
 @app.route('/api/integrations/zoom/webhook', methods=['POST'])
+@app.route('/zoom/staff-webhook', methods=['POST'])
 def zoom_webhook():
     """Zoom Marketplace event subscription target. Handles the one-time
     endpoint.url_validation handshake, then recording.completed events to
-    auto-add the cloud recording to the matching cohort's Recordings tab."""
-    secret = os.environ.get('ZOOM_WEBHOOK_SECRET_TOKEN', '')
+    auto-add the cloud recording to the matching cohort's Recordings tab,
+    and meeting.ended events to queue the staff module's participant report."""
+    secret = os.environ.get('ZOOM_WEBHOOK_SECRET_TOKEN') or os.environ.get('ZOOM_WEBHOOK_SECRET', '')
     payload = request.get_json(silent=True) or {}
     event = payload.get('event')
 
@@ -3039,6 +3086,11 @@ def zoom_webhook():
         request.get_data(as_text=True), request.headers.get('x-zm-signature', '')
     ):
         return jsonify({'error': 'Invalid signature'}), 401
+
+    if event == 'meeting.ended':
+        from staff.zoom_reports import enqueue_from_webhook
+        enqueue_from_webhook(payload)
+        return jsonify({'ok': True})
 
     if event == 'recording.completed':
         obj = (payload.get('payload') or {}).get('object') or {}
@@ -6260,8 +6312,29 @@ def seed_course_curriculum_materials():
 # ─────────────────────────────────────────────
 # Init DB & run
 # ─────────────────────────────────────────────
+# Staff Attendance & Payroll module (/staff, staff.codencode.my). Registered
+# here so its tables exist before create_all() below.
+from staff import init_staff
+init_staff(app,
+           zoom_configured=_zoom_configured,
+           zoom_access_token=_zoom_access_token,
+           zoom_token_cache=_zoom_token_cache,
+           create_recurring_zoom_meeting=_create_recurring_zoom_meeting,
+           send_email=send_email,
+           email_wrapper=_email_wrapper)
+
 with app.app_context():
     db.create_all()
+    # Staff module: cohorts.every_n_weeks (nullable, default 1). Added before any
+    # startup code queries Cohort.
+    try:
+        from sqlalchemy import inspect as _sa_inspect
+        if 'every_n_weeks' not in {c['name'] for c in _sa_inspect(db.engine).get_columns('cohorts')}:
+            with db.engine.connect() as conn:
+                conn.execute(text('ALTER TABLE cohorts ADD COLUMN every_n_weeks INTEGER DEFAULT 1'))
+                conn.commit()
+    except Exception:
+        app.logger.exception('Staff schema migration (cohorts.every_n_weeks) failed')
     # Safe column migrations (SQLite doesn't support ALTER TABLE ADD IF NOT EXISTS)
     from sqlalchemy import text, inspect as sa_inspect
     try:

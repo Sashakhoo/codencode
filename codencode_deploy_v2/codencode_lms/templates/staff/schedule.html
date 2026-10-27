@@ -1,0 +1,90 @@
+{% extends 'staff/base.html' %}
+{% block title %}Schedule{% endblock %}
+{% block main %}
+<div class="top"><div><h1>{{ 'All schedules' if admin_view else 'Schedule' }}</h1>
+  <div class="sub">{% if is_admin %}Add classes and shifts for any teacher. They go live at once. Staff requests wait here for your approval.{% else %}Request your recurring Zoom classes or office shifts. Admin approves them before they go live.{% endif %}</div></div></div>
+
+<div class="card">
+  <h2>Add a recurring class or shift</h2>
+  <form class="form" id="schedForm" novalidate>
+    <label>Type<select name="type" id="fType"><option value="zoom">Zoom class</option><option value="office">Office shift</option></select></label>
+    {% if is_admin %}
+    <label>{{ 'Teacher' }}<select name="user_id">{% for t in teachers %}<option value="{{ t.id }}"{% if t.id == current_user.id %} selected{% endif %}>{{ t.name }}</option>{% endfor %}</select></label>
+    {% endif %}
+    <label data-zoom>Class<select name="cohort_id" id="fCohort"><option value="">New class…</option>{% for c in my_cohorts %}<option value="{{ c.id }}" data-name="{{ c.name }}" data-mid="{{ c.zoom_meeting_id or '' }}">Change: {{ c.name }}{{ ' · ' ~ c.course.title if c.course }}</option>{% endfor %}</select></label>
+    <label data-zoom data-new>Course<select name="course_id">{% for c in courses %}<option value="{{ c.id }}">{{ c.title }}</option>{% endfor %}</select></label>
+    <label>Title<input name="title" id="fTitle" maxlength="100" placeholder="PY-102 Python Intermediate"></label>
+    <label data-zoom>Zoom meeting ID<input name="zoom_meeting_id" inputmode="numeric" placeholder="845 1234 5678 (optional)"></label>
+    <div class="wide"><div class="note" style="margin-bottom:6px;font-weight:600">Repeats on</div>
+      <div class="daypick">{% for d in range(7) %}<label><input type="checkbox" name="days" value="{{ d }}"><span>{{ DAY_SHORT[d] }}</span></label>{% endfor %}</div></div>
+    <label>Start<input type="time" name="start" value="20:00"></label>
+    <label>End<input type="time" name="end" value="22:00"></label>
+    <label>Repeat<select name="every_n_weeks"><option value="1">Every week</option><option value="2">Every 2 weeks</option></select></label>
+    <label>From<input type="date" name="start_date" value="{{ today.isoformat() }}"></label>
+    <label>Until<input type="date" name="end_date"></label>
+    <div class="wide row"><button class="btn" type="submit">{{ 'Add schedule' if is_admin else 'Send for approval' }}</button>
+      <span class="note">Leave the meeting ID empty and admin can create the Zoom meeting.</span></div>
+  </form>
+  <div id="fStat" class="status" hidden></div>
+</div>
+
+{% set fd = '%d %b %y' %}
+<div class="card">
+  <div class="card-h"><h2>{{ 'Requests' if admin_view else 'My requests' }}{% if admin_view %} <span class="pill f-warn">{{ reqs|selectattr('status','equalto','pending')|list|length + shifts|selectattr('status','equalto','pending')|list|length }} pending</span>{% endif %}</h2></div>
+  <div class="tbl"><table>
+    <thead><tr><th>Class / shift</th><th>Teacher</th><th>When</th><th>Period</th><th>Status</th><th></th></tr></thead>
+    <tbody>
+    {% for r in reqs %}{% set p = r.payload %}
+      <tr><td><b>{{ p.title }}</b><div class="note m">Zoom {{ p.zoom_meeting_id or '— no meeting ID' }}{{ ' · change to existing class' if r.cohort_id }}</div></td>
+        <td>{{ r.requester.name }}</td>
+        <td class="m">{{ p.days|daynames }}<br>{{ p.start }}–{{ p.end }}{{ ' · every 2 wks' if p.every_n_weeks == 2 }}</td>
+        <td class="m">{{ p.start_date }} – {{ p.end_date }}</td>
+        <td>{% if r.status == 'pending' %}<span class="pill f-warn">Pending approval</span>{% else %}<span class="pill f-bad">Rejected</span>{% if r.note %}<div class="note">{{ r.note }}</div>{% endif %}{% endif %}</td>
+        <td><div class="act">{% if r.status == 'pending' %}
+          {% if is_admin %}<button class="btn okb sm" data-post="/staff/api/cohort-requests/{{ r.id }}/approve">Approve</button><button class="btn danger sm" data-post="/staff/api/cohort-requests/{{ r.id }}/reject" data-note>Reject</button>
+            {% if not p.zoom_meeting_id %}<button class="btn ghost sm" data-post="/staff/api/cohort-requests/{{ r.id }}/create-zoom"{% if not zoom_ready %} disabled title="Zoom is not configured"{% endif %}>Create Zoom meeting</button>{% endif %}
+          {% endif %}
+          {% if r.requested_by == current_user.id %}<button class="btn danger sm" data-post="/staff/api/cohort-requests/{{ r.id }}/withdraw">Withdraw</button>{% endif %}
+        {% endif %}</div></td></tr>
+    {% endfor %}
+    {% for sh in shifts if sh.status in ('pending', 'rejected') %}
+      <tr><td><b>{{ sh.title }}</b><div class="note m">Office shift</div></td><td>{{ sh.user.name }}</td>
+        <td class="m">{{ sh.days|daynames }}<br>{{ sh.start_time }}–{{ sh.end_time }}{{ ' · every 2 wks' if sh.every_n_weeks == 2 }}</td>
+        <td class="m">{{ sh.start_date.strftime(fd) }} – {{ sh.end_date.strftime(fd) }}</td>
+        <td>{% if sh.status == 'pending' %}<span class="pill f-warn">Pending approval</span>{% else %}<span class="pill f-bad">{{ sh.status|capitalize }}</span>{% endif %}</td>
+        <td><div class="act">{% if sh.status == 'pending' %}
+          {% if is_admin %}<button class="btn okb sm" data-post="/staff/api/shifts/{{ sh.id }}/approve">Approve</button><button class="btn danger sm" data-post="/staff/api/shifts/{{ sh.id }}/reject" data-note>Reject</button>{% endif %}
+          {% if sh.user_id == current_user.id %}<button class="btn danger sm" data-post="/staff/api/shifts/{{ sh.id }}/withdraw">Withdraw</button>{% endif %}
+        {% endif %}</div></td></tr>
+    {% endfor %}
+    {% if not reqs and not (shifts|selectattr('status','in',['pending','rejected'])|list) %}<tr><td colspan="6" class="note">No open requests.</td></tr>{% endif %}
+    </tbody>
+  </table></div>
+</div>
+
+<div class="card">
+  <div class="card-h"><h2>{{ 'Active schedules' if admin_view else 'My schedules' }}</h2><span class="note">Skip a date for public holidays or leave.</span></div>
+  <div class="tbl"><table>
+    <thead><tr><th>Class / shift</th><th>Teacher</th><th>When</th><th>Period</th><th>Status</th><th></th></tr></thead>
+    <tbody>
+    {% for row in cohort_rows %}{% set c = row.c %}
+      <tr><td><b>{{ c.name }}</b>{{ ' · ' ~ c.course.title if c.course }}<div class="note m">Zoom {{ c.zoom_meeting_id or '— no meeting ID' }}</div></td>
+        <td>{{ c.teacher.name if c.teacher else '—' }}</td>
+        <td class="m">{% for s in row.slots %}{{ DAY_SHORT[s.weekday] }} {{ s.start }}–{{ s.end }}{{ '<br>'|safe if not loop.last }}{% endfor %}{{ ' · every 2 wks' if c.every_n_weeks == 2 }}</td>
+        <td class="m">{{ c.start_date.strftime(fd) if c.start_date else '—' }} – {{ c.end_date.strftime(fd) if c.end_date else 'open' }}{% if row.skips %}<div class="note">Skips: {% for d in row.skips %}{{ d.strftime('%d %b') }}{{ ', ' if not loop.last }}{% endfor %}</div>{% endif %}</td>
+        <td><span class="pill f-ok">Active</span></td>
+        <td><div class="act"><input type="date" aria-label="Skip date" data-skip-for="c{{ c.id }}"><button class="btn ghost sm" data-skip="/staff/api/cohorts/{{ c.id }}/skip" data-skip-input="c{{ c.id }}">Skip date</button></div></td></tr>
+    {% endfor %}
+    {% for sh in shifts if sh.status == 'active' %}
+      <tr><td><b>{{ sh.title }}</b><div class="note m">Office shift</div></td><td>{{ sh.user.name }}</td>
+        <td class="m">{{ sh.days|daynames }}<br>{{ sh.start_time }}–{{ sh.end_time }}{{ ' · every 2 wks' if sh.every_n_weeks == 2 }}</td>
+        <td class="m">{{ sh.start_date.strftime(fd) }} – {{ sh.end_date.strftime(fd) }}{% if sh.skip_dates %}<div class="note">Skips: {{ sh.skip_dates|join(', ') }}</div>{% endif %}</td>
+        <td><span class="pill f-ok">Active</span></td>
+        <td><div class="act"><input type="date" aria-label="Skip date" data-skip-for="s{{ sh.id }}"><button class="btn ghost sm" data-skip="/staff/api/shifts/{{ sh.id }}/skip" data-skip-input="s{{ sh.id }}">Skip date</button>
+          {% if is_admin %}<button class="btn danger sm" data-post="/staff/api/shifts/{{ sh.id }}/remove" data-note>Remove</button>{% endif %}</div></td></tr>
+    {% endfor %}
+    {% if not cohort_rows and not (shifts|selectattr('status','equalto','active')|list) %}<tr><td colspan="6" class="note">No active schedules yet.</td></tr>{% endif %}
+    </tbody>
+  </table></div>
+</div>
+{% endblock %}

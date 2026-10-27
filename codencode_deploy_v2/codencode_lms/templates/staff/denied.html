@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Staff Portal · Codencode</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=JetBrains+Mono:wght@600&display=swap">
+<link rel="stylesheet" href="/static/css/staff.css">
+</head>
+<body>
+<section class="login">
+  <div class="login-card">
+    <div class="logo" style="padding:0"><img class="on-light" src="/static/img/logo.png" alt="codencode.my" width="640" height="101"><img class="on-dark" src="/static/img/logo_dark.png" alt="codencode.my" width="640" height="102"></div>
+    <h1 style="font-size:22px">{{ 'Not allowed' if status == 403 else 'Something is missing' }}</h1>
+    <div class="status {{ 'bad' if status == 403 else 'warn' }}">{{ message }}</div>
+    {% if current_user.is_authenticated and current_user.role == 'student' %}
+    <a class="btn" href="https://learn.codencode.my">Go to learn.codencode.my</a>
+    {% else %}
+    <a class="btn ghost" href="/staff">Back to the Staff Portal</a>
+    {% endif %}
+  </div>
+</section>
+</body>
+</html>

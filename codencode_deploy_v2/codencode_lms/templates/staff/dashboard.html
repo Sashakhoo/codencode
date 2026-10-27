@@ -1,0 +1,93 @@
+{% extends 'staff/base.html' %}
+{% block title %}{{ 'Staff Attendance' if is_admin else 'My Attendance' }}{% endblock %}
+{% block main %}
+{% set u = s.user %}
+<div class="top">
+  <div><h1>{{ 'Staff Attendance' if is_admin and uid != current_user.id else 'My Attendance' }}</h1><div class="sub">Office sessions verified by geofence. Zoom classes verified against the meeting report.</div></div>
+  <form class="row" method="get" action="/staff" data-autosubmit>
+    {% if is_admin %}
+    <select name="user" aria-label="Staff">
+      {% for p in staff %}<option value="{{ p.id }}"{% if p.id == uid %} selected{% endif %}>{{ p.name }} · {{ p.role|capitalize }}</option>{% endfor %}
+    </select>
+    {% else %}<span class="pill f-ok">Only your records are visible</span>{% endif %}
+    <select name="month" aria-label="Month">{% for k, label in months %}<option value="{{ k }}"{% if k == month %} selected{% endif %}>{{ label }}</option>{% endfor %}</select>
+    <noscript><button class="btn ghost">Show</button></noscript>
+  </form>
+</div>
+
+<div class="grid-2">
+  <div class="card">
+    <div class="card-h"><h2><span class="dot"></span>Staff Details</h2>
+      <a class="btn" href="{{ '/staff/admin/payroll' if is_admin and uid != current_user.id else '/staff/pay' }}?month={{ month }}&format=csv{% if is_admin and uid != current_user.id %}&only={{ uid }}{% endif %}"><svg viewBox="0 0 24 24"><path d="M12 4v11m0 0l-4-4m4 4l4-4M5 20h14"/></svg>Timesheet CSV</a></div>
+    <div class="profile">
+      <div class="avatar"><span>{{ u.name[:1] }}</span><span class="chip">{{ (s.profile.employment_type if s.profile else 'part_time')|replace('_', '-')|capitalize }}</span></div>
+      <div style="min-width:0">
+        <p class="pname">{{ u.name }}</p>
+        <div class="facts">
+          <div><span>Role</span><b>{{ u.title or u.role|capitalize }}</b></div>
+          <div><span>Rate</span><b>{% if s.profile %}RM {{ '%g'|format(s.rate) }}/hr{% else %}Not set{% endif %}</b></div>
+          <div><span>Monthly cap</span><b>{% if s.cap %}{{ '%g'|format(s.cap) }} hrs/month{% else %}—{% endif %}</b></div>
+          <div><span>Classes</span><b>{{ s.classes }}</b></div>
+        </div>
+        {% if not s.profile %}<div class="note" style="margin-top:8px">No staff profile yet{% if is_admin %} — set the rate and cap on <a href="/staff/admin/team">Team</a>{% else %}. Ask admin to set your rate and cap{% endif %}.</div>{% endif %}
+      </div>
+    </div>
+  </div>
+  <div class="tiles">
+    <div class="tile"><span>Approved hours</span><b>{{ '%.1f'|format(s.paid_hours) }}{% if s.cap %}<small>/ {{ '%g'|format(s.cap) }} hrs</small>{% endif %}</b></div>
+    <div class="tile"><span>Sessions</span><b>{{ s.sessions }}<small>this month</small></b></div>
+    <div class="tile"><span>To review</span><b style="{{ 'color:var(--warn)' if s.flagged }}">{{ s.flagged }}<small>flagged</small></b></div>
+    <div class="tile"><span>Pay so far</span><b>{{ '%.0f'|format(s.pay) }}<small>RM</small></b></div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-h"><h2>Attendance</h2>
+    <div class="legend"><span><i style="background:var(--ok)"></i>Verified</span><span><i style="background:var(--warn)"></i>Gap &gt; 10 min</span><span><i style="background:var(--bad)"></i>Rejected</span><span><i style="border:2px dashed var(--muted)"></i>Awaiting report</span><span><i style="background:var(--idle)"></i>No session</span></div>
+  </div>
+  <div class="dots-wrap"><div class="dots" id="dots">
+    {% for d in s.dots %}
+    <button type="button" class="day{% if d.tone %} has st-{{ d.tone }}{% endif %}{% if d.today %} today{% endif %}" data-d="{{ d.iso }}" title="{{ d.dow }} {{ d.day }}"{% if not d.tone %} tabindex="-1" disabled{% endif %}>
+      <span>{{ '%02d'|format(d.day) }}</span><i>{% if d.tone == 'ok' %}<svg viewBox="0 0 24 24"><path d="M5 12l5 5 9-10"/></svg>{% elif d.tone == 'bad' %}<svg viewBox="0 0 24 24"><path d="M7 7l10 10M17 7L7 17"/></svg>{% elif d.tone == 'warn' %}<svg viewBox="0 0 24 24"><path d="M12 7v6M12 17h.01"/></svg>{% endif %}</i>
+    </button>
+    {% endfor %}
+  </div></div>
+</div>
+
+<div class="card" id="history">
+  <div class="card-h"><h2>Attendance History</h2>
+    <div class="row">
+      <div class="seg"><button type="button" id="vTime" aria-pressed="true">Timeline</button><button type="button" id="vCard" aria-pressed="false">Timecard</button></div>
+      <button type="button" class="btn ghost" id="clearDay" hidden>Show all days</button>
+    </div>
+  </div>
+  {% if not s.rows %}
+  <div class="note">No sessions this month.</div>
+  {% else %}
+  <div id="hTime" class="tl-wrap"><div class="tl">
+    <div class="tl-axis"><div class="note">Date</div><div class="ticks">{% for h in range(8, 24, 2) %}<span style="left:{{ (h - 8) / 15 * 100 }}%">{{ h % 12 or 12 }}{{ 'pm' if h >= 12 else 'am' }}</span>{% endfor %}</div></div>
+    {% for r in s.rows %}
+    <div class="tl-row" data-date="{{ r.date_iso }}">
+      <div class="tl-date"><em>{{ r.dow }}</em>{{ r.day_label }}</div>
+      <div class="track">
+        <div class="bar {{ '' if r.eval.tone == 'ok' else r.eval.tone }}" style="left:{{ r.bar_left }}%;width:{{ r.bar_width }}%" title="{{ r.in }} – {{ r.out or 'now' }} · {{ r.title }}">{{ r.in }} – {{ r.out or 'now' }} · {{ r.short }} · {{ 'Zoom' if r.mode == 'zoom' else 'Office' }}</div>
+        {% if r.zbar_left is defined %}<div class="zbar" style="left:{{ r.zbar_left }}%;width:{{ r.zbar_width }}%" title="Zoom {{ r.zoom_in }}–{{ r.zoom_out }}"></div>{% endif %}
+        <span class="flag f-{{ r.eval.tone }}{{ ' left' if r.bar_left > 55 }}">{{ r.eval.label }}</span>
+      </div>
+    </div>
+    {% endfor %}
+  </div></div>
+  <div id="hCard" class="tbl" hidden><table>
+    <thead><tr><th>Date</th><th>Session</th><th>App clock</th><th>Zoom time</th><th>Students</th><th>Paid hrs</th><th>Status</th>{% if is_admin %}<th></th>{% endif %}</tr></thead>
+    <tbody>{% for r in s.rows %}
+      <tr data-date="{{ r.date_iso }}"><td class="m">{{ r.day_label }}</td><td>{{ r.title }}<div class="note">{{ 'Zoom ' ~ r.zoom_meeting_id if r.mode == 'zoom' else 'Office' }}{{ ' · adjusted by admin' if r.source == 'admin_adjusted' }}</div></td>
+      <td class="m">{{ r.in }}–{{ r.out or 'now' }}</td><td class="m">{{ r.zoom_in ~ '–' ~ r.zoom_out if r.zoom_in else '—' }}</td>
+      <td class="m">{{ r.eval.students if r.eval.students is not none else '—' }}</td><td class="m">{{ '%.2f'|format(r.paid_hours) }}</td>
+      <td><span class="pill f-{{ r.eval.tone }}">{{ r.eval.label }}</span></td>
+      {% if is_admin %}<td><a class="btn ghost sm" href="/staff/admin/sessions/{{ r.id }}">Open</a></td>{% endif %}</tr>
+    {% endfor %}</tbody>
+  </table></div>
+  {% endif %}
+  <div class="note">Top bar = app clock-in to clock-out. Blue line = the teacher's time in the Zoom meeting. Paid hours are the shorter of the two.</div>
+</div>
+{% endblock %}
