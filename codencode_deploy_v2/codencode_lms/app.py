@@ -81,7 +81,20 @@ app.config.update(
     ALLOWED_MATERIAL={'pdf', 'py', 'ipynb', 'zip', 'csv', 'txt', 'docx', 'pptx', 'html'},
     ALLOWED_SUBMISSION={'py', 'ipynb', 'zip', 'pdf', 'txt'},
     ALLOWED_RECEIPT={'pdf', 'jpg', 'jpeg', 'png', 'heic'},
+    # Session cookies: HTTPS-only in production, never readable from JS.
+    SESSION_COOKIE_SECURE=IS_PRODUCTION,
+    SESSION_COOKIE_HTTPONLY=True,
+    SESSION_COOKIE_SAMESITE='Lax',
+    REMEMBER_COOKIE_SECURE=IS_PRODUCTION,
+    REMEMBER_COOKIE_HTTPONLY=True,
+    REMEMBER_COOKIE_SAMESITE='Lax',
 )
+# One sign-in for learn.codencode.my and staff.codencode.my: set
+# SESSION_COOKIE_DOMAIN=.codencode.my (and REMEMBER_COOKIE_DOMAIN) on Railway.
+# Leave unset elsewhere (localhost, *.up.railway.app) or sign-in breaks there.
+for _cookie_key in ('SESSION_COOKIE_DOMAIN', 'REMEMBER_COOKIE_DOMAIN'):
+    if os.environ.get(_cookie_key):
+        app.config[_cookie_key] = os.environ[_cookie_key]
 
 db.init_app(app)
 
