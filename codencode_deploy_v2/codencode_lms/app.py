@@ -891,6 +891,9 @@ def api_login():
 
     login_user(user, remember=False)   # session expires when browser closes
     user.last_login = datetime.utcnow()
+    # The plain-text temp password only exists so the welcome/reminder emails
+    # can show it before the first sign-in. Once they have signed in, drop it.
+    user.temp_password = None
     # A6 — log login activity
     try:
         ip = request.headers.get('X-Forwarded-For', request.remote_addr or '').split(',')[0].strip()
@@ -2428,7 +2431,7 @@ def _build_welcome_email(student_name: str, course_title: str,
                          days_before: int = 3) -> str:
     timing_display   = class_timing or 'as scheduled'
     fmt_display      = class_format  or 'Private'
-    password_display = login_password or 'codencode123'
+    password_display = login_password or 'the password you already use (forgot it? reset it on learn.codencode.my)'
     days_label       = f'{days_before} days' if days_before > 1 else 'tomorrow'
     return f"""
     <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;background:#0a1a12;color:#e0ffe8;padding:32px;border-radius:12px">
@@ -2519,7 +2522,7 @@ def _send_reminders_for_day(days_before: int):
                     _build_welcome_email(
                         student.name, course.title, timing, fmt,
                         login_email=student.email,
-                        login_password=student.temp_password or 'codencode123',
+                        login_password=student.temp_password,
                         days_before=days_before
                     )
                 )
