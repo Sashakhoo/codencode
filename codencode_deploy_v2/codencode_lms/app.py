@@ -38,6 +38,8 @@ from sqlalchemy.orm import joinedload
 from itsdangerous import BadSignature, SignatureExpired, URLSafeSerializer, URLSafeTimedSerializer
 from werkzeug.utils import secure_filename
 
+from staff.extensions import limiter
+
 import io
 import csv
 from models import (db, User, Course, Enrollment, Recording,
@@ -871,6 +873,7 @@ def _verify_reset_token(token, max_age=3600):
 
 
 @app.route('/api/auth/forgot-password', methods=['POST'])
+@limiter.limit('5 per minute; 20 per hour', methods=['POST'])
 def api_forgot_password():
     data = request.get_json(silent=True) or {}
     email = (data.get('email') or '').strip().lower()
@@ -904,6 +907,8 @@ def api_reset_password():
 
 
 @app.route('/api/auth/login', methods=['POST'])
+@limiter.limit('10 per minute; 60 per hour', methods=['POST'],
+               error_message='Too many sign-in attempts. Wait a minute and try again.')
 def api_login():
     data  = request.get_json()
     email = data.get('email', '').strip().lower()

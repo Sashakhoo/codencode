@@ -196,3 +196,28 @@ def test_staff_host_root_redirects_to_staff(client):
     assert r.status_code == 302 and r.headers['Location'].endswith('/staff')
     r = client.get('/', headers={'Host': 'learn.codencode.my'})
     assert r.status_code == 200
+
+
+def test_login_is_rate_limited(app, client):
+    from staff.extensions import limiter
+    limiter.enabled = True
+    limiter.reset()
+    try:
+        codes = [client.post('/api/auth/login', json={'email': 'nobody@t.example', 'password': 'x'},
+                             headers={'X-Forwarded-For': '203.0.113.9'}).status_code for _ in range(11)]
+        assert codes[:10] == [401] * 10 and codes[10] == 429
+        # A different client is not affected.
+        assert client.post('/api/auth/login', json={'email': 'nobody@t.example', 'password': 'x'},
+                           headers={'X-Forwarded-For': '203.0.113.10'}).status_code == 401
+    finally:
+        limiter.reset()
+        limiter.enabled = False
+
+
+def test_temp_password_cleared_on_first_login(client):
+    from models import User
+    u = make_user('student')
+    u.temp_password = 'pw-123456'
+    db.session.commit()
+    assert client.post('/api/auth/login', json={'email': u.email, 'password': 'pw-123456'}).status_code == 200
+    assert User.query.get(u.id).temp_password is None
