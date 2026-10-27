@@ -13,7 +13,7 @@
 <body>
 <section class="login">
   <form class="login-card" id="loginForm" data-next="{{ next }}">
-    <div class="logo" style="padding:0">coden<b>code</b>.my</div>
+    <div class="logo" style="padding:0"><img class="on-light" src="/static/img/logo.png" alt="codencode.my" width="640" height="101"><img class="on-dark" src="/static/img/logo_dark.png" alt="codencode.my" width="640" height="102"></div>
     <div><h1 style="font-size:22px">Staff Portal</h1><div class="sub">Sign in with the same account you use on learn.codencode.my.</div></div>
     {% if student %}
     <div class="status bad">{{ current_user.email }} is a student account. The Staff Portal is only for staff and admin. <a href="https://learn.codencode.my">Go to learn.codencode.my</a></div>

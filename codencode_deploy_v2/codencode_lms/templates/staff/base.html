@@ -23,6 +23,7 @@
  'pay':'<rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18M7 15h3"/>',
  'reports':'<path d="M14 3H6a1 1 0 0 0-1 1v16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V8z"/><path d="M14 3v5h5M9 13h6M9 17h6"/>',
  'review':'<path d="M12 9v4M12 17h.01"/><path d="M10.3 3.9L1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/>',
+ 'phone':'<rect x="7" y="2.5" width="10" height="19" rx="2.5"/><path d="M11 18.5h2"/>',
  'team':'<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0M16 4.5a3.5 3.5 0 0 1 0 7M18 14.5a6.5 6.5 0 0 1 3.5 5.5"/>'
 } %}
 {% macro nav(key, href, label, icon, badge=0) -%}
@@ -30,13 +31,14 @@
 {%- endmacro %}
 <div class="app">
 <aside>
-  <a class="logo" href="/staff">coden<b>code</b>.my</a>
+  <a class="logo" href="/staff"><img class="on-light" src="/static/img/logo.png" alt="codencode.my" width="640" height="101"><img class="on-dark" src="/static/img/logo_dark.png" alt="codencode.my" width="640" height="102"></a>
   <div class="navlbl">STAFF</div>
   {{ nav('dash', '/staff', 'Attendance', 'dash') }}
   {{ nav('classes', '/staff/classes', 'My classes', 'classes') }}
   {{ nav('sched', '/staff/schedule', 'Schedule', 'sched') }}
   {{ nav('clock', '/staff/clock', 'Office clock-in', 'clock') }}
   {{ nav('pay', '/staff/pay', 'My pay', 'pay') }}
+  {{ nav('install', '/staff/install', 'Install app', 'phone') }}
   {% if is_admin %}
   <div class="navlbl">ADMIN</div>
   {{ nav('admin_sched', '/staff/admin/schedule', 'All schedules', 'sched', pending_schedule) }}
@@ -55,6 +57,10 @@
 <main>
   {% if open_ws %}
   <div class="live" id="liveBox"><span><span class="pulse"></span>Clocked in at {{ open_ws.in }} · {{ open_ws.short }}{{ ' on Zoom' if open_ws.mode == 'zoom' else ' · Office' }}</span><button class="btn" data-clock-out style="background:var(--ok)">Clock out</button></div>
+  {% endif %}
+  {% if page != 'install' %}
+  <div class="tip" id="installTip" hidden><span><b>Get class reminders on your phone.</b> Add the Staff Portal to your home screen.</span>
+    <span class="act"><a class="btn sm" href="/staff/install">Show me how</a><button type="button" class="btn ghost sm" data-dismiss-tip>Not now</button></span></div>
   {% endif %}
   {% block main %}{% endblock %}
 </main>

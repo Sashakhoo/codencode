@@ -10,7 +10,7 @@ from staff.models import StaffShift, StaffProfile, CohortScheduleRequest, WorkSe
 from staff.timeutil import utcnow, today_myt
 from tests.conftest import make_user, make_cohort, make_session, login
 
-PAGES = ['/staff/', '/staff/classes', '/staff/schedule', '/staff/clock', '/staff/pay', '/staff/pay?format=csv']
+PAGES = ['/staff/', '/staff/classes', '/staff/schedule', '/staff/clock', '/staff/pay', '/staff/pay?format=csv', '/staff/install']
 ADMIN_PAGES = ['/staff/admin/schedule', '/staff/admin/reports', '/staff/admin/payroll',
                '/staff/admin/payroll?format=csv', '/staff/admin/review', '/staff/admin/team']
 APIS_GET = ['/staff/api/status', '/staff/api/sessions', '/staff/api/pay', '/staff/api/schedules']

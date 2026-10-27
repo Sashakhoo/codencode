@@ -197,23 +197,93 @@
     } catch (e) { toast(e.message, 'bad'); }
   }));
 
+  // Install guide: device detection, home-screen prompt, setup checklist.
+  const standalone = matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
+  const ua = navigator.userAgent;
+  const os = /iPhone|iPad|iPod/.test(ua) || (ua.includes('Mac') && navigator.maxTouchPoints > 1) ? 'ios'
+    : /Android/.test(ua) ? 'android' : 'desktop';
+  const store = {get: k => { try { return localStorage.getItem(k); } catch (_) { return null; } },
+                 set: (k, v) => { try { localStorage.setItem(k, v); } catch (_) {} }};
+
+  // "Add to home screen" prompt on phones, until installed or dismissed.
+  const tip = $('#installTip');
+  if (tip && !standalone && os !== 'desktop' && !store.get('staffTipDismissed')) tip.hidden = false;
+  $('[data-dismiss-tip]')?.addEventListener('click', () => { tip.hidden = true; store.set('staffTipDismissed', '1'); });
+
+  // Guide page: open the tab for this device.
+  let deferred = null;     // Chrome's install prompt, when it offers one
+  const tabs = $$('[data-os]');
+  const showOs = v => {
+    tabs.forEach(t => t.setAttribute('aria-pressed', t.dataset.os === v));
+    $$('[data-panel]').forEach(p => (p.hidden = p.dataset.panel !== v));
+    const q = $('#androidQuick'); if (q) q.hidden = !(deferred && v !== 'ios');
+  };
+  if (tabs.length) { showOs(os); tabs.forEach(t => t.addEventListener('click', () => showOs(t.dataset.os))); }
+
+  const setCheck = (id, state, msg) => {
+    const el = $(id); if (!el) return;
+    el.className = `check ${state}`; $('[data-msg]', el).textContent = msg;
+  };
+  setCheck('#chkInstalled', standalone ? 'ok' : 'no', standalone ? 'Yes, you opened it from the home screen.'
+    : 'Not yet. Follow step 1 below, then open it from the new icon.');
+
+  // Android and desktop Chrome: one-tap install.
+  window.addEventListener('beforeinstallprompt', e => {
+    e.preventDefault(); deferred = e;
+    const q = $('#androidQuick'), cur = $('[data-os][aria-pressed="true"]');
+    if (q && cur && cur.dataset.os !== 'ios') q.hidden = false;
+  });
+  $('#installNow')?.addEventListener('click', async () => {
+    if (!deferred) return;
+    deferred.prompt(); await deferred.userChoice.catch(() => null); deferred = null;
+    $('#androidQuick').hidden = true;
+  });
+
   // Web Push: register the service worker and offer to subscribe.
   const vapid = $('meta[name="vapid-key"]')?.content;
-  const pushBtn = $('#pushBtn');
+  const pushBtn = $('#pushBtn'), pushNow = $('#pushNow');
+  const pushStat = (t, k) => { const s = $('#pushStat'); if (s) { s.hidden = false; s.className = `status ${k}`; s.textContent = t; } };
+  const pushOn = () => {
+    setCheck('#chkPush', 'ok', 'Yes, reminders will arrive on this device.');
+    if (pushBtn) pushBtn.hidden = true;
+    if (pushNow) { pushNow.disabled = true; pushNow.textContent = 'Notifications are on'; }
+  };
+  const pushSupported = 'serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window;
+  if (!vapid) {
+    setCheck('#chkPush', 'no', 'Not switched on by admin yet. You will get reminders by email meanwhile.');
+    if (pushNow) pushNow.disabled = true;
+  } else if (!pushSupported) {
+    setCheck('#chkPush', 'no', os === 'ios' ? 'Add it to your home screen and open it from the icon first (iOS 16.4 or later).'
+      : 'This browser cannot show notifications.');
+    if (pushNow) pushNow.disabled = true;
+  } else if (Notification.permission === 'denied') {
+    setCheck('#chkPush', 'no', 'Blocked. See “I tapped Don’t Allow by mistake” below.');
+  }
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('/staff/sw.js', {scope: '/staff/'}).then(async reg => {
-      if (!vapid || !('PushManager' in window) || !pushBtn) return;
+      if (!vapid || !pushSupported) return;
       const existing = await reg.pushManager.getSubscription();
-      if (existing) return api('/staff/api/push/subscribe', existing.toJSON()).catch(() => {});
-      pushBtn.hidden = false;
-      pushBtn.addEventListener('click', async () => {
+      if (existing) { pushOn(); return api('/staff/api/push/subscribe', existing.toJSON()).catch(() => {}); }
+      if (Notification.permission !== 'denied') {
+        setCheck('#chkPush', 'no', 'Not yet. Follow step 2 below.');
+        if (pushBtn) pushBtn.hidden = false;
+      }
+      const turnOn = async () => {
         try {
           const key = Uint8Array.from(atob(vapid.replace(/-/g, '+').replace(/_/g, '/') + '='.repeat((4 - vapid.length % 4) % 4)), c => c.charCodeAt(0));
           const sub = await reg.pushManager.subscribe({userVisibleOnly: true, applicationServerKey: key});
           await api('/staff/api/push/subscribe', sub.toJSON());
-          pushBtn.hidden = true; toast('Notifications are on.');
-        } catch (e) { toast('Could not turn on notifications. On iPhone, add this site to your Home Screen first.', 'warn'); }
-      });
+          pushOn(); pushStat('Done. You will get a notification 15 minutes before each class.', 'ok');
+          toast('Notifications are on.');
+        } catch (e) {
+          const msg = Notification.permission === 'denied' ? 'Notifications are blocked. See the help below to allow them.'
+            : os === 'ios' && !standalone ? 'On iPhone, add the Staff Portal to your Home Screen first, then open it from the icon.'
+            : 'Could not turn on notifications. Try again.';
+          pushStat(msg, 'warn'); toast(msg, 'warn');
+        }
+      };
+      pushBtn?.addEventListener('click', turnOn);
+      pushNow?.addEventListener('click', turnOn);
     }).catch(() => {});
   }
 })();

@@ -187,8 +187,8 @@ def manifest():
     body = {
         'name': 'Codencode Staff', 'short_name': 'Staff', 'start_url': '/staff', 'scope': '/staff/',
         'display': 'standalone', 'background_color': '#eef2f7', 'theme_color': '#1f7ae0',
-        'icons': [{'src': '/static/img/favicon-192.png', 'sizes': '192x192', 'type': 'image/png'},
-                  {'src': '/static/img/favicon-180.png', 'sizes': '180x180', 'type': 'image/png'}],
+        'icons': [{'src': '/static/img/favicon-192.png', 'sizes': '192x192', 'type': 'image/png', 'purpose': 'any'},
+                  {'src': '/static/img/favicon-512.png', 'sizes': '512x512', 'type': 'image/png', 'purpose': 'any'}],
     }
     resp = make_response(json.dumps(body))
     resp.headers['Content-Type'] = 'application/manifest+json'
@@ -264,6 +264,11 @@ def clock():
 @bp.route('/schedule')
 def schedule():
     return render_template('staff/schedule.html', page='sched', **_schedule_ctx(admin_view=False))
+
+
+@bp.route('/install')
+def install():
+    return render_template('staff/install.html', page='install')
 
 
 @bp.route('/pay')
