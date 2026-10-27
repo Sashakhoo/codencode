@@ -60,8 +60,19 @@ _db_url = os.environ.get('DATABASE_URL', 'sqlite:///codencode_lms.db')
 if _db_url.startswith('postgres://'):
     _db_url = _db_url.replace('postgres://', 'postgresql://', 1)
 
+# Production = running on Railway (or explicitly flagged). There is no
+# hard-coded fallback key: without SECRET_KEY the app refuses to start in
+# production, and local dev gets a random key (sessions reset on restart).
+IS_PRODUCTION = bool(os.environ.get('RAILWAY_ENVIRONMENT') or os.environ.get('RAILWAY_ENVIRONMENT_NAME')
+                     or os.environ.get('FLASK_ENV') == 'production' or os.environ.get('APP_ENV') == 'production')
+_secret_key = os.environ.get('SECRET_KEY', '').strip()
+if not _secret_key:
+    if IS_PRODUCTION:
+        raise RuntimeError('SECRET_KEY is not set. Set it in the Railway service variables.')
+    _secret_key = secrets.token_hex(32)
+
 app.config.update(
-    SECRET_KEY=os.environ.get('SECRET_KEY', 'db9564268b5109bb02c25a568feaaeb8f'),
+    SECRET_KEY=_secret_key,
     SQLALCHEMY_DATABASE_URI=_db_url,
     SQLALCHEMY_TRACK_MODIFICATIONS=False,
     UPLOAD_FOLDER=os.path.join(os.path.dirname(__file__), 'uploads'),
