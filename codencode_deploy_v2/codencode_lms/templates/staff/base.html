@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="csrf-token" content="{{ csrf_token() }}">
+<meta name="theme-color" content="#1f7ae0">
+<meta name="vapid-key" content="{{ vapid_public_key }}">
+<title>{% block title %}Staff Portal{% endblock %} · Codencode</title>
+<link rel="manifest" href="/staff/manifest.webmanifest">
+<link rel="icon" href="/static/img/favicon-32.png" sizes="32x32">
+<link rel="apple-touch-icon" href="/static/img/favicon-180.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600&display=swap">
+<link rel="stylesheet" href="/static/css/staff.css">
+</head>
+<body>
+{% set ic = {
+ 'dash':'<path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/>',
+ 'classes':'<rect x="3" y="6" width="13" height="12" rx="2"/><path d="M16 10l5-3v10l-5-3"/>',
+ 'sched':'<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18M8 14h3v3H8z"/>',
+ 'clock':'<path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/>',
+ 'pay':'<rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18M7 15h3"/>',
+ 'reports':'<path d="M14 3H6a1 1 0 0 0-1 1v16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V8z"/><path d="M14 3v5h5M9 13h6M9 17h6"/>',
+ 'review':'<path d="M12 9v4M12 17h.01"/><path d="M10.3 3.9L1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/>',
+ 'team':'<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0M16 4.5a3.5 3.5 0 0 1 0 7M18 14.5a6.5 6.5 0 0 1 3.5 5.5"/>'
+} %}
+{% macro nav(key, href, label, icon, badge=0) -%}
+<a class="nav" href="{{ href }}"{% if page == key %} aria-current="page"{% endif %}><svg viewBox="0 0 24 24" aria-hidden="true">{{ ic[icon]|safe }}</svg>{{ label }}{% if badge %}<span class="badge">{{ badge }}</span>{% endif %}</a>
+{%- endmacro %}
+<div class="app">
+<aside>
+  <a class="logo" href="/staff">coden<b>code</b>.my</a>
+  <div class="navlbl">STAFF</div>
+  {{ nav('dash', '/staff', 'Attendance', 'dash') }}
+  {{ nav('classes', '/staff/classes', 'My classes', 'classes') }}
+  {{ nav('sched', '/staff/schedule', 'Schedule', 'sched') }}
+  {{ nav('clock', '/staff/clock', 'Office clock-in', 'clock') }}
+  {{ nav('pay', '/staff/pay', 'My pay', 'pay') }}
+  {% if is_admin %}
+  <div class="navlbl">ADMIN</div>
+  {{ nav('admin_sched', '/staff/admin/schedule', 'All schedules', 'sched', pending_schedule) }}
+  {{ nav('reports', '/staff/admin/reports', 'Zoom reports', 'reports', awaiting_reports) }}
+  {{ nav('review', '/staff/admin/review', 'Review', 'review', flagged_count) }}
+  {{ nav('payroll', '/staff/admin/payroll', 'Payroll', 'pay') }}
+  {{ nav('team', '/staff/admin/team', 'Team', 'team') }}
+  {% endif %}
+  <div class="side-foot">
+    <div class="me"><span class="avatar sm" aria-hidden="true">{{ current_user.name[:1] }}</span><span><b>{{ current_user.name }}</b><small>{{ 'Admin · all staff' if is_admin else 'Staff · own records only' }}</small></span></div>
+    <div class="note" style="font-size:11px">Same account as learn.codencode.my</div>
+    <button class="linkbtn" id="pushBtn" style="color:var(--accent)" hidden>Turn on notifications</button>
+    <form method="post" action="/staff/logout"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="linkbtn" type="submit">Sign out</button></form>
+  </div>
+</aside>
+<main>
+  {% if open_ws %}
+  <div class="live" id="liveBox"><span><span class="pulse"></span>Clocked in at {{ open_ws.in }} · {{ open_ws.short }}{{ ' on Zoom' if open_ws.mode == 'zoom' else ' · Office' }}</span><button class="btn" data-clock-out style="background:var(--ok)">Clock out</button></div>
+  {% endif %}
+  {% block main %}{% endblock %}
+</main>
+</div>
+<div class="toast status" id="toast" role="status" hidden></div>
+<script src="/static/js/staff.js" defer></script>
+{% block scripts %}{% endblock %}
+</body>
+</html>

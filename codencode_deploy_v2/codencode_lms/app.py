@@ -2544,6 +2544,8 @@ def send_welcome_reminders():
 
 def _start_scheduler():
     """Start APScheduler background job — runs daily at 9:00 AM."""
+    if os.environ.get('DISABLE_SCHEDULER') == '1':   # tests, one-off CLI commands
+        return
     try:
         from apscheduler.schedulers.background import BackgroundScheduler
         from apscheduler.triggers.cron import CronTrigger
@@ -2555,6 +2557,8 @@ def _start_scheduler():
             replace_existing=True,
             misfire_grace_time=3600,
         )
+        from staff.jobs import register_jobs as _register_staff_jobs
+        _register_staff_jobs(scheduler, app)
         scheduler.start()
         app.logger.info('[Scheduler] Welcome reminder job scheduled — runs daily at 09:00')
     except Exception as exc:
@@ -3010,8 +3014,17 @@ def email_class_schedule(student, course, cohort, zoom_link):
     )
 
 
-def _zoom_verify_webhook_signature(secret_token, timestamp, raw_body, signature_header):
+def _zoom_verify_webhook_signature(secret_token, timestamp, raw_body, signature_header, max_age=300):
     if not signature_header or not signature_header.startswith('v0='):
+        return False
+    # Reject replays: Zoom's timestamp (ms or s since epoch) must be within 5 minutes.
+    try:
+        ts = int(timestamp)
+        if ts > 10 ** 11:
+            ts //= 1000
+        if abs(time.time() - ts) > max_age:
+            return False
+    except (TypeError, ValueError):
         return False
     message = f'v0:{timestamp}:{raw_body}'
     expected = 'v0=' + hmac.new(secret_token.encode(), message.encode(), hashlib.sha256).hexdigest()
@@ -3019,11 +3032,13 @@ def _zoom_verify_webhook_signature(secret_token, timestamp, raw_body, signature_
 
 
 @app.route('/api/integrations/zoom/webhook', methods=['POST'])
+@app.route('/zoom/staff-webhook', methods=['POST'])
 def zoom_webhook():
     """Zoom Marketplace event subscription target. Handles the one-time
     endpoint.url_validation handshake, then recording.completed events to
-    auto-add the cloud recording to the matching cohort's Recordings tab."""
-    secret = os.environ.get('ZOOM_WEBHOOK_SECRET_TOKEN', '')
+    auto-add the cloud recording to the matching cohort's Recordings tab,
+    and meeting.ended events to queue the staff module's participant report."""
+    secret = os.environ.get('ZOOM_WEBHOOK_SECRET_TOKEN') or os.environ.get('ZOOM_WEBHOOK_SECRET', '')
     payload = request.get_json(silent=True) or {}
     event = payload.get('event')
 
@@ -3039,6 +3054,11 @@ def zoom_webhook():
         request.get_data(as_text=True), request.headers.get('x-zm-signature', '')
     ):
         return jsonify({'error': 'Invalid signature'}), 401
+
+    if event == 'meeting.ended':
+        from staff.zoom_reports import enqueue_from_webhook
+        enqueue_from_webhook(payload)
+        return jsonify({'ok': True})
 
     if event == 'recording.completed':
         obj = (payload.get('payload') or {}).get('object') or {}
@@ -6260,8 +6280,29 @@ def seed_course_curriculum_materials():
 # ─────────────────────────────────────────────
 # Init DB & run
 # ─────────────────────────────────────────────
+# Staff Attendance & Payroll module (/staff, staff.codencode.my). Registered
+# here so its tables exist before create_all() below.
+from staff import init_staff
+init_staff(app,
+           zoom_configured=_zoom_configured,
+           zoom_access_token=_zoom_access_token,
+           zoom_token_cache=_zoom_token_cache,
+           create_recurring_zoom_meeting=_create_recurring_zoom_meeting,
+           send_email=send_email,
+           email_wrapper=_email_wrapper)
+
 with app.app_context():
     db.create_all()
+    # Staff module: cohorts.every_n_weeks (nullable, default 1). Added before any
+    # startup code queries Cohort.
+    try:
+        from sqlalchemy import inspect as _sa_inspect
+        if 'every_n_weeks' not in {c['name'] for c in _sa_inspect(db.engine).get_columns('cohorts')}:
+            with db.engine.connect() as conn:
+                conn.execute(text('ALTER TABLE cohorts ADD COLUMN every_n_weeks INTEGER DEFAULT 1'))
+                conn.commit()
+    except Exception:
+        app.logger.exception('Staff schema migration (cohorts.every_n_weeks) failed')
     # Safe column migrations (SQLite doesn't support ALTER TABLE ADD IF NOT EXISTS)
     from sqlalchemy import text, inspect as sa_inspect
     try:

@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Staff Portal · Codencode</title>
+<link rel="manifest" href="/staff/manifest.webmanifest">
+<link rel="icon" href="/static/img/favicon-32.png" sizes="32x32">
+<link rel="apple-touch-icon" href="/static/img/favicon-180.png">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600&display=swap">
+<link rel="stylesheet" href="/static/css/staff.css">
+</head>
+<body>
+<section class="login">
+  <form class="login-card" id="loginForm" data-next="{{ next }}">
+    <div class="logo" style="padding:0">coden<b>code</b>.my</div>
+    <div><h1 style="font-size:22px">Staff Portal</h1><div class="sub">Sign in with the same account you use on learn.codencode.my.</div></div>
+    {% if student %}
+    <div class="status bad">{{ current_user.email }} is a student account. The Staff Portal is only for staff and admin. <a href="https://learn.codencode.my">Go to learn.codencode.my</a></div>
+    {% endif %}
+    <label>Email<input type="email" name="email" autocomplete="username" required></label>
+    <label>Password<input type="password" name="password" autocomplete="current-password" required></label>
+    <button class="btn" type="submit" style="padding:14px">Sign in</button>
+    <div id="lgErr" class="status bad" hidden></div>
+    <div class="note">Only accounts with a Teacher or Admin role can enter. Admin sees every staff member, Zoom reports and payroll. Staff see only their own records. <a href="https://learn.codencode.my/reset-password">Forgot password?</a></div>
+  </form>
+</section>
+<script>
+document.getElementById('loginForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const f = e.target, err = document.getElementById('lgErr');
+  err.hidden = true;
+  try {
+    const res = await fetch('/api/auth/login', {method: 'POST', headers: {'Content-Type': 'application/json'},
+      credentials: 'same-origin', body: JSON.stringify({email: f.email.value, password: f.password.value})});
+    const body = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(body.error || (res.status === 429 ? 'Too many attempts. Wait a minute and try again.' : 'Sign-in failed.'));
+    if (!['teacher', 'admin'].includes(body.user && body.user.role)) {
+      await fetch('/api/auth/logout', {method: 'POST', credentials: 'same-origin'});
+      throw new Error(`${body.user.email} is a student account. The Staff Portal is only for staff and admin.`);
+    }
+    location.href = f.dataset.next || '/staff';
+  } catch (x) { err.textContent = x.message; err.hidden = false; }
+});
+</script>
+</body>
+</html>

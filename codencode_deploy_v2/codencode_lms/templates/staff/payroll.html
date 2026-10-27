@@ -1,0 +1,38 @@
+{% extends 'staff/base.html' %}
+{% block title %}{{ 'Payroll' if admin_view else 'My pay' }}{% endblock %}
+{% block main %}
+{% set label = (months|selectattr(0,'equalto',month)|first)[1] %}
+{% set tot_h = rows|sum(attribute='paid_hours') %}{% set tot_pay = rows|sum(attribute='pay') %}
+<div class="top">
+  <div><h1>{{ 'Payroll' if admin_view else 'My pay' }} · {{ label }}</h1><div class="sub">Approved hours only. Pay by the 7th of next month.</div></div>
+  <form class="row" method="get" data-autosubmit>
+    <select name="month" aria-label="Month">{% for k, l in months %}<option value="{{ k }}"{% if k == month %} selected{% endif %}>{{ l }}</option>{% endfor %}</select>
+    <a class="btn" href="?month={{ month }}&format=csv"><svg viewBox="0 0 24 24"><path d="M12 4v11m0 0l-4-4m4 4l4-4M5 20h14"/></svg>Download CSV</a>
+  </form>
+</div>
+<div class="tiles" style="grid-template-columns:repeat(auto-fit,minmax(170px,1fr))">
+  <div class="tile"><span>Approved hours</span><b>{{ '%.1f'|format(tot_h) }}</b></div>
+  <div class="tile"><span>{{ 'Total payroll' if admin_view else 'Pay' }}</span><b>{{ '{:,.2f}'.format(tot_pay) }}<small>RM</small></b></div>
+  <div class="tile"><span>To review</span><b style="{{ 'color:var(--warn)' if rows|sum(attribute='flagged') }}">{{ rows|sum(attribute='flagged') }}</b></div>
+  <div class="tile"><span>Awaiting Zoom report</span><b>{{ rows|sum(attribute='waiting') }}</b></div>
+</div>
+<div class="card"><div class="tbl"><table>
+  <thead><tr><th>Staff</th><th>Sessions</th><th>Approved hrs</th><th>Monthly cap</th><th></th><th>To review</th><th>Awaiting</th><th>Pay (RM)</th></tr></thead>
+  <tbody>
+  {% for s in rows %}
+    <tr><td><b>{% if admin_view %}<a href="/staff?user={{ s.user.id }}&month={{ month }}" style="color:inherit">{{ s.user.name }}</a>{% else %}{{ s.user.name }}{% endif %}</b>
+        <div class="note">{{ s.user.title or s.user.role|capitalize }} · {% if s.profile %}RM {{ '%g'|format(s.rate) }}/hr{% else %}no rate set{% endif %}</div></td>
+      <td class="m">{{ s.sessions }}</td><td class="m">{{ '%.2f'|format(s.paid_hours) }}</td><td class="m">{{ '%g'|format(s.cap) if s.cap else '—' }}</td>
+      <td>{% if s.cap %}<div class="bar-cap" title="{{ s.cap_pct }}% of cap"><i class="{{ s.cap_state }}" style="width:{{ [s.cap_pct, 100]|min }}%"></i></div>
+        {% if s.cap_state == 'over' %}<span class="pill f-bad" style="margin-top:6px">Over cap</span>{% elif s.cap_state == 'warn' %}<span class="pill f-warn" style="margin-top:6px">90%+</span>{% endif %}{% endif %}</td>
+      <td>{% if s.flagged %}<a class="pill f-warn" href="{{ '/staff/admin/review' if admin_view else '/staff?month=' ~ month }}">{{ s.flagged }}</a>{% else %}<span class="pill f-ok">0</span>{% endif %}</td>
+      <td class="m">{{ s.waiting }}</td>
+      <td class="m"><b>{{ '{:,.2f}'.format(s.pay) }}</b></td></tr>
+  {% else %}
+    <tr><td colspan="8" class="note">No staff sessions this month.</td></tr>
+  {% endfor %}
+  </tbody>
+</table></div>
+<div class="note">Paid hours: verified sessions at app time (office) or the shorter of app and Zoom time (classes). Sessions with a gap over 10 minutes are paid at the shorter time and flagged. No teacher in the report, outside the geofence, or no report yet: paid 0 until admin reviews or the report arrives.</div>
+</div>
+{% endblock %}
