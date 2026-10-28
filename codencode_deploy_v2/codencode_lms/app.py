@@ -6178,6 +6178,48 @@ def enforce_python_fundamentals_curriculum_materials():
                                course.id, course.title, exc)
 
 
+def enforce_python_intermediate_curriculum_materials():
+    """Same idea as enforce_python_fundamentals_curriculum_materials but for
+    Python Intermediate. Removes old admin-uploaded SLIDE materials (titles
+    starting with "Session") whose filename isn't one of our own
+    pi-session-*.html files, so the seeder can replace them with the
+    bundled versions. Homework files (titles starting with "Homework") are
+    kept untouched."""
+    try:
+        from curriculum_seed import PYTHON_INTERMEDIATE_SESSIONS
+    except Exception as exc:
+        app.logger.warning('Python Intermediate material policy skipped (import): %s', exc)
+        return
+    own_filenames = {fn for _, _, fn in PYTHON_INTERMEDIATE_SESSIONS}
+    max_session = len(PYTHON_INTERMEDIATE_SESSIONS)
+    courses = Course.query.filter(
+        db.func.lower(Course.title).like('%python intermediate%')
+    ).all()
+    for course in courses:
+        try:
+            removed = 0
+            for m in Material.query.filter(
+                Material.course_id == course.id,
+                Material.session <= max_session,
+                Material.session > 0,
+                ~Material.filename.in_(own_filenames),
+                Material.title.like('Session %'),
+            ).all():
+                app.logger.info('Python Intermediate material policy: removing %r (course %s, session %s, file %s)',
+                                m.title, course.id, m.session, m.filename)
+                MaterialProgress.query.filter_by(material_id=m.id).delete()
+                LastLesson.query.filter_by(material_id=m.id).delete()
+                Quiz.query.filter_by(gates_material_id=m.id).update({'gates_material_id': None})
+                db.session.delete(m)
+                removed += 1
+            if removed:
+                db.session.commit()
+        except Exception as exc:
+            db.session.rollback()
+            app.logger.warning('Python Intermediate material policy failed for course %s (%r): %s',
+                               course.id, course.title, exc)
+
+
 @app.route('/api/admin/debug/python-fundamentals')
 @admin_required
 def api_debug_python_fundamentals():
@@ -6242,6 +6284,7 @@ def api_resync_curriculum_materials():
     then add back whatever's missing. Safe to call repeatedly."""
     _sync_bundled_materials()
     enforce_python_fundamentals_curriculum_materials()
+    enforce_python_intermediate_curriculum_materials()
     seed_course_curriculum_materials()
     return jsonify({'ok': True})
 
@@ -6743,6 +6786,7 @@ with app.app_context():
     seed_python_homework()
     _sync_bundled_materials()
     enforce_python_fundamentals_curriculum_materials()
+    enforce_python_intermediate_curriculum_materials()
     seed_course_curriculum_materials()
     seed_ml_quizzes()
     seed_ml_homework_and_assignment()

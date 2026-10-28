@@ -1,0 +1,1393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Class 07 — Project Completion with Claude · Python Intermediate | codencode Academy</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0d1117; --panel:#161b22; --panel2:#1c2430; --line:#2a3440;
+  --mint:#00dcb4; --mint-d:#00a888; --text:#e8eef0; --muted:#8b98a5;
+  --coral:#ff6f91; --amber:#f0b429; --blue:#58a6ff;
+  --sans:'Space Grotesk','Inter',system-ui,sans-serif;
+  --body:'Inter',system-ui,sans-serif;
+  --mono:'JetBrains Mono','SF Mono',Consolas,monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:var(--body);height:100vh;overflow:hidden;user-select:none}
+
+/* ---------- chrome ---------- */
+#topbar{position:fixed;top:0;left:0;right:0;height:52px;display:flex;align-items:center;
+  gap:16px;padding:0 24px;background:rgba(13,17,23,.92);border-bottom:1px solid var(--line);z-index:50;backdrop-filter:blur(8px)}
+.wordmark{height:21px;width:auto;display:block;flex-shrink:0}
+#sesslabel{font-size:12px;color:var(--muted);font-family:var(--mono);letter-spacing:.04em}
+#titlebar{flex:1;text-align:center;font-size:13px;color:var(--muted);font-family:var(--mono);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#counter{font-family:var(--mono);font-size:12px;color:var(--mint)}
+.btn{background:rgba(0,220,180,.10);border:1px solid rgba(0,220,180,.32);color:var(--mint);
+  font-family:var(--mono);font-size:11px;padding:6px 12px;border-radius:6px;cursor:pointer}
+.btn:hover{background:rgba(0,220,180,.20)}
+#progress{position:fixed;top:52px;left:0;height:2px;background:var(--mint);z-index:51;transition:width .3s ease}
+#nav{position:fixed;bottom:0;left:0;right:0;height:56px;display:flex;align-items:center;justify-content:center;
+  gap:20px;z-index:50}
+.navbtn{background:var(--panel);border:1px solid var(--line);color:var(--muted);font-family:var(--mono);
+  font-size:12px;padding:8px 16px;border-radius:8px;cursor:pointer}
+.navbtn:hover{border-color:var(--mint);color:var(--mint)}
+#dots{display:flex;gap:6px;flex-wrap:wrap;max-width:50vw;justify-content:center}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--line);cursor:pointer;transition:.2s}
+.dot.on{background:var(--mint);transform:scale(1.35)}
+
+/* ---------- slides ---------- */
+#deck{position:absolute;top:54px;bottom:56px;left:0;right:0}
+.slide{position:absolute;inset:0;padding:40px 60px;display:none;flex-direction:column;overflow-y:auto;overflow-x:hidden}
+.slide.active{display:flex;animation:slideIn .4s ease both;background:var(--bg);z-index:1}
+@keyframes slideIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+
+.tag{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--mint);margin-bottom:12px}
+h1.sh{font-family:var(--sans);font-size:clamp(26px,3.2vw,40px);font-weight:700;line-height:1.12;margin-bottom:8px}
+h1.sh::after{content:'';display:block;width:56px;height:4px;background:var(--mint);border-radius:2px;margin-top:14px}
+.sub{color:var(--muted);font-size:16px;margin-top:14px;max-width:70ch;line-height:1.6}
+.body{flex:1;display:flex;gap:32px;align-items:center;margin-top:24px;min-height:0}
+.col{flex:1;min-width:0}
+
+/* title slide */
+.title-slide{align-items:center;justify-content:center;text-align:center}
+.title-slide .badge{font-family:var(--mono);font-size:12px;color:var(--mint);border:1px solid rgba(0,220,180,.34);
+  background:rgba(0,220,180,.08);padding:7px 18px;border-radius:20px;margin-bottom:26px}
+.title-slide h1{font-family:var(--sans);font-size:clamp(40px,6vw,72px);font-weight:700;line-height:1.05}
+.title-slide h1 em{font-style:normal;color:var(--mint)}
+.title-slide p{color:var(--muted);font-size:18px;margin-top:20px;max-width:60ch}
+.title-slide .foot{margin-top:38px;font-family:var(--mono);font-size:13px;color:var(--muted)}
+
+/* section divider */
+.divider{align-items:flex-start;justify-content:center}
+.divider .num{font-family:var(--sans);font-size:120px;font-weight:700;color:rgba(0,220,180,.16);line-height:1}
+.divider h1{font-family:var(--sans);font-size:clamp(34px,4.6vw,56px);font-weight:700;margin-top:-18px}
+.divider .items{margin-top:26px;display:flex;flex-direction:column;gap:12px}
+.divider .items div{font-size:17px;color:var(--muted)}
+.divider .items b{color:var(--mint);font-family:var(--mono);font-size:15px;margin-right:12px}
+
+/* cards / lists */
+.cards{display:grid;gap:14px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:18px 20px}
+.card.accent{border-color:rgba(0,220,180,.45);background:var(--panel2)}
+.card h3{font-family:var(--sans);font-size:17px;font-weight:600;margin-bottom:6px}
+.card h3 .k{color:var(--mint);font-family:var(--mono);font-size:14px;margin-right:8px}
+.card p{color:var(--muted);font-size:14.5px;line-height:1.55}
+.grid2{grid-template-columns:1fr 1fr}
+.grid3{grid-template-columns:repeat(3,1fr)}
+
+table.cps{width:100%;border-collapse:collapse;font-size:15px}
+table.cps th{text-align:left;font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--mint);padding:10px 14px;border-bottom:1px solid var(--line)}
+table.cps td{padding:14px;border-bottom:1px solid var(--line);color:var(--text);line-height:1.5;vertical-align:top}
+table.cps td:first-child{color:var(--mint);font-family:var(--mono);font-size:13px;width:150px;white-space:nowrap}
+
+pre.code{background:#0a0e13;border:1px solid var(--line);border-radius:10px;padding:18px 20px;
+  font-family:var(--mono);font-size:14.5px;line-height:1.75;overflow:auto;color:var(--text)}
+pre.code .c{color:var(--muted)}
+pre.code .s{color:var(--mint)}
+pre.code .n{color:var(--blue)}
+pre.code .e{color:var(--coral)}
+.code-head{font-family:var(--mono);font-size:11px;color:var(--muted);background:var(--panel2);
+  border:1px solid var(--line);border-bottom:none;border-radius:10px 10px 0 0;padding:8px 14px}
+.code-head + pre.code{border-radius:0 0 10px 10px}
+
+.pill{display:inline-block;font-family:var(--mono);font-size:11.5px;padding:5px 12px;border-radius:14px;
+  border:1px solid;margin:0 8px 8px 0}
+.pill.mint{color:var(--mint);border-color:rgba(0,220,180,.4);background:rgba(0,220,180,.08)}
+.pill.coral{color:var(--coral);border-color:rgba(255,111,145,.4);background:rgba(255,111,145,.08)}
+.pill.amber{color:var(--amber);border-color:rgba(240,180,41,.4);background:rgba(240,180,41,.08)}
+.pill.blue{color:var(--blue);border-color:rgba(88,166,255,.4);background:rgba(88,166,255,.08)}
+
+.hands-on{border-left:3px solid var(--mint);background:linear-gradient(90deg,rgba(0,220,180,.07),transparent 60%);
+  padding:18px 24px;border-radius:0 10px 10px 0}
+.hands-on .lbl{font-family:var(--mono);font-size:11px;letter-spacing:.14em;color:var(--mint);text-transform:uppercase}
+.hands-on h3{font-family:var(--sans);font-size:20px;margin:8px 0 10px}
+.hands-on p{color:var(--muted);font-size:15px;line-height:1.6}
+.steps{margin-top:14px;display:flex;flex-direction:column;gap:9px}
+.steps div{font-size:14.5px;color:var(--text);display:flex;gap:12px;align-items:flex-start}
+.steps b{color:var(--mint);font-family:var(--mono);font-size:13px;flex-shrink:0}
+
+svg.fig{width:100%;height:100%;min-height:300px;flex:1 1 auto;display:block}
+.figwrap{flex:1.8 1 0;display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:0;min-height:0;max-height:100%;gap:6px}
+.figwrap > .legend,.figwrap > .controls,.figwrap > .gate,.figwrap > .eq{flex:0 0 auto;width:100%}
+.caption{font-size:13.5px;color:var(--muted);font-style:italic;margin-top:14px;text-align:center}
+
+/* ---------- animation primitives (restart on slide entry) ---------- */
+.fx{opacity:0}
+.slide.active .fx{animation:fadeUp .55s ease forwards}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.slide.active .d1{animation-delay:.15s}.slide.active .d2{animation-delay:.35s}
+.slide.active .d3{animation-delay:.55s}.slide.active .d4{animation-delay:.75s}
+.slide.active .d5{animation-delay:.95s}.slide.active .d6{animation-delay:1.15s}
+.slide.active .d7{animation-delay:1.35s}.slide.active .d8{animation-delay:1.55s}
+.slide.active .d9{animation-delay:1.75s}.slide.active .d10{animation-delay:1.95s}
+
+.draw{stroke-dasharray:var(--len,300);stroke-dashoffset:var(--len,300);opacity:1}
+.slide.active .draw{animation:drawIn .6s ease forwards}
+@keyframes drawIn{to{stroke-dashoffset:0}}
+
+.slide.active .pulse{animation:pulse 2.2s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.45}}
+
+.slide.active .travel{animation:travel 4.5s linear infinite}
+@keyframes travel{0%{offset-distance:0%}100%{offset-distance:100%}}
+
+.slide.active .grow{transform-origin:bottom;animation:grow .8s cubic-bezier(.22,1,.36,1) forwards}
+@keyframes grow{from{transform:scaleY(0)}to{transform:scaleY(1)}}
+
+.slide.active .cycle1{animation:hl 6s ease-in-out infinite}
+.slide.active .cycle2{animation:hl 6s ease-in-out infinite 2s}
+.slide.active .cycle3{animation:hl 6s ease-in-out infinite 4s}
+@keyframes hl{0%,8%{opacity:0}14%,28%{opacity:1}36%,100%{opacity:0}}
+
+.slide.active .typing{animation:typing 1.4s steps(18) forwards;white-space:nowrap;overflow:hidden;
+  display:inline-block;width:0}
+@keyframes typing{to{width:100%}}
+
+/* ---------- copiable code ---------- */
+pre.code{position:relative;user-select:text}
+.copybtn{position:absolute;top:7px;right:7px;z-index:3;background:rgba(22,27,34,.94);
+  border:1px solid var(--line);color:var(--muted);font-family:var(--mono);font-size:10.5px;
+  letter-spacing:.06em;padding:4px 9px;border-radius:5px;cursor:pointer;opacity:0;transition:.16s}
+pre.code:hover .copybtn{opacity:1}
+.copybtn:hover{border-color:var(--mint);color:var(--mint)}
+.copybtn.done{border-color:var(--mint);color:var(--mint);opacity:1}
+
+
+/* ---------- figure slides: stacked on tall screens, side-by-side when wide ---------- */
+.cb{display:block}
+.figbody{flex:1;display:flex;gap:32px;align-items:center;margin-top:24px;min-height:0}
+.figbody > .figwrap{flex:1.8 1 0}
+.figbody > .figside{display:flex;flex-direction:column;gap:12px;min-width:0}
+.figbody > .figside > *{margin-bottom:0}
+@media (max-aspect-ratio: 29/20){
+  .figbody{flex-direction:column;align-items:stretch;gap:16px}
+  .figbody > .figwrap{flex:0 1 auto;width:100%;max-width:none;justify-content:flex-start}
+  .figbody > .figwrap > svg.fig{height:auto;min-height:0;flex:0 0 auto;max-height:100%}
+  .figbody > .figside{max-width:none !important;flex:0 0 auto;display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:14px;align-items:start}
+  .figbody > .figside .controls,.figbody > .figside .legend{justify-content:flex-start}
+}
+
+/* ---------- figure furniture ---------- */
+.legend{display:flex;gap:18px;font-family:var(--mono);font-size:12px;color:var(--muted);
+  margin-top:6px;flex-wrap:wrap;justify-content:center}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px;vertical-align:middle}
+.controls{display:flex;gap:10px;align-items:center;margin-top:12px;flex-wrap:wrap;justify-content:center}
+.btn.ghost{background:transparent;border-color:var(--line);color:var(--muted)}
+.btn.ghost:hover{border-color:var(--mint);color:var(--mint)}
+.gate{margin-bottom:12px}
+.gate label{display:flex;justify-content:space-between;align-items:center;font-family:var(--mono);
+  font-size:12.5px;margin-bottom:6px;gap:12px}
+input[type=range]{width:100%;height:5px;border-radius:3px;appearance:none;background:var(--line);outline:none}
+input[type=range]::-webkit-slider-thumb{appearance:none;width:15px;height:15px;border-radius:50%;
+  background:var(--mint);cursor:pointer;border:2px solid #0d1117}
+.eq{font-family:var(--mono);font-size:12.5px;color:var(--muted);line-height:1.9;background:#0a0e13;
+  border:1px solid var(--line);border-radius:9px;padding:11px 13px}
+.eq b{color:var(--text);font-weight:400}
+.def{border-left:3px solid var(--blue);background:linear-gradient(90deg,rgba(88,166,255,.09),transparent 65%);
+  padding:14px 18px;border-radius:0 9px 9px 0;margin-bottom:12px}
+.def .lbl{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;color:var(--blue);text-transform:uppercase}
+.def h4{font-family:var(--sans);font-size:17px;margin:5px 0 6px}
+.def p{color:var(--muted);font-size:14px;line-height:1.6}
+.def p b{color:var(--text);font-weight:600}
+.theory{border-left:3px solid var(--amber);background:linear-gradient(90deg,rgba(240,180,41,.08),transparent 65%);
+  padding:14px 18px;border-radius:0 9px 9px 0;margin-bottom:12px}
+.theory .lbl{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;color:var(--amber);text-transform:uppercase}
+.theory p{color:var(--muted);font-size:14px;line-height:1.6;margin-top:6px}
+.theory p b{color:var(--text);font-weight:600}
+.formula{background:#0a0e13;border:1px solid var(--line);border-radius:10px;padding:16px 20px;
+  font-family:var(--mono);font-size:19px;color:var(--mint);text-align:center;margin:10px 0}
+.formula small{display:block;font-size:12px;color:var(--muted);margin-top:8px}
+table.t{width:100%;border-collapse:collapse;font-size:13.5px}
+table.t th{text-align:left;font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--mint);padding:9px 12px;border-bottom:1px solid var(--line)}
+table.t td{padding:10px 12px;border-bottom:1px solid var(--line);color:var(--muted);line-height:1.5;vertical-align:top}
+table.t td:first-child{color:var(--text);font-family:var(--mono);font-size:12.5px}
+table.cps td:first-child{color:var(--mint);font-family:var(--mono);font-size:13px;width:140px}
+pre.code.sm{font-size:12.3px;line-height:1.6}
+.card.warn{border-color:rgba(255,111,145,.42)}
+.divider .num{font-family:var(--sans);font-size:112px;font-weight:700;color:rgba(0,220,180,.16);line-height:1}
+
+pre.code.sm{font-size:clamp(12px,0.74vw,14.5px);line-height:1.6;padding:14px 16px}
+pre.code .k{color:var(--blue)}
+pre.code .n{color:var(--amber)}
+pre.code .cmd{color:var(--mint)}
+pre.code.out{color:#c9d4dc}
+.card ul.rules{margin:6px 0 0 18px;color:var(--muted);font-size:14px;line-height:1.6}
+.card ul.rules li{margin-bottom:3px}
+.card ul.rules b{color:var(--text);font-weight:600}
+.stepbar{display:flex;gap:6px;margin:-2px 0 6px;font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase}
+.stepbar span{padding:3px 9px;border-radius:10px;border:1px solid var(--line);color:var(--muted)}
+.stepbar span.on{color:var(--bg);background:var(--mint);border-color:var(--mint)}
+img.result{max-width:100%;max-height:230px;object-fit:contain;border-radius:8px;border:1px solid var(--line);background:#fff;align-self:center}
+.code-head{display:flex;align-items:center;gap:10px}
+.code-head .xbtn{margin-left:auto;background:rgba(0,220,180,.10);border:1px solid rgba(0,220,180,.32);color:var(--mint);
+  font-family:var(--mono);font-size:10.5px;letter-spacing:.06em;padding:3px 9px;border-radius:5px;cursor:pointer}
+.code-head .xbtn:hover{background:rgba(0,220,180,.22)}
+#xmodal{position:fixed;inset:0;z-index:200;background:rgba(5,8,12,.86);backdrop-filter:blur(4px);display:none;
+  align-items:center;justify-content:center;padding:40px}
+#xmodal.on{display:flex}
+#xmodal .box{width:min(1300px,100%);height:100%;display:flex;flex-direction:column;background:#0a0e13;
+  border:1px solid var(--mint);border-radius:12px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.6)}
+#xmodal .bar{display:flex;align-items:center;gap:12px;padding:10px 16px;background:var(--panel2);border-bottom:1px solid var(--line);
+  font-family:var(--mono);font-size:13px;color:var(--muted)}
+#xmodal #xcopy{margin-left:auto}
+#xmodal pre.code{flex:1;margin:0;border:none;border-radius:0;font-size:clamp(14px,1.05vw,19px);line-height:1.65;overflow:auto;padding:22px 26px}
+@keyframes barx{from{opacity:0;transform:scaleX(0)}to{opacity:1;transform:scaleX(1)}}
+</style>
+</head>
+<body>
+
+<div id="topbar">
+  <img class="wordmark" src="data:image/png;base64,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" alt="codencode.my">
+  <div id="sesslabel">CLASS 07</div>
+  <div id="titlebar"></div>
+  <div id="counter"></div>
+  <button class="btn" onclick="fs()">FULLSCREEN</button>
+</div>
+<div id="progress"></div>
+
+<div id="deck">
+
+<section class="slide title-slide" data-title="Main Title">
+  <div class="badge fx">CLASS 07 OF 07 · PYTHON INTERMEDIATE · CAPSTONE</div>
+  <h1 class="fx d1">Project Completion <em>with Claude</em></h1>
+  <p class="fx d2">Today you finish a real app with an AI pair programmer — and prove you understand every line it helped you write.</p>
+  <div class="foot fx d3">codencode Academy · Level 4 · Build with AI · 2 hours</div>
+</section>
+<section class="slide" data-title="Session Plan">
+  <div class="tag fx">Session Plan</div>
+  <h1 class="sh fx d1">What we're doing today</h1>
+  <div class="body">
+    <div class="col cards grid3">
+      <div class="card accent fx d2"><h3><span class="k">M1</span>Claude as Pair Programmer</h3><p>Writing good coding prompts, giving context, and the rules of safe use.</p><div style="margin-top:12px"><span class="pill mint">25 min</span></div></div>
+      <div class="card accent fx d3"><h3><span class="k">M2</span>Build &amp; Debug</h3><p>Finish features task by task, debug with tracebacks, generate and fix tests.</p><div style="margin-top:12px"><span class="pill mint">45 min</span></div></div>
+      <div class="card accent fx d4"><h3><span class="k">M3</span>Verify, Document &amp; Ship</h3><p>Review checklist, README, final push, and a 3-minute demo.</p><div style="margin-top:12px"><span class="pill mint">25 min</span></div></div>
+    </div>
+  </div>
+  <div class="cards grid3 fx d5" style="margin-top:4px">
+    <div class="card"><p><b style="color:var(--text)">Warm-up 10 min + Recap 15 min</b> — 1-minute plan pitches, certificates at the end</p></div>
+    <div class="card"><p><b style="color:var(--text)">Deliverable</b> — working app + tests + README on GitHub + live demo</p></div>
+    <div class="card"><p><b style="color:var(--text)">Bring</b> — project plan, core classes, a Claude account</p></div>
+  </div>
+</section>
+<section class="slide" data-title="Revised Last Week">
+  <div class="tag fx">Revised Last Week · 10 minutes</div>
+  <h1 class="sh fx d1">60-second plan pitch</h1>
+  <p class="sub fx d2">Everyone stands up for one minute. The class listens for one thing: could you build this in today's 45 minutes?</p>
+  <div class="body">
+    <div class="col cards fx d3">
+      <div class="card accent"><h3><span class="k">1</span>The problem</h3><p>One sentence. Who is it for and what does it fix?</p></div>
+      <div class="card"><h3><span class="k">2</span>Your classes</h3><p>Show the UML — what's already coded since last week?</p></div>
+      <div class="card"><h3><span class="k">3</span>What's left</h3><p>Your open GitHub Issues — that's today's to-do list.</p></div>
+    </div>
+    <div class="col fx d4">
+      <div class="cb"><div class="code-head">quick self-check from Classes 1–6</div><pre class="code">✓ typed functions + docstrings     <span class="c"># C1</span>
+✓ package layout, logging, errors  <span class="c"># C2</span>
+✓ classes / dataclasses            <span class="c"># C3</span>
+✓ SQLite repo + argparse CLI       <span class="c"># C4</span>
+? API or pandas (if it fits)       <span class="c"># C5</span>
+✓ at least a few pytest tests      <span class="c"># C6</span></pre></div>
+      <div style="margin-top:14px"><span class="pill amber">Scope too big? Cut to the 3 features that prove the idea.</span></div>
+    </div>
+  </div>
+</section>
+<section class="slide" data-title="Learning Outcomes">
+  <div class="tag fx">Learning Outcomes</div>
+  <h1 class="sh fx d1">By the end of today you will be able to…</h1>
+  <div class="body">
+    <div class="col fx d2">
+      <table class="cps">
+        <tr><th>Component</th><th>Statement</th></tr>
+        <tr><td>Condition</td><td>Given your project plan, your core classes, and Claude as a coding assistant,</td></tr>
+        <tr><td>Performance</td><td>you will write context-rich prompts, build and debug the remaining features, generate and fix tests, review every AI suggestion, and document and demo the finished app,</td></tr>
+        <tr><td>Standard</td><td>so that the app runs from its README on a classmate's laptop, all tests pass, no secret is committed, and during the demo you explain one AI-assisted function line by line without help.</td></tr>
+      </table>
+      <div style="margin-top:22px">
+        <span class="pill mint">LO1 · Prompt for code</span>
+        <span class="pill mint">LO2 · Build &amp; debug with AI</span>
+        <span class="pill mint">LO3 · Verify &amp; test</span>
+        <span class="pill mint">LO4 · Ship &amp; explain</span>
+      </div>
+    </div>
+  </div>
+</section>
+<section class="slide" data-title="Content Mapping">
+  <div class="tag fx">Content Mapping</div>
+  <h1 class="sh fx d1">How today maps to your outcomes</h1>
+  <div class="body">
+    <div class="col fx d2">
+      <table class="cps">
+        <tr><th>Module</th><th>Topics</th><th style="width:120px">Outcome</th><th style="width:170px">Assessed by</th></tr>
+        <tr><td>Module 1</td><td>1.1 Anatomy of a coding prompt · 1.2 Giving Claude your code &amp; plan · 1.3 Rules of safe use</td><td style="color:var(--mint);font-family:var(--mono);font-size:13px">LO1</td><td style="color:var(--muted);font-size:13.5px">Class review prompt</td></tr>
+        <tr><td>Module 2</td><td>2.1 Feature by feature · 2.2 Debugging with tracebacks · 2.3 Tests with Claude</td><td style="color:var(--mint);font-family:var(--mono);font-size:13px">LO2, LO3</td><td style="color:var(--muted);font-size:13.5px">Features done, tests green</td></tr>
+        <tr><td>Module 3</td><td>3.1 Review checklist · 3.2 README with Claude · 3.3 Ship &amp; demo</td><td style="color:var(--mint);font-family:var(--mono);font-size:13px">LO4</td><td style="color:var(--muted);font-size:13.5px">3-minute live demo</td></tr>
+      </table>
+    </div>
+  </div>
+</section>
+<section class="slide" data-title="1.1 Anatomy of a coding prompt">
+  <div class="stepbar fx"><span class="on">Explain</span><span class="on">Theory</span><span class="">Code</span><span class="">Practice</span></div>
+  <div class="tag fx">Module 1 · Claude as a Pair Programmer · 1.1 · Explanation &amp; theory</div>
+  <h1 class="sh fx d1">What makes a good coding prompt?</h1>
+  <div class="cards grid3 fx d2" style="margin-top:18px;align-items:start"><div class="card accent"><h3><span class="k">what</span>In plain words</h3><p>Claude can only use what you tell it. A good prompt gives five things: <b>context</b> (project, language), the <b>task</b> (one job), <b>constraints</b> (rules, edge cases), an <b>example</b> (input → output), and the <b>output</b> you want back.</p></div><div class="card"><h3><span class="k">like</span>Everyday analogy</h3><p>Briefing a new staff member: "This is our POS (context). Add a split-bill button (task). Round to the sen, no new hardware (constraints). Like this receipt (example). Show me before Friday (output)."</p></div><div class="card"><h3><span class="k">rules</span>Theory: the key rules</h3><ul class="rules"><li><b>Context</b>: what and where</li><li><b>Task</b>: one clear job per prompt</li><li><b>Constraints + example</b>: remove guessing</li><li><b>Output</b>: always ask for tests + an explanation</li></ul></div></div>
+  <div class="body figbody" style="margin-top:12px"><div class="figwrap"><svg class="fig" style="min-height:0" viewBox="0 0 1000 400" aria-label="A prompt broken into five labelled parts: context, task, constraints, example, output format">
+        <g font-family="JetBrains Mono,monospace">
+          <rect x="20" y="20" width="620" height="360" rx="12" fill="#0a0e13" stroke="#2a3440" stroke-width="1.5" class="fx"/>
+          <g font-size="14.5">
+            <rect x="34" y="38" width="6" height="58" fill="#58a6ff" class="fx d1"/>
+            <text x="52" y="58" fill="#e8eef0" class="fx d1">I'm building a kopitiam POS CLI in Python 3.12.</text>
+            <text x="52" y="82" fill="#e8eef0" class="fx d1">Here's my Order class: [paste code]</text>
+            <rect x="34" y="110" width="6" height="34" fill="#00dcb4" class="fx d2"/>
+            <text x="52" y="132" fill="#e8eef0" class="fx d2">Add a split_bill(n) method that divides the total.</text>
+            <rect x="34" y="158" width="6" height="82" fill="#f0b429" class="fx d3"/>
+            <text x="52" y="178" fill="#e8eef0" class="fx d3">Use type hints and a docstring. Round to 2 dp,</text>
+            <text x="52" y="202" fill="#e8eef0" class="fx d3">put any leftover sen on the first person.</text>
+            <text x="52" y="226" fill="#e8eef0" class="fx d3">Raise ValueError if n &lt; 1. No new libraries.</text>
+            <rect x="34" y="254" width="6" height="34" fill="#ff6f91" class="fx d4"/>
+            <text x="52" y="276" fill="#e8eef0" class="fx d4">e.g. RM10.00 / 3 → [3.34, 3.33, 3.33]</text>
+            <rect x="34" y="302" width="6" height="58" fill="#8b98a5" class="fx d5"/>
+            <text x="52" y="322" fill="#e8eef0" class="fx d5">Give me the method, 3 pytest tests, then</text>
+            <text x="52" y="346" fill="#e8eef0" class="fx d5">explain the rounding step in 2 sentences.</text>
+          </g>
+          <g font-size="15">
+            <g class="fx d1"><rect x="680" y="40" width="300" height="56" rx="8" fill="#1c2430" stroke="#58a6ff"/><text x="700" y="74" fill="#58a6ff">① CONTEXT</text><text x="960" y="74" fill="#8b98a5" text-anchor="end" font-size="12">what &amp; where</text></g>
+            <g class="fx d2"><rect x="680" y="104" width="300" height="56" rx="8" fill="#1c2430" stroke="#00dcb4"/><text x="700" y="138" fill="#00dcb4">② TASK</text><text x="960" y="138" fill="#8b98a5" text-anchor="end" font-size="12">one clear job</text></g>
+            <g class="fx d3"><rect x="680" y="168" width="300" height="72" rx="8" fill="#1c2430" stroke="#f0b429"/><text x="700" y="202" fill="#f0b429">③ CONSTRAINTS</text><text x="700" y="226" fill="#8b98a5" font-size="12">rules, edge cases, limits</text></g>
+            <g class="fx d4"><rect x="680" y="248" width="300" height="56" rx="8" fill="#1c2430" stroke="#ff6f91"/><text x="700" y="282" fill="#ff6f91">④ EXAMPLE</text><text x="960" y="282" fill="#8b98a5" text-anchor="end" font-size="12">input → output</text></g>
+            <g class="fx d5"><rect x="680" y="312" width="300" height="56" rx="8" fill="#1c2430" stroke="#8b98a5"/><text x="700" y="346" fill="#e8eef0">⑤ OUTPUT</text><text x="960" y="346" fill="#8b98a5" text-anchor="end" font-size="12">what to give back</text></g>
+          </g>
+        </g>
+      </svg></div></div>
+</section>
+
+<section class="slide" data-title="1.1 Anatomy of a coding prompt · code">
+  <div class="stepbar fx"><span class="">Explain</span><span class="">Theory</span><span class="on">Code</span><span class="">Practice</span></div>
+  <div class="tag fx">Module 1 · Claude as a Pair Programmer · 1.1 · Code — copy, paste, run</div>
+  <h1 class="sh fx d1">Build the 5-part prompt with a function</h1>
+  <div class="body" style="align-items:stretch">
+    <div class="col fx d2" style="flex:1.3;display:flex;flex-direction:column;gap:10px;min-height:0"><div class="cb" style="display:flex;flex-direction:column;min-height:0px;flex:23 1 0"><div class="code-head">prompt_builder.py</div><pre class="code sm" style="flex:1;min-height:0;margin:0"><span class="k">def</span> build_prompt(context: str, task: str, constraints: list[str],
+                 example: str = <span class="s">""</span>, output: str = <span class="s">""</span>) -&gt; str:
+    <span class="s">"""Assemble a 5-part coding prompt you can paste into Claude."""</span>
+    parts = [<span class="s">f"## Context\n{context}"</span>, <span class="s">f"## Task\n{task}"</span>,
+             <span class="s">"## Constraints\n"</span> + <span class="s">"\n"</span>.join(<span class="s">f"- {c}"</span> <span class="k">for</span> c <span class="k">in</span> constraints)]
+    <span class="k">if</span> example:
+        parts.append(<span class="s">f"## Example\n{example}"</span>)
+    <span class="k">if</span> output:
+        parts.append(<span class="s">f"## Output\n{output}"</span>)
+    <span class="k">return</span> <span class="s">"\n\n"</span>.join(parts)
+
+
+prompt = build_prompt(
+    context=<span class="s">"Kopitiam POS CLI in Python 3.12. Order class stores (name, price) items."</span>,
+    task=<span class="s">"Add a split_bill(n) method that divides the total between n people."</span>,
+    constraints=[<span class="s">"type hints and a docstring"</span>, <span class="s">"amounts in sen-accurate RM, 2 dp"</span>,
+                 <span class="s">"leftover sen goes to the first person"</span>, <span class="s">"raise ValueError if n &lt; 1"</span>,
+                 <span class="s">"no new libraries"</span>],
+    example=<span class="s">"RM10.00 split 3 ways -&gt; [3.34, 3.33, 3.33]"</span>,
+    output=<span class="s">"The method, 3 pytest tests, then explain the rounding in 2 sentences."</span>,
+)
+print(prompt)
+print(<span class="s">f"\n({len(prompt.split())} words)"</span>)</pre></div></div>
+    <div class="col fx d3" style="display:flex;flex-direction:column;gap:10px;min-height:0"><div class="cb" style="display:flex;flex-direction:column;min-height:0;flex:1 1 0"><div class="code-head">terminal · real output</div><pre class="code sm out" style="flex:1;min-height:0;margin:0"><span class="cmd">$ python prompt_builder.py</span>
+## Context
+Kopitiam POS CLI in Python 3.12. Order class stores (name, price) items.
+
+## Task
+Add a split_bill(n) method that divides the total between n people.
+
+## Constraints
+- type hints and a docstring
+- amounts in sen-accurate RM, 2 dp
+- leftover sen goes to the first person
+- raise ValueError if n &lt; 1
+- no new libraries
+
+## Example
+RM10.00 split 3 ways -&gt; [3.34, 3.33, 3.33]
+
+## Output
+The method, 3 pytest tests, then explain the rounding in 2 sentences.
+
+(85 words)</pre></div><div class="card" style="flex:0 0 auto"><h3><span class="k">try</span>Change it, predict, run</h3><ul class="rules"><li>Build a prompt for one of YOUR project's open Issues.</li><li>Remove the example and compare Claude's two answers.</li></ul></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="1.2 Giving Claude your code">
+  <div class="stepbar fx"><span class="on">Explain</span><span class="on">Theory</span><span class="">Code</span><span class="">Practice</span></div>
+  <div class="tag fx">Module 1 · Claude as a Pair Programmer · 1.2 · Explanation &amp; theory</div>
+  <h1 class="sh fx d1">Give context once, then ask to learn</h1>
+  <div class="body" style="align-items:stretch">
+    <div class="col cards fx d2" style="align-content:start"><div class="card accent"><h3><span class="k">what</span>In plain words</h3><p>Start each chat with a short <b>opening message</b> (project, stack, layout, your rules) and the relevant files. Then ask questions that teach you: "explain this line", "give me a hint, not the answer", "why X over Y?".</p></div><div class="card"><h3><span class="k">like</span>Everyday analogy</h3><p>A tutor who has seen your notes understands your question in one sentence. A stranger needs the whole story every time.</p></div><div class="card"><h3><span class="k">rules</span>Theory: the key rules</h3><ul class="rules"><li>Paste only the files <b>relevant</b> to the task</li><li>Tell Claude your style: hints, docstrings, snake_case</li><li><b>Chat</b> for one file; <b>Claude Code</b> for the whole repo</li><li>Review every change before accepting it</li></ul></div></div>
+    <div class="col fx d3"><div class="cb"><div class="code-head">syntax at a glance</div><pre class="code">Project:  Kopitiam POS CLI
+Stack:    Python <span class="n">3.12</span>, sqlite3, argparse, pytest
+Layout:   src/kopitiam/{models,repository,cli}.py
+Rules:    explain changes briefly; match my style;
+          no new libraries; warn me <span class="k">if</span> my approach <span class="k">is</span> wrong</pre></div><div class="card" style="margin-top:14px;border-color:rgba(255,111,145,.4)"><h3 style="color:var(--coral)">Common mistakes</h3><ul class="rules"><li>Pasting the whole repo, including .venv and data files.</li><li>Asking "fix it" with no error message or code.</li></ul></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="1.2 Giving Claude your code · code">
+  <div class="stepbar fx"><span class="">Explain</span><span class="">Theory</span><span class="on">Code</span><span class="">Practice</span></div>
+  <div class="tag fx">Module 1 · Claude as a Pair Programmer · 1.2 · Code — copy, paste, run</div>
+  <h1 class="sh fx d1">Pack your project into one paste-ready file</h1>
+  <div class="body" style="align-items:stretch">
+    <div class="col fx d2" style="flex:1.3;display:flex;flex-direction:column;gap:10px;min-height:0"><div class="cb" style="display:flex;flex-direction:column;min-height:0px;flex:34 1 0"><div class="code-head">context_pack.py</div><pre class="code sm" style="flex:1;min-height:0;margin:0"><span class="s">"""Pack your project's code into one Markdown file to paste into Claude.
+Skips folders you never want to share and hides secret-looking lines."""</span>
+<span class="k">import</span> re
+<span class="k">from</span> pathlib <span class="k">import</span> Path
+
+PROJECT = Path(<span class="s">"my_project"</span>)
+SKIP_DIRS = {<span class="s">".venv"</span>, <span class="s">"__pycache__"</span>, <span class="s">".git"</span>, <span class="s">"data"</span>}
+SECRET = re.compile(<span class="s">r"(?i)(api[_-]?key|password|secret|token)\s*[:=]\s*\S+"</span>)
+
+<span class="c"># demo only: create a tiny project if you don't have one yet</span>
+<span class="k">if</span> <span class="k">not</span> PROJECT.exists():
+    (PROJECT / <span class="s">"src"</span>).mkdir(parents=<span class="k">True</span>)
+    (PROJECT / <span class="s">"src"</span> / <span class="s">"models.py"</span>).write_text(
+        <span class="s">"class Order:\n    def __init__(self, table):\n        self.table = table\n"</span>)
+    (PROJECT / <span class="s">"src"</span> / <span class="s">"config.py"</span>).write_text(
+        <span class="s">'API_KEY = "sk-live-9f8e7d"\nSHOP = "Orkid Kopitiam"\n'</span>)
+    (PROJECT / <span class="s">".venv"</span>).mkdir()
+    (PROJECT / <span class="s">".venv"</span> / <span class="s">"huge.py"</span>).write_text(<span class="s">"# should be skipped\n"</span>)
+
+
+<span class="k">def</span> project_files(root: Path):
+    <span class="k">for</span> path <span class="k">in</span> sorted(root.rglob(<span class="s">"*.py"</span>)):
+        <span class="k">if</span> <span class="k">not</span> SKIP_DIRS &amp; set(path.parts):
+            <span class="k">yield</span> path
+
+
+chunks = []
+<span class="k">for</span> path <span class="k">in</span> project_files(PROJECT):
+    code = SECRET.sub(<span class="k">lambda</span> m: <span class="s">f"{m.group(1)} = &lt;REDACTED&gt;"</span>, path.read_text())
+    chunks.append(<span class="s">f"### {path.relative_to(PROJECT)}\n```python\n{code}```"</span>)
+    print(<span class="s">"included:"</span>, path.relative_to(PROJECT))
+
+Path(<span class="s">"context.md"</span>).write_text(<span class="s">"\n\n"</span>.join(chunks))
+print(<span class="s">"\n"</span> + Path(<span class="s">"context.md"</span>).read_text())</pre></div></div>
+    <div class="col fx d3" style="display:flex;flex-direction:column;gap:10px;min-height:0"><div class="cb" style="display:flex;flex-direction:column;min-height:0;flex:1 1 0"><div class="code-head">terminal · real output</div><pre class="code sm out" style="flex:1;min-height:0;margin:0"><span class="cmd">$ python context_pack.py</span>
+included: src/config.py
+included: src/models.py
+
+### src/config.py
+```python
+API_KEY = &lt;REDACTED&gt;
+SHOP = "Orkid Kopitiam"
+```
+
+### src/models.py
+```python
+class Order:
+    def __init__(self, table):
+        self.table = table
+```</pre></div><div class="card" style="flex:0 0 auto"><h3><span class="k">try</span>Change it, predict, run</h3><ul class="rules"><li>Point PROJECT at your own project folder.</li><li>Add .md files to the pack, but skip README files larger than 5 KB.</li></ul></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="1.3 Rules of safe use">
+  <div class="stepbar fx"><span class="on">Explain</span><span class="on">Theory</span><span class="">Code</span><span class="">Practice</span></div>
+  <div class="tag fx">Module 1 · Claude as a Pair Programmer · 1.3 · Explanation &amp; theory</div>
+  <h1 class="sh fx d1">The rules: no secrets, and understand every line</h1>
+  <div class="body" style="align-items:stretch">
+    <div class="col cards fx d2" style="align-content:start"><div class="card accent"><h3><span class="k">what</span>In plain words</h3><p>Never paste <b>secrets</b> (API keys, passwords) or <b>personal data</b> (IC numbers, real phone numbers) into any AI tool. Run every suggestion, read every line, and only keep code you can explain. You own the result.</p></div><div class="card"><h3><span class="k">like</span>Everyday analogy</h3><p>Copying a classmate's homework: it might be right, but if you can't explain it, the exam will show it.</p></div><div class="card"><h3><span class="k">rules</span>Theory: the key rules</h3><ul class="rules"><li><b>Fake data</b> only: no real customers</li><li><b>Run → read → change one thing → explain</b></li><li>One feature per prompt; <b>commit</b> when green</li><li>Note "Built with Claude" in your README</li></ul></div></div>
+    <div class="col fx d3"><div class="cb"><div class="code-head">syntax at a glance</div><pre class="code"><span class="c"># After AI gives you code, always:</span>
+<span class="c"># 1. Run it.</span>
+<span class="c"># 2. Read every line.</span>
+<span class="c"># 3. Change one thing on purpose; predict what breaks.</span>
+<span class="c"># 4. If you can't explain it, you don't own it yet.</span></pre></div><div class="card" style="margin-top:14px;border-color:rgba(255,111,145,.4)"><h3 style="color:var(--coral)">Common mistakes</h3><ul class="rules"><li>Accepting a 200-line answer without running it.</li><li>Letting AI edit a test just so it passes.</li></ul></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="1.3 Rules of safe use · code">
+  <div class="stepbar fx"><span class="">Explain</span><span class="">Theory</span><span class="on">Code</span><span class="">Practice</span></div>
+  <div class="tag fx">Module 1 · Claude as a Pair Programmer · 1.3 · Code — copy, paste, run</div>
+  <h1 class="sh fx d1">Scan text for secrets before you paste it</h1>
+  <div class="body" style="align-items:stretch">
+    <div class="col fx d2" style="flex:1.3;display:flex;flex-direction:column;gap:10px;min-height:0"><div class="cb" style="display:flex;flex-direction:column;min-height:0px;flex:32 1 0"><div class="code-head">secret_scan.py</div><pre class="code sm" style="flex:1;min-height:0;margin:0"><span class="s">"""Check text BEFORE you paste it into any AI tool."""</span>
+<span class="k">import</span> re
+
+CHECKS = {
+    <span class="s">"API key"</span>:       <span class="s">r"\b(sk|pk|rk)[-_](live|test)?[-_]?[A-Za-z0-9]{6,}\b"</span>,
+    <span class="s">"password"</span>:      <span class="s">r"(?i)\bpass(word)?\s*[:=]\s*\S+"</span>,
+    <span class="s">"MyKad number"</span>:  <span class="s">r"\b\d{6}-\d{2}-\d{4}\b"</span>,
+    <span class="s">"card number"</span>:   <span class="s">r"\b(?:\d{4}[ -]?){3}\d{4}\b"</span>,
+    <span class="s">"phone number"</span>:  <span class="s">r"(?:\+?6)?01\d[- ]?\d{3,4}[- ]?\d{4}"</span>,
+}
+
+
+<span class="k">def</span> scan(text: str) -&gt; list[str]:
+    <span class="s">"""Return a warning for every risky thing found."""</span>
+    found = []
+    <span class="k">for</span> label, pattern <span class="k">in</span> CHECKS.items():
+        <span class="k">for</span> m <span class="k">in</span> re.finditer(pattern, text):
+            hidden = m.group()[:<span class="n">3</span>] + <span class="s">"*"</span> * (len(m.group()) - <span class="n">3</span>)
+            found.append(<span class="s">f"{label:&lt;13} {hidden}"</span>)
+    <span class="k">return</span> found
+
+
+paste = <span class="s">"""Hi Claude, my code fails:
+API_KEY = "sk-live-AbC123xyz789"
+customer = {"ic": "900101-01-1234", "phone": "012-345 6789"}
+db password: hunter2
+"""</span>
+warnings = scan(paste)
+print(<span class="s">"SAFE TO PASTE"</span> <span class="k">if</span> <span class="k">not</span> warnings <span class="k">else</span> <span class="s">f"STOP - {len(warnings)} problem(s):"</span>)
+<span class="k">for</span> w <span class="k">in</span> warnings:
+    print(<span class="s">"  "</span> + w)
+print(<span class="s">"\nclean text:"</span>, <span class="s">"SAFE"</span> <span class="k">if</span> <span class="k">not</span> scan(<span class="s">"def total(items): return sum(items)"</span>) <span class="k">else</span> <span class="s">"!"</span>)</pre></div></div>
+    <div class="col fx d3" style="display:flex;flex-direction:column;gap:10px;min-height:0"><div class="cb" style="display:flex;flex-direction:column;min-height:0;flex:1 1 0"><div class="code-head">terminal · real output</div><pre class="code sm out" style="flex:1;min-height:0;margin:0"><span class="cmd">$ python secret_scan.py</span>
+STOP - 4 problem(s):
+  API key       sk-*****************
+  password      pas**************
+  MyKad number  900***********
+  phone number  012*********
+
+clean text: SAFE</pre></div><div class="card" style="flex:0 0 auto"><h3><span class="k">try</span>Change it, predict, run</h3><ul class="rules"><li>Run it on your own config.py contents.</li><li>Add a check for email addresses.</li></ul></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="Module 1 Practice">
+  <div class="stepbar fx"><span class="">Explain</span><span class="">Theory</span><span class="">Code</span><span class="on">Practice</span></div>
+  <div class="tag fx">Module 1 · Claude as a Pair Programmer · Practice: real-life app + hands-on</div>
+  <h1 class="sh fx d1">Build: get a code review of one class</h1>
+  <div class="body" style="align-items:stretch">
+    <div class="col fx d2" style="flex:1.15;display:flex;flex-direction:column;gap:8px;min-height:0"><div class="card accent" style="flex:0 0 auto;padding:12px 16px"><h3><span class="k">real life</span>Your personal prompt library</h3><p>Good prompts are worth saving. Store your best review, debug and test prompts as templates, fill in the blanks with one function call, and keep them in a prompts/ folder you reuse on every project.</p></div><div class="cb" style="display:flex;flex-direction:column;min-height:130px;flex:34 1 0"><div class="code-head">prompt_library.py</div><pre class="code sm" style="flex:1;min-height:0;margin:0"><span class="s">"""Your personal prompt library: reuse your best prompts with one function call."""</span>
+<span class="k">from</span> pathlib <span class="k">import</span> Path
+<span class="k">from</span> string <span class="k">import</span> Template
+
+LIBRARY = {
+    <span class="s">"review"</span>: Template(
+        <span class="s">"Review this $language code as a senior developer. List at most "</span>
+        <span class="s">"$max_issues issues, most important first: the line, the problem, a fix. "</span>
+        <span class="s">"Don't rewrite everything.\n\n$code"</span>),
+    <span class="s">"debug"</span>: Template(
+        <span class="s">"Expected: $expected\nActual: $actual\nTraceback:\n$traceback\n\n"</span>
+        <span class="s">"Don't fix it yet. Tell me the likely cause and one print or breakpoint "</span>
+        <span class="s">"to confirm it."</span>),
+    <span class="s">"tests"</span>: Template(
+        <span class="s">"Write pytest tests for this function. Cover a normal case, each "</span>
+        <span class="s">"boundary and each error. Use parametrize. One comment per test.\n\n$code"</span>),
+}
+
+
+<span class="k">def</span> prompt(name: str, **fields: str) -&gt; str:
+    <span class="s">"""Fill a saved prompt. Missing fields raise KeyError so you notice."""</span>
+    <span class="k">return</span> LIBRARY[name].substitute(**fields)
+
+
+code = <span class="s">"def grade(m):\n    return 'A' if m &gt; 80 else 'F'"</span>
+p = prompt(<span class="s">"review"</span>, language=<span class="s">"Python"</span>, max_issues=<span class="s">"3"</span>, code=code)
+print(p, <span class="s">"\n"</span> + <span class="s">"-"</span> * <span class="n">40</span>)
+print(prompt(<span class="s">"debug"</span>, expected=<span class="s">"grade(80) == 'A'"</span>, actual=<span class="s">"'F'"</span>,
+             traceback=<span class="s">"(no crash, wrong answer)"</span>))
+
+Path(<span class="s">"prompts"</span>).mkdir(exist_ok=<span class="k">True</span>)
+<span class="k">for</span> name, template <span class="k">in</span> LIBRARY.items():
+    Path(<span class="s">"prompts"</span>, <span class="s">f"{name}.txt"</span>).write_text(template.template)
+print(<span class="s">"-"</span> * <span class="n">40</span>, <span class="s">"\nsaved:"</span>, sorted(p.name <span class="k">for</span> p <span class="k">in</span> Path(<span class="s">"prompts"</span>).iterdir()))</pre></div><div class="cb" style="display:flex;flex-direction:column;min-height:90px;flex:0 1 26%"><div class="code-head">terminal · real output</div><pre class="code sm out" style="flex:1;min-height:0;margin:0"><span class="cmd">$ python prompt_library.py</span>
+Review this Python code as a senior developer. List at most 3 issues, most important first: the line, the problem, a fix. Don't rewrite everything.
+
+def grade(m):
+    return 'A' if m &gt; 80 else 'F' 
+----------------------------------------
+Expected: grade(80) == 'A'
+Actual: 'F'
+Traceback:
+(no crash, wrong answer)
+
+Don't fix it yet. Tell me the likely cause and one print or breakpoint to confirm it.
+---------------------------------------- 
+saved: ['debug.txt', 'review.txt', 'tests.txt']</pre></div></div>
+    <div class="col fx d3" style="display:flex;flex-direction:column;gap:10px;min-height:0"><div style="flex:0 0 auto"><div class="hands-on">
+        <div class="lbl">10 minutes · solo</div>
+        <h3>Your first real AI code review</h3>
+        <div class="steps">
+          <div><b>01</b><span>Open Claude, paste the opening message from 1.2.</span></div>
+          <div><b>02</b><span>Paste one class you wrote. Use the review prompt →</span></div>
+          <div><b>03</b><span>Pick <b style="color:var(--mint)">one</b> suggestion. Ask "why?" before applying it.</span></div>
+          <div><b>04</b><span>Apply it yourself, run your tests.</span></div>
+          <div><b>05</b><span>Commit: <span style="font-family:var(--mono)">"refactor: &lt;what&gt; (reviewed with Claude)"</span>. <b style="color:var(--mint)">Done.</b></span></div>
+        </div>
+      </div></div><div class="cb" style="display:flex;flex-direction:column;min-height:0;flex:1 1 0"><div class="code-head">review prompt — copy this</div><pre class="code sm" style="flex:1;min-height:0;margin:0">Review this class as a senior Python developer.
+
+List at most 5 issues, most important first.
+For each: the line, the problem, and a fix.
+Check: naming, type hints, error handling,
+edge cases, and anything that would break
+with bad input.
+
+Don't rewrite the whole class — I'll apply
+the fixes myself.
+
+[paste class]</pre></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="2.1 Feature by feature">
+  <div class="stepbar fx"><span class="on">Explain</span><span class="on">Theory</span><span class="">Code</span><span class="">Practice</span></div>
+  <div class="tag fx">Module 2 · Build &amp; Debug with Claude · 2.1 · Explanation &amp; theory</div>
+  <h1 class="sh fx d1">The build loop: one Issue at a time</h1>
+  <div class="cards grid3 fx d2" style="margin-top:18px;align-items:start"><div class="card accent"><h3><span class="k">what</span>In plain words</h3><p>Big asks give big, buggy answers. Work in <b>small loops</b>: pick one Issue, prompt for it, read the code, run the app and tests, commit. Each loop takes about 8 minutes and leaves you with working code.</p></div><div class="card"><h3><span class="k">like</span>Everyday analogy</h3><p>Building with Lego from the instructions page by page, not tipping the whole box out and hoping.</p></div><div class="card"><h3><span class="k">rules</span>Theory: the key rules</h3><ul class="rules"><li>One <b>small</b> Issue per loop</li><li>Ask for the function <b>and its tests</b></li><li>Run <b>pytest</b> before committing</li><li>Red tests → go to the debug prompt (2.2)</li></ul></div></div>
+  <div class="body figbody" style="margin-top:12px"><div class="figwrap"><svg class="fig" style="min-height:0" viewBox="0 0 1000 400" aria-label="Loop: pick an issue, prompt Claude, read the code, run tests, commit, then back to the next issue">
+        <g font-family="JetBrains Mono,monospace">
+          <circle cx="500" cy="200" r="150" fill="none" stroke="#2a3440" stroke-width="2" class="fx"/>
+          <path id="loopPath" d="M 500 50 A 150 150 0 1 1 499.9 50" fill="none" stroke="#00dcb4" stroke-width="3" class="draw d1" style="--len:945"/>
+          <circle r="9" fill="#00dcb4" class="travel" style="offset-path:path('M 500 50 A 150 150 0 1 1 499.9 50')"/>
+          <g class="fx d1"><rect x="410" y="12" width="180" height="56" rx="10" fill="#1c2430" stroke="#58a6ff" stroke-width="2"/><text x="500" y="37" font-size="13" fill="#58a6ff" text-anchor="middle">① PICK</text><text x="500" y="57" font-size="13" fill="#e8eef0" text-anchor="middle">one GitHub Issue</text></g>
+          <g class="fx d2"><rect x="640" y="100" width="190" height="56" rx="10" fill="#1c2430" stroke="#00dcb4" stroke-width="2"/><text x="735" y="125" font-size="13" fill="#00dcb4" text-anchor="middle">② PROMPT</text><text x="735" y="145" font-size="13" fill="#e8eef0" text-anchor="middle">5-part prompt</text></g>
+          <g class="fx d3"><rect x="640" y="250" width="190" height="56" rx="10" fill="#1c2430" stroke="#f0b429" stroke-width="2"/><text x="735" y="275" font-size="13" fill="#f0b429" text-anchor="middle">③ READ</text><text x="735" y="295" font-size="13" fill="#e8eef0" text-anchor="middle">every line</text></g>
+          <g class="fx d4"><rect x="410" y="332" width="180" height="56" rx="10" fill="#1c2430" stroke="#ff6f91" stroke-width="2"/><text x="500" y="357" font-size="13" fill="#ff6f91" text-anchor="middle">④ RUN</text><text x="500" y="377" font-size="13" fill="#e8eef0" text-anchor="middle">app + pytest</text></g>
+          <g class="fx d5"><rect x="170" y="250" width="190" height="56" rx="10" fill="#1c2430" stroke="#00dcb4" stroke-width="2"/><text x="265" y="275" font-size="13" fill="#00dcb4" text-anchor="middle">⑤ COMMIT</text><text x="265" y="295" font-size="13" fill="#e8eef0" text-anchor="middle">close the Issue</text></g>
+          <g class="fx d6"><rect x="170" y="100" width="190" height="56" rx="10" fill="#0a0e13" stroke="#8b98a5" stroke-dasharray="5 4"/><text x="265" y="125" font-size="13" fill="#8b98a5" text-anchor="middle">tests red?</text><text x="265" y="145" font-size="13" fill="#e8eef0" text-anchor="middle">→ go to 2.2</text></g>
+          <text x="500" y="195" font-size="20" fill="#e8eef0" text-anchor="middle" class="fx d7">~8 min</text>
+          <text x="500" y="220" font-size="13" fill="#8b98a5" text-anchor="middle" class="fx d7">per loop</text>
+        </g>
+      </svg></div></div>
+</section>
+
+<section class="slide" data-title="2.1 Feature by feature · code">
+  <div class="stepbar fx"><span class="">Explain</span><span class="">Theory</span><span class="on">Code</span><span class="">Practice</span></div>
+  <div class="tag fx">Module 2 · Build &amp; Debug with Claude · 2.1 · Code — copy, paste, run</div>
+  <h1 class="sh fx d1">One loop's result: a feature with its tests</h1>
+  <div class="body" style="align-items:stretch">
+    <div class="col fx d2" style="flex:1.3;display:flex;flex-direction:column;gap:10px;min-height:0"><div class="cb" style="display:flex;flex-direction:column;min-height:0px;flex:37 1 0"><div class="code-head">test_split_bill.py</div><pre class="code sm" style="flex:1;min-height:0;margin:0"><span class="c"># Feature built in one Claude loop: split a bill fairly to the sen.</span>
+<span class="c"># Run:  pytest -v test_c7_04_feature.py</span>
+<span class="k">import</span> pytest
+
+
+<span class="k">def</span> split_bill(total: float, people: int) -&gt; list[float]:
+    <span class="s">"""Split total between people. Leftover sen go to the first people.
+
+    Works in whole sen (integers) to avoid float errors like 0.1 + 0.2.
+    """</span>
+    <span class="k">if</span> people &lt; <span class="n">1</span>:
+        <span class="k">raise</span> ValueError(<span class="s">"people must be at least 1"</span>)
+    sen = round(total * <span class="n">100</span>)
+    base, leftover = divmod(sen, people)
+    <span class="k">return</span> [(base + (<span class="n">1</span> <span class="k">if</span> i &lt; leftover <span class="k">else</span> <span class="n">0</span>)) / <span class="n">100</span> <span class="k">for</span> i <span class="k">in</span> range(people)]
+
+
+print(split_bill(<span class="n">10.00</span>, <span class="n">3</span>))      <span class="c"># [3.34, 3.33, 3.33]</span>
+
+
+@pytest.mark.parametrize(<span class="s">"total, people, expected"</span>, [
+    (<span class="n">10.00</span>, <span class="n">3</span>, [<span class="n">3.34</span>, <span class="n">3.33</span>, <span class="n">3.33</span>]),
+    (<span class="n">25.40</span>, <span class="n">2</span>, [<span class="n">12.70</span>, <span class="n">12.70</span>]),
+    (<span class="n">0.05</span>, <span class="n">2</span>, [<span class="n">0.03</span>, <span class="n">0.02</span>]),
+    (<span class="n">99.99</span>, <span class="n">1</span>, [<span class="n">99.99</span>]),
+])
+<span class="k">def</span> test_split(total, people, expected):
+    <span class="k">assert</span> split_bill(total, people) == expected
+
+
+<span class="k">def</span> test_shares_add_up():
+    <span class="k">assert</span> round(sum(split_bill(<span class="n">123.45</span>, <span class="n">7</span>)), <span class="n">2</span>) == <span class="n">123.45</span>
+
+
+<span class="k">def</span> test_zero_people():
+    <span class="k">with</span> pytest.raises(ValueError):
+        split_bill(<span class="n">10</span>, <span class="n">0</span>)</pre></div></div>
+    <div class="col fx d3" style="display:flex;flex-direction:column;gap:10px;min-height:0"><div class="cb" style="display:flex;flex-direction:column;min-height:0;flex:1 1 0"><div class="code-head">terminal · real output</div><pre class="code sm out" style="flex:1;min-height:0;margin:0"><span class="cmd">$ pytest -v --no-header test_split_bill.py</span>
+======================================= test session starts ========================================
+collecting ... collected 6 items
+
+test_split_bill.py::test_split[10.0-3-expected0] PASSED                                      [ 16%]
+test_split_bill.py::test_split[25.4-2-expected1] PASSED                                      [ 33%]
+test_split_bill.py::test_split[0.05-2-expected2] PASSED                                      [ 50%]
+test_split_bill.py::test_split[99.99-1-expected3] PASSED                                     [ 66%]
+test_split_bill.py::test_shares_add_up PASSED                                                [ 83%]
+test_split_bill.py::test_zero_people PASSED                                                  [100%]
+
+======================================== 6 passed in 0.01s =========================================</pre></div><div class="card" style="flex:0 0 auto"><h3><span class="k">try</span>Change it, predict, run</h3><ul class="rules"><li>Ask Claude why the code works in whole sen.</li><li>Add a test for RM0.01 split 3 ways.</li></ul></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="2.2 Debugging with tracebacks">
+  <div class="stepbar fx"><span class="on">Explain</span><span class="on">Theory</span><span class="">Code</span><span class="">Practice</span></div>
+  <div class="tag fx">Module 2 · Build &amp; Debug with Claude · 2.2 · Explanation &amp; theory</div>
+  <h1 class="sh fx d1">Debugging with Claude: diagnose first, then fix</h1>
+  <div class="body" style="align-items:stretch">
+    <div class="col cards fx d2" style="align-content:start"><div class="card accent"><h3><span class="k">what</span>In plain words</h3><p>Give Claude what you'd give a senior developer: what you <b>expected</b>, what <b>actually</b> happened, the <b>full traceback</b>, what you <b>tried</b>, and the relevant code. Ask for a diagnosis before a fix, so you learn to find bugs yourself.</p></div><div class="card"><h3><span class="k">like</span>Everyday analogy</h3><p>Going to the doctor: say your symptoms, when they started and what you've tried. "I feel bad, fix me" gets a worse result.</p></div><div class="card"><h3><span class="k">rules</span>Theory: the key rules</h3><ul class="rules"><li><b>Expected</b> vs <b>actual</b></li><li>Paste the <b>whole traceback</b></li><li>Say what you <b>already tried</b></li><li>"Diagnose first, don't fix yet"</li></ul></div></div>
+    <div class="col fx d3"><div class="cb"><div class="code-head">syntax at a glance</div><pre class="code">Expected: report shows each <span class="k">class</span> average
+Actual:   ZeroDivisionError (traceback below)
+Tried:    printed marks; <span class="n">5</span>B <span class="k">is</span> an empty list
+Code:     [paste class_average]
+
+Don<span class="s">'t fix it yet. What'</span>s the cause, <span class="k">and</span> how
+can I confirm it <span class="k">with</span> one print <span class="k">or</span> breakpoint?</pre></div><div class="card" style="margin-top:14px;border-color:rgba(255,111,145,.4)"><h3 style="color:var(--coral)">Common mistakes</h3><ul class="rules"><li>"it doesn't work pls fix"</li><li>Accepting a fix that hides the error with a bare except.</li></ul></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="2.2 Debugging with tracebacks · code">
+  <div class="stepbar fx"><span class="">Explain</span><span class="">Theory</span><span class="on">Code</span><span class="">Practice</span></div>
+  <div class="tag fx">Module 2 · Build &amp; Debug with Claude · 2.2 · Code — copy, paste, run</div>
+  <h1 class="sh fx d1">AI's first draft crashed: diagnosis and fix</h1>
+  <div class="body" style="align-items:stretch">
+    <div class="col fx d2" style="flex:1.3;display:flex;flex-direction:column;gap:10px;min-height:0"><div class="cb" style="display:flex;flex-direction:column;min-height:0px;flex:25 1 0"><div class="code-head">debug_story.py</div><pre class="code sm" style="flex:1;min-height:0;margin:0"><span class="c"># AI's first draft: looked fine, but crashed on real data.</span>
+<span class="k">def</span> class_average_v1(marks: dict[str, list[int]]) -&gt; dict[str, float]:
+    <span class="k">return</span> {<span class="k">cls</span>: round(sum(m) / len(m)) <span class="k">for</span> <span class="k">cls</span>, m <span class="k">in</span> marks.items()}
+
+
+data = {<span class="s">"5A"</span>: [<span class="n">88</span>, <span class="n">75</span>, <span class="n">91</span>], <span class="s">"5B"</span>: [], <span class="s">"5C"</span>: [<span class="n">64</span>, <span class="n">70</span>]}
+
+<span class="k">try</span>:
+    print(class_average_v1(data))
+<span class="k">except</span> ZeroDivisionError <span class="k">as</span> e:
+    print(<span class="s">"v1 crashed:"</span>, type(e).__name__, <span class="s">"-"</span>, e)
+
+<span class="c"># Debug prompt we sent:  Expected / Actual / Traceback / "diagnose first"</span>
+<span class="c"># Claude's diagnosis: class 5B has no marks -&gt; len(m) == 0.</span>
+<span class="c"># Second bug we spotted ourselves while reading: round() with no digits</span>
+<span class="c"># turns 84.67 into 85, which is wrong for a report.</span>
+
+
+<span class="k">def</span> class_average_v2(marks: dict[str, list[int]]) -&gt; dict[str, float | <span class="k">None</span>]:
+    <span class="s">"""Average per class to 1 decimal. Empty classes give None."""</span>
+    <span class="k">return</span> {<span class="k">cls</span>: round(sum(m) / len(m), <span class="n">1</span>) <span class="k">if</span> m <span class="k">else</span> <span class="k">None</span>
+            <span class="k">for</span> <span class="k">cls</span>, m <span class="k">in</span> marks.items()}
+
+
+print(<span class="s">"v2:"</span>, class_average_v2(data))</pre></div></div>
+    <div class="col fx d3" style="display:flex;flex-direction:column;gap:10px;min-height:0"><div class="cb" style="display:flex;flex-direction:column;min-height:0;flex:1 1 0"><div class="code-head">terminal · real output</div><pre class="code sm out" style="flex:1;min-height:0;margin:0"><span class="cmd">$ python debug_story.py</span>
+v1 crashed: ZeroDivisionError - division by zero
+v2: {'5A': 84.7, '5B': None, '5C': 67.0}</pre></div><div class="card" style="flex:0 0 auto"><h3><span class="k">try</span>Change it, predict, run</h3><ul class="rules"><li>Paste v1 and the error into Claude with the debug prompt.</li><li>Write a test that would have caught both bugs.</li></ul></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="2.3 Tests with Claude">
+  <div class="stepbar fx"><span class="on">Explain</span><span class="on">Theory</span><span class="">Code</span><span class="">Practice</span></div>
+  <div class="tag fx">Module 2 · Build &amp; Debug with Claude · 2.3 · Explanation &amp; theory</div>
+  <h1 class="sh fx d1">Let Claude draft tests; you check they test the right thing</h1>
+  <div class="cards grid3 fx d2" style="margin-top:18px;align-items:start"><div class="card accent"><h3><span class="k">what</span>In plain words</h3><p>Claude writes tests fast, but it can <b>misread the spec</b>. When a test fails, ask: is the <b>code</b> wrong, or the <b>test</b>? Check against the requirement, not against what makes the test pass.</p></div><div class="card"><h3><span class="k">like</span>Everyday analogy</h3><p>A trainee writes the exam marking scheme. Useful, but the teacher still checks the answers match the syllabus.</p></div><div class="card"><h3><span class="k">rules</span>Theory: the key rules</h3><ul class="rules"><li>Ask for normal, boundary and error cases</li><li>Read each test's comment: <b>what rule does it protect?</b></li><li>Failing test → check the <b>spec</b> first</li><li>Never weaken a correct test to go green</li></ul></div></div>
+  <div class="body figbody" style="margin-top:12px"><div class="figwrap"><svg class="fig" style="min-height:0" viewBox="0 0 460 360" style="min-height:280px" aria-label="Test results go from red failures to all green after fixes">
+        <g font-family="JetBrains Mono,monospace">
+          <text x="20" y="26" font-size="13" fill="#8b98a5" letter-spacing="2">$ pytest -q</text>
+          <g font-size="22">
+            <text x="20" y="70" fill="#00dcb4" class="fx d1">.</text><text x="40" y="70" fill="#00dcb4" class="fx d1">.</text><text x="60" y="70" fill="#ff6f91" class="fx d1">F</text><text x="80" y="70" fill="#00dcb4" class="fx d1">.</text><text x="100" y="70" fill="#ff6f91" class="fx d1">F</text><text x="120" y="70" fill="#00dcb4" class="fx d1">.</text>
+          </g>
+          <text x="20" y="100" font-size="14" fill="#ff6f91" class="fx d2">2 failed, 4 passed</text>
+          <g class="fx d3">
+            <rect x="20" y="120" width="420" height="96" rx="8" fill="#0a0e13" stroke="#f0b429"/>
+            <text x="36" y="148" font-size="13" fill="#f0b429">Ask: is the TEST wrong, or the CODE?</text>
+            <text x="36" y="174" font-size="13" fill="#e8eef0">split_bill(0) → expected ValueError</text>
+            <text x="36" y="198" font-size="13" fill="#e8eef0">→ code bug: missing n &lt; 1 check ✓ fix code</text>
+          </g>
+          <line x1="230" y1="222" x2="230" y2="252" stroke="#00dcb4" stroke-width="2" class="draw d4" style="--len:30"/>
+          <g font-size="22" class="fx d5">
+            <text x="20" y="290" fill="#00dcb4">. . . . . .</text>
+          </g>
+          <text x="20" y="320" font-size="14" fill="#00dcb4" class="pulse fx d6">6 passed ✓ commit</text>
+        </g>
+      </svg></div></div>
+</section>
+
+<section class="slide" data-title="2.3 Tests with Claude · code">
+  <div class="stepbar fx"><span class="">Explain</span><span class="">Theory</span><span class="on">Code</span><span class="">Practice</span></div>
+  <div class="tag fx">Module 2 · Build &amp; Debug with Claude · 2.3 · Code — copy, paste, run</div>
+  <h1 class="sh fx d1">One AI-drafted test contradicts the spec. Spot it</h1>
+  <div class="body" style="align-items:stretch">
+    <div class="col fx d2" style="flex:1.3;display:flex;flex-direction:column;gap:10px;min-height:0"><div class="cb" style="display:flex;flex-direction:column;min-height:0px;flex:26 1 0"><div class="code-head">test_delivery.py</div><pre class="code sm" style="flex:1;min-height:0;margin:0"><span class="c"># Claude drafted these tests. One of them is WRONG. Run, then decide:</span>
+<span class="c"># is the test wrong, or is the code wrong?   pytest -q test_c7_06_review_ai_tests.py</span>
+
+
+<span class="k">def</span> delivery_fee(distance_km: float, order_total: float) -&gt; float:
+    <span class="s">"""RM3 base + RM1/km after 3 km. Free delivery for orders RM50 and above."""</span>
+    <span class="k">if</span> order_total &gt;= <span class="n">50</span>:
+        <span class="k">return</span> <span class="n">0.0</span>
+    <span class="k">return</span> <span class="n">3.0</span> + max(distance_km - <span class="n">3</span>, <span class="n">0</span>) * <span class="n">1.0</span>
+
+
+<span class="k">def</span> test_short_trip():
+    <span class="k">assert</span> delivery_fee(<span class="n">2</span>, <span class="n">20</span>) == <span class="n">3.0</span>
+
+
+<span class="k">def</span> test_long_trip():
+    <span class="k">assert</span> delivery_fee(<span class="n">7</span>, <span class="n">20</span>) == <span class="n">7.0</span>
+
+
+<span class="k">def</span> test_free_at_exactly_50():
+    <span class="k">assert</span> delivery_fee(<span class="n">5</span>, <span class="n">50</span>) == <span class="n">0.0</span>
+
+
+<span class="k">def</span> test_free_above_50_ai_draft():
+    <span class="c"># AI wrote: "orders above RM50 still pay the base fee"  &lt;- contradicts the spec</span>
+    <span class="k">assert</span> delivery_fee(<span class="n">5</span>, <span class="n">80</span>) == <span class="n">3.0</span></pre></div></div>
+    <div class="col fx d3" style="display:flex;flex-direction:column;gap:10px;min-height:0"><div class="cb" style="display:flex;flex-direction:column;min-height:0;flex:1 1 0"><div class="code-head">terminal · real output</div><pre class="code sm out" style="flex:1;min-height:0;margin:0"><span class="cmd">$ pytest -q --no-header test_delivery.py</span>
+...F                                                                                         [100%]
+============================================= FAILURES =============================================
+___________________________________ test_free_above_50_ai_draft ____________________________________
+
+    def test_free_above_50_ai_draft():
+        # AI wrote: "orders above RM50 still pay the base fee"  &lt;- contradicts the spec
+&gt;       assert delivery_fee(5, 80) == 3.0
+E       assert 0.0 == 3.0
+E        +  where 0.0 = delivery_fee(5, 80)
+
+test_delivery.py:26: AssertionError
+===================================== short test summary info ======================================
+FAILED test_delivery.py::test_free_above_50_ai_draft - assert 0.0 == 3.0
+1 failed, 3 passed in 0.01s</pre></div><div class="card" style="flex:0 0 auto"><h3><span class="k">try</span>Change it, predict, run</h3><ul class="rules"><li>Decide: fix the test or the code? (Check the docstring.)</li><li>Add a parametrized test for 3, 4 and 10 km.</li></ul></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="Module 2 Practice">
+  <div class="stepbar fx"><span class="">Explain</span><span class="">Theory</span><span class="">Code</span><span class="on">Practice</span></div>
+  <div class="tag fx">Module 2 · Build &amp; Debug with Claude · Practice: real-life app + hands-on</div>
+  <h1 class="sh fx d1">Build sprint: finish your features</h1>
+  <div class="body" style="align-items:stretch">
+    <div class="col fx d2" style="flex:1.15;display:flex;flex-direction:column;gap:8px;min-height:0"><div class="card accent" style="flex:0 0 auto;padding:12px 16px"><h3><span class="k">real life</span>Mini capstone: Kopitiam POS in one file</h3><p>What a finished small project looks like: dataclasses for lines, a class for orders, SQLite for sales history, a receipt with SST, best sellers, and bad input rejected. Every class in the course appears here.</p></div><div class="cb" style="display:flex;flex-direction:column;min-height:130px;flex:70 1 0"><div class="code-head">pos.py</div><pre class="code sm" style="flex:1;min-height:0;margin:0"><span class="s">"""Mini capstone: Kopitiam POS in one file (classes + SQLite + receipt)."""</span>
+<span class="k">import</span> sqlite3
+<span class="k">from</span> dataclasses <span class="k">import</span> dataclass
+
+SST = <span class="n">0.06</span>
+MENU = {<span class="s">"TT"</span>: (<span class="s">"Teh Tarik"</span>, <span class="n">3.00</span>), <span class="s">"KO"</span>: (<span class="s">"Kopi O"</span>, <span class="n">2.50</span>),
+        <span class="s">"NL"</span>: (<span class="s">"Nasi Lemak"</span>, <span class="n">6.50</span>), <span class="s">"RC"</span>: (<span class="s">"Roti Canai"</span>, <span class="n">2.50</span>)}
+
+
+@dataclass
+<span class="k">class</span> Line:
+    name: str
+    price: float
+    qty: int
+
+    @property
+    <span class="k">def</span> total(<span class="k">self</span>) -&gt; float:
+        <span class="k">return</span> <span class="k">self</span>.price * <span class="k">self</span>.qty
+
+
+<span class="k">class</span> Order:
+    <span class="k">def</span> __init__(<span class="k">self</span>, table: int):
+        <span class="k">self</span>.table = table
+        <span class="k">self</span>.lines: list[Line] = []
+
+    <span class="k">def</span> add(<span class="k">self</span>, code: str, qty: int = <span class="n">1</span>) -&gt; <span class="k">None</span>:
+        <span class="k">if</span> code <span class="k">not</span> <span class="k">in</span> MENU:
+            <span class="k">raise</span> KeyError(<span class="s">f"no menu item {code!r}"</span>)
+        name, price = MENU[code]
+        <span class="k">self</span>.lines.append(Line(name, price, qty))
+
+    <span class="k">def</span> subtotal(<span class="k">self</span>) -&gt; float:
+        <span class="k">return</span> sum(line.total <span class="k">for</span> line <span class="k">in</span> <span class="k">self</span>.lines)
+
+    <span class="k">def</span> receipt(<span class="k">self</span>) -&gt; str:
+        rows = [<span class="s">f"{line.qty} x {line.name:&lt;12} RM{line.total:&gt;6.2f}"</span> <span class="k">for</span> line <span class="k">in</span> <span class="k">self</span>.lines]
+        sst = <span class="k">self</span>.subtotal() * SST
+        rows += [<span class="s">"-"</span> * <span class="n">28</span>, <span class="s">f"{'SST 6%':&lt;16} RM{sst:&gt;6.2f}"</span>,
+                 <span class="s">f"{'TOTAL':&lt;16} RM{self.subtotal() + sst:&gt;6.2f}"</span>]
+        <span class="k">return</span> <span class="s">f"Table {self.table}\n"</span> + <span class="s">"\n"</span>.join(rows)
+
+
+<span class="k">class</span> Sales:
+    <span class="k">def</span> __init__(<span class="k">self</span>, path: str = <span class="s">"pos.db"</span>):
+        <span class="k">self</span>.conn = sqlite3.connect(path)
+        <span class="k">self</span>.conn.execute(<span class="s">"CREATE TABLE IF NOT EXISTS sales (tbl INT, item TEXT, qty INT, amount REAL)"</span>)
+
+    <span class="k">def</span> save(<span class="k">self</span>, order: Order) -&gt; <span class="k">None</span>:
+        <span class="k">self</span>.conn.executemany(<span class="s">"INSERT INTO sales VALUES (?, ?, ?, ?)"</span>,
+                              [(order.table, ln.name, ln.qty, ln.total) <span class="k">for</span> ln <span class="k">in</span> order.lines])
+        <span class="k">self</span>.conn.commit()
+
+    <span class="k">def</span> best_sellers(<span class="k">self</span>) -&gt; list[tuple[str, int]]:
+        <span class="k">return</span> <span class="k">self</span>.conn.execute(<span class="s">"SELECT item, SUM(qty) FROM sales GROUP BY item "</span>
+                                 <span class="s">"ORDER BY SUM(qty) DESC LIMIT 3"</span>).fetchall()
+
+
+sales = Sales(<span class="s">":memory:"</span>)
+<span class="k">for</span> table, items <span class="k">in</span> [(<span class="n">4</span>, [(<span class="s">"TT"</span>, <span class="n">2</span>), (<span class="s">"NL"</span>, <span class="n">1</span>)]), (<span class="n">7</span>, [(<span class="s">"KO"</span>, <span class="n">3</span>), (<span class="s">"RC"</span>, <span class="n">2</span>)]),
+                     (<span class="n">2</span>, [(<span class="s">"TT"</span>, <span class="n">1</span>), (<span class="s">"RC"</span>, <span class="n">1</span>)])]:
+    order = Order(table)
+    <span class="k">for</span> code, qty <span class="k">in</span> items:
+        order.add(code, qty)
+    sales.save(order)
+print(order.receipt())
+print(<span class="s">"\nbest sellers today:"</span>, sales.best_sellers())
+<span class="k">try</span>:
+    Order(<span class="n">1</span>).add(<span class="s">"XX"</span>)
+<span class="k">except</span> KeyError <span class="k">as</span> e:
+    print(<span class="s">"rejected:"</span>, e)</pre></div><div class="cb" style="display:flex;flex-direction:column;min-height:90px;flex:0 1 26%"><div class="code-head">terminal · real output</div><pre class="code sm out" style="flex:1;min-height:0;margin:0"><span class="cmd">$ python pos.py</span>
+Table 2
+1 x Teh Tarik    RM  3.00
+1 x Roti Canai   RM  2.50
+----------------------------
+SST 6%           RM  0.33
+TOTAL            RM  5.83
+
+best sellers today: [('Teh Tarik', 3), ('Roti Canai', 3), ('Kopi O', 3)]
+rejected: "no menu item 'XX'"</pre></div></div>
+    <div class="col fx d3" style="display:flex;flex-direction:column;gap:10px;min-height:0"><div style="flex:0 0 auto"><div class="hands-on">
+        <div class="lbl">35 minutes · solo · instructor circulates</div>
+        <h3>Close as many Issues as you can — properly</h3>
+        <div class="steps">
+          <div><b>01</b><span>Run the build loop (2.1) on your highest-priority Issue.</span></div>
+          <div><b>02</b><span>Stuck on an error? Use the debug prompt (2.2).</span></div>
+          <div><b>03</b><span>Each new function gets tests (2.3) before you commit.</span></div>
+          <div><b>04</b><span>Commit after every green loop — aim for 4+ commits.</span></div>
+          <div><b>05</b><span>At minute 30: stop adding, make sure it all runs. <b style="color:var(--mint)">Working beats unfinished.</b></span></div>
+        </div>
+      </div></div><div class="cb" style="display:flex;flex-direction:column;min-height:0;flex:1 1 0"><div class="code-head">git log --oneline — a good sprint</div><pre class="code sm" style="flex:1;min-height:0;margin:0">a41f2c0 feat: split_bill with sen rounding + tests
+9c03e7d fix: average() on empty table
+5be1a90 feat: receipt subcommand
+2d7718f test: repository with :memory: db
+71ac3e2 refactor: Order uses Payment (composition)</pre></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="3.1 Ship checklist">
+  <div class="stepbar fx"><span class="on">Explain</span><span class="on">Theory</span><span class="">Code</span><span class="">Practice</span></div>
+  <div class="tag fx">Module 3 · Verify, Document &amp; Ship · 3.1 · Explanation &amp; theory</div>
+  <h1 class="sh fx d1">Before you ship: the checklist</h1>
+  <div class="cards grid3 fx d2" style="margin-top:18px;align-items:start"><div class="card accent"><h3><span class="k">what</span>In plain words</h3><p>"It works on my laptop" isn't done. Done means: it installs from the README, tests pass, linting passes, no secrets are committed, bad input is handled, and <b>you can explain every line</b>.</p></div><div class="card"><h3><span class="k">like</span>Everyday analogy</h3><p>A restaurant's closing checklist: gas off, fridge shut, cash counted. Skipping one item is how accidents happen.</p></div><div class="card"><h3><span class="k">rules</span>Theory: the key rules</h3><ul class="rules"><li>README works from a <b>fresh clone</b></li><li><b>pytest</b> green, <b>ruff</b> clean</li><li><b>.env</b> ignored, no keys in code</li><li>You can explain any function picked at random</li></ul></div></div>
+  <div class="body figbody" style="margin-top:12px"><div class="figwrap"><svg class="fig" style="min-height:0" viewBox="0 0 1000 380" aria-label="Eight-item ship checklist with ticks appearing one by one">
+        <g font-family="JetBrains Mono,monospace" font-size="18">
+          <g class="fx d1"><rect x="30" y="20" width="28" height="28" rx="6" fill="none" stroke="#00dcb4" stroke-width="2"/><path d="M36 34 l6 7 l12 -14" stroke="#00dcb4" stroke-width="3" fill="none"/><text x="76" y="41" fill="#e8eef0">Runs from a fresh clone using only the README</text></g>
+          <g class="fx d2"><rect x="30" y="64" width="28" height="28" rx="6" fill="none" stroke="#00dcb4" stroke-width="2"/><path d="M36 78 l6 7 l12 -14" stroke="#00dcb4" stroke-width="3" fill="none"/><text x="76" y="85" fill="#e8eef0"><tspan fill="#00dcb4">pytest</tspan> — all green</text></g>
+          <g class="fx d3"><rect x="30" y="108" width="28" height="28" rx="6" fill="none" stroke="#00dcb4" stroke-width="2"/><path d="M36 122 l6 7 l12 -14" stroke="#00dcb4" stroke-width="3" fill="none"/><text x="76" y="129" fill="#e8eef0"><tspan fill="#00dcb4">ruff check .</tspan> — zero warnings</text></g>
+          <g class="fx d4"><rect x="30" y="152" width="28" height="28" rx="6" fill="none" stroke="#00dcb4" stroke-width="2"/><path d="M36 166 l6 7 l12 -14" stroke="#00dcb4" stroke-width="3" fill="none"/><text x="76" y="173" fill="#e8eef0">No secrets: <tspan fill="#00dcb4">.env</tspan> ignored, <tspan fill="#00dcb4">.env.example</tspan> committed</text></g>
+          <g class="fx d5"><rect x="30" y="196" width="28" height="28" rx="6" fill="none" stroke="#00dcb4" stroke-width="2"/><path d="M36 210 l6 7 l12 -14" stroke="#00dcb4" stroke-width="3" fill="none"/><text x="76" y="217" fill="#e8eef0">Bad input → friendly message, never a traceback</text></g>
+          <g class="fx d6"><rect x="30" y="240" width="28" height="28" rx="6" fill="none" stroke="#00dcb4" stroke-width="2"/><path d="M36 254 l6 7 l12 -14" stroke="#00dcb4" stroke-width="3" fill="none"/><text x="76" y="261" fill="#e8eef0">Every function: type hints + docstring</text></g>
+          <g class="fx d7"><rect x="30" y="284" width="28" height="28" rx="6" fill="none" stroke="#00dcb4" stroke-width="2"/><path d="M36 298 l6 7 l12 -14" stroke="#00dcb4" stroke-width="3" fill="none"/><text x="76" y="305" fill="#e8eef0"><tspan fill="#00dcb4">requirements.txt</tspan> up to date</text></g>
+          <g class="fx d8"><rect x="30" y="328" width="28" height="28" rx="6" fill="none" stroke="#f0b429" stroke-width="2"/><path d="M36 342 l6 7 l12 -14" stroke="#f0b429" stroke-width="3" fill="none"/><text x="76" y="349" fill="#f0b429">I can explain every line Claude helped write</text></g>
+        </g>
+        <g font-family="JetBrains Mono,monospace" class="fx d9">
+          <rect x="740" y="120" width="240" height="140" rx="12" fill="#0a0e13" stroke="#00dcb4" stroke-width="2"/>
+          <text x="860" y="170" font-size="16" fill="#8b98a5" text-anchor="middle">all ticked?</text>
+          <text x="860" y="214" font-size="26" fill="#00dcb4" text-anchor="middle" class="pulse">SHIP IT</text>
+        </g>
+      </svg></div></div>
+</section>
+
+<section class="slide" data-title="3.1 Ship checklist · code">
+  <div class="stepbar fx"><span class="">Explain</span><span class="">Theory</span><span class="on">Code</span><span class="">Practice</span></div>
+  <div class="tag fx">Module 3 · Verify, Document &amp; Ship · 3.1 · Code — copy, paste, run</div>
+  <h1 class="sh fx d1">ship_check.py: run the checklist automatically</h1>
+  <div class="body" style="align-items:stretch">
+    <div class="col fx d2" style="flex:1.3;display:flex;flex-direction:column;gap:10px;min-height:0"><div class="cb" style="display:flex;flex-direction:column;min-height:0px;flex:39 1 0"><div class="code-head">ship_check.py</div><pre class="code sm" style="flex:1;min-height:0;margin:0"><span class="s">"""ship_check.py: run the 8-point checklist on a project folder."""</span>
+<span class="k">import</span> re
+<span class="k">import</span> shutil
+<span class="k">import</span> subprocess
+<span class="k">import</span> sys
+<span class="k">from</span> pathlib <span class="k">import</span> Path
+
+ROOT = Path(sys.argv[<span class="n">1</span>] <span class="k">if</span> len(sys.argv) &gt; <span class="n">1</span> <span class="k">else</span> <span class="s">"."</span>)
+results: list[tuple[bool, str]] = []
+
+
+<span class="k">def</span> check(ok: bool, label: str) -&gt; <span class="k">None</span>:
+    results.append((ok, label))
+
+
+readme = ROOT / <span class="s">"README.md"</span>
+text = readme.read_text() <span class="k">if</span> readme.exists() <span class="k">else</span> <span class="s">""</span>
+check(all(h <span class="k">in</span> text <span class="k">for</span> h <span class="k">in</span> (<span class="s">"## Install"</span>, <span class="s">"## Usage"</span>)), <span class="s">"README has Install + Usage"</span>)
+check((ROOT / <span class="s">"requirements.txt"</span>).exists(), <span class="s">"requirements.txt exists"</span>)
+gitignore = (ROOT / <span class="s">".gitignore"</span>).read_text() <span class="k">if</span> (ROOT / <span class="s">".gitignore"</span>).exists() <span class="k">else</span> <span class="s">""</span>
+check(<span class="s">".env"</span> <span class="k">in</span> gitignore.split(), <span class="s">".env is in .gitignore"</span>)
+
+secret = re.compile(<span class="s">r"(sk|pk)[-_](live|test)[-_]?\w{6,}"</span>)
+leaks = [p <span class="k">for</span> p <span class="k">in</span> ROOT.rglob(<span class="s">"*.py"</span>) <span class="k">if</span> <span class="s">".venv"</span> <span class="k">not</span> <span class="k">in</span> p.parts
+         <span class="k">and</span> secret.search(p.read_text(errors=<span class="s">"ignore"</span>))]
+check(<span class="k">not</span> leaks, <span class="s">f"no secrets in code {[str(p) for p in leaks] if leaks else ''}"</span>)
+check(any(ROOT.rglob(<span class="s">"test_*.py"</span>)), <span class="s">"has test files"</span>)
+
+tests = subprocess.run([sys.executable, <span class="s">"-m"</span>, <span class="s">"pytest"</span>, <span class="s">"-q"</span>, str(ROOT)],
+                       capture_output=<span class="k">True</span>, text=<span class="k">True</span>)
+check(tests.returncode == <span class="n">0</span>, <span class="s">"pytest passes"</span>)
+<span class="k">if</span> shutil.which(<span class="s">"ruff"</span>):
+    lint = subprocess.run([<span class="s">"ruff"</span>, <span class="s">"check"</span>, str(ROOT)], capture_output=<span class="k">True</span>, text=<span class="k">True</span>)
+    check(lint.returncode == <span class="n">0</span>, <span class="s">"ruff check passes"</span>)
+
+<span class="k">for</span> ok, label <span class="k">in</span> results:
+    print((<span class="s">"  OK  "</span> <span class="k">if</span> ok <span class="k">else</span> <span class="s">"  FIX "</span>) + label)
+passed = sum(ok <span class="k">for</span> ok, _ <span class="k">in</span> results)
+print(<span class="s">f"\n{passed}/{len(results)} passed -"</span>, <span class="s">"SHIP IT"</span> <span class="k">if</span> passed == len(results) <span class="k">else</span> <span class="s">"not yet"</span>)</pre></div></div>
+    <div class="col fx d3" style="display:flex;flex-direction:column;gap:10px;min-height:0"><div class="cb" style="display:flex;flex-direction:column;min-height:0;flex:1 1 0"><div class="code-head">terminal · real output</div><pre class="code sm out" style="flex:1;min-height:0;margin:0"><span class="cmd">$ python ship_check.py kopitiam</span>
+  FIX README has Install + Usage
+  OK  requirements.txt exists
+  OK  .env is in .gitignore
+  OK  no secrets in code 
+  OK  has test files
+  OK  pytest passes
+  OK  ruff check passes
+
+6/7 passed - not yet</pre></div><div class="card" style="flex:0 0 auto"><h3><span class="k">try</span>Change it, predict, run</h3><ul class="rules"><li>Fix the README so every check passes.</li><li>Add a check that requirements.txt isn't empty.</li></ul></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="3.2 README with Claude">
+  <div class="stepbar fx"><span class="on">Explain</span><span class="on">Theory</span><span class="">Code</span><span class="">Practice</span></div>
+  <div class="tag fx">Module 3 · Verify, Document &amp; Ship · 3.2 · Explanation &amp; theory</div>
+  <h1 class="sh fx d1">Claude drafts the README; you make it true</h1>
+  <div class="body" style="align-items:stretch">
+    <div class="col cards fx d2" style="align-content:start"><div class="card accent"><h3><span class="k">what</span>In plain words</h3><p>Let Claude (or a script) draft the README from your project details, then <b>test every command</b> in a fresh terminal and delete anything that isn't true. Add an honest "Built with" note.</p></div><div class="card"><h3><span class="k">like</span>Everyday analogy</h3><p>A ghostwriter can draft your speech, but you're the one standing on stage. Check every line before you say it.</p></div><div class="card"><h3><span class="k">rules</span>Theory: the key rules</h3><ul class="rules"><li>Sections: about, features, install, usage, tests, built with, author</li><li>Copy-paste each command to <b>prove</b> it works</li><li>Remove features you didn't build</li><li>A screenshot makes the repo look finished</li></ul></div></div>
+    <div class="col fx d3"><div class="cb"><div class="code-head">syntax at a glance</div><pre class="code">Draft a README.md <span class="k">for</span> my project.
+Sections: description, features, install,
+usage <span class="k">with</span> real commands + output, run tests,
+project structure, Built <span class="k">with</span> (note that Claude
+assisted), author.
+Here <span class="k">is</span> my tree, cli --help output, requirements: …</pre></div><div class="card" style="margin-top:14px;border-color:rgba(255,111,145,.4)"><h3 style="color:var(--coral)">Common mistakes</h3><ul class="rules"><li>Install steps that only work on your laptop.</li><li>Listing features that are still TODO.</li></ul></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="3.2 README with Claude · code">
+  <div class="stepbar fx"><span class="">Explain</span><span class="">Theory</span><span class="on">Code</span><span class="">Practice</span></div>
+  <div class="tag fx">Module 3 · Verify, Document &amp; Ship · 3.2 · Code — copy, paste, run</div>
+  <h1 class="sh fx d1">Generate the README from project details</h1>
+  <div class="body" style="align-items:stretch">
+    <div class="col fx d2" style="flex:1.3;display:flex;flex-direction:column;gap:10px;min-height:0"><div class="cb" style="display:flex;flex-direction:column;min-height:0px;flex:28 1 0"><div class="code-head">make_readme.py</div><pre class="code sm" style="flex:1;min-height:0;margin:0"><span class="s">"""Generate a README.md from your project details. Edit, then commit."""</span>
+<span class="k">from</span> pathlib <span class="k">import</span> Path
+
+project = {
+    <span class="s">"name"</span>: <span class="s">"Kopitiam Orders"</span>,
+    <span class="s">"about"</span>: <span class="s">"Command-line order taker for a kopitiam, saving orders in SQLite."</span>,
+    <span class="s">"features"</span>: [<span class="s">"add items to a table"</span>, <span class="s">"print a receipt with 6% SST"</span>,
+                 <span class="s">"split the bill to the sen"</span>, <span class="s">"best sellers report"</span>],
+    <span class="s">"usage"</span>: [<span class="s">'python -m kopitiam.cli add 4 TT --qty 2'</span>,
+              <span class="s">'python -m kopitiam.cli receipt 4'</span>],
+    <span class="s">"author"</span>: <span class="s">"Your Name"</span>,
+    <span class="s">"ai_note"</span>: <span class="s">"Parts of the code were drafted with Claude and reviewed, "</span>
+               <span class="s">"tested and edited by me."</span>,
+}
+
+fence = <span class="s">"```"</span>
+lines = [<span class="s">f"# {project['name']}"</span>, <span class="s">""</span>, project[<span class="s">"about"</span>], <span class="s">""</span>, <span class="s">"## Features"</span>]
+lines += [<span class="s">f"- {f}"</span> <span class="k">for</span> f <span class="k">in</span> project[<span class="s">"features"</span>]]
+lines += [<span class="s">""</span>, <span class="s">"## Install"</span>, fence, <span class="s">"python -m venv .venv"</span>,
+          <span class="s">"source .venv/bin/activate   # Windows: .venv\\Scripts\\activate"</span>,
+          <span class="s">"pip install -r requirements.txt"</span>, fence,
+          <span class="s">""</span>, <span class="s">"## Usage"</span>, fence, *project[<span class="s">"usage"</span>], fence,
+          <span class="s">""</span>, <span class="s">"## Run tests"</span>, fence, <span class="s">"pytest"</span>, fence,
+          <span class="s">""</span>, <span class="s">"## Built with"</span>, <span class="s">"Python 3.12, sqlite3, argparse, pytest. "</span> + project[<span class="s">"ai_note"</span>],
+          <span class="s">""</span>, <span class="s">"## Author"</span>, <span class="s">f"{project['author']} · Codencode Academy 2026"</span>, <span class="s">""</span>]
+
+Path(<span class="s">"README.md"</span>).write_text(<span class="s">"\n"</span>.join(lines), encoding=<span class="s">"utf-8"</span>)
+print(Path(<span class="s">"README.md"</span>).read_text(encoding=<span class="s">"utf-8"</span>))</pre></div></div>
+    <div class="col fx d3" style="display:flex;flex-direction:column;gap:10px;min-height:0"><div class="cb" style="display:flex;flex-direction:column;min-height:0;flex:1 1 0"><div class="code-head">terminal · real output</div><pre class="code sm out" style="flex:1;min-height:0;margin:0"><span class="cmd">$ python make_readme.py</span>
+# Kopitiam Orders
+
+Command-line order taker for a kopitiam, saving orders in SQLite.
+
+## Features
+- add items to a table
+- print a receipt with 6% SST
+- split the bill to the sen
+- best sellers report
+
+## Install
+```
+python -m venv .venv
+source .venv/bin/activate   # Windows: .venv\Scripts\activate
+pip install -r requirements.txt
+```
+
+## Usage
+```
+python -m kopitiam.cli add 4 TT --qty 2
+python -m kopitiam.cli receipt 4
+```
+… (11 more lines)</pre></div><div class="card" style="flex:0 0 auto"><h3><span class="k">try</span>Change it, predict, run</h3><ul class="rules"><li>Fill in YOUR project's details and generate its README.</li><li>Add a Screenshots section.</li></ul></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="3.3 Ship and demo">
+  <div class="stepbar fx"><span class="on">Explain</span><span class="on">Theory</span><span class="">Code</span><span class="">Practice</span></div>
+  <div class="tag fx">Module 3 · Verify, Document &amp; Ship · 3.3 · Explanation &amp; theory</div>
+  <h1 class="sh fx d1">The 3-minute demo</h1>
+  <div class="cards grid3 fx d2" style="margin-top:18px;align-items:start"><div class="card accent"><h3><span class="k">what</span>In plain words</h3><p>A demo proves the app works and that you understand it: <b>30 s</b> problem, <b>90 s</b> live demo (including bad input), <b>45 s</b> explaining a function the instructor picks, <b>15 s</b> what's next.</p></div><div class="card"><h3><span class="k">like</span>Everyday analogy</h3><p>A cooking show: the dish (demo), a peek at the technique (explain a function), and what you'd add next time.</p></div><div class="card"><h3><span class="k">rules</span>Theory: the key rules</h3><ul class="rules"><li>Demo from a <b>fresh clone</b> of your GitHub repo</li><li>Show bad input being handled</li><li>Know <b>every</b> function: the instructor picks</li><li>If something breaks, read the traceback out loud</li></ul></div></div>
+  <div class="body figbody" style="margin-top:12px"><div class="figwrap"><svg class="fig" style="min-height:0" viewBox="0 0 1000 260" aria-label="Demo timeline: 30 seconds problem, 90 seconds live demo, 45 seconds explain one function, 15 seconds what's next">
+        <g font-family="JetBrains Mono,monospace">
+          <rect x="20" y="90" width="960" height="70" rx="10" fill="#0a0e13" stroke="#2a3440" class="fx"/>
+          <rect x="20"  y="90" width="160" height="70" rx="10" fill="#58a6ff" opacity=".85" class="fx d1"/>
+          <rect x="180" y="90" width="480" height="70" fill="#00dcb4" opacity=".85" class="fx d2"/>
+          <rect x="660" y="90" width="240" height="70" fill="#f0b429" opacity=".85" class="fx d3"/>
+          <rect x="900" y="90" width="80"  height="70" rx="10" fill="#ff6f91" opacity=".85" class="fx d4"/>
+          <g font-size="15" fill="#0a0e13" font-weight="600" text-anchor="middle">
+            <text x="100" y="131" class="fx d1">PROBLEM</text>
+            <text x="420" y="131" class="fx d2">LIVE DEMO</text>
+            <text x="780" y="131" class="fx d3">EXPLAIN 1 FN</text>
+            <text x="940" y="131" class="fx d4">NEXT</text>
+          </g>
+          <g font-size="14" fill="#8b98a5" text-anchor="middle">
+            <text x="100" y="80" class="fx d1">0:30</text>
+            <text x="420" y="80" class="fx d2">1:30</text>
+            <text x="780" y="80" class="fx d3">0:45</text>
+            <text x="940" y="80" class="fx d4">0:15</text>
+          </g>
+          <g font-size="13" fill="#e8eef0" text-anchor="middle">
+            <text x="100" y="190" class="fx d1">who it's for</text>
+            <text x="420" y="190" class="fx d2">run real commands · show bad input handled</text>
+            <text x="780" y="190" class="fx d3">instructor picks · line by line</text>
+            <text x="940" y="190" class="fx d4">v2 idea</text>
+          </g>
+          <line x1="20" y1="225" x2="980" y2="225" stroke="#2a3440"/>
+          <circle cy="225" r="8" fill="#00dcb4" class="travel" style="offset-path:path('M 20 225 L 980 225')"/>
+        </g>
+      </svg></div></div>
+</section>
+
+<section class="slide" data-title="3.3 Ship and demo · code">
+  <div class="stepbar fx"><span class="">Explain</span><span class="">Theory</span><span class="on">Code</span><span class="">Practice</span></div>
+  <div class="tag fx">Module 3 · Verify, Document &amp; Ship · 3.3 · Code — copy, paste, run</div>
+  <h1 class="sh fx d1">demo.py: script your live demo so nothing is forgotten</h1>
+  <div class="body" style="align-items:stretch">
+    <div class="col fx d2" style="flex:1.3;display:flex;flex-direction:column;gap:10px;min-height:0"><div class="cb" style="display:flex;flex-direction:column;min-height:0px;flex:29 1 0"><div class="code-head">demo.py</div><pre class="code sm" style="flex:1;min-height:0;margin:0"><span class="s">"""demo.py: run your live demo as a script so nothing is forgotten on stage."""</span>
+<span class="k">import</span> subprocess
+<span class="k">import</span> sys
+<span class="k">import</span> time
+
+STEPS = [
+    (<span class="s">"1. The problem"</span>, <span class="k">None</span>),
+    (<span class="s">"2. Normal use"</span>, [sys.executable, <span class="s">"-c"</span>, <span class="s">"print('Table 4: 2 x Teh Tarik  RM6.00')"</span>]),
+    (<span class="s">"3. Bad input is handled"</span>, [sys.executable, <span class="s">"-c"</span>,
+                                 <span class="s">"print('error: argument table: invalid int value: four')"</span>]),
+    (<span class="s">"4. Tests pass"</span>, [sys.executable, <span class="s">"-c"</span>, <span class="s">"print('8 passed in 0.11s')"</span>]),
+]
+SPEAKER_NOTES = {<span class="s">"1. The problem"</span>: <span class="s">"Hawker stalls still take orders on paper."</span>}
+
+
+<span class="k">def</span> run_demo(pause: float = <span class="n">0.0</span>) -&gt; <span class="k">None</span>:
+    <span class="k">for</span> title, command <span class="k">in</span> STEPS:
+        print(<span class="s">f"\n=== {title}"</span>)
+        <span class="k">if</span> title <span class="k">in</span> SPEAKER_NOTES:
+            print(<span class="s">f"(say) {SPEAKER_NOTES[title]}"</span>)
+        <span class="k">if</span> command:
+            out = subprocess.run(command, capture_output=<span class="k">True</span>, text=<span class="k">True</span>)
+            print(out.stdout.strip() <span class="k">or</span> out.stderr.strip())
+        time.sleep(pause)         <span class="c"># set pause=2 on the day</span>
+
+
+run_demo()
+print(<span class="s">"\nReplace the commands with your real ones, e.g. "</span>
+      <span class="s">"[sys.executable, '-m', 'kopitiam.cli', 'show', '4']"</span>)</pre></div></div>
+    <div class="col fx d3" style="display:flex;flex-direction:column;gap:10px;min-height:0"><div class="cb" style="display:flex;flex-direction:column;min-height:0;flex:1 1 0"><div class="code-head">terminal · real output</div><pre class="code sm out" style="flex:1;min-height:0;margin:0"><span class="cmd">$ python demo.py</span>
+
+=== 1. The problem
+(say) Hawker stalls still take orders on paper.
+
+=== 2. Normal use
+Table 4: 2 x Teh Tarik  RM6.00
+
+=== 3. Bad input is handled
+error: argument table: invalid int value: four
+
+=== 4. Tests pass
+8 passed in 0.11s
+
+Replace the commands with your real ones, e.g. [sys.executable, '-m', 'kopitiam.cli', 'show', '4']</pre></div><div class="card" style="flex:0 0 auto"><h3><span class="k">try</span>Change it, predict, run</h3><ul class="rules"><li>Replace the commands with your real app's commands.</li><li>Set pause=2 and rehearse with a timer.</li></ul></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="Module 3 Practice">
+  <div class="stepbar fx"><span class="">Explain</span><span class="">Theory</span><span class="">Code</span><span class="on">Practice</span></div>
+  <div class="tag fx">Module 3 · Verify, Document &amp; Ship · Practice: real-life app + hands-on</div>
+  <h1 class="sh fx d1">Ship it: checklist, push, demo</h1>
+  <div class="body" style="align-items:stretch">
+    <div class="col fx d2" style="flex:1.15;display:flex;flex-direction:column;gap:8px;min-height:0"><div class="card accent" style="flex:0 0 auto;padding:12px 16px"><h3><span class="k">real life</span>release.py: test, version, zip a clean copy</h3><p>Submitting a project or handing it to a client: the script refuses to package if tests fail, bumps the version number, and zips everything except secrets and junk, then proves .env isn't inside.</p></div><div class="cb" style="display:flex;flex-direction:column;min-height:130px;flex:47 1 0"><div class="code-head">release.py</div><pre class="code sm" style="flex:1;min-height:0;margin:0"><span class="s">"""release.py: check -&gt; bump version -&gt; zip a clean copy for submission."""</span>
+<span class="k">import</span> subprocess
+<span class="k">import</span> sys
+<span class="k">import</span> zipfile
+<span class="k">from</span> datetime <span class="k">import</span> date
+<span class="k">from</span> pathlib <span class="k">import</span> Path
+
+ROOT = Path(<span class="s">"my_project"</span>)
+EXCLUDE = {<span class="s">".venv"</span>, <span class="s">"__pycache__"</span>, <span class="s">".git"</span>, <span class="s">".pytest_cache"</span>}
+EXCLUDE_FILES = {<span class="s">".env"</span>}
+
+<span class="c"># demo only: create a small project if it doesn't exist</span>
+<span class="k">if</span> <span class="k">not</span> ROOT.exists():
+    (ROOT / <span class="s">"src"</span>).mkdir(parents=<span class="k">True</span>)
+    (ROOT / <span class="s">"src"</span> / <span class="s">"app.py"</span>).write_text(<span class="s">"def add(a, b):\n    return a + b\n"</span>)
+    (ROOT / <span class="s">"test_app.py"</span>).write_text(
+        <span class="s">"import sys\nsys.path.insert(0, 'src')\nfrom app import add\n\n"</span>
+        <span class="s">"def test_add():\n    assert add(2, 3) == 5\n"</span>)
+    (ROOT / <span class="s">".env"</span>).write_text(<span class="s">"API_KEY=secret\n"</span>)
+    (ROOT / <span class="s">"README.md"</span>).write_text(<span class="s">"# My Project\n"</span>)
+
+<span class="c"># 1. tests must pass</span>
+result = subprocess.run([sys.executable, <span class="s">"-m"</span>, <span class="s">"pytest"</span>, <span class="s">"-q"</span>, <span class="s">"-p"</span>, <span class="s">"no:cacheprovider"</span>],
+                        cwd=ROOT, capture_output=<span class="k">True</span>, text=<span class="k">True</span>)
+print(<span class="s">"tests:"</span>, result.stdout.strip().splitlines()[-<span class="n">1</span>])
+<span class="k">if</span> result.returncode != <span class="n">0</span>:
+    sys.exit(<span class="s">"stopping: fix the tests first"</span>)
+
+<span class="c"># 2. bump the version</span>
+version_file = ROOT / <span class="s">"VERSION"</span>
+major, minor = map(int, (version_file.read_text().strip() <span class="k">if</span> version_file.exists()
+                         <span class="k">else</span> <span class="s">"1.0"</span>).split(<span class="s">"."</span>))
+version = <span class="s">f"{major}.{minor + 1}"</span>
+version_file.write_text(version + <span class="s">"\n"</span>)
+
+<span class="c"># 3. zip everything except secrets and junk</span>
+zip_name = Path(<span class="s">f"my_project_v{version}_{date(2026, 10, 21):%Y%m%d}.zip"</span>)
+<span class="k">with</span> zipfile.ZipFile(zip_name, <span class="s">"w"</span>, zipfile.ZIP_DEFLATED) <span class="k">as</span> z:
+    <span class="k">for</span> path <span class="k">in</span> sorted(ROOT.rglob(<span class="s">"*"</span>)):
+        <span class="k">if</span> path.is_file() <span class="k">and</span> <span class="k">not</span> EXCLUDE &amp; set(path.parts) <span class="k">and</span> path.name <span class="k">not</span> <span class="k">in</span> EXCLUDE_FILES:
+            z.write(path, path.relative_to(ROOT.parent))
+<span class="k">with</span> zipfile.ZipFile(zip_name) <span class="k">as</span> z:
+    names = z.namelist()
+print(<span class="s">f"version {version} -&gt; {zip_name.name}"</span>)
+<span class="k">for</span> n <span class="k">in</span> names:
+    print(<span class="s">"  "</span>, n)
+print(<span class="s">".env included?"</span>, any(n.endswith(<span class="s">".env"</span>) <span class="k">for</span> n <span class="k">in</span> names))</pre></div><div class="cb" style="display:flex;flex-direction:column;min-height:90px;flex:0 1 26%"><div class="code-head">terminal · real output</div><pre class="code sm out" style="flex:1;min-height:0;margin:0"><span class="cmd">$ python release.py</span>
+tests: 1 passed in 0.00s
+version 1.1 -&gt; my_project_v1.1_20261021.zip
+   my_project/README.md
+   my_project/VERSION
+   my_project/src/app.py
+   my_project/test_app.py
+.env included? False</pre></div></div>
+    <div class="col fx d3" style="display:flex;flex-direction:column;gap:10px;min-height:0"><div style="flex:0 0 auto"><div class="hands-on">
+        <div class="lbl">25 minutes · 10 min prep, then demos</div>
+        <h3>Final push and live demos</h3>
+        <div class="steps">
+          <div><b>01</b><span>Run the 8-point checklist (3.1). Fix anything red.</span></div>
+          <div><b>02</b><span>README drafted with Claude, every command tested (3.2).</span></div>
+          <div><b>03</b><span>Final commit and push. Paste the repo link in the class group.</span></div>
+          <div><b>04</b><span>3-minute demo in the format from 3.3.</span></div>
+          <div><b>05</b><span>Peers give one "liked" and one "next time". <b style="color:var(--mint)">Done — you shipped.</b></span></div>
+        </div>
+      </div></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="Recap &amp; Summary">
+  <div class="tag fx">Recap &amp; Summary</div>
+  <h1 class="sh fx d1">Seven classes, one developer</h1>
+  <div class="body">
+    <div class="col cards grid2 fx d2">
+      <div class="card accent"><h3><span class="k">L1</span>Write cleaner code</h3><p>Comprehensions, typed functions, packages, files, errors, logging. (Classes 1–2)</p></div>
+      <div class="card accent"><h3><span class="k">L2</span>Think in objects</h3><p>Classes, dataclasses, inheritance, composition, SQLite, CLI layout. (Classes 3–4)</p></div>
+      <div class="card accent"><h3><span class="k">L3</span>Connect and scale</h3><p>APIs, pandas, charts, generators, decorators, regex, pytest. (Classes 5–6)</p></div>
+      <div class="card accent"><h3><span class="k">L4</span>Build with AI</h3><p>Prompted, debugged, tested and shipped a real app — and can explain it. (Class 7)</p></div>
+    </div>
+  </div>
+  <div class="body" style="flex:0 0 auto;margin-top:0">
+    <div class="col fx d3"><div class="card"><h3>Certificate</h3><p>At least 70% overall and attendance at 6 of 7 classes. Certificates handed out now.</p></div></div>
+    <div class="col fx d4"><div class="card"><h3>Where next at Codencode</h3><p><span class="pill mint">Data Science</span><span class="pill mint">Machine Learning</span><span class="pill mint">Vibe Coding</span><br>Your project repo is your portfolio — keep committing to it.</p></div></div>
+  </div>
+</section>
+<section class="slide" data-title="Review Learning Outcomes">
+  <div class="tag fx">Review Learning Outcomes</div>
+  <h1 class="sh fx d1">Did we get there — today and across the course?</h1>
+  <p class="sub fx d2">Rate yourself honestly — 1 to 5. Your answers shape the next intake of this course.</p>
+  <div class="body">
+    <div class="col cards fx d3">
+      <div class="card"><h3><span class="k">LO1</span>I can write a five-part coding prompt that gets a usable first answer</h3><p style="font-family:var(--mono);color:var(--mint)">1 — 2 — 3 — 4 — 5</p></div>
+      <div class="card"><h3><span class="k">LO2</span>I can debug with Claude by diagnosing first, not just patching</h3><p style="font-family:var(--mono);color:var(--mint)">1 — 2 — 3 — 4 — 5</p></div>
+      <div class="card"><h3><span class="k">LO3</span>I check AI-written tests test the right thing</h3><p style="font-family:var(--mono);color:var(--mint)">1 — 2 — 3 — 4 — 5</p></div>
+      <div class="card accent"><h3><span class="k">LO4</span>My app is on GitHub, passed the checklist, and I explained my code</h3><p style="font-family:var(--mono);color:var(--mint)">Yes — Not yet</p></div>
+    </div>
+  </div>
+  <p class="caption fx d4">codencode.my · Python Intermediate complete · terima kasih · 谢谢 · thank you</p>
+</section>
+</div>
+
+<div id="nav">
+  <button class="navbtn" onclick="go(-1)">PREV</button>
+  <div id="dots"></div>
+  <button class="navbtn" onclick="go(1)">NEXT</button>
+</div>
+
+<script>
+const slides=[...document.querySelectorAll('.slide')];
+let i=0;
+const dots=document.getElementById('dots');
+slides.forEach((s,n)=>{const d=document.createElement('div');d.className='dot';
+  d.onclick=()=>show(n);dots.appendChild(d);});
+function show(n){
+  if(n<0||n>=slides.length)return;
+  slides[i].classList.remove('active');
+  i=n;
+  // force reflow so entry animations restart cleanly
+  void slides[i].offsetWidth;
+  slides[i].classList.add('active');
+  document.getElementById('counter').textContent=String(i+1).padStart(2,'0')+' / '+slides.length;
+  document.getElementById('titlebar').textContent=slides[i].dataset.title||'';
+  document.getElementById('progress').style.width=((i+1)/slides.length*100)+'%';
+  [...dots.children].forEach((d,n2)=>d.classList.toggle('on',n2===i));
+}
+function go(d){show(i+d);}
+function fs(){document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen();}
+addEventListener('keydown',e=>{
+  if(['ArrowRight',' ','PageDown'].includes(e.key)){e.preventDefault();go(1);}
+  if(['ArrowLeft','PageUp'].includes(e.key)){e.preventDefault();go(-1);}
+  if(e.key==='Home')show(0);
+  if(e.key==='End')show(slides.length-1);
+  if(e.key==='f')fs();
+});
+
+/* ---------- copy-to-clipboard on every code block ---------- */
+(function(){
+  document.querySelectorAll('pre.code').forEach(pre=>{
+    const source = pre.textContent;               // capture BEFORE adding the button
+    const btn = document.createElement('button');
+    btn.className = 'copybtn';
+    btn.type = 'button';
+    btn.textContent = 'COPY';
+    btn.addEventListener('click', async e=>{
+      e.stopPropagation();
+      try{
+        await navigator.clipboard.writeText(source);
+      }catch(err){                                 // file:// fallback
+        const ta=document.createElement('textarea');
+        ta.value=source; ta.style.position='fixed'; ta.style.opacity='0';
+        document.body.appendChild(ta); ta.select();
+        try{document.execCommand('copy');}catch(_){}
+        document.body.removeChild(ta);
+      }
+      btn.textContent='COPIED'; btn.classList.add('done');
+      setTimeout(()=>{btn.textContent='COPY'; btn.classList.remove('done');},1400);
+    });
+    pre.appendChild(btn);
+  });
+})();
+
+show(0);
+</script>
+
+<div id="xmodal" role="dialog" aria-modal="true"><div class="box">
+  <div class="bar"><span id="xtitle"></span><button class="btn" id="xcopy">COPY</button><button class="btn ghost" id="xclose">CLOSE ✕ (Esc)</button></div>
+  <pre class="code" id="xpre"></pre></div></div>
+<script>
+(function(){
+  const modal=document.getElementById('xmodal'), xpre=document.getElementById('xpre'),
+        xtitle=document.getElementById('xtitle'), xcopy=document.getElementById('xcopy');
+  let src='';
+  function open(head, pre){
+    const clone=pre.cloneNode(true);
+    clone.querySelectorAll('.copybtn').forEach(b=>b.remove());
+    src=clone.textContent; xpre.innerHTML=clone.innerHTML;
+    xtitle.textContent=head.childNodes[0].textContent.trim();
+    xcopy.textContent='COPY'; modal.classList.add('on'); xpre.scrollTop=0;
+  }
+  function close(){modal.classList.remove('on');}
+  document.querySelectorAll('.cb').forEach(cb=>{
+    const head=cb.querySelector('.code-head'), pre=cb.querySelector('pre.code');
+    if(!head||!pre)return;
+    const b=document.createElement('button'); b.className='xbtn'; b.type='button'; b.textContent='EXPAND ⤢';
+    b.addEventListener('click',e=>{e.stopPropagation();open(head,pre);});
+    head.appendChild(b);
+    head.style.cursor='zoom-in'; head.addEventListener('dblclick',()=>open(head,pre));
+  });
+  document.getElementById('xclose').onclick=close;
+  modal.addEventListener('click',e=>{if(e.target===modal)close();});
+  xcopy.onclick=async()=>{try{await navigator.clipboard.writeText(src);}catch(_){
+      const t=document.createElement('textarea');t.value=src;document.body.appendChild(t);t.select();
+      try{document.execCommand('copy');}catch(__){} t.remove();}
+    xcopy.textContent='COPIED';};
+  window.addEventListener('keydown',e=>{
+    if(!modal.classList.contains('on'))return;
+    if(e.key==='Escape')close();
+    e.stopImmediatePropagation();
+  },true);
+})();
+</script>
+</body>
+</html>

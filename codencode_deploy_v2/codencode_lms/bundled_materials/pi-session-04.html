@@ -1,0 +1,1347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Class 04 — OOP Design &amp; Persistence · Python Intermediate | codencode Academy</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0d1117; --panel:#161b22; --panel2:#1c2430; --line:#2a3440;
+  --mint:#00dcb4; --mint-d:#00a888; --text:#e8eef0; --muted:#8b98a5;
+  --coral:#ff6f91; --amber:#f0b429; --blue:#58a6ff;
+  --sans:'Space Grotesk','Inter',system-ui,sans-serif;
+  --body:'Inter',system-ui,sans-serif;
+  --mono:'JetBrains Mono','SF Mono',Consolas,monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:var(--body);height:100vh;overflow:hidden;user-select:none}
+
+/* ---------- chrome ---------- */
+#topbar{position:fixed;top:0;left:0;right:0;height:52px;display:flex;align-items:center;
+  gap:16px;padding:0 24px;background:rgba(13,17,23,.92);border-bottom:1px solid var(--line);z-index:50;backdrop-filter:blur(8px)}
+.wordmark{height:21px;width:auto;display:block;flex-shrink:0}
+#sesslabel{font-size:12px;color:var(--muted);font-family:var(--mono);letter-spacing:.04em}
+#titlebar{flex:1;text-align:center;font-size:13px;color:var(--muted);font-family:var(--mono);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#counter{font-family:var(--mono);font-size:12px;color:var(--mint)}
+.btn{background:rgba(0,220,180,.10);border:1px solid rgba(0,220,180,.32);color:var(--mint);
+  font-family:var(--mono);font-size:11px;padding:6px 12px;border-radius:6px;cursor:pointer}
+.btn:hover{background:rgba(0,220,180,.20)}
+#progress{position:fixed;top:52px;left:0;height:2px;background:var(--mint);z-index:51;transition:width .3s ease}
+#nav{position:fixed;bottom:0;left:0;right:0;height:56px;display:flex;align-items:center;justify-content:center;
+  gap:20px;z-index:50}
+.navbtn{background:var(--panel);border:1px solid var(--line);color:var(--muted);font-family:var(--mono);
+  font-size:12px;padding:8px 16px;border-radius:8px;cursor:pointer}
+.navbtn:hover{border-color:var(--mint);color:var(--mint)}
+#dots{display:flex;gap:6px;flex-wrap:wrap;max-width:50vw;justify-content:center}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--line);cursor:pointer;transition:.2s}
+.dot.on{background:var(--mint);transform:scale(1.35)}
+
+/* ---------- slides ---------- */
+#deck{position:absolute;top:54px;bottom:56px;left:0;right:0}
+.slide{position:absolute;inset:0;padding:40px 60px;display:none;flex-direction:column;overflow-y:auto;overflow-x:hidden}
+.slide.active{display:flex;animation:slideIn .4s ease both;background:var(--bg);z-index:1}
+@keyframes slideIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+
+.tag{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--mint);margin-bottom:12px}
+h1.sh{font-family:var(--sans);font-size:clamp(26px,3.2vw,40px);font-weight:700;line-height:1.12;margin-bottom:8px}
+h1.sh::after{content:'';display:block;width:56px;height:4px;background:var(--mint);border-radius:2px;margin-top:14px}
+.sub{color:var(--muted);font-size:16px;margin-top:14px;max-width:70ch;line-height:1.6}
+.body{flex:1;display:flex;gap:32px;align-items:center;margin-top:24px;min-height:0}
+.col{flex:1;min-width:0}
+
+/* title slide */
+.title-slide{align-items:center;justify-content:center;text-align:center}
+.title-slide .badge{font-family:var(--mono);font-size:12px;color:var(--mint);border:1px solid rgba(0,220,180,.34);
+  background:rgba(0,220,180,.08);padding:7px 18px;border-radius:20px;margin-bottom:26px}
+.title-slide h1{font-family:var(--sans);font-size:clamp(40px,6vw,72px);font-weight:700;line-height:1.05}
+.title-slide h1 em{font-style:normal;color:var(--mint)}
+.title-slide p{color:var(--muted);font-size:18px;margin-top:20px;max-width:60ch}
+.title-slide .foot{margin-top:38px;font-family:var(--mono);font-size:13px;color:var(--muted)}
+
+/* section divider */
+.divider{align-items:flex-start;justify-content:center}
+.divider .num{font-family:var(--sans);font-size:120px;font-weight:700;color:rgba(0,220,180,.16);line-height:1}
+.divider h1{font-family:var(--sans);font-size:clamp(34px,4.6vw,56px);font-weight:700;margin-top:-18px}
+.divider .items{margin-top:26px;display:flex;flex-direction:column;gap:12px}
+.divider .items div{font-size:17px;color:var(--muted)}
+.divider .items b{color:var(--mint);font-family:var(--mono);font-size:15px;margin-right:12px}
+
+/* cards / lists */
+.cards{display:grid;gap:14px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:18px 20px}
+.card.accent{border-color:rgba(0,220,180,.45);background:var(--panel2)}
+.card h3{font-family:var(--sans);font-size:17px;font-weight:600;margin-bottom:6px}
+.card h3 .k{color:var(--mint);font-family:var(--mono);font-size:14px;margin-right:8px}
+.card p{color:var(--muted);font-size:14.5px;line-height:1.55}
+.grid2{grid-template-columns:1fr 1fr}
+.grid3{grid-template-columns:repeat(3,1fr)}
+
+table.cps{width:100%;border-collapse:collapse;font-size:15px}
+table.cps th{text-align:left;font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--mint);padding:10px 14px;border-bottom:1px solid var(--line)}
+table.cps td{padding:14px;border-bottom:1px solid var(--line);color:var(--text);line-height:1.5;vertical-align:top}
+table.cps td:first-child{color:var(--mint);font-family:var(--mono);font-size:13px;width:150px;white-space:nowrap}
+
+pre.code{background:#0a0e13;border:1px solid var(--line);border-radius:10px;padding:18px 20px;
+  font-family:var(--mono);font-size:14.5px;line-height:1.75;overflow:auto;color:var(--text)}
+pre.code .c{color:var(--muted)}
+pre.code .s{color:var(--mint)}
+pre.code .n{color:var(--blue)}
+pre.code .e{color:var(--coral)}
+.code-head{font-family:var(--mono);font-size:11px;color:var(--muted);background:var(--panel2);
+  border:1px solid var(--line);border-bottom:none;border-radius:10px 10px 0 0;padding:8px 14px}
+.code-head + pre.code{border-radius:0 0 10px 10px}
+
+.pill{display:inline-block;font-family:var(--mono);font-size:11.5px;padding:5px 12px;border-radius:14px;
+  border:1px solid;margin:0 8px 8px 0}
+.pill.mint{color:var(--mint);border-color:rgba(0,220,180,.4);background:rgba(0,220,180,.08)}
+.pill.coral{color:var(--coral);border-color:rgba(255,111,145,.4);background:rgba(255,111,145,.08)}
+.pill.amber{color:var(--amber);border-color:rgba(240,180,41,.4);background:rgba(240,180,41,.08)}
+.pill.blue{color:var(--blue);border-color:rgba(88,166,255,.4);background:rgba(88,166,255,.08)}
+
+.hands-on{border-left:3px solid var(--mint);background:linear-gradient(90deg,rgba(0,220,180,.07),transparent 60%);
+  padding:18px 24px;border-radius:0 10px 10px 0}
+.hands-on .lbl{font-family:var(--mono);font-size:11px;letter-spacing:.14em;color:var(--mint);text-transform:uppercase}
+.hands-on h3{font-family:var(--sans);font-size:20px;margin:8px 0 10px}
+.hands-on p{color:var(--muted);font-size:15px;line-height:1.6}
+.steps{margin-top:14px;display:flex;flex-direction:column;gap:9px}
+.steps div{font-size:14.5px;color:var(--text);display:flex;gap:12px;align-items:flex-start}
+.steps b{color:var(--mint);font-family:var(--mono);font-size:13px;flex-shrink:0}
+
+svg.fig{width:100%;height:100%;min-height:300px;flex:1 1 auto;display:block}
+.figwrap{flex:1.8 1 0;display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:0;min-height:0;max-height:100%;gap:6px}
+.figwrap > .legend,.figwrap > .controls,.figwrap > .gate,.figwrap > .eq{flex:0 0 auto;width:100%}
+.caption{font-size:13.5px;color:var(--muted);font-style:italic;margin-top:14px;text-align:center}
+
+/* ---------- animation primitives (restart on slide entry) ---------- */
+.fx{opacity:0}
+.slide.active .fx{animation:fadeUp .55s ease forwards}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.slide.active .d1{animation-delay:.15s}.slide.active .d2{animation-delay:.35s}
+.slide.active .d3{animation-delay:.55s}.slide.active .d4{animation-delay:.75s}
+.slide.active .d5{animation-delay:.95s}.slide.active .d6{animation-delay:1.15s}
+.slide.active .d7{animation-delay:1.35s}.slide.active .d8{animation-delay:1.55s}
+.slide.active .d9{animation-delay:1.75s}.slide.active .d10{animation-delay:1.95s}
+
+.draw{stroke-dasharray:var(--len,300);stroke-dashoffset:var(--len,300);opacity:1}
+.slide.active .draw{animation:drawIn .6s ease forwards}
+@keyframes drawIn{to{stroke-dashoffset:0}}
+
+.slide.active .pulse{animation:pulse 2.2s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.45}}
+
+.slide.active .travel{animation:travel 4.5s linear infinite}
+@keyframes travel{0%{offset-distance:0%}100%{offset-distance:100%}}
+
+.slide.active .grow{transform-origin:bottom;animation:grow .8s cubic-bezier(.22,1,.36,1) forwards}
+@keyframes grow{from{transform:scaleY(0)}to{transform:scaleY(1)}}
+
+.slide.active .cycle1{animation:hl 6s ease-in-out infinite}
+.slide.active .cycle2{animation:hl 6s ease-in-out infinite 2s}
+.slide.active .cycle3{animation:hl 6s ease-in-out infinite 4s}
+@keyframes hl{0%,8%{opacity:0}14%,28%{opacity:1}36%,100%{opacity:0}}
+
+.slide.active .typing{animation:typing 1.4s steps(18) forwards;white-space:nowrap;overflow:hidden;
+  display:inline-block;width:0}
+@keyframes typing{to{width:100%}}
+
+/* ---------- copiable code ---------- */
+pre.code{position:relative;user-select:text}
+.copybtn{position:absolute;top:7px;right:7px;z-index:3;background:rgba(22,27,34,.94);
+  border:1px solid var(--line);color:var(--muted);font-family:var(--mono);font-size:10.5px;
+  letter-spacing:.06em;padding:4px 9px;border-radius:5px;cursor:pointer;opacity:0;transition:.16s}
+pre.code:hover .copybtn{opacity:1}
+.copybtn:hover{border-color:var(--mint);color:var(--mint)}
+.copybtn.done{border-color:var(--mint);color:var(--mint);opacity:1}
+
+
+/* ---------- figure slides: stacked on tall screens, side-by-side when wide ---------- */
+.cb{display:block}
+.figbody{flex:1;display:flex;gap:32px;align-items:center;margin-top:24px;min-height:0}
+.figbody > .figwrap{flex:1.8 1 0}
+.figbody > .figside{display:flex;flex-direction:column;gap:12px;min-width:0}
+.figbody > .figside > *{margin-bottom:0}
+@media (max-aspect-ratio: 29/20){
+  .figbody{flex-direction:column;align-items:stretch;gap:16px}
+  .figbody > .figwrap{flex:0 1 auto;width:100%;max-width:none;justify-content:flex-start}
+  .figbody > .figwrap > svg.fig{height:auto;min-height:0;flex:0 0 auto;max-height:100%}
+  .figbody > .figside{max-width:none !important;flex:0 0 auto;display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:14px;align-items:start}
+  .figbody > .figside .controls,.figbody > .figside .legend{justify-content:flex-start}
+}
+
+/* ---------- figure furniture ---------- */
+.legend{display:flex;gap:18px;font-family:var(--mono);font-size:12px;color:var(--muted);
+  margin-top:6px;flex-wrap:wrap;justify-content:center}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px;vertical-align:middle}
+.controls{display:flex;gap:10px;align-items:center;margin-top:12px;flex-wrap:wrap;justify-content:center}
+.btn.ghost{background:transparent;border-color:var(--line);color:var(--muted)}
+.btn.ghost:hover{border-color:var(--mint);color:var(--mint)}
+.gate{margin-bottom:12px}
+.gate label{display:flex;justify-content:space-between;align-items:center;font-family:var(--mono);
+  font-size:12.5px;margin-bottom:6px;gap:12px}
+input[type=range]{width:100%;height:5px;border-radius:3px;appearance:none;background:var(--line);outline:none}
+input[type=range]::-webkit-slider-thumb{appearance:none;width:15px;height:15px;border-radius:50%;
+  background:var(--mint);cursor:pointer;border:2px solid #0d1117}
+.eq{font-family:var(--mono);font-size:12.5px;color:var(--muted);line-height:1.9;background:#0a0e13;
+  border:1px solid var(--line);border-radius:9px;padding:11px 13px}
+.eq b{color:var(--text);font-weight:400}
+.def{border-left:3px solid var(--blue);background:linear-gradient(90deg,rgba(88,166,255,.09),transparent 65%);
+  padding:14px 18px;border-radius:0 9px 9px 0;margin-bottom:12px}
+.def .lbl{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;color:var(--blue);text-transform:uppercase}
+.def h4{font-family:var(--sans);font-size:17px;margin:5px 0 6px}
+.def p{color:var(--muted);font-size:14px;line-height:1.6}
+.def p b{color:var(--text);font-weight:600}
+.theory{border-left:3px solid var(--amber);background:linear-gradient(90deg,rgba(240,180,41,.08),transparent 65%);
+  padding:14px 18px;border-radius:0 9px 9px 0;margin-bottom:12px}
+.theory .lbl{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;color:var(--amber);text-transform:uppercase}
+.theory p{color:var(--muted);font-size:14px;line-height:1.6;margin-top:6px}
+.theory p b{color:var(--text);font-weight:600}
+.formula{background:#0a0e13;border:1px solid var(--line);border-radius:10px;padding:16px 20px;
+  font-family:var(--mono);font-size:19px;color:var(--mint);text-align:center;margin:10px 0}
+.formula small{display:block;font-size:12px;color:var(--muted);margin-top:8px}
+table.t{width:100%;border-collapse:collapse;font-size:13.5px}
+table.t th{text-align:left;font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--mint);padding:9px 12px;border-bottom:1px solid var(--line)}
+table.t td{padding:10px 12px;border-bottom:1px solid var(--line);color:var(--muted);line-height:1.5;vertical-align:top}
+table.t td:first-child{color:var(--text);font-family:var(--mono);font-size:12.5px}
+table.cps td:first-child{color:var(--mint);font-family:var(--mono);font-size:13px;width:140px}
+pre.code.sm{font-size:12.3px;line-height:1.6}
+.card.warn{border-color:rgba(255,111,145,.42)}
+.divider .num{font-family:var(--sans);font-size:112px;font-weight:700;color:rgba(0,220,180,.16);line-height:1}
+
+pre.code.sm{font-size:clamp(12px,0.74vw,14.5px);line-height:1.6;padding:14px 16px}
+pre.code .k{color:var(--blue)}
+pre.code .n{color:var(--amber)}
+pre.code .cmd{color:var(--mint)}
+pre.code.out{color:#c9d4dc}
+.card ul.rules{margin:6px 0 0 18px;color:var(--muted);font-size:14px;line-height:1.6}
+.card ul.rules li{margin-bottom:3px}
+.card ul.rules b{color:var(--text);font-weight:600}
+.stepbar{display:flex;gap:6px;margin:-2px 0 6px;font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase}
+.stepbar span{padding:3px 9px;border-radius:10px;border:1px solid var(--line);color:var(--muted)}
+.stepbar span.on{color:var(--bg);background:var(--mint);border-color:var(--mint)}
+img.result{max-width:100%;max-height:230px;object-fit:contain;border-radius:8px;border:1px solid var(--line);background:#fff;align-self:center}
+.code-head{display:flex;align-items:center;gap:10px}
+.code-head .xbtn{margin-left:auto;background:rgba(0,220,180,.10);border:1px solid rgba(0,220,180,.32);color:var(--mint);
+  font-family:var(--mono);font-size:10.5px;letter-spacing:.06em;padding:3px 9px;border-radius:5px;cursor:pointer}
+.code-head .xbtn:hover{background:rgba(0,220,180,.22)}
+#xmodal{position:fixed;inset:0;z-index:200;background:rgba(5,8,12,.86);backdrop-filter:blur(4px);display:none;
+  align-items:center;justify-content:center;padding:40px}
+#xmodal.on{display:flex}
+#xmodal .box{width:min(1300px,100%);height:100%;display:flex;flex-direction:column;background:#0a0e13;
+  border:1px solid var(--mint);border-radius:12px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.6)}
+#xmodal .bar{display:flex;align-items:center;gap:12px;padding:10px 16px;background:var(--panel2);border-bottom:1px solid var(--line);
+  font-family:var(--mono);font-size:13px;color:var(--muted)}
+#xmodal #xcopy{margin-left:auto}
+#xmodal pre.code{flex:1;margin:0;border:none;border-radius:0;font-size:clamp(14px,1.05vw,19px);line-height:1.65;overflow:auto;padding:22px 26px}
+@keyframes barx{from{opacity:0;transform:scaleX(0)}to{opacity:1;transform:scaleX(1)}}
+</style>
+</head>
+<body>
+
+<div id="topbar">
+  <img class="wordmark" src="data:image/png;base64,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" alt="codencode.my">
+  <div id="sesslabel">CLASS 04</div>
+  <div id="titlebar"></div>
+  <div id="counter"></div>
+  <button class="btn" onclick="fs()">FULLSCREEN</button>
+</div>
+<div id="progress"></div>
+
+<div id="deck">
+
+<section class="slide title-slide" data-title="Main Title">
+  <div class="badge fx">CLASS 04 OF 07 · PYTHON INTERMEDIATE</div>
+  <h1 class="fx d1">OOP Design <em>&amp; Persistence</em></h1>
+  <p class="fx d2">Make classes that share and combine behaviour — then give them a memory. Today your kopitiam orders survive closing the program.</p>
+  <div class="foot fx d3">codencode Academy · Level 2 · Think in objects · 2 hours</div>
+</section>
+<section class="slide" data-title="Session Plan">
+  <div class="tag fx">Session Plan</div>
+  <h1 class="sh fx d1">What we're doing today</h1>
+  <div class="body">
+    <div class="col cards grid3">
+      <div class="card accent fx d2"><h3><span class="k">M1</span>Inheritance &amp; Composition</h3><p><span style="font-family:var(--mono)">super()</span>, overriding, polymorphism, and "has-a" vs "is-a".</p><div style="margin-top:12px"><span class="pill mint">30 min</span></div></div>
+      <div class="card accent fx d3"><h3><span class="k">M2</span>SQLite Databases</h3><p>CRUD with <span style="font-family:var(--mono)">sqlite3</span>, parameterised queries, and a repository class.</p><div style="margin-top:12px"><span class="pill mint">35 min</span></div></div>
+      <div class="card accent fx d4"><h3><span class="k">M3</span>Project Structure</h3><p><span style="font-family:var(--mono)">src/</span> + <span style="font-family:var(--mono)">tests/</span> layout, an argparse CLI, and a proper README.</p><div style="margin-top:12px"><span class="pill mint">30 min</span></div></div>
+    </div>
+  </div>
+  <div class="cards grid3 fx d5" style="margin-top:4px">
+    <div class="card"><p><b style="color:var(--text)">Revise 10 min + Recap 15 min</b> — whiteboard UML, outcomes review</p></div>
+    <div class="card"><p><b style="color:var(--text)">Homework 4</b> — kopitiam CLI with SQLite, pushed to <span style="font-family:var(--mono)">class04/</span></p></div>
+    <div class="card"><p><b style="color:var(--text)">Bring</b> — your Class 3 kopitiam code; install DB Browser for SQLite</p></div>
+  </div>
+</section>
+<section class="slide" data-title="Revised Last Week">
+  <div class="tag fx">Revised Last Week · 10 minutes</div>
+  <h1 class="sh fx d1">Whiteboard a class diagram</h1>
+  <p class="sub fx d2">Groups of 3. Five minutes. Turn this brief into UML — then one group presents.</p>
+  <div class="body">
+    <div class="col fx d3">
+      <div class="card accent">
+        <h3>Brief: Grab-style food delivery</h3>
+        <p style="line-height:1.9">A <span style="color:var(--mint)">rider</span> picks up an <span style="color:var(--mint)">order</span> from a <span style="color:var(--mint)">restaurant</span> and <span style="color:var(--amber)">delivers</span> it to a <span style="color:var(--mint)">customer</span>. Each order has <span style="color:var(--mint)">items</span> and a <span style="color:var(--blue)">delivery fee of RM3</span>. Riders can <span style="color:var(--amber)">accept</span> or <span style="color:var(--amber)">reject</span> orders.</p>
+      </div>
+      <div style="margin-top:14px"><span class="pill mint">nouns → classes</span><span class="pill amber">verbs → methods</span><span class="pill blue">numbers → constants</span></div>
+    </div>
+    <div class="col cards fx d4">
+      <div class="card"><h3><span class="k">✓</span>Look for</h3><p>Order, Item, Restaurant, Customer, Rider as classes · <span style="font-family:var(--mono)">DELIVERY_FEE = 3</span> · <span style="font-family:var(--mono)">accept()</span>, <span style="font-family:var(--mono)">reject()</span>, <span style="font-family:var(--mono)">deliver()</span>.</p></div>
+      <div class="card"><h3><span class="k">?</span>Discuss</h3><p>Do Customer and Rider share anything (name, phone)? Hold that thought — it's today's first topic.</p></div>
+    </div>
+  </div>
+</section>
+<section class="slide" data-title="Learning Outcomes">
+  <div class="tag fx">Learning Outcomes</div>
+  <h1 class="sh fx d1">By the end of today you will be able to…</h1>
+  <div class="body">
+    <div class="col fx d2">
+      <table class="cps">
+        <tr><th>Component</th><th>Statement</th></tr>
+        <tr><td>Condition</td><td>Given your Class 3 kopitiam classes and Python's built-in sqlite3 module,</td></tr>
+        <tr><td>Performance</td><td>you will extend the design with inheritance or composition, store and read orders in SQLite using parameterised queries, and run it from an argparse CLI in a src/ layout,</td></tr>
+        <tr><td>Standard</td><td>so that orders added in one run are listed in the next, an input like <span style="font-family:var(--mono);color:var(--coral)">'); DROP TABLE orders;--</span> is stored as text without harm, and the project is pushed to <span style="font-family:var(--mono);color:var(--mint)">class04/</span>.</td></tr>
+      </table>
+      <div style="margin-top:22px">
+        <span class="pill mint">LO1 · Inheritance &amp; polymorphism</span>
+        <span class="pill mint">LO2 · Composition</span>
+        <span class="pill mint">LO3 · Safe SQLite CRUD</span>
+        <span class="pill mint">LO4 · CLI project layout</span>
+      </div>
+    </div>
+  </div>
+</section>
+<section class="slide" data-title="Content Mapping">
+  <div class="tag fx">Content Mapping</div>
+  <h1 class="sh fx d1">How today maps to your outcomes</h1>
+  <div class="body">
+    <div class="col fx d2">
+      <table class="cps">
+        <tr><th>Module</th><th>Topics</th><th style="width:120px">Outcome</th><th style="width:170px">Assessed by</th></tr>
+        <tr><td>Module 1</td><td>1.1 Inheritance &amp; super() · 1.2 Overriding &amp; polymorphism · 1.3 Composition vs inheritance</td><td style="color:var(--mint);font-family:var(--mono);font-size:13px">LO1, LO2</td><td style="color:var(--muted);font-size:13.5px">Payroll system</td></tr>
+        <tr><td>Module 2</td><td>2.1 sqlite3 CRUD · 2.2 Parameterised queries · 2.3 Repository class</td><td style="color:var(--mint);font-family:var(--mono);font-size:13px">LO3</td><td style="color:var(--muted);font-size:13.5px">Orders saved to SQLite</td></tr>
+        <tr><td>Module 3</td><td>3.1 src/ &amp; tests/ layout · 3.2 argparse CLI · 3.3 README essentials</td><td style="color:var(--mint);font-family:var(--mono);font-size:13px">LO4</td><td style="color:var(--muted);font-size:13.5px">Kopitiam CLI pushed</td></tr>
+      </table>
+    </div>
+  </div>
+</section>
+<section class="slide" data-title="1.1 Inheritance and super()">
+  <div class="stepbar fx"><span class="on">Explain</span><span class="on">Theory</span><span class="">Code</span><span class="">Practice</span></div>
+  <div class="tag fx">Module 1 · Inheritance &amp; Composition · 1.1 · Explanation &amp; theory</div>
+  <h1 class="sh fx d1">Inheritance: a child class gets everything the parent has</h1>
+  <div class="cards grid3 fx d2" style="margin-top:18px;align-items:start"><div class="card accent"><h3><span class="k">what</span>In plain words</h3><p><b>Inheritance</b> lets a new class reuse an existing one: <code>class Manager(Employee)</code>. The child gets all the parent's attributes and methods, then adds or changes a few. <code>super()</code> calls the parent's version.</p></div><div class="card"><h3><span class="k">like</span>Everyday analogy</h3><p>A new kopitiam branch copies the original's menu and recipes, then adds its own special dish. It doesn't rewrite the whole menu.</p></div><div class="card"><h3><span class="k">rules</span>Theory: the key rules</h3><ul class="rules"><li><b>class Child(Parent):</b> means Child IS A Parent</li><li>Child inherits every method it doesn't define</li><li><b>super().__init__(…)</b> lets the parent set up its part</li><li><b>isinstance(obj, Parent)</b> is True for children</li></ul></div></div>
+  <div class="body figbody" style="margin-top:12px"><div class="figwrap"><svg class="fig" style="min-height:0" viewBox="0 0 1000 400" aria-label="Employee parent class with Manager and Intern children inheriting name and salary">
+        <g font-family="JetBrains Mono,monospace">
+          <g class="fx">
+            <rect x="330" y="20" width="340" height="140" rx="10" fill="#0a0e13" stroke="#f0b429" stroke-width="2"/>
+            <rect x="330" y="20" width="340" height="44" rx="10" fill="#1c2430" stroke="#f0b429" stroke-width="2"/>
+            <text x="500" y="49" font-size="17" fill="#f0b429" text-anchor="middle" font-weight="600">Employee</text>
+            <text x="350" y="92" font-size="15" fill="#e8eef0">name · base_salary</text>
+            <text x="350" y="120" font-size="15" fill="#e8eef0">monthly_pay()</text>
+            <text x="350" y="146" font-size="15" fill="#e8eef0">epf() → 11%</text>
+          </g>
+          <line x1="230" y1="235" x2="440" y2="168" stroke="#00dcb4" stroke-width="2" marker-end="url(#c41)" class="draw d2" style="--len:230"/>
+          <line x1="770" y1="235" x2="560" y2="168" stroke="#58a6ff" stroke-width="2" marker-end="url(#c42)" class="draw d4" style="--len:230"/>
+          <g class="fx d3">
+            <rect x="40" y="240" width="380" height="140" rx="10" fill="#0a0e13" stroke="#00dcb4" stroke-width="2"/>
+            <rect x="40" y="240" width="380" height="44" rx="10" fill="#1c2430" stroke="#00dcb4" stroke-width="2"/>
+            <text x="230" y="269" font-size="17" fill="#00dcb4" text-anchor="middle" font-weight="600">Manager(Employee)</text>
+            <text x="60" y="312" font-size="14" fill="#8b98a5">inherits name, epf()…</text>
+            <text x="60" y="340" font-size="15" fill="#e8eef0">+ allowance</text>
+            <text x="60" y="366" font-size="15" fill="#00dcb4">monthly_pay() + allowance</text>
+          </g>
+          <g class="fx d5">
+            <rect x="580" y="240" width="380" height="140" rx="10" fill="#0a0e13" stroke="#58a6ff" stroke-width="2"/>
+            <rect x="580" y="240" width="380" height="44" rx="10" fill="#1c2430" stroke="#58a6ff" stroke-width="2"/>
+            <text x="770" y="269" font-size="17" fill="#58a6ff" text-anchor="middle" font-weight="600">Intern(Employee)</text>
+            <text x="600" y="312" font-size="14" fill="#8b98a5">inherits name, base_salary…</text>
+            <text x="600" y="340" font-size="15" fill="#e8eef0">+ months_left</text>
+            <text x="600" y="366" font-size="15" fill="#58a6ff">epf() → 0 (no EPF)</text>
+          </g>
+          <text x="500" y="205" font-size="13" fill="#8b98a5" text-anchor="middle" class="fx d2">is-a</text>
+        </g>
+        <defs>
+          <marker id="c41" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#00dcb4"/></marker>
+          <marker id="c42" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#58a6ff"/></marker>
+        </defs>
+      </svg></div></div>
+</section>
+
+<section class="slide" data-title="1.1 Inheritance and super() · code">
+  <div class="stepbar fx"><span class="">Explain</span><span class="">Theory</span><span class="on">Code</span><span class="">Practice</span></div>
+  <div class="tag fx">Module 1 · Inheritance &amp; Composition · 1.1 · Code — copy, paste, run</div>
+  <h1 class="sh fx d1">Manager inherits from Employee</h1>
+  <div class="body" style="align-items:stretch">
+    <div class="col fx d2" style="flex:1.3;display:flex;flex-direction:column;gap:10px;min-height:0"><div class="cb" style="display:flex;flex-direction:column;min-height:0px;flex:24 1 0"><div class="code-head">employees.py</div><pre class="code sm" style="flex:1;min-height:0;margin:0"><span class="k">class</span> Employee:
+    EPF_RATE = <span class="n">0.11</span>              <span class="c"># simplified for class</span>
+
+    <span class="k">def</span> __init__(<span class="k">self</span>, name: str, base_salary: float):
+        <span class="k">self</span>.name = name
+        <span class="k">self</span>.base_salary = base_salary
+
+    <span class="k">def</span> monthly_pay(<span class="k">self</span>) -&gt; float:
+        <span class="k">return</span> <span class="k">self</span>.base_salary
+
+    <span class="k">def</span> epf(<span class="k">self</span>) -&gt; float:
+        <span class="k">return</span> round(<span class="k">self</span>.monthly_pay() * <span class="k">self</span>.EPF_RATE, <span class="n">2</span>)
+
+
+<span class="k">class</span> Manager(Employee):                     <span class="c"># Manager IS AN Employee</span>
+    <span class="k">def</span> __init__(<span class="k">self</span>, name: str, base_salary: float, allowance: float):
+        super().__init__(name, base_salary)  <span class="c"># parent sets name + salary</span>
+        <span class="k">self</span>.allowance = allowance           <span class="c"># child adds its own</span>
+
+
+sasha = Manager(<span class="s">"Sasha"</span>, <span class="n">6000</span>, <span class="n">800</span>)
+print(sasha.name, sasha.base_salary, sasha.allowance)
+print(<span class="s">"EPF (inherited method):"</span>, sasha.epf())
+print(isinstance(sasha, Employee), Manager.__mro__[<span class="n">1</span>].__name__)</pre></div></div>
+    <div class="col fx d3" style="display:flex;flex-direction:column;gap:10px;min-height:0"><div class="cb" style="display:flex;flex-direction:column;min-height:0;flex:1 1 0"><div class="code-head">terminal · real output</div><pre class="code sm out" style="flex:1;min-height:0;margin:0"><span class="cmd">$ python employees.py</span>
+Sasha 6000 800
+EPF (inherited method): 660.0
+True Employee</pre></div><div class="card" style="flex:0 0 auto"><h3><span class="k">try</span>Change it, predict, run</h3><ul class="rules"><li>Add a <code>Director(Manager)</code> with a bonus.</li><li>Remove the super() line. What breaks, and why?</li></ul></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="1.2 Overriding and polymorphism">
+  <div class="stepbar fx"><span class="on">Explain</span><span class="on">Theory</span><span class="">Code</span><span class="">Practice</span></div>
+  <div class="tag fx">Module 1 · Inheritance &amp; Composition · 1.2 · Explanation &amp; theory</div>
+  <h1 class="sh fx d1">Polymorphism: one call, the right behaviour for each object</h1>
+  <div class="cards grid3 fx d2" style="margin-top:18px;align-items:start"><div class="card accent"><h3><span class="k">what</span>In plain words</h3><p>A child can <b>override</b> a parent method by defining one with the same name. Then you can call <code>s.monthly_pay()</code> on a mixed list and each object runs <b>its own</b> version, with no if/elif on the type.</p></div><div class="card"><h3><span class="k">like</span>Everyday analogy</h3><p>"Make the drink" means something different to the teh tarik maker and the juice stall, but the cashier gives the same instruction to both.</p></div><div class="card"><h3><span class="k">rules</span>Theory: the key rules</h3><ul class="rules"><li>Same method name in the child = <b>override</b></li><li><b>super().method()</b> reuses the parent's result</li><li>Loop over mixed objects, call the same method</li><li><b>if type(x) == …</b> chains usually mean you should override</li></ul></div></div>
+  <div class="body figbody" style="margin-top:12px"><div class="figwrap"><svg class="fig" style="min-height:0" viewBox="0 0 460 360" style="min-height:280px" aria-label="Calling monthly_pay on three objects gives three different results">
+        <g font-family="JetBrains Mono,monospace">
+          <rect x="140" y="10" width="180" height="50" rx="8" fill="#1c2430" stroke="#f0b429" stroke-width="2" class="fx"/>
+          <text x="230" y="41" font-size="15" fill="#f0b429" text-anchor="middle" class="fx">.monthly_pay()</text>
+          <line x1="190" y1="62" x2="80"  y2="140" stroke="#f0b429" stroke-width="2" class="draw d2" style="--len:140"/>
+          <line x1="230" y1="62" x2="230" y2="140" stroke="#f0b429" stroke-width="2" class="draw d3" style="--len:80"/>
+          <line x1="270" y1="62" x2="380" y2="140" stroke="#f0b429" stroke-width="2" class="draw d4" style="--len:140"/>
+          <g class="fx d2"><rect x="10" y="145" width="140" height="70" rx="8" fill="#0a0e13" stroke="#8b98a5"/><text x="80" y="174" font-size="13" fill="#8b98a5" text-anchor="middle">Employee</text><text x="80" y="200" font-size="15" fill="#e8eef0" text-anchor="middle">Tan</text></g>
+          <g class="fx d3"><rect x="160" y="145" width="140" height="70" rx="8" fill="#0a0e13" stroke="#00dcb4"/><text x="230" y="174" font-size="13" fill="#00dcb4" text-anchor="middle">Manager</text><text x="230" y="200" font-size="15" fill="#e8eef0" text-anchor="middle">Sasha</text></g>
+          <g class="fx d4"><rect x="310" y="145" width="140" height="70" rx="8" fill="#0a0e13" stroke="#58a6ff"/><text x="380" y="174" font-size="13" fill="#58a6ff" text-anchor="middle">Intern</text><text x="380" y="200" font-size="15" fill="#e8eef0" text-anchor="middle">Nurin</text></g>
+          <text x="80" y="260" font-size="18" fill="#e8eef0" text-anchor="middle" class="fx d5">3500</text>
+          <text x="230" y="260" font-size="18" fill="#00dcb4" text-anchor="middle" class="fx d6">6800</text>
+          <text x="380" y="260" font-size="18" fill="#58a6ff" text-anchor="middle" class="fx d7">1200</text>
+          <text x="230" y="320" font-size="13" fill="#8b98a5" text-anchor="middle" class="fx d8">same method name · different behaviour</text>
+        </g>
+      </svg></div></div>
+</section>
+
+<section class="slide" data-title="1.2 Overriding and polymorphism · code">
+  <div class="stepbar fx"><span class="">Explain</span><span class="">Theory</span><span class="on">Code</span><span class="">Practice</span></div>
+  <div class="tag fx">Module 1 · Inheritance &amp; Composition · 1.2 · Code — copy, paste, run</div>
+  <h1 class="sh fx d1">One payroll loop, three kinds of staff</h1>
+  <div class="body" style="align-items:stretch">
+    <div class="col fx d2" style="flex:1.3;display:flex;flex-direction:column;gap:10px;min-height:0"><div class="cb" style="display:flex;flex-direction:column;min-height:0px;flex:34 1 0"><div class="code-head">payroll.py</div><pre class="code sm" style="flex:1;min-height:0;margin:0"><span class="k">class</span> Employee:
+    <span class="k">def</span> __init__(<span class="k">self</span>, name: str, base_salary: float):
+        <span class="k">self</span>.name = name
+        <span class="k">self</span>.base_salary = base_salary
+
+    <span class="k">def</span> monthly_pay(<span class="k">self</span>) -&gt; float:
+        <span class="k">return</span> <span class="k">self</span>.base_salary
+
+    <span class="k">def</span> epf(<span class="k">self</span>) -&gt; float:
+        <span class="k">return</span> round(<span class="k">self</span>.monthly_pay() * <span class="n">0.11</span>, <span class="n">2</span>)
+
+
+<span class="k">class</span> Manager(Employee):
+    <span class="k">def</span> __init__(<span class="k">self</span>, name: str, base_salary: float, allowance: float):
+        super().__init__(name, base_salary)
+        <span class="k">self</span>.allowance = allowance
+
+    <span class="k">def</span> monthly_pay(<span class="k">self</span>) -&gt; float:          <span class="c"># override + reuse the parent</span>
+        <span class="k">return</span> super().monthly_pay() + <span class="k">self</span>.allowance
+
+
+<span class="k">class</span> Intern(Employee):
+    <span class="k">def</span> monthly_pay(<span class="k">self</span>) -&gt; float:          <span class="c"># override: fixed allowance</span>
+        <span class="k">return</span> <span class="n">1200.0</span>
+
+    <span class="k">def</span> epf(<span class="k">self</span>) -&gt; float:                  <span class="c"># override: no EPF</span>
+        <span class="k">return</span> <span class="n">0.0</span>
+
+
+staff = [Employee(<span class="s">"Tan"</span>, <span class="n">3500</span>), Manager(<span class="s">"Sasha"</span>, <span class="n">6000</span>, <span class="n">800</span>), Intern(<span class="s">"Nurin"</span>, <span class="n">0</span>)]
+print(<span class="s">f"{'Name':&lt;8}{'Pay':&gt;10}{'EPF':&gt;9}{'Net':&gt;10}"</span>)
+<span class="k">for</span> s <span class="k">in</span> staff:                              <span class="c"># same call, right answer for each</span>
+    pay, epf = s.monthly_pay(), s.epf()
+    print(<span class="s">f"{s.name:&lt;8}{pay:&gt;10.2f}{epf:&gt;9.2f}{pay - epf:&gt;10.2f}"</span>)</pre></div></div>
+    <div class="col fx d3" style="display:flex;flex-direction:column;gap:10px;min-height:0"><div class="cb" style="display:flex;flex-direction:column;min-height:0;flex:1 1 0"><div class="code-head">terminal · real output</div><pre class="code sm out" style="flex:1;min-height:0;margin:0"><span class="cmd">$ python payroll.py</span>
+Name           Pay      EPF       Net
+Tan        3500.00   385.00   3115.00
+Sasha      6800.00   748.00   6052.00
+Nurin      1200.00     0.00   1200.00</pre></div><div class="card" style="flex:0 0 auto"><h3><span class="k">try</span>Change it, predict, run</h3><ul class="rules"><li>Add a <code>PartTimer</code> paid hourly × hours.</li><li>Add a total payroll line under the table.</li></ul></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="1.3 Composition">
+  <div class="stepbar fx"><span class="on">Explain</span><span class="on">Theory</span><span class="">Code</span><span class="">Practice</span></div>
+  <div class="tag fx">Module 1 · Inheritance &amp; Composition · 1.3 · Explanation &amp; theory</div>
+  <h1 class="sh fx d1">Composition: build objects from swappable parts</h1>
+  <div class="body" style="align-items:stretch">
+    <div class="col cards fx d2" style="align-content:start"><div class="card accent"><h3><span class="k">what</span>In plain words</h3><p><b>Composition</b> means an object <b>has</b> other objects as parts: an Order <b>has</b> a payment method. Swap the part and the Order code doesn't change. Prefer it over deep inheritance.</p></div><div class="card"><h3><span class="k">like</span>Everyday analogy</h3><p>A phone has a SIM card. You swap Celcom for Maxis without buying a new phone. The phone isn't a SIM; it has one.</p></div><div class="card"><h3><span class="k">rules</span>Theory: the key rules</h3><ul class="rules"><li>"is a" → inherit · "has a" → compose</li><li>Pass the part into <b>__init__</b></li><li>Parts share method names (<b>pay()</b>) so they're swappable</li><li>Inheritance deeper than 2 levels is a warning sign</li></ul></div></div>
+    <div class="col fx d3"><div class="cb"><div class="code-head">syntax at a glance</div><pre class="code"><span class="k">class</span> Order:
+    <span class="k">def</span> __init__(<span class="k">self</span>, table, payment):
+        <span class="k">self</span>.payment = payment      <span class="c"># HAS a payment method</span>
+
+    <span class="k">def</span> checkout(<span class="k">self</span>):
+        <span class="k">return</span> <span class="k">self</span>.payment.pay(<span class="k">self</span>.total())</pre></div><div class="card" style="margin-top:14px;border-color:rgba(255,111,145,.4)"><h3 style="color:var(--coral)">Common mistakes</h3><ul class="rules"><li><code>class Order(CashPayment)</code>: an order is not a payment.</li><li>Creating the part inside __init__, so it can't be swapped.</li></ul></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="1.3 Composition · code">
+  <div class="stepbar fx"><span class="">Explain</span><span class="">Theory</span><span class="on">Code</span><span class="">Practice</span></div>
+  <div class="tag fx">Module 1 · Inheritance &amp; Composition · 1.3 · Code — copy, paste, run</div>
+  <h1 class="sh fx d1">Same Order, three payment methods</h1>
+  <div class="body" style="align-items:stretch">
+    <div class="col fx d2" style="flex:1.3;display:flex;flex-direction:column;gap:10px;min-height:0"><div class="cb" style="display:flex;flex-direction:column;min-height:0px;flex:42 1 0"><div class="code-head">payments.py</div><pre class="code sm" style="flex:1;min-height:0;margin:0"><span class="k">class</span> CashPayment:
+    <span class="k">def</span> pay(<span class="k">self</span>, amount: float) -&gt; str:
+        <span class="k">return</span> <span class="s">f"Cash RM{amount:.2f}"</span>
+
+
+<span class="k">class</span> EWalletPayment:
+    <span class="k">def</span> __init__(<span class="k">self</span>, provider: str):
+        <span class="k">self</span>.provider = provider
+
+    <span class="k">def</span> pay(<span class="k">self</span>, amount: float) -&gt; str:
+        <span class="k">return</span> <span class="s">f"{self.provider} e-wallet RM{amount:.2f}"</span>
+
+
+<span class="k">class</span> CardPayment:
+    <span class="k">def</span> __init__(<span class="k">self</span>, last4: str):
+        <span class="k">self</span>.last4 = last4
+
+    <span class="k">def</span> pay(<span class="k">self</span>, amount: float) -&gt; str:
+        <span class="k">return</span> <span class="s">f"Card ****{self.last4} RM{amount:.2f}"</span>
+
+
+<span class="k">class</span> Order:
+    <span class="s">"""An Order HAS items and HAS a payment method (composition)."""</span>
+
+    <span class="k">def</span> __init__(<span class="k">self</span>, table: int, payment):
+        <span class="k">self</span>.table = table
+        <span class="k">self</span>.items: list[tuple[str, float]] = []
+        <span class="k">self</span>.payment = payment
+
+    <span class="k">def</span> add(<span class="k">self</span>, name: str, price: float) -&gt; <span class="k">None</span>:
+        <span class="k">self</span>.items.append((name, price))
+
+    <span class="k">def</span> checkout(<span class="k">self</span>) -&gt; str:
+        total = round(sum(p <span class="k">for</span> _, p <span class="k">in</span> <span class="k">self</span>.items) * <span class="n">1.06</span>, <span class="n">2</span>)
+        <span class="k">return</span> <span class="s">f"Table {self.table} paid by {self.payment.pay(total)}"</span>
+
+
+<span class="k">for</span> method <span class="k">in</span> [CashPayment(), EWalletPayment(<span class="s">"TNG"</span>), CardPayment(<span class="s">"4242"</span>)]:
+    order = Order(<span class="n">4</span>, method)          <span class="c"># swap the part, Order code never changes</span>
+    order.add(<span class="s">"Nasi Lemak"</span>, <span class="n">6.5</span>)
+    order.add(<span class="s">"Teh Tarik"</span>, <span class="n">3.0</span>)
+    print(order.checkout())</pre></div></div>
+    <div class="col fx d3" style="display:flex;flex-direction:column;gap:10px;min-height:0"><div class="cb" style="display:flex;flex-direction:column;min-height:0;flex:1 1 0"><div class="code-head">terminal · real output</div><pre class="code sm out" style="flex:1;min-height:0;margin:0"><span class="cmd">$ python payments.py</span>
+Table 4 paid by Cash RM10.07
+Table 4 paid by TNG e-wallet RM10.07
+Table 4 paid by Card ****4242 RM10.07</pre></div><div class="card" style="flex:0 0 auto"><h3><span class="k">try</span>Change it, predict, run</h3><ul class="rules"><li>Add a <code>QRPayment</code> (DuitNow) class.</li><li>Add a 5% card surcharge without touching Order.</li></ul></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="Module 1 Practice">
+  <div class="stepbar fx"><span class="">Explain</span><span class="">Theory</span><span class="">Code</span><span class="on">Practice</span></div>
+  <div class="tag fx">Module 1 · Inheritance &amp; Composition · Practice: real-life app + hands-on</div>
+  <h1 class="sh fx d1">Build: payroll for a small company</h1>
+  <div class="body" style="align-items:stretch">
+    <div class="col fx d2" style="flex:1.15;display:flex;flex-direction:column;gap:8px;min-height:0"><div class="card accent" style="flex:0 0 auto;padding:12px 16px"><h3><span class="k">real life</span>Class reminders by email, SMS and WhatsApp</h3><p>Students choose how they want reminders. Each channel is a child class with its own send(); the reminder service has a set of notifiers and uses them polymorphically. It prints instead of sending, so it's safe to run.</p></div><div class="cb" style="display:flex;flex-direction:column;min-height:130px;flex:59 1 0"><div class="code-head">reminders.py</div><pre class="code sm" style="flex:1;min-height:0;margin:0"><span class="s">"""Class reminders through each student's preferred channels.
+(Prints instead of really sending, so it is safe to run.)"""</span>
+
+
+<span class="k">class</span> Notifier:
+    channel = <span class="s">"base"</span>
+
+    <span class="k">def</span> send(<span class="k">self</span>, to: str, message: str) -&gt; <span class="k">None</span>:
+        <span class="k">raise</span> NotImplementedError(<span class="s">"each channel must implement send()"</span>)
+
+    <span class="k">def</span> clean(<span class="k">self</span>, message: str) -&gt; str:            <span class="c"># shared by every child</span>
+        <span class="k">return</span> <span class="s">" "</span>.join(message.split())
+
+
+<span class="k">class</span> EmailNotifier(Notifier):
+    channel = <span class="s">"email"</span>
+
+    <span class="k">def</span> send(<span class="k">self</span>, to: str, message: str) -&gt; <span class="k">None</span>:
+        print(<span class="s">f"[EMAIL -&gt; {to}] Subject: Class reminder | {self.clean(message)}"</span>)
+
+
+<span class="k">class</span> SMSNotifier(Notifier):
+    channel = <span class="s">"sms"</span>
+    LIMIT = <span class="n">60</span>                                       <span class="c"># SMS must be short</span>
+
+    <span class="k">def</span> send(<span class="k">self</span>, to: str, message: str) -&gt; <span class="k">None</span>:
+        text = <span class="k">self</span>.clean(message)
+        <span class="k">if</span> len(text) &gt; <span class="k">self</span>.LIMIT:
+            text = text[: <span class="k">self</span>.LIMIT - <span class="n">3</span>] + <span class="s">"..."</span>
+        print(<span class="s">f"[SMS   -&gt; {to}] {text}"</span>)
+
+
+<span class="k">class</span> WhatsAppNotifier(Notifier):
+    channel = <span class="s">"whatsapp"</span>
+
+    <span class="k">def</span> send(<span class="k">self</span>, to: str, message: str) -&gt; <span class="k">None</span>:
+        print(<span class="s">f"[WA    -&gt; {to}] Hi! {self.clean(message)}"</span>)
+
+
+<span class="k">class</span> ReminderService:
+    <span class="s">"""HAS a set of notifiers (composition) and uses them polymorphically."""</span>
+
+    <span class="k">def</span> __init__(<span class="k">self</span>, notifiers: list[Notifier]):
+        <span class="k">self</span>.notifiers = {n.channel: n <span class="k">for</span> n <span class="k">in</span> notifiers}
+
+    <span class="k">def</span> remind(<span class="k">self</span>, student: dict, message: str) -&gt; <span class="k">None</span>:
+        <span class="k">for</span> channel <span class="k">in</span> student[<span class="s">"prefers"</span>]:
+            <span class="k">self</span>.notifiers[channel].send(student[channel], message)
+
+
+service = ReminderService([EmailNotifier(), SMSNotifier(), WhatsAppNotifier()])
+students = [
+    {<span class="s">"name"</span>: <span class="s">"Aisyah"</span>, <span class="s">"prefers"</span>: [<span class="s">"whatsapp"</span>], <span class="s">"whatsapp"</span>: <span class="s">"+6012-0000001"</span>},
+    {<span class="s">"name"</span>: <span class="s">"Darren"</span>, <span class="s">"prefers"</span>: [<span class="s">"email"</span>, <span class="s">"sms"</span>],
+     <span class="s">"email"</span>: <span class="s">"darren@example.com"</span>, <span class="s">"sms"</span>: <span class="s">"+6012-0000002"</span>},
+]
+msg = <span class="s">"Python Intermediate Class 4 starts   tomorrow 8pm on Zoom. Bring your laptop!"</span>
+<span class="k">for</span> s <span class="k">in</span> students:
+    service.remind(s, msg)</pre></div><div class="cb" style="display:flex;flex-direction:column;min-height:90px;flex:0 1 26%"><div class="code-head">terminal · real output</div><pre class="code sm out" style="flex:1;min-height:0;margin:0"><span class="cmd">$ python reminders.py</span>
+[WA    -&gt; +6012-0000001] Hi! Python Intermediate Class 4 starts tomorrow 8pm on Zoom. Bring your laptop!
+[EMAIL -&gt; darren@example.com] Subject: Class reminder | Python Intermediate Class 4 starts tomorrow 8pm on Zoom. Bring your laptop!
+[SMS   -&gt; +6012-0000002] Python Intermediate Class 4 starts tomorrow 8pm on Zoom. ...</pre></div></div>
+    <div class="col fx d3" style="display:flex;flex-direction:column;gap:10px;min-height:0"><div style="flex:0 0 auto"><div class="hands-on">
+        <div class="lbl">12 minutes · solo</div>
+        <h3>Employee → Manager / Intern</h3>
+        <div class="steps">
+          <div><b>01</b><span><span style="font-family:var(--mono)">Employee</span>: name, base_salary, <span style="font-family:var(--mono)">monthly_pay()</span>, <span style="font-family:var(--mono)">epf()</span> at 11%.</span></div>
+          <div><b>02</b><span><span style="font-family:var(--mono)">Manager</span> adds an allowance; use <b style="color:var(--mint)">super()</b>.</span></div>
+          <div><b>03</b><span><span style="font-family:var(--mono)">Intern</span> overrides <span style="font-family:var(--mono)">epf()</span> to return 0.</span></div>
+          <div><b>04</b><span>Loop over a mixed list and print a payslip table.</span></div>
+          <div><b>05</b><span>No <span style="font-family:var(--mono)">isinstance</span> or if/elif on type anywhere? <b style="color:var(--mint)">Done.</b></span></div>
+        </div>
+      </div></div><div class="cb" style="display:flex;flex-direction:column;min-height:0;flex:1 1 0"><div class="code-head">output</div><pre class="code sm" style="flex:1;min-height:0;margin:0">Name     Pay        EPF       Net
+Tan      3500.00    385.00    3115.00
+Sasha    6800.00    748.00    6052.00
+Nurin    1200.00      0.00    1200.00</pre></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="2.1 sqlite3 CRUD">
+  <div class="stepbar fx"><span class="on">Explain</span><span class="on">Theory</span><span class="">Code</span><span class="">Practice</span></div>
+  <div class="tag fx">Module 2 · SQLite Databases · 2.1 · Explanation &amp; theory</div>
+  <h1 class="sh fx d1">SQLite: a real database in one file</h1>
+  <div class="cards grid3 fx d2" style="margin-top:18px;align-items:start"><div class="card accent"><h3><span class="k">what</span>In plain words</h3><p>A <b>database</b> stores data in tables that survive after your program closes. <b>SQLite</b> is a full database in a single file, built into Python. <b>CRUD</b> = Create, Read, Update, Delete: the four things every app does.</p></div><div class="card"><h3><span class="k">like</span>Everyday analogy</h3><p>A filing cabinet (database) with labelled drawers (tables) and one card per customer (row). SQL is how you ask the clerk to file, find, change or shred a card.</p></div><div class="card"><h3><span class="k">rules</span>Theory: the key rules</h3><ul class="rules"><li><b>INSERT</b> create · <b>SELECT</b> read · <b>UPDATE</b> change · <b>DELETE</b> remove</li><li><b>sqlite3.connect("shop.db")</b> creates the file if missing</li><li>Writes need <b>conn.commit()</b></li><li><b>executemany</b> inserts many rows at once</li></ul></div></div>
+  <div class="body figbody" style="margin-top:12px"><div class="figwrap"><svg class="fig" style="min-height:0" viewBox="0 0 1000 380" aria-label="Python sends SQL through a connection and cursor to a kopitiam.db file with an orders table">
+        <g font-family="JetBrains Mono,monospace">
+          <g class="fx">
+            <rect x="20" y="110" width="200" height="150" rx="10" fill="#1c2430" stroke="#58a6ff" stroke-width="2"/>
+            <text x="120" y="150" font-size="14" fill="#58a6ff" text-anchor="middle" letter-spacing="2">PYTHON</text>
+            <text x="120" y="190" font-size="15" fill="#e8eef0" text-anchor="middle">conn = sqlite3</text>
+            <text x="120" y="214" font-size="15" fill="#e8eef0" text-anchor="middle">.connect(...)</text>
+          </g>
+          <line x1="225" y1="185" x2="345" y2="185" stroke="#00dcb4" stroke-width="2" marker-end="url(#c43)" class="draw d1" style="--len:120"/>
+          <g class="fx d2">
+            <rect x="350" y="120" width="200" height="130" rx="10" fill="#0a0e13" stroke="#f0b429" stroke-width="2"/>
+            <text x="450" y="160" font-size="14" fill="#f0b429" text-anchor="middle" letter-spacing="2">SQL</text>
+            <text x="450" y="194" font-size="14" fill="#e8eef0" text-anchor="middle">INSERT / SELECT</text>
+            <text x="450" y="220" font-size="14" fill="#e8eef0" text-anchor="middle">UPDATE / DELETE</text>
+          </g>
+          <line x1="555" y1="185" x2="645" y2="185" stroke="#00dcb4" stroke-width="2" marker-end="url(#c43)" class="draw d3" style="--len:90"/>
+          <g class="fx d4">
+            <path d="M 650 70 Q 815 40 980 70 L 980 320 Q 815 350 650 320 Z" fill="#0a0e13" stroke="#00dcb4" stroke-width="2"/>
+            <ellipse cx="815" cy="70" rx="165" ry="28" fill="#1c2430" stroke="#00dcb4" stroke-width="2"/>
+            <text x="815" y="77" font-size="15" fill="#00dcb4" text-anchor="middle">kopitiam.db</text>
+            <text x="680" y="130" font-size="12" fill="#8b98a5" letter-spacing="2">orders</text>
+            <text x="680" y="160" font-size="14" fill="#8b98a5">id  table  item       qty</text>
+            <line x1="675" y1="170" x2="955" y2="170" stroke="#2a3440"/>
+          </g>
+          <text x="680" y="198" font-size="14" fill="#e8eef0" class="fx d5">1   4      Teh Tarik  2</text>
+          <text x="680" y="226" font-size="14" fill="#e8eef0" class="fx d6">2   4      Nasi Lemak 1</text>
+          <text x="680" y="254" font-size="14" fill="#00dcb4" class="fx d7">3   7      Milo Ais   3</text>
+          <circle r="7" fill="#00dcb4" class="travel" style="offset-path:path('M 225 185 L 645 185')"/>
+        </g>
+        <defs><marker id="c43" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#00dcb4"/></marker></defs>
+      </svg></div></div>
+</section>
+
+<section class="slide" data-title="2.1 sqlite3 CRUD · code">
+  <div class="stepbar fx"><span class="">Explain</span><span class="">Theory</span><span class="on">Code</span><span class="">Practice</span></div>
+  <div class="tag fx">Module 2 · SQLite Databases · 2.1 · Code — copy, paste, run</div>
+  <h1 class="sh fx d1">All four CRUD operations on an orders table</h1>
+  <div class="body" style="align-items:stretch">
+    <div class="col fx d2" style="flex:1.3;display:flex;flex-direction:column;gap:10px;min-height:0"><div class="cb" style="display:flex;flex-direction:column;min-height:0px;flex:25 1 0"><div class="code-head">crud.py</div><pre class="code sm" style="flex:1;min-height:0;margin:0"><span class="k">import</span> sqlite3
+
+conn = sqlite3.connect(<span class="s">"kopitiam.db"</span>)      <span class="c"># creates the file if missing</span>
+conn.execute(<span class="s">"DROP TABLE IF EXISTS orders"</span>)  <span class="c"># fresh start for this demo</span>
+conn.execute(<span class="s">"""CREATE TABLE orders (
+                  id INTEGER PRIMARY KEY,
+                  tbl INTEGER, item TEXT, qty INTEGER)"""</span>)
+
+<span class="c"># CREATE</span>
+conn.executemany(<span class="s">"INSERT INTO orders (tbl, item, qty) VALUES (?, ?, ?)"</span>,
+                 [(<span class="n">4</span>, <span class="s">"Teh Tarik"</span>, <span class="n">2</span>), (<span class="n">4</span>, <span class="s">"Nasi Lemak"</span>, <span class="n">1</span>), (<span class="n">7</span>, <span class="s">"Milo Ais"</span>, <span class="n">3</span>)])
+conn.commit()
+
+<span class="c"># READ</span>
+<span class="k">for</span> row <span class="k">in</span> conn.execute(<span class="s">"SELECT id, tbl, item, qty FROM orders"</span>):
+    print(row)
+
+<span class="c"># UPDATE</span>
+conn.execute(<span class="s">"UPDATE orders SET qty = ? WHERE id = ?"</span>, (<span class="n">3</span>, <span class="n">1</span>))
+<span class="c"># DELETE</span>
+conn.execute(<span class="s">"DELETE FROM orders WHERE tbl = ?"</span>, (<span class="n">7</span>,))
+conn.commit()
+
+print(conn.execute(<span class="s">"SELECT * FROM orders"</span>).fetchall())
+conn.close()</pre></div></div>
+    <div class="col fx d3" style="display:flex;flex-direction:column;gap:10px;min-height:0"><div class="cb" style="display:flex;flex-direction:column;min-height:0;flex:1 1 0"><div class="code-head">terminal · real output</div><pre class="code sm out" style="flex:1;min-height:0;margin:0"><span class="cmd">$ python crud.py</span>
+(1, 4, 'Teh Tarik', 2)
+(2, 4, 'Nasi Lemak', 1)
+(3, 7, 'Milo Ais', 3)
+[(1, 4, 'Teh Tarik', 3), (2, 4, 'Nasi Lemak', 1)]</pre></div><div class="card" style="flex:0 0 auto"><h3><span class="k">try</span>Change it, predict, run</h3><ul class="rules"><li>SELECT only table 4's orders.</li><li>Open kopitiam.db in DB Browser for SQLite and look at the rows.</li></ul></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="2.2 Parameterised queries">
+  <div class="stepbar fx"><span class="on">Explain</span><span class="on">Theory</span><span class="">Code</span><span class="">Practice</span></div>
+  <div class="tag fx">Module 2 · SQLite Databases · 2.2 · Explanation &amp; theory</div>
+  <h1 class="sh fx d1">Never build SQL with f-strings</h1>
+  <div class="cards grid3 fx d2" style="margin-top:18px;align-items:start"><div class="card accent"><h3><span class="k">what</span>In plain words</h3><p>If you glue user input into SQL with an f-string, a user can type SQL code and change your query: that's <b>SQL injection</b>. Use <code>?</code> placeholders and pass values separately; the database then treats them as plain data.</p></div><div class="card"><h3><span class="k">like</span>Everyday analogy</h3><p>Writing a cheque: you fill in the amount box. With an f-string, it's like letting the customer write anywhere on the cheque, including "pay me everything".</p></div><div class="card"><h3><span class="k">rules</span>Theory: the key rules</h3><ul class="rules"><li><b>?</b> placeholder for every value</li><li>Pass values as a <b>tuple</b>: <b>(name,)</b> for one value</li><li>Never use f-strings, + or % in SQL</li><li>This applies to every database, not just SQLite</li></ul></div></div>
+  <div class="body figbody" style="margin-top:12px"><div class="figwrap"><svg class="fig" style="min-height:0" viewBox="0 0 460 360" style="min-height:280px" aria-label="Unsafe query lets input become code; parameterised query keeps input in a sealed box">
+        <g font-family="JetBrains Mono,monospace">
+          <text x="20" y="30" font-size="13" fill="#ff6f91" letter-spacing="2" class="fx">F-STRING</text>
+          <rect x="20" y="45" width="420" height="80" rx="8" fill="#0a0e13" stroke="#ff6f91" stroke-width="2" class="fx"/>
+          <text x="36" y="80" font-size="13" fill="#e8eef0" class="fx">WHERE name = '<tspan fill="#ff6f91">x' OR '1'='1</tspan>'</text>
+          <text x="36" y="108" font-size="12" fill="#ff6f91" class="pulse fx d2">input escaped into the SQL itself</text>
+          <text x="20" y="190" font-size="13" fill="#00dcb4" letter-spacing="2" class="fx d4">PARAMETER ?</text>
+          <rect x="20" y="205" width="420" height="120" rx="8" fill="#0a0e13" stroke="#00dcb4" stroke-width="2" class="fx d4"/>
+          <text x="36" y="240" font-size="13" fill="#e8eef0" class="fx d4">WHERE name = <tspan fill="#00dcb4">?</tspan></text>
+          <rect x="200" y="258" width="220" height="44" rx="6" fill="#1c2430" stroke="#00dcb4" stroke-dasharray="5 4" class="fx d6"/>
+          <text x="310" y="286" font-size="13" fill="#00dcb4" text-anchor="middle" class="fx d6">"x' OR '1'='1"</text>
+          <text x="36" y="286" font-size="12" fill="#8b98a5" class="fx d6">sealed value →</text>
+        </g>
+      </svg></div></div>
+</section>
+
+<section class="slide" data-title="2.2 Parameterised queries · code">
+  <div class="stepbar fx"><span class="">Explain</span><span class="">Theory</span><span class="on">Code</span><span class="">Practice</span></div>
+  <div class="tag fx">Module 2 · SQLite Databases · 2.2 · Code — copy, paste, run</div>
+  <h1 class="sh fx d1">An attack in action, then blocked</h1>
+  <div class="body" style="align-items:stretch">
+    <div class="col fx d2" style="flex:1.3;display:flex;flex-direction:column;gap:10px;min-height:0"><div class="cb" style="display:flex;flex-direction:column;min-height:0px;flex:19 1 0"><div class="code-head">injection_demo.py</div><pre class="code sm" style="flex:1;min-height:0;margin:0"><span class="k">import</span> sqlite3
+
+conn = sqlite3.connect(<span class="s">":memory:"</span>)         <span class="c"># throwaway database in RAM</span>
+conn.execute(<span class="s">"CREATE TABLE users (name TEXT, salary REAL)"</span>)
+conn.executemany(<span class="s">"INSERT INTO users VALUES (?, ?)"</span>,
+                 [(<span class="s">"Aisyah"</span>, <span class="n">4200</span>), (<span class="s">"Darren"</span>, <span class="n">5100</span>), (<span class="s">"Nurin"</span>, <span class="n">3900</span>)])
+
+evil = <span class="s">"x' OR '1'='1"</span>                      <span class="c"># what an attacker types in a search box</span>
+
+<span class="c"># UNSAFE: the input becomes part of the SQL itself</span>
+unsafe = <span class="s">f"SELECT * FROM users WHERE name = '{evil}'"</span>
+print(<span class="s">"unsafe SQL:"</span>, unsafe)
+print(<span class="s">"unsafe result:"</span>, conn.execute(unsafe).fetchall())   <span class="c"># leaks every salary!</span>
+
+<span class="c"># SAFE: ? keeps the input as plain data</span>
+safe = conn.execute(<span class="s">"SELECT * FROM users WHERE name = ?"</span>, (evil,)).fetchall()
+print(<span class="s">"safe result:"</span>, safe)                                <span class="c"># nothing matches</span>
+print(<span class="s">"normal search:"</span>,
+      conn.execute(<span class="s">"SELECT * FROM users WHERE name = ?"</span>, (<span class="s">"Nurin"</span>,)).fetchall())</pre></div></div>
+    <div class="col fx d3" style="display:flex;flex-direction:column;gap:10px;min-height:0"><div class="cb" style="display:flex;flex-direction:column;min-height:0;flex:1 1 0"><div class="code-head">terminal · real output</div><pre class="code sm out" style="flex:1;min-height:0;margin:0"><span class="cmd">$ python injection_demo.py</span>
+unsafe SQL: SELECT * FROM users WHERE name = 'x' OR '1'='1'
+unsafe result: [('Aisyah', 4200.0), ('Darren', 5100.0), ('Nurin', 3900.0)]
+safe result: []
+normal search: [('Nurin', 3900.0)]</pre></div><div class="card" style="flex:0 0 auto"><h3><span class="k">try</span>Change it, predict, run</h3><ul class="rules"><li>Try evil = <code>"'; DROP TABLE users; --"</code> with the safe version.</li><li>Rewrite the search to use LIKE with a ? placeholder.</li></ul></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="2.3 Repository class">
+  <div class="stepbar fx"><span class="on">Explain</span><span class="on">Theory</span><span class="">Code</span><span class="">Practice</span></div>
+  <div class="tag fx">Module 2 · SQLite Databases · 2.3 · Explanation &amp; theory</div>
+  <h1 class="sh fx d1">A repository class keeps all the SQL in one place</h1>
+  <div class="body" style="align-items:stretch">
+    <div class="col cards fx d2" style="align-content:start"><div class="card accent"><h3><span class="k">what</span>In plain words</h3><p>Wrap the database in a class (a <b>repository</b>) with plain methods like <code>add()</code> and <code>by_table()</code>. The rest of the app calls those methods and never writes SQL.</p></div><div class="card"><h3><span class="k">like</span>Everyday analogy</h3><p>The clerk at the counter. You say "file this order"; you don't walk into the back room and open drawers yourself.</p></div><div class="card"><h3><span class="k">rules</span>Theory: the key rules</h3><ul class="rules"><li>One class per table or topic: <b>OrderRepository</b></li><li><b>row_factory = sqlite3.Row</b> → rows act like dicts</li><li><b>":memory:"</b> gives a throwaway DB for tests</li><li>Commit inside the method that writes</li></ul></div></div>
+    <div class="col fx d3"><div class="cb"><div class="code-head">syntax at a glance</div><pre class="code"><span class="k">class</span> OrderRepository:
+    <span class="k">def</span> __init__(<span class="k">self</span>, path=<span class="s">"shop.db"</span>):
+        <span class="k">self</span>.conn = sqlite3.connect(path)
+
+    <span class="k">def</span> add(<span class="k">self</span>, tbl, item, qty, price): ...
+    <span class="k">def</span> by_table(<span class="k">self</span>, tbl): ...
+    <span class="k">def</span> delete(<span class="k">self</span>, order_id): ...</pre></div><div class="card" style="margin-top:14px;border-color:rgba(255,111,145,.4)"><h3 style="color:var(--coral)">Common mistakes</h3><ul class="rules"><li>SQL scattered across 10 files: impossible to change later.</li><li>Inheriting from sqlite3.Connection instead of having one.</li></ul></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="2.3 Repository class · code">
+  <div class="stepbar fx"><span class="">Explain</span><span class="">Theory</span><span class="on">Code</span><span class="">Practice</span></div>
+  <div class="tag fx">Module 2 · SQLite Databases · 2.3 · Code — copy, paste, run</div>
+  <h1 class="sh fx d1">OrderRepository: the app never sees SQL</h1>
+  <div class="body" style="align-items:stretch">
+    <div class="col fx d2" style="flex:1.3;display:flex;flex-direction:column;gap:10px;min-height:0"><div class="cb" style="display:flex;flex-direction:column;min-height:0px;flex:43 1 0"><div class="code-head">repository.py</div><pre class="code sm" style="flex:1;min-height:0;margin:0"><span class="k">import</span> sqlite3
+
+
+<span class="k">class</span> OrderRepository:
+    <span class="s">"""All the SQL lives here. The rest of the app never writes SQL."""</span>
+
+    <span class="k">def</span> __init__(<span class="k">self</span>, path: str = <span class="s">"kopitiam.db"</span>):
+        <span class="k">self</span>.conn = sqlite3.connect(path)
+        <span class="k">self</span>.conn.row_factory = sqlite3.Row          <span class="c"># rows behave like dicts</span>
+        <span class="k">self</span>.conn.execute(<span class="s">"""CREATE TABLE IF NOT EXISTS orders (
+            id INTEGER PRIMARY KEY, tbl INTEGER, item TEXT,
+            qty INTEGER, price REAL)"""</span>)
+
+    <span class="k">def</span> add(<span class="k">self</span>, tbl: int, item: str, qty: int, price: float) -&gt; int:
+        cur = <span class="k">self</span>.conn.execute(
+            <span class="s">"INSERT INTO orders (tbl, item, qty, price) VALUES (?, ?, ?, ?)"</span>,
+            (tbl, item, qty, price))
+        <span class="k">self</span>.conn.commit()
+        <span class="k">return</span> cur.lastrowid
+
+    <span class="k">def</span> by_table(<span class="k">self</span>, tbl: int) -&gt; list[sqlite3.Row]:
+        <span class="k">return</span> <span class="k">self</span>.conn.execute(
+            <span class="s">"SELECT * FROM orders WHERE tbl = ? ORDER BY id"</span>, (tbl,)).fetchall()
+
+    <span class="k">def</span> table_total(<span class="k">self</span>, tbl: int) -&gt; float:
+        row = <span class="k">self</span>.conn.execute(
+            <span class="s">"SELECT COALESCE(SUM(qty * price), 0) FROM orders WHERE tbl = ?"</span>,
+            (tbl,)).fetchone()
+        <span class="k">return</span> row[<span class="n">0</span>]
+
+    <span class="k">def</span> delete(<span class="k">self</span>, order_id: int) -&gt; <span class="k">None</span>:
+        <span class="k">self</span>.conn.execute(<span class="s">"DELETE FROM orders WHERE id = ?"</span>, (order_id,))
+        <span class="k">self</span>.conn.commit()
+
+
+repo = OrderRepository(<span class="s">":memory:"</span>)       <span class="c"># use a file path in real life</span>
+repo.add(<span class="n">4</span>, <span class="s">"Teh Tarik"</span>, <span class="n">2</span>, <span class="n">3.00</span>)
+oid = repo.add(<span class="n">4</span>, <span class="s">"Roti Canai"</span>, <span class="n">1</span>, <span class="n">2.50</span>)
+repo.add(<span class="n">4</span>, <span class="s">"Nasi Lemak"</span>, <span class="n">1</span>, <span class="n">6.50</span>)
+repo.delete(oid)
+<span class="k">for</span> r <span class="k">in</span> repo.by_table(<span class="n">4</span>):
+    print(r[<span class="s">"qty"</span>], <span class="s">"x"</span>, r[<span class="s">"item"</span>], <span class="s">f"RM{r['qty'] * r['price']:.2f}"</span>)
+print(<span class="s">"table 4 total: RM"</span>, repo.table_total(<span class="n">4</span>))</pre></div></div>
+    <div class="col fx d3" style="display:flex;flex-direction:column;gap:10px;min-height:0"><div class="cb" style="display:flex;flex-direction:column;min-height:0;flex:1 1 0"><div class="code-head">terminal · real output</div><pre class="code sm out" style="flex:1;min-height:0;margin:0"><span class="cmd">$ python repository.py</span>
+2 x Teh Tarik RM6.00
+1 x Nasi Lemak RM6.50
+table 4 total: RM 12.5</pre></div><div class="card" style="flex:0 0 auto"><h3><span class="k">try</span>Change it, predict, run</h3><ul class="rules"><li>Add <code>update_qty(order_id, qty)</code>.</li><li>Add <code>best_seller()</code> using GROUP BY.</li></ul></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="Module 2 Practice">
+  <div class="stepbar fx"><span class="">Explain</span><span class="">Theory</span><span class="">Code</span><span class="on">Practice</span></div>
+  <div class="tag fx">Module 2 · SQLite Databases · Practice: real-life app + hands-on</div>
+  <h1 class="sh fx d1">Build: kopitiam orders that survive a restart</h1>
+  <div class="body" style="align-items:stretch">
+    <div class="col fx d2" style="flex:1.15;display:flex;flex-direction:column;gap:8px;min-height:0"><div class="card accent" style="flex:0 0 auto;padding:12px 16px"><h3><span class="k">real life</span>Customer contact book that remembers between runs</h3><p>A small business keeps customer contacts. Duplicate phone numbers are ignored, search works on name or company, and the data is still there tomorrow. Run it twice and the second run says "exists".</p></div><div class="cb" style="display:flex;flex-direction:column;min-height:130px;flex:51 1 0"><div class="code-head">contacts.py</div><pre class="code sm" style="flex:1;min-height:0;margin:0"><span class="s">"""Customer contact book saved in SQLite. Run it twice: data is still there."""</span>
+<span class="k">import</span> sqlite3
+<span class="k">from</span> pathlib <span class="k">import</span> Path
+
+
+<span class="k">class</span> ContactBook:
+    <span class="k">def</span> __init__(<span class="k">self</span>, path: Path):
+        <span class="k">self</span>.conn = sqlite3.connect(path)
+        <span class="k">self</span>.conn.row_factory = sqlite3.Row
+        <span class="k">self</span>.conn.execute(<span class="s">"""CREATE TABLE IF NOT EXISTS contacts (
+            id INTEGER PRIMARY KEY,
+            name TEXT NOT NULL,
+            phone TEXT UNIQUE NOT NULL,
+            company TEXT)"""</span>)
+
+    <span class="k">def</span> add(<span class="k">self</span>, name: str, phone: str, company: str = <span class="s">""</span>) -&gt; bool:
+        cur = <span class="k">self</span>.conn.execute(
+            <span class="s">"INSERT OR IGNORE INTO contacts (name, phone, company) VALUES (?, ?, ?)"</span>,
+            (name, phone, company))
+        <span class="k">self</span>.conn.commit()
+        <span class="k">return</span> cur.rowcount == <span class="n">1</span>          <span class="c"># False if the phone already exists</span>
+
+    <span class="k">def</span> search(<span class="k">self</span>, text: str) -&gt; list[sqlite3.Row]:
+        like = <span class="s">f"%{text}%"</span>
+        <span class="k">return</span> <span class="k">self</span>.conn.execute(
+            <span class="s">"SELECT * FROM contacts WHERE name LIKE ? OR company LIKE ? "</span>
+            <span class="s">"ORDER BY name"</span>, (like, like)).fetchall()
+
+    <span class="k">def</span> update_company(<span class="k">self</span>, phone: str, company: str) -&gt; <span class="k">None</span>:
+        <span class="k">self</span>.conn.execute(<span class="s">"UPDATE contacts SET company = ? WHERE phone = ?"</span>,
+                          (company, phone))
+        <span class="k">self</span>.conn.commit()
+
+    <span class="k">def</span> count(<span class="k">self</span>) -&gt; int:
+        <span class="k">return</span> <span class="k">self</span>.conn.execute(<span class="s">"SELECT COUNT(*) FROM contacts"</span>).fetchone()[<span class="n">0</span>]
+
+
+book = ContactBook(Path(<span class="s">"contacts.db"</span>))
+<span class="k">for</span> name, phone, company <span class="k">in</span> [
+    (<span class="s">"Siti Aminah"</span>, <span class="s">"+60120000001"</span>, <span class="s">"MU Packaging"</span>),
+    (<span class="s">"Jason Lim"</span>, <span class="s">"+60120000002"</span>, <span class="s">"Codencode"</span>),
+    (<span class="s">"Priya Nair"</span>, <span class="s">"+60120000003"</span>, <span class="s">"Sunrise Realty"</span>),
+]:
+    added = book.add(name, phone, company)
+    print(<span class="s">f"{'added  ' if added else 'exists '} {name}"</span>)
+
+book.update_company(<span class="s">"+60120000002"</span>, <span class="s">"Codencode Academy"</span>)
+print(<span class="s">"\nSearch 'code':"</span>)
+<span class="k">for</span> c <span class="k">in</span> book.search(<span class="s">"code"</span>):
+    print(<span class="s">f"  {c['name']:&lt;16} {c['phone']}  {c['company']}"</span>)
+print(<span class="s">"total contacts:"</span>, book.count())</pre></div><div class="cb" style="display:flex;flex-direction:column;min-height:90px;flex:0 1 26%"><div class="code-head">terminal · real output</div><pre class="code sm out" style="flex:1;min-height:0;margin:0"><span class="cmd">$ python contacts.py</span>
+added   Siti Aminah
+added   Jason Lim
+added   Priya Nair
+
+Search 'code':
+  Jason Lim        +60120000002  Codencode Academy
+total contacts: 3
+<span class="cmd">$ python contacts.py</span>
+exists  Siti Aminah
+exists  Jason Lim
+exists  Priya Nair
+
+Search 'code':
+  Jason Lim        +60120000002  Codencode Academy
+total contacts: 3</pre></div></div>
+    <div class="col fx d3" style="display:flex;flex-direction:column;gap:10px;min-height:0"><div style="flex:0 0 auto"><div class="hands-on">
+        <div class="lbl">15 minutes · pairs</div>
+        <h3>Connect your Class 3 Order to SQLite</h3>
+        <div class="steps">
+          <div><b>01</b><span>Create <span style="font-family:var(--mono)">OrderRepository</span> with <span style="font-family:var(--mono)">add</span>, <span style="font-family:var(--mono)">by_table</span>, <span style="font-family:var(--mono)">delete</span>.</span></div>
+          <div><b>02</b><span>Save an order of 3 items for table 4.</span></div>
+          <div><b>03</b><span>Close Python. Reopen. Load table 4. Items still there?</span></div>
+          <div><b>04</b><span>Try the injection string as an item name — it must be stored as plain text.</span></div>
+          <div><b>05</b><span>Open <span style="font-family:var(--mono)">kopitiam.db</span> in DB Browser and see your rows. <b style="color:var(--mint)">Done.</b></span></div>
+        </div>
+      </div></div><div class="cb" style="display:flex;flex-direction:column;min-height:0;flex:1 1 0"><div class="code-head">run 1 → run 2</div><pre class="code sm" style="flex:1;min-height:0;margin:0"><span class="c">$ python save_order.py</span>
+saved order ids: [1, 2, 3]
+
+<span class="c">$ python load_order.py 4</span>
+Table 4
+  2 × Teh Tarik      RM 6.00
+  1 × Nasi Lemak     RM 6.50
+  1 × x'); DROP TABLE orders;--  RM 0.00
+<span class="s">table still exists ✓</span></pre></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="3.1 src/ and tests/ layout">
+  <div class="stepbar fx"><span class="on">Explain</span><span class="on">Theory</span><span class="">Code</span><span class="">Practice</span></div>
+  <div class="tag fx">Module 3 · Project Structure · 3.1 · Explanation &amp; theory</div>
+  <h1 class="sh fx d1">A project layout every developer recognises</h1>
+  <div class="cards grid3 fx d2" style="margin-top:18px;align-items:start"><div class="card accent"><h3><span class="k">what</span>In plain words</h3><p>Real projects separate <b>code</b> (src/), <b>tests</b> (tests/), <b>data</b> (data/) and <b>docs</b> (README). Anyone who opens your repo knows where everything is, and tools like pytest find things automatically.</p></div><div class="card"><h3><span class="k">like</span>Everyday analogy</h3><p>A well-run kitchen: ingredients in the store room, utensils on the rack, recipes on the wall. A new cook can start in five minutes.</p></div><div class="card"><h3><span class="k">rules</span>Theory: the key rules</h3><ul class="rules"><li><b>src/&lt;package&gt;/</b>: one job per module</li><li><b>tests/</b> mirrors src/</li><li><b>README.md</b>, <b>requirements.txt</b>, <b>.gitignore</b> at the root</li><li>Databases and .env are <b>never</b> committed</li></ul></div></div>
+  <div class="body figbody" style="margin-top:12px"><div class="figwrap"><svg class="fig" style="min-height:0" viewBox="0 0 1000 400" aria-label="Project folder tree with src, tests, data, README and requirements">
+        <g font-family="JetBrains Mono,monospace" font-size="17">
+          <text x="40" y="40" fill="#e8eef0" class="fx">kopitiam/</text>
+          <line x1="52" y1="52" x2="52" y2="360" stroke="#2a3440" stroke-width="2" class="draw d1" style="--len:310"/>
+          <line x1="52" y1="85" x2="76" y2="85" stroke="#2a3440" stroke-width="2" class="fx d1"/><text x="86" y="91" fill="#00dcb4" font-weight="600" class="fx d1">src/kopitiam/</text>
+          <line x1="104" y1="100" x2="104" y2="205" stroke="#2a3440" stroke-width="2" class="draw d2" style="--len:110"/>
+          <line x1="104" y1="125" x2="128" y2="125" stroke="#2a3440" stroke-width="2" class="fx d2"/><text x="138" y="131" fill="#f0b429" class="fx d2">__init__.py</text>
+          <line x1="104" y1="155" x2="128" y2="155" stroke="#2a3440" stroke-width="2" class="fx d2"/><text x="138" y="161" fill="#e8eef0" class="fx d2">models.py</text>
+          <line x1="104" y1="180" x2="128" y2="180" stroke="#2a3440" stroke-width="2" class="fx d3"/><text x="138" y="186" fill="#e8eef0" class="fx d3">repository.py</text>
+          <line x1="104" y1="205" x2="128" y2="205" stroke="#2a3440" stroke-width="2" class="fx d3"/><text x="138" y="211" fill="#e8eef0" class="fx d3">cli.py</text>
+          <line x1="52" y1="245" x2="76" y2="245" stroke="#2a3440" stroke-width="2" class="fx d4"/><text x="86" y="251" fill="#58a6ff" font-weight="600" class="fx d4">tests/</text>
+          <line x1="52" y1="280" x2="76" y2="280" stroke="#2a3440" stroke-width="2" class="fx d5"/><text x="86" y="286" fill="#e8eef0" class="fx d5">data/</text>
+          <line x1="52" y1="315" x2="76" y2="315" stroke="#2a3440" stroke-width="2" class="fx d6"/><text x="86" y="321" fill="#e8eef0" class="fx d6">README.md</text>
+          <line x1="52" y1="350" x2="76" y2="350" stroke="#2a3440" stroke-width="2" class="fx d6"/><text x="86" y="356" fill="#e8eef0" class="fx d6">requirements.txt · .gitignore</text>
+        </g>
+        <g font-family="JetBrains Mono,monospace" font-size="15">
+          <g class="fx d2"><rect x="520" y="60" width="450" height="56" rx="8" fill="#1c2430" stroke="#00dcb4"/><text x="540" y="94" fill="#e8eef0">your code — one job per module</text></g>
+          <g class="fx d4"><rect x="520" y="140" width="450" height="56" rx="8" fill="#1c2430" stroke="#58a6ff"/><text x="540" y="174" fill="#e8eef0">tests mirror src/ — filled in Class 6</text></g>
+          <g class="fx d5"><rect x="520" y="220" width="450" height="56" rx="8" fill="#1c2430" stroke="#8b98a5"/><text x="540" y="254" fill="#e8eef0">CSV / sample files, never code</text></g>
+          <g class="fx d6"><rect x="520" y="300" width="450" height="56" rx="8" fill="#1c2430" stroke="#f0b429"/><text x="540" y="334" fill="#e8eef0">how to install, run and test it</text></g>
+        </g>
+        <line x1="300" y1="91" x2="515" y2="88" stroke="#00dcb4" stroke-width="1.5" stroke-dasharray="5 4" class="fx d2"/>
+        <line x1="160" y1="245" x2="515" y2="168" stroke="#58a6ff" stroke-width="1.5" stroke-dasharray="5 4" class="fx d4"/>
+      </svg></div></div>
+</section>
+
+<section class="slide" data-title="3.1 src/ and tests/ layout · code">
+  <div class="stepbar fx"><span class="">Explain</span><span class="">Theory</span><span class="on">Code</span><span class="">Practice</span></div>
+  <div class="tag fx">Module 3 · Project Structure · 3.1 · Code — copy, paste, run</div>
+  <h1 class="sh fx d1">scaffold.py: create the whole layout in one run</h1>
+  <div class="body" style="align-items:stretch">
+    <div class="col fx d2" style="flex:1.3;display:flex;flex-direction:column;gap:10px;min-height:0"><div class="cb" style="display:flex;flex-direction:column;min-height:0px;flex:28 1 0"><div class="code-head">scaffold.py</div><pre class="code sm" style="flex:1;min-height:0;margin:0"><span class="s">"""scaffold.py: create a standard Python project layout in one command."""</span>
+<span class="k">from</span> pathlib <span class="k">import</span> Path
+
+NAME = <span class="s">"kopitiam"</span>
+
+FILES = {
+    <span class="s">f"src/{NAME}/__init__.py"</span>: <span class="s">'"""Kopitiam order system."""\n'</span>,
+    <span class="s">f"src/{NAME}/models.py"</span>: <span class="s">"# dataclasses / classes go here\n"</span>,
+    <span class="s">f"src/{NAME}/repository.py"</span>: <span class="s">"# all SQL lives here\n"</span>,
+    <span class="s">f"src/{NAME}/cli.py"</span>: <span class="s">"# argparse entry point\n"</span>,
+    <span class="s">"tests/__init__.py"</span>: <span class="s">""</span>,
+    <span class="s">f"tests/test_models.py"</span>: <span class="s">"def test_placeholder():\n    assert True\n"</span>,
+    <span class="s">"data/.gitkeep"</span>: <span class="s">""</span>,
+    <span class="s">"README.md"</span>: <span class="s">f"# {NAME.title()}\n\nOne sentence about what it does.\n"</span>,
+    <span class="s">"requirements.txt"</span>: <span class="s">"pytest\nruff\n"</span>,
+    <span class="s">".gitignore"</span>: <span class="s">".venv/\n__pycache__/\n*.db\n.env\n"</span>,
+}
+
+root = Path(NAME)
+<span class="k">for</span> rel, content <span class="k">in</span> FILES.items():
+    path = root / rel
+    path.parent.mkdir(parents=<span class="k">True</span>, exist_ok=<span class="k">True</span>)
+    <span class="k">if</span> <span class="k">not</span> path.exists():                 <span class="c"># never overwrite your work</span>
+        path.write_text(content, encoding=<span class="s">"utf-8"</span>)
+
+<span class="k">for</span> path <span class="k">in</span> sorted(root.rglob(<span class="s">"*"</span>)):
+    depth = len(path.relative_to(root).parts) - <span class="n">1</span>
+    print(<span class="s">"    "</span> * depth + path.name + (<span class="s">"/"</span> <span class="k">if</span> path.is_dir() <span class="k">else</span> <span class="s">""</span>))</pre></div></div>
+    <div class="col fx d3" style="display:flex;flex-direction:column;gap:10px;min-height:0"><div class="cb" style="display:flex;flex-direction:column;min-height:0;flex:1 1 0"><div class="code-head">terminal · real output</div><pre class="code sm out" style="flex:1;min-height:0;margin:0"><span class="cmd">$ python scaffold.py</span>
+.gitignore
+README.md
+data/
+    .gitkeep
+requirements.txt
+src/
+    kopitiam/
+        __init__.py
+        cli.py
+        models.py
+        repository.py
+tests/
+    __init__.py
+    test_models.py</pre></div><div class="card" style="flex:0 0 auto"><h3><span class="k">try</span>Change it, predict, run</h3><ul class="rules"><li>Change NAME to your own project and run it.</li><li>Add a <code>docs/</code> folder to FILES.</li></ul></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="3.2 argparse CLI">
+  <div class="stepbar fx"><span class="on">Explain</span><span class="on">Theory</span><span class="">Code</span><span class="">Practice</span></div>
+  <div class="tag fx">Module 3 · Project Structure · 3.2 · Explanation &amp; theory</div>
+  <h1 class="sh fx d1">argparse: turn a script into a real command</h1>
+  <div class="body" style="align-items:stretch">
+    <div class="col cards fx d2" style="align-content:start"><div class="card accent"><h3><span class="k">what</span>In plain words</h3><p><b>argparse</b> reads the words typed after your script name, checks them, converts types, and gives you <code>--help</code> for free. It's how tools like git and pip take commands.</p></div><div class="card"><h3><span class="k">like</span>Everyday analogy</h3><p>An order form with fixed boxes and tick options. The cashier knows exactly where to look, and a wrong entry is caught at the counter.</p></div><div class="card"><h3><span class="k">rules</span>Theory: the key rules</h3><ul class="rules"><li>Positional: <b>add_argument("name")</b></li><li>Optional: <b>add_argument("--times", type=int, default=1)</b></li><li><b>choices=</b> limits the allowed values</li><li>Subcommands: <b>add_subparsers()</b> (add / list / done)</li></ul></div></div>
+    <div class="col fx d3"><div class="cb"><div class="code-head">syntax at a glance</div><pre class="code">parser = argparse.ArgumentParser(description=<span class="s">"…"</span>)
+parser.add_argument(<span class="s">"name"</span>)
+parser.add_argument(<span class="s">"--lang"</span>, choices=[<span class="s">"en"</span>, <span class="s">"bm"</span>])
+args = parser.parse_args()
+print(args.name, args.lang)</pre></div><div class="card" style="margin-top:14px;border-color:rgba(255,111,145,.4)"><h3 style="color:var(--coral)">Common mistakes</h3><ul class="rules"><li>Reading sys.argv by hand: no help, no type checks.</li><li>Forgetting type=int, so "3" stays a string.</li></ul></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="3.2 argparse CLI · code">
+  <div class="stepbar fx"><span class="">Explain</span><span class="">Theory</span><span class="on">Code</span><span class="">Practice</span></div>
+  <div class="tag fx">Module 3 · Project Structure · 3.2 · Code — copy, paste, run</div>
+  <h1 class="sh fx d1">A greeter with options, validation and --help</h1>
+  <div class="body" style="align-items:stretch">
+    <div class="col fx d2" style="flex:1.3;display:flex;flex-direction:column;gap:10px;min-height:0"><div class="cb" style="display:flex;flex-direction:column;min-height:0px;flex:13 1 0"><div class="code-head">greet.py</div><pre class="code sm" style="flex:1;min-height:0;margin:0"><span class="s">"""greet.py: try  python greet.py Aisyah --lang bm --times 2"""</span>
+<span class="k">import</span> argparse
+
+GREETINGS = {<span class="s">"en"</span>: <span class="s">"Hello"</span>, <span class="s">"bm"</span>: <span class="s">"Selamat pagi"</span>, <span class="s">"zh"</span>: <span class="s">"你好"</span>}
+
+parser = argparse.ArgumentParser(description=<span class="s">"Greet someone in 3 languages"</span>)
+parser.add_argument(<span class="s">"name"</span>, help=<span class="s">"who to greet"</span>)
+parser.add_argument(<span class="s">"--lang"</span>, choices=GREETINGS, default=<span class="s">"en"</span>)
+parser.add_argument(<span class="s">"--times"</span>, type=int, default=<span class="n">1</span>, help=<span class="s">"repeat N times"</span>)
+args = parser.parse_args()
+
+<span class="k">for</span> _ <span class="k">in</span> range(args.times):
+    print(<span class="s">f"{GREETINGS[args.lang]}, {args.name}!"</span>)</pre></div></div>
+    <div class="col fx d3" style="display:flex;flex-direction:column;gap:10px;min-height:0"><div class="cb" style="display:flex;flex-direction:column;min-height:0;flex:1 1 0"><div class="code-head">terminal · real output</div><pre class="code sm out" style="flex:1;min-height:0;margin:0"><span class="cmd">$ python greet.py Aisyah --lang bm --times 2</span>
+Selamat pagi, Aisyah!
+Selamat pagi, Aisyah!
+<span class="cmd">$ python greet.py Darren</span>
+Hello, Darren!
+<span class="cmd">$ python greet.py Tan --lang jp</span>
+usage: greet.py [-h] [--lang {en,bm,zh}] [--times TIMES] name
+greet.py: error: argument --lang: invalid choice: 'jp' (choose from 'en', 'bm', 'zh')
+<span class="cmd">$ python greet.py --help</span>
+usage: greet.py [-h] [--lang {en,bm,zh}] [--times TIMES] name
+
+Greet someone in 3 languages
+
+positional arguments:
+  name               who to greet
+
+options:
+  -h, --help         show this help message and exit
+  --lang {en,bm,zh}
+  --times TIMES      repeat N times</pre></div><div class="card" style="flex:0 0 auto"><h3><span class="k">try</span>Change it, predict, run</h3><ul class="rules"><li>Add a <code>--shout</code> flag (<code>action="store_true"</code>) that prints in capitals.</li><li>Add Tamil ("vanakkam") to GREETINGS.</li></ul></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="3.3 README essentials">
+  <div class="stepbar fx"><span class="on">Explain</span><span class="on">Theory</span><span class="">Code</span><span class="">Practice</span></div>
+  <div class="tag fx">Module 3 · Project Structure · 3.3 · Explanation &amp; theory</div>
+  <h1 class="sh fx d1">README: the first thing anyone reads</h1>
+  <div class="body" style="align-items:stretch">
+    <div class="col cards fx d2" style="align-content:start"><div class="card accent"><h3><span class="k">what</span>In plain words</h3><p>A <b>README.md</b> sits at the top of your repo and GitHub shows it on the front page. It answers four questions: what is it, how do I install it, how do I use it, how do I test it.</p></div><div class="card"><h3><span class="k">like</span>Everyday analogy</h3><p>The menu board outside a shop. If people can't tell what you sell and how to order, they walk past.</p></div><div class="card"><h3><span class="k">rules</span>Theory: the key rules</h3><ul class="rules"><li>One sentence: <b>what it is</b> and who it's for</li><li><b>Install</b> commands that work on a fresh laptop</li><li><b>Usage</b> with real commands and output</li><li><b>Run tests</b>: one command</li></ul></div></div>
+    <div class="col fx d3"></div>
+  </div>
+</section>
+
+<section class="slide" data-title="3.3 README essentials · code">
+  <div class="stepbar fx"><span class="">Explain</span><span class="">Theory</span><span class="on">Code</span><span class="">Practice</span></div>
+  <div class="tag fx">Module 3 · Project Structure · 3.3 · Code — copy, paste, run</div>
+  <h1 class="sh fx d1">A README template to copy into every project</h1>
+  <div class="body" style="align-items:stretch">
+    <div class="col fx d2" style="flex:1.3;display:flex;flex-direction:column;gap:10px;min-height:0"><div class="cb" style="display:flex;flex-direction:column;min-height:0px;flex:30 1 0"><div class="code-head">README.md</div><pre class="code sm" style="flex:1;min-height:0;margin:0"><span class="k"># Kopitiam Orders</span>
+
+Command-line order taker for a kopitiam. Orders are saved in SQLite.
+
+<span class="k">## Install</span>
+<span class="c">```</span>
+python -m venv .venv
+source .venv/bin/activate      # Windows: .venv\Scripts\activate
+pip install -r requirements.txt
+<span class="c">```</span>
+
+<span class="k">## Usage</span>
+<span class="c">```</span>
+python -m kopitiam.cli add 4 "Teh Tarik" --qty 2
+python -m kopitiam.cli show 4
+<span class="c">```</span>
+
+<span class="k">## Run tests</span>
+<span class="c">```</span>
+pytest
+<span class="c">```</span>
+
+<span class="k">## Project structure</span>
+<span class="c">```</span>
+src/kopitiam/   models, repository, cli
+tests/          pytest tests
+<span class="c">```</span>
+
+<span class="k">## Author</span>
+Your Name · Codencode Academy 2026</pre></div></div>
+    <div class="col fx d3" style="display:flex;flex-direction:column;gap:10px;min-height:0"><div class="card" style="flex:0 0 auto"><h3><span class="k">try</span>Change it, predict, run</h3><ul class="rules"><li>Ask a classmate to follow ONLY your README. Note every question they ask.</li><li>Add a screenshot of your app's output under Usage.</li></ul></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="Module 3 Practice">
+  <div class="stepbar fx"><span class="">Explain</span><span class="">Theory</span><span class="">Code</span><span class="on">Practice</span></div>
+  <div class="tag fx">Module 3 · Project Structure · Practice: real-life app + hands-on</div>
+  <h1 class="sh fx d1">Build: package the kopitiam CLI</h1>
+  <div class="body" style="align-items:stretch">
+    <div class="col fx d2" style="flex:1.15;display:flex;flex-direction:column;gap:8px;min-height:0"><div class="card accent" style="flex:0 0 auto;padding:12px 16px"><h3><span class="k">real life</span>todo.py: a terminal to-do list saved in SQLite</h3><p>A complete small tool in one file: argparse subcommands, a SQLite table, and functions that each do one thing. Add tasks with due dates, list them by urgency, tick them off. The tasks survive restarts.</p></div><div class="cb" style="display:flex;flex-direction:column;min-height:130px;flex:66 1 0"><div class="code-head">todo.py</div><pre class="code sm" style="flex:1;min-height:0;margin:0"><span class="s">"""todo.py: a to-do list you run from the terminal, saved in SQLite.
+
+  python todo.py add "Pay electricity bill" --due 2026-10-25
+  python todo.py list
+  python todo.py done 1
+"""</span>
+<span class="k">import</span> argparse
+<span class="k">import</span> sqlite3
+<span class="k">from</span> pathlib <span class="k">import</span> Path
+
+DB = Path(<span class="s">"todo.db"</span>)
+
+
+<span class="k">def</span> connect() -&gt; sqlite3.Connection:
+    conn = sqlite3.connect(DB)
+    conn.execute(<span class="s">"""CREATE TABLE IF NOT EXISTS tasks (
+        id INTEGER PRIMARY KEY, title TEXT NOT NULL,
+        due TEXT, done INTEGER DEFAULT 0)"""</span>)
+    <span class="k">return</span> conn
+
+
+<span class="k">def</span> add(title: str, due: str | <span class="k">None</span>) -&gt; <span class="k">None</span>:
+    <span class="k">with</span> connect() <span class="k">as</span> conn:
+        cur = conn.execute(<span class="s">"INSERT INTO tasks (title, due) VALUES (?, ?)"</span>,
+                           (title, due))
+    print(<span class="s">f"added #{cur.lastrowid}: {title}"</span>)
+
+
+<span class="k">def</span> show() -&gt; <span class="k">None</span>:
+    <span class="k">with</span> connect() <span class="k">as</span> conn:
+        rows = conn.execute(<span class="s">"SELECT id, title, due, done FROM tasks "</span>
+                            <span class="s">"ORDER BY done, due IS NULL, due"</span>).fetchall()
+    <span class="k">if</span> <span class="k">not</span> rows:
+        print(<span class="s">"nothing to do"</span>)
+    <span class="k">for</span> task_id, title, due, done <span class="k">in</span> rows:
+        mark = <span class="s">"x"</span> <span class="k">if</span> done <span class="k">else</span> <span class="s">" "</span>
+        print(<span class="s">f"[{mark}] #{task_id:&lt;3} {title:&lt;26} {due or ''}"</span>)
+
+
+<span class="k">def</span> done(task_id: int) -&gt; <span class="k">None</span>:
+    <span class="k">with</span> connect() <span class="k">as</span> conn:
+        cur = conn.execute(<span class="s">"UPDATE tasks SET done = 1 WHERE id = ?"</span>, (task_id,))
+    print(<span class="s">f"done #{task_id}"</span> <span class="k">if</span> cur.rowcount <span class="k">else</span> <span class="s">f"no task #{task_id}"</span>)
+
+
+<span class="k">def</span> main() -&gt; <span class="k">None</span>:
+    parser = argparse.ArgumentParser(description=<span class="s">"Tiny to-do list"</span>)
+    sub = parser.add_subparsers(dest=<span class="s">"cmd"</span>, required=<span class="k">True</span>)
+    p_add = sub.add_parser(<span class="s">"add"</span>, help=<span class="s">"add a task"</span>)
+    p_add.add_argument(<span class="s">"title"</span>)
+    p_add.add_argument(<span class="s">"--due"</span>, help=<span class="s">"YYYY-MM-DD"</span>)
+    sub.add_parser(<span class="s">"list"</span>, help=<span class="s">"show tasks"</span>)
+    p_done = sub.add_parser(<span class="s">"done"</span>, help=<span class="s">"mark a task done"</span>)
+    p_done.add_argument(<span class="s">"id"</span>, type=int)
+
+    args = parser.parse_args()
+    <span class="k">if</span> args.cmd == <span class="s">"add"</span>:
+        add(args.title, args.due)
+    <span class="k">elif</span> args.cmd == <span class="s">"list"</span>:
+        show()
+    <span class="k">else</span>:
+        done(args.id)
+
+
+<span class="k">if</span> __name__ == <span class="s">"__main__"</span>:
+    main()</pre></div><div class="cb" style="display:flex;flex-direction:column;min-height:90px;flex:0 1 26%"><div class="code-head">terminal · real output</div><pre class="code sm out" style="flex:1;min-height:0;margin:0"><span class="cmd">$ python todo.py add "Pay electricity bill" --due 2026-10-25</span>
+added #1: Pay electricity bill
+<span class="cmd">$ python todo.py add "Submit HRDC claim" --due 2026-10-23</span>
+added #2: Submit HRDC claim
+<span class="cmd">$ python todo.py add "Buy printer ink"</span>
+added #3: Buy printer ink
+<span class="cmd">$ python todo.py done 2</span>
+done #2
+<span class="cmd">$ python todo.py list</span>
+[ ] #1   Pay electricity bill       2026-10-25
+[ ] #3   Buy printer ink            
+[x] #2   Submit HRDC claim          2026-10-23</pre></div></div>
+    <div class="col fx d3" style="display:flex;flex-direction:column;gap:10px;min-height:0"><div style="flex:0 0 auto"><div class="hands-on">
+        <div class="lbl">15 minutes · solo · everyone pushes before leaving</div>
+        <h3>From scattered files to a real project</h3>
+        <div class="steps">
+          <div><b>01</b><span>Reorganise into the <span style="font-family:var(--mono)">src/kopitiam/</span> layout from 3.1.</span></div>
+          <div><b>02</b><span>Add <span style="font-family:var(--mono)">cli.py</span> with <span style="font-family:var(--mono)">add</span> and <span style="font-family:var(--mono)">show</span> subcommands.</span></div>
+          <div><b>03</b><span>Write the README with all four sections.</span></div>
+          <div><b>04</b><span>Add <span style="font-family:var(--mono)">*.db</span> to <span style="font-family:var(--mono)">.gitignore</span>; <span style="font-family:var(--mono)">ruff check</span> passes.</span></div>
+          <div><b>05</b><span>A classmate clones it and runs it from your README alone. <b style="color:var(--mint)">Done.</b></span></div>
+        </div>
+      </div></div><div class="cb" style="display:flex;flex-direction:column;min-height:0;flex:1 1 0"><div class="code-head">the swap test</div><pre class="code sm" style="flex:1;min-height:0;margin:0"><span class="c"># swap laptops with your partner</span>
+<span class="c">$ git clone &lt;their repo&gt;</span>
+<span class="c">$ # follow ONLY their README</span>
+<span class="c">$ python -m kopitiam.cli add 1 "Kopi O"</span>
+<span class="c">$ python -m kopitiam.cli show 1</span>
+1 × Kopi O
+<span class="s">✓ README works</span></pre></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="Recap &amp; Summary">
+  <div class="tag fx">Recap &amp; Summary</div>
+  <h1 class="sh fx d1">Your objects now have family trees — and a memory</h1>
+  <div class="body">
+    <div class="col cards grid3 fx d2">
+      <div class="card accent"><h3><span class="k">M1</span>Inheritance &amp; Composition</h3><p>super() to extend a parent, override for polymorphism, compose with "has-a" parts you can swap.</p></div>
+      <div class="card accent"><h3><span class="k">M2</span>SQLite</h3><p>CRUD in one file, <span style="font-family:var(--mono)">?</span> placeholders always, a repository class so SQL lives in one place.</p></div>
+      <div class="card accent"><h3><span class="k">M3</span>Structure</h3><p>src/ and tests/ layout, argparse subcommands, and a README a stranger can follow.</p></div>
+    </div>
+  </div>
+  <div class="body" style="flex:0 0 auto;margin-top:0">
+    <div class="col fx d3"><div class="card"><h3>Homework 4 — Finish the kopitiam CLI</h3><p>Add <span style="font-family:var(--mono)">pay</span> and <span style="font-family:var(--mono)">receipt</span> subcommands, store a <span style="font-family:var(--mono)">menu</span> table with prices, and use composition for the payment method. Push to <span style="font-family:var(--mono);color:var(--mint)">class04/</span>.</p></div></div>
+    <div class="col fx d4"><div class="card"><h3>Next class — APIs &amp; Data Analysis</h3><p>Level 3 starts: pull live data from the internet, analyse it with pandas, and chart it.</p></div></div>
+  </div>
+</section>
+<section class="slide" data-title="Review Learning Outcomes">
+  <div class="tag fx">Review Learning Outcomes</div>
+  <h1 class="sh fx d1">Did we get there?</h1>
+  <p class="sub fx d2">Rate yourself honestly — 1 to 5. Anything at 2 or below, tell me before you leave.</p>
+  <div class="body">
+    <div class="col cards fx d3">
+      <div class="card"><h3><span class="k">LO1</span>I can extend a class with super() and override a method</h3><p style="font-family:var(--mono);color:var(--mint)">1 — 2 — 3 — 4 — 5</p></div>
+      <div class="card"><h3><span class="k">LO2</span>I can tell "is-a" from "has-a" and choose composition</h3><p style="font-family:var(--mono);color:var(--mint)">1 — 2 — 3 — 4 — 5</p></div>
+      <div class="card"><h3><span class="k">LO3</span>I can save and load data in SQLite using ? placeholders</h3><p style="font-family:var(--mono);color:var(--mint)">1 — 2 — 3 — 4 — 5</p></div>
+      <div class="card accent"><h3><span class="k">LO4</span>My kopitiam CLI passed the swap test and is on GitHub</h3><p style="font-family:var(--mono);color:var(--mint)">Yes — Not yet</p></div>
+    </div>
+  </div>
+  <p class="caption fx d4">codencode.my · Class 04 complete</p>
+</section>
+</div>
+
+<div id="nav">
+  <button class="navbtn" onclick="go(-1)">PREV</button>
+  <div id="dots"></div>
+  <button class="navbtn" onclick="go(1)">NEXT</button>
+</div>
+
+<script>
+const slides=[...document.querySelectorAll('.slide')];
+let i=0;
+const dots=document.getElementById('dots');
+slides.forEach((s,n)=>{const d=document.createElement('div');d.className='dot';
+  d.onclick=()=>show(n);dots.appendChild(d);});
+function show(n){
+  if(n<0||n>=slides.length)return;
+  slides[i].classList.remove('active');
+  i=n;
+  // force reflow so entry animations restart cleanly
+  void slides[i].offsetWidth;
+  slides[i].classList.add('active');
+  document.getElementById('counter').textContent=String(i+1).padStart(2,'0')+' / '+slides.length;
+  document.getElementById('titlebar').textContent=slides[i].dataset.title||'';
+  document.getElementById('progress').style.width=((i+1)/slides.length*100)+'%';
+  [...dots.children].forEach((d,n2)=>d.classList.toggle('on',n2===i));
+}
+function go(d){show(i+d);}
+function fs(){document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen();}
+addEventListener('keydown',e=>{
+  if(['ArrowRight',' ','PageDown'].includes(e.key)){e.preventDefault();go(1);}
+  if(['ArrowLeft','PageUp'].includes(e.key)){e.preventDefault();go(-1);}
+  if(e.key==='Home')show(0);
+  if(e.key==='End')show(slides.length-1);
+  if(e.key==='f')fs();
+});
+
+/* ---------- copy-to-clipboard on every code block ---------- */
+(function(){
+  document.querySelectorAll('pre.code').forEach(pre=>{
+    const source = pre.textContent;               // capture BEFORE adding the button
+    const btn = document.createElement('button');
+    btn.className = 'copybtn';
+    btn.type = 'button';
+    btn.textContent = 'COPY';
+    btn.addEventListener('click', async e=>{
+      e.stopPropagation();
+      try{
+        await navigator.clipboard.writeText(source);
+      }catch(err){                                 // file:// fallback
+        const ta=document.createElement('textarea');
+        ta.value=source; ta.style.position='fixed'; ta.style.opacity='0';
+        document.body.appendChild(ta); ta.select();
+        try{document.execCommand('copy');}catch(_){}
+        document.body.removeChild(ta);
+      }
+      btn.textContent='COPIED'; btn.classList.add('done');
+      setTimeout(()=>{btn.textContent='COPY'; btn.classList.remove('done');},1400);
+    });
+    pre.appendChild(btn);
+  });
+})();
+
+show(0);
+</script>
+
+<div id="xmodal" role="dialog" aria-modal="true"><div class="box">
+  <div class="bar"><span id="xtitle"></span><button class="btn" id="xcopy">COPY</button><button class="btn ghost" id="xclose">CLOSE ✕ (Esc)</button></div>
+  <pre class="code" id="xpre"></pre></div></div>
+<script>
+(function(){
+  const modal=document.getElementById('xmodal'), xpre=document.getElementById('xpre'),
+        xtitle=document.getElementById('xtitle'), xcopy=document.getElementById('xcopy');
+  let src='';
+  function open(head, pre){
+    const clone=pre.cloneNode(true);
+    clone.querySelectorAll('.copybtn').forEach(b=>b.remove());
+    src=clone.textContent; xpre.innerHTML=clone.innerHTML;
+    xtitle.textContent=head.childNodes[0].textContent.trim();
+    xcopy.textContent='COPY'; modal.classList.add('on'); xpre.scrollTop=0;
+  }
+  function close(){modal.classList.remove('on');}
+  document.querySelectorAll('.cb').forEach(cb=>{
+    const head=cb.querySelector('.code-head'), pre=cb.querySelector('pre.code');
+    if(!head||!pre)return;
+    const b=document.createElement('button'); b.className='xbtn'; b.type='button'; b.textContent='EXPAND ⤢';
+    b.addEventListener('click',e=>{e.stopPropagation();open(head,pre);});
+    head.appendChild(b);
+    head.style.cursor='zoom-in'; head.addEventListener('dblclick',()=>open(head,pre));
+  });
+  document.getElementById('xclose').onclick=close;
+  modal.addEventListener('click',e=>{if(e.target===modal)close();});
+  xcopy.onclick=async()=>{try{await navigator.clipboard.writeText(src);}catch(_){
+      const t=document.createElement('textarea');t.value=src;document.body.appendChild(t);t.select();
+      try{document.execCommand('copy');}catch(__){} t.remove();}
+    xcopy.textContent='COPIED';};
+  window.addEventListener('keydown',e=>{
+    if(!modal.classList.contains('on'))return;
+    if(e.key==='Escape')close();
+    e.stopImmediatePropagation();
+  },true);
+})();
+</script>
+</body>
+</html>

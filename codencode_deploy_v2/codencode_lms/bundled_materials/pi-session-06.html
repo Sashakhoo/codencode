@@ -1,0 +1,1314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Class 06 — Advanced Python &amp; Testing · Python Intermediate | codencode Academy</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0d1117; --panel:#161b22; --panel2:#1c2430; --line:#2a3440;
+  --mint:#00dcb4; --mint-d:#00a888; --text:#e8eef0; --muted:#8b98a5;
+  --coral:#ff6f91; --amber:#f0b429; --blue:#58a6ff;
+  --sans:'Space Grotesk','Inter',system-ui,sans-serif;
+  --body:'Inter',system-ui,sans-serif;
+  --mono:'JetBrains Mono','SF Mono',Consolas,monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:var(--body);height:100vh;overflow:hidden;user-select:none}
+
+/* ---------- chrome ---------- */
+#topbar{position:fixed;top:0;left:0;right:0;height:52px;display:flex;align-items:center;
+  gap:16px;padding:0 24px;background:rgba(13,17,23,.92);border-bottom:1px solid var(--line);z-index:50;backdrop-filter:blur(8px)}
+.wordmark{height:21px;width:auto;display:block;flex-shrink:0}
+#sesslabel{font-size:12px;color:var(--muted);font-family:var(--mono);letter-spacing:.04em}
+#titlebar{flex:1;text-align:center;font-size:13px;color:var(--muted);font-family:var(--mono);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#counter{font-family:var(--mono);font-size:12px;color:var(--mint)}
+.btn{background:rgba(0,220,180,.10);border:1px solid rgba(0,220,180,.32);color:var(--mint);
+  font-family:var(--mono);font-size:11px;padding:6px 12px;border-radius:6px;cursor:pointer}
+.btn:hover{background:rgba(0,220,180,.20)}
+#progress{position:fixed;top:52px;left:0;height:2px;background:var(--mint);z-index:51;transition:width .3s ease}
+#nav{position:fixed;bottom:0;left:0;right:0;height:56px;display:flex;align-items:center;justify-content:center;
+  gap:20px;z-index:50}
+.navbtn{background:var(--panel);border:1px solid var(--line);color:var(--muted);font-family:var(--mono);
+  font-size:12px;padding:8px 16px;border-radius:8px;cursor:pointer}
+.navbtn:hover{border-color:var(--mint);color:var(--mint)}
+#dots{display:flex;gap:6px;flex-wrap:wrap;max-width:50vw;justify-content:center}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--line);cursor:pointer;transition:.2s}
+.dot.on{background:var(--mint);transform:scale(1.35)}
+
+/* ---------- slides ---------- */
+#deck{position:absolute;top:54px;bottom:56px;left:0;right:0}
+.slide{position:absolute;inset:0;padding:40px 60px;display:none;flex-direction:column;overflow-y:auto;overflow-x:hidden}
+.slide.active{display:flex;animation:slideIn .4s ease both;background:var(--bg);z-index:1}
+@keyframes slideIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+
+.tag{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--mint);margin-bottom:12px}
+h1.sh{font-family:var(--sans);font-size:clamp(26px,3.2vw,40px);font-weight:700;line-height:1.12;margin-bottom:8px}
+h1.sh::after{content:'';display:block;width:56px;height:4px;background:var(--mint);border-radius:2px;margin-top:14px}
+.sub{color:var(--muted);font-size:16px;margin-top:14px;max-width:70ch;line-height:1.6}
+.body{flex:1;display:flex;gap:32px;align-items:center;margin-top:24px;min-height:0}
+.col{flex:1;min-width:0}
+
+/* title slide */
+.title-slide{align-items:center;justify-content:center;text-align:center}
+.title-slide .badge{font-family:var(--mono);font-size:12px;color:var(--mint);border:1px solid rgba(0,220,180,.34);
+  background:rgba(0,220,180,.08);padding:7px 18px;border-radius:20px;margin-bottom:26px}
+.title-slide h1{font-family:var(--sans);font-size:clamp(40px,6vw,72px);font-weight:700;line-height:1.05}
+.title-slide h1 em{font-style:normal;color:var(--mint)}
+.title-slide p{color:var(--muted);font-size:18px;margin-top:20px;max-width:60ch}
+.title-slide .foot{margin-top:38px;font-family:var(--mono);font-size:13px;color:var(--muted)}
+
+/* section divider */
+.divider{align-items:flex-start;justify-content:center}
+.divider .num{font-family:var(--sans);font-size:120px;font-weight:700;color:rgba(0,220,180,.16);line-height:1}
+.divider h1{font-family:var(--sans);font-size:clamp(34px,4.6vw,56px);font-weight:700;margin-top:-18px}
+.divider .items{margin-top:26px;display:flex;flex-direction:column;gap:12px}
+.divider .items div{font-size:17px;color:var(--muted)}
+.divider .items b{color:var(--mint);font-family:var(--mono);font-size:15px;margin-right:12px}
+
+/* cards / lists */
+.cards{display:grid;gap:14px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:18px 20px}
+.card.accent{border-color:rgba(0,220,180,.45);background:var(--panel2)}
+.card h3{font-family:var(--sans);font-size:17px;font-weight:600;margin-bottom:6px}
+.card h3 .k{color:var(--mint);font-family:var(--mono);font-size:14px;margin-right:8px}
+.card p{color:var(--muted);font-size:14.5px;line-height:1.55}
+.grid2{grid-template-columns:1fr 1fr}
+.grid3{grid-template-columns:repeat(3,1fr)}
+
+table.cps{width:100%;border-collapse:collapse;font-size:15px}
+table.cps th{text-align:left;font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--mint);padding:10px 14px;border-bottom:1px solid var(--line)}
+table.cps td{padding:14px;border-bottom:1px solid var(--line);color:var(--text);line-height:1.5;vertical-align:top}
+table.cps td:first-child{color:var(--mint);font-family:var(--mono);font-size:13px;width:150px;white-space:nowrap}
+
+pre.code{background:#0a0e13;border:1px solid var(--line);border-radius:10px;padding:18px 20px;
+  font-family:var(--mono);font-size:14.5px;line-height:1.75;overflow:auto;color:var(--text)}
+pre.code .c{color:var(--muted)}
+pre.code .s{color:var(--mint)}
+pre.code .n{color:var(--blue)}
+pre.code .e{color:var(--coral)}
+.code-head{font-family:var(--mono);font-size:11px;color:var(--muted);background:var(--panel2);
+  border:1px solid var(--line);border-bottom:none;border-radius:10px 10px 0 0;padding:8px 14px}
+.code-head + pre.code{border-radius:0 0 10px 10px}
+
+.pill{display:inline-block;font-family:var(--mono);font-size:11.5px;padding:5px 12px;border-radius:14px;
+  border:1px solid;margin:0 8px 8px 0}
+.pill.mint{color:var(--mint);border-color:rgba(0,220,180,.4);background:rgba(0,220,180,.08)}
+.pill.coral{color:var(--coral);border-color:rgba(255,111,145,.4);background:rgba(255,111,145,.08)}
+.pill.amber{color:var(--amber);border-color:rgba(240,180,41,.4);background:rgba(240,180,41,.08)}
+.pill.blue{color:var(--blue);border-color:rgba(88,166,255,.4);background:rgba(88,166,255,.08)}
+
+.hands-on{border-left:3px solid var(--mint);background:linear-gradient(90deg,rgba(0,220,180,.07),transparent 60%);
+  padding:18px 24px;border-radius:0 10px 10px 0}
+.hands-on .lbl{font-family:var(--mono);font-size:11px;letter-spacing:.14em;color:var(--mint);text-transform:uppercase}
+.hands-on h3{font-family:var(--sans);font-size:20px;margin:8px 0 10px}
+.hands-on p{color:var(--muted);font-size:15px;line-height:1.6}
+.steps{margin-top:14px;display:flex;flex-direction:column;gap:9px}
+.steps div{font-size:14.5px;color:var(--text);display:flex;gap:12px;align-items:flex-start}
+.steps b{color:var(--mint);font-family:var(--mono);font-size:13px;flex-shrink:0}
+
+svg.fig{width:100%;height:100%;min-height:300px;flex:1 1 auto;display:block}
+.figwrap{flex:1.8 1 0;display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:0;min-height:0;max-height:100%;gap:6px}
+.figwrap > .legend,.figwrap > .controls,.figwrap > .gate,.figwrap > .eq{flex:0 0 auto;width:100%}
+.caption{font-size:13.5px;color:var(--muted);font-style:italic;margin-top:14px;text-align:center}
+
+/* ---------- animation primitives (restart on slide entry) ---------- */
+.fx{opacity:0}
+.slide.active .fx{animation:fadeUp .55s ease forwards}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.slide.active .d1{animation-delay:.15s}.slide.active .d2{animation-delay:.35s}
+.slide.active .d3{animation-delay:.55s}.slide.active .d4{animation-delay:.75s}
+.slide.active .d5{animation-delay:.95s}.slide.active .d6{animation-delay:1.15s}
+.slide.active .d7{animation-delay:1.35s}.slide.active .d8{animation-delay:1.55s}
+.slide.active .d9{animation-delay:1.75s}.slide.active .d10{animation-delay:1.95s}
+
+.draw{stroke-dasharray:var(--len,300);stroke-dashoffset:var(--len,300);opacity:1}
+.slide.active .draw{animation:drawIn .6s ease forwards}
+@keyframes drawIn{to{stroke-dashoffset:0}}
+
+.slide.active .pulse{animation:pulse 2.2s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.45}}
+
+.slide.active .travel{animation:travel 4.5s linear infinite}
+@keyframes travel{0%{offset-distance:0%}100%{offset-distance:100%}}
+
+.slide.active .grow{transform-origin:bottom;animation:grow .8s cubic-bezier(.22,1,.36,1) forwards}
+@keyframes grow{from{transform:scaleY(0)}to{transform:scaleY(1)}}
+
+.slide.active .cycle1{animation:hl 6s ease-in-out infinite}
+.slide.active .cycle2{animation:hl 6s ease-in-out infinite 2s}
+.slide.active .cycle3{animation:hl 6s ease-in-out infinite 4s}
+@keyframes hl{0%,8%{opacity:0}14%,28%{opacity:1}36%,100%{opacity:0}}
+
+.slide.active .typing{animation:typing 1.4s steps(18) forwards;white-space:nowrap;overflow:hidden;
+  display:inline-block;width:0}
+@keyframes typing{to{width:100%}}
+
+/* ---------- copiable code ---------- */
+pre.code{position:relative;user-select:text}
+.copybtn{position:absolute;top:7px;right:7px;z-index:3;background:rgba(22,27,34,.94);
+  border:1px solid var(--line);color:var(--muted);font-family:var(--mono);font-size:10.5px;
+  letter-spacing:.06em;padding:4px 9px;border-radius:5px;cursor:pointer;opacity:0;transition:.16s}
+pre.code:hover .copybtn{opacity:1}
+.copybtn:hover{border-color:var(--mint);color:var(--mint)}
+.copybtn.done{border-color:var(--mint);color:var(--mint);opacity:1}
+
+
+/* ---------- figure slides: stacked on tall screens, side-by-side when wide ---------- */
+.cb{display:block}
+.figbody{flex:1;display:flex;gap:32px;align-items:center;margin-top:24px;min-height:0}
+.figbody > .figwrap{flex:1.8 1 0}
+.figbody > .figside{display:flex;flex-direction:column;gap:12px;min-width:0}
+.figbody > .figside > *{margin-bottom:0}
+@media (max-aspect-ratio: 29/20){
+  .figbody{flex-direction:column;align-items:stretch;gap:16px}
+  .figbody > .figwrap{flex:0 1 auto;width:100%;max-width:none;justify-content:flex-start}
+  .figbody > .figwrap > svg.fig{height:auto;min-height:0;flex:0 0 auto;max-height:100%}
+  .figbody > .figside{max-width:none !important;flex:0 0 auto;display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:14px;align-items:start}
+  .figbody > .figside .controls,.figbody > .figside .legend{justify-content:flex-start}
+}
+
+/* ---------- figure furniture ---------- */
+.legend{display:flex;gap:18px;font-family:var(--mono);font-size:12px;color:var(--muted);
+  margin-top:6px;flex-wrap:wrap;justify-content:center}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px;vertical-align:middle}
+.controls{display:flex;gap:10px;align-items:center;margin-top:12px;flex-wrap:wrap;justify-content:center}
+.btn.ghost{background:transparent;border-color:var(--line);color:var(--muted)}
+.btn.ghost:hover{border-color:var(--mint);color:var(--mint)}
+.gate{margin-bottom:12px}
+.gate label{display:flex;justify-content:space-between;align-items:center;font-family:var(--mono);
+  font-size:12.5px;margin-bottom:6px;gap:12px}
+input[type=range]{width:100%;height:5px;border-radius:3px;appearance:none;background:var(--line);outline:none}
+input[type=range]::-webkit-slider-thumb{appearance:none;width:15px;height:15px;border-radius:50%;
+  background:var(--mint);cursor:pointer;border:2px solid #0d1117}
+.eq{font-family:var(--mono);font-size:12.5px;color:var(--muted);line-height:1.9;background:#0a0e13;
+  border:1px solid var(--line);border-radius:9px;padding:11px 13px}
+.eq b{color:var(--text);font-weight:400}
+.def{border-left:3px solid var(--blue);background:linear-gradient(90deg,rgba(88,166,255,.09),transparent 65%);
+  padding:14px 18px;border-radius:0 9px 9px 0;margin-bottom:12px}
+.def .lbl{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;color:var(--blue);text-transform:uppercase}
+.def h4{font-family:var(--sans);font-size:17px;margin:5px 0 6px}
+.def p{color:var(--muted);font-size:14px;line-height:1.6}
+.def p b{color:var(--text);font-weight:600}
+.theory{border-left:3px solid var(--amber);background:linear-gradient(90deg,rgba(240,180,41,.08),transparent 65%);
+  padding:14px 18px;border-radius:0 9px 9px 0;margin-bottom:12px}
+.theory .lbl{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;color:var(--amber);text-transform:uppercase}
+.theory p{color:var(--muted);font-size:14px;line-height:1.6;margin-top:6px}
+.theory p b{color:var(--text);font-weight:600}
+.formula{background:#0a0e13;border:1px solid var(--line);border-radius:10px;padding:16px 20px;
+  font-family:var(--mono);font-size:19px;color:var(--mint);text-align:center;margin:10px 0}
+.formula small{display:block;font-size:12px;color:var(--muted);margin-top:8px}
+table.t{width:100%;border-collapse:collapse;font-size:13.5px}
+table.t th{text-align:left;font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--mint);padding:9px 12px;border-bottom:1px solid var(--line)}
+table.t td{padding:10px 12px;border-bottom:1px solid var(--line);color:var(--muted);line-height:1.5;vertical-align:top}
+table.t td:first-child{color:var(--text);font-family:var(--mono);font-size:12.5px}
+table.cps td:first-child{color:var(--mint);font-family:var(--mono);font-size:13px;width:140px}
+pre.code.sm{font-size:12.3px;line-height:1.6}
+.card.warn{border-color:rgba(255,111,145,.42)}
+.divider .num{font-family:var(--sans);font-size:112px;font-weight:700;color:rgba(0,220,180,.16);line-height:1}
+
+pre.code.sm{font-size:clamp(12px,0.74vw,14.5px);line-height:1.6;padding:14px 16px}
+pre.code .k{color:var(--blue)}
+pre.code .n{color:var(--amber)}
+pre.code .cmd{color:var(--mint)}
+pre.code.out{color:#c9d4dc}
+.card ul.rules{margin:6px 0 0 18px;color:var(--muted);font-size:14px;line-height:1.6}
+.card ul.rules li{margin-bottom:3px}
+.card ul.rules b{color:var(--text);font-weight:600}
+.stepbar{display:flex;gap:6px;margin:-2px 0 6px;font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase}
+.stepbar span{padding:3px 9px;border-radius:10px;border:1px solid var(--line);color:var(--muted)}
+.stepbar span.on{color:var(--bg);background:var(--mint);border-color:var(--mint)}
+img.result{max-width:100%;max-height:230px;object-fit:contain;border-radius:8px;border:1px solid var(--line);background:#fff;align-self:center}
+.code-head{display:flex;align-items:center;gap:10px}
+.code-head .xbtn{margin-left:auto;background:rgba(0,220,180,.10);border:1px solid rgba(0,220,180,.32);color:var(--mint);
+  font-family:var(--mono);font-size:10.5px;letter-spacing:.06em;padding:3px 9px;border-radius:5px;cursor:pointer}
+.code-head .xbtn:hover{background:rgba(0,220,180,.22)}
+#xmodal{position:fixed;inset:0;z-index:200;background:rgba(5,8,12,.86);backdrop-filter:blur(4px);display:none;
+  align-items:center;justify-content:center;padding:40px}
+#xmodal.on{display:flex}
+#xmodal .box{width:min(1300px,100%);height:100%;display:flex;flex-direction:column;background:#0a0e13;
+  border:1px solid var(--mint);border-radius:12px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.6)}
+#xmodal .bar{display:flex;align-items:center;gap:12px;padding:10px 16px;background:var(--panel2);border-bottom:1px solid var(--line);
+  font-family:var(--mono);font-size:13px;color:var(--muted)}
+#xmodal #xcopy{margin-left:auto}
+#xmodal pre.code{flex:1;margin:0;border:none;border-radius:0;font-size:clamp(14px,1.05vw,19px);line-height:1.65;overflow:auto;padding:22px 26px}
+@keyframes barx{from{opacity:0;transform:scaleX(0)}to{opacity:1;transform:scaleX(1)}}
+</style>
+</head>
+<body>
+
+<div id="topbar">
+  <img class="wordmark" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA64AAACQCAYAAAAInjYyAAA1+0lEQVR42u29eZQlV3Wn++2Ie3POrCoNTLIAgwZAuN221KYfkyuZNQ9Y+dw87DbP9sPGNvRzu22w3a7MZmibfqubBbgx9HLz8FuAyRJSqVRCEsIuvW63n70s4TZQGpGZbCZJqHIe7o3Y7484kXmVleMd4978fWvFyqzMyhsRO/Y5Z//O3ueEIYRoK+4eAVGTPi41s1RWFUIIceaAcySCwxH3AIfr/Iz8byfvSZma0ngjhBBCCCGEEEIIIcRmmEwgRHtw98jMUne/BvhnQJX6M68pUAL+zMzuyT9bVhZCCMGRIxFTUylfPXEpI0MvZ24hwby+8cYtZWgwZmH1bi664v61zxZCiDZTkgmEaBtREJz/K/CmJn1mTFbIlX+2EEKI/c7hw5m4TLmKsw5MgkMc1/dZ1QTOPghL3/4t4P61zxZCCAlXIXqeebJsa7WBNpj/7aLMKYQQYlOcRZ6cqzK/WP9441TpK5fA+jJRLLMKISRchdgvRDVtr9Rg+41kTiGEEJtiRFg+zlid441n403iZRlUCNHpAFoIIYQQQojNxC+kKUR2AMgWpwghhISrEEIIIYQQQggh4SqEEEIIIYQQQsJVCCGEEEL0BO4QeVYqfPgxl0GEEBKuQgghhBCiiOJVG3oKISRchRBCCCFEkTFlWoUQEq5CCCGEEEIIIYSEqxBCCCGEqBNXzCiEkHAVQtQfScgEQgghWjfKmJE6EN7jyo0ad4QQEq5CiD3TLxMIIYRoOYbJCEIICVchRL2MyQRCCCGEEELCVQhRZFSyJYQQQgghJFyFEEIIIYQQQggJVyGEEEIIIYQQQsJVCCGEEELUhWtpihBCwlUIIYQQQhQRA9wBhrMfTMomQggJVyGEEEIIUUgFOygbCCEkXIUQQgghRJFRqbAQQsJVCCGEEEIIIYSQcBVCCCGEEEIIIeEqhBBCCCGEEEJIuAohhBBCCCGEkHAVQgghhBBCCCEkXIUQQgghhBBCCAlXIYQQQgghhBDdTqlVH+zu1gsGMrO2vbes6DZrpy1aYNfd2LbV92e90C6Keg/d6p9Fsmk325AeGXNo9zNwNyYnM9tNThbk+RtYl74z1CmGH973sOEYj3T7gINtPjRbWy+iEG1VCNE64Wpq0HsOXItuM3ePgbRbnm0QA5GZJRTjxemVcF1pl/poDLiZpQW9vij0PV1n36K0qaI/460F69GIrJ2L3dstgknInnXmf1NTBbq+6RhuTLtOHBRFcE8fSrkM52Hv0gmAIxFcYthEQsfnAmyHNjSVqkMRosuFq7sPAf0FEQz19FIOzJtZtV2Bq7uXgNEC2syAJTNbzgVC0QPbmomAJATjTw/+7tvcYwVYqnn+rWhvq8BAF4rWfAIAdx8FRoKtiuKfq2a20C3+WcD+0oBFM1vJBax1gxB0tyBsEr4y3cfo0DBpxeFg94060YLx948tMf6W5baI1ryNPHr3AdJkDIDK4iKDljBXNkaHO+CLpyEqG88ensPGq2sCppuEgU/H3HOuwT3A4Q5eyNdLnDxp2HzcTMdp26RK7p9+b5lvfncka9dk/pEOL/F1qm0z5bmPRVnfEtpE3lZDTPSU6xU7xhJAt1XHtD1h0+wqrE5MjrfqHkrNdkgzS939MuBY+PxuLd9yYN7dJ8zsi60Khmts9q+AXwmCoIhrj5fc/R7gnWb23SIHtnljCR3kO4GfAZ4JxDsE7lVgpYXC1YAUOFAjZLthoInNLHH31wC/CbwYGAwivDDC1d3/DjhiZve6e6ldk06NTKyESYC7gfML4A+L7v6XwAfM7G8KL179SBYsfu3jA/CMSSJupJqMkJaAhe4bccxTLj6/yqMnJnn+VX+MT8dZtqnJnDxZwqzKV25+OWNDv0218mOQjABGX98SVU8ZcqO60AHhWs5Gv28sz/CNu+5k5on3Ym/6HtPTMRMTBfbFMIFy/2efyaN99/DsxT7Sy8A66Id+jmELjtsB5hcAKzV0f6kDFiZdp7yFtowxS/i76Ys56+A7+dr3X0nCCJTzdmIwv8L5Vq2ZuGrtc/WhiIoP4qFNmBvPftoS37rzPuYW3oPZF9euW+wkPrq24qyd42EvVK226h6aHSjlIvUgcF4PtLGnsz513yoBnn/upcAFBbfHvwR+wt0Pm9n3ixjYBrHqQaT+KfBGDRUN2bNkZlV3/2XgPxf8cs8DXuHuV5vZ/1t08boeqfNjQF9Brue5wIS7/7qZfaiwNsyzcH9xbBTru5WDo+PMzEMcQ6lL50qrCYwMwfziD2U/OLf5N3LvR8tcNl7hwVsnGB74JH3lEukKWJxHGsNYh+3nQGRPY2TwQuysK3n42NVcdN39LRPyTWEym+wsxYcoly8ijtqWnNzWjgYkaeZbjQ8GAP04Fsqhmz/B62FS5f7jP8lI/y0M9h/CHaJoPVLK/KP9S1xrn2d+9wMDz8Z5HQ8evxazP8uuf7yK2CyWyCdrLwJeUGPFrTy3Asx1WnuRTdA/bGZPtrOay90HaE4FpgFzecVkm5/5KFmFYaP3EAGz+T20aoa/SpZZStk+y1VkUtazcO1gMZwzobiZuCrwQuAud399EK+FKcusEa0R8BnghtD5xRQv81/46LpGtL4N+MMuaNNJ6OiPu/uruyHzGvx1oabNW4evJX++HwwTUx9w97KZVQrkmFmm9SvTIwyXb2N46Cd5/PQqTgm6eIMmo8ryaoxZayoZ7v1omcveWuHBmycYGvw0laqxvFotZHs2c55YTRgefB59/Xfz0M2vwW54gJNHSoxPFVsYVKtVKhZheCE2DMuyhtakHqJ1avxkEH1fvuUwowPHcR/lBzNVoig6w46dyEZt9ixXVhP6+4YZ6j/OqWPXYuNfkHjdVnwkwPuBa7vs2r/r7v/RzP5DHme2KptYE7PcCHygJoatNyYqk1XK/XG74qGapNYHgWuadA+/A/yRu5dKLXTQaJsZle4II7J7sDY26qhGMBeRchCv/xT4vLu/riiZ1w2Z1ly0VlmrLxJ7tGfZzCo1ojUJ/lnk8uZSuM4x4HPu/oZQ5l908VqU/tJqrqMK/Cd3XzCz/1IY8epHIixKOfnxAQaHb2Nk+Cc5PVvFor7Mct28sbAb1qIxJwumKzx48+UMDX+KpGokiWNW1PZsmEXMLyUMDzwLG7qbh2/+SS664dFCZl6PXhKemY0RRSWqiYMVY8mPdUGbOHmyxPh4lYdueQUDgydI02FWqwlRVNriHqwQdjQrsVJJ6S8PMTJwnAePX42NK/O6w9ROiHOru4gniuK8zwDe7+5PN7PfcPeSuyctLucdAs5q4md1goNNvIcfqg2YWsFSiz9fdFYcVIEfJctsjYX1jx171hsyrdM1orWkx1WXPUtbiNZuUAVxuN5zgTvd/cdD1li+sDcBG4fg4mPu/vPBHzo7CZSVBzvTv9fHc849ytjw4SBa9Wy3496PlrHxKg/e+gaGh28mSSOqiWNW/PE5spiF5YRy6Tz6Bu/k1E3PwSaSbMfhApISd4VQLKJofeCWSxkcuhWzYVYqKdYl1XqRRaxUUmAwZF5fg41XOXlS/dKGHjx8HQvxRMz6pO1WhxXkSMmyhv/a3d8dJsJb7Z/52zCq4Ws9RyV87dREX7WJ9zDWauG6UrDZEtEa8foS4PYgXtNOiNewEVOeaZ0GrpdobVi0VrtUtG4mXm9394slXusSr/mA/V/CJnWVjtnwyJEIm3S+Ml3msp+4ibHRqzg9J9G6Y4M+WcrKg299A8MDt5CkA1Sr3SFaa8Xr/FJCf98FjIzczd/e8tzCitc41msA6xGt93/2xxkcvAvjECurCZF1V9IjF6/uQ4wO3cqpW17NuMTrVtbq0mvO497fdfd3hZiilZO5zRbfnYwjmnFErXYgCdb9I15f3inxWnOu2vLgikTrvhatG8XrM8jK2iVe6x90HPh0EK/tt6EfiZicdL5ytMzw8E2MjVzNk7PVApe5Fke02niVB255PUMDx0jSAVaraVeJ1qeI18UqfeULOTRwd+Ezr2L3ovWBWy5leOQu4uhsllcTzLrzma6J13SI0aGbOXXsJRKvPTcexiHufZ+7/1pHJ3M18yFEU8TrSLvE6xZrWitoTatE65ni9dnA3e5+UbhHBbt7G6zzr7XitT3t7EjYPfi+j5UYGr6JUYnWPYnWB299GUODn8W9n9Vq2nWZrKd4opWYW6zJvH76uRKvPSBah4buJLJzWF7pXtG6UbziY4wNfm5NvLrEa23v1APiNSHbwPBnNSEu4Sq6W7wedff+VotXbcQk0VqHeD2/RrwmEq91jxOfdvc3tmWmeS3TOt3H2T/0WWVa9yhaH7jlpQz13w5kawa7WbSuC4P1zOtZhz5fGPF646n8/Z6zVBMnilr1LnCJ1u4QrwlwFqODd3Dq2Eswidea9jBaIwK7VbzmG6l+wt1vkHiVcBXdK17fANzSSvG6xUZMKg+uz5ZWI1p/tQdFa614rZJlXm939x+SeK1rsM6/fjLs2Ny6zKsfiWDSs0zrqDKtexWtD976MoaHPgcc6BnRuuaJVloTrwcPFKtsOE1SCdbditbB3hOt6z4as7SaYhxibOhzPHTslftdvNbswNvXC7fD+h4Qn3H3K9paiSThKkRTxevlrRKv22zEpM6iTkEXOtt3AR/qUdFa658JcAFZ5vV8ide6xgsH+kMbf0NLMq/5RkynjpazTOvQ1Tw5I9G6G1GQi9bBgUy0LveYaK0Vr3OLCQP9KhvuNtF6//FsI6Yo6k3RutZbWsTSaoqnZzE4eAcPabfhPJTrlV4oj6OAaXd/lda8SriK7havNzdTvGojpiaOGk/NtP428L4eF63U+E4VeEEQr8q81jdmpMAAcMzdX9/UMqmNGzGNjlzN6bmKdg/eyW5BFDx468sYGrgdY4zlld4UrevCIGZuMcnKhg/ezZduegE2kXDyiHylqKL1gVsuZbg/bMTUw6K1VrwuV1JSH2Jw8FZOHXuN1rz2VEVCPpk7TPZ6yFepbFjCVXSveL2CLCvT16h43bCmtbY8WJnWOkQrENWI1veG59XronWjf16MMq+Nitf+IF7f0JTBunYjpoGhz66VB6ud7ywK1jZi6r+drDw4IYp6f3zPxWu5fAFjI3/GV469iPGpzmW1PFWZ8Fai9Us9Xh68nXhdDeJ1dOjWtczrPhSvIf4Y6NHxMBevr5Z4lXAV3SsOLg+B7UC94tXdIzNLWc+0qjz4qdgebJmL1sTd3x1EaxJsa/vQP19A9qocZV7rH6wHWC8brn+wdn/qRkwHR6/Smtbd2C3PtN70Mgb7Pwd2gOXVFGP/+HL+ntdy/CxGBz/Pw8delGW1OlA2XIrLgOHSr08RrQ/ccikHh+7s+fLgHcVrMsTA4HFOBfF670f3RRwTYo88Xhnu4fFwY+ZVcaqEq+gycVChgbLhXLS6+xBwE+u7ByuYXWe5DtH6B8Dvsj/Kg3cjXjtZNtzNEe5W4nVvg/X0dIxZeOVNTaZVonVn0bq2EdNoKA9e7e3y4O3E68JyQik6j77+u/nKsRdlZcNtymodvSTrQ9N4hFJsuDv7/X32vmH3YLP9KVqfIl6rKZ4OMjqYZV4ve2tlH2Zee3VWJx8Ph4AT7n6d1ry2LngTjbTAxgPdOBvjenKQK/PUNa83mNmKu1vNDnO7Ea3HgVdLtG7K3B5F6/uBfyNbrvV/SY14fZ2Zfasmy7+jTRs4t3nW8Iegq7NjG8Xr9WZ2Z76GeleidWIi4W8/fpADT/80o0NvkGjdBWvlwSHT6oz17EZMexWvwwPPYoS7OXX0dVwyfmrNx7Zv0AZHM9vdc2rvY/G5RPg0fNX7MJN/5v55/83/C4MDtxHZ2ftatNaK10o1pa+crXl98NY3YuN34tMxtoOPim4aDweBm9z9F8zs/3b32Mz0fFshXGvS+Y0EY7XbRHedDq35Pt/WfluB1QRnTILtV8K5irqdvjXgY/ma15vd/Y3AqruzlXgNwjYXrbc2QbR6wWwateu55O0xiNY/At7aJFtawdptvTbduGHTuJl9ZyfxGny34YHI3avhGtIubucbxet1ZnbXjhMAfiTCJhK+dNPzGB2+heGBf8LpufpFqxd1zNmp6wn9oJHgGNH2kyZMT8chk/V6hoaO4j6abcRU55pWL2Jdq4HV4YtPEa+jd/Hwsddx0XX3Z742lW4zkDelPfPV4zF9ZWe1klCEpQdmjmN12bJe1v3zMMNDtwEjDYlWL2jdtdU5Q2GhbLhcGmJ44DYevvV67NoTuEfsMGHaI8LO9sE95jHJx939mWb27yVemxeblDYJxhqhWhOMdfvMb97JlrfpTyPg5WRZk3qD+Tzoe174+74edLi8bPgK4L+a2ZtqNlzaVGg1UbTmDm/7uLF7k0RrUW1pTfDPfMOmY+4+DixvVhmQ/8zdzwZe2ECwm7f788g2Oer2/rJWvH7W3f85cGrLwToXEl+747kY9zDQfz4zc9W6dw82g/5yMW1olh2bCdi13wFJEjM6BDNzg9sE8RFmCV89/mr6+4+R+kD2ntY6RasZxLEVa17PwFOod5+jdfF6Hmn/5/n7Ey+DK7+Jc6Z4dTfMnIduO4/RgR9hcfkgKTFxtLeTpx5Dukpqr8DMKJdKBcm8GkkKaZv0UO6fDx5/OUP9t+E+Et4jXL+Ij2Pbsv10kjSt/5IsZF4plejr+1O+dudlwENFFq81Sakd/+tmdxzmH4bJspHNGLcLH3eF+OB97j5mZu+SeG2I1U2Fa6jF3qkp9oe/8y3EXgKMAV+nmFnXuRCk2oaGFgErwHyN0wF8d2NjrAloy2S73D69Sdf2JNmaxahAvXRui7NpbEOkchCv/8LdP2VmJ7ZoxHm29cNBtDaye3A+mfAN4PEOdpR5SWh/+PczazrvVg40+Stv3hFEazN2Yp4BFkJb94L4ZwocorHdCvPJlZ8Aft7MPhT6w+omfVwVuBr4eBP7pLkO2tRq+sBzG2gnUbDNMPAeM7tu22TJySMlqtVPcHD0/PDKm/p80wzStMrK6rcKF92aQeqLGCtPsauZ4264J8BslmH0hJn5EthXsv/0mJ8hssB58Pg5EH8SswFWV5O6RUFmtwppuogVqMTYw47VkQ3UvclRZDGLyxXOOnAeP5j595i9ienpM+/x6NEISIj5j4yNToBBXGcz9CBm5hYWMJvBibEOZgvdDCMBDmA23PINo3L/vP/msylFnyGORlhYThoSrQBpspDFlQWrwXYfbqjdmEVUKlUOHhhmZm4Ss5/e1EcL05VZI5VrHmKSvKIwZftkj+3yZ3V5VI022ekzreY69/psrGZMfKe7f83MPibx2lDsmQVruRHd/S3AbwUjx9s8wMEQ/PoWDhEB/whcEkRYoabKrM7ZrG3+bgY4p+be621IJeAXgbuCfYtUOpgCnwdewvoutI0EyD8FnNjYadSsaz0feFONXRrpoGLg35nZf93N2tpWC8lwTV8Axhu05U7nMiAJ5/w/GvRPWM/U/nqYrOmjGaV1jRMFwfknZDtON+qfKfB64EM79FsD4feNZLDzv30v8IcdtGl+3+cAXwrCs94Kkjzqf4m7j5rZ3Bntbjqs53rk+EsY7H8lp+dSzMp1t/FyKWK18g8Mpi/mWfctwyUGpwoy5kxSdwZl45q3e+7JSjAfPv5THBx5Oj+YqRJF9e7iXGVspMTc/KeJ43eSJn1UvNpxc1WtxHC8ymr1FxgZ/nfMzVfB6s3Cx8wvOmYv5yvTfbx4YjWUza77xo25n0RjzC0mLCw30H94lYNjZWzlYywv/B5jY31UZjvXR/aNxcz2rzK48G5Gh/4Vsw3Ycjfk/vnIiVcxNvwsZubq98/a/sdK11FauZ/VgZi00tm4aHnVGOhzLDYs+QL9fRezvJLWL2AtZmHRwV/Fw58b46IrZteqAAqjz9eqjM4jm9jMKypXamL82ue2sGHsNLJs2TLria9OCvSojec31pcCfcDdvwB8bTf7aIitJy5KNf94FVmpXDNYBSrd9mC2KIXwHcROzPrrRKIGHogBs2Y2X1DbVJvkeAacXyMsN+NcmlsyHdU8q04GZ0kYANoyKIVzjQRB0qws/nwRfdTdV5vknxFwcAf/BBit8WdrsD0sFsGmTdz90Mgm3/rZbPOwG8/N7XUJfX3O0kqjkyoZC6Vk23WMHWFqZ1sdObLuP5OTYb3rJmPO4bXu7NmAN5yAigyMWZ57+XcKN+A8etvjDd9fPp47fQyfO5TFJVvMx3iarL1CqN5XCTlOZBGRLfHiifnCTNk/fOK7bSk2yv0zTc8iirxp54ySf+Q51327cD768PFKU5LA7oYzyGr1IDDL5GTh6qJDbDwNvJT1yeFKODYK1+VNhGsl6IIojAsPsn22tXZ8zauBzmlwnMgb/yPA3wb9M7zF+fNlL8MhZjwAvKiB8TAhS/r9jpn9fD2vhhTrlDZ8n9JYBiEPQCpAVCMEi5Rx9R1+18lrLQWb5SXXRZnlaPZmPNEu/KgXiUKpTDcTBx8tdXgSoHbiKGmyf85v8P1W+2inbZrfZ7OzMb7Db0tETSz/e3w+WhOCU1NFCvx829/VXuvU1G4eV1L3xjBnRqQljhyJuPGSEkdPdb49X3JJiVOnqrg14f2H5kSRgS/zxOhCGOS3HP2bdg9JGmei+b4SXNo5m953X4lLL63yyO1tjmLi5vbHXurjyJGIw4cj7rmns+Pn/fcbL3qRc8kl1vTS5b5S4WKDmmzrIeCiDfFbmc2XHg3t8LH3AK9hfV+ETa2xwYf6gPvI9oKpd6IzCWPccTP7jT3a4WLgftYTAHt99nkl0k+5+zvN7LFOVwD2inBdYj2F3shsQL5rmAeHRw9n9+0jz8gVxWb583O9UL2Zz1c+2jz/7JRNy71i05o23t5zp1Sbuu7umedmE4+TkxRMuDbbcE0MmM2ZmkqZPJny4gJkq0+eTJmaSnnzieY9P7OUSy9t30RwZJ6tYT7pHS35PBnO//CJNrtn2lxB52nw0UkYH++0j2aTfO7GIyfYB+STmrWbKq09mT1+1toO+mF5YrrNeLe04d+L7r7YpHsaDNVFedZ4S8+jeYmbPOs6BrwMOBa0kta61ikycx6XOYQQYleMyQR1ck/4Wop+QDWhadlDIbbi6FH5mBANTB9sIcb2cqwlxvL3oLu77XDk/6eZr9FJwzvGEzNLtzkcaGbiLa/o/Kc19hN1UJtxXZQ5hBBCtJTDYbfc1OaoJhrAhRBi/4jfhd1WY/ZgxZ8Bz9lmMkDsgmiDQZvtoEKIM9vYvNqJEEIIIfYZq/v0vvP474BcoDFatTX6ENli6lWZWIgzqHbxtedlO1FBdsaLwnSssnZCCNFrRGlEGHPodObt6FHjxhs13jRHwAlRCOGaO2RfC0Wx6H5m9nkH1s33PRBec1WUSakUmva6JiGEEEUi6VsI70Iu1q67D9+m93AK0QPCNafTr5URxUYio3vF9gXu/nyK9zqcdpffqH8TQoiWs3oZX79jlKRawqPOisVqYpRixxIj9WHStOlvxRFCdEa4CrEbESS6hzh8/W3gXQX2qbhN/jkklxBCiBbHCHH0KdwhKkC4GuerY8KbTFYr+T+EUPwr4SrUsIWeT0fYTRm0hKsQQrSaZC3JWqS1pVrnKurxGYA5mULCVfQei2Qvhi5rgCh0B9xrYjq/r3zX54it11WpVFgIIbqrj+/FaxHdxYpMIOEqeo9VsvWTZZlCAYTuTwghhBCKL4Rq80VRG7YatxBCCCGEEELCVQghhBBCCCGEhKsQQgghhBBCCCHhKoQQQgghhBDboGVoEq5CCCGEEEIIUWgWZAIJVyGEEEK0B72KSQgh6mOxw+dP9QgkXIUQQoje5p78GxvEpV1FGzFz4gjMFzAcPxKhCZR95wW6j6Zwusfs2VHhKiMKIYQQRSZmCHeN2KITMb+yRfuTFKjKDE1BEz5NFK6zMocQQghR5LBH6VYhRFtF1hKdL7EV4gzhuiJzCCGEEEIIIYQosnBV4ZEQQqgvFEIIIYQoHCWZQAixR7yH78uBih6xEEIIIYSEqxCiu+nVjGQU7m1Oj1gIIQqF9+TY49qsR2zp70LCVQihDnVL0iBev69HLIQQBSDOV7RZD4pWN/r7YGl5hv75JwCYnHSmpvTcxZgEbHuFqwwtxNZ04wCcADHwCeDdoe/o1e3xH6u5Z1H/GKBxQAhRb/+RjZNJ+iZK8UMk1RIe9dbreCpAyY20usCzJ5aCPle/KQD6ZYL2CtchoE/mFeKMwRhgpAsFbH7tT5jZo/tidkEBRCMB5wLaqV4I0TB99/Lc1z0iO4h9Gi+KNgnXMk/dsVgIsU43t42yu0f0dsbVJVqbMujKhkKIxohXh8nGnIhsOUcPMgk2lephC9E54aqARYjeFXWpu6dmpoFWCCFE60ijFLMUd9CYI8S+R1lRIYSoQ8DLBEKIfYbecS2EkHAVQoguY0YmEELsK1zvuBZCSLgKsd/QrHX3o5I1IcR+EazhbTQ+m/1gUjYRQki4CrFPBOuTNeGAEPs0GHb5vxCKGIUQYtfUbs602yDCd/E7B6Kw+6h5Fwcobd6AxoLNogLZrKuf3yZ27eTQWwq2vB+4vottaTVfWy3yOyKptKtwCzm69t0qaeq4W5bNaZAn5iL8SARHDT/Sxc9v0tv4LkfjyJEIHgu26zCnHos4ciTC2t3+mzrGGe4G94Wve3n0k7a3ZOY2//nUqQifjnmE9k4SRVFzzxWl0dquwr061zU5CVPaVVgUJgbqGuFaYv0VBr6NIW0Xho6BpX2y62gKJOGrN/AZAKvBZoWzm7sn4T6TBj4m2eUkSbMDqJVg19UOm3El2PI48Ltt7Ji8xj+tAR91IAmirtKGaxa9yI15K4+jrP7Q0ia0BefSq5ewa3rAb6Z2CGfMcMJOq/WOFZbi7jhVpqZSpjreN65PZgD8zO2roc9p4B5Jg9DZ2Scsipsi7swAW6X+PtJ3evx78JXMlo/c/h1iMxxvy4jjHjdVKJf6FihoXNTBeKwpT1ITtIVmpYlxUOTuJbLkyU4x1l7OaVv8LM4THK0Wro+Gk5R3IT5sk5uz8LuV0GFe6O6PBxHiNf9nMPxsiew9kEWfVfi2mS1v8/uRINTjBs6R/+357v4coK9BgdhMLAwYY028z6UtnD73kyeA5WAHmuAjF7j7jwbf7rRdY+B/AjcDN4TgptzC8602aTIgfxZD7n52uI9W2bI/9BPtHlQ92OlxM5txd9PA3gImT2U2HbRHWa6kxGYkqWN1pl2zgbjMw7e/gK/ftcxqEuFp9z23/sSxkYg0eoIfHj+NY1hNGzicyzGfZ6AvYj7qo1xnd5wkfZRigEOcOvEcxryPRev8mJNYCfcV3J9FXzmir9xHVOc9pmnE8CCsrFaZmNhi0vQSC//3MUqxZc5U93BjVBNwfxYPHj+HUiVidY82LQ0MAv278t/+xElKI6RJOfv/fTVXUjW85JR5JknyWpZWqpRKMdVqilmLMuuPebDwN0jT5sV1ldUf46ETw8TEpFFviddy6kTlmLmVx3jxNd88o81LcO7LeYkNmqwZLJpZNWiudlANEywtmRAthZsB+Bzw0i1EaS4elsNh24jaOeDpwN3AcM3f+gZhXA2CqKjCNQ1B7GuA/+7usdkZg1AK/AVwfrj3egaEXBgeAD7WwOe0uhHNACc2TETUY9MycNdmQYSZebDzk+7+YbKsZKUBe+QRz78NRxFsacArgV8ELgOeHdpCU9+pXDOwLQF/BVxc49P1cjbwc8BPb9NPNKVfYr0CpJ39Q/4cfgP4UPCfKqK5TE2luEeYfYuvnvhtRod/n9n5KqnHdYjXiEoV3M8jtv9JddWJdhP6FZBqXGUsKnF64feAP4CTMYxXzxQG/tcsLn+LJElIkzpUnYHjPDFTxvlp+vyNLFtEVACjxe4QOe4pjz/5YPYc62yCRkK5FOP8RbCbnVGCnZetR9EHWVx+M3EcUU2cqI5JFLOY2XmA/51SNAF9XqsldzdCpGWMGHz7/KgZVCPH0z6i2M4clmNI04Rzz4n57uN3sbg0wdDQTRgRq9WUqAXiNZpIOHIkYmXxz5lJ/5KzDryUH8xUiaJSXU9vzSb2GWLP7jnuMb1W9ZSxvohK5QRwNbjB9qLU3eMQLzYcJgDzZraiQalY2iNkK08CXweeG3RBPTN4+d+83d1/DPgu2R4rc8BC0HOr4d9ROM/sHmK7sZpYbYxs9mwUOAicC7xkbZxucoCYB7pV4P9rSnTuvhQESv92c01d4kTRVqLAzCrARJNs9nLgvxfQLrl4+KKZXd1kcZVs9rOwDvX3gHOAX2qFsOuwLQfM7Afu/nrgOHBhq+4x+Op1DfpmZGapu/9mFlDvORzrFkqhvZcQrcUsZXo65oKr/oCHjpc5NPZuZueTIGjrEQ1GZH1dvSwoTUvEUYRt4X8WsoYXXn0zf/f/3Mm5B+uL4qM+ozKTstj/DErRlymXh6kmNGWdceM2gKEBWFx+gAuufFGTfe5Me01M5D53Lw/d+kuMjXyUpZWEJInqrgAAI45H6+xs2f18XUgQe+3WIrW/dmdhKcX9MS6+7hYevPUGhgY+xUB5iJVKglk9kx627eg2OemYrfLorTcwv3gXB0d/lJm5KhbV36fm99er61urVciSH7DN8rp8HAYuAu7ZEFPslSTEmr8KfMbda5NYos2aYmPMFp71rLtPkCV6DtUpXnPf+Cfh6NiI3xLhWjOTs1PgvdPFpUGw5mvi2p01adoQuptZgiasNYhrOhGn8axYs8kbS76xUTNKRHfa/CbbfN/sl8NmRr9M4yW1RfLDaihDfdDdX0E27/+KAgv0iKdWR1R6VNxttQyi5R3xvmRiIuHkyRIXj7+Hh47DWWPvZnYhIU3rEw1J2t2RrZGQpLZjhJ71nQsNn++BY4/jvkrqQ6RpUfrHlCSJsozjkQibSndbPtnQJIpPx9i1H+Ph4xEjQx9haTUhbUC8Vqvt8cXs8mzL8c0sIrLHgzi/lYeOXc7g4DEG+w+xtLJ38bpT6Z9ZeG7Xfo8vTr8W4xgHRl/KzHwVs0bGjG6NI3ceRpIU8IPce2+Zyy6r7MLfy8DTmnQBz9BA1HYO7qSnQqIgNrO/cffLgTvD39Wbed24Rty2+LrX2MY3+b52n6S4Fe022mCsZIcj3e4A0iBI8k6mFw52mh1p5KgRcUW3GTXPuNHDd7JpNifgsZm9DfjPobOuNjZCFGe0CrNqfWb2PeD1wLEgBrth1tN6/NgNFUTjHB4P4vWa93B6/t8wNBATxWldm7uYWVcfYLsWSu7WwBHhbgyVSmAWdvDtPhs0tUebSPCTJS665o+YXfx1Rodi4iipe5Ohdtpru/HNAHwZs5S/nB7k4uv+GwuLr8X92wwPxqS+u0locyeqfY/r0W3KmKeyaoofn3iMFb+cxZW/4MBoCU97ZfxuIm7ZPJUNEH9reAc9wwZhULvp4l6PSu9OBhTel2yXXUgSMuF/DVwOPE79iaO8kiw/8v1qonDsNf7ZLBbMPyuuOU9LbK23coli9iyZeM1nnX4F+EgXCbvdkoSSkCWyjZr+pAfvsVeZkQmaMoQ74+NV/GSJC6/6v5idfztD/fWL1/3TQXrdB2Rfq4vapfUpNg1++IJr/hOz8+9kZKhEFPWAH4aJgJVzK5w8WeKF19/H/NKrqCaPMjoU417d82ftxMREwvR0zEVXzLKaXsnC0v/g4Fij4rVHtauD+wD9A4NA9kqkvQmGRo7yPrT4XBfFwdUgXv8KeDXwbVq7MWZXIOEqukW85pnXnhJ2oSQkyr61fwn8ocRrl0gu0VzRcO9Hy1x87YeYX/w1hiVeW87gSB9GpBdPbfDDkydLXHDVH3B67l0NZ16Lxvh4lZNHSrzwuoeYWRxnpfJlxkZKexOvu6RWvD4xdyXzS3/OgbHWnKvbhSvElDzuwNkP7EOLL3dZjJiL1y8BrwW+s9/Fq4Sr6Cbx2pOZ11CCnS/I/1XggxKvYt9x2VsrWeb16g8zM/92hgdiYonXppNndFZsGKyMzPtUDo/nZcO/z+xCnnntIfE6VcWnY37k+m/x+BOvYmn5r5pQyru1eHWPuGxihq9/90rmF+/IMq8SrxuEa4m0kmU/J7cOFcLXofwv0QRqXSFXF8aIuXi9P4jXfZ15lXAV3SReow2Z10qP3WO+rvcdZK9jkXgV+6yxh3LNi6/9EHMLv8bQQEwcSby2JGBOZNPNw1pf88Ms8/o+DoyUMEu6NDu9yaZNIRt62f/2OPNzr2Vh8QscapGgNEvxIxHjb1nmG9+7gbmFOzg0qrLh/NFkPtVPVM5KhbdRroFyjXAV+ycOzsXrKeB1+1m8SriKbhR2v0JzNmwqqkCPzeztKPPaXcGgaK54vfDqDzMz9/aGNmwSom7CxmEXXfM7PDn7+xwYLRFR7To/dN98gjfPhr54Yp4nvnUFswu3cGisBFuI12wvqGxt/z3n7q3/s/Du5vG3LFPlemYX7+DQgRK4NrnLDOT4rndFVz8o8bqvxauEq+hWYderZcO19/gO4I/YPrusQawz6KXtrRav+ZrXucVfY1jiVbTbB/GsbNhjLrz6XZye/X3GRktEXZZ5TWxmmwEny4Ze+tYqP3zFG5mZ/wQHx7Ix1Tcdbeofa/NzXXTFCt/43g3MLtzBwbGyMq9C1C1eLwee3G/iVcJVdLOw69UNm2rv8ZeBT7B1dnlUXtERZtfCW9Eaate8zi1kGzapbFi0W7xC9p7XNfE6UsK6aLyxHd41b1MpeLb2+flX/hwz8x/cOrvsjcWMNrVeNvzgI9czM38nhw6obFiI+sTrl/ajeG2VcK3nfUBC1CPsfqXHxWtkZj/H+qtyNmZeB+QRHQppRRusXFs2PP92hgaVeRXt7owdJlJOnixl4nX+/duW1HbrPU5OOtPTMc+/8h2cnn8PoyObvA4oajwwzsXrFe9YIbHrmF3Iyoa1YZMQ9YjXv94gXnv+NWetEq6LwKpcS7RJ2NWK117csCkKr8r5U87MvCqAl3DdH+I137BpWBs2iba3dufw4STLvF71W/xg9iOZeO2G8WaX7141c26cCNnlK/8ts7O/yfBgTBQ5bilRBJ5kZceHmyReL7piJVvzunBHtjnUPs68WlVjimhUvJ4Ouq6nxWurhOtqLwkIUXhhV7vmtRc3bCK86/VngWNow6YioIm5TojX2g2b9Koc0d7O2OHGlOnpmAuvehun5z/CwdFy4TOv0R7e1WmsZ5cvuOY/MDP/S/T3RUREpKk3NWTMN2x6injdbxs2eZhX8BVKpYXsZ5Nqa6IR8Trb6+JVpcKiF4Rd7ZrXT9J7mdc0G+GoAhNBvA6QrWdQ4N72SANYX+Mq2ileazdsGuyPzyxlFKLF4vXGIF6ff+XbmJn7SOHfS2p7jPMMZzyvcrjmoywv/wtKsRPHRtzkfk8bNuWRckI1lGHvrFvV34mtxOtfAdcDSz0oXr3VwlWITojXCPiZIF57MfNq4Z5uBG4iW88QywM6gvrOTvCUDZsW/0/GhuNsl1eJV9EJ8XrV25hZ+BPO6sE1mmvvsr36T1ldvYZqNSVNM5l1TzPPs8WGTfsl82oGZhXiyk73m/dx8zVjkPo9sVG8/jlwDdmSTesh8TrSjuAr7YFG5R0438ajXeepPdKaI6k5ii7sPPvW3sxTM69pgfzJG7jHNNxfFfhp4I9rBjENYM3z/92wUNPHpQ0eRXp2aROP1gbUF139AU7P/262y2uU4j2wo6K7E0Xe1raQif7sa6eP2uvpFvH6vMt/jtOzn8rWaHqRxpvMn2hgUsfGq9mmVNfeyfeevBb3hwE4fLi591i7YdM3v5+XDZdxr+LeC7Hk1n5k5uDLPFZeAmBycqd77YQ9VEHZPeK1bGZfAH4q+EpEb+w2PJh/U2rxSbZT+93QENpZ8hyFc+0mg+Z7uP56bF/7+77wdawLGq2H+CfPvKbha1GIGvUpM0vd3cwsAX7B3fvCz/fVC6hbNAjv5fksh//fyORfXxv64b3aZbDBe4o29P+tE68nj5S48Kr38shtzoGR91KpwtIKW2dfDazg404cGZ60p4rCYsOSMuWSkSS22z18WkqSxpRLsLJaKn4vYo57yuSkMTn5Zv7+djj30Js4PQfVJPND67BRS7E13L+Mj1dxjzA7UXPvzRfnuXi1tyxz8uM38Bw+yVkHbmBpGVYqkLqHNaG9I6IciGNjtVrhJfMLuwyNF8P4M9CAgN3rRO1qOGe+PKmeZ5CwxwxgiOmiEPcssj5RbBvuYzekNJY88A7//W5tVgmZ1zvcfQL4FNBPqyeUN48n4ia3ltYETO6eO+ZXgUvp3pI6Cw21XZuwLADfCQ42HB74VoGxNcEBkk06pYisNr4SjqVwXYvAXXsUzR0Vr+H7n3X3+4C3ARcUwBeTYOvVJtyjZd/aapvbRLdMOu30HDbz4+ombWOrzvNJ4JtNuI4y2U6ARbHLV0P/k9b5nNPQd32NVq8zH5/Kdnm1q9/HV088SH/5XUT2o8Sl8qYiLE0hKXDVlBOxWk1wFlt6nslJZ2oKKr5AxHepVkdJ05RCKFdPWa2UQvvqgijBfC2h+fyr3syjt3+VUvzzmD2LvrKRJJB6B/2pstIUW5plGylByBC2yp5TKUdC2TC8kb+//ReJ418CXkw57iOK8kmBXlGu+TrER7CJTNjZljGW1wjXfByut82WN3zdKdZYrOnb6yX/2+E6/34+3G+pzlg4bkD31Iqwltq8SXFwXjZ8s7uPAx8AfoIeWeLUsoHK3QeB5wJP2+Q8DswUWATlawlPA98zs5avtQhZwlGyLMxAcLC+0Mhr7RSRZT9th+tfrWnovuF3KzWdHyHAXA2fvRLuvQqsWisHqdba02o63j7geTQ2Q9kMn1oIx2PN8qmQffVW2zLY8WnAs+jusi0j21gp2SIwMOBJM5vdRXsdbNL1rLSjj9llmxlqVv9pZsttuvBoLQP0yJ0XEK0+g9RKG4dyPFkiLi9STSPKBY18V9NZRu17nHfNYlvO9w93n83ybEw6WBx7REvG8nCVF7/hB90z4NQIjgeOjTI8/FxWls/Gknmsb7UjPuexk648ifd/n4uuWOmyAdzWJgYAvn7XD5NWnkbCEMYsiVehapRL3TsWVUK/NNS3QHXhMX74+tO77KdLQYT0UX/204MQ+5qZfW03cUQQQIeoP2vnQTT+g5n99W5jl5r444XAM1nP3HqwwcguYpJ83E+BR8zsH/YSO7n7EPDPGtRMuc3/0cwealPsFptZEuKVVwI/ApzF+hKzjTaaofG9YYwsAffjwC804KM51eA3f2hmvxr8X4jtOw13j4Ljd+P1a/MiIXq+o5pWOxedxuSHatdCFCwGjjp03pd5RuKNUQlfPxw+t1Rq4UXnZQy2zexD8UeiVqzl2N5msLc1qNt+5F5Ov8X9O12cYQuzTYV6PVM7fapFbbrn+/rdzgQ3yR+8YM+YrruvvMzOjxhHL9n6Hm68seB92SQw5duUCzb7gRe3PXdftY9jEwl5P3n0qHXc3yYnYWqqe8fwzdp14dtwPW1+ck8l2E2ckE/3kHWMObOCb89PNJxzzzFQEGDWzntukc29nTFgvi8K63t4tJqYLCs+hhBCCCGEEEIIUTRyge/u14ZMabXZGVe9i1AIIYQQQgghRCPkWd3+XMs2+wQSrkIIIYQQQgghmsFIqz5YwlUIIYQQQgghRDMYbvLnmYSrEEIIIYQQQohmMtrkz1uUcBVCCCGEEEII0UyGmvx5cxKuQgghhBBCCCGaQnj9TjPXuDrwvfwfJZlYCCGEEEIIIQoj/oxdvle+SJiZh+tPwrHnj9jwvQFfzk0j4SqEEEIIIYQQBRF/tOBVMu3R3N4PPAOIw9EoXwT+xt3NzBIJVyGEEEIIIYTorOqLzCx19xcC7wcOAoeCAHSemo0sKgPhmu8GFsIRA8vAbPh+JXwfARVgJvxtGn7u4ft54MtmVglZ3K4wgBBCCCGEEEL0snCNzSxx99cE4detfN/Mnt6KD1bGVQghhBBCCCGKQYVsfWhKc8pt26a9CWtz3X2MLNtqrJc9Wx2f52aWSrgKIYQQQgghRLGwIFiN7noDTC5cB4BBM5sNa1Obtl5Xr8MRQgghhBBCCNEs4d2S5agSrkIIIYQQQgghCo2EqxBCCCGEEEIICVchhBBCCCGEEELCVQghhBBCCCGEhKsQQgghhBBCCCHhKoQQQgghhBBCSLgKIYQQQgghhJBwFUIIIYQQQgghJFyFEEIIIYQQQki4CiGEEEIIIYQQO9MPjITvTcJVCCGEEEIIIUTRsFZpzJJsK4QQQgghhBCFIQlHNyUZPYjWavhewlUIIYQQQgghepQIiMPRjZRapTElXIUQQgghhBCis6Th698CNwDnAEPh581cK+pBHC+Go5mfWwb6gH+s+ZkQQgghhBBCCLE/MJlACCGEEEIIITqPuxvdWyack5hZ07Ot/z/tod8OamWypAAAAABJRU5ErkJggg==" alt="codencode.my">
+  <div id="sesslabel">CLASS 06</div>
+  <div id="titlebar"></div>
+  <div id="counter"></div>
+  <button class="btn" onclick="fs()">FULLSCREEN</button>
+</div>
+<div id="progress"></div>
+
+<div id="deck">
+
+<section class="slide title-slide" data-title="Main Title">
+  <div class="badge fx">CLASS 06 OF 07 · PYTHON INTERMEDIATE</div>
+  <h1 class="fx d1">Advanced Python <em>&amp; Testing</em></h1>
+  <p class="fx d2">The tools senior developers reach for: generators for data too big for memory, decorators and regex for power, and pytest to prove it all works.</p>
+  <div class="foot fx d3">codencode Academy · Level 3 · Connect and scale · 2 hours</div>
+</section>
+<section class="slide" data-title="Session Plan">
+  <div class="tag fx">Session Plan</div>
+  <h1 class="sh fx d1">What we're doing today</h1>
+  <div class="body">
+    <div class="col cards grid3">
+      <div class="card accent fx d2"><h3><span class="k">M1</span>Generators</h3><p>How iteration works, <span style="font-family:var(--mono)">yield</span>, and streaming files too big to load.</p><div style="margin-top:12px"><span class="pill mint">30 min</span></div></div>
+      <div class="card accent fx d3"><h3><span class="k">M2</span>Decorators &amp; Regex</h3><p>Closures and decorators, <span style="font-family:var(--mono)">lru_cache</span>, <span style="font-family:var(--mono)">re</span> and <span style="font-family:var(--mono)">match</span>/<span style="font-family:var(--mono)">case</span>.</p><div style="margin-top:12px"><span class="pill mint">30 min</span></div></div>
+      <div class="card accent fx d4"><h3><span class="k">M3</span>Testing with pytest</h3><p>Asserts, fixtures, <span style="font-family:var(--mono)">parametrize</span>, and mocking API calls.</p><div style="margin-top:12px"><span class="pill mint">35 min</span></div></div>
+    </div>
+  </div>
+  <div class="cards grid3 fx d5" style="margin-top:4px">
+    <div class="card"><p><b style="color:var(--text)">Revise 10 min + Recap 15 min</b> — pandas speed round, outcomes review</p></div>
+    <div class="card"><p><b style="color:var(--text)">Homework 6</b> — <b style="color:var(--amber)">project plan + core classes</b>, due before Class 7</p></div>
+    <div class="card"><p><b style="color:var(--text)">Install</b> — <span style="font-family:var(--mono)">pip install pytest pytest-cov</span></p></div>
+  </div>
+</section>
+<section class="slide" data-title="Revised Last Week">
+  <div class="tag fx">Revised Last Week · 10 minutes</div>
+  <h1 class="sh fx d1">pandas speed round</h1>
+  <p class="sub fx d2">Write the one line for each. 60 seconds per question, shout it out.</p>
+  <div class="body">
+    <div class="col cards fx d3">
+      <div class="card"><h3><span class="k">Q1</span>Rows where branch is "JB"</h3><p style="font-family:var(--mono);color:var(--mint)">df[df["branch"] == "JB"]</p></div>
+      <div class="card"><h3><span class="k">Q2</span>Total revenue per item</h3><p style="font-family:var(--mono);color:var(--mint)">df.groupby("item")["total"].sum()</p></div>
+      <div class="card"><h3><span class="k">Q3</span>Turn "RM 3.00" into 3.0</h3><p style="font-family:var(--mono);color:var(--mint)">.str.replace("RM","").astype(float)</p></div>
+    </div>
+    <div class="col cards fx d4">
+      <div class="card"><h3><span class="k">Q4</span>Request that can't hang forever</h3><p style="font-family:var(--mono);color:var(--mint)">requests.get(url, timeout=10)</p></div>
+      <div class="card"><h3><span class="k">Q5</span>Where does the API key go?</h3><p style="font-family:var(--mono);color:var(--mint)">.env  (+ .gitignore)</p></div>
+      <div class="card accent"><h3>Today's link</h3><p>Last week you processed data. Today you process data <b>too big to load</b>, and prove your code is right with tests.</p></div>
+    </div>
+  </div>
+</section>
+<section class="slide" data-title="Learning Outcomes">
+  <div class="tag fx">Learning Outcomes</div>
+  <h1 class="sh fx d1">By the end of today you will be able to…</h1>
+  <div class="body">
+    <div class="col fx d2">
+      <table class="cps">
+        <tr><th>Component</th><th>Statement</th></tr>
+        <tr><td>Condition</td><td>Given a 1-million-line log file and your Class 3 Inventory code,</td></tr>
+        <tr><td>Performance</td><td>you will stream the file with a generator, write a reusable decorator, extract patterns with regex, and write pytest tests using fixtures, parametrize and a mock,</td></tr>
+        <tr><td>Standard</td><td>so that memory stays flat while processing the log, all tests pass with <span style="font-family:var(--mono);color:var(--mint)">pytest</span>, coverage of Inventory is at least 80%, and a one-page project plan is submitted.</td></tr>
+      </table>
+      <div style="margin-top:22px">
+        <span class="pill mint">LO1 · Generators</span>
+        <span class="pill mint">LO2 · Decorators</span>
+        <span class="pill mint">LO3 · Regex</span>
+        <span class="pill mint">LO4 · pytest</span>
+      </div>
+    </div>
+  </div>
+</section>
+<section class="slide" data-title="Content Mapping">
+  <div class="tag fx">Content Mapping</div>
+  <h1 class="sh fx d1">How today maps to your outcomes</h1>
+  <div class="body">
+    <div class="col fx d2">
+      <table class="cps">
+        <tr><th>Module</th><th>Topics</th><th style="width:120px">Outcome</th><th style="width:170px">Assessed by</th></tr>
+        <tr><td>Module 1</td><td>1.1 Iterators explained · 1.2 yield &amp; generators · 1.3 Streaming large files</td><td style="color:var(--mint);font-family:var(--mono);font-size:13px">LO1</td><td style="color:var(--muted);font-size:13.5px">1M-line log analyser</td></tr>
+        <tr><td>Module 2</td><td>2.1 Closures &amp; decorators · 2.2 lru_cache · 2.3 Regex &amp; match/case</td><td style="color:var(--mint);font-family:var(--mono);font-size:13px">LO2, LO3</td><td style="color:var(--muted);font-size:13.5px">@timer + MY phone extractor</td></tr>
+        <tr><td>Module 3</td><td>3.1 pytest basics · 3.2 Fixtures &amp; parametrize · 3.3 Mocking APIs</td><td style="color:var(--mint);font-family:var(--mono);font-size:13px">LO4</td><td style="color:var(--muted);font-size:13.5px">Inventory tests ≥ 80%</td></tr>
+      </table>
+    </div>
+  </div>
+</section>
+<section class="slide" data-title="1.1 Iterators">
+  <div class="stepbar fx"><span class="on">Explain</span><span class="on">Theory</span><span class="">Code</span><span class="">Practice</span></div>
+  <div class="tag fx">Module 1 · Generators · 1.1 · Explanation &amp; theory</div>
+  <h1 class="sh fx d1">What a for loop really does</h1>
+  <div class="body" style="align-items:stretch">
+    <div class="col cards fx d2" style="align-content:start"><div class="card accent"><h3><span class="k">what</span>In plain words</h3><p>Anything you can loop over is an <b>iterable</b>. Behind every for loop, Python asks it for an <b>iterator</b> with <code>iter()</code>, then calls <code>next()</code> again and again until it raises <b>StopIteration</b>.</p></div><div class="card"><h3><span class="k">like</span>Everyday analogy</h3><p>A ticket dispenser at the bank: each pull (next) gives you one number. It doesn't print all 500 tickets at once, and it tells you when the roll is empty.</p></div><div class="card"><h3><span class="k">rules</span>Theory: the key rules</h3><ul class="rules"><li><b>iter(x)</b> gets an iterator, <b>next(it)</b> gets one item</li><li><b>StopIteration</b> ends the loop</li><li>Your class becomes iterable with <b>__iter__</b> + <b>__next__</b></li><li>An iterator remembers <b>where it is</b>: one item at a time</li></ul></div></div>
+    <div class="col fx d3"><div class="cb"><div class="code-head">syntax at a glance</div><pre class="code">it = iter([<span class="s">"kopi"</span>, <span class="s">"teh"</span>])
+next(it)   <span class="c"># "kopi"</span>
+next(it)   <span class="c"># "teh"</span>
+next(it)   <span class="c"># StopIteration</span></pre></div><div class="card" style="margin-top:14px;border-color:rgba(255,111,145,.4)"><h3 style="color:var(--coral)">Common mistakes</h3><ul class="rules"><li>Looping over the same iterator twice: the second loop gets nothing.</li><li>Calling next() without handling StopIteration.</li></ul></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="1.1 Iterators · code">
+  <div class="stepbar fx"><span class="">Explain</span><span class="">Theory</span><span class="on">Code</span><span class="">Practice</span></div>
+  <div class="tag fx">Module 1 · Generators · 1.1 · Code — copy, paste, run</div>
+  <h1 class="sh fx d1">A for loop by hand, then your own iterator</h1>
+  <div class="body" style="align-items:stretch">
+    <div class="col fx d2" style="flex:1.3;display:flex;flex-direction:column;gap:10px;min-height:0"><div class="cb" style="display:flex;flex-direction:column;min-height:0px;flex:32 1 0"><div class="code-head">iterators.py</div><pre class="code sm" style="flex:1;min-height:0;margin:0">menu = [<span class="s">"kopi"</span>, <span class="s">"teh"</span>, <span class="s">"milo"</span>]
+
+<span class="c"># What a for loop really does, step by step</span>
+it = iter(menu)            <span class="c"># 1. ask the list for an iterator</span>
+print(next(it))            <span class="c"># 2. next() hands out one item at a time</span>
+print(next(it))
+print(next(it))
+<span class="k">try</span>:
+    next(it)               <span class="c"># 3. nothing left -&gt; StopIteration ends the loop</span>
+<span class="k">except</span> StopIteration:
+    print(<span class="s">"StopIteration: loop ends here"</span>)
+
+
+<span class="k">class</span> Countdown:
+    <span class="s">"""Your own iterator: counts down to 1."""</span>
+
+    <span class="k">def</span> __init__(<span class="k">self</span>, start: int):
+        <span class="k">self</span>.current = start
+
+    <span class="k">def</span> __iter__(<span class="k">self</span>):
+        <span class="k">return</span> <span class="k">self</span>
+
+    <span class="k">def</span> __next__(<span class="k">self</span>) -&gt; int:
+        <span class="k">if</span> <span class="k">self</span>.current &lt; <span class="n">1</span>:
+            <span class="k">raise</span> StopIteration
+        <span class="k">self</span>.current -= <span class="n">1</span>
+        <span class="k">return</span> <span class="k">self</span>.current + <span class="n">1</span>
+
+
+print(list(Countdown(<span class="n">5</span>)))
+<span class="k">for</span> n <span class="k">in</span> Countdown(<span class="n">3</span>):
+    print(<span class="s">"launch in"</span>, n)</pre></div></div>
+    <div class="col fx d3" style="display:flex;flex-direction:column;gap:10px;min-height:0"><div class="cb" style="display:flex;flex-direction:column;min-height:0;flex:1 1 0"><div class="code-head">terminal · real output</div><pre class="code sm out" style="flex:1;min-height:0;margin:0"><span class="cmd">$ python iterators.py</span>
+kopi
+teh
+milo
+StopIteration: loop ends here
+[5, 4, 3, 2, 1]
+launch in 3
+launch in 2
+launch in 1</pre></div><div class="card" style="flex:0 0 auto"><h3><span class="k">try</span>Change it, predict, run</h3><ul class="rules"><li>Make Countdown accept a <code>step</code> (count down by 2).</li><li>Call list() on the same Countdown object twice.</li></ul></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="1.2 yield and generators">
+  <div class="stepbar fx"><span class="on">Explain</span><span class="on">Theory</span><span class="">Code</span><span class="">Practice</span></div>
+  <div class="tag fx">Module 1 · Generators · 1.2 · Explanation &amp; theory</div>
+  <h1 class="sh fx d1">Generators: functions that pause and resume</h1>
+  <div class="cards grid3 fx d2" style="margin-top:18px;align-items:start"><div class="card accent"><h3><span class="k">what</span>In plain words</h3><p>A function with <code>yield</code> instead of return is a <b>generator</b>. Each time you ask for a value it runs until the next yield, hands the value out, and <b>pauses</b>, remembering where it was. It makes values only when needed.</p></div><div class="card"><h3><span class="k">like</span>Everyday analogy</h3><p>A roti canai man who makes each roti when you order it, not 1,000 in the morning that go cold.</p></div><div class="card"><h3><span class="k">rules</span>Theory: the key rules</h3><ul class="rules"><li><b>yield value</b> hands out a value and pauses</li><li>Calling the function returns a <b>generator object</b>; nothing runs yet</li><li><b>(x for x in …)</b>: generator expression, round brackets</li><li>One pass only; make a new one to start again</li></ul></div></div>
+  <div class="body figbody" style="margin-top:12px"><div class="figwrap"><svg class="fig" style="min-height:0" viewBox="0 0 1000 380" aria-label="A generator function pauses at each yield and resumes on the next call to next">
+        <g font-family="JetBrains Mono,monospace">
+          <g class="fx">
+            <rect x="20" y="40" width="440" height="270" rx="10" fill="#0a0e13" stroke="#2a3440" stroke-width="1.5"/>
+            <text x="40" y="30" font-size="13" fill="#8b98a5">countdown.py</text>
+            <text x="44" y="82"  font-size="17" fill="#58a6ff">def countdown(n):</text>
+            <text x="70" y="124" font-size="17" fill="#e8eef0">while n &gt; 0:</text>
+            <text x="96" y="166" font-size="17" fill="#00dcb4">yield n</text>
+            <text x="96" y="208" font-size="17" fill="#e8eef0">n -= 1</text>
+            <text x="70" y="250" font-size="17" fill="#8b98a5"># ends → StopIteration</text>
+          </g>
+          <rect x="84" y="144" width="200" height="34" rx="6" fill="none" stroke="#00dcb4" stroke-width="2" class="pulse fx d1"/>
+          <text x="300" y="167" font-size="13" fill="#00dcb4" class="fx d1">⏸ pauses here</text>
+          <g class="fx d2">
+            <text x="560" y="30" font-size="13" fill="#8b98a5" letter-spacing="2">CALLER</text>
+          </g>
+          <g font-size="16">
+            <g class="fx d2"><rect x="560" y="45" width="410" height="54" rx="8" fill="#1c2430" stroke="#00dcb4"/><text x="580" y="78" fill="#e8eef0">g = countdown(3)</text><text x="950" y="78" fill="#8b98a5" text-anchor="end">nothing runs yet</text></g>
+            <g class="fx d3"><rect x="560" y="110" width="410" height="54" rx="8" fill="#1c2430" stroke="#00dcb4"/><text x="580" y="143" fill="#e8eef0">next(g)</text><text x="950" y="143" fill="#00dcb4" text-anchor="end">→ 3</text></g>
+            <g class="fx d4"><rect x="560" y="175" width="410" height="54" rx="8" fill="#1c2430" stroke="#00dcb4"/><text x="580" y="208" fill="#e8eef0">next(g)</text><text x="950" y="208" fill="#00dcb4" text-anchor="end">→ 2 (resumed)</text></g>
+            <g class="fx d5"><rect x="560" y="240" width="410" height="54" rx="8" fill="#1c2430" stroke="#00dcb4"/><text x="580" y="273" fill="#e8eef0">next(g)</text><text x="950" y="273" fill="#00dcb4" text-anchor="end">→ 1</text></g>
+            <g class="fx d6"><rect x="560" y="305" width="410" height="54" rx="8" fill="#1c2430" stroke="#ff6f91"/><text x="580" y="338" fill="#e8eef0">next(g)</text><text x="950" y="338" fill="#ff6f91" text-anchor="end">StopIteration</text></g>
+          </g>
+          <path d="M 465 160 C 510 160 510 137 555 137" fill="none" stroke="#00dcb4" stroke-width="2" class="draw d3" style="--len:110"/>
+          <circle r="7" fill="#00dcb4" class="travel" style="offset-path:path('M 465 160 C 510 160 510 137 555 137')"/>
+        </g>
+      </svg></div></div>
+</section>
+
+<section class="slide" data-title="1.2 yield and generators · code">
+  <div class="stepbar fx"><span class="">Explain</span><span class="">Theory</span><span class="on">Code</span><span class="">Practice</span></div>
+  <div class="tag fx">Module 1 · Generators · 1.2 · Code — copy, paste, run</div>
+  <h1 class="sh fx d1">Countdown, endless queue tickets, and a million squares</h1>
+  <div class="body" style="align-items:stretch">
+    <div class="col fx d2" style="flex:1.3;display:flex;flex-direction:column;gap:10px;min-height:0"><div class="cb" style="display:flex;flex-direction:column;min-height:0px;flex:26 1 0"><div class="code-head">generators.py</div><pre class="code sm" style="flex:1;min-height:0;margin:0"><span class="k">def</span> countdown(n: int):
+    <span class="s">"""A generator: same Countdown as before, in 4 lines."""</span>
+    <span class="k">while</span> n &gt; <span class="n">0</span>:
+        <span class="k">yield</span> n            <span class="c"># pause here, hand out n, resume on next()</span>
+        n -= <span class="n">1</span>
+
+
+g = countdown(<span class="n">3</span>)
+print(type(g).__name__)    <span class="c"># a generator object: nothing has run yet</span>
+print(next(g), next(g), next(g))
+
+
+<span class="k">def</span> queue_numbers(prefix: str, start: int = <span class="n">1</span>):
+    <span class="s">"""Endless ticket numbers for a clinic or bank queue."""</span>
+    n = start
+    <span class="k">while</span> <span class="k">True</span>:
+        <span class="k">yield</span> <span class="s">f"{prefix}{n:03d}"</span>
+        n += <span class="n">1</span>
+
+
+tickets = queue_numbers(<span class="s">"A"</span>)
+print([next(tickets) <span class="k">for</span> _ <span class="k">in</span> range(<span class="n">4</span>)])
+
+<span class="c"># generator expression: like a list comprehension, but with ( )</span>
+squares = (x * x <span class="k">for</span> x <span class="k">in</span> range(<span class="n">1_000_000</span>))     <span class="c"># no big list in memory</span>
+print(sum(squares))</pre></div></div>
+    <div class="col fx d3" style="display:flex;flex-direction:column;gap:10px;min-height:0"><div class="cb" style="display:flex;flex-direction:column;min-height:0;flex:1 1 0"><div class="code-head">terminal · real output</div><pre class="code sm out" style="flex:1;min-height:0;margin:0"><span class="cmd">$ python generators.py</span>
+generator
+3 2 1
+['A001', 'A002', 'A003', 'A004']
+333332833333500000</pre></div><div class="card" style="flex:0 0 auto"><h3><span class="k">try</span>Change it, predict, run</h3><ul class="rules"><li>Make a generator that yields invoice numbers INV-2026-0001, 0002…</li><li>Swap ( ) for [ ] in squares. What happens to memory?</li></ul></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="1.3 Streaming large files">
+  <div class="stepbar fx"><span class="on">Explain</span><span class="on">Theory</span><span class="">Code</span><span class="">Practice</span></div>
+  <div class="tag fx">Module 1 · Generators · 1.3 · Explanation &amp; theory</div>
+  <h1 class="sh fx d1">Streaming: process files bigger than your memory</h1>
+  <div class="cards grid3 fx d2" style="margin-top:18px;align-items:start"><div class="card accent"><h3><span class="k">what</span>In plain words</h3><p>Reading a whole file into a list puts <b>every line in memory</b> at once. A generator that yields <b>one line at a time</b> uses almost no memory, whether the file has 1,000 lines or 100 million.</p></div><div class="card"><h3><span class="k">like</span>Everyday analogy</h3><p>Drinking from a tap instead of filling a swimming pool first. You get the same water without needing the pool.</p></div><div class="card"><h3><span class="k">rules</span>Theory: the key rules</h3><ul class="rules"><li><b>for line in f:</b>, since files are already iterators</li><li>Avoid <b>.read()</b> and <b>.readlines()</b> on big files</li><li>Chain steps: read → filter → parse → count</li><li><b>tracemalloc</b> measures memory use</li></ul></div></div>
+  <div class="body figbody" style="margin-top:12px"><div class="figwrap"><svg class="fig" style="min-height:0" viewBox="0 0 460 340" style="min-height:280px" aria-label="Memory over time: the list version climbs high, the generator version stays flat and low">
+        <g font-family="JetBrains Mono,monospace">
+          <text x="230" y="22" font-size="14" fill="#e8eef0" text-anchor="middle">Memory used while processing</text>
+          <line x1="50" y1="290" x2="440" y2="290" stroke="#2a3440" stroke-width="1.5"/>
+          <line x1="50" y1="40" x2="50" y2="290" stroke="#2a3440" stroke-width="1.5"/>
+          <text x="245" y="318" font-size="12" fill="#8b98a5" text-anchor="middle">time →</text>
+          <text x="20" y="165" font-size="12" fill="#8b98a5" transform="rotate(-90 20 165)" text-anchor="middle">memory</text>
+          <path d="M 50 285 C 120 280 150 90 230 70 L 430 66" fill="none" stroke="#ff6f91" stroke-width="3" class="draw d2" style="--len:450"/>
+          <path d="M 50 285 L 70 262 L 430 262" fill="none" stroke="#00dcb4" stroke-width="3" class="draw d4" style="--len:400"/>
+          <text x="330" y="56" font-size="13" fill="#ff6f91" class="fx d3">list · ~1 GB</text>
+          <text x="330" y="252" font-size="13" fill="#00dcb4" class="fx d5">generator · ~KB, flat</text>
+          <text x="245" y="340" font-size="11" fill="#8b98a5" text-anchor="middle" class="fx d6">shape is the point — exact sizes vary by file</text>
+        </g>
+      </svg></div></div>
+</section>
+
+<section class="slide" data-title="1.3 Streaming large files · code">
+  <div class="stepbar fx"><span class="">Explain</span><span class="">Theory</span><span class="on">Code</span><span class="">Practice</span></div>
+  <div class="tag fx">Module 1 · Generators · 1.3 · Code — copy, paste, run</div>
+  <h1 class="sh fx d1">Same answer, about 1,000× less memory</h1>
+  <div class="body" style="align-items:stretch">
+    <div class="col fx d2" style="flex:1.3;display:flex;flex-direction:column;gap:10px;min-height:0"><div class="cb" style="display:flex;flex-direction:column;min-height:0px;flex:34 1 0"><div class="code-head">stream_log.py</div><pre class="code sm" style="flex:1;min-height:0;margin:0"><span class="k">import</span> random
+<span class="k">import</span> tracemalloc
+<span class="k">from</span> pathlib <span class="k">import</span> Path
+
+<span class="c"># 1. make a big log file (200,000 lines) to practise on</span>
+log = Path(<span class="s">"server.log"</span>)
+random.seed(<span class="n">1</span>)
+<span class="k">with</span> log.open(<span class="s">"w"</span>) <span class="k">as</span> f:
+    <span class="k">for</span> i <span class="k">in</span> range(<span class="n">200_000</span>):
+        level = random.choice([<span class="s">"INFO"</span>] * <span class="n">9</span> + [<span class="s">"ERROR"</span>])
+        f.write(<span class="s">f"2026-10-21 09:{i % 60:02d}:00 {level} GET /page/{i % 50}\n"</span>)
+
+
+<span class="k">def</span> count_errors_list(path: Path) -&gt; int:
+    lines = path.read_text().splitlines()            <span class="c"># whole file in memory</span>
+    <span class="k">return</span> len([line <span class="k">for</span> line <span class="k">in</span> lines <span class="k">if</span> <span class="s">" ERROR "</span> <span class="k">in</span> line])
+
+
+<span class="k">def</span> read_lines(path: Path):
+    <span class="k">with</span> path.open() <span class="k">as</span> f:
+        <span class="k">for</span> line <span class="k">in</span> f:                               <span class="c"># one line at a time</span>
+            <span class="k">yield</span> line
+
+
+<span class="k">def</span> count_errors_stream(path: Path) -&gt; int:
+    <span class="k">return</span> sum(<span class="n">1</span> <span class="k">for</span> line <span class="k">in</span> read_lines(path) <span class="k">if</span> <span class="s">" ERROR "</span> <span class="k">in</span> line)
+
+
+<span class="k">for</span> fn <span class="k">in</span> (count_errors_list, count_errors_stream):
+    tracemalloc.start()
+    result = fn(log)
+    peak = tracemalloc.get_traced_memory()[<span class="n">1</span>] / <span class="n">1_000_000</span>
+    tracemalloc.stop()
+    print(<span class="s">f"{fn.__name__:&lt;20} errors={result:,}  peak memory={peak:6.2f} MB"</span>)</pre></div></div>
+    <div class="col fx d3" style="display:flex;flex-direction:column;gap:10px;min-height:0"><div class="cb" style="display:flex;flex-direction:column;min-height:0;flex:1 1 0"><div class="code-head">terminal · real output</div><pre class="code sm out" style="flex:1;min-height:0;margin:0"><span class="cmd">$ python stream_log.py</span>
+count_errors_list    errors=19,787  peak memory= 24.78 MB
+count_errors_stream  errors=19,787  peak memory=  0.02 MB</pre></div><div class="card" style="flex:0 0 auto"><h3><span class="k">try</span>Change it, predict, run</h3><ul class="rules"><li>Change 200_000 to 2_000_000 lines. Compare the two peaks.</li><li>Count errors per page with a Counter.</li></ul></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="Module 1 Practice">
+  <div class="stepbar fx"><span class="">Explain</span><span class="">Theory</span><span class="">Code</span><span class="on">Practice</span></div>
+  <div class="tag fx">Module 1 · Generators · Practice: real-life app + hands-on</div>
+  <h1 class="sh fx d1">Build: analyse a 1-million-line log</h1>
+  <div class="body" style="align-items:stretch">
+    <div class="col fx d2" style="flex:1.15;display:flex;flex-direction:column;gap:8px;min-height:0"><div class="card accent" style="flex:0 0 auto;padding:12px 16px"><h3><span class="k">real life</span>Bank statement analyser: stream, filter, total by merchant</h3><p>Your bank lets you export a year of transactions. A chain of small generators reads, filters to one month, and converts amounts, so the same code works on 2,000 rows or 2 million.</p></div><div class="cb" style="display:flex;flex-direction:column;min-height:130px;flex:42 1 0"><div class="code-head">statement.py</div><pre class="code sm" style="flex:1;min-height:0;margin:0"><span class="s">"""Bank statement analyser: stream a big CSV, total spending by merchant."""</span>
+<span class="k">import</span> csv
+<span class="k">import</span> random
+<span class="k">from</span> collections <span class="k">import</span> Counter
+<span class="k">from</span> pathlib <span class="k">import</span> Path
+
+<span class="c"># 1. a year of fake transactions (in real life: your bank's CSV export)</span>
+MERCHANTS = [<span class="s">"GrabFood"</span>, <span class="s">"Shopee"</span>, <span class="s">"TNB"</span>, <span class="s">"Petronas"</span>, <span class="s">"Tesco"</span>, <span class="s">"Netflix"</span>,
+             <span class="s">"Watsons"</span>, <span class="s">"Starbucks"</span>]
+path = Path(<span class="s">"statement.csv"</span>)
+random.seed(<span class="n">7</span>)
+<span class="k">with</span> path.open(<span class="s">"w"</span>, newline=<span class="s">""</span>) <span class="k">as</span> f:
+    w = csv.writer(f)
+    w.writerow([<span class="s">"date"</span>, <span class="s">"merchant"</span>, <span class="s">"amount"</span>])
+    <span class="k">for</span> i <span class="k">in</span> range(<span class="n">1_800</span>):        <span class="c"># works the same on 1,000,000 rows</span>
+        w.writerow([<span class="s">f"2026-{i % 12 + 1:02d}-{i % 28 + 1:02d}"</span>,
+                    random.choice(MERCHANTS), round(random.uniform(<span class="n">3</span>, <span class="n">80</span>), <span class="n">2</span>)])
+
+
+<span class="c"># 2. a pipeline of generators: read -&gt; filter -&gt; transform</span>
+<span class="k">def</span> rows(p: Path):
+    <span class="k">with</span> p.open(newline=<span class="s">""</span>) <span class="k">as</span> f:
+        <span class="k">yield</span> <span class="k">from</span> csv.DictReader(f)
+
+
+<span class="k">def</span> in_month(records, month: str):
+    <span class="k">return</span> (r <span class="k">for</span> r <span class="k">in</span> records <span class="k">if</span> r[<span class="s">"date"</span>].startswith(month))
+
+
+<span class="k">def</span> amounts(records):
+    <span class="k">for</span> r <span class="k">in</span> records:
+        <span class="k">yield</span> r[<span class="s">"merchant"</span>], float(r[<span class="s">"amount"</span>])
+
+
+totals: Counter = Counter()
+<span class="k">for</span> merchant, amount <span class="k">in</span> amounts(in_month(rows(path), <span class="s">"2026-10"</span>)):
+    totals[merchant] += amount
+
+print(<span class="s">"October 2026: top merchants"</span>)
+<span class="k">for</span> merchant, total <span class="k">in</span> totals.most_common(<span class="n">5</span>):
+    print(<span class="s">f"  {merchant:&lt;10} RM{total:&gt;10,.2f}"</span>)
+print(<span class="s">f"  {'ALL':&lt;10} RM{sum(totals.values()):&gt;10,.2f}"</span>)</pre></div><div class="cb" style="display:flex;flex-direction:column;min-height:90px;flex:0 1 26%"><div class="code-head">terminal · real output</div><pre class="code sm out" style="flex:1;min-height:0;margin:0"><span class="cmd">$ python statement.py</span>
+October 2026: top merchants
+  Starbucks  RM    984.09
+  Shopee     RM    871.31
+  Watsons    RM    861.84
+  Petronas   RM    780.19
+  Tesco      RM    737.02
+  ALL        RM  6,229.65</pre></div></div>
+    <div class="col fx d3" style="display:flex;flex-direction:column;gap:10px;min-height:0"><div style="flex:0 0 auto"><div class="hands-on">
+        <div class="lbl">12 minutes · solo</div>
+        <h3>Find the noisiest endpoints without loading the file</h3>
+        <div class="steps">
+          <div><b>01</b><span>Run <span style="font-family:var(--mono)">make_log.py</span> to generate <span style="font-family:var(--mono)">server.log</span> (1M lines).</span></div>
+          <div><b>02</b><span><span style="font-family:var(--mono)">read_lines()</span> generator from 1.3.</span></div>
+          <div><b>03</b><span><span style="font-family:var(--mono)">parse()</span> generator that yields <span style="font-family:var(--mono)">(level, endpoint)</span>.</span></div>
+          <div><b>04</b><span>Feed ERROR rows into a <b style="color:var(--mint)">Counter</b> (Class 1).</span></div>
+          <div><b>05</b><span>Print the top 5. Task Manager shows memory flat? <b style="color:var(--mint)">Done.</b></span></div>
+        </div>
+      </div></div><div class="cb" style="display:flex;flex-direction:column;min-height:0;flex:1 1 0"><div class="code-head">server.log — sample</div><pre class="code sm" style="flex:1;min-height:0;margin:0">2026-10-19 09:14:02 INFO  GET /menu 200
+2026-10-19 09:14:03 ERROR POST /order 500
+2026-10-19 09:14:03 INFO  GET /menu 200
+2026-10-19 09:14:05 ERROR GET /pay 502</pre></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="2.1 Decorators">
+  <div class="stepbar fx"><span class="on">Explain</span><span class="on">Theory</span><span class="">Code</span><span class="">Practice</span></div>
+  <div class="tag fx">Module 2 · Decorators &amp; Regex · 2.1 · Explanation &amp; theory</div>
+  <h1 class="sh fx d1">Decorators: wrap a function with extra behaviour</h1>
+  <div class="cards grid3 fx d2" style="margin-top:18px;align-items:start"><div class="card accent"><h3><span class="k">what</span>In plain words</h3><p>A <b>decorator</b> is a function that takes a function and returns a new one that does something extra: timing, logging, retrying, checking permissions. You apply it with <code>@name</code> above the def.</p></div><div class="card"><h3><span class="k">like</span>Everyday analogy</h3><p>Gift-wrapping: the present inside is unchanged, but now it has a card (log) and a ribbon (timer). You can wrap any present the same way.</p></div><div class="card"><h3><span class="k">rules</span>Theory: the key rules</h3><ul class="rules"><li><b>def deco(func): def wrapper(*args, **kwargs): …; return wrapper</b></li><li><b>@deco</b> above def means <b>f = deco(f)</b></li><li>Always use <b>@functools.wraps(func)</b></li><li>Stacked decorators apply bottom-up</li></ul></div></div>
+  <div class="body figbody" style="margin-top:12px"><div class="figwrap"><svg class="fig" style="min-height:0" viewBox="0 0 1000 360" aria-label="The timer decorator wraps the original function: start clock, call original, stop clock, print time">
+        <g font-family="JetBrains Mono,monospace">
+          <g class="fx">
+            <rect x="200" y="20" width="600" height="320" rx="16" fill="#0a0e13" stroke="#f0b429" stroke-width="2" stroke-dasharray="8 6"/>
+            <text x="220" y="50" font-size="14" fill="#f0b429" letter-spacing="2">@timer · wrapper()</text>
+          </g>
+          <g class="fx d1"><rect x="240" y="75" width="520" height="50" rx="8" fill="#1c2430" stroke="#f0b429"/><text x="260" y="107" font-size="16" fill="#e8eef0">① start = time.perf_counter()</text></g>
+          <g class="fx d2"><rect x="300" y="145" width="400" height="70" rx="10" fill="#1c2430" stroke="#00dcb4" stroke-width="2"/><text x="500" y="176" font-size="14" fill="#00dcb4" text-anchor="middle" letter-spacing="2">② ORIGINAL FUNCTION</text><text x="500" y="202" font-size="16" fill="#e8eef0" text-anchor="middle">result = func(*args, **kwargs)</text></g>
+          <g class="fx d3"><rect x="240" y="235" width="520" height="50" rx="8" fill="#1c2430" stroke="#f0b429"/><text x="260" y="267" font-size="16" fill="#e8eef0">③ print(f"took {time.perf_counter()-start:.3f}s")</text></g>
+          <text x="500" y="320" font-size="15" fill="#f0b429" text-anchor="middle" class="fx d4">④ return result</text>
+          <line x1="20" y1="180" x2="195" y2="180" stroke="#00dcb4" stroke-width="2" marker-end="url(#e61)" class="draw d1" style="--len:175"/>
+          <text x="105" y="168" font-size="14" fill="#00dcb4" text-anchor="middle" class="fx d1">call</text>
+          <line x1="805" y1="180" x2="980" y2="180" stroke="#00dcb4" stroke-width="2" marker-end="url(#e61)" class="draw d5" style="--len:175"/>
+          <text x="890" y="168" font-size="14" fill="#00dcb4" text-anchor="middle" class="fx d5">result</text>
+          <circle r="7" fill="#00dcb4" class="travel" style="offset-path:path('M 20 180 L 220 100 L 500 180 L 760 260 L 980 180')"/>
+        </g>
+        <defs><marker id="e61" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#00dcb4"/></marker></defs>
+      </svg></div></div>
+</section>
+
+<section class="slide" data-title="2.1 Decorators · code">
+  <div class="stepbar fx"><span class="">Explain</span><span class="">Theory</span><span class="on">Code</span><span class="">Practice</span></div>
+  <div class="tag fx">Module 2 · Decorators &amp; Regex · 2.1 · Code — copy, paste, run</div>
+  <h1 class="sh fx d1">@timer and @log_calls on a report function</h1>
+  <div class="body" style="align-items:stretch">
+    <div class="col fx d2" style="flex:1.3;display:flex;flex-direction:column;gap:10px;min-height:0"><div class="cb" style="display:flex;flex-direction:column;min-height:0px;flex:33 1 0"><div class="code-head">decorators.py</div><pre class="code sm" style="flex:1;min-height:0;margin:0"><span class="k">import</span> functools
+<span class="k">import</span> time
+
+
+<span class="k">def</span> timer(func):
+    <span class="s">"""Decorator: print how long func takes."""</span>
+    @functools.wraps(func)                    <span class="c"># keep the original name/docstring</span>
+    <span class="k">def</span> wrapper(*args, **kwargs):
+        start = time.perf_counter()
+        result = func(*args, **kwargs)        <span class="c"># call the real function</span>
+        ms = (time.perf_counter() - start) * <span class="n">1000</span>
+        print(<span class="s">f"[timer] {func.__name__} took {ms:.1f} ms"</span>)
+        <span class="k">return</span> result
+    <span class="k">return</span> wrapper
+
+
+<span class="k">def</span> log_calls(func):
+    <span class="s">"""Decorator: print every call with its arguments."""</span>
+    @functools.wraps(func)
+    <span class="k">def</span> wrapper(*args, **kwargs):
+        print(<span class="s">f"[log] {func.__name__}{args} {kwargs or ''}"</span>)
+        <span class="k">return</span> func(*args, **kwargs)
+    <span class="k">return</span> wrapper
+
+
+@timer
+@log_calls
+<span class="k">def</span> monthly_report(month: str, rows: int = <span class="n">50_000</span>) -&gt; int:
+    <span class="k">return</span> sum(i % <span class="n">7</span> <span class="k">for</span> i <span class="k">in</span> range(rows))
+
+
+print(monthly_report(<span class="s">"2026-10"</span>))
+print(monthly_report.__name__)                <span class="c"># still 'monthly_report'</span></pre></div></div>
+    <div class="col fx d3" style="display:flex;flex-direction:column;gap:10px;min-height:0"><div class="cb" style="display:flex;flex-direction:column;min-height:0;flex:1 1 0"><div class="code-head">terminal · real output (times will differ)</div><pre class="code sm out" style="flex:1;min-height:0;margin:0"><span class="cmd">$ python decorators.py</span>
+[log] monthly_report('2026-10',) 
+[timer] monthly_report took 1.9 ms
+149997
+monthly_report</pre></div><div class="card" style="flex:0 0 auto"><h3><span class="k">try</span>Change it, predict, run</h3><ul class="rules"><li>Write <code>@count_calls</code> that tracks how often a function runs.</li><li>Swap the order of the two decorators. What changes?</li></ul></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="2.2 lru_cache">
+  <div class="stepbar fx"><span class="on">Explain</span><span class="on">Theory</span><span class="">Code</span><span class="">Practice</span></div>
+  <div class="tag fx">Module 2 · Decorators &amp; Regex · 2.2 · Explanation &amp; theory</div>
+  <h1 class="sh fx d1">@lru_cache: remember answers you already worked out</h1>
+  <div class="body" style="align-items:stretch">
+    <div class="col cards fx d2" style="align-content:start"><div class="card accent"><h3><span class="k">what</span>In plain words</h3><p>If a function always gives the same output for the same input, <code>@lru_cache</code> stores each answer the first time. Later calls with the same input return instantly, without doing the slow work again.</p></div><div class="card"><h3><span class="k">like</span>Everyday analogy</h3><p>The regular customer: the first time, the auntie asks how you like your kopi. After that she remembers and starts making it as you sit down.</p></div><div class="card"><h3><span class="k">rules</span>Theory: the key rules</h3><ul class="rules"><li>Use for <b>pure</b> functions: same input → same output</li><li>Great for slow lookups, API calls with fixed answers</li><li><b>.cache_info()</b> shows hits and misses</li><li>Don't cache time, random numbers or live prices</li></ul></div></div>
+    <div class="col fx d3"><div class="cb"><div class="code-head">syntax at a glance</div><pre class="code"><span class="k">from</span> functools <span class="k">import</span> lru_cache
+
+@lru_cache(maxsize=<span class="n">256</span>)
+<span class="k">def</span> postcode_to_city(code):
+    ...  <span class="c"># slow lookup</span></pre></div><div class="card" style="margin-top:14px;border-color:rgba(255,111,145,.4)"><h3 style="color:var(--coral)">Common mistakes</h3><ul class="rules"><li>Caching a function whose answer should change (stock levels).</li><li>Arguments must be hashable: lists can't be cache keys.</li></ul></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="2.2 lru_cache · code">
+  <div class="stepbar fx"><span class="">Explain</span><span class="">Theory</span><span class="on">Code</span><span class="">Practice</span></div>
+  <div class="tag fx">Module 2 · Decorators &amp; Regex · 2.2 · Code — copy, paste, run</div>
+  <h1 class="sh fx d1">Postcode lookups: 1.2s without cache, 0.4s with</h1>
+  <div class="body" style="align-items:stretch">
+    <div class="col fx d2" style="flex:1.3;display:flex;flex-direction:column;gap:10px;min-height:0"><div class="cb" style="display:flex;flex-direction:column;min-height:0px;flex:24 1 0"><div class="code-head">cache_demo.py</div><pre class="code sm" style="flex:1;min-height:0;margin:0"><span class="k">import</span> time
+<span class="k">from</span> functools <span class="k">import</span> lru_cache
+
+
+<span class="k">def</span> slow_lookup(postcode: str) -&gt; str:
+    time.sleep(<span class="n">0.2</span>)                        <span class="c"># pretend this is a slow API/database</span>
+    <span class="k">return</span> {<span class="s">"80000"</span>: <span class="s">"Johor Bahru"</span>, <span class="s">"50450"</span>: <span class="s">"Kuala Lumpur"</span>}.get(postcode, <span class="s">"?"</span>)
+
+
+@lru_cache(maxsize=<span class="n">256</span>)
+<span class="k">def</span> cached_lookup(postcode: str) -&gt; str:
+    <span class="k">return</span> slow_lookup(postcode)
+
+
+orders = [<span class="s">"80000"</span>, <span class="s">"50450"</span>, <span class="s">"80000"</span>, <span class="s">"80000"</span>, <span class="s">"50450"</span>, <span class="s">"80000"</span>]
+
+start = time.perf_counter()
+print([slow_lookup(p) <span class="k">for</span> p <span class="k">in</span> orders])
+print(<span class="s">f"no cache : {time.perf_counter() - start:.2f}s"</span>)
+
+start = time.perf_counter()
+print([cached_lookup(p) <span class="k">for</span> p <span class="k">in</span> orders])
+print(<span class="s">f"lru_cache: {time.perf_counter() - start:.2f}s"</span>)
+print(cached_lookup.cache_info())</pre></div></div>
+    <div class="col fx d3" style="display:flex;flex-direction:column;gap:10px;min-height:0"><div class="cb" style="display:flex;flex-direction:column;min-height:0;flex:1 1 0"><div class="code-head">terminal · real output (times will differ)</div><pre class="code sm out" style="flex:1;min-height:0;margin:0"><span class="cmd">$ python cache_demo.py</span>
+['Johor Bahru', 'Kuala Lumpur', 'Johor Bahru', 'Johor Bahru', 'Kuala Lumpur', 'Johor Bahru']
+no cache : 1.20s
+['Johor Bahru', 'Kuala Lumpur', 'Johor Bahru', 'Johor Bahru', 'Kuala Lumpur', 'Johor Bahru']
+lru_cache: 0.40s
+CacheInfo(hits=4, misses=2, maxsize=256, currsize=2)</pre></div><div class="card" style="flex:0 0 auto"><h3><span class="k">try</span>Change it, predict, run</h3><ul class="rules"><li>Add 10 more repeated postcodes. How do the timings change?</li><li>Call <code>cached_lookup.cache_clear()</code> and rerun.</li></ul></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="2.3 Regex and match/case">
+  <div class="stepbar fx"><span class="on">Explain</span><span class="on">Theory</span><span class="">Code</span><span class="">Practice</span></div>
+  <div class="tag fx">Module 2 · Decorators &amp; Regex · 2.3 · Explanation &amp; theory</div>
+  <h1 class="sh fx d1">Regex: describe the shape, find every match</h1>
+  <div class="cards grid3 fx d2" style="margin-top:18px;align-items:start"><div class="card accent"><h3><span class="k">what</span>In plain words</h3><p>A <b>regular expression</b> describes the <b>shape</b> of text: "01, then a digit, then 7 or 8 digits". Python's <code>re</code> finds every piece of text with that shape. <code>match/case</code> picks an action based on the shape of data.</p></div><div class="card"><h3><span class="k">like</span>Everyday analogy</h3><p>Telling someone "look for anything that looks like a car plate: letters, a space, numbers" instead of listing every plate in Malaysia.</p></div><div class="card"><h3><span class="k">rules</span>Theory: the key rules</h3><ul class="rules"><li><b>\d</b> digit · <b>\w</b> letter/digit · <b>+</b> one or more · <b>?</b> optional</li><li><b>re.findall</b> gives all matches · <b>re.search</b> the first</li><li>Named groups: <b>(?P&lt;day&gt;\d{2})</b> → m["day"]</li><li><b>match cmd.split(): case ["add", item]:</b></li></ul></div></div>
+  <div class="body figbody" style="margin-top:12px"><div class="figwrap"><svg class="fig" style="min-height:0" viewBox="0 0 1000 300" aria-label="A Malaysian mobile number regex broken into labelled parts, highlighting matches in a WhatsApp message">
+        <g font-family="JetBrains Mono,monospace">
+          <g font-size="30">
+            <text x="60"  y="70" fill="#58a6ff" class="fx d1">(?:\+?6)?</text>
+            <text x="270" y="70" fill="#00dcb4" class="fx d2">01\d</text>
+            <text x="370" y="70" fill="#f0b429" class="fx d3">[- ]?</text>
+            <text x="470" y="70" fill="#ff6f91" class="fx d4">\d{3,4}</text>
+            <text x="610" y="70" fill="#f0b429" class="fx d5">[- ]?</text>
+            <text x="710" y="70" fill="#ff6f91" class="fx d6">\d{4}</text>
+          </g>
+          <g font-size="13" fill="#8b98a5">
+            <text x="60"  y="100" class="fx d1">optional +6 / 6</text>
+            <text x="270" y="100" class="fx d2">010–019</text>
+            <text x="370" y="100" class="fx d3">dash/space?</text>
+            <text x="470" y="100" class="fx d4">3–4 digits</text>
+            <text x="610" y="100" class="fx d5">dash/space?</text>
+            <text x="710" y="100" class="fx d6">4 digits</text>
+          </g>
+          <rect x="40" y="140" width="920" height="130" rx="10" fill="#0a0e13" stroke="#2a3440" class="fx d7"/>
+          <text x="60" y="130" font-size="12" fill="#8b98a5" letter-spacing="2" class="fx d7">WHATSAPP MESSAGE</text>
+          <text x="60" y="190" font-size="17" fill="#e8eef0" class="fx d7">Order for table 4 la. Call me <tspan fill="#0a0e13">012-345 6789</tspan> or my</text>
+          <text x="60" y="230" font-size="17" fill="#e8eef0" class="fx d7">wife <tspan fill="#0a0e13">+60198765432</tspan>. Total RM 13.25 ok?</text>
+          <rect x="350" y="170" width="140" height="28" rx="4" fill="#00dcb4" class="fx d8"/>
+          <text x="355" y="190" font-size="17" fill="#0a0e13" class="fx d8">012-345 6789</text>
+          <rect x="105" y="210" width="145" height="28" rx="4" fill="#00dcb4" class="fx d9"/>
+          <text x="110" y="230" font-size="17" fill="#0a0e13" class="fx d9">+60198765432</text>
+        </g>
+      </svg></div></div>
+</section>
+
+<section class="slide" data-title="2.3 Regex and match/case · code">
+  <div class="stepbar fx"><span class="">Explain</span><span class="">Theory</span><span class="on">Code</span><span class="">Practice</span></div>
+  <div class="tag fx">Module 2 · Decorators &amp; Regex · 2.3 · Code — copy, paste, run</div>
+  <h1 class="sh fx d1">Pull phones, emails, amounts and dates from a message</h1>
+  <div class="body" style="align-items:stretch">
+    <div class="col fx d2" style="flex:1.3;display:flex;flex-direction:column;gap:10px;min-height:0"><div class="cb" style="display:flex;flex-direction:column;min-height:0px;flex:31 1 0"><div class="code-head">extract.py</div><pre class="code sm" style="flex:1;min-height:0;margin:0"><span class="k">import</span> re
+
+msg = (<span class="s">"Order for table 4 la. Call me 012-345 6789 or my wife +60198765432. "</span>
+       <span class="s">"Email receipt to aisyah@example.com. Total RM 13.25, paid 21/10/2026."</span>)
+
+PHONE = re.compile(<span class="s">r"(?:\+?6)?01\d[- ]?\d{3,4}[- ]?\d{4}"</span>)
+EMAIL = re.compile(<span class="s">r"[\w.+-]+@[\w-]+(?:\.[\w-]+)+"</span>)
+MONEY = re.compile(<span class="s">r"RM\s?(\d+(?:\.\d{2})?)"</span>)
+DATE = re.compile(<span class="s">r"(?P&lt;d&gt;\d{2})/(?P&lt;m&gt;\d{2})/(?P&lt;y&gt;\d{4})"</span>)
+
+print(<span class="s">"phones:"</span>, PHONE.findall(msg))
+print(<span class="s">"emails:"</span>, EMAIL.findall(msg))
+print(<span class="s">"amount:"</span>, float(MONEY.search(msg).group(<span class="n">1</span>)))
+m = DATE.search(msg)
+print(<span class="s">"date  :"</span>, <span class="s">f"{m['y']}-{m['m']}-{m['d']}"</span>)
+
+
+<span class="k">def</span> handle(command: str) -&gt; str:
+    match command.split():                 <span class="c"># structural pattern matching</span>
+        case [<span class="s">"add"</span>, item, qty] <span class="k">if</span> qty.isdigit():
+            <span class="k">return</span> <span class="s">f"adding {qty} x {item}"</span>
+        case [<span class="s">"add"</span>, item]:
+            <span class="k">return</span> <span class="s">f"adding 1 x {item}"</span>
+        case [<span class="s">"show"</span> | <span class="s">"list"</span>]:
+            <span class="k">return</span> <span class="s">"showing the order"</span>
+        case _:
+            <span class="k">return</span> <span class="s">f"unknown command: {command!r}"</span>
+
+
+<span class="k">for</span> c <span class="k">in</span> [<span class="s">"add teh 2"</span>, <span class="s">"add kopi"</span>, <span class="s">"list"</span>, <span class="s">"delete everything"</span>]:
+    print(handle(c))</pre></div></div>
+    <div class="col fx d3" style="display:flex;flex-direction:column;gap:10px;min-height:0"><div class="cb" style="display:flex;flex-direction:column;min-height:0;flex:1 1 0"><div class="code-head">terminal · real output</div><pre class="code sm out" style="flex:1;min-height:0;margin:0"><span class="cmd">$ python extract.py</span>
+phones: ['012-345 6789', '+60198765432']
+emails: ['aisyah@example.com']
+amount: 13.25
+date  : 2026-10-21
+adding 2 x teh
+adding 1 x kopi
+showing the order
+unknown command: 'delete everything'</pre></div><div class="card" style="flex:0 0 auto"><h3><span class="k">try</span>Change it, predict, run</h3><ul class="rules"><li>Add a pattern for car plates like JQA 1234.</li><li>Add <code>case ["remove", item]:</code>.</li></ul></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="Module 2 Practice">
+  <div class="stepbar fx"><span class="">Explain</span><span class="">Theory</span><span class="">Code</span><span class="on">Practice</span></div>
+  <div class="tag fx">Module 2 · Decorators &amp; Regex · Practice: real-life app + hands-on</div>
+  <h1 class="sh fx d1">Build: @timer + Malaysian contact extractor</h1>
+  <div class="body" style="align-items:stretch">
+    <div class="col fx d2" style="flex:1.15;display:flex;flex-direction:column;gap:8px;min-height:0"><div class="card accent" style="flex:0 0 auto;padding:12px 16px"><h3><span class="k">real life</span>Supplier invoices: pull out number, amount and due date</h3><p>Invoices arrive as email text in different formats. Regex patterns find the invoice number, RM amount, issue and due dates and the phone number, skip non-invoices, and total what you owe.</p></div><div class="cb" style="display:flex;flex-direction:column;min-height:130px;flex:38 1 0"><div class="code-head">invoice_parser.py</div><pre class="code sm" style="flex:1;min-height:0;margin:0"><span class="s">"""Read supplier invoices from email text and pull out the key fields."""</span>
+<span class="k">import</span> re
+
+EMAILS = [
+    <span class="s">"""From: billing@mupackaging.example
+Invoice No: INV-2026-0142  Date: 15/10/2026
+Item: 500 pcs kraft box   Amount: RM 1,250.00
+Payment due 30/10/2026. Contact 07-355 1234."""</span>,
+    <span class="s">"""Hi, attached is invoice #INV-2026-0157 dated 18/10/2026.
+Total payable RM980.50 by 02/11/2026. WhatsApp 012-888 9999 if any issue."""</span>,
+    <span class="s">"""Reminder: your Netflix plan renews on 25/10/2026."""</span>,
+]
+
+INVOICE = re.compile(<span class="s">r"INV-\d{4}-\d{4}"</span>)
+AMOUNT = re.compile(<span class="s">r"RM\s?([\d,]+\.\d{2})"</span>)
+DATES = re.compile(<span class="s">r"\b(\d{2})/(\d{2})/(\d{4})\b"</span>)
+PHONE = re.compile(<span class="s">r"\b0\d{1,2}-\d{3,4} ?\d{4}\b"</span>)
+
+
+<span class="k">def</span> parse(text: str) -&gt; dict | <span class="k">None</span>:
+    inv = INVOICE.search(text)
+    <span class="k">if</span> <span class="k">not</span> inv:
+        <span class="k">return</span> <span class="k">None</span>                                   <span class="c"># not an invoice</span>
+    dates = [<span class="s">f"{y}-{m}-{d}"</span> <span class="k">for</span> d, m, y <span class="k">in</span> DATES.findall(text)]
+    amount = AMOUNT.search(text)
+    <span class="k">return</span> {
+        <span class="s">"invoice"</span>: inv.group(),
+        <span class="s">"amount"</span>: float(amount.group(<span class="n">1</span>).replace(<span class="s">","</span>, <span class="s">""</span>)) <span class="k">if</span> amount <span class="k">else</span> <span class="k">None</span>,
+        <span class="s">"issued"</span>: dates[<span class="n">0</span>] <span class="k">if</span> dates <span class="k">else</span> <span class="k">None</span>,
+        <span class="s">"due"</span>: dates[-<span class="n">1</span>] <span class="k">if</span> len(dates) &gt; <span class="n">1</span> <span class="k">else</span> <span class="k">None</span>,
+        <span class="s">"phone"</span>: (PHONE.search(text) <span class="k">or</span> [<span class="k">None</span>])[<span class="n">0</span>],
+    }
+
+
+records = [r <span class="k">for</span> r <span class="k">in</span> map(parse, EMAILS) <span class="k">if</span> r]
+<span class="k">for</span> r <span class="k">in</span> records:
+    print(r)
+print(<span class="s">f"\n{len(records)} invoices, total RM{sum(r['amount'] for r in records):,.2f}"</span>)</pre></div><div class="cb" style="display:flex;flex-direction:column;min-height:90px;flex:0 1 26%"><div class="code-head">terminal · real output</div><pre class="code sm out" style="flex:1;min-height:0;margin:0"><span class="cmd">$ python invoice_parser.py</span>
+{'invoice': 'INV-2026-0142', 'amount': 1250.0, 'issued': '2026-10-15', 'due': '2026-10-30', 'phone': '07-355 1234'}
+{'invoice': 'INV-2026-0157', 'amount': 980.5, 'issued': '2026-10-18', 'due': '2026-11-02', 'phone': '012-888 9999'}
+
+2 invoices, total RM2,230.50</pre></div></div>
+    <div class="col fx d3" style="display:flex;flex-direction:column;gap:10px;min-height:0"><div style="flex:0 0 auto"><div class="hands-on">
+        <div class="lbl">15 minutes · pairs</div>
+        <h3>Pull every phone, email and IC-free order ref from chat exports</h3>
+        <div class="steps">
+          <div><b>01</b><span>Write <span style="font-family:var(--mono)">@timer</span> and <span style="font-family:var(--mono)">@retry(times=3)</span> (decorator with arguments).</span></div>
+          <div><b>02</b><span>Regex for MY mobiles, emails, and order refs like <span style="font-family:var(--mono)">ORD-2026-0042</span>.</span></div>
+          <div><b>03</b><span>Normalise phones to <span style="font-family:var(--mono)">+6012XXXXXXX</span> format.</span></div>
+          <div><b>04</b><span>Run over <span style="font-family:var(--mono)">chats.txt</span> with your Module 1 generator.</span></div>
+          <div><b>05</b><span>Results to <span style="font-family:var(--mono)">contacts.csv</span>, timer prints the run time. <b style="color:var(--mint)">Done.</b></span></div>
+        </div>
+      </div></div><div class="cb" style="display:flex;flex-direction:column;min-height:0;flex:1 1 0"><div class="code-head">decorator with arguments — 3 layers</div><pre class="code sm" style="flex:1;min-height:0;margin:0">def retry(times: int = <span class="n">3</span>):
+    def decorator(func):
+        @functools.wraps(func)
+        def wrapper(*args, **kwargs):
+            for attempt in range(<span class="n">1</span>, times + <span class="n">1</span>):
+                try:
+                    return func(*args, **kwargs)
+                except requests.RequestException:
+                    if attempt == times: raise
+                    time.sleep(attempt)
+        return wrapper
+    return decorator
+
+@retry(times=<span class="n">3</span>)
+def get_rate(...): ...</pre></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="3.1 pytest basics">
+  <div class="stepbar fx"><span class="on">Explain</span><span class="on">Theory</span><span class="">Code</span><span class="">Practice</span></div>
+  <div class="tag fx">Module 3 · Testing with pytest · 3.1 · Explanation &amp; theory</div>
+  <h1 class="sh fx d1">A test is a function that checks your code is right</h1>
+  <div class="cards grid3 fx d2" style="margin-top:18px;align-items:start"><div class="card accent"><h3><span class="k">what</span>In plain words</h3><p>A <b>test</b> calls your function with a known input and <b>asserts</b> the output is what it should be. <b>pytest</b> finds every <code>test_*</code> function and runs them all in one command, so you know instantly if a change broke something.</p></div><div class="card"><h3><span class="k">like</span>Everyday analogy</h3><p>A checklist the pilot runs before every flight. It takes seconds, and it catches the mistake before take-off, not in the air.</p></div><div class="card"><h3><span class="k">rules</span>Theory: the key rules</h3><ul class="rules"><li>File <b>test_*.py</b>, function <b>test_*()</b></li><li><b>assert actual == expected</b></li><li>Test <b>boundaries</b>: 79, 80, 81</li><li><b>Red → green → refactor</b></li></ul></div></div>
+  <div class="body figbody" style="margin-top:12px"><div class="figwrap"><svg class="fig" style="min-height:0" viewBox="0 0 460 360" style="min-height:290px" aria-label="Red, green, refactor cycle">
+        <g font-family="JetBrains Mono,monospace">
+          <circle cx="230" cy="180" r="120" fill="none" stroke="#2a3440" stroke-width="2"/>
+          <path d="M 230 60 A 120 120 0 0 1 334 240" fill="none" stroke="#ff6f91" stroke-width="5" class="draw d1" style="--len:260"/>
+          <path d="M 334 240 A 120 120 0 0 1 126 240" fill="none" stroke="#00dcb4" stroke-width="5" class="draw d3" style="--len:260"/>
+          <path d="M 126 240 A 120 120 0 0 1 230 60" fill="none" stroke="#58a6ff" stroke-width="5" class="draw d5" style="--len:260"/>
+          <g class="cycle1"><circle cx="230" cy="60" r="14" fill="#ff6f91"/></g>
+          <g class="cycle2"><circle cx="334" cy="240" r="14" fill="#00dcb4"/></g>
+          <g class="cycle3"><circle cx="126" cy="240" r="14" fill="#58a6ff"/></g>
+          <text x="370" y="120" font-size="17" fill="#ff6f91" class="fx d1">1 RED</text>
+          <text x="370" y="142" font-size="12" fill="#8b98a5" class="fx d1">test fails</text>
+          <text x="230" y="335" font-size="17" fill="#00dcb4" text-anchor="middle" class="fx d3">2 GREEN · make it pass</text>
+          <text x="10" y="120" font-size="17" fill="#58a6ff" class="fx d5">3 REFACTOR</text>
+          <text x="10" y="142" font-size="12" fill="#8b98a5" class="fx d5">clean, still green</text>
+          <text x="230" y="186" font-size="16" fill="#e8eef0" text-anchor="middle" class="fx d6">$ pytest -q</text>
+        </g>
+      </svg></div></div>
+</section>
+
+<section class="slide" data-title="3.1 pytest basics · code">
+  <div class="stepbar fx"><span class="">Explain</span><span class="">Theory</span><span class="on">Code</span><span class="">Practice</span></div>
+  <div class="tag fx">Module 3 · Testing with pytest · 3.1 · Code — copy, paste, run</div>
+  <h1 class="sh fx d1">Four tests for grade(): run them with pytest</h1>
+  <div class="body" style="align-items:stretch">
+    <div class="col fx d2" style="flex:1.3;display:flex;flex-direction:column;gap:10px;min-height:0"><div class="cb" style="display:flex;flex-direction:column;min-height:0px;flex:27 1 0"><div class="code-head">test_grading.py</div><pre class="code sm" style="flex:1;min-height:0;margin:0"><span class="c"># Save as test_grading.py and run:  pytest -v test_grading.py</span>
+
+<span class="k">def</span> grade(mark: int) -&gt; str:
+    <span class="s">"""Return A, B, C or F for a 0-100 mark."""</span>
+    <span class="k">if</span> mark &gt;= <span class="n">80</span>:
+        <span class="k">return</span> <span class="s">"A"</span>
+    <span class="k">if</span> mark &gt;= <span class="n">65</span>:
+        <span class="k">return</span> <span class="s">"B"</span>
+    <span class="k">if</span> mark &gt;= <span class="n">50</span>:
+        <span class="k">return</span> <span class="s">"C"</span>
+    <span class="k">return</span> <span class="s">"F"</span>
+
+
+<span class="k">def</span> test_top_mark_is_a():
+    <span class="k">assert</span> grade(<span class="n">95</span>) == <span class="s">"A"</span>
+
+
+<span class="k">def</span> test_boundary_80_is_a():
+    <span class="k">assert</span> grade(<span class="n">80</span>) == <span class="s">"A"</span>
+
+
+<span class="k">def</span> test_79_is_b():
+    <span class="k">assert</span> grade(<span class="n">79</span>) == <span class="s">"B"</span>
+
+
+<span class="k">def</span> test_below_pass_is_f():
+    <span class="k">assert</span> grade(<span class="n">49</span>) == <span class="s">"F"</span></pre></div></div>
+    <div class="col fx d3" style="display:flex;flex-direction:column;gap:10px;min-height:0"><div class="cb" style="display:flex;flex-direction:column;min-height:0;flex:1 1 0"><div class="code-head">terminal · real output</div><pre class="code sm out" style="flex:1;min-height:0;margin:0"><span class="cmd">$ pytest -v --no-header test_grading.py</span>
+======================================= test session starts ========================================
+collecting ... collected 4 items
+
+test_grading.py::test_top_mark_is_a PASSED                                                   [ 25%]
+test_grading.py::test_boundary_80_is_a PASSED                                                [ 50%]
+test_grading.py::test_79_is_b PASSED                                                         [ 75%]
+test_grading.py::test_below_pass_is_f PASSED                                                 [100%]
+
+======================================== 4 passed in 0.01s =========================================</pre></div><div class="card" style="flex:0 0 auto"><h3><span class="k">try</span>Change it, predict, run</h3><ul class="rules"><li>Change <code>&gt;= 80</code> to <code>&gt; 80</code> and rerun. Which test catches it?</li><li>Add a test for a mark of 100.</li></ul></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="3.2 Fixtures and parametrize">
+  <div class="stepbar fx"><span class="on">Explain</span><span class="on">Theory</span><span class="">Code</span><span class="">Practice</span></div>
+  <div class="tag fx">Module 3 · Testing with pytest · 3.2 · Explanation &amp; theory</div>
+  <h1 class="sh fx d1">Fixtures set things up; parametrize multiplies tests</h1>
+  <div class="body" style="align-items:stretch">
+    <div class="col cards fx d2" style="align-content:start"><div class="card accent"><h3><span class="k">what</span>In plain words</h3><p>A <b>fixture</b> builds the same starting object for every test that asks for it by name, with no copy-pasted setup. <b>parametrize</b> runs one test function with many input/expected pairs.</p></div><div class="card"><h3><span class="k">like</span>Everyday analogy</h3><p>A fixture is a clean mixing bowl handed to every baker. Parametrize is one recipe tested with 5 oven temperatures.</p></div><div class="card"><h3><span class="k">rules</span>Theory: the key rules</h3><ul class="rules"><li><b>@pytest.fixture</b> → use it as a test parameter</li><li>Each test gets a <b>fresh</b> copy</li><li><b>@pytest.mark.parametrize("a, b", [(1, 2), …])</b></li><li>Compare money with <b>pytest.approx</b></li></ul></div></div>
+    <div class="col fx d3"><div class="cb"><div class="code-head">syntax at a glance</div><pre class="code">@pytest.fixture
+<span class="k">def</span> cart():
+    <span class="k">return</span> Cart()
+
+@pytest.mark.parametrize(<span class="s">"voucher, expected"</span>, [(<span class="n">0</span>, <span class="n">39.9</span>), (<span class="n">5</span>, <span class="n">34.9</span>)])
+<span class="k">def</span> test_voucher(cart, voucher, expected): ...</pre></div><div class="card" style="margin-top:14px;border-color:rgba(255,111,145,.4)"><h3 style="color:var(--coral)">Common mistakes</h3><ul class="rules"><li>Tests that depend on each other's leftovers: fixtures avoid this.</li><li><code>0.1 + 0.2 == 0.3</code> is False. Use approx.</li></ul></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="3.2 Fixtures and parametrize · code">
+  <div class="stepbar fx"><span class="">Explain</span><span class="">Theory</span><span class="on">Code</span><span class="">Practice</span></div>
+  <div class="tag fx">Module 3 · Testing with pytest · 3.2 · Code — copy, paste, run</div>
+  <h1 class="sh fx d1">A shopping cart: 1 fixture, 6 tests</h1>
+  <div class="body" style="align-items:stretch">
+    <div class="col fx d2" style="flex:1.3;display:flex;flex-direction:column;gap:10px;min-height:0"><div class="cb" style="display:flex;flex-direction:column;min-height:0px;flex:42 1 0"><div class="code-head">test_cart.py</div><pre class="code sm" style="flex:1;min-height:0;margin:0"><span class="c"># Save as test_cart.py and run:  pytest -v test_cart.py</span>
+<span class="k">import</span> pytest
+
+
+<span class="k">class</span> Cart:
+    <span class="k">def</span> __init__(<span class="k">self</span>):
+        <span class="k">self</span>.items: dict[str, tuple[float, int]] = {}
+
+    <span class="k">def</span> add(<span class="k">self</span>, name: str, price: float, qty: int = <span class="n">1</span>) -&gt; <span class="k">None</span>:
+        <span class="k">if</span> qty &lt; <span class="n">1</span>:
+            <span class="k">raise</span> ValueError(<span class="s">"qty must be at least 1"</span>)
+        _, old_qty = <span class="k">self</span>.items.get(name, (price, <span class="n">0</span>))
+        <span class="k">self</span>.items[name] = (price, old_qty + qty)
+
+    <span class="k">def</span> total(<span class="k">self</span>, voucher: float = <span class="n">0.0</span>) -&gt; float:
+        subtotal = sum(p * q <span class="k">for</span> p, q <span class="k">in</span> <span class="k">self</span>.items.values())
+        <span class="k">return</span> round(max(subtotal - voucher, <span class="n">0</span>), <span class="n">2</span>)
+
+
+@pytest.fixture
+<span class="k">def</span> cart() -&gt; Cart:
+    <span class="s">"""A fresh cart with 2 items, rebuilt for every test."""</span>
+    c = Cart()
+    c.add(<span class="s">"Phone Case"</span>, <span class="n">15.90</span>)
+    c.add(<span class="s">"USB-C Cable"</span>, <span class="n">12.00</span>, qty=<span class="n">2</span>)
+    <span class="k">return</span> c
+
+
+<span class="k">def</span> test_total(cart):
+    <span class="k">assert</span> cart.total() == pytest.approx(<span class="n">39.90</span>)
+
+
+<span class="k">def</span> test_same_item_adds_qty(cart):
+    cart.add(<span class="s">"Phone Case"</span>, <span class="n">15.90</span>)
+    <span class="k">assert</span> cart.items[<span class="s">"Phone Case"</span>][<span class="n">1</span>] == <span class="n">2</span>
+
+
+@pytest.mark.parametrize(<span class="s">"voucher, expected"</span>, [
+    (<span class="n">0</span>, <span class="n">39.90</span>), (<span class="n">5</span>, <span class="n">34.90</span>), (<span class="n">39.90</span>, <span class="n">0</span>), (<span class="n">100</span>, <span class="n">0</span>),   <span class="c"># never below zero</span>
+])
+<span class="k">def</span> test_voucher(cart, voucher, expected):
+    <span class="k">assert</span> cart.total(voucher) == pytest.approx(expected)</pre></div></div>
+    <div class="col fx d3" style="display:flex;flex-direction:column;gap:10px;min-height:0"><div class="cb" style="display:flex;flex-direction:column;min-height:0;flex:1 1 0"><div class="code-head">terminal · real output</div><pre class="code sm out" style="flex:1;min-height:0;margin:0"><span class="cmd">$ pytest -v --no-header test_cart.py</span>
+======================================= test session starts ========================================
+collecting ... collected 6 items
+
+test_cart.py::test_total PASSED                                                              [ 16%]
+test_cart.py::test_same_item_adds_qty PASSED                                                 [ 33%]
+test_cart.py::test_voucher[0-39.9] PASSED                                                    [ 50%]
+test_cart.py::test_voucher[5-34.9] PASSED                                                    [ 66%]
+test_cart.py::test_voucher[39.9-0] PASSED                                                    [ 83%]
+test_cart.py::test_voucher[100-0] PASSED                                                     [100%]
+
+======================================== 6 passed in 0.01s =========================================</pre></div><div class="card" style="flex:0 0 auto"><h3><span class="k">try</span>Change it, predict, run</h3><ul class="rules"><li>Add a test that qty=0 raises ValueError.</li><li>Add a parametrize row for a voucher of exactly the total.</li></ul></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="3.3 Mocking and testing errors">
+  <div class="stepbar fx"><span class="on">Explain</span><span class="on">Theory</span><span class="">Code</span><span class="">Practice</span></div>
+  <div class="tag fx">Module 3 · Testing with pytest · 3.3 · Explanation &amp; theory</div>
+  <h1 class="sh fx d1">Mocking: test API code without the internet</h1>
+  <div class="cards grid3 fx d2" style="margin-top:18px;align-items:start"><div class="card accent"><h3><span class="k">what</span>In plain words</h3><p>Tests must be fast and give the same answer every time, so they shouldn't call real APIs. A <b>mock</b> replaces <code>requests.get</code> with a fake that returns fixed data. <code>pytest.raises</code> checks that your code raises the right error.</p></div><div class="card"><h3><span class="k">like</span>Everyday analogy</h3><p>A flight simulator. Pilots practise engine failures safely, on demand, without a real plane.</p></div><div class="card"><h3><span class="k">rules</span>Theory: the key rules</h3><ul class="rules"><li><b>patch("module.requests.get", return_value=fake)</b></li><li><b>side_effect=ConnectionError</b> fakes a network failure</li><li><b>with pytest.raises(ValueError, match="…")</b></li><li>Patch <b>where it's used</b>, not where it's defined</li></ul></div></div>
+  <div class="body figbody" style="margin-top:12px"><div class="figwrap"><svg class="fig" style="min-height:0" viewBox="0 0 1000 300" aria-label="In a test, the real API call is swapped for a fake that returns fixed data">
+        <g font-family="JetBrains Mono,monospace">
+          <g class="fx"><rect x="20" y="100" width="230" height="100" rx="12" fill="#1c2430" stroke="#58a6ff" stroke-width="2"/><text x="135" y="140" font-size="14" fill="#58a6ff" text-anchor="middle" letter-spacing="2">get_rate()</text><text x="135" y="172" font-size="14" fill="#e8eef0" text-anchor="middle">your code</text></g>
+          <line x1="255" y1="130" x2="720" y2="70" stroke="#8b98a5" stroke-width="2" stroke-dasharray="6 5" class="fx d1"/>
+          <g class="fx d1"><rect x="725" y="30" width="255" height="80" rx="10" fill="#0a0e13" stroke="#8b98a5" stroke-dasharray="6 5"/><text x="852" y="66" font-size="14" fill="#8b98a5" text-anchor="middle">real API</text><text x="852" y="92" font-size="12" fill="#ff6f91" text-anchor="middle">slow · flaky · costs</text></g>
+          <line x1="700" y1="60" x2="760" y2="100" stroke="#ff6f91" stroke-width="4" class="fx d2"/><line x1="760" y1="60" x2="700" y2="100" stroke="#ff6f91" stroke-width="4" class="fx d2"/>
+          <line x1="255" y1="170" x2="720" y2="220" stroke="#00dcb4" stroke-width="2" marker-end="url(#e62)" class="draw d3" style="--len:470"/>
+          <g class="fx d4"><rect x="725" y="180" width="255" height="90" rx="10" fill="#0a0e13" stroke="#00dcb4" stroke-width="2"/><text x="852" y="214" font-size="14" fill="#00dcb4" text-anchor="middle">mock</text><text x="852" y="244" font-size="13" fill="#e8eef0" text-anchor="middle">{"rates":{"USD":0.21}}</text></g>
+          <circle r="7" fill="#00dcb4" class="travel" style="offset-path:path('M 255 170 L 720 220')"/>
+          <text x="490" y="290" font-size="14" fill="#8b98a5" text-anchor="middle" class="fx d5">fast · same answer every run · works offline</text>
+        </g>
+        <defs><marker id="e62" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#00dcb4"/></marker></defs>
+      </svg></div></div>
+</section>
+
+<section class="slide" data-title="3.3 Mocking and testing errors · code">
+  <div class="stepbar fx"><span class="">Explain</span><span class="">Theory</span><span class="on">Code</span><span class="">Practice</span></div>
+  <div class="tag fx">Module 3 · Testing with pytest · 3.3 · Code — copy, paste, run</div>
+  <h1 class="sh fx d1">A currency converter tested with no network at all</h1>
+  <div class="body" style="align-items:stretch">
+    <div class="col fx d2" style="flex:1.3;display:flex;flex-direction:column;gap:10px;min-height:0"><div class="cb" style="display:flex;flex-direction:column;min-height:0px;flex:37 1 0"><div class="code-head">test_rates.py</div><pre class="code sm" style="flex:1;min-height:0;margin:0"><span class="c"># Save as test_rates.py and run:  pytest -v test_rates.py</span>
+<span class="k">from</span> unittest.mock <span class="k">import</span> Mock, patch
+
+<span class="k">import</span> pytest
+<span class="k">import</span> requests
+
+
+<span class="k">def</span> get_rate(base: str, target: str) -&gt; float:
+    resp = requests.get(<span class="s">"https://api.frankfurter.app/latest"</span>,
+                        params={<span class="s">"from"</span>: base, <span class="s">"to"</span>: target}, timeout=<span class="n">10</span>)
+    resp.raise_for_status()
+    <span class="k">return</span> resp.json()[<span class="s">"rates"</span>][target]
+
+
+<span class="k">def</span> convert(amount: float, base: str, target: str) -&gt; float:
+    <span class="k">if</span> amount &lt; <span class="n">0</span>:
+        <span class="k">raise</span> ValueError(<span class="s">"amount cannot be negative"</span>)
+    <span class="k">return</span> round(amount * get_rate(base, target), <span class="n">2</span>)
+
+
+<span class="k">def</span> test_convert_uses_rate():
+    fake = Mock()
+    fake.json.return_value = {<span class="s">"rates"</span>: {<span class="s">"USD"</span>: <span class="n">0.21</span>}}
+    <span class="k">with</span> patch(<span class="s">"requests.get"</span>, return_value=fake) <span class="k">as</span> mocked:   <span class="c"># no internet used</span>
+        <span class="k">assert</span> convert(<span class="n">100</span>, <span class="s">"MYR"</span>, <span class="s">"USD"</span>) == <span class="n">21.0</span>
+    mocked.assert_called_once()
+
+
+<span class="k">def</span> test_negative_amount_rejected():
+    <span class="k">with</span> pytest.raises(ValueError, match=<span class="s">"negative"</span>):
+        convert(-<span class="n">5</span>, <span class="s">"MYR"</span>, <span class="s">"USD"</span>)
+
+
+<span class="k">def</span> test_api_down_raises():
+    <span class="k">with</span> patch(<span class="s">"requests.get"</span>, side_effect=requests.ConnectionError):
+        <span class="k">with</span> pytest.raises(requests.ConnectionError):
+            get_rate(<span class="s">"MYR"</span>, <span class="s">"USD"</span>)</pre></div></div>
+    <div class="col fx d3" style="display:flex;flex-direction:column;gap:10px;min-height:0"><div class="cb" style="display:flex;flex-direction:column;min-height:0;flex:1 1 0"><div class="code-head">terminal · real output</div><pre class="code sm out" style="flex:1;min-height:0;margin:0"><span class="cmd">$ pytest -v --no-header test_rates.py</span>
+======================================= test session starts ========================================
+collecting ... collected 3 items
+
+test_rates.py::test_convert_uses_rate PASSED                                                 [ 33%]
+test_rates.py::test_negative_amount_rejected PASSED                                          [ 66%]
+test_rates.py::test_api_down_raises PASSED                                                   [100%]
+
+======================================== 3 passed in 0.08s =========================================</pre></div><div class="card" style="flex:0 0 auto"><h3><span class="k">try</span>Change it, predict, run</h3><ul class="rules"><li>Add a test where the API returns 500 (<code>raise_for_status</code> raises).</li><li>Assert the mock was called with params containing "MYR".</li></ul></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="Module 3 Practice">
+  <div class="stepbar fx"><span class="">Explain</span><span class="">Theory</span><span class="">Code</span><span class="on">Practice</span></div>
+  <div class="tag fx">Module 3 · Testing with pytest · Practice: real-life app + hands-on</div>
+  <h1 class="sh fx d1">Build: test Inventory to 80% coverage</h1>
+  <div class="body" style="align-items:stretch">
+    <div class="col fx d2" style="flex:1.15;display:flex;flex-direction:column;gap:8px;min-height:0"><div class="card accent" style="flex:0 0 auto;padding:12px 16px"><h3><span class="k">real life</span>Payroll calculator tested before it pays real people</h3><p>Overtime and EPF mistakes cost real money and trust. Ten parametrized tests pin down normal hours, overtime, bad input and EPF, so any future change that breaks payroll fails the tests first.</p></div><div class="cb" style="display:flex;flex-direction:column;min-height:130px;flex:38 1 0"><div class="code-head">test_payroll.py</div><pre class="code sm" style="flex:1;min-height:0;margin:0"><span class="c"># Real-life: test a payroll calculator before it pays real people.</span>
+<span class="c"># Save as test_payroll.py and run:  pytest -v test_payroll.py</span>
+<span class="k">import</span> pytest
+
+
+<span class="k">def</span> overtime_pay(hourly: float, hours: float) -&gt; float:
+    <span class="s">"""Normal rate up to 8 hours/day, 1.5x after that."""</span>
+    <span class="k">if</span> hourly &lt;= <span class="n">0</span> <span class="k">or</span> hours &lt; <span class="n">0</span>:
+        <span class="k">raise</span> ValueError(<span class="s">"hourly must be &gt; 0 and hours &gt;= 0"</span>)
+    normal = min(hours, <span class="n">8</span>) * hourly
+    extra = max(hours - <span class="n">8</span>, <span class="n">0</span>) * hourly * <span class="n">1.5</span>
+    <span class="k">return</span> round(normal + extra, <span class="n">2</span>)
+
+
+<span class="k">def</span> net_salary(gross: float, epf_rate: float = <span class="n">0.11</span>) -&gt; float:
+    <span class="s">"""Gross minus employee EPF (simplified rate for class)."""</span>
+    <span class="k">return</span> round(gross * (<span class="n">1</span> - epf_rate), <span class="n">2</span>)
+
+
+@pytest.mark.parametrize(<span class="s">"hours, expected"</span>, [
+    (<span class="n">0</span>, <span class="n">0.0</span>), (<span class="n">4</span>, <span class="n">40.0</span>), (<span class="n">8</span>, <span class="n">80.0</span>), (<span class="n">10</span>, <span class="n">110.0</span>), (<span class="n">12</span>, <span class="n">140.0</span>),
+])
+<span class="k">def</span> test_overtime(hours, expected):
+    <span class="k">assert</span> overtime_pay(<span class="n">10</span>, hours) == expected
+
+
+@pytest.mark.parametrize(<span class="s">"hourly, hours"</span>, [(<span class="n">0</span>, <span class="n">8</span>), (-<span class="n">5</span>, <span class="n">8</span>), (<span class="n">10</span>, -<span class="n">1</span>)])
+<span class="k">def</span> test_bad_input(hourly, hours):
+    <span class="k">with</span> pytest.raises(ValueError):
+        overtime_pay(hourly, hours)
+
+
+<span class="k">def</span> test_net_salary_default_epf():
+    <span class="k">assert</span> net_salary(<span class="n">3000</span>) == pytest.approx(<span class="n">2670.00</span>)
+
+
+<span class="k">def</span> test_net_salary_custom_epf():
+    <span class="k">assert</span> net_salary(<span class="n">3000</span>, epf_rate=<span class="n">0.09</span>) == pytest.approx(<span class="n">2730.00</span>)</pre></div><div class="cb" style="display:flex;flex-direction:column;min-height:90px;flex:0 1 26%"><div class="code-head">terminal · real output</div><pre class="code sm out" style="flex:1;min-height:0;margin:0"><span class="cmd">$ pytest -v --no-header test_payroll.py</span>
+======================================= test session starts ========================================
+collecting ... collected 10 items
+
+test_payroll.py::test_overtime[0-0.0] PASSED                                                 [ 10%]
+test_payroll.py::test_overtime[4-40.0] PASSED                                                [ 20%]
+test_payroll.py::test_overtime[8-80.0] PASSED                                                [ 30%]
+test_payroll.py::test_overtime[10-110.0] PASSED                                              [ 40%]
+test_payroll.py::test_overtime[12-140.0] PASSED                                              [ 50%]
+test_payroll.py::test_bad_input[0-8] PASSED                                                  [ 60%]
+test_payroll.py::test_bad_input[-5-8] PASSED                                                 [ 70%]
+test_payroll.py::test_bad_input[10--1] PASSED                                                [ 80%]
+test_payroll.py::test_net_salary_default_epf PASSED                                          [ 90%]
+test_payroll.py::test_net_salary_custom_epf PASSED                                           [100%]
+
+======================================== 10 passed in 0.01s ========================================</pre></div></div>
+    <div class="col fx d3" style="display:flex;flex-direction:column;gap:10px;min-height:0"><div style="flex:0 0 auto"><div class="hands-on">
+        <div class="lbl">15 minutes · solo</div>
+        <h3>Prove your Class 3 code works</h3>
+        <div class="steps">
+          <div><b>01</b><span>Create <span style="font-family:var(--mono)">tests/test_inventory.py</span> with an <span style="font-family:var(--mono)">inv</span> fixture.</span></div>
+          <div><b>02</b><span>Test <span style="font-family:var(--mono)">add</span>, <span style="font-family:var(--mono)">find</span>, <span style="font-family:var(--mono)">low_stock</span>, <span style="font-family:var(--mono)">total_value</span>, <span style="font-family:var(--mono)">__len__</span>.</span></div>
+          <div><b>03</b><span><span style="font-family:var(--mono)">parametrize</span> low_stock with 3 different limits.</span></div>
+          <div><b>04</b><span><span style="font-family:var(--mono)">pytest.raises</span> for a negative price.</span></div>
+          <div><b>05</b><span>Coverage ≥ 80%? Found a real bug? <b style="color:var(--mint)">Done.</b> Push it.</span></div>
+        </div>
+      </div></div><div class="cb" style="display:flex;flex-direction:column;min-height:0;flex:1 1 0"><div class="code-head">terminal</div><pre class="code sm" style="flex:1;min-height:0;margin:0"><span class="c">$ pytest --cov=kopitiam --cov-report=term-missing</span>
+tests/test_inventory.py ........     [100%]
+
+Name                    Stmts  Miss  Cover  Missing
+kopitiam/models.py         42     6    86%  51-56
+<span class="s">8 passed in 0.11s</span></pre></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="Recap &amp; Summary">
+  <div class="tag fx">Recap &amp; Summary</div>
+  <h1 class="sh fx d1">Advanced tools, and proof they work</h1>
+  <div class="body">
+    <div class="col cards grid3 fx d2">
+      <div class="card accent"><h3><span class="k">M1</span>Generators</h3><p>for-loops call next(); yield pauses a function; stream huge files in flat memory.</p></div>
+      <div class="card accent"><h3><span class="k">M2</span>Decorators &amp; Regex</h3><p>Wrap behaviour with @timer / @retry, cache with lru_cache, find patterns with re, branch with match/case.</p></div>
+      <div class="card accent"><h3><span class="k">M3</span>pytest</h3><p>assert, fixtures, parametrize, pytest.raises, and mocks so tests never touch the network.</p></div>
+    </div>
+  </div>
+  <div class="body" style="flex:0 0 auto;margin-top:0">
+    <div class="col fx d3"><div class="hands-on"><div class="lbl">Homework 6 · due before Class 7</div><h3>One-page project plan + core classes</h3><p>Pick a project (expense tracker, kopitiam POS, marks analyser, receipt logger, rate tracker…). Write: the problem in one sentence, 5 must-have features, a UML sketch, and a GitHub Issue per task. <b style="color:var(--text)">Build the core classes before you arrive.</b></p></div></div>
+    <div class="col fx d4"><div class="card"><h3>Next class — Project Completion with Claude</h3><p>Bring your plan and core classes. You'll use Claude as a pair programmer to finish, test, document and demo your app — and explain every line.</p></div></div>
+  </div>
+</section>
+<section class="slide" data-title="Review Learning Outcomes">
+  <div class="tag fx">Review Learning Outcomes</div>
+  <h1 class="sh fx d1">Did we get there?</h1>
+  <p class="sub fx d2">Rate yourself honestly — 1 to 5. Anything at 2 or below, tell me before you leave.</p>
+  <div class="body">
+    <div class="col cards fx d3">
+      <div class="card"><h3><span class="k">LO1</span>I can write a generator and stream a large file</h3><p style="font-family:var(--mono);color:var(--mint)">1 — 2 — 3 — 4 — 5</p></div>
+      <div class="card"><h3><span class="k">LO2</span>I can write a decorator, including one with arguments</h3><p style="font-family:var(--mono);color:var(--mint)">1 — 2 — 3 — 4 — 5</p></div>
+      <div class="card"><h3><span class="k">LO3</span>I can extract patterns with regex</h3><p style="font-family:var(--mono);color:var(--mint)">1 — 2 — 3 — 4 — 5</p></div>
+      <div class="card accent"><h3><span class="k">LO4</span>My Inventory tests pass at ≥ 80% coverage</h3><p style="font-family:var(--mono);color:var(--mint)">Yes — Not yet</p></div>
+    </div>
+  </div>
+  <p class="caption fx d4">codencode.my · Class 06 complete · bring your project plan next week</p>
+</section>
+</div>
+
+<div id="nav">
+  <button class="navbtn" onclick="go(-1)">PREV</button>
+  <div id="dots"></div>
+  <button class="navbtn" onclick="go(1)">NEXT</button>
+</div>
+
+<script>
+const slides=[...document.querySelectorAll('.slide')];
+let i=0;
+const dots=document.getElementById('dots');
+slides.forEach((s,n)=>{const d=document.createElement('div');d.className='dot';
+  d.onclick=()=>show(n);dots.appendChild(d);});
+function show(n){
+  if(n<0||n>=slides.length)return;
+  slides[i].classList.remove('active');
+  i=n;
+  // force reflow so entry animations restart cleanly
+  void slides[i].offsetWidth;
+  slides[i].classList.add('active');
+  document.getElementById('counter').textContent=String(i+1).padStart(2,'0')+' / '+slides.length;
+  document.getElementById('titlebar').textContent=slides[i].dataset.title||'';
+  document.getElementById('progress').style.width=((i+1)/slides.length*100)+'%';
+  [...dots.children].forEach((d,n2)=>d.classList.toggle('on',n2===i));
+}
+function go(d){show(i+d);}
+function fs(){document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen();}
+addEventListener('keydown',e=>{
+  if(['ArrowRight',' ','PageDown'].includes(e.key)){e.preventDefault();go(1);}
+  if(['ArrowLeft','PageUp'].includes(e.key)){e.preventDefault();go(-1);}
+  if(e.key==='Home')show(0);
+  if(e.key==='End')show(slides.length-1);
+  if(e.key==='f')fs();
+});
+
+/* ---------- copy-to-clipboard on every code block ---------- */
+(function(){
+  document.querySelectorAll('pre.code').forEach(pre=>{
+    const source = pre.textContent;               // capture BEFORE adding the button
+    const btn = document.createElement('button');
+    btn.className = 'copybtn';
+    btn.type = 'button';
+    btn.textContent = 'COPY';
+    btn.addEventListener('click', async e=>{
+      e.stopPropagation();
+      try{
+        await navigator.clipboard.writeText(source);
+      }catch(err){                                 // file:// fallback
+        const ta=document.createElement('textarea');
+        ta.value=source; ta.style.position='fixed'; ta.style.opacity='0';
+        document.body.appendChild(ta); ta.select();
+        try{document.execCommand('copy');}catch(_){}
+        document.body.removeChild(ta);
+      }
+      btn.textContent='COPIED'; btn.classList.add('done');
+      setTimeout(()=>{btn.textContent='COPY'; btn.classList.remove('done');},1400);
+    });
+    pre.appendChild(btn);
+  });
+})();
+
+show(0);
+</script>
+
+<div id="xmodal" role="dialog" aria-modal="true"><div class="box">
+  <div class="bar"><span id="xtitle"></span><button class="btn" id="xcopy">COPY</button><button class="btn ghost" id="xclose">CLOSE ✕ (Esc)</button></div>
+  <pre class="code" id="xpre"></pre></div></div>
+<script>
+(function(){
+  const modal=document.getElementById('xmodal'), xpre=document.getElementById('xpre'),
+        xtitle=document.getElementById('xtitle'), xcopy=document.getElementById('xcopy');
+  let src='';
+  function open(head, pre){
+    const clone=pre.cloneNode(true);
+    clone.querySelectorAll('.copybtn').forEach(b=>b.remove());
+    src=clone.textContent; xpre.innerHTML=clone.innerHTML;
+    xtitle.textContent=head.childNodes[0].textContent.trim();
+    xcopy.textContent='COPY'; modal.classList.add('on'); xpre.scrollTop=0;
+  }
+  function close(){modal.classList.remove('on');}
+  document.querySelectorAll('.cb').forEach(cb=>{
+    const head=cb.querySelector('.code-head'), pre=cb.querySelector('pre.code');
+    if(!head||!pre)return;
+    const b=document.createElement('button'); b.className='xbtn'; b.type='button'; b.textContent='EXPAND ⤢';
+    b.addEventListener('click',e=>{e.stopPropagation();open(head,pre);});
+    head.appendChild(b);
+    head.style.cursor='zoom-in'; head.addEventListener('dblclick',()=>open(head,pre));
+  });
+  document.getElementById('xclose').onclick=close;
+  modal.addEventListener('click',e=>{if(e.target===modal)close();});
+  xcopy.onclick=async()=>{try{await navigator.clipboard.writeText(src);}catch(_){
+      const t=document.createElement('textarea');t.value=src;document.body.appendChild(t);t.select();
+      try{document.execCommand('copy');}catch(__){} t.remove();}
+    xcopy.textContent='COPIED';};
+  window.addEventListener('keydown',e=>{
+    if(!modal.classList.contains('on'))return;
+    if(e.key==='Escape')close();
+    e.stopImmediatePropagation();
+  },true);
+})();
+</script>
+</body>
+</html>
