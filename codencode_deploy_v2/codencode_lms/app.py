@@ -4111,7 +4111,7 @@ def _certificate_pdf_bytes(cert, verify_url, cert_data=None):
         issued_label = str(cert_data['issued_at'])
 
     fonts = _certificate_fonts()
-    DARK, TURQ, INK = '#006B50', '#00D5AE', '#101010'
+    DARK, TURQ, INK = '#006B59', '#00DCB4', '#101010'  # logo teal family; matches certificate.html
 
     buf = io.BytesIO()
     width, height = landscape(A4)

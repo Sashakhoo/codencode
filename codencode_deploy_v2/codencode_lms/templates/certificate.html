@@ -12,9 +12,11 @@
     @font-face { font-family: 'Poppins'; src: url('{{ url_for("static", filename="fonts/Poppins-Medium.ttf") }}') format('truetype'); font-weight: 500; }
     @font-face { font-family: 'Poppins'; src: url('{{ url_for("static", filename="fonts/Poppins-SemiBold.ttf") }}') format('truetype'); font-weight: 600; }
 
+    /* Brand colours taken from the logo (static/img/logo_full.png): teal #00DCB4 (hue 169°)
+       and a darker shade of the same hue. Keep in sync with DARK/TURQ in app.py. */
     :root {
-      --turq: #00D5AE;
-      --dark: #006B50;
+      --turq: #00DCB4;
+      --dark: #006B59;
       --mint: #B8F5DF;
       --ink: #101010;
     }
