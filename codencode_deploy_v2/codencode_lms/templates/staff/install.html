@@ -1,0 +1,73 @@
+{% extends 'staff/base.html' %}
+{% block title %}Install the app{% endblock %}
+{% block main %}
+<div class="top"><div><h1>Put the Staff Portal on your phone</h1>
+  <div class="sub">Two minutes, once. Then you open it like an app and get reminders before each class.</div></div></div>
+
+<section class="card">
+  <div class="card-h"><h2><span class="dot"></span>Your setup</h2></div>
+  <div class="checks">
+    <div class="check" id="chkInstalled"><i aria-hidden="true"></i><div><b>Added to home screen</b><div class="note" data-msg>Checking…</div></div></div>
+    <div class="check" id="chkPush"><i aria-hidden="true"></i><div><b>Notifications on</b><div class="note" data-msg>Checking…</div></div></div>
+  </div>
+</section>
+
+<section class="card">
+  <div class="card-h"><h2>1 · Add it to your home screen</h2>
+    <div class="seg" role="group" aria-label="Phone type">
+      <button type="button" data-os="ios" aria-pressed="true">iPhone</button>
+      <button type="button" data-os="android" aria-pressed="false">Android</button>
+      <button type="button" data-os="desktop" aria-pressed="false">Computer</button>
+    </div>
+  </div>
+
+  <ol class="steps" data-panel="ios">
+    <li><b>Open this page in Safari.</b> Other iPhone browsers can't install it or show notifications. If you're in Chrome, copy <span class="m">{{ request.host }}/staff</span> into Safari.</li>
+    <li><b>Tap the Share button</b> <span class="kbd"><svg viewBox="0 0 24 24" aria-label="Share icon"><path d="M12 15V3m0 0L8 7m4-4l4 4"/><path d="M6 11H5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-8a1 1 0 0 0-1-1h-1"/></svg></span> at the bottom of the screen (at the top on iPad).</li>
+    <li><b>Scroll down and tap “Add to Home Screen”</b> <span class="kbd"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M12 8v8M8 12h8"/></svg></span>. If you don't see it, tap “Edit Actions” at the bottom of the list and add it.</li>
+    <li><b>Tap “Add”</b> in the top-right corner. The Codencode Staff icon appears on your home screen.</li>
+    <li><b>Close Safari and open the app from the new icon.</b> Sign in once more. Notifications only work when it is opened from the icon (iOS 16.4 or later).</li>
+  </ol>
+
+  <div class="status ok" id="androidQuick" hidden>Quickest way: <button type="button" class="btn sm" id="installNow">Install the app</button> then tap “Install”, and skip to step 2. Or follow these steps:</div>
+  <ol class="steps" data-panel="android" hidden>
+    <li><b>Open this page in Chrome.</b></li>
+    <li><b>Tap the menu</b> <span class="kbd"><svg viewBox="0 0 24 24" aria-label="Menu icon"><circle cx="12" cy="5" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="12" cy="19" r="1.5"/></svg></span> in the top-right corner.</li>
+    <li><b>Tap “Add to Home screen”</b> (or “Install app”), then <b>“Install”</b>.</li>
+    <li><b>Open it from the new Codencode Staff icon.</b></li>
+  </ol>
+
+  <ol class="steps" data-panel="desktop" hidden>
+    <li><b>Use Chrome or Edge.</b></li>
+    <li><b>Click the install icon</b> <span class="kbd"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="13" rx="2"/><path d="M12 8v6m0 0l-2.5-2.5M12 14l2.5-2.5M8 21h8"/></svg></span> at the right end of the address bar, then “Install”.</li>
+    <li>Not needed for clocking in at the office — use your phone for that, because the office check uses GPS.</li>
+  </ol>
+</section>
+
+<section class="card">
+  <div class="card-h"><h2>2 · Turn on notifications</h2></div>
+  <ol class="steps">
+    <li><b>Open the app from your home-screen icon</b> (on iPhone this is required).</li>
+    <li><b>Tap</b> <button type="button" class="btn sm" id="pushNow">Turn on notifications</button> <b>then “Allow”.</b></li>
+    <li>You'll be reminded 15 minutes before each class, if you haven't clocked in 10 minutes after the start, and if you forget to clock out.</li>
+  </ol>
+  <div id="pushStat" class="status" hidden></div>
+  <details class="note">
+    <summary><b>I tapped “Don't Allow” by mistake</b></summary>
+    <p><b>iPhone:</b> Settings → Notifications → Codencode Staff → turn on Allow Notifications.<br>
+       <b>Android:</b> long-press the app icon → App info → Notifications → turn on.<br>
+       <b>Computer:</b> click the lock icon next to the address → Notifications → Allow.</p>
+  </details>
+</section>
+
+<section class="card">
+  <div class="card-h"><h2>3 · Using it every day</h2></div>
+  <ol class="steps">
+    <li><b>Zoom class:</b> open <a href="/staff/classes">My classes</a> and tap <b>Start class</b> (it appears 15 minutes before). It clocks you in and opens Zoom. In Zoom, rename yourself to <b>“Your name – Teacher”</b>.</li>
+    <li><b>Office work:</b> at the office, open <a href="/staff/clock">Office clock-in</a>, type your task, tap <b>Check my location</b>, then <b>Clock in</b>. Allow location when asked.</li>
+    <li><b>Finished?</b> Tap the green <b>Clock out</b> bar at the top of any page.</li>
+    <li><b>Check your hours</b> on <a href="/staff">Attendance</a> and <a href="/staff/pay">My pay</a>. Green = verified. Amber or red = admin will review it. Dashed = waiting for the Zoom report.</li>
+  </ol>
+  <div class="note">You can't edit a clock-in after the fact. If something is wrong, tell admin; they can correct it.</div>
+</section>
+{% endblock %}

@@ -1,0 +1,38 @@
+{% extends 'staff/base.html' %}
+{% block title %}Zoom reports{% endblock %}
+{% block main %}
+<section class="card">
+  <div class="card-h"><h2>Zoom participant reports</h2>
+    <button class="btn ghost" data-post="/staff/api/admin/reports/pull" data-report{% if not zoom_ready %} disabled title="Zoom is not configured"{% endif %}>Pull from Zoom now</button></div>
+  <div class="note">Reports arrive automatically: Zoom sends <b>meeting.ended</b>, and the participant report is fetched 10 minutes later. A nightly job at 2 am retries anything from the last 14 days. Upload a CSV only if a report is still missing.</div>
+  <form class="drop" id="csvForm">
+    <div class="note">In Zoom: Reports → Usage → click the participant number → tick <b>Show meeting data</b> → Export. Upload one CSV per class. The host row ({{ config.ZOOM_HOST_EMAIL }}) or a participant renamed "Name – Teacher" counts as the teacher.</div>
+    <div class="row"><input type="file" name="files" accept=".csv,text/csv" multiple required><button class="btn" type="submit">Upload</button></div>
+    <div id="zStat" class="status">No files uploaded yet.</div>
+  </form>
+  <h2>Sessions awaiting a report</h2>
+  <div class="tbl"><table>
+    <thead><tr><th>Date</th><th>Class</th><th>Teacher</th><th>App clock</th><th>Status</th></tr></thead>
+    <tbody>
+    {% for r in waiting %}
+      <tr><td class="m">{{ r.day_label }}</td><td>{{ r.title }}<div class="note m">{{ r.zoom_meeting_id }}</div></td><td>{{ r.user.name }}</td><td class="m">{{ r.in }}–{{ r.out }}</td><td><span class="pill f-wait">Awaiting report</span></td></tr>
+    {% else %}
+      <tr><td colspan="5" class="note">Every Zoom session from the last 45 days has a matching report.</td></tr>
+    {% endfor %}
+    </tbody>
+  </table></div>
+</section>
+<section class="card">
+  <h2>Queue and recent reports</h2>
+  <div class="tbl"><table>
+    <thead><tr><th>Meeting</th><th>Due</th><th>Tries</th><th>Last error</th></tr></thead>
+    <tbody>{% for j in jobs %}<tr><td class="m">{{ j.zoom_meeting_id }}</td><td class="m">{{ j.due_at|staff_dt }}</td><td class="m">{{ j.tries }}</td><td class="note">{{ j.last_error or '' }}</td></tr>
+    {% else %}<tr><td colspan="4" class="note">No report fetches queued.</td></tr>{% endfor %}</tbody>
+  </table></div>
+  <div class="tbl"><table>
+    <thead><tr><th>Meeting</th><th>Date</th><th>Participants</th><th>Source</th><th>Fetched</th></tr></thead>
+    <tbody>{% for r in recent %}<tr><td class="m">{{ r.zoom_meeting_id }}</td><td class="m">{{ r.local_date }}</td><td class="m">{{ r.participants|length }}</td><td>{{ r.source|upper }}</td><td class="m">{{ r.fetched_at|staff_dt }}</td></tr>
+    {% else %}<tr><td colspan="5" class="note">No reports stored yet.</td></tr>{% endfor %}</tbody>
+  </table></div>
+</section>
+{% endblock %}
