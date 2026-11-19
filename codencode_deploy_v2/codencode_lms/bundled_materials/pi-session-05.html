@@ -1,0 +1,1342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Class 05 — APIs &amp; Data Analysis · Python Intermediate | codencode Academy</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0d1117; --panel:#161b22; --panel2:#1c2430; --line:#2a3440;
+  --mint:#00dcb4; --mint-d:#00a888; --text:#e8eef0; --muted:#8b98a5;
+  --coral:#ff6f91; --amber:#f0b429; --blue:#58a6ff;
+  --sans:'Space Grotesk','Inter',system-ui,sans-serif;
+  --body:'Inter',system-ui,sans-serif;
+  --mono:'JetBrains Mono','SF Mono',Consolas,monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:var(--body);height:100vh;overflow:hidden;user-select:none}
+
+/* ---------- chrome ---------- */
+#topbar{position:fixed;top:0;left:0;right:0;height:52px;display:flex;align-items:center;
+  gap:16px;padding:0 24px;background:rgba(13,17,23,.92);border-bottom:1px solid var(--line);z-index:50;backdrop-filter:blur(8px)}
+.wordmark{height:21px;width:auto;display:block;flex-shrink:0}
+#sesslabel{font-size:12px;color:var(--muted);font-family:var(--mono);letter-spacing:.04em}
+#titlebar{flex:1;text-align:center;font-size:13px;color:var(--muted);font-family:var(--mono);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#counter{font-family:var(--mono);font-size:12px;color:var(--mint)}
+.btn{background:rgba(0,220,180,.10);border:1px solid rgba(0,220,180,.32);color:var(--mint);
+  font-family:var(--mono);font-size:11px;padding:6px 12px;border-radius:6px;cursor:pointer}
+.btn:hover{background:rgba(0,220,180,.20)}
+#progress{position:fixed;top:52px;left:0;height:2px;background:var(--mint);z-index:51;transition:width .3s ease}
+#nav{position:fixed;bottom:0;left:0;right:0;height:56px;display:flex;align-items:center;justify-content:center;
+  gap:20px;z-index:50}
+.navbtn{background:var(--panel);border:1px solid var(--line);color:var(--muted);font-family:var(--mono);
+  font-size:12px;padding:8px 16px;border-radius:8px;cursor:pointer}
+.navbtn:hover{border-color:var(--mint);color:var(--mint)}
+#dots{display:flex;gap:6px;flex-wrap:wrap;max-width:50vw;justify-content:center}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--line);cursor:pointer;transition:.2s}
+.dot.on{background:var(--mint);transform:scale(1.35)}
+
+/* ---------- slides ---------- */
+#deck{position:absolute;top:54px;bottom:56px;left:0;right:0}
+.slide{position:absolute;inset:0;padding:40px 60px;display:none;flex-direction:column;overflow-y:auto;overflow-x:hidden}
+.slide.active{display:flex;animation:slideIn .4s ease both;background:var(--bg);z-index:1}
+@keyframes slideIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+
+.tag{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--mint);margin-bottom:12px}
+h1.sh{font-family:var(--sans);font-size:clamp(26px,3.2vw,40px);font-weight:700;line-height:1.12;margin-bottom:8px}
+h1.sh::after{content:'';display:block;width:56px;height:4px;background:var(--mint);border-radius:2px;margin-top:14px}
+.sub{color:var(--muted);font-size:16px;margin-top:14px;max-width:70ch;line-height:1.6}
+.body{flex:1;display:flex;gap:32px;align-items:center;margin-top:24px;min-height:0}
+.col{flex:1;min-width:0}
+
+/* title slide */
+.title-slide{align-items:center;justify-content:center;text-align:center}
+.title-slide .badge{font-family:var(--mono);font-size:12px;color:var(--mint);border:1px solid rgba(0,220,180,.34);
+  background:rgba(0,220,180,.08);padding:7px 18px;border-radius:20px;margin-bottom:26px}
+.title-slide h1{font-family:var(--sans);font-size:clamp(40px,6vw,72px);font-weight:700;line-height:1.05}
+.title-slide h1 em{font-style:normal;color:var(--mint)}
+.title-slide p{color:var(--muted);font-size:18px;margin-top:20px;max-width:60ch}
+.title-slide .foot{margin-top:38px;font-family:var(--mono);font-size:13px;color:var(--muted)}
+
+/* section divider */
+.divider{align-items:flex-start;justify-content:center}
+.divider .num{font-family:var(--sans);font-size:120px;font-weight:700;color:rgba(0,220,180,.16);line-height:1}
+.divider h1{font-family:var(--sans);font-size:clamp(34px,4.6vw,56px);font-weight:700;margin-top:-18px}
+.divider .items{margin-top:26px;display:flex;flex-direction:column;gap:12px}
+.divider .items div{font-size:17px;color:var(--muted)}
+.divider .items b{color:var(--mint);font-family:var(--mono);font-size:15px;margin-right:12px}
+
+/* cards / lists */
+.cards{display:grid;gap:14px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:18px 20px}
+.card.accent{border-color:rgba(0,220,180,.45);background:var(--panel2)}
+.card h3{font-family:var(--sans);font-size:17px;font-weight:600;margin-bottom:6px}
+.card h3 .k{color:var(--mint);font-family:var(--mono);font-size:14px;margin-right:8px}
+.card p{color:var(--muted);font-size:14.5px;line-height:1.55}
+.grid2{grid-template-columns:1fr 1fr}
+.grid3{grid-template-columns:repeat(3,1fr)}
+
+table.cps{width:100%;border-collapse:collapse;font-size:15px}
+table.cps th{text-align:left;font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--mint);padding:10px 14px;border-bottom:1px solid var(--line)}
+table.cps td{padding:14px;border-bottom:1px solid var(--line);color:var(--text);line-height:1.5;vertical-align:top}
+table.cps td:first-child{color:var(--mint);font-family:var(--mono);font-size:13px;width:150px;white-space:nowrap}
+
+pre.code{background:#0a0e13;border:1px solid var(--line);border-radius:10px;padding:18px 20px;
+  font-family:var(--mono);font-size:14.5px;line-height:1.75;overflow:auto;color:var(--text)}
+pre.code .c{color:var(--muted)}
+pre.code .s{color:var(--mint)}
+pre.code .n{color:var(--blue)}
+pre.code .e{color:var(--coral)}
+.code-head{font-family:var(--mono);font-size:11px;color:var(--muted);background:var(--panel2);
+  border:1px solid var(--line);border-bottom:none;border-radius:10px 10px 0 0;padding:8px 14px}
+.code-head + pre.code{border-radius:0 0 10px 10px}
+
+.pill{display:inline-block;font-family:var(--mono);font-size:11.5px;padding:5px 12px;border-radius:14px;
+  border:1px solid;margin:0 8px 8px 0}
+.pill.mint{color:var(--mint);border-color:rgba(0,220,180,.4);background:rgba(0,220,180,.08)}
+.pill.coral{color:var(--coral);border-color:rgba(255,111,145,.4);background:rgba(255,111,145,.08)}
+.pill.amber{color:var(--amber);border-color:rgba(240,180,41,.4);background:rgba(240,180,41,.08)}
+.pill.blue{color:var(--blue);border-color:rgba(88,166,255,.4);background:rgba(88,166,255,.08)}
+
+.hands-on{border-left:3px solid var(--mint);background:linear-gradient(90deg,rgba(0,220,180,.07),transparent 60%);
+  padding:18px 24px;border-radius:0 10px 10px 0}
+.hands-on .lbl{font-family:var(--mono);font-size:11px;letter-spacing:.14em;color:var(--mint);text-transform:uppercase}
+.hands-on h3{font-family:var(--sans);font-size:20px;margin:8px 0 10px}
+.hands-on p{color:var(--muted);font-size:15px;line-height:1.6}
+.steps{margin-top:14px;display:flex;flex-direction:column;gap:9px}
+.steps div{font-size:14.5px;color:var(--text);display:flex;gap:12px;align-items:flex-start}
+.steps b{color:var(--mint);font-family:var(--mono);font-size:13px;flex-shrink:0}
+
+svg.fig{width:100%;height:100%;min-height:300px;flex:1 1 auto;display:block}
+.figwrap{flex:1.8 1 0;display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:0;min-height:0;max-height:100%;gap:6px}
+.figwrap > .legend,.figwrap > .controls,.figwrap > .gate,.figwrap > .eq{flex:0 0 auto;width:100%}
+.caption{font-size:13.5px;color:var(--muted);font-style:italic;margin-top:14px;text-align:center}
+
+/* ---------- animation primitives (restart on slide entry) ---------- */
+.fx{opacity:0}
+.slide.active .fx{animation:fadeUp .55s ease forwards}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.slide.active .d1{animation-delay:.15s}.slide.active .d2{animation-delay:.35s}
+.slide.active .d3{animation-delay:.55s}.slide.active .d4{animation-delay:.75s}
+.slide.active .d5{animation-delay:.95s}.slide.active .d6{animation-delay:1.15s}
+.slide.active .d7{animation-delay:1.35s}.slide.active .d8{animation-delay:1.55s}
+.slide.active .d9{animation-delay:1.75s}.slide.active .d10{animation-delay:1.95s}
+
+.draw{stroke-dasharray:var(--len,300);stroke-dashoffset:var(--len,300);opacity:1}
+.slide.active .draw{animation:drawIn .6s ease forwards}
+@keyframes drawIn{to{stroke-dashoffset:0}}
+
+.slide.active .pulse{animation:pulse 2.2s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.45}}
+
+.slide.active .travel{animation:travel 4.5s linear infinite}
+@keyframes travel{0%{offset-distance:0%}100%{offset-distance:100%}}
+
+.slide.active .grow{transform-origin:bottom;animation:grow .8s cubic-bezier(.22,1,.36,1) forwards}
+@keyframes grow{from{transform:scaleY(0)}to{transform:scaleY(1)}}
+
+.slide.active .cycle1{animation:hl 6s ease-in-out infinite}
+.slide.active .cycle2{animation:hl 6s ease-in-out infinite 2s}
+.slide.active .cycle3{animation:hl 6s ease-in-out infinite 4s}
+@keyframes hl{0%,8%{opacity:0}14%,28%{opacity:1}36%,100%{opacity:0}}
+
+.slide.active .typing{animation:typing 1.4s steps(18) forwards;white-space:nowrap;overflow:hidden;
+  display:inline-block;width:0}
+@keyframes typing{to{width:100%}}
+
+/* ---------- copiable code ---------- */
+pre.code{position:relative;user-select:text}
+.copybtn{position:absolute;top:7px;right:7px;z-index:3;background:rgba(22,27,34,.94);
+  border:1px solid var(--line);color:var(--muted);font-family:var(--mono);font-size:10.5px;
+  letter-spacing:.06em;padding:4px 9px;border-radius:5px;cursor:pointer;opacity:0;transition:.16s}
+pre.code:hover .copybtn{opacity:1}
+.copybtn:hover{border-color:var(--mint);color:var(--mint)}
+.copybtn.done{border-color:var(--mint);color:var(--mint);opacity:1}
+
+
+/* ---------- figure slides: stacked on tall screens, side-by-side when wide ---------- */
+.cb{display:block}
+.figbody{flex:1;display:flex;gap:32px;align-items:center;margin-top:24px;min-height:0}
+.figbody > .figwrap{flex:1.8 1 0}
+.figbody > .figside{display:flex;flex-direction:column;gap:12px;min-width:0}
+.figbody > .figside > *{margin-bottom:0}
+@media (max-aspect-ratio: 29/20){
+  .figbody{flex-direction:column;align-items:stretch;gap:16px}
+  .figbody > .figwrap{flex:0 1 auto;width:100%;max-width:none;justify-content:flex-start}
+  .figbody > .figwrap > svg.fig{height:auto;min-height:0;flex:0 0 auto;max-height:100%}
+  .figbody > .figside{max-width:none !important;flex:0 0 auto;display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:14px;align-items:start}
+  .figbody > .figside .controls,.figbody > .figside .legend{justify-content:flex-start}
+}
+
+/* ---------- figure furniture ---------- */
+.legend{display:flex;gap:18px;font-family:var(--mono);font-size:12px;color:var(--muted);
+  margin-top:6px;flex-wrap:wrap;justify-content:center}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px;vertical-align:middle}
+.controls{display:flex;gap:10px;align-items:center;margin-top:12px;flex-wrap:wrap;justify-content:center}
+.btn.ghost{background:transparent;border-color:var(--line);color:var(--muted)}
+.btn.ghost:hover{border-color:var(--mint);color:var(--mint)}
+.gate{margin-bottom:12px}
+.gate label{display:flex;justify-content:space-between;align-items:center;font-family:var(--mono);
+  font-size:12.5px;margin-bottom:6px;gap:12px}
+input[type=range]{width:100%;height:5px;border-radius:3px;appearance:none;background:var(--line);outline:none}
+input[type=range]::-webkit-slider-thumb{appearance:none;width:15px;height:15px;border-radius:50%;
+  background:var(--mint);cursor:pointer;border:2px solid #0d1117}
+.eq{font-family:var(--mono);font-size:12.5px;color:var(--muted);line-height:1.9;background:#0a0e13;
+  border:1px solid var(--line);border-radius:9px;padding:11px 13px}
+.eq b{color:var(--text);font-weight:400}
+.def{border-left:3px solid var(--blue);background:linear-gradient(90deg,rgba(88,166,255,.09),transparent 65%);
+  padding:14px 18px;border-radius:0 9px 9px 0;margin-bottom:12px}
+.def .lbl{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;color:var(--blue);text-transform:uppercase}
+.def h4{font-family:var(--sans);font-size:17px;margin:5px 0 6px}
+.def p{color:var(--muted);font-size:14px;line-height:1.6}
+.def p b{color:var(--text);font-weight:600}
+.theory{border-left:3px solid var(--amber);background:linear-gradient(90deg,rgba(240,180,41,.08),transparent 65%);
+  padding:14px 18px;border-radius:0 9px 9px 0;margin-bottom:12px}
+.theory .lbl{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;color:var(--amber);text-transform:uppercase}
+.theory p{color:var(--muted);font-size:14px;line-height:1.6;margin-top:6px}
+.theory p b{color:var(--text);font-weight:600}
+.formula{background:#0a0e13;border:1px solid var(--line);border-radius:10px;padding:16px 20px;
+  font-family:var(--mono);font-size:19px;color:var(--mint);text-align:center;margin:10px 0}
+.formula small{display:block;font-size:12px;color:var(--muted);margin-top:8px}
+table.t{width:100%;border-collapse:collapse;font-size:13.5px}
+table.t th{text-align:left;font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--mint);padding:9px 12px;border-bottom:1px solid var(--line)}
+table.t td{padding:10px 12px;border-bottom:1px solid var(--line);color:var(--muted);line-height:1.5;vertical-align:top}
+table.t td:first-child{color:var(--text);font-family:var(--mono);font-size:12.5px}
+table.cps td:first-child{color:var(--mint);font-family:var(--mono);font-size:13px;width:140px}
+pre.code.sm{font-size:12.3px;line-height:1.6}
+.card.warn{border-color:rgba(255,111,145,.42)}
+.divider .num{font-family:var(--sans);font-size:112px;font-weight:700;color:rgba(0,220,180,.16);line-height:1}
+
+pre.code.sm{font-size:clamp(12px,0.74vw,14.5px);line-height:1.6;padding:14px 16px}
+pre.code .k{color:var(--blue)}
+pre.code .n{color:var(--amber)}
+pre.code .cmd{color:var(--mint)}
+pre.code.out{color:#c9d4dc}
+.card ul.rules{margin:6px 0 0 18px;color:var(--muted);font-size:14px;line-height:1.6}
+.card ul.rules li{margin-bottom:3px}
+.card ul.rules b{color:var(--text);font-weight:600}
+.stepbar{display:flex;gap:6px;margin:-2px 0 6px;font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase}
+.stepbar span{padding:3px 9px;border-radius:10px;border:1px solid var(--line);color:var(--muted)}
+.stepbar span.on{color:var(--bg);background:var(--mint);border-color:var(--mint)}
+img.result{max-width:100%;max-height:230px;object-fit:contain;border-radius:8px;border:1px solid var(--line);background:#fff;align-self:center}
+.code-head{display:flex;align-items:center;gap:10px}
+.code-head .xbtn{margin-left:auto;background:rgba(0,220,180,.10);border:1px solid rgba(0,220,180,.32);color:var(--mint);
+  font-family:var(--mono);font-size:10.5px;letter-spacing:.06em;padding:3px 9px;border-radius:5px;cursor:pointer}
+.code-head .xbtn:hover{background:rgba(0,220,180,.22)}
+#xmodal{position:fixed;inset:0;z-index:200;background:rgba(5,8,12,.86);backdrop-filter:blur(4px);display:none;
+  align-items:center;justify-content:center;padding:40px}
+#xmodal.on{display:flex}
+#xmodal .box{width:min(1300px,100%);height:100%;display:flex;flex-direction:column;background:#0a0e13;
+  border:1px solid var(--mint);border-radius:12px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.6)}
+#xmodal .bar{display:flex;align-items:center;gap:12px;padding:10px 16px;background:var(--panel2);border-bottom:1px solid var(--line);
+  font-family:var(--mono);font-size:13px;color:var(--muted)}
+#xmodal #xcopy{margin-left:auto}
+#xmodal pre.code{flex:1;margin:0;border:none;border-radius:0;font-size:clamp(14px,1.05vw,19px);line-height:1.65;overflow:auto;padding:22px 26px}
+@keyframes barx{from{opacity:0;transform:scaleX(0)}to{opacity:1;transform:scaleX(1)}}
+</style>
+</head>
+<body>
+
+<div id="topbar">
+  <img class="wordmark" src="data:image/png;base64,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" alt="codencode.my">
+  <div id="sesslabel">CLASS 05</div>
+  <div id="titlebar"></div>
+  <div id="counter"></div>
+  <button class="btn" onclick="fs()">FULLSCREEN</button>
+</div>
+<div id="progress"></div>
+
+<div id="deck">
+
+<section class="slide title-slide" data-title="Main Title">
+  <div class="badge fx">CLASS 05 OF 07 · PYTHON INTERMEDIATE</div>
+  <h1 class="fx d1">APIs &amp; <em>Data Analysis</em></h1>
+  <p class="fx d2">Level 3 starts here. Pull live data from the internet, turn messy tables into answers with pandas, and show them as charts.</p>
+  <div class="foot fx d3">codencode Academy · Level 3 · Connect and scale · 2 hours</div>
+</section>
+<section class="slide" data-title="Session Plan">
+  <div class="tag fx">Session Plan</div>
+  <h1 class="sh fx d1">What we're doing today</h1>
+  <div class="body">
+    <div class="col cards grid3">
+      <div class="card accent fx d2"><h3><span class="k">M1</span>Working with APIs</h3><p>HTTP and REST, <span style="font-family:var(--mono)">requests</span> and JSON, API keys in <span style="font-family:var(--mono)">.env</span>.</p><div style="margin-top:12px"><span class="pill mint">30 min</span></div></div>
+      <div class="card accent fx d3"><h3><span class="k">M2</span>pandas</h3><p>Load and filter DataFrames, group and aggregate, clean messy data.</p><div style="margin-top:12px"><span class="pill mint">35 min</span></div></div>
+      <div class="card accent fx d4"><h3><span class="k">M3</span>Visualise &amp; Pipeline</h3><p>matplotlib charts, exporting reports, and an API → SQLite → chart pipeline.</p><div style="margin-top:12px"><span class="pill mint">30 min</span></div></div>
+    </div>
+  </div>
+  <div class="cards grid3 fx d5" style="margin-top:4px">
+    <div class="card"><p><b style="color:var(--text)">Revise 10 min + Recap 15 min</b> — OOP + SQL mini challenge, outcomes review</p></div>
+    <div class="card"><p><b style="color:var(--text)">Homework 5</b> — a data report from a public API of your choice</p></div>
+    <div class="card"><p><b style="color:var(--text)">Install</b> — <span style="font-family:var(--mono)">pip install requests pandas matplotlib python-dotenv</span></p></div>
+  </div>
+</section>
+<section class="slide" data-title="Revised Last Week">
+  <div class="tag fx">Revised Last Week · 10 minutes</div>
+  <h1 class="sh fx d1">OOP + SQL mini challenge</h1>
+  <p class="sub fx d2">Pairs. Spot the three problems in this repository class. First pair with all three wins.</p>
+  <div class="body">
+    <div class="col fx d3">
+      <div class="cb"><div class="code-head">student_repo.py — 3 problems</div><pre class="code">class StudentRepo(sqlite3.Connection):      <span class="c"># 1</span>
+    def add(self, name, mark):
+        self.execute(
+          <span class="e">f"INSERT INTO students VALUES ('{name}', {mark})"</span>)  <span class="c"># 2</span>
+                                                 <span class="c"># 3</span>
+    def top(self):
+        return self.execute(
+          <span class="s">"SELECT * FROM students ORDER BY mark DESC"</span>
+        ).fetchone()</pre></div>
+    </div>
+    <div class="col cards fx d4">
+      <div class="card"><h3><span class="k">1</span>Inheritance where it should compose</h3><p>A repository <b>has a</b> connection — it isn't one. Store <span style="font-family:var(--mono)">self.conn</span>.</p></div>
+      <div class="card"><h3><span class="k">2</span>f-string SQL</h3><p>SQL injection waiting to happen. Use <span style="font-family:var(--mono);color:var(--mint)">VALUES (?, ?)</span>.</p></div>
+      <div class="card accent"><h3><span class="k">3</span>No commit()</h3><p>The insert disappears when the program ends.</p></div>
+    </div>
+  </div>
+</section>
+<section class="slide" data-title="Learning Outcomes">
+  <div class="tag fx">Learning Outcomes</div>
+  <h1 class="sh fx d1">By the end of today you will be able to…</h1>
+  <div class="body">
+    <div class="col fx d2">
+      <table class="cps">
+        <tr><th>Component</th><th>Statement</th></tr>
+        <tr><td>Condition</td><td>Given a public JSON API and a raw sales CSV,</td></tr>
+        <tr><td>Performance</td><td>you will fetch and parse API data with requests while keeping keys in .env, clean and summarise data with pandas, and produce a labelled chart,</td></tr>
+        <tr><td>Standard</td><td>so that the script handles a failed request without crashing, the monthly totals match a hand-check on 2 months, the chart has a title and axis labels, and no API key appears in your GitHub repo.</td></tr>
+      </table>
+      <div style="margin-top:22px">
+        <span class="pill mint">LO1 · Call REST APIs</span>
+        <span class="pill mint">LO2 · Keep secrets safe</span>
+        <span class="pill mint">LO3 · pandas analysis</span>
+        <span class="pill mint">LO4 · Charts &amp; pipeline</span>
+      </div>
+    </div>
+  </div>
+</section>
+<section class="slide" data-title="Content Mapping">
+  <div class="tag fx">Content Mapping</div>
+  <h1 class="sh fx d1">How today maps to your outcomes</h1>
+  <div class="body">
+    <div class="col fx d2">
+      <table class="cps">
+        <tr><th>Module</th><th>Topics</th><th style="width:120px">Outcome</th><th style="width:170px">Assessed by</th></tr>
+        <tr><td>Module 1</td><td>1.1 HTTP &amp; REST · 1.2 requests &amp; JSON · 1.3 API keys with .env</td><td style="color:var(--mint);font-family:var(--mono);font-size:13px">LO1, LO2</td><td style="color:var(--muted);font-size:13.5px">MYR currency CLI</td></tr>
+        <tr><td>Module 2</td><td>2.1 DataFrames: load &amp; filter · 2.2 Group &amp; aggregate · 2.3 Cleaning messy data</td><td style="color:var(--mint);font-family:var(--mono);font-size:13px">LO3</td><td style="color:var(--muted);font-size:13.5px">Monthly sales report</td></tr>
+        <tr><td>Module 3</td><td>3.1 matplotlib charts · 3.2 Exporting reports · 3.3 API → SQLite → chart</td><td style="color:var(--mint);font-family:var(--mono);font-size:13px">LO4</td><td style="color:var(--muted);font-size:13.5px">Mini data pipeline</td></tr>
+      </table>
+    </div>
+  </div>
+</section>
+<section class="slide" data-title="1.1 HTTP and REST">
+  <div class="stepbar fx"><span class="on">Explain</span><span class="on">Theory</span><span class="">Code</span><span class="">Practice</span></div>
+  <div class="tag fx">Module 1 · Working with APIs · 1.1 · Explanation &amp; theory</div>
+  <h1 class="sh fx d1">What is an API?</h1>
+  <div class="cards grid3 fx d2" style="margin-top:18px;align-items:start"><div class="card accent"><h3><span class="k">what</span>In plain words</h3><p>An <b>API</b> is a door into someone else's program over the internet. Your code sends an <b>HTTP request</b> ("GET me today's MYR rates") to a URL, and the server sends back a <b>response</b>: a status code plus data, usually JSON.</p></div><div class="card"><h3><span class="k">like</span>Everyday analogy</h3><p>Ordering through the kopitiam window: you say what you want using the menu's words (request), and you get your drink plus a receipt that says whether it went OK (status code).</p></div><div class="card"><h3><span class="k">rules</span>Theory: the key rules</h3><ul class="rules"><li><b>GET</b> read · <b>POST</b> create · <b>PUT</b> update · <b>DELETE</b> remove</li><li>URL = host + <b>path</b> (endpoint) + <b>?query=params</b></li><li><b>2xx</b> OK · <b>4xx</b> your mistake · <b>5xx</b> their problem</li><li>Most APIs reply in <b>JSON</b></li></ul></div></div>
+  <div class="body figbody" style="margin-top:12px"><div class="figwrap"><svg class="fig" style="min-height:0" viewBox="0 0 1000 380" aria-label="Your Python script sends a GET request to a server and receives a JSON response with status 200">
+        <g font-family="JetBrains Mono,monospace">
+          <g class="fx">
+            <rect x="20" y="110" width="230" height="160" rx="12" fill="#1c2430" stroke="#58a6ff" stroke-width="2"/>
+            <text x="135" y="150" font-size="14" fill="#58a6ff" text-anchor="middle" letter-spacing="2">YOUR SCRIPT</text>
+            <text x="135" y="195" font-size="15" fill="#e8eef0" text-anchor="middle">requests.get(</text>
+            <text x="135" y="220" font-size="15" fill="#e8eef0" text-anchor="middle">url, params)</text>
+          </g>
+          <g class="fx d1">
+            <rect x="750" y="110" width="230" height="160" rx="12" fill="#1c2430" stroke="#f0b429" stroke-width="2"/>
+            <text x="865" y="150" font-size="14" fill="#f0b429" text-anchor="middle" letter-spacing="2">API SERVER</text>
+            <text x="865" y="195" font-size="15" fill="#e8eef0" text-anchor="middle">/latest</text>
+            <text x="865" y="220" font-size="15" fill="#e8eef0" text-anchor="middle">?from=MYR</text>
+          </g>
+          <path d="M 255 150 L 745 150" stroke="#00dcb4" stroke-width="2" marker-end="url(#d51)" class="draw d2" style="--len:490"/>
+          <text x="500" y="135" font-size="15" fill="#00dcb4" text-anchor="middle" class="fx d2">GET /latest?from=MYR&amp;to=USD</text>
+          <path d="M 745 235 L 255 235" stroke="#f0b429" stroke-width="2" marker-end="url(#d52)" class="draw d4" style="--len:490"/>
+          <text x="500" y="265" font-size="15" fill="#f0b429" text-anchor="middle" class="fx d4">200 OK · {"rates": {"USD": 0.21}}</text>
+          <circle r="8" fill="#00dcb4" class="travel" style="offset-path:path('M 255 150 L 745 150')"/>
+          <circle r="8" fill="#f0b429" class="travel" style="offset-path:path('M 745 235 L 255 235');animation-delay:2.25s"/>
+          <g class="fx d6" font-size="14">
+            <text x="20" y="330" fill="#00dcb4">200 OK</text>
+            <text x="180" y="330" fill="#f0b429">401 bad key</text>
+            <text x="380" y="330" fill="#f0b429">404 not found</text>
+            <text x="590" y="330" fill="#ff6f91">429 too many</text>
+            <text x="800" y="330" fill="#ff6f91">500 server broke</text>
+          </g>
+        </g>
+        <defs>
+          <marker id="d51" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#00dcb4"/></marker>
+          <marker id="d52" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#f0b429"/></marker>
+        </defs>
+      </svg></div></div>
+</section>
+
+<section class="slide" data-title="1.1 HTTP and REST · code">
+  <div class="stepbar fx"><span class="">Explain</span><span class="">Theory</span><span class="on">Code</span><span class="">Practice</span></div>
+  <div class="tag fx">Module 1 · Working with APIs · 1.1 · Code — copy, paste, run</div>
+  <h1 class="sh fx d1">Look inside a request before it's sent</h1>
+  <div class="body" style="align-items:stretch">
+    <div class="col fx d2" style="flex:1.3;display:flex;flex-direction:column;gap:10px;min-height:0"><div class="cb" style="display:flex;flex-direction:column;min-height:0px;flex:22 1 0"><div class="code-head">http_basics.py</div><pre class="code sm" style="flex:1;min-height:0;margin:0"><span class="k">from</span> http <span class="k">import</span> HTTPStatus
+<span class="k">from</span> urllib.parse <span class="k">import</span> urlencode, urlparse
+
+<span class="k">import</span> requests
+
+<span class="c"># Build the request WITHOUT sending it, to see exactly what goes over the wire</span>
+req = requests.Request(
+    <span class="s">"GET"</span>, <span class="s">"https://api.frankfurter.app/latest"</span>,
+    params={<span class="s">"from"</span>: <span class="s">"MYR"</span>, <span class="s">"to"</span>: <span class="s">"USD,SGD"</span>},
+    headers={<span class="s">"Accept"</span>: <span class="s">"application/json"</span>},
+).prepare()
+
+print(<span class="s">"method :"</span>, req.method)
+print(<span class="s">"url    :"</span>, req.url)
+parts = urlparse(req.url)
+print(<span class="s">"host   :"</span>, parts.netloc, <span class="s">"| path:"</span>, parts.path, <span class="s">"| query:"</span>, parts.query)
+print(<span class="s">"same query by hand:"</span>, urlencode({<span class="s">"from"</span>: <span class="s">"MYR"</span>, <span class="s">"to"</span>: <span class="s">"USD,SGD"</span>}))
+
+<span class="c"># Status codes you will meet</span>
+<span class="k">for</span> code <span class="k">in</span> [<span class="n">200</span>, <span class="n">201</span>, <span class="n">400</span>, <span class="n">401</span>, <span class="n">404</span>, <span class="n">429</span>, <span class="n">500</span>]:
+    s = HTTPStatus(code)
+    print(<span class="s">f"  {code} {s.phrase:&lt;22} {'OK' if code &lt; 400 else 'problem'}"</span>)</pre></div></div>
+    <div class="col fx d3" style="display:flex;flex-direction:column;gap:10px;min-height:0"><div class="cb" style="display:flex;flex-direction:column;min-height:0;flex:1 1 0"><div class="code-head">terminal · real output</div><pre class="code sm out" style="flex:1;min-height:0;margin:0"><span class="cmd">$ python http_basics.py</span>
+method : GET
+url    : https://api.frankfurter.app/latest?from=MYR&amp;to=USD%2CSGD
+host   : api.frankfurter.app | path: /latest | query: from=MYR&amp;to=USD%2CSGD
+same query by hand: from=MYR&amp;to=USD%2CSGD
+  200 OK                     OK
+  201 Created                OK
+  400 Bad Request            problem
+  401 Unauthorized           problem
+  404 Not Found              problem
+  429 Too Many Requests      problem
+  500 Internal Server Error  problem</pre></div><div class="card" style="flex:0 0 auto"><h3><span class="k">try</span>Change it, predict, run</h3><ul class="rules"><li>Add <code>"amount": 100</code> to params and look at the new URL.</li><li>Print the phrase for status 403. When would you see it?</li></ul></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="1.2 requests and JSON">
+  <div class="stepbar fx"><span class="on">Explain</span><span class="on">Theory</span><span class="">Code</span><span class="">Practice</span></div>
+  <div class="tag fx">Module 1 · Working with APIs · 1.2 · Explanation &amp; theory</div>
+  <h1 class="sh fx d1">requests: talk to an API in three lines</h1>
+  <div class="body" style="align-items:stretch">
+    <div class="col cards fx d2" style="align-content:start"><div class="card accent"><h3><span class="k">what</span>In plain words</h3><p>The <b>requests</b> library sends HTTP requests for you. Pass <code>params=</code> for the query, always set a <code>timeout=</code>, call <code>raise_for_status()</code> to turn errors into exceptions, and <code>.json()</code> to get a Python dict.</p></div><div class="card"><h3><span class="k">like</span>Everyday analogy</h3><p>A reliable runner you send to the shop: tell them exactly what to buy (params), how long to wait before giving up (timeout), and to come back and report if the shop was shut (raise_for_status).</p></div><div class="card"><h3><span class="k">rules</span>Theory: the key rules</h3><ul class="rules"><li><b>requests.get(url, params={…}, timeout=10)</b></li><li><b>resp.raise_for_status()</b> raises on 4xx/5xx</li><li><b>resp.json()</b> → dict / list</li><li>Catch <b>requests.RequestException</b> for any network problem</li></ul></div></div>
+    <div class="col fx d3"><div class="cb"><div class="code-head">syntax at a glance</div><pre class="code">resp = requests.get(URL, params={<span class="s">"from"</span>: <span class="s">"MYR"</span>}, timeout=<span class="n">10</span>)
+resp.raise_for_status()
+data = resp.json()
+rate = data[<span class="s">"rates"</span>][<span class="s">"USD"</span>]</pre></div><div class="card" style="margin-top:14px;border-color:rgba(255,111,145,.4)"><h3 style="color:var(--coral)">Common mistakes</h3><ul class="rules"><li>No timeout: a slow server freezes your program forever.</li><li>Gluing <code>?from=…&amp;to=…</code> by hand instead of params=.</li></ul></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="1.2 requests and JSON · code">
+  <div class="stepbar fx"><span class="">Explain</span><span class="">Theory</span><span class="on">Code</span><span class="">Practice</span></div>
+  <div class="tag fx">Module 1 · Working with APIs · 1.2 · Code — copy, paste, run</div>
+  <h1 class="sh fx d1">Live currency rates, with a fallback when offline</h1>
+  <div class="body" style="align-items:stretch">
+    <div class="col fx d2" style="flex:1.3;display:flex;flex-direction:column;gap:10px;min-height:0"><div class="cb" style="display:flex;flex-direction:column;min-height:0px;flex:25 1 0"><div class="code-head">rates.py</div><pre class="code sm" style="flex:1;min-height:0;margin:0"><span class="k">import</span> requests
+
+URL = <span class="s">"https://api.frankfurter.app/latest"</span>
+
+
+<span class="k">def</span> get_rates(base: str, targets: list[str]) -&gt; dict[str, float]:
+    <span class="s">"""Return {currency: rate} for 1 unit of base. Raises on failure."""</span>
+    resp = requests.get(URL, params={<span class="s">"from"</span>: base, <span class="s">"to"</span>: <span class="s">","</span>.join(targets)},
+                        timeout=<span class="n">10</span>)
+    resp.raise_for_status()                 <span class="c"># 4xx/5xx -&gt; HTTPError</span>
+    data = resp.json()                      <span class="c"># JSON text -&gt; Python dict</span>
+    <span class="k">return</span> data[<span class="s">"rates"</span>]
+
+
+<span class="k">try</span>:
+    rates = get_rates(<span class="s">"MYR"</span>, [<span class="s">"USD"</span>, <span class="s">"SGD"</span>, <span class="s">"CNY"</span>])
+    source = <span class="s">"live"</span>
+<span class="k">except</span> requests.RequestException <span class="k">as</span> e:      <span class="c"># no internet, timeout, bad status</span>
+    print(<span class="s">"API unavailable:"</span>, type(e).__name__, <span class="s">"- using sample rates"</span>)
+    rates = {<span class="s">"USD"</span>: <span class="n">0.21</span>, <span class="s">"SGD"</span>: <span class="n">0.29</span>, <span class="s">"CNY"</span>: <span class="n">1.53</span>}   <span class="c"># illustrative only</span>
+    source = <span class="s">"sample"</span>
+
+amount = <span class="n">250.00</span>
+<span class="k">for</span> cur, rate <span class="k">in</span> rates.items():
+    print(<span class="s">f"RM{amount:.2f} = {cur} {amount * rate:,.2f}   ({source})"</span>)</pre></div></div>
+    <div class="col fx d3" style="display:flex;flex-direction:column;gap:10px;min-height:0"><div class="cb" style="display:flex;flex-direction:column;min-height:0;flex:1 1 0"><div class="code-head">terminal · real output (offline here, so sample data was used)</div><pre class="code sm out" style="flex:1;min-height:0;margin:0"><span class="cmd">$ python rates.py</span>
+API unavailable: ProxyError - using sample rates
+RM250.00 = USD 52.50   (sample)
+RM250.00 = SGD 72.50   (sample)
+RM250.00 = CNY 382.50   (sample)</pre></div><div class="card" style="flex:0 0 auto"><h3><span class="k">try</span>Change it, predict, run</h3><ul class="rules"><li>Run it at home with internet to see live rates.</li><li>Add THB and IDR to the targets.</li></ul></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="1.3 API keys and .env">
+  <div class="stepbar fx"><span class="on">Explain</span><span class="on">Theory</span><span class="">Code</span><span class="">Practice</span></div>
+  <div class="tag fx">Module 1 · Working with APIs · 1.3 · Explanation &amp; theory</div>
+  <h1 class="sh fx d1">API keys belong in .env, never in your code</h1>
+  <div class="cards grid3 fx d2" style="margin-top:18px;align-items:start"><div class="card accent"><h3><span class="k">what</span>In plain words</h3><p>Many APIs need a secret <b>API key</b>. Put it in a <b>.env</b> file on your laptop, block that file in <b>.gitignore</b>, and read it with <code>os.getenv()</code>. Commit a <b>.env.example</b> with blank values so others know what to set.</p></div><div class="card"><h3><span class="k">like</span>Everyday analogy</h3><p>Your house key stays in your pocket (.env). You give friends a note saying "you'll need a key for the front door" (.env.example), not a copy of the key.</p></div><div class="card"><h3><span class="k">rules</span>Theory: the key rules</h3><ul class="rules"><li><b>pip install python-dotenv</b>, then <b>load_dotenv()</b></li><li><b>os.getenv("KEY", default)</b> reads a value</li><li><b>.env</b> in .gitignore, <b>.env.example</b> committed</li><li>Leaked a key? <b>Revoke it now</b>; deleting the commit isn't enough</li></ul></div></div>
+  <div class="body figbody" style="margin-top:12px"><div class="figwrap"><svg class="fig" style="min-height:0" viewBox="0 0 1000 360" aria-label="The .env file stays on your laptop and is blocked by .gitignore; code reads it at runtime; GitHub only receives the code">
+        <g font-family="JetBrains Mono,monospace">
+          <g class="fx">
+            <rect x="20" y="40" width="300" height="110" rx="10" fill="#0a0e13" stroke="#f0b429" stroke-width="2"/>
+            <text x="40" y="30" font-size="13" fill="#f0b429" letter-spacing="2">.env · your laptop only</text>
+            <text x="40" y="88" font-size="15" fill="#e8eef0">WEATHER_KEY=sk-a8f3…</text>
+            <text x="40" y="122" font-size="15" fill="#e8eef0">DB_PATH=kopitiam.db</text>
+          </g>
+          <g class="fx d2">
+            <rect x="20" y="210" width="300" height="120" rx="10" fill="#0a0e13" stroke="#00dcb4" stroke-width="2"/>
+            <text x="40" y="200" font-size="13" fill="#00dcb4" letter-spacing="2">weather.py</text>
+            <text x="40" y="248" font-size="14" fill="#e8eef0">load_dotenv()</text>
+            <text x="40" y="276" font-size="14" fill="#e8eef0">key = os.getenv(</text>
+            <text x="60" y="304" font-size="14" fill="#e8eef0">"WEATHER_KEY")</text>
+          </g>
+          <line x1="170" y1="155" x2="170" y2="205" stroke="#f0b429" stroke-width="2" marker-end="url(#d53)" class="draw d3" style="--len:50"/>
+          <g class="fx d4">
+            <rect x="680" y="120" width="300" height="140" rx="12" fill="#1c2430" stroke="#58a6ff" stroke-width="2"/>
+            <text x="830" y="160" font-size="14" fill="#58a6ff" text-anchor="middle" letter-spacing="2">GITHUB</text>
+            <text x="830" y="200" font-size="15" fill="#00dcb4" text-anchor="middle">✓ weather.py</text>
+            <text x="830" y="230" font-size="15" fill="#00dcb4" text-anchor="middle">✓ .env.example</text>
+          </g>
+          <line x1="325" y1="270" x2="675" y2="200" stroke="#00dcb4" stroke-width="2" marker-end="url(#d54)" class="draw d5" style="--len:360"/>
+          <line x1="325" y1="95" x2="530" y2="140" stroke="#ff6f91" stroke-width="2" stroke-dasharray="6 5" class="draw d6" style="--len:210"/>
+          <g class="fx d7">
+            <rect x="500" y="105" width="140" height="56" rx="8" fill="#0a0e13" stroke="#ff6f91" stroke-width="2"/>
+            <text x="570" y="128" font-size="13" fill="#ff6f91" text-anchor="middle">.gitignore</text>
+            <text x="570" y="150" font-size="13" fill="#ff6f91" text-anchor="middle">✗ blocked</text>
+          </g>
+          <circle r="7" fill="#00dcb4" class="travel" style="offset-path:path('M 325 270 L 675 200')"/>
+        </g>
+        <defs>
+          <marker id="d53" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#f0b429"/></marker>
+          <marker id="d54" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#00dcb4"/></marker>
+        </defs>
+      </svg></div></div>
+</section>
+
+<section class="slide" data-title="1.3 API keys and .env · code">
+  <div class="stepbar fx"><span class="">Explain</span><span class="">Theory</span><span class="on">Code</span><span class="">Practice</span></div>
+  <div class="tag fx">Module 1 · Working with APIs · 1.3 · Code — copy, paste, run</div>
+  <h1 class="sh fx d1">Read secrets from .env, never print them in full</h1>
+  <div class="body" style="align-items:stretch">
+    <div class="col fx d2" style="flex:1.3;display:flex;flex-direction:column;gap:10px;min-height:0"><div class="cb" style="display:flex;flex-direction:column;min-height:0px;flex:20 1 0"><div class="code-head">config_demo.py</div><pre class="code sm" style="flex:1;min-height:0;margin:0"><span class="k">import</span> os
+<span class="k">from</span> pathlib <span class="k">import</span> Path
+
+<span class="k">from</span> dotenv <span class="k">import</span> load_dotenv      <span class="c"># pip install python-dotenv</span>
+
+<span class="c"># For this demo only, we create the files. In real life you type .env by hand.</span>
+Path(<span class="s">".env"</span>).write_text(<span class="s">"WEATHER_API_KEY=demo-12345\nSHOP_NAME=Orkid Kopitiam\n"</span>)
+Path(<span class="s">".env.example"</span>).write_text(<span class="s">"WEATHER_API_KEY=\nSHOP_NAME=\n"</span>)   <span class="c"># commit this one</span>
+Path(<span class="s">".gitignore"</span>).write_text(<span class="s">".env\n.venv/\n__pycache__/\n"</span>)      <span class="c"># blocks .env</span>
+
+load_dotenv(<span class="s">".env"</span>)                  <span class="c"># reads .env into environment variables</span>
+
+key = os.getenv(<span class="s">"WEATHER_API_KEY"</span>)
+shop = os.getenv(<span class="s">"SHOP_NAME"</span>, <span class="s">"Unknown shop"</span>)
+missing = os.getenv(<span class="s">"NOT_SET"</span>, <span class="s">"default value"</span>)
+
+print(<span class="s">"shop   :"</span>, shop)
+print(<span class="s">"key    :"</span>, key[:<span class="n">4</span>] + <span class="s">"****"</span>)   <span class="c"># never print a full key</span>
+print(<span class="s">"missing:"</span>, missing)
+print(<span class="s">".gitignore blocks .env?"</span>, <span class="s">".env"</span> <span class="k">in</span> Path(<span class="s">".gitignore"</span>).read_text().split())</pre></div></div>
+    <div class="col fx d3" style="display:flex;flex-direction:column;gap:10px;min-height:0"><div class="cb" style="display:flex;flex-direction:column;min-height:0;flex:1 1 0"><div class="code-head">terminal · real output</div><pre class="code sm out" style="flex:1;min-height:0;margin:0"><span class="cmd">$ python config_demo.py</span>
+shop   : Orkid Kopitiam
+key    : demo****
+missing: default value
+.gitignore blocks .env? True</pre></div><div class="card" style="flex:0 0 auto"><h3><span class="k">try</span>Change it, predict, run</h3><ul class="rules"><li>Add <code>DB_PATH</code> to .env and read it with a default.</li><li>Run <code>git status</code>: is .env listed? (it shouldn't be)</li></ul></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="Module 1 Practice">
+  <div class="stepbar fx"><span class="">Explain</span><span class="">Theory</span><span class="">Code</span><span class="on">Practice</span></div>
+  <div class="tag fx">Module 1 · Working with APIs · Practice: real-life app + hands-on</div>
+  <h1 class="sh fx d1">Build: MYR currency converter CLI</h1>
+  <div class="body" style="align-items:stretch">
+    <div class="col fx d2" style="flex:1.15;display:flex;flex-direction:column;gap:8px;min-height:0"><div class="card accent" style="flex:0 0 auto;padding:12px 16px"><h3><span class="k">real life</span>Umbrella or not? A live 3-day forecast for Johor Bahru</h3><p>Open-Meteo is a free weather API with no key. The script asks for JB's rain chance and temperature and turns the numbers into plain advice. When the internet is down it uses sample data instead of crashing.</p></div><div class="cb" style="display:flex;flex-direction:column;min-height:130px;flex:40 1 0"><div class="code-head">umbrella.py</div><pre class="code sm" style="flex:1;min-height:0;margin:0"><span class="s">"""Should I bring an umbrella? 3-day forecast for Johor Bahru.
+Uses Open-Meteo: free, no API key needed."""</span>
+<span class="k">import</span> requests
+
+URL = <span class="s">"https://api.open-meteo.com/v1/forecast"</span>
+PARAMS = {
+    <span class="s">"latitude"</span>: <span class="n">1.4927</span>, <span class="s">"longitude"</span>: <span class="n">103.7414</span>,          <span class="c"># Johor Bahru</span>
+    <span class="s">"daily"</span>: <span class="s">"precipitation_probability_max,temperature_2m_max"</span>,
+    <span class="s">"timezone"</span>: <span class="s">"Asia/Kuala_Lumpur"</span>,
+    <span class="s">"forecast_days"</span>: <span class="n">3</span>,
+}
+SAMPLE = {<span class="s">"daily"</span>: {                                   <span class="c"># used when offline</span>
+    <span class="s">"time"</span>: [<span class="s">"2026-10-21"</span>, <span class="s">"2026-10-22"</span>, <span class="s">"2026-10-23"</span>],
+    <span class="s">"precipitation_probability_max"</span>: [<span class="n">80</span>, <span class="n">35</span>, <span class="n">60</span>],
+    <span class="s">"temperature_2m_max"</span>: [<span class="n">31.2</span>, <span class="n">32.4</span>, <span class="n">30.8</span>]}}
+
+
+<span class="k">def</span> get_forecast() -&gt; tuple[dict, str]:
+    <span class="k">try</span>:
+        resp = requests.get(URL, params=PARAMS, timeout=<span class="n">10</span>)
+        resp.raise_for_status()
+        <span class="k">return</span> resp.json(), <span class="s">"live"</span>
+    <span class="k">except</span> requests.RequestException <span class="k">as</span> e:
+        <span class="k">return</span> SAMPLE, <span class="s">f"sample data ({type(e).__name__})"</span>
+
+
+<span class="k">def</span> advice(rain_chance: int) -&gt; str:
+    <span class="k">if</span> rain_chance &gt;= <span class="n">70</span>:
+        <span class="k">return</span> <span class="s">"bring an umbrella"</span>
+    <span class="k">if</span> rain_chance &gt;= <span class="n">40</span>:
+        <span class="k">return</span> <span class="s">"maybe pack a small umbrella"</span>
+    <span class="k">return</span> <span class="s">"no umbrella needed"</span>
+
+
+data, source = get_forecast()
+daily = data[<span class="s">"daily"</span>]
+print(<span class="s">f"Johor Bahru forecast - {source}"</span>)
+<span class="k">for</span> day, rain, temp <span class="k">in</span> zip(daily[<span class="s">"time"</span>], daily[<span class="s">"precipitation_probability_max"</span>],
+                           daily[<span class="s">"temperature_2m_max"</span>]):
+    print(<span class="s">f"  {day}  rain {rain:&gt;3}%  max {temp:.1f}C  -&gt; {advice(rain)}"</span>)</pre></div><div class="cb" style="display:flex;flex-direction:column;min-height:90px;flex:0 1 26%"><div class="code-head">terminal · real output (offline here, so sample data was used)</div><pre class="code sm out" style="flex:1;min-height:0;margin:0"><span class="cmd">$ python umbrella.py</span>
+Johor Bahru forecast - sample data (ProxyError)
+  2026-10-21  rain  80%  max 31.2C  -&gt; bring an umbrella
+  2026-10-22  rain  35%  max 32.4C  -&gt; no umbrella needed
+  2026-10-23  rain  60%  max 30.8C  -&gt; maybe pack a small umbrella</pre></div></div>
+    <div class="col fx d3" style="display:flex;flex-direction:column;gap:10px;min-height:0"><div style="flex:0 0 auto"><div class="hands-on">
+        <div class="lbl">12 minutes · solo</div>
+        <h3>A command-line converter that never crashes</h3>
+        <div class="steps">
+          <div><b>01</b><span><span style="font-family:var(--mono)">get_rate()</span> from 1.2 with <span style="font-family:var(--mono)">timeout</span> and <span style="font-family:var(--mono)">raise_for_status</span>.</span></div>
+          <div><b>02</b><span><span style="font-family:var(--mono)">argparse</span>: amount, <span style="font-family:var(--mono)">--to</span> currency (default USD).</span></div>
+          <div><b>03</b><span>Print a formatted result with 2 decimals.</span></div>
+          <div><b>04</b><span>Turn off Wi-Fi and run it — friendly message, no traceback.</span></div>
+          <div><b>05</b><span>Bad currency code handled too? <b style="color:var(--mint)">Done.</b></span></div>
+        </div>
+      </div></div><div class="cb" style="display:flex;flex-direction:column;min-height:0;flex:1 1 0"><div class="code-head">terminal</div><pre class="code sm" style="flex:1;min-height:0;margin:0"><span class="c">$ python convert.py 100 --to SGD</span>
+RM100.00 = SGD 28.90
+
+<span class="c">$ python convert.py 100 --to XYZ</span>
+Unknown currency: XYZ
+
+<span class="c">$ python convert.py 100   # Wi-Fi off</span>
+Could not reach the rate service. Try again later.</pre></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="2.1 DataFrames">
+  <div class="stepbar fx"><span class="on">Explain</span><span class="on">Theory</span><span class="">Code</span><span class="">Practice</span></div>
+  <div class="tag fx">Module 2 · Data Analysis with pandas · 2.1 · Explanation &amp; theory</div>
+  <h1 class="sh fx d1">pandas: a spreadsheet you can program</h1>
+  <div class="body" style="align-items:stretch">
+    <div class="col cards fx d2" style="align-content:start"><div class="card accent"><h3><span class="k">what</span>In plain words</h3><p>A <b>DataFrame</b> is a table with named columns, like a sheet in Excel. pandas lets you load it, look at it, filter rows and add columns, <b>a whole column at a time</b> instead of looping row by row.</p></div><div class="card"><h3><span class="k">like</span>Everyday analogy</h3><p>Excel with superpowers: instead of dragging a formula down 10,000 rows, you write one line and it applies to the whole column.</p></div><div class="card"><h3><span class="k">rules</span>Theory: the key rules</h3><ul class="rules"><li><b>pd.read_csv("file.csv")</b> or <b>pd.DataFrame({…})</b></li><li><b>df.head() · df.info() · df.describe()</b> to explore</li><li>Filter: <b>df[df["qty"] &gt;= 3]</b>; combine with <b>&amp;</b> and <b>|</b></li><li>New column: <b>df["total"] = df["qty"] * df["price"]</b></li></ul></div></div>
+    <div class="col fx d3"><div class="cb"><div class="code-head">syntax at a glance</div><pre class="code"><span class="k">import</span> pandas <span class="k">as</span> pd
+df = pd.read_csv(<span class="s">"sales.csv"</span>)
+jb = df[(df[<span class="s">"branch"</span>] == <span class="s">"JB"</span>) &amp; (df[<span class="s">"qty"</span>] &gt;= <span class="n">3</span>)]
+df[<span class="s">"total"</span>] = df[<span class="s">"qty"</span>] * df[<span class="s">"price"</span>]</pre></div><div class="card" style="margin-top:14px;border-color:rgba(255,111,145,.4)"><h3 style="color:var(--coral)">Common mistakes</h3><ul class="rules"><li><code>df[df.qty &gt; 2 and df.branch == "JB"]</code>: use &amp; with brackets.</li><li>Looping with for over rows: slow and long.</li></ul></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="2.1 DataFrames · code">
+  <div class="stepbar fx"><span class="">Explain</span><span class="">Theory</span><span class="on">Code</span><span class="">Practice</span></div>
+  <div class="tag fx">Module 2 · Data Analysis with pandas · 2.1 · Code — copy, paste, run</div>
+  <h1 class="sh fx d1">Build, explore and filter a sales table</h1>
+  <div class="body" style="align-items:stretch">
+    <div class="col fx d2" style="flex:1.3;display:flex;flex-direction:column;gap:10px;min-height:0"><div class="cb" style="display:flex;flex-direction:column;min-height:0px;flex:17 1 0"><div class="code-head">sales_df.py</div><pre class="code sm" style="flex:1;min-height:0;margin:0"><span class="k">import</span> pandas <span class="k">as</span> pd
+
+sales = pd.DataFrame({
+    <span class="s">"date"</span>:   pd.to_datetime([<span class="s">"2026-09-01"</span>, <span class="s">"2026-09-01"</span>, <span class="s">"2026-09-02"</span>,
+                              <span class="s">"2026-09-02"</span>, <span class="s">"2026-09-03"</span>]),
+    <span class="s">"branch"</span>: [<span class="s">"JB"</span>, <span class="s">"KL"</span>, <span class="s">"JB"</span>, <span class="s">"JB"</span>, <span class="s">"KL"</span>],
+    <span class="s">"item"</span>:   [<span class="s">"Teh Tarik"</span>, <span class="s">"Nasi Lemak"</span>, <span class="s">"Kaya Toast"</span>, <span class="s">"Teh Tarik"</span>, <span class="s">"Milo Ais"</span>],
+    <span class="s">"qty"</span>:    [<span class="n">2</span>, <span class="n">1</span>, <span class="n">3</span>, <span class="n">4</span>, <span class="n">2</span>],
+    <span class="s">"price"</span>:  [<span class="n">3.00</span>, <span class="n">6.50</span>, <span class="n">3.00</span>, <span class="n">3.00</span>, <span class="n">3.50</span>],
+})
+
+sales[<span class="s">"total"</span>] = sales[<span class="s">"qty"</span>] * sales[<span class="s">"price"</span>]      <span class="c"># new column, no loop</span>
+print(sales.head())
+print(<span class="s">"\nrows, cols:"</span>, sales.shape)
+print(<span class="s">"\nJB only, qty &gt;= 3:"</span>)
+print(sales[(sales[<span class="s">"branch"</span>] == <span class="s">"JB"</span>) &amp; (sales[<span class="s">"qty"</span>] &gt;= <span class="n">3</span>)][[<span class="s">"item"</span>, <span class="s">"qty"</span>, <span class="s">"total"</span>]])
+print(<span class="s">"\nrevenue:"</span>, sales[<span class="s">"total"</span>].sum(), <span class="s">"| best line:"</span>, sales[<span class="s">"total"</span>].max())</pre></div></div>
+    <div class="col fx d3" style="display:flex;flex-direction:column;gap:10px;min-height:0"><div class="cb" style="display:flex;flex-direction:column;min-height:0;flex:1 1 0"><div class="code-head">terminal · real output</div><pre class="code sm out" style="flex:1;min-height:0;margin:0"><span class="cmd">$ python sales_df.py</span>
+        date branch        item  qty  price  total
+0 2026-09-01     JB   Teh Tarik    2    3.0    6.0
+1 2026-09-01     KL  Nasi Lemak    1    6.5    6.5
+2 2026-09-02     JB  Kaya Toast    3    3.0    9.0
+3 2026-09-02     JB   Teh Tarik    4    3.0   12.0
+4 2026-09-03     KL    Milo Ais    2    3.5    7.0
+
+rows, cols: (5, 6)
+
+JB only, qty &gt;= 3:
+         item  qty  total
+2  Kaya Toast    3    9.0
+3   Teh Tarik    4   12.0
+
+revenue: 40.5 | best line: 12.0</pre></div><div class="card" style="flex:0 0 auto"><h3><span class="k">try</span>Change it, predict, run</h3><ul class="rules"><li>Show only KL sales above RM6.</li><li>Sort by total, highest first: <code>sort_values()</code>.</li></ul></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="2.2 Group and aggregate">
+  <div class="stepbar fx"><span class="on">Explain</span><span class="on">Theory</span><span class="">Code</span><span class="">Practice</span></div>
+  <div class="tag fx">Module 2 · Data Analysis with pandas · 2.2 · Explanation &amp; theory</div>
+  <h1 class="sh fx d1">groupby: split, apply, combine</h1>
+  <div class="cards grid3 fx d2" style="margin-top:18px;align-items:start"><div class="card accent"><h3><span class="k">what</span>In plain words</h3><p><b>groupby</b> answers "per" questions: revenue <b>per</b> branch, sales <b>per</b> month. It splits rows into groups, applies a calculation (sum, mean, count) to each, and combines the results into a small table.</p></div><div class="card"><h3><span class="k">like</span>Everyday analogy</h3><p>Counting the day's takings: put the receipts into one pile per stall (split), add up each pile (apply), and write one line per stall in the book (combine).</p></div><div class="card"><h3><span class="k">rules</span>Theory: the key rules</h3><ul class="rules"><li><b>df.groupby("branch")["total"].sum()</b></li><li><b>.agg(["sum", "mean", "count"])</b> for several at once</li><li><b>pivot_table(index=, columns=, values=)</b> for a 2-D table</li><li><b>.sort_values(ascending=False)</b> for best first</li></ul></div></div>
+  <div class="body figbody" style="margin-top:12px"><div class="figwrap"><svg class="fig" style="min-height:0" viewBox="0 0 1000 380" aria-label="Rows split by branch into groups, each group summed, results combined into one small table">
+        <g font-family="JetBrains Mono,monospace" font-size="15">
+          <text x="110" y="30" font-size="12" fill="#8b98a5" letter-spacing="2" text-anchor="middle" class="fx">ALL ROWS</text>
+          <g class="fx">
+            <rect x="20" y="45" width="180" height="40" rx="6" fill="#1c2430" stroke="#00dcb4"/><text x="40" y="71" fill="#e8eef0">JB   6.00</text>
+            <rect x="20" y="95" width="180" height="40" rx="6" fill="#1c2430" stroke="#58a6ff"/><text x="40" y="121" fill="#e8eef0">KL   6.50</text>
+            <rect x="20" y="145" width="180" height="40" rx="6" fill="#1c2430" stroke="#00dcb4"/><text x="40" y="171" fill="#e8eef0">JB   9.00</text>
+            <rect x="20" y="195" width="180" height="40" rx="6" fill="#1c2430" stroke="#58a6ff"/><text x="40" y="221" fill="#e8eef0">KL   3.50</text>
+            <rect x="20" y="245" width="180" height="40" rx="6" fill="#1c2430" stroke="#00dcb4"/><text x="40" y="271" fill="#e8eef0">JB   4.00</text>
+          </g>
+          <text x="420" y="30" font-size="12" fill="#8b98a5" letter-spacing="2" text-anchor="middle" class="fx d2">1 · SPLIT</text>
+          <g class="fx d2">
+            <rect x="320" y="45" width="200" height="140" rx="10" fill="#0a0e13" stroke="#00dcb4" stroke-width="2"/>
+            <text x="340" y="72" fill="#00dcb4" font-size="13">group JB</text>
+            <text x="340" y="104" fill="#e8eef0">6.00</text><text x="340" y="134" fill="#e8eef0">9.00</text><text x="340" y="164" fill="#e8eef0">4.00</text>
+            <rect x="320" y="205" width="200" height="110" rx="10" fill="#0a0e13" stroke="#58a6ff" stroke-width="2"/>
+            <text x="340" y="232" fill="#58a6ff" font-size="13">group KL</text>
+            <text x="340" y="264" fill="#e8eef0">6.50</text><text x="340" y="294" fill="#e8eef0">3.50</text>
+          </g>
+          <line x1="205" y1="165" x2="315" y2="115" stroke="#00dcb4" stroke-width="2" class="draw d1" style="--len:120"/>
+          <line x1="205" y1="215" x2="315" y2="260" stroke="#58a6ff" stroke-width="2" class="draw d1" style="--len:120"/>
+          <text x="660" y="30" font-size="12" fill="#8b98a5" letter-spacing="2" text-anchor="middle" class="fx d4">2 · APPLY sum()</text>
+          <line x1="525" y1="115" x2="600" y2="115" stroke="#00dcb4" stroke-width="2" marker-end="url(#d55)" class="draw d3" style="--len:75"/>
+          <line x1="525" y1="260" x2="600" y2="260" stroke="#58a6ff" stroke-width="2" marker-end="url(#d55)" class="draw d3" style="--len:75"/>
+          <g class="fx d4">
+            <rect x="605" y="90" width="110" height="50" rx="8" fill="#1c2430" stroke="#00dcb4"/><text x="660" y="121" fill="#00dcb4" text-anchor="middle">19.00</text>
+            <rect x="605" y="235" width="110" height="50" rx="8" fill="#1c2430" stroke="#58a6ff"/><text x="660" y="266" fill="#58a6ff" text-anchor="middle">10.00</text>
+          </g>
+          <text x="880" y="30" font-size="12" fill="#8b98a5" letter-spacing="2" text-anchor="middle" class="fx d6">3 · COMBINE</text>
+          <line x1="720" y1="115" x2="790" y2="170" stroke="#e8eef0" stroke-width="2" class="draw d5" style="--len:90"/>
+          <line x1="720" y1="260" x2="790" y2="210" stroke="#e8eef0" stroke-width="2" class="draw d5" style="--len:90"/>
+          <g class="fx d6">
+            <rect x="795" y="130" width="185" height="110" rx="10" fill="#0a0e13" stroke="#f0b429" stroke-width="2"/>
+            <text x="815" y="160" fill="#8b98a5" font-size="13">branch  total</text>
+            <text x="815" y="192" fill="#e8eef0">JB      19.00</text>
+            <text x="815" y="222" fill="#e8eef0">KL      10.00</text>
+          </g>
+          <text x="500" y="355" fill="#00dcb4" text-anchor="middle" font-size="17" class="fx d7">df.groupby("branch")["total"].sum()</text>
+        </g>
+        <defs><marker id="d55" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#e8eef0"/></marker></defs>
+      </svg></div></div>
+</section>
+
+<section class="slide" data-title="2.2 Group and aggregate · code">
+  <div class="stepbar fx"><span class="">Explain</span><span class="">Theory</span><span class="on">Code</span><span class="">Practice</span></div>
+  <div class="tag fx">Module 2 · Data Analysis with pandas · 2.2 · Code — copy, paste, run</div>
+  <h1 class="sh fx d1">Revenue per branch, per month and per item</h1>
+  <div class="body" style="align-items:stretch">
+    <div class="col fx d2" style="flex:1.3;display:flex;flex-direction:column;gap:10px;min-height:0"><div class="cb" style="display:flex;flex-direction:column;min-height:0px;flex:23 1 0"><div class="code-head">groupby_demo.py</div><pre class="code sm" style="flex:1;min-height:0;margin:0"><span class="k">import</span> pandas <span class="k">as</span> pd
+
+sales = pd.DataFrame({
+    <span class="s">"month"</span>:  [<span class="s">"Jul"</span>, <span class="s">"Jul"</span>, <span class="s">"Aug"</span>, <span class="s">"Aug"</span>, <span class="s">"Sep"</span>, <span class="s">"Sep"</span>, <span class="s">"Sep"</span>],
+    <span class="s">"branch"</span>: [<span class="s">"JB"</span>, <span class="s">"KL"</span>, <span class="s">"JB"</span>, <span class="s">"KL"</span>, <span class="s">"JB"</span>, <span class="s">"KL"</span>, <span class="s">"JB"</span>],
+    <span class="s">"item"</span>:   [<span class="s">"Teh Tarik"</span>, <span class="s">"Nasi Lemak"</span>, <span class="s">"Teh Tarik"</span>, <span class="s">"Kaya Toast"</span>,
+               <span class="s">"Nasi Lemak"</span>, <span class="s">"Teh Tarik"</span>, <span class="s">"Kaya Toast"</span>],
+    <span class="s">"total"</span>:  [<span class="n">1200.0</span>, <span class="n">980.0</span>, <span class="n">1500.0</span>, <span class="n">1010.0</span>, <span class="n">2100.0</span>, <span class="n">1150.0</span>, <span class="n">600.0</span>],
+})
+
+print(<span class="s">"Revenue by branch:"</span>)
+print(sales.groupby(<span class="s">"branch"</span>)[<span class="s">"total"</span>].sum())
+
+print(<span class="s">"\nSum, mean and count by branch:"</span>)
+print(sales.groupby(<span class="s">"branch"</span>)[<span class="s">"total"</span>].agg([<span class="s">"sum"</span>, <span class="s">"mean"</span>, <span class="s">"count"</span>]))
+
+print(<span class="s">"\nMonth x branch table:"</span>)
+table = sales.pivot_table(index=<span class="s">"month"</span>, columns=<span class="s">"branch"</span>, values=<span class="s">"total"</span>,
+                          aggfunc=<span class="s">"sum"</span>).reindex([<span class="s">"Jul"</span>, <span class="s">"Aug"</span>, <span class="s">"Sep"</span>])
+print(table)
+
+print(<span class="s">"\nBest sellers:"</span>)
+print(sales.groupby(<span class="s">"item"</span>)[<span class="s">"total"</span>].sum().sort_values(ascending=<span class="k">False</span>))</pre></div></div>
+    <div class="col fx d3" style="display:flex;flex-direction:column;gap:10px;min-height:0"><div class="cb" style="display:flex;flex-direction:column;min-height:0;flex:1 1 0"><div class="code-head">terminal · real output</div><pre class="code sm out" style="flex:1;min-height:0;margin:0"><span class="cmd">$ python groupby_demo.py</span>
+Revenue by branch:
+branch
+JB    5400.0
+KL    3140.0
+Name: total, dtype: float64
+
+Sum, mean and count by branch:
+           sum         mean  count
+branch                            
+JB      5400.0  1350.000000      4
+KL      3140.0  1046.666667      3
+
+Month x branch table:
+branch      JB      KL
+month                 
+Jul     1200.0   980.0
+Aug     1500.0  1010.0
+Sep     2700.0  1150.0
+
+Best sellers:
+item
+Teh Tarik     3850.0
+… (3 more lines)</pre></div><div class="card" style="flex:0 0 auto"><h3><span class="k">try</span>Change it, predict, run</h3><ul class="rules"><li>Which month had the highest total?</li><li>Count how many rows each item has.</li></ul></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="2.3 Cleaning messy data">
+  <div class="stepbar fx"><span class="on">Explain</span><span class="on">Theory</span><span class="">Code</span><span class="">Practice</span></div>
+  <div class="tag fx">Module 2 · Data Analysis with pandas · 2.3 · Explanation &amp; theory</div>
+  <h1 class="sh fx d1">Clean the data before you trust the numbers</h1>
+  <div class="body" style="align-items:stretch">
+    <div class="col cards fx d2" style="align-content:start"><div class="card accent"><h3><span class="k">what</span>In plain words</h3><p>Real exports are messy: extra spaces, mixed capitals, "RM 3.00" as text, duplicate rows, missing values, dates in dd/mm/yyyy. Clean them first, or every total you calculate is wrong.</p></div><div class="card"><h3><span class="k">like</span>Everyday analogy</h3><p>Washing vegetables before cooking. Skip it and the dish looks fine, but it isn't.</p></div><div class="card"><h3><span class="k">rules</span>Theory: the key rules</h3><ul class="rules"><li><b>.str.strip().str.title()</b> → same spelling</li><li><b>.str.replace("RM", "").astype(float)</b> → numbers</li><li><b>pd.to_datetime(…, dayfirst=True)</b> for Malaysian dates</li><li><b>dropna()</b> then <b>drop_duplicates()</b></li></ul></div></div>
+    <div class="col fx d3"><div class="cb"><div class="code-head">syntax at a glance</div><pre class="code">df[<span class="s">"item"</span>] = df[<span class="s">"item"</span>].str.strip().str.title()
+df[<span class="s">"price"</span>] = df[<span class="s">"price"</span>].str.replace(<span class="s">"RM"</span>, <span class="s">""</span>).astype(float)
+df[<span class="s">"date"</span>] = pd.to_datetime(df[<span class="s">"date"</span>], dayfirst=<span class="k">True</span>)
+df = df.dropna().drop_duplicates()</pre></div><div class="card" style="margin-top:14px;border-color:rgba(255,111,145,.4)"><h3 style="color:var(--coral)">Common mistakes</h3><ul class="rules"><li>Forgetting dayfirst=True: 01/09 becomes 9 January.</li><li>Cleaning the original DataFrame in place, so you can't compare before/after.</li></ul></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="2.3 Cleaning messy data · code">
+  <div class="stepbar fx"><span class="">Explain</span><span class="">Theory</span><span class="on">Code</span><span class="">Practice</span></div>
+  <div class="tag fx">Module 2 · Data Analysis with pandas · 2.3 · Code — copy, paste, run</div>
+  <h1 class="sh fx d1">Five cleaning steps, before and after</h1>
+  <div class="body" style="align-items:stretch">
+    <div class="col fx d2" style="flex:1.3;display:flex;flex-direction:column;gap:10px;min-height:0"><div class="cb" style="display:flex;flex-direction:column;min-height:0px;flex:25 1 0"><div class="code-head">clean_sales.py</div><pre class="code sm" style="flex:1;min-height:0;margin:0"><span class="k">import</span> pandas <span class="k">as</span> pd
+
+raw = pd.DataFrame({
+    <span class="s">"date"</span>:  [<span class="s">"01/09/2026"</span>, <span class="s">"01/09/2026"</span>, <span class="s">"02/09/2026"</span>, <span class="s">"02/09/2026"</span>, <span class="s">"03/09/2026"</span>],
+    <span class="s">"item"</span>:  [<span class="s">" teh tarik"</span>, <span class="s">"Teh Tarik "</span>, <span class="s">"NASI LEMAK"</span>, <span class="s">"nasi lemak"</span>, <span class="k">None</span>],
+    <span class="s">"price"</span>: [<span class="s">"RM 3.00"</span>, <span class="s">"3"</span>, <span class="s">"RM6.50"</span>, <span class="s">"RM6.50"</span>, <span class="s">"RM 2.50"</span>],
+    <span class="s">"qty"</span>:   [<span class="n">2</span>, <span class="n">2</span>, <span class="n">1</span>, <span class="n">1</span>, <span class="n">3</span>],
+})
+print(<span class="s">"BEFORE"</span>); print(raw); print()
+
+
+<span class="k">def</span> clean(df: pd.DataFrame) -&gt; pd.DataFrame:
+    <span class="s">"""Return a cleaned copy of raw sales data."""</span>
+    out = df.copy()
+    out = out.dropna(subset=[<span class="s">"item"</span>])                         <span class="c"># 1 missing item</span>
+    out[<span class="s">"item"</span>] = out[<span class="s">"item"</span>].str.strip().str.title()         <span class="c"># 2 same spelling</span>
+    out[<span class="s">"price"</span>] = (out[<span class="s">"price"</span>].str.replace(<span class="s">"RM"</span>, <span class="s">""</span>)        <span class="c"># 3 text -&gt; number</span>
+                    .str.strip().astype(float))
+    out[<span class="s">"date"</span>] = pd.to_datetime(out[<span class="s">"date"</span>], dayfirst=<span class="k">True</span>)  <span class="c"># 4 dd/mm/yyyy</span>
+    <span class="k">return</span> out.drop_duplicates().reset_index(drop=<span class="k">True</span>)       <span class="c"># 5 duplicates</span>
+
+
+clean_df = clean(raw)
+print(<span class="s">"AFTER"</span>); print(clean_df)
+print(<span class="s">"\nrows:"</span>, len(raw), <span class="s">"-&gt;"</span>, len(clean_df), <span class="s">"| price type:"</span>, clean_df[<span class="s">"price"</span>].dtype)</pre></div></div>
+    <div class="col fx d3" style="display:flex;flex-direction:column;gap:10px;min-height:0"><div class="cb" style="display:flex;flex-direction:column;min-height:0;flex:1 1 0"><div class="code-head">terminal · real output</div><pre class="code sm out" style="flex:1;min-height:0;margin:0"><span class="cmd">$ python clean_sales.py</span>
+BEFORE
+         date        item    price  qty
+0  01/09/2026   teh tarik  RM 3.00    2
+1  01/09/2026  Teh Tarik         3    2
+2  02/09/2026  NASI LEMAK   RM6.50    1
+3  02/09/2026  nasi lemak   RM6.50    1
+4  03/09/2026         NaN  RM 2.50    3
+
+AFTER
+        date        item  price  qty
+0 2026-09-01   Teh Tarik    3.0    2
+1 2026-09-02  Nasi Lemak    6.5    1
+
+rows: 5 -&gt; 2 | price type: float64</pre></div><div class="card" style="flex:0 0 auto"><h3><span class="k">try</span>Change it, predict, run</h3><ul class="rules"><li>Fill missing items with "Unknown" instead of dropping them.</li><li>Count how many rows each step removed.</li></ul></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="Module 2 Practice">
+  <div class="stepbar fx"><span class="">Explain</span><span class="">Theory</span><span class="">Code</span><span class="on">Practice</span></div>
+  <div class="tag fx">Module 2 · Data Analysis with pandas · Practice: real-life app + hands-on</div>
+  <h1 class="sh fx d1">Build: monthly sales report</h1>
+  <div class="body" style="align-items:stretch">
+    <div class="col fx d2" style="flex:1.15;display:flex;flex-direction:column;gap:8px;min-height:0"><div class="card accent" style="flex:0 0 auto;padding:12px 16px"><h3><span class="k">real life</span>Kopitiam sales report: messy export to business answers</h3><p>The POS exports three months of sales with messy spelling and prices. The owner wants to know: revenue per month per branch, the best sellers, and whether sales are growing.</p></div><div class="cb" style="display:flex;flex-direction:column;min-height:130px;flex:31 1 0"><div class="code-head">sales_report.py</div><pre class="code sm" style="flex:1;min-height:0;margin:0"><span class="s">"""Kopitiam sales report: messy export -&gt; clean data -&gt; answers."""</span>
+<span class="k">import</span> pandas <span class="k">as</span> pd
+
+raw = pd.DataFrame({
+    <span class="s">"date"</span>: [<span class="s">"01/07/2026"</span>, <span class="s">"15/07/2026"</span>, <span class="s">"03/08/2026"</span>, <span class="s">"18/08/2026"</span>, <span class="s">"02/09/2026"</span>,
+             <span class="s">"20/09/2026"</span>, <span class="s">"21/09/2026"</span>, <span class="s">"21/09/2026"</span>],
+    <span class="s">"branch"</span>: [<span class="s">"JB"</span>, <span class="s">"KL"</span>, <span class="s">"JB"</span>, <span class="s">"KL"</span>, <span class="s">"JB"</span>, <span class="s">"KL"</span>, <span class="s">"JB"</span>, <span class="s">"JB"</span>],
+    <span class="s">"item"</span>: [<span class="s">"teh tarik"</span>, <span class="s">"Nasi Lemak"</span>, <span class="s">"Teh Tarik "</span>, <span class="s">"kaya toast"</span>, <span class="s">"NASI LEMAK"</span>,
+             <span class="s">"Teh Tarik"</span>, <span class="s">"Kaya Toast"</span>, <span class="s">"Kaya Toast"</span>],
+    <span class="s">"qty"</span>: [<span class="n">120</span>, <span class="n">80</span>, <span class="n">150</span>, <span class="n">95</span>, <span class="n">160</span>, <span class="n">110</span>, <span class="n">70</span>, <span class="n">70</span>],
+    <span class="s">"price"</span>: [<span class="s">"RM3.00"</span>, <span class="s">"6.50"</span>, <span class="s">"RM 3.00"</span>, <span class="s">"3.00"</span>, <span class="s">"RM6.50"</span>, <span class="s">"3"</span>, <span class="s">"3.00"</span>, <span class="s">"3.00"</span>],
+})
+
+<span class="c"># 1. clean</span>
+df = raw.copy()
+df[<span class="s">"item"</span>] = df[<span class="s">"item"</span>].str.strip().str.title()
+df[<span class="s">"price"</span>] = df[<span class="s">"price"</span>].str.replace(<span class="s">"RM"</span>, <span class="s">""</span>).str.strip().astype(float)
+df[<span class="s">"date"</span>] = pd.to_datetime(df[<span class="s">"date"</span>], dayfirst=<span class="k">True</span>)
+df = df.drop_duplicates()
+df[<span class="s">"revenue"</span>] = df[<span class="s">"qty"</span>] * df[<span class="s">"price"</span>]
+
+<span class="c"># 2. answer business questions</span>
+monthly = df.pivot_table(index=df[<span class="s">"date"</span>].dt.strftime(<span class="s">"%Y-%m"</span>), columns=<span class="s">"branch"</span>,
+                         values=<span class="s">"revenue"</span>, aggfunc=<span class="s">"sum"</span>, fill_value=<span class="n">0</span>)
+best = df.groupby(<span class="s">"item"</span>)[<span class="s">"revenue"</span>].sum().sort_values(ascending=<span class="k">False</span>)
+growth = monthly.sum(axis=<span class="n">1</span>).pct_change().mul(<span class="n">100</span>).round(<span class="n">1</span>)
+
+print(<span class="s">"Monthly revenue (RM):"</span>); print(monthly, <span class="s">"\n"</span>)
+print(<span class="s">"Best sellers (RM):"</span>); print(best, <span class="s">"\n"</span>)
+print(<span class="s">"Month-on-month growth (%):"</span>); print(growth.dropna())
+print(<span class="s">f"\nDuplicates removed: {len(raw) - len(df)}"</span>)</pre></div><div class="cb" style="display:flex;flex-direction:column;min-height:90px;flex:0 1 26%"><div class="code-head">terminal · real output</div><pre class="code sm out" style="flex:1;min-height:0;margin:0"><span class="cmd">$ python sales_report.py</span>
+Monthly revenue (RM):
+branch       JB     KL
+date                  
+2026-07   360.0  520.0
+2026-08   450.0  285.0
+2026-09  1250.0  330.0 
+
+Best sellers (RM):
+item
+Nasi Lemak    1560.0
+Teh Tarik     1140.0
+Kaya Toast     495.0
+Name: revenue, dtype: float64 
+
+Month-on-month growth (%):
+date
+2026-08    -16.5
+2026-09    115.0
+dtype: float64
+
+Duplicates removed: 1</pre></div></div>
+    <div class="col fx d3" style="display:flex;flex-direction:column;gap:10px;min-height:0"><div style="flex:0 0 auto"><div class="hands-on">
+        <div class="lbl">15 minutes · pairs</div>
+        <h3>Three months of kopitiam sales, two branches</h3>
+        <div class="steps">
+          <div><b>01</b><span>Load <span style="font-family:var(--mono)">sales_raw.csv</span>; run <span style="font-family:var(--mono)">clean()</span>.</span></div>
+          <div><b>02</b><span>Add <span style="font-family:var(--mono)">total = qty × price</span>.</span></div>
+          <div><b>03</b><span>Monthly revenue per branch with <span style="font-family:var(--mono)">groupby</span>.</span></div>
+          <div><b>04</b><span>Top 5 items overall by revenue.</span></div>
+          <div><b>05</b><span>Hand-check one month in Excel. Same number? <b style="color:var(--mint)">Done.</b></span></div>
+        </div>
+      </div></div><div class="cb" style="display:flex;flex-direction:column;min-height:0;flex:1 1 0"><div class="code-head">report.py</div><pre class="code sm" style="flex:1;min-height:0;margin:0">df = clean(pd.read_csv(<span class="s">"sales_raw.csv"</span>))
+df[<span class="s">"total"</span>] = df[<span class="s">"qty"</span>] * df[<span class="s">"price"</span>]
+
+monthly = (df.groupby([df[<span class="s">"date"</span>].dt.to_period(<span class="s">"M"</span>), <span class="s">"branch"</span>])
+             [<span class="s">"total"</span>].sum().unstack())
+print(monthly.round(<span class="n">2</span>))
+
+top5 = (df.groupby(<span class="s">"item"</span>)[<span class="s">"total"</span>].sum()
+          .sort_values(ascending=False).head(<span class="n">5</span>))
+print(top5)</pre></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="3.1 matplotlib charts">
+  <div class="stepbar fx"><span class="on">Explain</span><span class="on">Theory</span><span class="">Code</span><span class="">Practice</span></div>
+  <div class="tag fx">Module 3 · Visualise &amp; Pipeline · 3.1 · Explanation &amp; theory</div>
+  <h1 class="sh fx d1">A chart should say one thing clearly</h1>
+  <div class="cards grid3 fx d2" style="margin-top:18px;align-items:start"><div class="card accent"><h3><span class="k">what</span>In plain words</h3><p><b>matplotlib</b> draws charts from your data. A good chart answers one question: its <b>title states the answer</b>, the axes have labels and units, and nothing distracts from the point.</p></div><div class="card"><h3><span class="k">like</span>Everyday analogy</h3><p>A newspaper headline: "JB sales up 73%" is better than "Sales data Q3". The reader gets the point before reading the numbers.</p></div><div class="card"><h3><span class="k">rules</span>Theory: the key rules</h3><ul class="rules"><li><b>bar</b> compare groups · <b>line</b> trend over time · <b>scatter</b> relationship</li><li>Title = the takeaway, not just the topic</li><li>Label both axes, with units (RM, month)</li><li><b>fig.savefig("chart.png", dpi=120)</b> for reports</li></ul></div></div>
+  <div class="body figbody" style="margin-top:12px"><div class="figwrap"><svg class="fig" style="min-height:0" viewBox="0 0 520 380" style="min-height:300px" aria-label="Bar chart of monthly revenue for JB and KL branches, July to September; JB grows each month">
+        <g font-family="JetBrains Mono,monospace">
+          <text x="260" y="26" font-size="15" fill="#e8eef0" text-anchor="middle">Monthly revenue by branch (RM)</text>
+          <line x1="60" y1="320" x2="500" y2="320" stroke="#2a3440" stroke-width="1.5"/>
+          <line x1="60" y1="60" x2="60" y2="320" stroke="#2a3440" stroke-width="1.5"/>
+          <g font-size="11" fill="#8b98a5" text-anchor="end">
+            <text x="52" y="324">0</text><text x="52" y="259">2k</text><text x="52" y="194">4k</text><text x="52" y="129">6k</text><text x="52" y="64">8k</text>
+          </g>
+          <g stroke="#1c2430"><line x1="60" y1="255" x2="500" y2="255"/><line x1="60" y1="190" x2="500" y2="190"/><line x1="60" y1="125" x2="500" y2="125"/></g>
+          <rect x="90"  y="190" width="50" height="130" fill="#00dcb4" class="grow d1"/>
+          <rect x="145" y="210" width="50" height="110" fill="#58a6ff" class="grow d1"/>
+          <rect x="230" y="150" width="50" height="170" fill="#00dcb4" class="grow d2"/>
+          <rect x="285" y="200" width="50" height="120" fill="#58a6ff" class="grow d2"/>
+          <rect x="370" y="95"  width="50" height="225" fill="#00dcb4" class="grow d3"/>
+          <rect x="425" y="195" width="50" height="125" fill="#58a6ff" class="grow d3"/>
+          <g font-size="13" fill="#e8eef0" text-anchor="middle"><text x="142" y="342">Jul</text><text x="282" y="342">Aug</text><text x="422" y="342">Sep</text></g>
+          <g font-size="12" class="fx d4"><rect x="330" y="44" width="12" height="12" fill="#00dcb4"/><text x="348" y="55" fill="#e8eef0">JB</text><rect x="390" y="44" width="12" height="12" fill="#58a6ff"/><text x="408" y="55" fill="#e8eef0">KL</text></g>
+          <text x="395" y="86" font-size="12" fill="#00dcb4" text-anchor="middle" class="fx d5">JB +73% since Jul</text>
+          <text x="280" y="372" font-size="12" fill="#8b98a5" text-anchor="middle">Month · illustrative data</text>
+        </g>
+      </svg></div></div>
+</section>
+
+<section class="slide" data-title="3.1 matplotlib charts · code">
+  <div class="stepbar fx"><span class="">Explain</span><span class="">Theory</span><span class="on">Code</span><span class="">Practice</span></div>
+  <div class="tag fx">Module 3 · Visualise &amp; Pipeline · 3.1 · Code — copy, paste, run</div>
+  <h1 class="sh fx d1">A grouped bar chart that states its point</h1>
+  <div class="body" style="align-items:stretch">
+    <div class="col fx d2" style="flex:1.3;display:flex;flex-direction:column;gap:10px;min-height:0"><div class="cb" style="display:flex;flex-direction:column;min-height:0px;flex:21 1 0"><div class="code-head">chart.py</div><pre class="code sm" style="flex:1;min-height:0;margin:0"><span class="k">import</span> matplotlib
+matplotlib.use(<span class="s">"Agg"</span>)                 <span class="c"># draw to a file (remove to use plt.show())</span>
+<span class="k">import</span> matplotlib.pyplot <span class="k">as</span> plt
+
+months = [<span class="s">"Jul"</span>, <span class="s">"Aug"</span>, <span class="s">"Sep"</span>]
+jb = [<span class="n">3200</span>, <span class="n">3900</span>, <span class="n">5550</span>]
+kl = [<span class="n">2900</span>, <span class="n">2600</span>, <span class="n">3150</span>]
+
+fig, ax = plt.subplots(figsize=(<span class="n">7</span>, <span class="n">4</span>))
+x = range(len(months))
+ax.bar([i - <span class="n">0.2</span> <span class="k">for</span> i <span class="k">in</span> x], jb, width=<span class="n">0.4</span>, label=<span class="s">"JB"</span>, color=<span class="s">"#00dcb4"</span>)
+ax.bar([i + <span class="n">0.2</span> <span class="k">for</span> i <span class="k">in</span> x], kl, width=<span class="n">0.4</span>, label=<span class="s">"KL"</span>, color=<span class="s">"#58a6ff"</span>)
+ax.set_xticks(list(x), months)
+ax.set_title(<span class="s">"JB revenue grew 73% from July to September"</span>)   <span class="c"># title = the point</span>
+ax.set_xlabel(<span class="s">"Month (2026)"</span>)
+ax.set_ylabel(<span class="s">"Revenue (RM)"</span>)
+ax.legend(title=<span class="s">"Branch"</span>)
+ax.spines[[<span class="s">"top"</span>, <span class="s">"right"</span>]].set_visible(<span class="k">False</span>)
+fig.tight_layout()
+fig.savefig(<span class="s">"monthly_revenue.png"</span>, dpi=<span class="n">120</span>)
+print(<span class="s">"saved monthly_revenue.png"</span>)</pre></div></div>
+    <div class="col fx d3" style="display:flex;flex-direction:column;gap:10px;min-height:0"><div class="cb" style="display:flex;flex-direction:column;min-height:0;flex:1 1 0"><div class="code-head">terminal · real output</div><pre class="code sm out" style="flex:1;min-height:0;margin:0"><span class="cmd">$ python chart.py</span>
+saved monthly_revenue.png</pre></div><img class="result" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA0gAAAHgCAYAAACfN01xAAAAOnRFWHRTb2Z0d2FyZQBNYXRwbG90bGliIHZlcnNpb24zLjExLjIsIGh0dHBzOi8vbWF0cGxvdGxpYi5vcmcvgI3uAAAAAAlwSFlzAAASdAAAEnQB3mYfeAAAdcFJREFUeJzt3XdcleX/x/H3YQiIKKKiOBDFLe4c5d7mzlXmLK1M00rNzCwry7L6lpVZuXJnpuZMzZWaZbkqRw7ciDJUUJTN9fvDw/l5OqigAo7X8/E4j0de93Vf9+c+cIg3131ft8UYYwQAAAAAkFN2FwAAAAAAdwsCEgAAAABYEZAAAAAAwIqABAAAAABWBCQAAAAAsCIgAQAAAIAVAQkAAAAArAhIAAAAAGBFQAIAAAAAKwISAAAAAFgRkAAAAADAioAEAAAAAFYEJAAAAACwIiABAAAAgBUBCQAAAACsCEgAAAAAYEVAAgAAAAArAhIAAAAAWBGQAAAAAMCKgAQAAAAAVgQkAAAAALByye4CAGS+48eP6/LlyypTpoxcXV0lSdHR0QoJCXHoW6RIEXl7e2dxhbgfHT16VLGxsTfs4+3trSJFiti1XblyRXv37tWJEydUsmRJBQUFyc3N7bpjHDt2TNu2bVOhQoXUoEEDOTs7p9kvIiJC4eHhKl26tHLkyJGhc1m+fLm+/PJLnT59WtWrV9fMmTMztP/d6syZMzp//ryKFy+uXLly3dYYpUqVuuHX6W52+vRp/fvvv7p48aJKly6tcuXK2X5WPqjCwsIUGRmpkiVLysPDI7vLAbKWAXDfa9asmZFkjh8/bmubP3++kZTmy8/Pz3zyyScmMTExG6vGva5OnTrX/R5LffXt29dunwkTJph8+fLZ9SlcuLBZsmRJmseYM2eOcXV1Nfny5TPOzs6mUaNGaX7fxsTEmFKlSpmmTZualJSUDJ3H0qVLbbWUL1/evPDCCxna/272wgsvGElm9erVtz3G3r1772Blxpw/f94EBwebK1eu3NFxr3X48GHToUMHh+/L4sWLmzlz5mTaca8nJCTEBAcHZ/lx0zJy5EgjyWzbti27SwGyHDNIwAOuWbNmatasmSQpJSVFoaGh+vHHHzV06FCFhobqo48+yuYKca8aPHiwunTpkua2bdu2aeHChfLy8rK1ffzxx3rllVdUoUIFjRs3TgEBAdq7d6/ef/99denSRVu3blWtWrVs/VNSUjRkyBC1bdtWixcv1oYNG9S0aVN9//336tGjh93xXnnlFUVERGjDhg2yWCwZOo/U2aLly5erbdu2GdoXt27SpEkaPXq01q1bp6ZNm97x8SMiItSsWTOFhISoT58+at68uTw9PbV792599dVX6tmzp4wx6tmz5x0/9vU88cQT2rZtmxITE7PsmAAcEZCAB1y9evX06quv2rWNGzdO1apV0yeffKLXX3+dS+5wS5588snrbnv44Yfl5OSkgQMHSpKSkpI0duxY+fv767ffflOePHkkSS1atFC1atXUpEkTjR8/XosWLbKNERISovPnz6tdu3aSpEaNGsnDw0P//POPXUBas2aNvvrqK82ePVvFihXL8HmEhobKyclJrVq1yvC+uHt99tlnOnHihL766isNGDDA1t6xY0f16tVLVapU0WuvvZalAQnA3YGABMCBl5eX2rdvr08//VT79+/XI488csP+H374oVJSUvTqq69qypQp2rhxo6pUqaKRI0fa+hw7dkwrVqzQrl27lDdvXtWtW1edO3e2bT9w4ICmTZumGjVq6IknnnA4xokTJzRx4kRVrFhRffv2tbWfPXtWS5cu1fbt2+Xh4aGaNWuqR48eDvehjBs3Tu7u7ho6dKh++ukn/fjjj0pKSlK1atX07LPPyt3d3dY3Li5Ob7zxhsOxJOnSpUt65513VKlSJfXu3dtuW2JiohYvXqw///xT58+ft+2fP3/+G75//7VkyRJt3bpVEREReuihh9S/f39t3bpVq1ev1uDBg+Xv7y9JmjFjhvbt26fx48dr2bJlWrRokfLkyaOJEyfaxoqIiNDSpUv1559/ytXVVTVq1FCvXr3s7q8YNWqUcubMqdGjR9vVsWLFCm3atEmtWrWy+wt+SkqKXnvtNXl7e+u1117L0LlJ0qpVq7Rt2zb17NlT5cqVk3T1nrgRI0YoKCjIFo5SNWzYUK6urtq3b59du4vL1f+FxcfHS7r6/icnJ9vaJenChQvq16+fOnXqlOFfdMeMGaMrV67oxIkTMsbYzrVFixZq3ry5zp49q//9739q3LixHnroIX3++efav3+/XnrpJTVo0MA2zubNm7Vp0yYdPnxY5cqVU5MmTVSnTh2H47322msKCAjQ008/ra+//lobNmxQvnz59NJLLykoKEgJCQmaMWOGbRasefPmeuqppzI8I3Yz27Zt06JFi9SjRw9VrVrVbtuWLVu0bNky9e7dW5UqVUpz/+XLl2vz5s3q3r27qlev7rB93bp1WrNmjTp27Ki6des6bL9w4YLGjRun33//XZL0zTffaPXq1WratKldSI2OjtbixYu1c+dOpaSkqEaNGurUqZPy5s2brvP8448/JCnNnzelSpXSpEmTbPdvenp62m3ftGmT7WsaGBioTp06qXLlynZ99u3bpxkzZqhr164qX768vvnmG/3zzz8qWrSoGjVqpBYtWtj6pr7nx44dU3Jysl555RVJ0qBBgxQQEGDrd+jQIf3000/avXu3fH191bBhQ4dZzYSEBL3++uuqUqWKOnfurIkTJ2rr1q3y8/PTsGHDVKpUKV25ckVTp07Vli1b5OHhodatW6f5PqQ6efKkJk+erOPHj6tChQpq3bq1w/dGqvj4eC1atEjbt29XdHS0KlWqpL59+zp8Xb7//nvt2LFDb7/9tjZv3qz58+fLYrHo22+/vW4dQJbJ7mv8AGS+G92D9NZbb6W5T8eOHY0kc+jQoZuOX65cOVOqVCkzevRo2zX8HTt2tG3/7rvvTK5cuYwk4+3tbZydnY0kU79+fXPhwgVjzNV7RLy8vEzhwoVNcnKywzHGjBljJJkpU6bY2tauXWsKFChgJJncuXMbV1dXI8lUqVLFnDhxwm7/gIAAU7lyZfPWW28ZScbT09NWa4UKFczly5dtfaOiohzOIdXZs2eNJNOlSxe79lOnTpmHH37YSDKurq4md+7cRpLx8fExy5cvv+l7aIwxFy9eNO3bt7fV5eXlZSSZWrVqmddff93hfoDUr9GMGTNs+5QrV862ffPmzaZw4cJGksmVK5fJkSOH7XwPHz5s69e8eXMjyYSEhNjVU79+fSPJdOjQwa5927ZtRpLp3bt3us7rv2rVqmWcnZ3NwYMH09X/4MGDRpJp0aKFwzZ/f3/ToEEDEx4ebiZPnmwk2b3f3bt3NwULFjQREREZrrN48eImV65cxsnJyfYe5sqVy4wbN84YY8zevXuNJDNkyBBTrVo129cg9d6VuLg4M2DAAIevp8ViMS+//LLDvVLu7u6mcePGpnPnziZHjhy27+2CBQua8PBw07hxY2OxWIyfn5/tM9SrV68Mn9e10roH6euvvzaSzPz58x36T5gwwUgyCxcudBgj9R6k9evXG0mmZ8+eaR7zkUceMRaLxRw5ciTN7SdOnLD7fnV3dze5cuUy77zzjq3P9u3bTYkSJYwkkyNHDlvfYsWKmV9//TVd5969e3cjyfz444/p6m+M49fUx8fHSDLOzs7mjTfesOu7ZMkSI8l89NFHply5cnbfA5JMv379THx8vDHGmKlTp6b5vfbbb7/Zxps6dapxd3c3kkzevHltfVu2bGl3n1ZMTIztZ1Tjxo2Nu7u77b6+kiVLmnPnzpkaNWoYJycn4+fnZxvn5Zdftqs/9R6kb775xuTOndtYLBbbz00XFxczYcIEh/fnyJEjpnr16ravS+rPfV9fX7N27Vq7vn379jWSzPTp043FYjGSTKFChdL9tQAyEwEJeABkJCClpKSYr776ylgsFtOmTZt0jV+uXDnj4uJiypYta9atW2cuX75s+x/2nj17jLOzs6lcubL566+/jDHGXL582bz66qtGkunfv79tnP79+xtJZt26dQ7HKFWqlMmZM6eJjo42xhhz5swZ4+npaQICAszmzZtNSkqKiY+PN5988omxWCymVatWdvsHBASYPHnymGrVqpl//vnHGHM17KSGg7Fjx9r63kpAatCggcmRI4eZNGmSiYuLMykpKWbDhg2mUKFCxsfHx4SFhd30fXz55ZeNJNO5c2dz+vRpY8zVcFC7dm3bLxppBaQiRYqYBQsWmOjoaFvQO3funPH29jZFihQx69atM8nJySYhIcF89dVXxtnZ2dSvX9+2WMHnn39u+0Ul1cWLF42Li4vJly+fyZ07t90v82+//baRZH744YebntN/rVixIkO/2O/bt8889NBDxtnZ2fz8888O29etW2fy5s1r90tnqu+//95IMsuWLctwndeqU6eOcXFxcWhPDUiurq7m8ccfNwcOHDDx8fG2X3rfeecdI8m0bt3a9tk7cuSIadKkiZFkPvnkE7vx3N3dTe7cuU2vXr1MTEyMMcaYlStXGhcXFxMYGGiqV69uTp06ZYy5GshTf+lO/VzdiswISCkpKSYgIMB4enraziPVkSNHjCTTuHHjm9b27rvvpvnzICYmxhQuXNi4ubmZmTNnmitXrpjY2Fgzf/58kzNnTpMvXz5z/vz5m46/adMm4+TkZHLmzGlee+216wa2a6V+Tfv372/OnTtnjDHm6NGjpm7dukaSWbVqla1v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P/985r4BAB5oliMrs7uEB5IJbJPdJQAAssA9GZAyqlWrVlqwYIEGDBigH374QZIUFBSkrVu32maaUq1cuVI9evTQ008/reTkZOXMmVOvvvqqxo0bZ9evcePG+vHHH9W/f3898sgjkqRy5cppy5Yt1129DgAAAMDdzWJSl2S7D8TGxurKlSu2S+3ScvjwYeXOndshGP1XTEyMjh07pnLlyjk8F+m/goOD5enpKT8/v1uqW5L27dunoKAg7d27VxUrVrzlcQDc/5hByh7MICGj+KxmDz6ruF331QySh4eHPDw8btindOnS6RorV65cqlSpUrr6lipVKl39AAAAANzd7slFGgAAAAAgMxCQAAAAAMAqyy6xO3/+vMLDw3Xx4kV5e3urcOHCypUrV1YdHgAAAABuKtMC0rlz57RkyRKtWLFC27dv1+nTp+22Ozk5KSgoSB06dNDAgQNVqFChzCoFAAAAANLljgekkydPauzYsbaHqJYtW1bNmzdXtWrVVKhQIXl5eSk6OlpHjhzRtm3b9PHHH2v8+PHq3r27hg8frqCgoDtdEgAAAACkyx0PSLNnz9bSpUs1cOBA9e7dW9WrV79h/5iYGNvDWN977z199913d7okAAAAAEiXO/4cpDNnzqhAgQJyccl49jpz5sxtPUvoXsZzkACkF89WyR48WwUZxWc1e/BZxe264zNItxNwHtRwBAAAAODukGmLNEyYMEHJycnp7v/UU0/Jx8cns8oBAAAAgJvKtID02muvKS4uLt3927ZtS0ACAAAAkK0yLSDlz59fZ8+eVf369dWxY0d17NhRefLkuW5/Ly+vzCoFAAAAANLFKbMGPnr0qBYsWKCcOXNq6NChKlu2rJ577jlt375duXPnVp48eexeTk6ZVgoAAAAApEumpRJXV1c99thjWrFihU6ePKk33nhDO3bsUPPmzVWyZEm9++67CgkJyazDAwAAAECGZcm0TeHChTVq1CgdPnxYGzduVP369TV+/HgFBASobdu2WrJkSYYWdAAAAACAzJCl17VZLBY1atRIs2bNUnh4uD799FP9+uuveuyxxxQcHJyVpQAAAACAg0xbpOF6IiMjNXv2bM2dO1c7d+5UgQIF9Morr6hIkSJZXQoAAAAA2MmSgGSM0fr16zV16lT9+OOPSkxMVJMmTfT999+rY8eOypEjR1aUAQAAAAA3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wWHblStXdPr0adu/g4ODderUKYf9IyIiJElhYWE6ffq0LSxcKyIiQvv371diYmK6zmvNmjXy9PRU69atbW2//PKLjh8/rsmTJ6tGjRrKnz+/evTooQEDBmjevHm2fgkJCZowYYL69eunUaNGqVixYmratKkWLFigQ4cOacmSJba+s2bNkr+/vyZOnKhixYrZ/rtEiRL67rvvbP2OHDmi+fPna86cOerVq5f8/f3VunVrffzxxwoLC9OuXbtsfbt166bLly9r69at6TpXAHjQEJAAAJmmU6dOioqK0sKFCx22TZs2TQ0aNFC+fPkcth0/fty2rXLlyvLy8tLw4cPtgtIPP/ygokWLasOGDSpevLhKly4tf39/NW3aVFFRUZKkQYMGqVevXpKkli1bqmjRonb3HZ0/f15NmjRRwYIFVbFiRQUGBmrbtm03Pa/t27eratWqypEjh60tKChIK1asUOXKle36+vj46OLFi0pJSZEkrV+/XmFhYXrqqafs+tWpU0dly5bV3LlzbW39+/fXd999Jyen///ftcVikbe3ty5cuGBrmz59uvz9/dWuXTu7MXv37q0zZ86oRo0atraHHnpITk5O2rFjx03PEwAeRAQkAECmqVChgqpUqeJwmd3x48e1YcMG9ejRwxYcUsXGxqphw4Y6c+aMVq9erUOHDunjjz/WF198oRdffNHhGK+99pq++OILHT58WJ988ok2bNig9957T9LVhRSmT58uSVq2bJmCg4Pl5eVl2/ejjz5S27ZtdfDgQa1YsUKJiYnq06dPmrNM1/r3339VqVIlu7aAgAC1adNGLi4utraEhATNmzdPzZo1s4Wc1AUpqlat6jBulSpV7BasqFOnjurUqWPX56+//tLu3bvVsmVLW9vBgwdVuXJl7d+/Xz169FDJkiVVr149TZs2zeEYuXLlUokSJbRv374bniMAPKgISACATJOSkqKnnnpKmzdvtltVbfr06fLw8FDXrl0d9vnqq6906tQpLV++XC1btlTp0qU1ePBgvfPOO5oyZYrDvUQjR45U+/btVapUKb388stq2bKlNm7cKEkqWLCgChcuLEny9/dXYGCg3WxMu3btNHToUJUuXVpt2rTR66+/rkOHDtldupeWyMhI+fr63vT8n3vuOR0/flwffvihrS0kJEQ5c+aUp6enQ/+CBQs6XCZ4rfPnz6tLly6qWrWq+vbta2s/ffq07R4mi8WiAQMGKE+ePOrfv7/D/U+SVKBAAUVGRt60fgB4EBGQAACZqlevXnJ3d7fNZqSkpGjGjBnq1q2bcufO7dD/jz/+UJUqVRyWz37yySeVnJys7du327U/9NBDdv8uU6bMTQPOjfaVdMP9k5OTlZCQIHd39xuO/eGHH2rGjBn66quvFBQUZGt3cXFRcnLydcd2dXVNc1t8fLw6d+6s6OhoLViwwO7yvsjISP3xxx/64IMPNGfOHI0YMUIrV67U4MGD9b///U9HjhyxGytnzpy6cuXKDesHgAcVAQkAkKl8fHzUuXNnzZw5U0lJSVq3bp1OnTql/v37p9n/1KlTKlSokEO7n5+fJDk8M+jaoCBJzs7O6a7tVvZ1dnZW7ty5df78+ev2mTFjhkaOHKl33nnHbqZHkooWLar4+HhFR0c77Hf27FkVLVrUoT05OVk9evTQn3/+qRUrVqhUqVJ22728vOTr66t+/frZtb/00ktKTk52uK/q/Pnz8vHxudmpAsADiYAEAMh0zz77rMLDw7VhwwZ99913tmf0pMXf3z/NB6ymzuoUL148U2tNj5IlS+rAgQNpblu6dKn69++vIUOG6I033nDYHhgYKEn6/fff7dqNMfrjjz9s2681YMAALV++XD/++KNq167tsL1cuXJpLpeeOhsVHx9va0tOTtbhw4fTPA4AgIAEAMgCDRo0UNmyZfXDDz9o+fLl1509kqS6devqn3/+0Z49e+zaZ8+eLRcXF9WqVStDx7ZYLJKU7iW806NOnTratm2bwwITmzZt0hNPPKHevXvr008/TXPfhg0bqkSJEvryyy/tFoNYunSpTp8+7TDj9Nprr+nbb7/VvHnz1KJFizTHfPzxx3X8+HFt2bLFrj11RbyaNWva2v7++29dvnxZDz/8cLrPFwAeJC437wIAwO175pln9Nprr0m6uvz09Tz77LP67LPP1LZtW3366acqWbKk1qxZo7ffflsvvPCCAgICMnTc1JmSr7/+Wr169VL9+vVv+RxStWvXTl9//bW2bNmihg0bSroaPNq3by9vb2/VrVtXs2bNstunVatWKliwoJycnPTGG2/o6aefVu/evdWjRw8dOnRIo0ePVt26de1C0KeffqoPPvhALVu2VExMjGbOnGnbliNHDnXv3l2S1KFDBzVs2FDt27fXmDFjVLFiRa1bt06ffPKJevbsabfi3qJFi+Tt7a1WrVrd9vsAAPclAwDAHbZp0ybj4uJitm3bZmuLiIgwOXPmNF27drXr27t3bxMYGGjXFhoaalq1amWcnZ2NJOPl5WXeeOMNk5SUZOszc+ZM4+LiYs6ePWu379ChQ02RIkXs2saOHWvc3NyMJLN7924TGRlpXFxczLRp0+z6rV+/3qHutCQmJppChQqZfv362dree+894+Lict3Xpk2b7MaYMWOGKVGihO38nnzySRMTE2PXp3bt2tcdL1++fHZ9o6KizFNPPWU7z7x585qRI0eauLg4W5/k5GRTokQJ88orr9zw/ADgQWYx5iYPewAAIJvExsbq7NmzCggIsF0qd6uSk5MVGxurXLly3ZHaPv30U40aNUqnTp1S/vz5b3mcc+fOKW/evHbLj9+O5ORkRUZGqmDBgg7blixZoi5duujo0aPy9/e/I8cDgPsNl9gBAO5aHh4eKlGixB0Zy9nZ+Y6FI0l6/vnndeXKFYWGht5WQMqXL98dq0m6ep5phSPp6v1YU6dOJRwBwA0wgwQAAAAAVqxiBwAAAABWBCQAAAAAsCIgAQAAAIAVAQkAAAAArAhIAAAAAGBFQAIAAAAAKwISAAAAAFgRkAAAAADAioAEAAAAAFYEJAAAAACwIiABAAAAgBUBCQAAAACsCEgAAAAAYEVAAgAAAAArAhIAAAAAWBGQAAAAAMCKgAQAAAAAVgQkAAAAALAiIAEAAACA1f8BcfiheSLH0/wAAAAASUVORK5CYII=" alt="chart produced by the script"><div class="card" style="flex:0 0 auto"><h3><span class="k">try</span>Change it, predict, run</h3><ul class="rules"><li>Change it to a line chart with <code>ax.plot()</code>.</li><li>Add the total above each bar with <code>ax.bar_label()</code>.</li></ul></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="3.2 Exporting reports">
+  <div class="stepbar fx"><span class="on">Explain</span><span class="on">Theory</span><span class="">Code</span><span class="">Practice</span></div>
+  <div class="tag fx">Module 3 · Visualise &amp; Pipeline · 3.2 · Explanation &amp; theory</div>
+  <h1 class="sh fx d1">Export: get the answer to people who don't use Python</h1>
+  <div class="body" style="align-items:stretch">
+    <div class="col cards fx d2" style="align-content:start"><div class="card accent"><h3><span class="k">what</span>In plain words</h3><p>Your analysis is only useful if people can open it. pandas can save to <b>CSV</b> (any system), <b>Excel</b> with several sheets (managers), and <b>JSON</b> (web apps). Charts save as <b>PNG</b> for WhatsApp and slides.</p></div><div class="card"><h3><span class="k">like</span>Everyday analogy</h3><p>Cooking is half the job; the other half is packing it so the customer can take it home: a box, a bag, or a bowl for dine-in.</p></div><div class="card"><h3><span class="k">rules</span>Theory: the key rules</h3><ul class="rules"><li><b>df.to_csv("x.csv", index=False)</b></li><li><b>pd.ExcelWriter</b> for several sheets (needs openpyxl)</li><li><b>df.to_json(orient="records")</b> for web apps</li><li>Put the date in the file name so you never overwrite</li></ul></div></div>
+    <div class="col fx d3"><div class="cb"><div class="code-head">syntax at a glance</div><pre class="code">df.to_csv(<span class="s">"sales.csv"</span>, index=<span class="k">False</span>)
+<span class="k">with</span> pd.ExcelWriter(<span class="s">"sales.xlsx"</span>) <span class="k">as</span> xw:
+    summary.to_excel(xw, sheet_name=<span class="s">"Summary"</span>)
+    df.to_excel(xw, sheet_name=<span class="s">"Raw"</span>, index=<span class="k">False</span>)</pre></div><div class="card" style="margin-top:14px;border-color:rgba(255,111,145,.4)"><h3 style="color:var(--coral)">Common mistakes</h3><ul class="rules"><li>Forgetting index=False: an extra unnamed column appears in Excel.</li><li>Saving over last month's report with the same file name.</li></ul></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="3.2 Exporting reports · code">
+  <div class="stepbar fx"><span class="">Explain</span><span class="">Theory</span><span class="on">Code</span><span class="">Practice</span></div>
+  <div class="tag fx">Module 3 · Visualise &amp; Pipeline · 3.2 · Code — copy, paste, run</div>
+  <h1 class="sh fx d1">One DataFrame, three formats, dated file names</h1>
+  <div class="body" style="align-items:stretch">
+    <div class="col fx d2" style="flex:1.3;display:flex;flex-direction:column;gap:10px;min-height:0"><div class="cb" style="display:flex;flex-direction:column;min-height:0px;flex:23 1 0"><div class="code-head">export_reports.py</div><pre class="code sm" style="flex:1;min-height:0;margin:0"><span class="k">from</span> datetime <span class="k">import</span> date
+<span class="k">from</span> pathlib <span class="k">import</span> Path
+
+<span class="k">import</span> pandas <span class="k">as</span> pd       <span class="c"># Excel export also needs: pip install openpyxl</span>
+
+df = pd.DataFrame({<span class="s">"item"</span>: [<span class="s">"Teh Tarik"</span>, <span class="s">"Nasi Lemak"</span>, <span class="s">"Kaya Toast"</span>],
+                   <span class="s">"qty"</span>: [<span class="n">380</span>, <span class="n">240</span>, <span class="n">165</span>], <span class="s">"revenue"</span>: [<span class="n">1140.0</span>, <span class="n">1560.0</span>, <span class="n">495.0</span>]})
+summary = pd.DataFrame({<span class="s">"metric"</span>: [<span class="s">"total revenue"</span>, <span class="s">"items sold"</span>],
+                        <span class="s">"value"</span>: [df[<span class="s">"revenue"</span>].sum(), df[<span class="s">"qty"</span>].sum()]})
+
+out = Path(<span class="s">"reports"</span>)
+out.mkdir(exist_ok=<span class="k">True</span>)
+stamp = <span class="s">f"{date(2026, 10, 21):%Y-%m-%d}"</span>          <span class="c"># use date.today() in real life</span>
+
+df.to_csv(out / <span class="s">f"sales_{stamp}.csv"</span>, index=<span class="k">False</span>)              <span class="c"># any system</span>
+df.to_json(out / <span class="s">f"sales_{stamp}.json"</span>, orient=<span class="s">"records"</span>, indent=<span class="n">2</span>)  <span class="c"># web apps</span>
+<span class="k">with</span> pd.ExcelWriter(out / <span class="s">f"sales_{stamp}.xlsx"</span>) <span class="k">as</span> xw:         <span class="c"># your boss</span>
+    summary.to_excel(xw, sheet_name=<span class="s">"Summary"</span>, index=<span class="k">False</span>)
+    df.to_excel(xw, sheet_name=<span class="s">"By item"</span>, index=<span class="k">False</span>)
+
+<span class="k">for</span> f <span class="k">in</span> sorted(out.iterdir()):
+    print(<span class="s">f"{f.name:&lt;24} {f.stat().st_size:&gt;6} bytes"</span>)
+print(pd.read_excel(out / <span class="s">f"sales_{stamp}.xlsx"</span>, sheet_name=<span class="s">"Summary"</span>))</pre></div></div>
+    <div class="col fx d3" style="display:flex;flex-direction:column;gap:10px;min-height:0"><div class="cb" style="display:flex;flex-direction:column;min-height:0;flex:1 1 0"><div class="code-head">terminal · real output</div><pre class="code sm out" style="flex:1;min-height:0;margin:0"><span class="cmd">$ python export_reports.py</span>
+sales_2026-10-21.csv         81 bytes
+sales_2026-10-21.json       210 bytes
+sales_2026-10-21.xlsx      5913 bytes
+          metric  value
+0  total revenue   3195
+1     items sold    785</pre></div><div class="card" style="flex:0 0 auto"><h3><span class="k">try</span>Change it, predict, run</h3><ul class="rules"><li>Use <code>date.today()</code> instead of the fixed date.</li><li>Add a third Excel sheet with the top item only.</li></ul></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="3.3 API to SQLite to chart">
+  <div class="stepbar fx"><span class="on">Explain</span><span class="on">Theory</span><span class="">Code</span><span class="">Practice</span></div>
+  <div class="tag fx">Module 3 · Visualise &amp; Pipeline · 3.3 · Explanation &amp; theory</div>
+  <h1 class="sh fx d1">A pipeline: every class so far, in one flow</h1>
+  <div class="cards grid3 fx d2" style="margin-top:18px;align-items:start"><div class="card accent"><h3><span class="k">what</span>In plain words</h3><p>A <b>data pipeline</b> runs the same steps every time: <b>fetch</b> new data, <b>store</b> it safely, <b>analyse</b> it, <b>report</b>. Run it daily and it builds up history; run it twice and it doesn't duplicate.</p></div><div class="card"><h3><span class="k">like</span>Everyday analogy</h3><p>A kopitiam's morning routine: receive supplies, put them in the store room, check what's running low, write the order list. Same steps, every day.</p></div><div class="card"><h3><span class="k">rules</span>Theory: the key rules</h3><ul class="rules"><li>Each step is one <b>function</b></li><li><b>UNIQUE</b> + <b>INSERT OR IGNORE</b> → safe to rerun</li><li><b>pd.read_sql()</b> loads straight from SQLite</li><li>Wrap the fetch in try/except with a fallback</li></ul></div></div>
+  <div class="body figbody" style="margin-top:12px"><div class="figwrap"><svg class="fig" style="min-height:0" viewBox="0 0 1000 330" aria-label="Pipeline: fetch from API, store in SQLite, analyse with pandas, save chart; each stage tagged with the class it came from">
+        <g font-family="JetBrains Mono,monospace">
+          <g class="fx">
+            <rect x="10" y="90" width="210" height="120" rx="12" fill="#1c2430" stroke="#58a6ff" stroke-width="2"/>
+            <text x="115" y="130" font-size="14" fill="#58a6ff" text-anchor="middle" letter-spacing="2">FETCH</text>
+            <text x="115" y="165" font-size="14" fill="#e8eef0" text-anchor="middle">requests + .env</text>
+            <text x="115" y="192" font-size="12" fill="#8b98a5" text-anchor="middle">Class 5</text>
+          </g>
+          <g class="fx d2">
+            <rect x="265" y="90" width="210" height="120" rx="12" fill="#1c2430" stroke="#f0b429" stroke-width="2"/>
+            <text x="370" y="130" font-size="14" fill="#f0b429" text-anchor="middle" letter-spacing="2">STORE</text>
+            <text x="370" y="165" font-size="14" fill="#e8eef0" text-anchor="middle">SQLite repo</text>
+            <text x="370" y="192" font-size="12" fill="#8b98a5" text-anchor="middle">Class 4</text>
+          </g>
+          <g class="fx d4">
+            <rect x="520" y="90" width="210" height="120" rx="12" fill="#1c2430" stroke="#00dcb4" stroke-width="2"/>
+            <text x="625" y="130" font-size="14" fill="#00dcb4" text-anchor="middle" letter-spacing="2">ANALYSE</text>
+            <text x="625" y="165" font-size="14" fill="#e8eef0" text-anchor="middle">pd.read_sql</text>
+            <text x="625" y="192" font-size="12" fill="#8b98a5" text-anchor="middle">Class 5</text>
+          </g>
+          <g class="fx d6">
+            <rect x="775" y="90" width="210" height="120" rx="12" fill="#1c2430" stroke="#ff6f91" stroke-width="2"/>
+            <text x="880" y="130" font-size="14" fill="#ff6f91" text-anchor="middle" letter-spacing="2">REPORT</text>
+            <text x="880" y="165" font-size="14" fill="#e8eef0" text-anchor="middle">chart.png</text>
+            <text x="880" y="192" font-size="12" fill="#8b98a5" text-anchor="middle">Class 5</text>
+          </g>
+          <line x1="222" y1="150" x2="260" y2="150" stroke="#00dcb4" stroke-width="2" marker-end="url(#d56)" class="draw d1" style="--len:40"/>
+          <line x1="477" y1="150" x2="515" y2="150" stroke="#00dcb4" stroke-width="2" marker-end="url(#d56)" class="draw d3" style="--len:40"/>
+          <line x1="732" y1="150" x2="770" y2="150" stroke="#00dcb4" stroke-width="2" marker-end="url(#d56)" class="draw d5" style="--len:40"/>
+          <circle r="8" fill="#00dcb4" class="travel" style="offset-path:path('M 115 150 L 880 150')"/>
+          <rect x="10" y="250" width="975" height="50" rx="10" fill="#0a0e13" stroke="#2a3440" class="fx d7"/>
+          <text x="497" y="281" font-size="14" fill="#8b98a5" text-anchor="middle" class="fx d7">wrapped in try/except + logging (Class 2) · functions typed (Class 1) · repo is a class (Class 3)</text>
+        </g>
+        <defs><marker id="d56" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#00dcb4"/></marker></defs>
+      </svg></div></div>
+</section>
+
+<section class="slide" data-title="3.3 API to SQLite to chart · code">
+  <div class="stepbar fx"><span class="">Explain</span><span class="">Theory</span><span class="on">Code</span><span class="">Practice</span></div>
+  <div class="tag fx">Module 3 · Visualise &amp; Pipeline · 3.3 · Code — copy, paste, run</div>
+  <h1 class="sh fx d1">Fetch rates → SQLite → pandas → % change</h1>
+  <div class="body" style="align-items:stretch">
+    <div class="col fx d2" style="flex:1.3;display:flex;flex-direction:column;gap:10px;min-height:0"><div class="cb" style="display:flex;flex-direction:column;min-height:0px;flex:42 1 0"><div class="code-head">pipeline.py</div><pre class="code sm" style="flex:1;min-height:0;margin:0"><span class="s">"""Pipeline: fetch (API) -&gt; store (SQLite) -&gt; analyse (pandas) -&gt; report."""</span>
+<span class="k">import</span> sqlite3
+
+<span class="k">import</span> pandas <span class="k">as</span> pd
+<span class="k">import</span> requests
+
+URL = <span class="s">"https://api.frankfurter.app/2026-10-01..2026-10-07"</span>
+SAMPLE = {<span class="s">"rates"</span>: {                       <span class="c"># used when there is no internet</span>
+    <span class="s">"2026-10-01"</span>: {<span class="s">"USD"</span>: <span class="n">0.2370</span>, <span class="s">"SGD"</span>: <span class="n">0.3060</span>},
+    <span class="s">"2026-10-02"</span>: {<span class="s">"USD"</span>: <span class="n">0.2375</span>, <span class="s">"SGD"</span>: <span class="n">0.3065</span>},
+    <span class="s">"2026-10-05"</span>: {<span class="s">"USD"</span>: <span class="n">0.2381</span>, <span class="s">"SGD"</span>: <span class="n">0.3071</span>},
+    <span class="s">"2026-10-06"</span>: {<span class="s">"USD"</span>: <span class="n">0.2378</span>, <span class="s">"SGD"</span>: <span class="n">0.3069</span>},
+    <span class="s">"2026-10-07"</span>: {<span class="s">"USD"</span>: <span class="n">0.2386</span>, <span class="s">"SGD"</span>: <span class="n">0.3074</span>}}}
+
+
+<span class="k">def</span> fetch() -&gt; dict:
+    <span class="k">try</span>:
+        r = requests.get(URL, params={<span class="s">"from"</span>: <span class="s">"MYR"</span>, <span class="s">"to"</span>: <span class="s">"USD,SGD"</span>}, timeout=<span class="n">10</span>)
+        r.raise_for_status()
+        <span class="k">return</span> r.json()
+    <span class="k">except</span> requests.RequestException:
+        print(<span class="s">"offline: using sample rates"</span>)
+        <span class="k">return</span> SAMPLE
+
+
+<span class="k">def</span> store(conn: sqlite3.Connection, data: dict) -&gt; int:
+    conn.execute(<span class="s">"CREATE TABLE IF NOT EXISTS rates "</span>
+                 <span class="s">"(day TEXT, currency TEXT, rate REAL, UNIQUE(day, currency))"</span>)
+    rows = [(d, c, r) <span class="k">for</span> d, rates <span class="k">in</span> data[<span class="s">"rates"</span>].items() <span class="k">for</span> c, r <span class="k">in</span> rates.items()]
+    before = conn.total_changes
+    conn.executemany(<span class="s">"INSERT OR IGNORE INTO rates VALUES (?, ?, ?)"</span>, rows)
+    conn.commit()
+    <span class="k">return</span> conn.total_changes - before
+
+
+conn = sqlite3.connect(<span class="s">"rates.db"</span>)
+print(<span class="s">"new rows:"</span>, store(conn, fetch()))
+df = pd.read_sql(<span class="s">"SELECT * FROM rates"</span>, conn).pivot(index=<span class="s">"day"</span>,
+                                                    columns=<span class="s">"currency"</span>, values=<span class="s">"rate"</span>)
+print(df)
+change = (df.iloc[-<span class="n">1</span>] / df.iloc[<span class="n">0</span>] - <span class="n">1</span>) * <span class="n">100</span>
+print(<span class="s">"\nMYR change over the period (%):"</span>); print(change.round(<span class="n">2</span>))</pre></div></div>
+    <div class="col fx d3" style="display:flex;flex-direction:column;gap:10px;min-height:0"><div class="cb" style="display:flex;flex-direction:column;min-height:0;flex:1 1 0"><div class="code-head">terminal · real output (offline here, so sample data was used)</div><pre class="code sm out" style="flex:1;min-height:0;margin:0"><span class="cmd">$ python pipeline.py</span>
+offline: using sample rates
+new rows: 10
+currency       SGD     USD
+day                       
+2026-10-01  0.3060  0.2370
+2026-10-02  0.3065  0.2375
+2026-10-05  0.3071  0.2381
+2026-10-06  0.3069  0.2378
+2026-10-07  0.3074  0.2386
+
+MYR change over the period (%):
+currency
+SGD    0.46
+USD    0.68
+dtype: float64
+<span class="cmd">$ python pipeline.py</span>
+offline: using sample rates
+new rows: 0
+currency       SGD     USD
+day                       
+2026-10-01  0.3060  0.2370
+2026-10-02  0.3065  0.2375
+… (9 more lines)</pre></div><div class="card" style="flex:0 0 auto"><h3><span class="k">try</span>Change it, predict, run</h3><ul class="rules"><li>Notice the 2nd run adds 0 rows. Why?</li><li>Add a chart step that saves rates.png.</li></ul></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="Module 3 Practice">
+  <div class="stepbar fx"><span class="">Explain</span><span class="">Theory</span><span class="">Code</span><span class="on">Practice</span></div>
+  <div class="tag fx">Module 3 · Visualise &amp; Pipeline · Practice: real-life app + hands-on</div>
+  <h1 class="sh fx d1">Build: MYR rate tracker pipeline</h1>
+  <div class="body" style="align-items:stretch">
+    <div class="col fx d2" style="flex:1.15;display:flex;flex-direction:column;gap:8px;min-height:0"><div class="card accent" style="flex:0 0 auto;padding:12px 16px"><h3><span class="k">real life</span>Personal finance: 3 months of spending, a chart and an Excel report</h3><p>You track spending by category. The script builds a stacked chart against your budget line, flags the months you overspent, and saves an Excel file for your records.</p></div><div class="cb" style="display:flex;flex-direction:column;min-height:130px;flex:33 1 0"><div class="code-head">spending.py</div><pre class="code sm" style="flex:1;min-height:0;margin:0"><span class="s">"""Personal finance: 3 months of spending -&gt; chart + Excel report."""</span>
+<span class="k">import</span> matplotlib
+matplotlib.use(<span class="s">"Agg"</span>)
+<span class="k">import</span> matplotlib.pyplot <span class="k">as</span> plt
+<span class="k">import</span> pandas <span class="k">as</span> pd
+
+spend = pd.DataFrame({
+    <span class="s">"month"</span>: [<span class="s">"Aug"</span>] * <span class="n">4</span> + [<span class="s">"Sep"</span>] * <span class="n">4</span> + [<span class="s">"Oct"</span>] * <span class="n">4</span>,
+    <span class="s">"category"</span>: [<span class="s">"Food"</span>, <span class="s">"Transport"</span>, <span class="s">"Bills"</span>, <span class="s">"Fun"</span>] * <span class="n">3</span>,
+    <span class="s">"amount"</span>: [<span class="n">620</span>, <span class="n">210</span>, <span class="n">340</span>, <span class="n">150</span>, <span class="n">700</span>, <span class="n">190</span>, <span class="n">345</span>, <span class="n">320</span>, <span class="n">590</span>, <span class="n">240</span>, <span class="n">350</span>, <span class="n">410</span>],
+})
+table = spend.pivot_table(index=<span class="s">"month"</span>, columns=<span class="s">"category"</span>, values=<span class="s">"amount"</span>,
+                          aggfunc=<span class="s">"sum"</span>).reindex([<span class="s">"Aug"</span>, <span class="s">"Sep"</span>, <span class="s">"Oct"</span>])
+budget = <span class="n">1400</span>
+
+ax = table.plot(kind=<span class="s">"bar"</span>, stacked=<span class="k">True</span>, figsize=(<span class="n">7</span>, <span class="n">4</span>), rot=<span class="n">0</span>,
+                color=[<span class="s">"#00dcb4"</span>, <span class="s">"#58a6ff"</span>, <span class="s">"#f0b429"</span>, <span class="s">"#ff6f91"</span>])
+ax.axhline(budget, color=<span class="s">"#333333"</span>, linestyle=<span class="s">"--"</span>, linewidth=<span class="n">1</span>)
+ax.text(<span class="n">2.45</span>, budget + <span class="n">20</span>, <span class="s">f"budget RM{budget}"</span>, ha=<span class="s">"right"</span>, fontsize=<span class="n">9</span>)
+ax.set_title(<span class="s">"'Fun' spending nearly tripled since August"</span>)
+ax.set_xlabel(<span class="s">"Month (2026)"</span>)
+ax.set_ylabel(<span class="s">"Spent (RM)"</span>)
+ax.legend(title=<span class="s">"Category"</span>, bbox_to_anchor=(<span class="n">1</span>, <span class="n">1</span>), loc=<span class="s">"upper left"</span>)
+plt.tight_layout()
+plt.savefig(<span class="s">"spending.png"</span>, dpi=<span class="n">120</span>)
+
+totals = table.sum(axis=<span class="n">1</span>)
+print(table, <span class="s">"\n"</span>)
+<span class="k">for</span> month, total <span class="k">in</span> totals.items():
+    flag = <span class="s">"OVER"</span> <span class="k">if</span> total &gt; budget <span class="k">else</span> <span class="s">"ok"</span>
+    print(<span class="s">f"{month}: RM{total:,.0f}  {flag}"</span>)
+table.to_excel(<span class="s">"spending.xlsx"</span>)
+print(<span class="s">"saved spending.png and spending.xlsx"</span>)</pre></div><div class="cb" style="display:flex;flex-direction:column;min-height:90px;flex:0 1 26%"><div class="code-head">terminal · real output</div><pre class="code sm out" style="flex:1;min-height:0;margin:0"><span class="cmd">$ python spending.py</span>
+category  Bills  Food  Fun  Transport
+month                                
+Aug         340   620  150        210
+Sep         345   700  320        190
+Oct         350   590  410        240 
+
+Aug: RM1,320  ok
+Sep: RM1,555  OVER
+Oct: RM1,590  OVER
+saved spending.png and spending.xlsx</pre></div></div>
+    <div class="col fx d3" style="display:flex;flex-direction:column;gap:10px;min-height:0"><div style="flex:0 0 auto"><div class="hands-on">
+        <div class="lbl">15 minutes · pairs</div>
+        <h3>Track MYR against 3 currencies over time</h3>
+        <div class="steps">
+          <div><b>01</b><span>Fetch 30 days of history (Frankfurter supports date ranges).</span></div>
+          <div><b>02</b><span>Save each day's rates to a <span style="font-family:var(--mono)">rates</span> table.</span></div>
+          <div><b>03</b><span><span style="font-family:var(--mono)">pd.read_sql</span> → pivot so each currency is a column.</span></div>
+          <div><b>04</b><span>Line chart with title and labels → <span style="font-family:var(--mono)">reports/</span>.</span></div>
+          <div><b>05</b><span>Run it twice — no duplicate rows in the table. <b style="color:var(--mint)">Done.</b></span></div>
+        </div>
+      </div></div><div class="cb" style="display:flex;flex-direction:column;min-height:0;flex:1 1 0"><div class="code-head">terminal</div><pre class="code sm" style="flex:1;min-height:0;margin:0"><span class="c">$ python -m tracker.pipeline</span>
+INFO fetched 30 days × 3 currencies
+INFO saved 90 rows (0 duplicates skipped)
+INFO chart → reports/myr_trend_2026-10-19.png
+
+<span class="c">$ python -m tracker.pipeline</span>
+INFO fetched 30 days × 3 currencies
+INFO saved 0 rows (90 duplicates skipped)</pre></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="Recap &amp; Summary">
+  <div class="tag fx">Recap &amp; Summary</div>
+  <h1 class="sh fx d1">Your programs now reach the outside world</h1>
+  <div class="body">
+    <div class="col cards grid3 fx d2">
+      <div class="card accent"><h3><span class="k">M1</span>APIs</h3><p>GET with params and timeout, check status, parse JSON, keys in .env and never on GitHub.</p></div>
+      <div class="card accent"><h3><span class="k">M2</span>pandas</h3><p>Load, filter, clean, groupby — a column at a time instead of a row at a time.</p></div>
+      <div class="card accent"><h3><span class="k">M3</span>Report</h3><p>One-message charts, export to CSV/Excel/PNG, and a pipeline built from every class so far.</p></div>
+    </div>
+  </div>
+  <div class="body" style="flex:0 0 auto;margin-top:0">
+    <div class="col fx d3"><div class="card"><h3>Homework 5 — Your own data report</h3><p>Pick a free public API (weather, currency, data.gov.my). Fetch, store, analyse, and produce one chart that answers one question. Push to <span style="font-family:var(--mono);color:var(--mint)">class05/</span>, no keys committed.</p></div></div>
+    <div class="col fx d4"><div class="card"><h3>Next class — Advanced Python &amp; Testing</h3><p>Generators for huge files, decorators and regex, then pytest so you can prove your code works.</p></div></div>
+  </div>
+</section>
+<section class="slide" data-title="Review Learning Outcomes">
+  <div class="tag fx">Review Learning Outcomes</div>
+  <h1 class="sh fx d1">Did we get there?</h1>
+  <p class="sub fx d2">Rate yourself honestly — 1 to 5. Anything at 2 or below, tell me before you leave.</p>
+  <div class="body">
+    <div class="col cards fx d3">
+      <div class="card"><h3><span class="k">LO1</span>I can call a REST API and handle a failed request</h3><p style="font-family:var(--mono);color:var(--mint)">1 — 2 — 3 — 4 — 5</p></div>
+      <div class="card"><h3><span class="k">LO2</span>My API keys are in .env and .gitignore blocks it</h3><p style="font-family:var(--mono);color:var(--mint)">Yes — Not yet</p></div>
+      <div class="card"><h3><span class="k">LO3</span>I can clean data and groupby with pandas</h3><p style="font-family:var(--mono);color:var(--mint)">1 — 2 — 3 — 4 — 5</p></div>
+      <div class="card accent"><h3><span class="k">LO4</span>My pipeline produces a labelled chart and is on GitHub</h3><p style="font-family:var(--mono);color:var(--mint)">Yes — Not yet</p></div>
+    </div>
+  </div>
+  <p class="caption fx d4">codencode.my · Class 05 complete</p>
+</section>
+</div>
+
+<div id="nav">
+  <button class="navbtn" onclick="go(-1)">PREV</button>
+  <div id="dots"></div>
+  <button class="navbtn" onclick="go(1)">NEXT</button>
+</div>
+
+<script>
+const slides=[...document.querySelectorAll('.slide')];
+let i=0;
+const dots=document.getElementById('dots');
+slides.forEach((s,n)=>{const d=document.createElement('div');d.className='dot';
+  d.onclick=()=>show(n);dots.appendChild(d);});
+function show(n){
+  if(n<0||n>=slides.length)return;
+  slides[i].classList.remove('active');
+  i=n;
+  // force reflow so entry animations restart cleanly
+  void slides[i].offsetWidth;
+  slides[i].classList.add('active');
+  document.getElementById('counter').textContent=String(i+1).padStart(2,'0')+' / '+slides.length;
+  document.getElementById('titlebar').textContent=slides[i].dataset.title||'';
+  document.getElementById('progress').style.width=((i+1)/slides.length*100)+'%';
+  [...dots.children].forEach((d,n2)=>d.classList.toggle('on',n2===i));
+}
+function go(d){show(i+d);}
+function fs(){document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen();}
+addEventListener('keydown',e=>{
+  if(['ArrowRight',' ','PageDown'].includes(e.key)){e.preventDefault();go(1);}
+  if(['ArrowLeft','PageUp'].includes(e.key)){e.preventDefault();go(-1);}
+  if(e.key==='Home')show(0);
+  if(e.key==='End')show(slides.length-1);
+  if(e.key==='f')fs();
+});
+
+/* ---------- copy-to-clipboard on every code block ---------- */
+(function(){
+  document.querySelectorAll('pre.code').forEach(pre=>{
+    const source = pre.textContent;               // capture BEFORE adding the button
+    const btn = document.createElement('button');
+    btn.className = 'copybtn';
+    btn.type = 'button';
+    btn.textContent = 'COPY';
+    btn.addEventListener('click', async e=>{
+      e.stopPropagation();
+      try{
+        await navigator.clipboard.writeText(source);
+      }catch(err){                                 // file:// fallback
+        const ta=document.createElement('textarea');
+        ta.value=source; ta.style.position='fixed'; ta.style.opacity='0';
+        document.body.appendChild(ta); ta.select();
+        try{document.execCommand('copy');}catch(_){}
+        document.body.removeChild(ta);
+      }
+      btn.textContent='COPIED'; btn.classList.add('done');
+      setTimeout(()=>{btn.textContent='COPY'; btn.classList.remove('done');},1400);
+    });
+    pre.appendChild(btn);
+  });
+})();
+
+show(0);
+</script>
+
+<div id="xmodal" role="dialog" aria-modal="true"><div class="box">
+  <div class="bar"><span id="xtitle"></span><button class="btn" id="xcopy">COPY</button><button class="btn ghost" id="xclose">CLOSE ✕ (Esc)</button></div>
+  <pre class="code" id="xpre"></pre></div></div>
+<script>
+(function(){
+  const modal=document.getElementById('xmodal'), xpre=document.getElementById('xpre'),
+        xtitle=document.getElementById('xtitle'), xcopy=document.getElementById('xcopy');
+  let src='';
+  function open(head, pre){
+    const clone=pre.cloneNode(true);
+    clone.querySelectorAll('.copybtn').forEach(b=>b.remove());
+    src=clone.textContent; xpre.innerHTML=clone.innerHTML;
+    xtitle.textContent=head.childNodes[0].textContent.trim();
+    xcopy.textContent='COPY'; modal.classList.add('on'); xpre.scrollTop=0;
+  }
+  function close(){modal.classList.remove('on');}
+  document.querySelectorAll('.cb').forEach(cb=>{
+    const head=cb.querySelector('.code-head'), pre=cb.querySelector('pre.code');
+    if(!head||!pre)return;
+    const b=document.createElement('button'); b.className='xbtn'; b.type='button'; b.textContent='EXPAND ⤢';
+    b.addEventListener('click',e=>{e.stopPropagation();open(head,pre);});
+    head.appendChild(b);
+    head.style.cursor='zoom-in'; head.addEventListener('dblclick',()=>open(head,pre));
+  });
+  document.getElementById('xclose').onclick=close;
+  modal.addEventListener('click',e=>{if(e.target===modal)close();});
+  xcopy.onclick=async()=>{try{await navigator.clipboard.writeText(src);}catch(_){
+      const t=document.createElement('textarea');t.value=src;document.body.appendChild(t);t.select();
+      try{document.execCommand('copy');}catch(__){} t.remove();}
+    xcopy.textContent='COPIED';};
+  window.addEventListener('keydown',e=>{
+    if(!modal.classList.contains('on'))return;
+    if(e.key==='Escape')close();
+    e.stopImmediatePropagation();
+  },true);
+})();
+</script>
+</body>
+</html>

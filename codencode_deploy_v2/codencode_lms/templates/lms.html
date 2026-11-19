@@ -3997,7 +3997,7 @@ async function loadTeacherCertificates() {
         <td><span style="font-family:var(--font-c);font-size:10px;color:var(--cyan)">${c.cert_number || '-'}</span></td>
         <td style="font-weight:700">${c.student_name || '-'}</td>
         <td style="color:var(--muted);font-family:var(--font-m);font-size:11px">${c.course_title || '-'}</td>
-        <td style="font-family:var(--font-m);font-size:11px">${c.issued_at || '-'}</td>
+        <td style="font-family:var(--font-m);font-size:11px">${c.certificate_date_label || c.issued_at || '-'}</td>
         <td><a href="/api/certificates/${c.id}/download" target="_blank" class="btn-action ghost" style="font-size:9px;padding:5px 8px"><i class="fas fa-download"></i> ${T('x.viewCert')}</a></td>
       </tr>`).join('');
   } catch(e) {
@@ -7011,7 +7011,7 @@ async function loadCertificates() {
           <div>
             <div style="font-family:var(--font-d);font-size:16px;font-weight:700;margin-bottom:4px">${c.course_title}</div>
             <div style="font-family:var(--font-c);font-size:10px;color:var(--cyan);margin-bottom:4px">${c.cert_number}</div>
-            <div style="font-family:var(--font-m);font-size:11px;color:var(--muted)">${T('cert.issued',{date:c.issued_at})}</div>
+            <div style="font-family:var(--font-m);font-size:11px;color:var(--muted)">${T('cert.issued',{date:c.certificate_date_label || c.issued_at})}</div>
           </div>
           <a href="/api/certificates/${c.id}/download" target="_blank" class="btn-action">
             <i class="fas fa-download"></i> ${T('cert.download')}

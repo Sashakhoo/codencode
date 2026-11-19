@@ -1,0 +1,1290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Class 01 — Functions &amp; Pythonic Foundations · Python Intermediate | codencode Academy</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0d1117; --panel:#161b22; --panel2:#1c2430; --line:#2a3440;
+  --mint:#00dcb4; --mint-d:#00a888; --text:#e8eef0; --muted:#8b98a5;
+  --coral:#ff6f91; --amber:#f0b429; --blue:#58a6ff;
+  --sans:'Space Grotesk','Inter',system-ui,sans-serif;
+  --body:'Inter',system-ui,sans-serif;
+  --mono:'JetBrains Mono','SF Mono',Consolas,monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:var(--body);height:100vh;overflow:hidden;user-select:none}
+
+/* ---------- chrome ---------- */
+#topbar{position:fixed;top:0;left:0;right:0;height:52px;display:flex;align-items:center;
+  gap:16px;padding:0 24px;background:rgba(13,17,23,.92);border-bottom:1px solid var(--line);z-index:50;backdrop-filter:blur(8px)}
+.wordmark{height:21px;width:auto;display:block;flex-shrink:0}
+#sesslabel{font-size:12px;color:var(--muted);font-family:var(--mono);letter-spacing:.04em}
+#titlebar{flex:1;text-align:center;font-size:13px;color:var(--muted);font-family:var(--mono);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#counter{font-family:var(--mono);font-size:12px;color:var(--mint)}
+.btn{background:rgba(0,220,180,.10);border:1px solid rgba(0,220,180,.32);color:var(--mint);
+  font-family:var(--mono);font-size:11px;padding:6px 12px;border-radius:6px;cursor:pointer}
+.btn:hover{background:rgba(0,220,180,.20)}
+#progress{position:fixed;top:52px;left:0;height:2px;background:var(--mint);z-index:51;transition:width .3s ease}
+#nav{position:fixed;bottom:0;left:0;right:0;height:56px;display:flex;align-items:center;justify-content:center;
+  gap:20px;z-index:50}
+.navbtn{background:var(--panel);border:1px solid var(--line);color:var(--muted);font-family:var(--mono);
+  font-size:12px;padding:8px 16px;border-radius:8px;cursor:pointer}
+.navbtn:hover{border-color:var(--mint);color:var(--mint)}
+#dots{display:flex;gap:6px;flex-wrap:wrap;max-width:50vw;justify-content:center}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--line);cursor:pointer;transition:.2s}
+.dot.on{background:var(--mint);transform:scale(1.35)}
+
+/* ---------- slides ---------- */
+#deck{position:absolute;top:54px;bottom:56px;left:0;right:0}
+.slide{position:absolute;inset:0;padding:40px 60px;display:none;flex-direction:column;overflow-y:auto;overflow-x:hidden}
+.slide.active{display:flex;animation:slideIn .4s ease both;background:var(--bg);z-index:1}
+@keyframes slideIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+
+.tag{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--mint);margin-bottom:12px}
+h1.sh{font-family:var(--sans);font-size:clamp(26px,3.2vw,40px);font-weight:700;line-height:1.12;margin-bottom:8px}
+h1.sh::after{content:'';display:block;width:56px;height:4px;background:var(--mint);border-radius:2px;margin-top:14px}
+.sub{color:var(--muted);font-size:16px;margin-top:14px;max-width:70ch;line-height:1.6}
+.body{flex:1;display:flex;gap:32px;align-items:center;margin-top:24px;min-height:0}
+.col{flex:1;min-width:0}
+
+/* title slide */
+.title-slide{align-items:center;justify-content:center;text-align:center}
+.title-slide .badge{font-family:var(--mono);font-size:12px;color:var(--mint);border:1px solid rgba(0,220,180,.34);
+  background:rgba(0,220,180,.08);padding:7px 18px;border-radius:20px;margin-bottom:26px}
+.title-slide h1{font-family:var(--sans);font-size:clamp(40px,6vw,72px);font-weight:700;line-height:1.05}
+.title-slide h1 em{font-style:normal;color:var(--mint)}
+.title-slide p{color:var(--muted);font-size:18px;margin-top:20px;max-width:60ch}
+.title-slide .foot{margin-top:38px;font-family:var(--mono);font-size:13px;color:var(--muted)}
+
+/* section divider */
+.divider{align-items:flex-start;justify-content:center}
+.divider .num{font-family:var(--sans);font-size:120px;font-weight:700;color:rgba(0,220,180,.16);line-height:1}
+.divider h1{font-family:var(--sans);font-size:clamp(34px,4.6vw,56px);font-weight:700;margin-top:-18px}
+.divider .items{margin-top:26px;display:flex;flex-direction:column;gap:12px}
+.divider .items div{font-size:17px;color:var(--muted)}
+.divider .items b{color:var(--mint);font-family:var(--mono);font-size:15px;margin-right:12px}
+
+/* cards / lists */
+.cards{display:grid;gap:14px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:18px 20px}
+.card.accent{border-color:rgba(0,220,180,.45);background:var(--panel2)}
+.card h3{font-family:var(--sans);font-size:17px;font-weight:600;margin-bottom:6px}
+.card h3 .k{color:var(--mint);font-family:var(--mono);font-size:14px;margin-right:8px}
+.card p{color:var(--muted);font-size:14.5px;line-height:1.55}
+.grid2{grid-template-columns:1fr 1fr}
+.grid3{grid-template-columns:repeat(3,1fr)}
+
+table.cps{width:100%;border-collapse:collapse;font-size:15px}
+table.cps th{text-align:left;font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--mint);padding:10px 14px;border-bottom:1px solid var(--line)}
+table.cps td{padding:14px;border-bottom:1px solid var(--line);color:var(--text);line-height:1.5;vertical-align:top}
+table.cps td:first-child{color:var(--mint);font-family:var(--mono);font-size:13px;width:150px;white-space:nowrap}
+
+pre.code{background:#0a0e13;border:1px solid var(--line);border-radius:10px;padding:18px 20px;
+  font-family:var(--mono);font-size:14.5px;line-height:1.75;overflow:auto;color:var(--text)}
+pre.code .c{color:var(--muted)}
+pre.code .s{color:var(--mint)}
+pre.code .n{color:var(--blue)}
+pre.code .e{color:var(--coral)}
+.code-head{font-family:var(--mono);font-size:11px;color:var(--muted);background:var(--panel2);
+  border:1px solid var(--line);border-bottom:none;border-radius:10px 10px 0 0;padding:8px 14px}
+.code-head + pre.code{border-radius:0 0 10px 10px}
+
+.pill{display:inline-block;font-family:var(--mono);font-size:11.5px;padding:5px 12px;border-radius:14px;
+  border:1px solid;margin:0 8px 8px 0}
+.pill.mint{color:var(--mint);border-color:rgba(0,220,180,.4);background:rgba(0,220,180,.08)}
+.pill.coral{color:var(--coral);border-color:rgba(255,111,145,.4);background:rgba(255,111,145,.08)}
+.pill.amber{color:var(--amber);border-color:rgba(240,180,41,.4);background:rgba(240,180,41,.08)}
+.pill.blue{color:var(--blue);border-color:rgba(88,166,255,.4);background:rgba(88,166,255,.08)}
+
+.hands-on{border-left:3px solid var(--mint);background:linear-gradient(90deg,rgba(0,220,180,.07),transparent 60%);
+  padding:18px 24px;border-radius:0 10px 10px 0}
+.hands-on .lbl{font-family:var(--mono);font-size:11px;letter-spacing:.14em;color:var(--mint);text-transform:uppercase}
+.hands-on h3{font-family:var(--sans);font-size:20px;margin:8px 0 10px}
+.hands-on p{color:var(--muted);font-size:15px;line-height:1.6}
+.steps{margin-top:14px;display:flex;flex-direction:column;gap:9px}
+.steps div{font-size:14.5px;color:var(--text);display:flex;gap:12px;align-items:flex-start}
+.steps b{color:var(--mint);font-family:var(--mono);font-size:13px;flex-shrink:0}
+
+svg.fig{width:100%;height:100%;min-height:300px;flex:1 1 auto;display:block}
+.figwrap{flex:1.8 1 0;display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:0;min-height:0;max-height:100%;gap:6px}
+.figwrap > .legend,.figwrap > .controls,.figwrap > .gate,.figwrap > .eq{flex:0 0 auto;width:100%}
+.caption{font-size:13.5px;color:var(--muted);font-style:italic;margin-top:14px;text-align:center}
+
+/* ---------- animation primitives (restart on slide entry) ---------- */
+.fx{opacity:0}
+.slide.active .fx{animation:fadeUp .55s ease forwards}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.slide.active .d1{animation-delay:.15s}.slide.active .d2{animation-delay:.35s}
+.slide.active .d3{animation-delay:.55s}.slide.active .d4{animation-delay:.75s}
+.slide.active .d5{animation-delay:.95s}.slide.active .d6{animation-delay:1.15s}
+.slide.active .d7{animation-delay:1.35s}.slide.active .d8{animation-delay:1.55s}
+.slide.active .d9{animation-delay:1.75s}.slide.active .d10{animation-delay:1.95s}
+
+.draw{stroke-dasharray:var(--len,300);stroke-dashoffset:var(--len,300);opacity:1}
+.slide.active .draw{animation:drawIn .6s ease forwards}
+@keyframes drawIn{to{stroke-dashoffset:0}}
+
+.slide.active .pulse{animation:pulse 2.2s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.45}}
+
+.slide.active .travel{animation:travel 4.5s linear infinite}
+@keyframes travel{0%{offset-distance:0%}100%{offset-distance:100%}}
+
+.slide.active .grow{transform-origin:bottom;animation:grow .8s cubic-bezier(.22,1,.36,1) forwards}
+@keyframes grow{from{transform:scaleY(0)}to{transform:scaleY(1)}}
+
+.slide.active .cycle1{animation:hl 6s ease-in-out infinite}
+.slide.active .cycle2{animation:hl 6s ease-in-out infinite 2s}
+.slide.active .cycle3{animation:hl 6s ease-in-out infinite 4s}
+@keyframes hl{0%,8%{opacity:0}14%,28%{opacity:1}36%,100%{opacity:0}}
+
+.slide.active .typing{animation:typing 1.4s steps(18) forwards;white-space:nowrap;overflow:hidden;
+  display:inline-block;width:0}
+@keyframes typing{to{width:100%}}
+
+/* ---------- copiable code ---------- */
+pre.code{position:relative;user-select:text}
+.copybtn{position:absolute;top:7px;right:7px;z-index:3;background:rgba(22,27,34,.94);
+  border:1px solid var(--line);color:var(--muted);font-family:var(--mono);font-size:10.5px;
+  letter-spacing:.06em;padding:4px 9px;border-radius:5px;cursor:pointer;opacity:0;transition:.16s}
+pre.code:hover .copybtn{opacity:1}
+.copybtn:hover{border-color:var(--mint);color:var(--mint)}
+.copybtn.done{border-color:var(--mint);color:var(--mint);opacity:1}
+
+
+/* ---------- figure slides: stacked on tall screens, side-by-side when wide ---------- */
+.cb{display:block}
+.figbody{flex:1;display:flex;gap:32px;align-items:center;margin-top:24px;min-height:0}
+.figbody > .figwrap{flex:1.8 1 0}
+.figbody > .figside{display:flex;flex-direction:column;gap:12px;min-width:0}
+.figbody > .figside > *{margin-bottom:0}
+@media (max-aspect-ratio: 29/20){
+  .figbody{flex-direction:column;align-items:stretch;gap:16px}
+  .figbody > .figwrap{flex:0 1 auto;width:100%;max-width:none;justify-content:flex-start}
+  .figbody > .figwrap > svg.fig{height:auto;min-height:0;flex:0 0 auto;max-height:100%}
+  .figbody > .figside{max-width:none !important;flex:0 0 auto;display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:14px;align-items:start}
+  .figbody > .figside .controls,.figbody > .figside .legend{justify-content:flex-start}
+}
+
+/* ---------- figure furniture ---------- */
+.legend{display:flex;gap:18px;font-family:var(--mono);font-size:12px;color:var(--muted);
+  margin-top:6px;flex-wrap:wrap;justify-content:center}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px;vertical-align:middle}
+.controls{display:flex;gap:10px;align-items:center;margin-top:12px;flex-wrap:wrap;justify-content:center}
+.btn.ghost{background:transparent;border-color:var(--line);color:var(--muted)}
+.btn.ghost:hover{border-color:var(--mint);color:var(--mint)}
+.gate{margin-bottom:12px}
+.gate label{display:flex;justify-content:space-between;align-items:center;font-family:var(--mono);
+  font-size:12.5px;margin-bottom:6px;gap:12px}
+input[type=range]{width:100%;height:5px;border-radius:3px;appearance:none;background:var(--line);outline:none}
+input[type=range]::-webkit-slider-thumb{appearance:none;width:15px;height:15px;border-radius:50%;
+  background:var(--mint);cursor:pointer;border:2px solid #0d1117}
+.eq{font-family:var(--mono);font-size:12.5px;color:var(--muted);line-height:1.9;background:#0a0e13;
+  border:1px solid var(--line);border-radius:9px;padding:11px 13px}
+.eq b{color:var(--text);font-weight:400}
+.def{border-left:3px solid var(--blue);background:linear-gradient(90deg,rgba(88,166,255,.09),transparent 65%);
+  padding:14px 18px;border-radius:0 9px 9px 0;margin-bottom:12px}
+.def .lbl{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;color:var(--blue);text-transform:uppercase}
+.def h4{font-family:var(--sans);font-size:17px;margin:5px 0 6px}
+.def p{color:var(--muted);font-size:14px;line-height:1.6}
+.def p b{color:var(--text);font-weight:600}
+.theory{border-left:3px solid var(--amber);background:linear-gradient(90deg,rgba(240,180,41,.08),transparent 65%);
+  padding:14px 18px;border-radius:0 9px 9px 0;margin-bottom:12px}
+.theory .lbl{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;color:var(--amber);text-transform:uppercase}
+.theory p{color:var(--muted);font-size:14px;line-height:1.6;margin-top:6px}
+.theory p b{color:var(--text);font-weight:600}
+.formula{background:#0a0e13;border:1px solid var(--line);border-radius:10px;padding:16px 20px;
+  font-family:var(--mono);font-size:19px;color:var(--mint);text-align:center;margin:10px 0}
+.formula small{display:block;font-size:12px;color:var(--muted);margin-top:8px}
+table.t{width:100%;border-collapse:collapse;font-size:13.5px}
+table.t th{text-align:left;font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--mint);padding:9px 12px;border-bottom:1px solid var(--line)}
+table.t td{padding:10px 12px;border-bottom:1px solid var(--line);color:var(--muted);line-height:1.5;vertical-align:top}
+table.t td:first-child{color:var(--text);font-family:var(--mono);font-size:12.5px}
+table.cps td:first-child{color:var(--mint);font-family:var(--mono);font-size:13px;width:140px}
+pre.code.sm{font-size:12.3px;line-height:1.6}
+.card.warn{border-color:rgba(255,111,145,.42)}
+.divider .num{font-family:var(--sans);font-size:112px;font-weight:700;color:rgba(0,220,180,.16);line-height:1}
+
+pre.code.sm{font-size:clamp(12px,0.74vw,14.5px);line-height:1.6;padding:14px 16px}
+pre.code .k{color:var(--blue)}
+pre.code .n{color:var(--amber)}
+pre.code .cmd{color:var(--mint)}
+pre.code.out{color:#c9d4dc}
+.card ul.rules{margin:6px 0 0 18px;color:var(--muted);font-size:14px;line-height:1.6}
+.card ul.rules li{margin-bottom:3px}
+.card ul.rules b{color:var(--text);font-weight:600}
+.stepbar{display:flex;gap:6px;margin:-2px 0 6px;font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase}
+.stepbar span{padding:3px 9px;border-radius:10px;border:1px solid var(--line);color:var(--muted)}
+.stepbar span.on{color:var(--bg);background:var(--mint);border-color:var(--mint)}
+img.result{max-width:100%;max-height:230px;object-fit:contain;border-radius:8px;border:1px solid var(--line);background:#fff;align-self:center}
+.code-head{display:flex;align-items:center;gap:10px}
+.code-head .xbtn{margin-left:auto;background:rgba(0,220,180,.10);border:1px solid rgba(0,220,180,.32);color:var(--mint);
+  font-family:var(--mono);font-size:10.5px;letter-spacing:.06em;padding:3px 9px;border-radius:5px;cursor:pointer}
+.code-head .xbtn:hover{background:rgba(0,220,180,.22)}
+#xmodal{position:fixed;inset:0;z-index:200;background:rgba(5,8,12,.86);backdrop-filter:blur(4px);display:none;
+  align-items:center;justify-content:center;padding:40px}
+#xmodal.on{display:flex}
+#xmodal .box{width:min(1300px,100%);height:100%;display:flex;flex-direction:column;background:#0a0e13;
+  border:1px solid var(--mint);border-radius:12px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.6)}
+#xmodal .bar{display:flex;align-items:center;gap:12px;padding:10px 16px;background:var(--panel2);border-bottom:1px solid var(--line);
+  font-family:var(--mono);font-size:13px;color:var(--muted)}
+#xmodal #xcopy{margin-left:auto}
+#xmodal pre.code{flex:1;margin:0;border:none;border-radius:0;font-size:clamp(14px,1.05vw,19px);line-height:1.65;overflow:auto;padding:22px 26px}
+@keyframes barx{from{opacity:0;transform:scaleX(0)}to{opacity:1;transform:scaleX(1)}}
+</style>
+</head>
+<body>
+
+<div id="topbar">
+  <img class="wordmark" src="data:image/png;base64,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" alt="codencode.my">
+  <div id="sesslabel">CLASS 01</div>
+  <div id="titlebar"></div>
+  <div id="counter"></div>
+  <button class="btn" onclick="fs()">FULLSCREEN</button>
+</div>
+<div id="progress"></div>
+
+<div id="deck">
+
+<section class="slide title-slide" data-title="Main Title">
+  <div class="badge fx">CLASS 01 OF 07 · PYTHON INTERMEDIATE</div>
+  <h1 class="fx d1">Functions &amp; <em>Pythonic Foundations</em></h1>
+  <p class="fx d2">We start from the basics, with functions: what they are, how they take inputs and give outputs. Then we use them to process data and work like a professional developer.</p>
+  <div class="foot fx d3">codencode Academy · 6 theory classes + 1 project class with Claude · 2 hours</div>
+</section>
+<section class="slide" data-title="Session Plan">
+  <div class="tag fx">Session Plan</div>
+  <h1 class="sh fx d1">What we're doing today</h1>
+  <div class="body">
+    <div class="col cards grid3">
+      <div class="card accent fx d2"><h3><span class="k">M1</span>Functions from the Ground Up</h3><p>def and return, parameters and arguments, scope, type hints and docstrings.</p><div style="margin-top:12px"><span class="pill mint">35 min</span></div></div>
+      <div class="card accent fx d3"><h3><span class="k">M2</span>Functions on Data</h3><p>Comprehensions, lambda with sorted(), and the collections module.</p><div style="margin-top:12px"><span class="pill mint">30 min</span></div></div>
+      <div class="card accent fx d4"><h3><span class="k">M3</span>Professional Workflow</h3><p>venv and requirements.txt, Git and GitHub, PEP 8 with ruff.</p><div style="margin-top:12px"><span class="pill mint">30 min</span></div></div>
+    </div>
+  </div>
+  <div class="cards grid3 fx d5" style="margin-top:4px">
+    <div class="card"><p><b style="color:var(--text)">Every topic</b>: explain → theory → code you can copy → practice</p></div>
+    <div class="card"><p><b style="color:var(--text)">Ice breaker 10 min + Recap 15 min</b>, plus Homework 1 pushed to <span style="font-family:var(--mono)">class01/</span></p></div>
+    <div class="card"><p><b style="color:var(--text)">Bring</b>: laptop with Python 3.12+, VS Code, a GitHub account</p></div>
+  </div>
+</section>
+<section class="slide" data-title="Ice Breaker Activity">
+  <div class="tag fx">Ice Breaker · 10 minutes</div>
+  <h1 class="sh fx d1">Bug Hunt Bingo</h1>
+  <p class="sub fx d2">Pairs. Each snippet has exactly one bug. First pair to find all five and say <b style="color:var(--mint)">"Bingo!"</b> wins. No running the code — read it.</p>
+  <div class="body">
+    <div class="col fx d3">
+      <div class="cb"><div class="code-head">bingo.py — find 5 bugs</div><pre class="code"><span class="c"># 1</span>
+for i in range(<span class="n">5</span>)
+    print(i)
+<span class="c"># 2</span>
+total = <span class="s">"Score: "</span> + <span class="n">90</span>
+<span class="c"># 3</span>
+fruits = [<span class="s">"apple"</span>, <span class="s">"durian"</span>]
+print(fruits[<span class="n">2</span>])
+<span class="c"># 4</span>
+if score = <span class="n">100</span>:
+    print(<span class="s">"perfect"</span>)
+<span class="c"># 5</span>
+def add(a, b):
+    a + b</pre></div>
+    </div>
+    <div class="col cards fx d4">
+      <div class="card"><h3><span class="k">1</span>Missing colon</h3><p>Every <span style="font-family:var(--mono)">for</span>, <span style="font-family:var(--mono)">if</span>, <span style="font-family:var(--mono)">def</span> line ends with <span style="font-family:var(--mono);color:var(--mint)">:</span></p></div>
+      <div class="card"><h3><span class="k">2</span>str + int</h3><p>TypeError — use an f-string: <span style="font-family:var(--mono);color:var(--mint)">f"Score: {90}"</span></p></div>
+      <div class="card"><h3><span class="k">3</span>Index out of range</h3><p>Two items means indexes 0 and 1 only.</p></div>
+      <div class="card"><h3><span class="k">4</span>= vs ==</h3><p><span style="font-family:var(--mono)">=</span> assigns, <span style="font-family:var(--mono);color:var(--mint)">==</span> compares.</p></div>
+      <div class="card accent"><h3><span class="k">5</span>No return</h3><p>The function runs and gives back <span style="font-family:var(--mono);color:var(--coral)">None</span>.</p></div>
+    </div>
+  </div>
+</section>
+<section class="slide" data-title="Learning Outcomes">
+  <div class="tag fx">Learning Outcomes</div>
+  <h1 class="sh fx d1">By the end of today you will be able to…</h1>
+  <div class="body"><div class="col fx d2">
+    <table class="cps">
+      <tr><th>Component</th><th>Statement</th></tr>
+      <tr><td>Condition</td><td>Given a written brief for a fare calculator, a messy beginner script, and a configured Python environment,</td></tr>
+      <tr><td>Performance</td><td>you will write functions with parameters, defaults and return values, process data with comprehensions and collections, add type hints and docstrings, and commit the work to GitHub,</td></tr>
+      <tr><td>Standard</td><td>so that all 5 fare checks print OK, the word-frequency script prints the correct top 10, <span style="font-family:var(--mono);color:var(--mint)">ruff check</span> shows zero warnings, and the files appear in <span style="font-family:var(--mono);color:var(--mint)">python-intermediate/class01/</span>.</td></tr>
+    </table>
+    <div style="margin-top:22px"><span class="pill mint">LO1 · Write functions</span><span class="pill mint">LO2 · Process data Pythonically</span><span class="pill mint">LO3 · Hints, docs, style</span><span class="pill mint">LO4 · venv &amp; Git</span></div>
+  </div></div>
+</section>
+<section class="slide" data-title="Content Mapping">
+  <div class="tag fx">Content Mapping</div>
+  <h1 class="sh fx d1">How today maps to your outcomes</h1>
+  <div class="body"><div class="col fx d2">
+    <table class="cps">
+      <tr><th>Module</th><th>Topics</th><th style="width:120px">Outcome</th><th style="width:170px">Assessed by</th></tr>
+      <tr><td>Module 1</td><td>1.1 def &amp; return · 1.2 Parameters &amp; arguments · 1.3 Scope, hints &amp; docstrings</td><td style="color:var(--mint);font-family:var(--mono);font-size:13px">LO1, LO3</td><td style="color:var(--muted);font-size:13.5px">Fare calculator</td></tr>
+      <tr><td>Module 2</td><td>2.1 Comprehensions · 2.2 lambda &amp; sorted(key=) · 2.3 collections</td><td style="color:var(--mint);font-family:var(--mono);font-size:13px">LO2</td><td style="color:var(--muted);font-size:13.5px">Word-frequency analyser</td></tr>
+      <tr><td>Module 3</td><td>3.1 venv &amp; requirements.txt · 3.2 Git &amp; GitHub · 3.3 PEP 8 with ruff</td><td style="color:var(--mint);font-family:var(--mono);font-size:13px">LO3, LO4</td><td style="color:var(--muted);font-size:13.5px">First commit pushed</td></tr>
+    </table>
+    <p class="caption" style="text-align:left">Each topic runs in the same order: explanation → theory → code → practice (real-life app, then hands-on).</p>
+  </div></div>
+</section>
+<section class="slide" data-title="1.1 def and return">
+  <div class="stepbar fx"><span class="on">Explain</span><span class="on">Theory</span><span class="">Code</span><span class="">Practice</span></div>
+  <div class="tag fx">Module 1 · Functions from the Ground Up · 1.1 · Explanation &amp; theory</div>
+  <h1 class="sh fx d1">What is a function?</h1>
+  <div class="cards grid3 fx d2" style="margin-top:18px;align-items:start"><div class="card accent"><h3><span class="k">what</span>In plain words</h3><p>A function is a <b>named block of code</b> that does one job. You write it once with <code>def</code>, then <b>call</b> it as many times as you like. It can take <b>inputs</b> (parameters) and give back an <b>output</b> with <code>return</code>.</p></div><div class="card"><h3><span class="k">like</span>Everyday analogy</h3><p>A drinks machine at the kopitiam: put in your choice and money (input), it makes the drink (work), and out comes your teh tarik (output). You don't rebuild the machine for every cup.</p></div><div class="card"><h3><span class="k">rules</span>Theory: the key rules</h3><ul class="rules"><li><b>def name(params):</b> then an indented body</li><li><b>return</b> sends a value back and ends the function</li><li>No return gives back <b>None</b></li><li><b>print ≠ return</b>: print shows, return gives</li></ul></div></div>
+  <div class="body figbody" style="margin-top:12px"><div class="figwrap"><svg class="fig" style="min-height:0" viewBox="0 0 1000 360" aria-label="A function as a machine: price goes in, add_sst does the work, the result comes out">
+<g font-family="JetBrains Mono,monospace">
+ <g class="fx d1"><rect x="20" y="140" width="190" height="80" rx="12" fill="#1c2430" stroke="#58a6ff" stroke-width="2"/>
+  <text x="115" y="172" font-size="13" fill="#58a6ff" text-anchor="middle" letter-spacing="2">INPUT</text>
+  <text x="115" y="202" font-size="20" fill="#e8eef0" text-anchor="middle">price = 10.00</text></g>
+ <line x1="215" y1="180" x2="345" y2="180" stroke="#00dcb4" stroke-width="2" marker-end="url(#f11)" class="draw d2" style="--len:130"/>
+ <g class="fx d3"><rect x="350" y="70" width="300" height="220" rx="16" fill="#0a0e13" stroke="#00dcb4" stroke-width="2"/>
+  <text x="500" y="105" font-size="13" fill="#00dcb4" text-anchor="middle" letter-spacing="2">FUNCTION</text>
+  <text x="372" y="150" font-size="17" fill="#58a6ff">def add_sst(price):</text>
+  <text x="392" y="190" font-size="15" fill="#8b98a5">&quot;&quot;&quot;docstring&quot;&quot;&quot;</text>
+  <text x="392" y="232" font-size="17" fill="#e8eef0">return price * 1.06</text>
+  <circle cx="620" cy="100" r="7" fill="#00dcb4" class="pulse"/></g>
+ <line x1="655" y1="180" x2="785" y2="180" stroke="#00dcb4" stroke-width="2" marker-end="url(#f11)" class="draw d4" style="--len:130"/>
+ <g class="fx d5"><rect x="790" y="140" width="190" height="80" rx="12" fill="#1c2430" stroke="#f0b429" stroke-width="2"/>
+  <text x="885" y="172" font-size="13" fill="#f0b429" text-anchor="middle" letter-spacing="2">OUTPUT</text>
+  <text x="885" y="202" font-size="20" fill="#e8eef0" text-anchor="middle">10.6</text></g>
+ <circle r="8" fill="#00dcb4" class="travel" style="offset-path:path('M 215 180 L 785 180')"/>
+ <g class="fx d6" font-size="14" fill="#8b98a5" text-anchor="middle">
+  <text x="115" y="250">parameter</text><text x="500" y="320">body: indented 4 spaces</text><text x="885" y="250">return value</text></g>
+</g>
+<defs><marker id="f11" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#00dcb4"/></marker></defs>
+</svg></div></div>
+</section>
+
+<section class="slide" data-title="1.1 def and return · code">
+  <div class="stepbar fx"><span class="">Explain</span><span class="">Theory</span><span class="on">Code</span><span class="">Practice</span></div>
+  <div class="tag fx">Module 1 · Functions from the Ground Up · 1.1 · Code — copy, paste, run</div>
+  <h1 class="sh fx d1">Your first functions, input to output</h1>
+  <div class="body" style="align-items:stretch">
+    <div class="col fx d2" style="flex:1.3;display:flex;flex-direction:column;gap:10px;min-height:0"><div class="cb" style="display:flex;flex-direction:column;min-height:0px;flex:20 1 0"><div class="code-head">first_functions.py</div><pre class="code sm" style="flex:1;min-height:0;margin:0"><span class="c"># A function is a named, reusable recipe: input -&gt; work -&gt; output</span>
+
+
+<span class="k">def</span> add_sst(price):
+    <span class="s">"""Return the price with 6% SST added."""</span>
+    <span class="k">return</span> round(price * <span class="n">1.06</span>, <span class="n">2</span>)
+
+
+<span class="k">def</span> greet(name):
+    <span class="s">"""Print a welcome message. Returns nothing (None)."""</span>
+    print(<span class="s">f"Selamat datang, {name}!"</span>)
+
+
+total = add_sst(<span class="n">10.00</span>)
+print(total)              <span class="c"># 10.6</span>
+print(add_sst(<span class="n">25.50</span>))     <span class="c"># 27.03</span>
+
+greet(<span class="s">"Aisyah"</span>)
+result = greet(<span class="s">"Darren"</span>)
+print(result)             <span class="c"># None, because greet() has no return</span></pre></div></div>
+    <div class="col fx d3" style="display:flex;flex-direction:column;gap:10px;min-height:0"><div class="cb" style="display:flex;flex-direction:column;min-height:0;flex:1 1 0"><div class="code-head">terminal · real output</div><pre class="code sm out" style="flex:1;min-height:0;margin:0"><span class="cmd">$ python first_functions.py</span>
+10.6
+27.03
+Selamat datang, Aisyah!
+Selamat datang, Darren!
+None</pre></div><div class="card" style="flex:0 0 auto"><h3><span class="k">try</span>Change it, predict, run</h3><ul class="rules"><li>Change 1.06 to 1.08 (8% service tax). Which outputs change?</li><li>Make greet() <b>return</b> the text instead of printing it, then print the result.</li></ul></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="1.2 Parameters and arguments">
+  <div class="stepbar fx"><span class="on">Explain</span><span class="on">Theory</span><span class="">Code</span><span class="">Practice</span></div>
+  <div class="tag fx">Module 1 · Functions from the Ground Up · 1.2 · Explanation &amp; theory</div>
+  <h1 class="sh fx d1">Parameters: how a function gets its inputs</h1>
+  <div class="body" style="align-items:stretch">
+    <div class="col cards fx d2" style="align-content:start"><div class="card accent"><h3><span class="k">what</span>In plain words</h3><p><b>Parameters</b> are the names in the def line. <b>Arguments</b> are the real values you pass when you call it. Python matches them by <b>position</b>, by <b>keyword</b>, or collects any extras with <code>*args</code> and <code>**kwargs</code>.</p></div><div class="card"><h3><span class="k">like</span>Everyday analogy</h3><p>Ordering at a mamak: "roti canai" is the main order (positional), "kuah campur" is a named choice (keyword), and "plus 2 teh, 1 milo…" is any number of extras (*args).</p></div><div class="card"><h3><span class="k">rules</span>Theory: the key rules</h3><ul class="rules"><li><b>Positional</b> arguments fill parameters in order</li><li><b>Defaults</b> (discount=0.0) make a parameter optional</li><li><b>Keyword</b> arguments (discount=0.1) can go in any order</li><li><b>*args</b> collects a tuple, <b>**kwargs</b> collects a dict</li></ul></div></div>
+    <div class="col fx d3"><div class="cb"><div class="code-head">syntax at a glance</div><pre class="code"><span class="k">def</span> f(a, b=<span class="n">0</span>, *args, key=<span class="k">None</span>, **kwargs):
+    ...
+
+f(<span class="n">1</span>)                 <span class="c"># a=1, b=0</span>
+f(<span class="n">1</span>, <span class="n">2</span>, <span class="n">3</span>, <span class="n">4</span>)        <span class="c"># args=(3, 4)</span>
+f(<span class="n">1</span>, key=<span class="s">"x"</span>, z=<span class="n">9</span>)   <span class="c"># kwargs={"z": 9}</span></pre></div><div class="card" style="margin-top:14px;border-color:rgba(255,111,145,.4)"><h3 style="color:var(--coral)">Common mistakes</h3><ul class="rules"><li>A default like <code>items=[]</code> is shared between calls. Use <code>None</code> instead.</li><li>Putting a positional argument after a keyword one is a SyntaxError.</li></ul></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="1.2 Parameters and arguments · code">
+  <div class="stepbar fx"><span class="">Explain</span><span class="">Theory</span><span class="on">Code</span><span class="">Practice</span></div>
+  <div class="tag fx">Module 1 · Functions from the Ground Up · 1.2 · Code — copy, paste, run</div>
+  <h1 class="sh fx d1">One receipt function, many ways to call it</h1>
+  <div class="body" style="align-items:stretch">
+    <div class="col fx d2" style="flex:1.3;display:flex;flex-direction:column;gap:10px;min-height:0"><div class="cb" style="display:flex;flex-direction:column;min-height:0px;flex:21 1 0"><div class="code-head">receipt.py</div><pre class="code sm" style="flex:1;min-height:0;margin:0"><span class="k">def</span> make_receipt(customer, *items, discount=<span class="n">0.0</span>, **notes):
+    <span class="s">"""Print a receipt. Each item is a (name, price) pair."""</span>
+    subtotal = sum(price <span class="k">for</span> _, price <span class="k">in</span> items)
+    total = subtotal * (<span class="n">1</span> - discount)
+    print(<span class="s">f"Customer: {customer}"</span>)
+    <span class="k">for</span> name, price <span class="k">in</span> items:
+        print(<span class="s">f"  {name:&lt;12} RM{price:&gt;6.2f}"</span>)
+    <span class="k">if</span> discount:
+        print(<span class="s">f"  {'Discount':&lt;12} {discount:&gt;8.0%}"</span>)
+    print(<span class="s">f"  {'TOTAL':&lt;12} RM{total:&gt;6.2f}"</span>)
+    <span class="k">for</span> key, value <span class="k">in</span> notes.items():
+        print(<span class="s">f"  note - {key}: {value}"</span>)
+    print()
+
+
+<span class="c"># positional argument + any number of items (*items)</span>
+make_receipt(<span class="s">"Aisyah"</span>, (<span class="s">"Teh Tarik"</span>, <span class="n">3.00</span>), (<span class="s">"Roti Canai"</span>, <span class="n">2.50</span>))
+
+<span class="c"># keyword argument (discount=) + extra keyword notes (**notes)</span>
+make_receipt(<span class="s">"Darren"</span>, (<span class="s">"Nasi Lemak"</span>, <span class="n">6.50</span>), (<span class="s">"Kopi O"</span>, <span class="n">2.50</span>),
+             discount=<span class="n">0.10</span>, table=<span class="n">4</span>, sugar=<span class="s">"less"</span>)</pre></div></div>
+    <div class="col fx d3" style="display:flex;flex-direction:column;gap:10px;min-height:0"><div class="cb" style="display:flex;flex-direction:column;min-height:0;flex:1 1 0"><div class="code-head">terminal · real output</div><pre class="code sm out" style="flex:1;min-height:0;margin:0"><span class="cmd">$ python receipt.py</span>
+Customer: Aisyah
+  Teh Tarik    RM  3.00
+  Roti Canai   RM  2.50
+  TOTAL        RM  5.50
+
+Customer: Darren
+  Nasi Lemak   RM  6.50
+  Kopi O       RM  2.50
+  Discount          10%
+  TOTAL        RM  8.10
+  note - table: 4
+  note - sugar: less</pre></div><div class="card" style="flex:0 0 auto"><h3><span class="k">try</span>Change it, predict, run</h3><ul class="rules"><li>Add a third call with 4 items and <code>discount=0.2</code>.</li><li>Add <code>cashier="Nurin"</code>. Where does it appear, and why?</li></ul></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="1.3 Scope, type hints and docstrings">
+  <div class="stepbar fx"><span class="on">Explain</span><span class="on">Theory</span><span class="">Code</span><span class="">Practice</span></div>
+  <div class="tag fx">Module 1 · Functions from the Ground Up · 1.3 · Explanation &amp; theory</div>
+  <h1 class="sh fx d1">Scope, type hints and docstrings</h1>
+  <div class="cards grid3 fx d2" style="margin-top:18px;align-items:start"><div class="card accent"><h3><span class="k">what</span>In plain words</h3><p><b>Scope</b> decides where a name can be seen: names made inside a function stay inside. <b>Type hints</b> (<code>price: float</code>) and <b>docstrings</b> (<code>"""…"""</code>) don't change what the code does. They tell people and tools what it expects.</p></div><div class="card"><h3><span class="k">like</span>Everyday analogy</h3><p>Scope is like rooms in a house. What's in your bedroom (local) isn't visible from the living room, but the family TV (global) is shared. Type hints are the labels on the fuse box.</p></div><div class="card"><h3><span class="k">rules</span>Theory: the key rules</h3><ul class="rules"><li>Python looks names up in <b>L → E → G → B</b> order</li><li>Variables made inside a function are <b>local</b></li><li>Hints: <b>param: type</b> and <b>-&gt; return type</b></li><li>A docstring is the first string in the function</li></ul></div></div>
+  <div class="body figbody" style="margin-top:12px"><div class="figwrap"><svg class="fig" style="min-height:0" viewBox="0 0 1000 420" aria-label="Nested scopes: Built-in contains Global contains Enclosing contains Local">
+        <g class="fx">
+          <rect x="20" y="20" width="620" height="380" rx="14" fill="#161b22" stroke="#f0b429" stroke-width="2"/>
+          <text x="40" y="50" font-family="JetBrains Mono,monospace" font-size="14" fill="#f0b429" letter-spacing="2">B · BUILT-IN</text>
+          <text x="620" y="50" font-family="JetBrains Mono,monospace" font-size="14" fill="#8b98a5" text-anchor="end">len, print, sum</text>
+        </g>
+        <g class="fx d2">
+          <rect x="50" y="70" width="560" height="310" rx="12" fill="#1c2430" stroke="#58a6ff" stroke-width="2"/>
+          <text x="70" y="100" font-family="JetBrains Mono,monospace" font-size="14" fill="#58a6ff" letter-spacing="2">G · GLOBAL</text>
+          <text x="590" y="100" font-family="JetBrains Mono,monospace" font-size="14" fill="#8b98a5" text-anchor="end">tax = 0.06</text>
+        </g>
+        <g class="fx d4">
+          <rect x="80" y="120" width="500" height="240" rx="10" fill="#161b22" stroke="#ff6f91" stroke-width="2"/>
+          <text x="100" y="150" font-family="JetBrains Mono,monospace" font-size="14" fill="#ff6f91" letter-spacing="2">E · ENCLOSING</text>
+          <text x="560" y="150" font-family="JetBrains Mono,monospace" font-size="14" fill="#8b98a5" text-anchor="end">def outer(): rate = 2</text>
+        </g>
+        <g class="fx d6">
+          <rect x="110" y="170" width="440" height="170" rx="10" fill="#0a0e13" stroke="#00dcb4" stroke-width="2"/>
+          <text x="130" y="200" font-family="JetBrains Mono,monospace" font-size="14" fill="#00dcb4" letter-spacing="2">L · LOCAL</text>
+          <text x="130" y="245" font-family="JetBrains Mono,monospace" font-size="17" fill="#e8eef0">def inner():</text>
+          <text x="160" y="280" font-family="JetBrains Mono,monospace" font-size="17" fill="#e8eef0">price = <tspan fill="#00dcb4">10</tspan></text>
+          <text x="160" y="315" font-family="JetBrains Mono,monospace" font-size="17" fill="#e8eef0">return price * rate * (1 + tax)</text>
+        </g>
+        <!-- lookup path -->
+        <g class="fx d8" font-family="JetBrains Mono,monospace" font-size="16">
+          <text x="690" y="120" fill="#8b98a5" letter-spacing="2" font-size="12">LOOKUP ORDER</text>
+          <rect x="690" y="140" width="280" height="46" rx="8" fill="#1c2430" stroke="#00dcb4"/><text x="710" y="169" fill="#00dcb4">1  Local     price ✓</text>
+          <rect x="690" y="196" width="280" height="46" rx="8" fill="#1c2430" stroke="#ff6f91"/><text x="710" y="225" fill="#ff6f91">2  Enclosing rate  ✓</text>
+          <rect x="690" y="252" width="280" height="46" rx="8" fill="#1c2430" stroke="#58a6ff"/><text x="710" y="281" fill="#58a6ff">3  Global    tax   ✓</text>
+          <rect x="690" y="308" width="280" height="46" rx="8" fill="#1c2430" stroke="#f0b429"/><text x="710" y="337" fill="#f0b429">4  Built-in  len   ✓</text>
+        </g>
+        <circle r="7" fill="#00dcb4" class="pulse fx d9" cx="680" cy="163"/>
+      </svg></div></div>
+</section>
+
+<section class="slide" data-title="1.3 Scope, type hints and docstrings · code">
+  <div class="stepbar fx"><span class="">Explain</span><span class="">Theory</span><span class="on">Code</span><span class="">Practice</span></div>
+  <div class="tag fx">Module 1 · Functions from the Ground Up · 1.3 · Code — copy, paste, run</div>
+  <h1 class="sh fx d1">All four scopes plus hints and a docstring</h1>
+  <div class="body" style="align-items:stretch">
+    <div class="col fx d2" style="flex:1.3;display:flex;flex-direction:column;gap:10px;min-height:0"><div class="cb" style="display:flex;flex-direction:column;min-height:0px;flex:22 1 0"><div class="code-head">checkout.py</div><pre class="code sm" style="flex:1;min-height:0;margin:0">TAX_RATE = <span class="n">0.06</span>                      <span class="c"># Global: visible everywhere in this file</span>
+
+
+<span class="k">def</span> checkout(prices: list[float], member: bool = <span class="k">False</span>) -&gt; float:
+    <span class="s">"""Return the total to pay.
+
+    prices: item prices in RM
+    member: members get 5% off before tax
+    """</span>
+    total = sum(prices)              <span class="c"># Local: only exists inside checkout()</span>
+
+    <span class="k">def</span> discount(amount: float) -&gt; float:
+        rate = <span class="n">0.05</span>                  <span class="c"># Local to discount()</span>
+        <span class="k">return</span> amount * (<span class="n">1</span> - rate) <span class="k">if</span> member <span class="k">else</span> amount   <span class="c"># 'member' = Enclosing</span>
+
+    <span class="k">return</span> round(discount(total) * (<span class="n">1</span> + TAX_RATE), <span class="n">2</span>)       <span class="c"># 'round' = Built-in</span>
+
+
+print(checkout([<span class="n">10.0</span>, <span class="n">5.5</span>]))                 <span class="c"># 16.43</span>
+print(checkout([<span class="n">10.0</span>, <span class="n">5.5</span>], member=<span class="k">True</span>))    <span class="c"># 15.61</span>
+print(checkout.__doc__.splitlines()[<span class="n">0</span>])      <span class="c"># first docstring line</span>
+<span class="c"># print(total)  -&gt; NameError: 'total' only lives inside the function</span></pre></div></div>
+    <div class="col fx d3" style="display:flex;flex-direction:column;gap:10px;min-height:0"><div class="cb" style="display:flex;flex-direction:column;min-height:0;flex:1 1 0"><div class="code-head">terminal · real output</div><pre class="code sm out" style="flex:1;min-height:0;margin:0"><span class="cmd">$ python checkout.py</span>
+16.43
+15.61
+Return the total to pay.</pre></div><div class="card" style="flex:0 0 auto"><h3><span class="k">try</span>Change it, predict, run</h3><ul class="rules"><li>Remove the # before <code>print(total)</code>. Read the NameError.</li><li>Run <code>help(checkout)</code> in the Python shell to see the docstring.</li></ul></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="Module 1 Practice">
+  <div class="stepbar fx"><span class="">Explain</span><span class="">Theory</span><span class="">Code</span><span class="on">Practice</span></div>
+  <div class="tag fx">Module 1 · Functions from the Ground Up · Practice: real-life app + hands-on</div>
+  <h1 class="sh fx d1">Build: ride-hailing fare calculator</h1>
+  <div class="body" style="align-items:stretch">
+    <div class="col fx d2" style="flex:1.15;display:flex;flex-direction:column;gap:8px;min-height:0"><div class="card accent" style="flex:0 0 auto;padding:12px 16px"><h3><span class="k">real life</span>Kopitiam bill: service charge, SST, cash rounding, split</h3><p>Five friends finish lunch. The bill needs a 10% service charge, then 6% SST, then rounding to the nearest 5 sen for cash, then a split. Each step is one small typed function.</p></div><div class="cb" style="display:flex;flex-direction:column;min-height:130px;flex:39 1 0"><div class="code-head">kopitiam_bill.py</div><pre class="code sm" style="flex:1;min-height:0;margin:0"><span class="s">"""Kopitiam bill calculator: service charge, SST, cash rounding, split."""</span>
+
+SERVICE_RATE = <span class="n">0.10</span>
+SST_RATE = <span class="n">0.06</span>
+
+
+<span class="k">def</span> subtotal(prices: list[float]) -&gt; float:
+    <span class="s">"""Add up all item prices."""</span>
+    <span class="k">return</span> sum(prices)
+
+
+<span class="k">def</span> add_charges(amount: float, service: bool = <span class="k">True</span>) -&gt; float:
+    <span class="s">"""Add an optional 10% service charge, then 6% SST."""</span>
+    <span class="k">if</span> service:
+        amount *= <span class="n">1</span> + SERVICE_RATE
+    <span class="k">return</span> amount * (<span class="n">1</span> + SST_RATE)
+
+
+<span class="k">def</span> round_to_5_sen(amount: float) -&gt; float:
+    <span class="s">"""Round to the nearest 5 sen, like a cash payment in Malaysia."""</span>
+    <span class="k">return</span> round(round(amount / <span class="n">0.05</span>) * <span class="n">0.05</span>, <span class="n">2</span>)
+
+
+<span class="k">def</span> split_bill(total: float, people: int) -&gt; float:
+    <span class="s">"""Return each person's share of the bill."""</span>
+    <span class="k">if</span> people &lt; <span class="n">1</span>:
+        <span class="k">raise</span> ValueError(<span class="s">"need at least 1 person"</span>)
+    <span class="k">return</span> round(total / people, <span class="n">2</span>)
+
+
+order = [<span class="n">6.50</span>, <span class="n">6.50</span>, <span class="n">3.00</span>, <span class="n">3.00</span>, <span class="n">2.80</span>]   <span class="c"># 2 nasi lemak, 2 teh tarik, 1 kopi</span>
+before = subtotal(order)
+total = round_to_5_sen(add_charges(before))
+
+print(<span class="s">f"Subtotal        : RM{before:.2f}"</span>)
+print(<span class="s">f"+ service + SST : RM{add_charges(before):.4f}"</span>)
+print(<span class="s">f"Cash total      : RM{total:.2f}"</span>)
+print(<span class="s">f"Each of 3 pays  : RM{split_bill(total, 3):.2f}"</span>)
+print(<span class="s">f"Takeaway (no service): RM{round_to_5_sen(add_charges(before, service=False)):.2f}"</span>)</pre></div><div class="cb" style="display:flex;flex-direction:column;min-height:90px;flex:0 1 26%"><div class="code-head">terminal · real output</div><pre class="code sm out" style="flex:1;min-height:0;margin:0"><span class="cmd">$ python kopitiam_bill.py</span>
+Subtotal        : RM21.80
++ service + SST : RM25.4188
+Cash total      : RM25.40
+Each of 3 pays  : RM8.47
+Takeaway (no service): RM23.10</pre></div></div>
+    <div class="col fx d3" style="display:flex;flex-direction:column;gap:10px;min-height:0"><div style="flex:0 0 auto"><div class="hands-on">
+        <div class="lbl">15 minutes · solo · copy the starter, fill the TODOs</div>
+        <h3>Five checks must print OK</h3>
+        <div class="steps">
+          <div><b>01</b><span>Copy the starter into <span style="font-family:var(--mono)">fare.py</span> and run it: 5 × FIX.</span></div>
+          <div><b>02</b><span>TODO 1–2: base + km + minutes, then × surge.</span></div>
+          <div><b>03</b><span>TODO 3: apply the minimum fare with <b style="color:var(--mint)">max()</b>, round to 2 dp.</span></div>
+          <div><b>04</b><span>TODO 4: promo codes inside <span style="font-family:var(--mono)">with_promo()</span>.</span></div>
+          <div><b>05</b><span>All 5 print OK? <b style="color:var(--mint)">Done.</b> Stretch: add a <span style="font-family:var(--mono)">night=False</span> parameter that adds RM2.</span></div>
+        </div>
+      </div></div><div class="cb" style="display:flex;flex-direction:column;min-height:0;flex:1 1 0" style="display:flex;flex-direction:column;min-height:0;flex:1"><div class="code-head">fare.py: starter (rates are made up)</div><pre class="code sm sm" style="flex:1;min-height:0;margin:0" style="flex:1;min-height:0;margin:0"><span class="c"># Ride-hailing fare calculator (rates are made up for practice)</span>
+<span class="c"># Fill in the TODOs, then run. All 5 checks must print OK.</span>
+
+BASE_FARE = <span class="n">2.00</span>
+PER_KM = <span class="n">0.80</span>
+PER_MIN = <span class="n">0.20</span>
+MINIMUM_FARE = <span class="n">6.00</span>
+
+
+<span class="k">def</span> fare(km: float, minutes: float, surge: float = <span class="n">1.0</span>) -&gt; float:
+    <span class="s">"""Return the trip fare in RM, never below the minimum fare."""</span>
+    <span class="c"># TODO 1: base + km cost + time cost</span>
+    <span class="c"># TODO 2: multiply by surge</span>
+    <span class="c"># TODO 3: apply the minimum fare, round to 2 decimals</span>
+    <span class="k">return</span> <span class="n">0.0</span>
+
+
+<span class="k">def</span> with_promo(amount: float, code: str = <span class="s">""</span>) -&gt; float:
+    <span class="s">"""Apply a promo code: 'JOM5' = RM5 off, 'HALF' = 50% off (max RM10)."""</span>
+    <span class="c"># TODO 4</span>
+    <span class="k">return</span> amount
+
+
+checks = [
+    (fare(<span class="n">5</span>, <span class="n">10</span>), <span class="n">8.00</span>),
+    (fare(<span class="n">1</span>, <span class="n">3</span>), <span class="n">6.00</span>),                 <span class="c"># minimum fare applies</span>
+    (fare(<span class="n">5</span>, <span class="n">10</span>, surge=<span class="n">1.5</span>), <span class="n">12.00</span>),
+    (with_promo(<span class="n">12.00</span>, <span class="s">"JOM5"</span>), <span class="n">7.00</span>),
+    (with_promo(<span class="n">30.00</span>, <span class="s">"HALF"</span>), <span class="n">20.00</span>),  <span class="c"># 50% capped at RM10</span>
+]
+<span class="k">for</span> got, expected <span class="k">in</span> checks:
+    print(<span class="s">"OK  "</span> <span class="k">if</span> got == expected <span class="k">else</span> <span class="s">"FIX "</span>, got, <span class="s">"expected"</span>, expected)</pre></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="2.1 Comprehensions">
+  <div class="stepbar fx"><span class="on">Explain</span><span class="on">Theory</span><span class="">Code</span><span class="">Practice</span></div>
+  <div class="tag fx">Module 2 · Functions on Data · 2.1 · Explanation &amp; theory</div>
+  <h1 class="sh fx d1">Comprehensions: a loop in one readable line</h1>
+  <div class="cards grid3 fx d2" style="margin-top:18px;align-items:start"><div class="card accent"><h3><span class="k">what</span>In plain words</h3><p>A <b>comprehension</b> builds a new list, dict or set from an existing one, with an optional filter, in one line. It replaces the pattern "make empty list → loop → if → append".</p></div><div class="card"><h3><span class="k">like</span>Everyday analogy</h3><p>Sorting durians at a stall: from all the durians (source), keep the ripe ones (filter), weigh each one (transform), and put them in a new basket (result).</p></div><div class="card"><h3><span class="k">rules</span>Theory: the key rules</h3><ul class="rules"><li><b>[expr for x in items if cond]</b> gives a list</li><li><b>{k: v for …}</b> gives a dict, <b>{expr for …}</b> a set</li><li>Read it as: <b>give me</b> expr <b>for each</b> x <b>where</b> cond</li><li>Too long to read in one go? Use a normal loop.</li></ul></div></div>
+  <div class="body figbody" style="margin-top:12px"><div class="figwrap"><svg class="fig" style="min-height:0" viewBox="0 0 1000 400" aria-label="List comprehension as a pipeline: source, filter, transform, result">
+        <rect x="20" y="20" width="960" height="70" rx="10" fill="#0a0e13" stroke="#2a3440" stroke-width="1.5" class="fx"/>
+        <text x="44" y="64" font-family="JetBrains Mono,monospace" font-size="22" fill="#e8eef0" class="fx d1">
+          <tspan fill="#8b98a5">[</tspan><tspan fill="#58a6ff">p * 1.06</tspan><tspan fill="#e8eef0"> for p in </tspan><tspan fill="#00dcb4">prices</tspan><tspan fill="#e8eef0"> if </tspan><tspan fill="#ff6f91">p &gt; 10</tspan><tspan fill="#8b98a5">]</tspan>
+        </text>
+        <!-- stage labels -->
+        <text x="110" y="140" font-family="JetBrains Mono,monospace" font-size="12" fill="#00dcb4" letter-spacing="2" text-anchor="middle" class="fx d2">SOURCE</text>
+        <text x="370" y="140" font-family="JetBrains Mono,monospace" font-size="12" fill="#ff6f91" letter-spacing="2" text-anchor="middle" class="fx d4">FILTER  p &gt; 10</text>
+        <text x="630" y="140" font-family="JetBrains Mono,monospace" font-size="12" fill="#58a6ff" letter-spacing="2" text-anchor="middle" class="fx d6">TRANSFORM  × 1.06</text>
+        <text x="890" y="140" font-family="JetBrains Mono,monospace" font-size="12" fill="#e8eef0" letter-spacing="2" text-anchor="middle" class="fx d8">RESULT</text>
+        <!-- source column -->
+        <g class="fx d2" font-family="JetBrains Mono,monospace" font-size="18" text-anchor="middle">
+          <rect x="50" y="160" width="120" height="44" rx="8" fill="#1c2430" stroke="#00dcb4" stroke-width="1.5"/><text x="110" y="189" fill="#e8eef0">4.50</text>
+          <rect x="50" y="216" width="120" height="44" rx="8" fill="#1c2430" stroke="#00dcb4" stroke-width="1.5"/><text x="110" y="245" fill="#e8eef0">12.00</text>
+          <rect x="50" y="272" width="120" height="44" rx="8" fill="#1c2430" stroke="#00dcb4" stroke-width="1.5"/><text x="110" y="301" fill="#e8eef0">8.90</text>
+          <rect x="50" y="328" width="120" height="44" rx="8" fill="#1c2430" stroke="#00dcb4" stroke-width="1.5"/><text x="110" y="357" fill="#e8eef0">25.00</text>
+        </g>
+        <!-- filter column -->
+        <g class="fx d4" font-family="JetBrains Mono,monospace" font-size="18" text-anchor="middle">
+          <rect x="310" y="160" width="120" height="44" rx="8" fill="#161b22" stroke="#2a3440" stroke-dasharray="5 4"/><text x="370" y="189" fill="#ff6f91">✗ 4.50</text>
+          <rect x="310" y="216" width="120" height="44" rx="8" fill="#1c2430" stroke="#ff6f91" stroke-width="1.5"/><text x="370" y="245" fill="#e8eef0">12.00</text>
+          <rect x="310" y="272" width="120" height="44" rx="8" fill="#161b22" stroke="#2a3440" stroke-dasharray="5 4"/><text x="370" y="301" fill="#ff6f91">✗ 8.90</text>
+          <rect x="310" y="328" width="120" height="44" rx="8" fill="#1c2430" stroke="#ff6f91" stroke-width="1.5"/><text x="370" y="357" fill="#e8eef0">25.00</text>
+        </g>
+        <!-- transform column -->
+        <g class="fx d6" font-family="JetBrains Mono,monospace" font-size="18" text-anchor="middle">
+          <rect x="570" y="216" width="120" height="44" rx="8" fill="#1c2430" stroke="#58a6ff" stroke-width="1.5"/><text x="630" y="245" fill="#e8eef0">12.72</text>
+          <rect x="570" y="328" width="120" height="44" rx="8" fill="#1c2430" stroke="#58a6ff" stroke-width="1.5"/><text x="630" y="357" fill="#e8eef0">26.50</text>
+        </g>
+        <!-- result -->
+        <g class="fx d8">
+          <rect x="800" y="230" width="180" height="128" rx="10" fill="#0a0e13" stroke="#00dcb4" stroke-width="2"/>
+          <text x="890" y="285" font-family="JetBrains Mono,monospace" font-size="18" fill="#00dcb4" text-anchor="middle">[12.72,</text>
+          <text x="890" y="315" font-family="JetBrains Mono,monospace" font-size="18" fill="#00dcb4" text-anchor="middle"> 26.50]</text>
+        </g>
+        <!-- arrows -->
+        <line x1="180" y1="238" x2="300" y2="238" stroke="#00dcb4" stroke-width="2" marker-end="url(#ar1)" class="draw d3" style="--len:120"/>
+        <line x1="180" y1="350" x2="300" y2="350" stroke="#00dcb4" stroke-width="2" marker-end="url(#ar1)" class="draw d3" style="--len:120"/>
+        <line x1="440" y1="238" x2="560" y2="238" stroke="#00dcb4" stroke-width="2" marker-end="url(#ar1)" class="draw d5" style="--len:120"/>
+        <line x1="440" y1="350" x2="560" y2="350" stroke="#00dcb4" stroke-width="2" marker-end="url(#ar1)" class="draw d5" style="--len:120"/>
+        <line x1="700" y1="238" x2="790" y2="270" stroke="#00dcb4" stroke-width="2" marker-end="url(#ar1)" class="draw d7" style="--len:100"/>
+        <line x1="700" y1="350" x2="790" y2="320" stroke="#00dcb4" stroke-width="2" marker-end="url(#ar1)" class="draw d7" style="--len:100"/>
+        <defs><marker id="ar1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#00dcb4"/></marker></defs>
+      </svg></div></div>
+</section>
+
+<section class="slide" data-title="2.1 Comprehensions · code">
+  <div class="stepbar fx"><span class="">Explain</span><span class="">Theory</span><span class="on">Code</span><span class="">Practice</span></div>
+  <div class="tag fx">Module 2 · Functions on Data · 2.1 · Code — copy, paste, run</div>
+  <h1 class="sh fx d1">Loop vs comprehension: same result, less code</h1>
+  <div class="body" style="align-items:stretch">
+    <div class="col fx d2" style="flex:1.3;display:flex;flex-direction:column;gap:10px;min-height:0"><div class="cb" style="display:flex;flex-direction:column;min-height:0px;flex:19 1 0"><div class="code-head">comprehensions.py</div><pre class="code sm" style="flex:1;min-height:0;margin:0">prices = [<span class="n">4.50</span>, <span class="n">12.00</span>, <span class="n">8.90</span>, <span class="n">25.00</span>, <span class="n">3.20</span>]
+
+<span class="c"># Loop version: 4 lines</span>
+with_sst = []
+<span class="k">for</span> p <span class="k">in</span> prices:
+    <span class="k">if</span> p &gt; <span class="n">5</span>:
+        with_sst.append(round(p * <span class="n">1.06</span>, <span class="n">2</span>))
+
+<span class="c"># Comprehension version: 1 line, same result</span>
+with_sst2 = [round(p * <span class="n">1.06</span>, <span class="n">2</span>) <span class="k">for</span> p <span class="k">in</span> prices <span class="k">if</span> p &gt; <span class="n">5</span>]
+print(with_sst == with_sst2, with_sst2)
+
+<span class="c"># dict comprehension: name -&gt; length</span>
+names = [<span class="s">"Aisyah"</span>, <span class="s">"Darren"</span>, <span class="s">"Nurin"</span>]
+print({n: len(n) <span class="k">for</span> n <span class="k">in</span> names})
+
+<span class="c"># set comprehension: unique, cleaned codes</span>
+codes = [<span class="s">"JB01"</span>, <span class="s">"kl02"</span>, <span class="s">"jb01"</span>, <span class="s">"PG03"</span>, <span class="s">"KL02"</span>]
+print(sorted({c.upper() <span class="k">for</span> c <span class="k">in</span> codes}))</pre></div></div>
+    <div class="col fx d3" style="display:flex;flex-direction:column;gap:10px;min-height:0"><div class="cb" style="display:flex;flex-direction:column;min-height:0;flex:1 1 0"><div class="code-head">terminal · real output</div><pre class="code sm out" style="flex:1;min-height:0;margin:0"><span class="cmd">$ python comprehensions.py</span>
+True [12.72, 9.43, 26.5]
+{'Aisyah': 6, 'Darren': 6, 'Nurin': 5}
+['JB01', 'KL02', 'PG03']</pre></div><div class="card" style="flex:0 0 auto"><h3><span class="k">try</span>Change it, predict, run</h3><ul class="rules"><li>Keep only prices under RM10 and convert each to sen (×100).</li><li>Make a dict of name → first letter.</li></ul></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="2.2 lambda and sorted(key=)">
+  <div class="stepbar fx"><span class="on">Explain</span><span class="on">Theory</span><span class="">Code</span><span class="">Practice</span></div>
+  <div class="tag fx">Module 2 · Functions on Data · 2.2 · Explanation &amp; theory</div>
+  <h1 class="sh fx d1">lambda: a tiny function you don't bother naming</h1>
+  <div class="body" style="align-items:stretch">
+    <div class="col cards fx d2" style="align-content:start"><div class="card accent"><h3><span class="k">what</span>In plain words</h3><p><code>lambda x: x[1]</code> is a one-line function with no name. It is used mostly as the <b>key=</b> for <code>sorted()</code>, <code>min()</code> and <code>max()</code>, telling them <b>what to compare</b>.</p></div><div class="card"><h3><span class="k">like</span>Everyday analogy</h3><p>Telling a teacher "line up by height" or "line up by birthday". The students are the same; only the rule you hand over (the key) changes.</p></div><div class="card"><h3><span class="k">rules</span>Theory: the key rules</h3><ul class="rules"><li><b>lambda params: expression</b>, one expression, no return</li><li><b>key=</b> is called on every item to get the sort value</li><li><b>reverse=True</b> gives highest first</li><li>Return a <b>tuple</b> to sort by several things</li></ul></div></div>
+    <div class="col fx d3"><div class="cb"><div class="code-head">syntax at a glance</div><pre class="code">sorted(items, key=<span class="k">lambda</span> s: s[<span class="n">1</span>], reverse=<span class="k">True</span>)
+max(items, key=<span class="k">lambda</span> s: s[<span class="n">1</span>])
+
+<span class="c"># same as:</span>
+<span class="k">def</span> by_mark(s):
+    <span class="k">return</span> s[<span class="n">1</span>]</pre></div><div class="card" style="margin-top:14px;border-color:rgba(255,111,145,.4)"><h3 style="color:var(--coral)">Common mistakes</h3><ul class="rules"><li><code>sorted()</code> returns a new list. <code>list.sort()</code> changes the list and returns None.</li><li>Long lambdas are hard to read. Write a <code>def</code> instead.</li></ul></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="2.2 lambda and sorted(key=) · code">
+  <div class="stepbar fx"><span class="">Explain</span><span class="">Theory</span><span class="on">Code</span><span class="">Practice</span></div>
+  <div class="tag fx">Module 2 · Functions on Data · 2.2 · Code — copy, paste, run</div>
+  <h1 class="sh fx d1">Ranking students with sorted, min, max and key=</h1>
+  <div class="body" style="align-items:stretch">
+    <div class="col fx d2" style="flex:1.3;display:flex;flex-direction:column;gap:10px;min-height:0"><div class="cb" style="display:flex;flex-direction:column;min-height:0px;flex:18 1 0"><div class="code-head">ranking.py</div><pre class="code sm" style="flex:1;min-height:0;margin:0">students = [(<span class="s">"Aisyah"</span>, <span class="n">88</span>), (<span class="s">"Darren"</span>, <span class="n">92</span>), (<span class="s">"Nurin"</span>, <span class="n">75</span>), (<span class="s">"Tan"</span>, <span class="n">92</span>)]
+
+<span class="c"># sort by mark, highest first</span>
+ranked = sorted(students, key=<span class="k">lambda</span> s: s[<span class="n">1</span>], reverse=<span class="k">True</span>)
+print(ranked)
+
+<span class="c"># sort by mark (high to low), then by name (A to Z) on a tie</span>
+print(sorted(students, key=<span class="k">lambda</span> s: (-s[<span class="n">1</span>], s[<span class="n">0</span>])))
+
+<span class="c"># best and worst</span>
+print(max(students, key=<span class="k">lambda</span> s: s[<span class="n">1</span>]))
+print(min(students, key=<span class="k">lambda</span> s: s[<span class="n">1</span>]))
+
+<span class="c"># same thing written as a normal function</span>
+<span class="k">def</span> by_mark(student):
+    <span class="k">return</span> student[<span class="n">1</span>]
+
+print(sorted(students, key=by_mark)[<span class="n">0</span>])</pre></div></div>
+    <div class="col fx d3" style="display:flex;flex-direction:column;gap:10px;min-height:0"><div class="cb" style="display:flex;flex-direction:column;min-height:0;flex:1 1 0"><div class="code-head">terminal · real output</div><pre class="code sm out" style="flex:1;min-height:0;margin:0"><span class="cmd">$ python ranking.py</span>
+[('Darren', 92), ('Tan', 92), ('Aisyah', 88), ('Nurin', 75)]
+[('Darren', 92), ('Tan', 92), ('Aisyah', 88), ('Nurin', 75)]
+('Darren', 92)
+('Nurin', 75)
+('Nurin', 75)</pre></div><div class="card" style="flex:0 0 auto"><h3><span class="k">try</span>Change it, predict, run</h3><ul class="rules"><li>Sort by name length, shortest first.</li><li>Find the student whose name is last alphabetically.</li></ul></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="2.3 collections">
+  <div class="stepbar fx"><span class="on">Explain</span><span class="on">Theory</span><span class="">Code</span><span class="">Practice</span></div>
+  <div class="tag fx">Module 2 · Functions on Data · 2.3 · Explanation &amp; theory</div>
+  <h1 class="sh fx d1">collections: ready-made tools you'd otherwise write</h1>
+  <div class="cards grid3 fx d2" style="margin-top:18px;align-items:start"><div class="card accent"><h3><span class="k">what</span>In plain words</h3><p>The <code>collections</code> module gives you smarter containers: <b>Counter</b> counts things, <b>defaultdict</b> groups things without KeyError, and <b>deque</b> keeps a fast queue or the "last N" items.</p></div><div class="card"><h3><span class="k">like</span>Everyday analogy</h3><p>Counter is the tally sheet at a voting booth. defaultdict is a filing cabinet that makes a new folder the moment you need one. deque is the queue at the bank counter.</p></div><div class="card"><h3><span class="k">rules</span>Theory: the key rules</h3><ul class="rules"><li><b>Counter(items).most_common(n)</b> gives the top n</li><li><b>defaultdict(list)</b>: missing key → empty list</li><li><b>deque(maxlen=3)</b> drops the oldest item automatically</li><li>All three are in the standard library: nothing to install</li></ul></div></div>
+  <div class="body figbody" style="margin-top:12px"><div class="figwrap"><svg class="fig" style="min-height:0" viewBox="0 0 520 380" style="min-height:260px" aria-label="Counter result shown as bars, kopi most common">
+<text x="20" y="40" font-family="JetBrains Mono,monospace" font-size="13" fill="#8b98a5" letter-spacing="2" class="fx">Counter(orders).most_common()</text>
+<text x="20" y="96" font-family="JetBrains Mono,monospace" font-size="17" fill="#e8eef0" class="fx d1">kopi</text>
+<rect x="100" y="70" width="342" height="38" rx="6" fill="#00dcb4" stroke="#00dcb4" stroke-width="1.5" class="fx d2" style="transform-origin:100px 0;animation-name:barx"/>
+<text x="454" y="96" font-family="JetBrains Mono,monospace" font-size="16" fill="#00dcb4" class="fx d3">9</text>
+<text x="20" y="154" font-family="JetBrains Mono,monospace" font-size="17" fill="#e8eef0" class="fx d2">teh</text>
+<rect x="100" y="128" width="266" height="38" rx="6" fill="#1c2430" stroke="#00dcb4" stroke-width="1.5" class="fx d3" style="transform-origin:100px 0;animation-name:barx"/>
+<text x="378" y="154" font-family="JetBrains Mono,monospace" font-size="16" fill="#00dcb4" class="fx d4">7</text>
+<text x="20" y="212" font-family="JetBrains Mono,monospace" font-size="17" fill="#e8eef0" class="fx d3">roti</text>
+<rect x="100" y="186" width="190" height="38" rx="6" fill="#1c2430" stroke="#00dcb4" stroke-width="1.5" class="fx d4" style="transform-origin:100px 0;animation-name:barx"/>
+<text x="302" y="212" font-family="JetBrains Mono,monospace" font-size="16" fill="#00dcb4" class="fx d5">5</text>
+<text x="20" y="270" font-family="JetBrains Mono,monospace" font-size="17" fill="#e8eef0" class="fx d4">nasi</text>
+<rect x="100" y="244" width="114" height="38" rx="6" fill="#1c2430" stroke="#00dcb4" stroke-width="1.5" class="fx d5" style="transform-origin:100px 0;animation-name:barx"/>
+<text x="226" y="270" font-family="JetBrains Mono,monospace" font-size="16" fill="#00dcb4" class="fx d6">3</text>
+<text x="20" y="328" font-family="JetBrains Mono,monospace" font-size="17" fill="#e8eef0" class="fx d5">mee</text>
+<rect x="100" y="302" width="76" height="38" rx="6" fill="#1c2430" stroke="#00dcb4" stroke-width="1.5" class="fx d6" style="transform-origin:100px 0;animation-name:barx"/>
+<text x="188" y="328" font-family="JetBrains Mono,monospace" font-size="16" fill="#00dcb4" class="fx d7">2</text>
+</svg></div></div>
+</section>
+
+<section class="slide" data-title="2.3 collections · code">
+  <div class="stepbar fx"><span class="">Explain</span><span class="">Theory</span><span class="on">Code</span><span class="">Practice</span></div>
+  <div class="tag fx">Module 2 · Functions on Data · 2.3 · Code — copy, paste, run</div>
+  <h1 class="sh fx d1">Count votes, group students, remember the last 3 pages</h1>
+  <div class="body" style="align-items:stretch">
+    <div class="col fx d2" style="flex:1.3;display:flex;flex-direction:column;gap:10px;min-height:0"><div class="cb" style="display:flex;flex-direction:column;min-height:0px;flex:19 1 0"><div class="code-head">collections_demo.py</div><pre class="code sm" style="flex:1;min-height:0;margin:0"><span class="k">from</span> collections <span class="k">import</span> Counter, defaultdict, deque
+
+<span class="c"># Counter: count anything</span>
+votes = [<span class="s">"nasi lemak"</span>, <span class="s">"roti canai"</span>, <span class="s">"nasi lemak"</span>, <span class="s">"laksa"</span>, <span class="s">"nasi lemak"</span>]
+tally = Counter(votes)
+print(tally.most_common(<span class="n">2</span>))
+
+<span class="c"># defaultdict: group without checking "if key in dict"</span>
+students = [(<span class="s">"Aisyah"</span>, <span class="s">"5A"</span>), (<span class="s">"Darren"</span>, <span class="s">"5B"</span>), (<span class="s">"Nurin"</span>, <span class="s">"5A"</span>)]
+by_class = defaultdict(list)
+<span class="k">for</span> name, <span class="k">cls</span> <span class="k">in</span> students:
+    by_class[<span class="k">cls</span>].append(name)
+print(dict(by_class))
+
+<span class="c"># deque(maxlen=3): keep only the last 3 items</span>
+recent = deque(maxlen=<span class="n">3</span>)
+<span class="k">for</span> page <span class="k">in</span> [<span class="s">"home"</span>, <span class="s">"menu"</span>, <span class="s">"cart"</span>, <span class="s">"pay"</span>, <span class="s">"done"</span>]:
+    recent.append(page)
+print(list(recent))</pre></div></div>
+    <div class="col fx d3" style="display:flex;flex-direction:column;gap:10px;min-height:0"><div class="cb" style="display:flex;flex-direction:column;min-height:0;flex:1 1 0"><div class="code-head">terminal · real output</div><pre class="code sm out" style="flex:1;min-height:0;margin:0"><span class="cmd">$ python collections_demo.py</span>
+[('nasi lemak', 3), ('roti canai', 1)]
+{'5A': ['Aisyah', 'Nurin'], '5B': ['Darren']}
+['cart', 'pay', 'done']</pre></div><div class="card" style="flex:0 0 auto"><h3><span class="k">try</span>Change it, predict, run</h3><ul class="rules"><li>Count the letters in "MALAYSIA" with Counter.</li><li>Group words by their first letter with defaultdict.</li></ul></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="Module 2 Practice">
+  <div class="stepbar fx"><span class="">Explain</span><span class="">Theory</span><span class="">Code</span><span class="on">Practice</span></div>
+  <div class="tag fx">Module 2 · Functions on Data · Practice: real-life app + hands-on</div>
+  <h1 class="sh fx d1">Build: word-frequency analyser</h1>
+  <div class="body" style="align-items:stretch">
+    <div class="col fx d2" style="flex:1.15;display:flex;flex-direction:column;gap:8px;min-height:0"><div class="card accent" style="flex:0 0 auto;padding:12px 16px"><h3><span class="k">real life</span>WhatsApp lunch order: tally for the stall, bill per person</h3><p>Every lunch the office group chat fills with orders. This script reads the messages, cleans the spelling, counts what to order, and works out who pays what.</p></div><div class="cb" style="display:flex;flex-direction:column;min-height:130px;flex:31 1 0"><div class="code-head">lunch_orders.py</div><pre class="code sm" style="flex:1;min-height:0;margin:0"><span class="s">"""Tally a WhatsApp group lunch order and work out who pays what."""</span>
+<span class="k">from</span> collections <span class="k">import</span> Counter
+
+chat = <span class="s">"""\
+Aisyah: nasi lemak, teh tarik
+Darren: mee goreng, kopi o
+Nurin: nasi lemak, milo ais
+Tan: Nasi Lemak , teh tarik
+Sasha: roti canai, kopi o"""</span>
+
+PRICES = {<span class="s">"nasi lemak"</span>: <span class="n">6.50</span>, <span class="s">"mee goreng"</span>: <span class="n">7.00</span>, <span class="s">"roti canai"</span>: <span class="n">2.50</span>,
+          <span class="s">"teh tarik"</span>: <span class="n">3.00</span>, <span class="s">"kopi o"</span>: <span class="n">2.50</span>, <span class="s">"milo ais"</span>: <span class="n">3.50</span>}
+
+<span class="c"># 1. parse each line -&gt; {name: [items]}  (dict + list comprehension)</span>
+orders = {
+    name.strip(): [item.strip().lower() <span class="k">for</span> item <span class="k">in</span> items.split(<span class="s">","</span>)]
+    <span class="k">for</span> name, items <span class="k">in</span> (line.split(<span class="s">":"</span>, <span class="n">1</span>) <span class="k">for</span> line <span class="k">in</span> chat.splitlines())
+}
+
+<span class="c"># 2. count every item for the stall</span>
+counts = Counter(item <span class="k">for</span> items <span class="k">in</span> orders.values() <span class="k">for</span> item <span class="k">in</span> items)
+print(<span class="s">"Order for the stall:"</span>)
+<span class="k">for</span> item, qty <span class="k">in</span> counts.most_common():
+    print(<span class="s">f"  {qty} x {item.title()}"</span>)
+
+<span class="c"># 3. each person's bill, highest first</span>
+bills = {name: sum(PRICES[i] <span class="k">for</span> i <span class="k">in</span> items) <span class="k">for</span> name, items <span class="k">in</span> orders.items()}
+print(<span class="s">"\nWho pays what:"</span>)
+<span class="k">for</span> name, amount <span class="k">in</span> sorted(bills.items(), key=<span class="k">lambda</span> kv: kv[<span class="n">1</span>], reverse=<span class="k">True</span>):
+    print(<span class="s">f"  {name:&lt;7} RM{amount:&gt;5.2f}"</span>)
+print(<span class="s">f"  {'TOTAL':&lt;7} RM{sum(bills.values()):&gt;5.2f}"</span>)</pre></div><div class="cb" style="display:flex;flex-direction:column;min-height:90px;flex:0 1 26%"><div class="code-head">terminal · real output</div><pre class="code sm out" style="flex:1;min-height:0;margin:0"><span class="cmd">$ python lunch_orders.py</span>
+Order for the stall:
+  3 x Nasi Lemak
+  2 x Teh Tarik
+  2 x Kopi O
+  1 x Mee Goreng
+  1 x Milo Ais
+  1 x Roti Canai
+
+Who pays what:
+  Nurin   RM10.00
+  Aisyah  RM 9.50
+  Darren  RM 9.50
+  Tan     RM 9.50
+  Sasha   RM 5.00
+  TOTAL   RM43.50</pre></div></div>
+    <div class="col fx d3" style="display:flex;flex-direction:column;gap:10px;min-height:0"><div style="flex:0 0 auto"><div class="hands-on">
+        <div class="lbl">12 minutes · solo</div>
+        <h3>Find the top 10 words in a news article</h3>
+        <div class="steps">
+          <div><b>01</b><span>Paste any article into <span style="font-family:var(--mono)">article.txt</span>.</span></div>
+          <div><b>02</b><span>Read it, lowercase it, split into words.</span></div>
+          <div><b>03</b><span>Strip punctuation with a comprehension.</span></div>
+          <div><b>04</b><span>Remove stop-words using a <b style="color:var(--mint)">set</b>.</span></div>
+          <div><b>05</b><span>Print the top 10 with <span style="font-family:var(--mono)">Counter.most_common()</span>.</span></div>
+        </div>
+      </div></div><div class="cb" style="display:flex;flex-direction:column;min-height:0;flex:1 1 0"><div class="code-head">word_freq.py — starter</div><pre class="code sm" style="flex:1;min-height:0;margin:0">from collections import Counter
+from pathlib import Path
+
+STOP = {<span class="s">"the"</span>, <span class="s">"a"</span>, <span class="s">"and"</span>, <span class="s">"to"</span>, <span class="s">"of"</span>, <span class="s">"in"</span>}
+
+text = Path(<span class="s">"article.txt"</span>).read_text().lower()
+words = [w.strip(<span class="s">".,!?\"'()"</span>) for w in text.split()]
+words = [w for w in words if w and w not in STOP]
+
+for word, n in Counter(words).most_common(<span class="n">10</span>):
+    print(<span class="s">f"{word:&lt;15}{n}"</span>)</pre></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="3.1 venv and requirements.txt">
+  <div class="stepbar fx"><span class="on">Explain</span><span class="on">Theory</span><span class="">Code</span><span class="">Practice</span></div>
+  <div class="tag fx">Module 3 · Professional Workflow · 3.1 · Explanation &amp; theory</div>
+  <h1 class="sh fx d1">Virtual environments: one project, one sealed box</h1>
+  <div class="cards grid3 fx d2" style="margin-top:18px;align-items:start"><div class="card accent"><h3><span class="k">what</span>In plain words</h3><p>A <b>virtual environment</b> (venv) is a private folder of Python packages for one project, so projects can't break each other. <b>requirements.txt</b> lists the exact packages so anyone can rebuild the same box.</p></div><div class="card"><h3><span class="k">like</span>Everyday analogy</h3><p>A lunch box per child. Each has its own food (packages), and one child's sambal doesn't spill into another's rice.</p></div><div class="card"><h3><span class="k">rules</span>Theory: the key rules</h3><ul class="rules"><li>Create once per project: <b>python -m venv .venv</b></li><li><b>Activate</b> it before installing or running</li><li><b>pip freeze &gt; requirements.txt</b> records versions</li><li>Never commit <b>.venv/</b>; commit requirements.txt</li></ul></div></div>
+  <div class="body figbody" style="margin-top:12px"><div class="figwrap"><svg class="fig" style="min-height:0" viewBox="0 0 1000 400" aria-label="Two projects, each with its own virtual environment and package versions">
+        <g class="fx">
+          <rect x="330" y="20" width="340" height="70" rx="10" fill="#1c2430" stroke="#8b98a5" stroke-width="1.5"/>
+          <text x="500" y="52" font-family="JetBrains Mono,monospace" font-size="16" fill="#e8eef0" text-anchor="middle">System Python 3.12</text>
+          <text x="500" y="76" font-family="JetBrains Mono,monospace" font-size="12" fill="#8b98a5" text-anchor="middle">keep this clean</text>
+        </g>
+        <line x1="420" y1="95" x2="230" y2="160" stroke="#00dcb4" stroke-width="2" marker-end="url(#ar3)" class="draw d2" style="--len:210"/>
+        <line x1="580" y1="95" x2="770" y2="160" stroke="#58a6ff" stroke-width="2" marker-end="url(#ar3b)" class="draw d2" style="--len:210"/>
+        <g class="fx d3">
+          <rect x="40" y="165" width="400" height="215" rx="12" fill="#0a0e13" stroke="#00dcb4" stroke-width="2"/>
+          <text x="64" y="198" font-family="JetBrains Mono,monospace" font-size="15" fill="#00dcb4" font-weight="600">kopitiam-app/.venv</text>
+          <text x="64" y="240" font-family="JetBrains Mono,monospace" font-size="16" fill="#e8eef0">pandas   2.2</text>
+          <text x="64" y="272" font-family="JetBrains Mono,monospace" font-size="16" fill="#e8eef0">requests 2.32</text>
+          <text x="64" y="304" font-family="JetBrains Mono,monospace" font-size="16" fill="#e8eef0">ruff     0.6</text>
+          <rect x="64" y="325" width="200" height="34" rx="6" fill="#1c2430" stroke="#2a3440"/>
+          <text x="80" y="347" font-family="JetBrains Mono,monospace" font-size="13" fill="#00dcb4">requirements.txt</text>
+        </g>
+        <g class="fx d5">
+          <rect x="560" y="165" width="400" height="215" rx="12" fill="#0a0e13" stroke="#58a6ff" stroke-width="2"/>
+          <text x="584" y="198" font-family="JetBrains Mono,monospace" font-size="15" fill="#58a6ff" font-weight="600">old-client-project/.venv</text>
+          <text x="584" y="240" font-family="JetBrains Mono,monospace" font-size="16" fill="#e8eef0">pandas   1.5</text>
+          <text x="584" y="272" font-family="JetBrains Mono,monospace" font-size="16" fill="#e8eef0">requests 2.28</text>
+          <text x="584" y="304" font-family="JetBrains Mono,monospace" font-size="16" fill="#8b98a5">different versions — no clash</text>
+          <rect x="584" y="325" width="200" height="34" rx="6" fill="#1c2430" stroke="#2a3440"/>
+          <text x="600" y="347" font-family="JetBrains Mono,monospace" font-size="13" fill="#58a6ff">requirements.txt</text>
+        </g>
+        <text x="500" y="285" font-family="JetBrains Mono,monospace" font-size="26" fill="#ff6f91" text-anchor="middle" class="pulse fx d6">≠</text>
+        <defs>
+          <marker id="ar3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#00dcb4"/></marker>
+          <marker id="ar3b" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#58a6ff"/></marker>
+        </defs>
+      </svg></div></div>
+</section>
+
+<section class="slide" data-title="3.1 venv and requirements.txt · code">
+  <div class="stepbar fx"><span class="">Explain</span><span class="">Theory</span><span class="on">Code</span><span class="">Practice</span></div>
+  <div class="tag fx">Module 3 · Professional Workflow · 3.1 · Code — copy, paste, run</div>
+  <h1 class="sh fx d1">Create, activate, install, record, rebuild</h1>
+  <div class="body" style="align-items:stretch">
+    <div class="col fx d2" style="flex:1.3;display:flex;flex-direction:column;gap:10px;min-height:0"><div class="cb" style="display:flex;flex-direction:column;min-height:0px;flex:24 1 0"><div class="code-head">terminal</div><pre class="code sm" style="flex:1;min-height:0;margin:0"><span class="c"># 1. create the environment (once per project)</span>
+<span class="cmd">$ python -m venv .venv</span>
+
+<span class="c"># 2. activate it (every time you open a new terminal)</span>
+<span class="cmd">$ source .venv/bin/activate      </span><span class="c">  # macOS / Linux</span>
+<span class="cmd">$ .venv\Scripts\activate         </span><span class="c">  # Windows</span>
+(.venv) $                          # the prompt shows you're inside
+
+<span class="c"># 3. install what the project needs</span>
+(.venv) $ pip install ruff pandas
+
+<span class="c"># 4. record exact versions so others can rebuild it</span>
+(.venv) $ pip freeze &gt; requirements.txt
+(.venv) $ cat requirements.txt
+pandas==2.2.3
+ruff==0.6.9
+...
+
+<span class="c"># 5. on another laptop (or after deleting .venv)</span>
+<span class="cmd">$ python -m venv .venv &amp;&amp; source .venv/bin/activate</span>
+(.venv) $ pip install -r requirements.txt
+
+<span class="c"># leave the environment</span>
+(.venv) $ deactivate</pre></div></div>
+    <div class="col fx d3" style="display:flex;flex-direction:column;gap:10px;min-height:0"><div class="card" style="flex:0 0 auto"><h3><span class="k">try</span>Change it, predict, run</h3><ul class="rules"><li>Run <code>pip list</code> inside and outside the venv. Compare.</li><li>Delete <code>.venv</code>, recreate it, then <code>pip install -r requirements.txt</code>.</li></ul></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="3.2 Git and GitHub">
+  <div class="stepbar fx"><span class="on">Explain</span><span class="on">Theory</span><span class="">Code</span><span class="">Practice</span></div>
+  <div class="tag fx">Module 3 · Professional Workflow · 3.2 · Explanation &amp; theory</div>
+  <h1 class="sh fx d1">Git: save points for your code</h1>
+  <div class="cards grid3 fx d2" style="margin-top:18px;align-items:start"><div class="card accent"><h3><span class="k">what</span>In plain words</h3><p><b>Git</b> records snapshots (commits) of your project so you can go back in time. <b>GitHub</b> keeps a copy online, so a dead laptop never kills your work, and others can see it.</p></div><div class="card"><h3><span class="k">like</span>Everyday analogy</h3><p>Save points in a game. You save before the boss fight; if it goes wrong, you reload. Pushing to GitHub is uploading your save to the cloud.</p></div><div class="card"><h3><span class="k">rules</span>Theory: the key rules</h3><ul class="rules"><li><b>git add</b> chooses changes, <b>git commit</b> saves them</li><li><b>git push</b> uploads, <b>git pull</b> downloads</li><li>Commit messages say <b>why</b>: "fix grade() at 80"</li><li><b>.gitignore</b> keeps .venv, .env and caches out</li></ul></div></div>
+  <div class="body figbody" style="margin-top:12px"><div class="figwrap"><svg class="fig" style="min-height:0" viewBox="0 0 500 420" style="min-height:300px" aria-label="Git flow: working folder, staging, local repo, GitHub">
+<g class="fx d1"><rect x="60" y="30" width="380" height="64" rx="10" fill="#1c2430" stroke="#8b98a5" stroke-width="2"/>
+<text x="84" y="58" font-family="JetBrains Mono,monospace" font-size="13" fill="#8b98a5" letter-spacing="2">WORKING</text>
+<text x="84" y="82" font-family="JetBrains Mono,monospace" font-size="17" fill="#e8eef0">edit files</text></g>
+<line x1="250" y1="96" x2="250" y2="122" stroke="#00dcb4" stroke-width="2" marker-end="url(#ar4)" class="draw d2" style="--len:30"/>
+<g class="fx d3"><rect x="60" y="125" width="380" height="64" rx="10" fill="#1c2430" stroke="#58a6ff" stroke-width="2"/>
+<text x="84" y="153" font-family="JetBrains Mono,monospace" font-size="13" fill="#58a6ff" letter-spacing="2">STAGING</text>
+<text x="84" y="177" font-family="JetBrains Mono,monospace" font-size="17" fill="#e8eef0">git add</text></g>
+<line x1="250" y1="191" x2="250" y2="217" stroke="#00dcb4" stroke-width="2" marker-end="url(#ar4)" class="draw d4" style="--len:30"/>
+<g class="fx d5"><rect x="60" y="220" width="380" height="64" rx="10" fill="#1c2430" stroke="#f0b429" stroke-width="2"/>
+<text x="84" y="248" font-family="JetBrains Mono,monospace" font-size="13" fill="#f0b429" letter-spacing="2">LOCAL REPO</text>
+<text x="84" y="272" font-family="JetBrains Mono,monospace" font-size="17" fill="#e8eef0">git commit</text></g>
+<line x1="250" y1="286" x2="250" y2="312" stroke="#00dcb4" stroke-width="2" marker-end="url(#ar4)" class="draw d6" style="--len:30"/>
+<g class="fx d7"><rect x="60" y="315" width="380" height="64" rx="10" fill="#1c2430" stroke="#00dcb4" stroke-width="2"/>
+<text x="84" y="343" font-family="JetBrains Mono,monospace" font-size="13" fill="#00dcb4" letter-spacing="2">GITHUB</text>
+<text x="84" y="367" font-family="JetBrains Mono,monospace" font-size="17" fill="#e8eef0">git push</text></g>
+<circle r="8" fill="#00dcb4" class="travel" style="offset-path:path('M 250 62 L 250 347')"/>
+<defs><marker id="ar4" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#00dcb4"/></marker></defs>
+</svg></div></div>
+</section>
+
+<section class="slide" data-title="3.2 Git and GitHub · code">
+  <div class="stepbar fx"><span class="">Explain</span><span class="">Theory</span><span class="on">Code</span><span class="">Practice</span></div>
+  <div class="tag fx">Module 3 · Professional Workflow · 3.2 · Code — copy, paste, run</div>
+  <h1 class="sh fx d1">The commands you'll use every week</h1>
+  <div class="body" style="align-items:stretch">
+    <div class="col fx d2" style="flex:1.3;display:flex;flex-direction:column;gap:10px;min-height:0"><div class="cb" style="display:flex;flex-direction:column;min-height:0px;flex:25 1 0"><div class="code-head">terminal</div><pre class="code sm" style="flex:1;min-height:0;margin:0"><span class="c"># one-time setup on a new laptop</span>
+<span class="cmd">$ git config --global user.name "Your Name"</span>
+<span class="cmd">$ git config --global user.email "you@example.com"</span>
+
+<span class="c"># get your repo from GitHub</span>
+<span class="cmd">$ git clone https://github.com/you/python-intermediate.git</span>
+<span class="cmd">$ cd python-intermediate</span>
+
+<span class="c"># keep junk and secrets out</span>
+<span class="cmd">$ printf ".venv/\n__pycache__/\n.env\n*.db\n" &gt; .gitignore</span>
+
+<span class="c"># the everyday loop</span>
+<span class="cmd">$ git status                     </span><span class="c">  # what changed?</span>
+<span class="cmd">$ git diff                       </span><span class="c">  # show the exact lines</span>
+<span class="cmd">$ git add class01/               </span><span class="c">  # stage the folder</span>
+<span class="cmd">$ git commit -m "class 1: fare calculator with promo codes"</span>
+<span class="cmd">$ git push                       </span><span class="c">  # upload to GitHub</span>
+
+<span class="c"># before you start work on another computer</span>
+<span class="cmd">$ git pull</span>
+
+<span class="c"># see your history</span>
+<span class="cmd">$ git log --oneline</span>
+a41f2c0 class 1: fare calculator with promo codes
+9c03e7d add .gitignore</pre></div></div>
+    <div class="col fx d3" style="display:flex;flex-direction:column;gap:10px;min-height:0"><div class="card" style="flex:0 0 auto"><h3><span class="k">try</span>Change it, predict, run</h3><ul class="rules"><li>Make a change, run <code>git status</code> and <code>git diff</code> before committing.</li><li>Write one bad and one good commit message for the same change.</li></ul></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="3.3 PEP 8 with ruff">
+  <div class="stepbar fx"><span class="on">Explain</span><span class="on">Theory</span><span class="">Code</span><span class="">Practice</span></div>
+  <div class="tag fx">Module 3 · Professional Workflow · 3.3 · Explanation &amp; theory</div>
+  <h1 class="sh fx d1">PEP 8 and ruff: code that looks professional</h1>
+  <div class="body" style="align-items:stretch">
+    <div class="col cards fx d2" style="align-content:start"><div class="card accent"><h3><span class="k">what</span>In plain words</h3><p><b>PEP 8</b> is Python's official style guide: naming, spacing, line length. <b>ruff</b> is a tool that checks your code against it in milliseconds and fixes most problems for you.</p></div><div class="card"><h3><span class="k">like</span>Everyday analogy</h3><p>Grammar and spell-check for code. People can still read messy writing, but tidy writing is faster to read and looks trustworthy.</p></div><div class="card"><h3><span class="k">rules</span>Theory: the key rules</h3><ul class="rules"><li><b>snake_case</b> for variables and functions</li><li><b>PascalCase</b> for classes, <b>UPPER_CASE</b> for constants</li><li>4 spaces per indent; imports at the top</li><li><b>ruff check --fix</b> then <b>ruff format</b></li></ul></div></div>
+    <div class="col fx d3"><div class="cb"><div class="code-head">syntax at a glance</div><pre class="code">TAX_RATE = <span class="n">0.06</span>            <span class="c"># constant</span>
+
+
+<span class="k">class</span> BankAccount:         <span class="c"># class</span>
+    <span class="k">def</span> deposit(<span class="k">self</span>, amount):   <span class="c"># method</span>
+        total_paid = amount      <span class="c"># variable</span></pre></div><div class="card" style="margin-top:14px;border-color:rgba(255,111,145,.4)"><h3 style="color:var(--coral)">Common mistakes</h3><ul class="rules"><li>Naming a variable <code>l</code>, <code>O</code> or <code>I</code>: they look like 1 and 0.</li><li>Unused imports left behind after refactoring.</li></ul></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="3.3 PEP 8 with ruff · code">
+  <div class="stepbar fx"><span class="">Explain</span><span class="">Theory</span><span class="on">Code</span><span class="">Practice</span></div>
+  <div class="tag fx">Module 3 · Professional Workflow · 3.3 · Code — copy, paste, run</div>
+  <h1 class="sh fx d1">Messy file in, clean file out</h1>
+  <div class="body" style="align-items:stretch">
+    <div class="col fx d2" style="flex:1.3;display:flex;flex-direction:column;gap:10px;min-height:0"><div class="cb" style="display:flex;flex-direction:column;min-height:0px;flex:7 1 0"><div class="code-head">messy.py</div><pre class="code sm" style="flex:1;min-height:0;margin:0"><span class="k">import</span> os
+<span class="k">import</span> sys
+<span class="k">def</span> CalcTotal(l,Tax = <span class="n">0.06</span>):
+    t=<span class="n">0</span>
+    <span class="k">for</span> x <span class="k">in</span> l : t+=x
+    <span class="k">return</span> t*(<span class="n">1</span>+Tax)
+print( CalcTotal([<span class="n">10</span>,<span class="n">20</span>]) )</pre></div></div>
+    <div class="col fx d3" style="display:flex;flex-direction:column;gap:10px;min-height:0"><div class="cb" style="display:flex;flex-direction:column;min-height:0;flex:1 1 0"><div class="code-head">terminal · real output</div><pre class="code sm out" style="flex:1;min-height:0;margin:0"><span class="cmd">$ ruff check messy.py</span>
+I001 [*] Import block is un-sorted or un-formatted
+ --&gt; messy.py:1:1
+  |
+1 | / import os
+2 | | import sys
+  | |__________^
+3 |   def CalcTotal(l,Tax = 0.06):
+4 |       t=0
+  |
+help: Organize imports
+  |
+2 | import sys
+3 +
+4 +
+5 | def CalcTotal(l,Tax = 0.06):
+  |
+
+F401 [*] `os` imported but unused
+ --&gt; messy.py:1:8
+  |
+1 | import os
+  |        ^^
+… (29 more lines)</pre></div><div class="card" style="flex:0 0 auto"><h3><span class="k">try</span>Change it, predict, run</h3><ul class="rules"><li>ruff passes, but <code>CalcTotal</code> and <code>l</code> still break PEP 8 naming. Rename them by hand.</li><li>Install the Ruff extension in VS Code and turn on format-on-save.</li></ul></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="Module 3 Practice">
+  <div class="stepbar fx"><span class="">Explain</span><span class="">Theory</span><span class="">Code</span><span class="on">Practice</span></div>
+  <div class="tag fx">Module 3 · Professional Workflow · Practice: real-life app + hands-on</div>
+  <h1 class="sh fx d1">Build: your course repo, first commit</h1>
+  <div class="body" style="align-items:stretch">
+    <div class="col fx d2" style="flex:1.15;display:flex;flex-direction:column;gap:8px;min-height:0"><div class="card accent" style="flex:0 0 auto;padding:12px 16px"><h3><span class="k">real life</span>House bills splitter: a clean, typed, ruff-passing script</h3><p>Four housemates pay different bills each month. This script works out each person's balance and the fewest transfers to settle up. It is typed, has docstrings, and passes <code>ruff check</code>: the standard for every script from now on.</p></div><div class="cb" style="display:flex;flex-direction:column;min-height:130px;flex:52 1 0"><div class="code-head">house_bills.py</div><pre class="code sm" style="flex:1;min-height:0;margin:0"><span class="s">"""Split shared house bills and tell everyone who pays whom."""</span>
+
+Expense = tuple[str, str, float]   <span class="c"># (who paid, what for, amount)</span>
+
+EXPENSES: list[Expense] = [
+    (<span class="s">"Aisyah"</span>, <span class="s">"Electricity"</span>, <span class="n">180.00</span>),
+    (<span class="s">"Darren"</span>, <span class="s">"Water"</span>, <span class="n">36.00</span>),
+    (<span class="s">"Nurin"</span>, <span class="s">"Internet"</span>, <span class="n">129.00</span>),
+    (<span class="s">"Aisyah"</span>, <span class="s">"Groceries"</span>, <span class="n">95.50</span>),
+    (<span class="s">"Tan"</span>, <span class="s">"Gas cylinder"</span>, <span class="n">26.60</span>),
+]
+
+
+<span class="k">def</span> total_paid(records: list[Expense]) -&gt; dict[str, float]:
+    <span class="s">"""Return how much each person has paid so far."""</span>
+    paid: dict[str, float] = {}
+    <span class="k">for</span> person, _, amount <span class="k">in</span> records:
+        paid[person] = paid.get(person, <span class="n">0.0</span>) + amount
+    <span class="k">return</span> paid
+
+
+<span class="k">def</span> balances(paid: dict[str, float]) -&gt; dict[str, float]:
+    <span class="s">"""Positive = should get money back, negative = owes money."""</span>
+    share = sum(paid.values()) / len(paid)
+    <span class="k">return</span> {person: round(amount - share, <span class="n">2</span>) <span class="k">for</span> person, amount <span class="k">in</span> paid.items()}
+
+
+<span class="k">def</span> settle(balance: dict[str, float]) -&gt; list[str]:
+    <span class="s">"""Return the fewest simple 'X pays Y' transfers to even things out."""</span>
+    owe = [[p, -a] <span class="k">for</span> p, a <span class="k">in</span> balance.items() <span class="k">if</span> a &lt; <span class="n">0</span>]
+    get = [[p, a] <span class="k">for</span> p, a <span class="k">in</span> balance.items() <span class="k">if</span> a &gt; <span class="n">0</span>]
+    steps = []
+    <span class="k">while</span> owe <span class="k">and</span> get:
+        amount = round(min(owe[<span class="n">0</span>][<span class="n">1</span>], get[<span class="n">0</span>][<span class="n">1</span>]), <span class="n">2</span>)
+        steps.append(<span class="s">f"{owe[0][0]} pays {get[0][0]} RM{amount:.2f}"</span>)
+        owe[<span class="n">0</span>][<span class="n">1</span>] -= amount
+        get[<span class="n">0</span>][<span class="n">1</span>] -= amount
+        <span class="k">if</span> owe[<span class="n">0</span>][<span class="n">1</span>] &lt; <span class="n">0.01</span>:
+            owe.pop(<span class="n">0</span>)
+        <span class="k">if</span> get[<span class="n">0</span>][<span class="n">1</span>] &lt; <span class="n">0.01</span>:
+            get.pop(<span class="n">0</span>)
+    <span class="k">return</span> steps
+
+
+paid = total_paid(EXPENSES)
+print(<span class="s">f"Total this month: RM{sum(paid.values()):.2f}, "</span>
+      <span class="s">f"RM{sum(paid.values()) / len(paid):.2f} each"</span>)
+<span class="k">for</span> person, amount <span class="k">in</span> balances(paid).items():
+    print(<span class="s">f"  {person:&lt;7} {amount:+8.2f}"</span>)
+print(<span class="s">"To settle up:"</span>)
+<span class="k">for</span> step <span class="k">in</span> settle(balances(paid)):
+    print(<span class="s">"  "</span> + step)</pre></div><div class="cb" style="display:flex;flex-direction:column;min-height:90px;flex:0 1 26%"><div class="code-head">terminal · real output</div><pre class="code sm out" style="flex:1;min-height:0;margin:0"><span class="cmd">$ python house_bills.py</span>
+Total this month: RM467.10, RM116.78 each
+  Aisyah   +158.72
+  Darren    -80.78
+  Nurin     +12.22
+  Tan       -90.18
+To settle up:
+  Darren pays Aisyah RM80.78
+  Tan pays Aisyah RM77.94
+  Tan pays Nurin RM12.22
+<span class="cmd">$ ruff check house_bills.py</span>
+All checks passed!</pre></div></div>
+    <div class="col fx d3" style="display:flex;flex-direction:column;gap:10px;min-height:0"><div style="flex:0 0 auto"><div class="hands-on">
+        <div class="lbl">15 minutes · everyone finishes before leaving</div>
+        <h3>Set up the repo you'll use for all 7 classes</h3>
+        <div class="steps">
+          <div><b>01</b><span>Create <span style="font-family:var(--mono)">python-intermediate</span> on GitHub with a README.</span></div>
+          <div><b>02</b><span>Clone it, create and activate <span style="font-family:var(--mono)">.venv</span>.</span></div>
+          <div><b>03</b><span>Install ruff, freeze to <span style="font-family:var(--mono)">requirements.txt</span>, add <span style="font-family:var(--mono)">.gitignore</span>.</span></div>
+          <div><b>04</b><span>Put today's two scripts in <span style="font-family:var(--mono)">class01/</span>; run <span style="font-family:var(--mono)">ruff check</span> until clean.</span></div>
+          <div><b>05</b><span>add → commit → push. See it on GitHub? Done.</span></div>
+        </div>
+      </div></div><div class="cb" style="display:flex;flex-direction:column;min-height:0;flex:1 1 0"><div class="code-head">terminal</div><pre class="code sm" style="flex:1;min-height:0;margin:0"><span class="c">$ git clone https://github.com/you/python-intermediate.git</span>
+<span class="c">$ cd python-intermediate</span>
+<span class="c">$ python -m venv .venv</span>
+<span class="c">$ source .venv/bin/activate   # Windows: .venv\Scripts\activate</span>
+<span class="c">$ pip install ruff</span>
+<span class="c">$ pip freeze &gt; requirements.txt</span>
+<span class="c">$ ruff check class01/</span>
+<span class="c">$ git add .</span>
+<span class="c">$ git commit -m <span class="s">"class 1: word freq + refactor"</span></span>
+<span class="c">$ git push</span></pre></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="Recap &amp; Summary">
+  <div class="tag fx">Recap &amp; Summary</div>
+  <h1 class="sh fx d1">From single lines to reusable, professional functions</h1>
+  <div class="body"><div class="col cards grid3 fx d2">
+    <div class="card accent"><h3><span class="k">M1</span>Functions</h3><p>def, return (not print), positional/default/keyword arguments, *args/**kwargs, LEGB scope, hints and docstrings.</p></div>
+    <div class="card accent"><h3><span class="k">M2</span>Functions on data</h3><p>Comprehensions for filter-and-transform, lambda as a sort key, Counter/defaultdict/deque.</p></div>
+    <div class="card accent"><h3><span class="k">M3</span>Workflow</h3><p>One venv per project, requirements.txt, Git save points, ruff for clean code.</p></div>
+  </div></div>
+  <div class="body" style="flex:0 0 auto;margin-top:0">
+    <div class="col fx d3"><div class="card"><h3>Homework 1: Your own toolkit</h3><p>Write 3 typed, documented functions you'd really use (e.g. loan instalment, unit converter, bill splitter), each with 3 example calls. Push to <span style="font-family:var(--mono);color:var(--mint)">class01/</span> with <span style="font-family:var(--mono)">ruff check</span> passing.</p></div></div>
+    <div class="col fx d4"><div class="card"><h3>Next class: Files, Modules &amp; Errors</h3><p>Move your functions into your own module, read and write CSV/JSON, and make scripts that never crash on bad input.</p></div></div>
+  </div>
+</section>
+<section class="slide" data-title="Review Learning Outcomes">
+  <div class="tag fx">Review Learning Outcomes</div>
+  <h1 class="sh fx d1">Did we get there?</h1>
+  <p class="sub fx d2">Rate yourself honestly, 1 to 5. Anything at 2 or below, tell me before you leave.</p>
+  <div class="body"><div class="col cards fx d3">
+    <div class="card"><h3><span class="k">LO1</span>I can write a function with parameters, defaults and a return value</h3><p style="font-family:var(--mono);color:var(--mint)">1 — 2 — 3 — 4 — 5</p></div>
+    <div class="card"><h3><span class="k">LO2</span>I can use a comprehension, sorted(key=) and Counter</h3><p style="font-family:var(--mono);color:var(--mint)">1 — 2 — 3 — 4 — 5</p></div>
+    <div class="card"><h3><span class="k">LO3</span>My functions have type hints and docstrings, and ruff passes</h3><p style="font-family:var(--mono);color:var(--mint)">1 — 2 — 3 — 4 — 5</p></div>
+    <div class="card accent"><h3><span class="k">LO4</span>My class01 work is on GitHub</h3><p style="font-family:var(--mono);color:var(--mint)">Yes — Not yet</p></div>
+  </div></div>
+  <p class="caption fx d4">codencode.my · Class 01 complete</p>
+</section>
+</div>
+
+<div id="nav">
+  <button class="navbtn" onclick="go(-1)">PREV</button>
+  <div id="dots"></div>
+  <button class="navbtn" onclick="go(1)">NEXT</button>
+</div>
+
+<script>
+const slides=[...document.querySelectorAll('.slide')];
+let i=0;
+const dots=document.getElementById('dots');
+slides.forEach((s,n)=>{const d=document.createElement('div');d.className='dot';
+  d.onclick=()=>show(n);dots.appendChild(d);});
+function show(n){
+  if(n<0||n>=slides.length)return;
+  slides[i].classList.remove('active');
+  i=n;
+  // force reflow so entry animations restart cleanly
+  void slides[i].offsetWidth;
+  slides[i].classList.add('active');
+  document.getElementById('counter').textContent=String(i+1).padStart(2,'0')+' / '+slides.length;
+  document.getElementById('titlebar').textContent=slides[i].dataset.title||'';
+  document.getElementById('progress').style.width=((i+1)/slides.length*100)+'%';
+  [...dots.children].forEach((d,n2)=>d.classList.toggle('on',n2===i));
+}
+function go(d){show(i+d);}
+function fs(){document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen();}
+addEventListener('keydown',e=>{
+  if(['ArrowRight',' ','PageDown'].includes(e.key)){e.preventDefault();go(1);}
+  if(['ArrowLeft','PageUp'].includes(e.key)){e.preventDefault();go(-1);}
+  if(e.key==='Home')show(0);
+  if(e.key==='End')show(slides.length-1);
+  if(e.key==='f')fs();
+});
+
+/* ---------- copy-to-clipboard on every code block ---------- */
+(function(){
+  document.querySelectorAll('pre.code').forEach(pre=>{
+    const source = pre.textContent;               // capture BEFORE adding the button
+    const btn = document.createElement('button');
+    btn.className = 'copybtn';
+    btn.type = 'button';
+    btn.textContent = 'COPY';
+    btn.addEventListener('click', async e=>{
+      e.stopPropagation();
+      try{
+        await navigator.clipboard.writeText(source);
+      }catch(err){                                 // file:// fallback
+        const ta=document.createElement('textarea');
+        ta.value=source; ta.style.position='fixed'; ta.style.opacity='0';
+        document.body.appendChild(ta); ta.select();
+        try{document.execCommand('copy');}catch(_){}
+        document.body.removeChild(ta);
+      }
+      btn.textContent='COPIED'; btn.classList.add('done');
+      setTimeout(()=>{btn.textContent='COPY'; btn.classList.remove('done');},1400);
+    });
+    pre.appendChild(btn);
+  });
+})();
+
+show(0);
+</script>
+
+<div id="xmodal" role="dialog" aria-modal="true"><div class="box">
+  <div class="bar"><span id="xtitle"></span><button class="btn" id="xcopy">COPY</button><button class="btn ghost" id="xclose">CLOSE ✕ (Esc)</button></div>
+  <pre class="code" id="xpre"></pre></div></div>
+<script>
+(function(){
+  const modal=document.getElementById('xmodal'), xpre=document.getElementById('xpre'),
+        xtitle=document.getElementById('xtitle'), xcopy=document.getElementById('xcopy');
+  let src='';
+  function open(head, pre){
+    const clone=pre.cloneNode(true);
+    clone.querySelectorAll('.copybtn').forEach(b=>b.remove());
+    src=clone.textContent; xpre.innerHTML=clone.innerHTML;
+    xtitle.textContent=head.childNodes[0].textContent.trim();
+    xcopy.textContent='COPY'; modal.classList.add('on'); xpre.scrollTop=0;
+  }
+  function close(){modal.classList.remove('on');}
+  document.querySelectorAll('.cb').forEach(cb=>{
+    const head=cb.querySelector('.code-head'), pre=cb.querySelector('pre.code');
+    if(!head||!pre)return;
+    const b=document.createElement('button'); b.className='xbtn'; b.type='button'; b.textContent='EXPAND ⤢';
+    b.addEventListener('click',e=>{e.stopPropagation();open(head,pre);});
+    head.appendChild(b);
+    head.style.cursor='zoom-in'; head.addEventListener('dblclick',()=>open(head,pre));
+  });
+  document.getElementById('xclose').onclick=close;
+  modal.addEventListener('click',e=>{if(e.target===modal)close();});
+  xcopy.onclick=async()=>{try{await navigator.clipboard.writeText(src);}catch(_){
+      const t=document.createElement('textarea');t.value=src;document.body.appendChild(t);t.select();
+      try{document.execCommand('copy');}catch(__){} t.remove();}
+    xcopy.textContent='COPIED';};
+  window.addEventListener('keydown',e=>{
+    if(!modal.classList.contains('on'))return;
+    if(e.key==='Escape')close();
+    e.stopImmediatePropagation();
+  },true);
+})();
+</script>
+</body>
+</html>

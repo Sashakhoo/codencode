@@ -466,6 +466,36 @@
     }
     .form-textarea { resize: vertical; min-height: 70px; }
     .form-select option { background: var(--bg); }
+    /* Issue Certificate modal: class picker */
+    #modal-issue-cert .modal-box { max-height: 92vh; overflow-y: auto; }
+    .cert-issue-row { display: flex; gap: 12px; flex-wrap: wrap; }
+    .cert-date-hint {
+      margin: -6px 0 14px; padding: 8px 12px; border-radius: var(--radius);
+      font-size: 12px; line-height: 1.45; color: var(--text-muted);
+      background: var(--surface2); border: 1px solid var(--border);
+    }
+    .cert-pick-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 8px; }
+    .cert-pick-count { font-size: 12px; color: var(--text-muted); }
+    .cert-pick-list {
+      max-height: 260px; overflow-y: auto;
+      border: 1px solid var(--border2); border-radius: var(--radius);
+      background: var(--bg-raised);
+    }
+    .cert-pick-row {
+      display: flex; align-items: center; gap: 10px;
+      padding: 9px 12px; border-bottom: 1px solid var(--border);
+      cursor: pointer; font-size: 13px;
+    }
+    .cert-pick-row:last-child { border-bottom: 0; }
+    .cert-pick-row:hover { background: var(--surface); }
+    .cert-pick-row input { accent-color: var(--primary); flex-shrink: 0; }
+    .cert-pick-row.all { font-weight: 700; background: var(--surface2); position: sticky; top: 0; z-index: 1; }
+    .cert-pick-row.done { cursor: default; opacity: .55; }
+    .cert-pick-row.done:hover { background: transparent; }
+    .cert-pick-name { font-weight: 600; color: var(--text); }
+    .cert-pick-meta { font-size: 11px; color: var(--text-muted); overflow-wrap: anywhere; }
+    .cert-pick-tag { margin-left: auto; font-size: 10px; font-weight: 700; color: var(--text-muted); white-space: nowrap; }
+    .cert-pick-empty { padding: 14px 12px; font-size: 12px; color: var(--text-muted); }
     .autocomplete-wrap { position: relative; }
     .autocomplete-menu {
       position: static;
@@ -3415,6 +3445,7 @@
           <div class="section-title">Certificates</div>
           <div style="display:flex;gap:8px;flex-wrap:wrap">
             <button class="btn btn-secondary btn-sm" id="download-selected-certs-btn" onclick="downloadSelectedCertificates()" disabled><i class="fas fa-download"></i> <span data-i18n="btn.downloadPdfs">Download PDFs</span></button>
+            <button class="btn btn-secondary btn-sm" id="send-selected-certs-btn" onclick="sendSelectedCertificateEmails()" disabled><i class="fas fa-envelope"></i> Send Email</button>
             <button class="btn btn-danger btn-sm" id="delete-selected-certs-btn" onclick="deleteSelectedCertificates()" disabled><i class="fas fa-trash"></i> <span data-i18n="btn.deleteSelected">Delete Selected</span></button>
             <button class="btn btn-secondary btn-sm admin-only" onclick="resetCertificates()"><i class="fas fa-trash"></i> <span data-i18n="btn.clearCerts">Clear Certificates</span></button>
             <button class="btn btn-primary btn-sm" onclick="openIssueCertModal()"><i class="fas fa-plus"></i> <span data-i18n="btn.issueCert">Issue Certificate</span></button>
@@ -3426,7 +3457,7 @@
               <thead>
                 <tr>
                   <th style="width:36px"><input type="checkbox" id="cert-select-all" onchange="toggleAllCertificates(this.checked)" /></th>
-                  <th data-i18n="th.certNo">Cert No.</th><th data-i18n="th.student">Student</th><th data-i18n="th.course">Course</th><th data-i18n="th.issued">Issued</th><th data-i18n="th.action">Action</th>
+                  <th data-i18n="th.certNo">Cert No.</th><th data-i18n="th.student">Student</th><th data-i18n="th.course">Course</th><th>Certificate date</th><th data-i18n="th.action">Action</th>
                 </tr>
               </thead>
               <tbody id="certs-tbody">
@@ -4085,15 +4116,19 @@
 <div class="modal-overlay" id="modal-issue-cert" onclick="if(event.target===this)closeModal('modal-issue-cert')">
   <div class="modal-box">
     <div class="modal-title" data-i18n="btn.issueCert">Issue Certificate</div>
-    <div class="form-group">
-      <label class="form-label" data-i18n="lbl.student">Student</label>
-      <div class="autocomplete-wrap">
-        <input class="form-input" id="cert-student-search" placeholder="Type student name..." data-i18n-ph="am.phTypeStudent" data-i18n-ph="p.typeStudent" autocomplete="off"
-               oninput="handleCertificateStudentSearch()" onfocus="renderCertificateStudentMatches()" />
-        <input type="hidden" id="cert-student-select" value="" />
-        <div class="autocomplete-menu" id="cert-student-results"></div>
+    <div class="cert-issue-row">
+      <div class="form-group" style="flex:2;min-width:200px">
+        <label class="form-label" data-i18n="lbl.course">Course</label>
+        <select class="form-input" id="cert-course-select" onchange="populateCertificateStudents()">
+          <option value="" data-i18n="aj.optSelCourse">Select course...</option>
+        </select>
+      </div>
+      <div class="form-group" style="flex:1;min-width:160px">
+        <label class="form-label" for="cert-date">Date on certificate</label>
+        <input class="form-input" type="date" id="cert-date" onchange="updateIssueCertButtonText()" />
       </div>
     </div>
+    <div id="cert-date-hint" class="cert-date-hint" style="display:none"></div>
     <div class="form-group">
       <label style="display:flex;align-items:flex-start;gap:10px;color:var(--text-muted);font-size:13px;line-height:1.5">
         <input type="checkbox" id="cert-blank-name" onchange="toggleBlankCertificateName()" style="margin-top:3px;accent-color:var(--primary)" />
@@ -4102,24 +4137,28 @@
     </div>
     <div class="form-group" id="cert-blank-quantity-group" style="display:none">
       <label class="form-label" data-i18n="lbl.quantity">Quantity</label>
-      <input class="form-input" type="number" id="cert-blank-quantity" min="1" max="200" value="1" />
+      <input class="form-input" type="number" id="cert-blank-quantity" min="1" max="200" value="1" oninput="updateIssueCertButtonText()" />
+    </div>
+    <div class="form-group" id="cert-students-group">
+      <div class="cert-pick-head">
+        <label class="form-label" style="margin:0" data-i18n="lbl.student">Students</label>
+        <span id="cert-pick-count" class="cert-pick-count"></span>
+      </div>
+      <input class="form-input" id="cert-student-filter" placeholder="Filter by name or email..." autocomplete="off" oninput="renderCertificateStudentList()" style="margin-bottom:8px" />
+      <div class="cert-pick-list" id="cert-student-list">
+        <div class="cert-pick-empty">Select a course to see its students.</div>
+      </div>
     </div>
     <div class="form-group" id="cert-email-group">
       <label style="display:flex;align-items:flex-start;gap:10px;color:var(--text-muted);font-size:13px;line-height:1.5">
         <input type="checkbox" id="cert-send-email" onchange="updateIssueCertButtonText()" style="margin-top:3px;accent-color:var(--primary)" />
         <span>
-          Email student immediately
-          <small style="display:block;color:var(--text-dim);font-size:11px;margin-top:3px">
-            Leave unticked to issue now, print first, then use Send Email later from the certificate list.
+          Email students immediately
+          <small id="cert-email-note" style="display:block;color:var(--text-dim);font-size:11px;margin-top:3px">
+            Leave unticked to issue now, print first, then select them in the list and use Send Email later.
           </small>
         </span>
       </label>
-    </div>
-    <div class="form-group">
-      <label class="form-label" data-i18n="lbl.course">Course</label>
-      <select class="form-input" id="cert-course-select" onchange="populateCertificateStudents()">
-        <option value="" data-i18n="aj.optSelCourse">Select course...</option>
-      </select>
     </div>
     <div class="modal-footer">
       <button class="btn btn-secondary" onclick="closeModal('modal-issue-cert')"><span data-i18n="btn.cancel">Cancel</span></button>
@@ -7846,36 +7885,43 @@ function populateCertificateCourses() {
     }).join('');
 }
 
+// Issue Certificate modal: pick a course, tick students, set the date printed on the certificate.
+const certPick = { selected: new Set() };
+
+function certTodayISO() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}
+
+function certDateValue() {
+  return document.getElementById('cert-date')?.value || certTodayISO();
+}
+
+function certDateIsFuture() {
+  return certDateValue() > certTodayISO();
+}
+
+function certDateLabel(iso) {
+  const [y, m, d] = String(iso).split('-').map(Number);
+  if (!y) return iso;
+  return new Date(y, m - 1, d).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+}
+
 function populateCertificateStudents() {
-  const stuSel = document.getElementById('cert-student-select');
-  const search = document.getElementById('cert-student-search');
-  const menu = document.getElementById('cert-student-results');
-  const cSel   = document.getElementById('cert-course-select');
-  const blankName = document.getElementById('cert-blank-name')?.checked;
-  if (!stuSel || !search) return;
-  stuSel.value = '';
-  if (blankName) {
-    search.value = 'No name on certificate';
-    search.disabled = true;
-    if (menu) {
-      menu.classList.remove('open');
-      menu.innerHTML = '';
-    }
-    return;
-  }
-  search.disabled = false;
-  search.value = '';
-  if (menu) {
-    menu.classList.remove('open');
-    menu.innerHTML = '';
-  }
+  // Called when the course changes: start a fresh selection for that course.
+  certPick.selected = new Set();
+  const filter = document.getElementById('cert-student-filter');
+  if (filter) filter.value = '';
+  renderCertificateStudentList();
+  updateIssueCertButtonText();
 }
 
 function certificateStudentCandidates() {
   const cSel = document.getElementById('cert-course-select');
   const targetValue = cSel?.value || '';
+  if (!targetValue) return [];
   let students = S.certOptions.students;
-  if (targetValue && S.certOptions.enrollments.length) {
+  if (S.certOptions.enrollments.length) {
     const allowedStudentIds = new Set(
       S.certOptions.enrollments
         .filter(e => String(e.course_id) === targetValue || String(e.course_id) === targetValue.replace(/^course:/, ''))
@@ -7886,89 +7932,139 @@ function certificateStudentCandidates() {
   return students;
 }
 
+// student_id -> existing certificate for the selected course (course targets only;
+// for workshops the server still skips anyone who already has one).
+function certificateExistingForCourse() {
+  const targetValue = document.getElementById('cert-course-select')?.value || '';
+  const map = new Map();
+  if (!targetValue.startsWith('course:') && /\D/.test(targetValue)) return map;
+  const courseId = parseInt(targetValue.replace(/^course:/, ''));
+  (S.adminCerts || []).forEach(c => {
+    if (c.student_id && parseInt(c.course_id) === courseId) map.set(parseInt(c.student_id), c);
+  });
+  return map;
+}
+
 function certText(value) {
   return String(value || '').replace(/[&<>"']/g, ch => ({
     '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
   }[ch]));
 }
 
-function handleCertificateStudentSearch() {
-  const selected = document.getElementById('cert-student-select');
-  if (selected) selected.value = '';
-  renderCertificateStudentMatches();
-}
-
-function renderCertificateStudentMatches() {
-  const search = document.getElementById('cert-student-search');
-  const menu = document.getElementById('cert-student-results');
-  const blankName = document.getElementById('cert-blank-name')?.checked;
-  if (!search || !menu || blankName || search.disabled) return;
-  const query = search.value.trim().toLowerCase();
-  if (!query) {
-    menu.innerHTML = `<div class="autocomplete-empty">${T('aj.typeStudent')}</div>`;
-    menu.classList.add('open');
+function renderCertificateStudentList() {
+  const list = document.getElementById('cert-student-list');
+  const countEl = document.getElementById('cert-pick-count');
+  if (!list) return;
+  const courseSelected = !!document.getElementById('cert-course-select')?.value;
+  if (!courseSelected) {
+    list.innerHTML = `<div class="cert-pick-empty">Select a course to see its students.</div>`;
+    if (countEl) countEl.textContent = '';
     return;
   }
-  const matches = certificateStudentCandidates()
-    .filter(s => `${s.name || ''} ${s.email || ''}`.toLowerCase().includes(query))
-    .slice(0, 8);
-  if (!matches.length) {
-    const courseSelected = !!document.getElementById('cert-course-select')?.value;
-    menu.innerHTML = `<div class="autocomplete-empty">${courseSelected ? 'No matching enrolled student found for this course.' : 'No matching enrolled student found.'}</div>`;
-    menu.classList.add('open');
+  const all = certificateStudentCandidates();
+  const existing = certificateExistingForCourse();
+  const query = (document.getElementById('cert-student-filter')?.value || '').trim().toLowerCase();
+  const shown = query ? all.filter(s => `${s.name || ''} ${s.email || ''}`.toLowerCase().includes(query)) : all;
+  const pickable = shown.filter(s => !existing.has(parseInt(s.id)));
+  const remaining = all.filter(s => !existing.has(parseInt(s.id))).length;
+  if (countEl) {
+    countEl.textContent = all.length
+      ? `${certPick.selected.size} selected · ${remaining} of ${all.length} still need a certificate`
+      : '';
+  }
+  if (!all.length) {
+    list.innerHTML = `<div class="cert-pick-empty">No students are enrolled in this course yet.</div>`;
     return;
   }
-  menu.innerHTML = matches.map(s => `
-    <div class="autocomplete-option" onclick="selectCertificateStudent(${s.id})">
-      <div class="autocomplete-name">${certText(s.name)}</div>
-      <div class="autocomplete-meta">${certText(s.email || '')}</div>
-    </div>
-  `).join('');
-  menu.classList.add('open');
+  if (!shown.length) {
+    list.innerHTML = `<div class="cert-pick-empty">No student matches “${certText(query)}”.</div>`;
+    return;
+  }
+  const allChecked = pickable.length > 0 && pickable.every(s => certPick.selected.has(parseInt(s.id)));
+  const head = pickable.length ? `
+    <label class="cert-pick-row all">
+      <input type="checkbox" ${allChecked ? 'checked' : ''} onchange="toggleAllCertificateStudents(this.checked)" />
+      <span>Select all${query ? ' shown' : ''} (${pickable.length})</span>
+    </label>` : '';
+  list.innerHTML = head + shown.map(s => {
+    const id = parseInt(s.id);
+    const cert = existing.get(id);
+    if (cert) {
+      return `<div class="cert-pick-row done" title="Already has ${certText(cert.cert_number)}">
+        <input type="checkbox" checked disabled />
+        <div><div class="cert-pick-name">${certText(s.name)}</div><div class="cert-pick-meta">${certText(s.email || '')}</div></div>
+        <span class="cert-pick-tag">${certText(cert.cert_number)} issued</span>
+      </div>`;
+    }
+    return `<label class="cert-pick-row">
+      <input type="checkbox" ${certPick.selected.has(id) ? 'checked' : ''} onchange="toggleCertificateStudent(${id}, this.checked)" />
+      <div><div class="cert-pick-name">${certText(s.name)}</div><div class="cert-pick-meta">${certText(s.email || '')}</div></div>
+    </label>`;
+  }).join('');
 }
 
-function selectCertificateStudent(studentId) {
-  const student = certificateStudentCandidates().find(s => parseInt(s.id) === parseInt(studentId));
-  if (!student) return;
-  document.getElementById('cert-student-select').value = student.id;
-  document.getElementById('cert-student-search').value = student.name || '';
-  document.getElementById('cert-student-results')?.classList.remove('open');
+function toggleCertificateStudent(id, checked) {
+  if (checked) certPick.selected.add(parseInt(id));
+  else certPick.selected.delete(parseInt(id));
+  renderCertificateStudentList();
+  updateIssueCertButtonText();
 }
 
-function resolveCertificateStudentId() {
-  const selected = document.getElementById('cert-student-select')?.value;
-  if (selected) return selected;
-  const query = document.getElementById('cert-student-search')?.value.trim().toLowerCase();
-  if (!query) return '';
-  const candidates = certificateStudentCandidates();
-  const exact = candidates.find(s => (s.name || '').trim().toLowerCase() === query);
-  if (exact) return exact.id;
-  const matches = candidates.filter(s => `${s.name || ''} ${s.email || ''}`.toLowerCase().includes(query));
-  return matches.length === 1 ? matches[0].id : '';
+function toggleAllCertificateStudents(checked) {
+  const existing = certificateExistingForCourse();
+  const query = (document.getElementById('cert-student-filter')?.value || '').trim().toLowerCase();
+  certificateStudentCandidates()
+    .filter(s => !existing.has(parseInt(s.id)))
+    .filter(s => !query || `${s.name || ''} ${s.email || ''}`.toLowerCase().includes(query))
+    .forEach(s => checked ? certPick.selected.add(parseInt(s.id)) : certPick.selected.delete(parseInt(s.id)));
+  renderCertificateStudentList();
+  updateIssueCertButtonText();
 }
 
 function toggleBlankCertificateName() {
   const qtyGroup = document.getElementById('cert-blank-quantity-group');
   const emailGroup = document.getElementById('cert-email-group');
+  const studentsGroup = document.getElementById('cert-students-group');
   const blankName = document.getElementById('cert-blank-name')?.checked;
   if (qtyGroup) qtyGroup.style.display = blankName ? 'block' : 'none';
-  if (emailGroup) emailGroup.style.display = blankName ? 'none' : 'block';
-  populateCertificateStudents();
+  if (studentsGroup) studentsGroup.style.display = blankName ? 'none' : 'block';
   updateIssueCertButtonText();
+  if (emailGroup && blankName) emailGroup.style.display = 'none';
 }
 
 function updateIssueCertButtonText() {
   const btn = document.getElementById('issue-cert-btn');
-  if (!btn) return;
   const blankName = document.getElementById('cert-blank-name')?.checked;
-  const sendEmail = document.getElementById('cert-send-email')?.checked;
-  if (blankName) {
-    btn.innerHTML = `<i class="fas fa-award"></i> ${T('aj.issueBlank')}`;
-  } else if (sendEmail) {
-    btn.innerHTML = `<i class="fas fa-paper-plane"></i> ${T('aj.issueEmail')}`;
-  } else {
-    btn.innerHTML = `<i class="fas fa-print"></i> ${T('aj.issuePrint')}`;
+  const emailBox = document.getElementById('cert-send-email');
+  const emailGroup = document.getElementById('cert-email-group');
+  const hint = document.getElementById('cert-date-hint');
+  const future = certDateIsFuture();
+
+  // A certificate dated in the future is issued for printing only; students see it
+  // and can be emailed once that date arrives.
+  if (hint) {
+    hint.style.display = future ? 'block' : 'none';
+    hint.innerHTML = future
+      ? `<i class="fas fa-calendar-check"></i> Dated <b>${certDateLabel(certDateValue())}</b>. You can print now. Students won't see it in their portal until that day, and that's when you select them in the list and click <b>Send Email</b>.`
+      : '';
   }
+  if (emailGroup) emailGroup.style.display = (blankName || future) ? 'none' : 'block';
+  if (emailBox && future) emailBox.checked = false;
+  if (!btn) return;
+
+  const sendEmail = !!emailBox?.checked && !future;
+  const n = certPick.selected.size;
+  if (blankName) {
+    const qty = parseInt(document.getElementById('cert-blank-quantity')?.value || '1') || 1;
+    btn.innerHTML = `<i class="fas fa-award"></i> ${T('aj.issueBlank')}${qty > 1 ? ` (${qty})` : ''}`;
+    btn.disabled = false;
+    return;
+  }
+  const what = n === 1 ? '1 certificate' : `${n} certificates`;
+  btn.innerHTML = sendEmail
+    ? `<i class="fas fa-paper-plane"></i> Issue & email ${n ? what : ''}`.trim()
+    : `<i class="fas fa-print"></i> Issue ${n ? what : ''} for print`.replace('  ', ' ');
+  btn.disabled = n === 0;
 }
 
 async function loadAdminCertificates() {
@@ -7979,6 +8075,7 @@ async function loadAdminCertificates() {
 
     const certs = await GET('/api/admin/certificates');
     const arr   = Array.isArray(certs) ? certs : [];
+    S.adminCerts = arr;
     const tbody = document.getElementById('certs-tbody');
     if (!tbody) return;
     const selectAll = document.getElementById('cert-select-all');
@@ -7994,7 +8091,7 @@ async function loadAdminCertificates() {
         <td><span style="font-family:'JetBrains Mono',monospace;font-size:12px;background:var(--surface);border:1px solid var(--border);padding:3px 8px;border-radius:4px">${c.cert_number}</span></td>
         <td style="font-weight:600">${c.student_name || '—'}</td>
         <td style="color:var(--text-muted)">${c.course_title || '—'}</td>
-        <td style="font-size:12px;color:var(--text-muted)">${c.issued_at ? new Date(c.issued_at).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}) : '—'}</td>
+        <td style="font-size:12px;color:var(--text-muted)">${c.certificate_date_label || c.issued_at || '—'}${c.is_released === false ? `<div style="font-size:10px;font-weight:700;color:var(--primary);margin-top:2px" title="Hidden from the student until this date">Upcoming</div>` : ''}</td>
         <td>
           <a href="/api/certificates/${c.id}/download" target="_blank" class="btn btn-sm" style="background:var(--surface);border:1px solid var(--border);color:var(--text)">
             <i class="fas fa-download"></i> ${T('btn.view')}
@@ -8015,6 +8112,8 @@ function updateSelectedCertificatesButton() {
   const ids = selectedCertificateIds();
   const deleteBtn = document.getElementById('delete-selected-certs-btn');
   const downloadBtn = document.getElementById('download-selected-certs-btn');
+  const sendBtn = document.getElementById('send-selected-certs-btn');
+  if (sendBtn) sendBtn.disabled = ids.length === 0;
   if (deleteBtn) deleteBtn.disabled = ids.length === 0;
   if (downloadBtn) downloadBtn.disabled = ids.length === 0;
   const selectAll = document.getElementById('cert-select-all');
@@ -8073,53 +8172,89 @@ async function downloadSelectedCertificates() {
 async function openIssueCertModal() {
   try {
     await loadCertificateOptions();
+    if (!Array.isArray(S.adminCerts)) {
+      const certs = await GET('/api/admin/certificates');
+      S.adminCerts = Array.isArray(certs) ? certs : [];
+    }
     populateCertificateCourses();
-    populateCertificateStudents();
   } catch(e) {
     toast(T('at.errLoadCertOpts') + tErr(e.message), true);
     return;
   }
-  const stuSel = document.getElementById('cert-student-select');
   const cSel   = document.getElementById('cert-course-select');
   const blankCb = document.getElementById('cert-blank-name');
   const qtyInput = document.getElementById('cert-blank-quantity');
   const emailInput = document.getElementById('cert-send-email');
-  if (stuSel) stuSel.value = '';
-  if (cSel)   cSel.value   = '';
+  const dateInput = document.getElementById('cert-date');
+  // Keep the last course and date between opens, so issuing a class in a few rounds is quick.
+  if (cSel && S.lastCertCourse && [...cSel.options].some(o => o.value === S.lastCertCourse)) cSel.value = S.lastCertCourse;
+  else if (cSel) cSel.value = '';
+  if (dateInput) dateInput.value = S.lastCertDate || certTodayISO();
   if (blankCb) blankCb.checked = false;
   if (qtyInput) qtyInput.value = '1';
   if (emailInput) emailInput.checked = false;
-  toggleBlankCertificateName();
   populateCertificateStudents();
+  toggleBlankCertificateName();
   openModal('modal-issue-cert');
 }
 
 async function issueCertificate() {
-  const studentId = resolveCertificateStudentId();
   const targetValue = document.getElementById('cert-course-select')?.value || '';
   const [targetType, rawTargetId] = targetValue.includes(':') ? targetValue.split(':') : ['course', targetValue];
   const blankName = document.getElementById('cert-blank-name')?.checked;
-  const sendEmail = document.getElementById('cert-send-email')?.checked;
+  const future = certDateIsFuture();
+  const sendEmail = !future && document.getElementById('cert-send-email')?.checked;
   const quantity = parseInt(document.getElementById('cert-blank-quantity')?.value || '1');
-  if (!rawTargetId || (!blankName && !studentId)) { toast(blankName ? 'Select course' : 'Select student and course', true); return; }
+  const certificateDate = certDateValue();
+  const studentIds = [...certPick.selected];
+  if (!rawTargetId) { toast('Select a course first', true); return; }
+  if (!blankName && !studentIds.length) { toast('Tick at least one student', true); return; }
   if (blankName && (!quantity || quantity < 1 || quantity > 200)) { toast(T('at.qtyRange'), true); return; }
   const btn = document.getElementById('issue-cert-btn');
-  if (btn) btn.disabled = true;
+  const btnHtml = btn?.innerHTML;
+  if (btn) { btn.disabled = true; btn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Issuing...`; }
   try {
     const r = await POST('/api/admin/certificates', {
-      student_id: blankName ? null : parseInt(studentId),
+      student_ids: blankName ? [] : studentIds,
       target_type: targetType,
       course_id: targetType === 'course' ? parseInt(rawTargetId) : null,
       workshop_id: targetType === 'workshop' ? parseInt(rawTargetId) : null,
       blank_name: !!blankName,
       quantity: blankName ? quantity : 1,
-      send_email: blankName ? false : !!sendEmail
+      send_email: blankName ? false : !!sendEmail,
+      certificate_date: certificateDate
     });
-    toast(blankName && r.count > 1 ? `${r.count} certificates issued!` : (sendEmail ? 'Certificate issued and emailed!' : 'Certificate issued for printing.'));
+    S.lastCertCourse = targetValue;
+    S.lastCertDate = certificateDate;
+    const issued = r.count || 0;
+    const skipped = (r.skipped || []).length;
+    const failed = r.failed || [];
+    let msg;
+    if (blankName) msg = issued > 1 ? `${issued} certificates issued!` : 'Certificate issued.';
+    else {
+      msg = `${issued} certificate${issued === 1 ? '' : 's'} issued${sendEmail ? ' and emailed' : ' for printing'}`;
+      if (future) msg += `, dated ${certDateLabel(certificateDate)}`;
+      if (skipped) msg += ` · ${skipped} already had one`;
+      msg += '.';
+    }
+    toast(msg);
+    if (failed.length) {
+      toast(`Not issued: ${failed.map(f => `${f.student_name || 'student #' + f.student_id} (${f.error})`).join(', ')}`, true);
+    }
     closeModal('modal-issue-cert');
-    loadAdminCertificates();
-  } catch(e) { toast(tErr(e.message), true); }
-  if (btn) btn.disabled = false;
+    S.adminCerts = null;
+    await loadAdminCertificates();
+    // Tick the new certificates in the list, ready for Download PDFs.
+    const newIds = new Set((r.certificates || []).map(c => String(c.id)));
+    if (newIds.size) {
+      document.querySelectorAll('.cert-select').forEach(cb => { if (newIds.has(cb.value)) cb.checked = true; });
+      updateSelectedCertificatesButton();
+    }
+  } catch(e) {
+    toast(tErr(e.message), true);
+  } finally {
+    if (btn) { btn.innerHTML = btnHtml; updateIssueCertButtonText(); }
+  }
 }
 
 async function sendCertificateEmail(certId) {
@@ -8128,6 +8263,27 @@ async function sendCertificateEmail(certId) {
     toast(T('at.certEmailSent'));
   } catch(e) {
     toast(T('at.errSendCertEmail') + tErr(e.message), true);
+  }
+}
+
+async function sendSelectedCertificateEmails() {
+  const ids = selectedCertificateIds();
+  if (!ids.length) return;
+  if (!confirm(ids.length === 1 ? 'Email this certificate to the student?' : `Email ${ids.length} certificates to their students?`)) return;
+  const btn = document.getElementById('send-selected-certs-btn');
+  if (btn) { btn.disabled = true; btn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Sending...`; }
+  try {
+    const r = await POST('/api/admin/certificates/send', { ids });
+    const skipped = r.skipped || [];
+    toast(`${r.sent} certificate email${r.sent === 1 ? '' : 's'} sent.`);
+    if (skipped.length) {
+      toast(`Not sent: ${skipped.map(s => `${s.cert_number} (${s.reason})`).join(', ')}`, true);
+    }
+  } catch(e) {
+    toast(T('at.errSendCertEmail') + tErr(e.message), true);
+  } finally {
+    if (btn) btn.innerHTML = `<i class="fas fa-envelope"></i> Send Email`;
+    updateSelectedCertificatesButton();
   }
 }
 

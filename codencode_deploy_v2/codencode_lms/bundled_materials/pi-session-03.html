@@ -1,0 +1,1370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Class 03 — OOP Fundamentals · Python Intermediate | codencode Academy</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0d1117; --panel:#161b22; --panel2:#1c2430; --line:#2a3440;
+  --mint:#00dcb4; --mint-d:#00a888; --text:#e8eef0; --muted:#8b98a5;
+  --coral:#ff6f91; --amber:#f0b429; --blue:#58a6ff;
+  --sans:'Space Grotesk','Inter',system-ui,sans-serif;
+  --body:'Inter',system-ui,sans-serif;
+  --mono:'JetBrains Mono','SF Mono',Consolas,monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:var(--body);height:100vh;overflow:hidden;user-select:none}
+
+/* ---------- chrome ---------- */
+#topbar{position:fixed;top:0;left:0;right:0;height:52px;display:flex;align-items:center;
+  gap:16px;padding:0 24px;background:rgba(13,17,23,.92);border-bottom:1px solid var(--line);z-index:50;backdrop-filter:blur(8px)}
+.wordmark{height:21px;width:auto;display:block;flex-shrink:0}
+#sesslabel{font-size:12px;color:var(--muted);font-family:var(--mono);letter-spacing:.04em}
+#titlebar{flex:1;text-align:center;font-size:13px;color:var(--muted);font-family:var(--mono);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#counter{font-family:var(--mono);font-size:12px;color:var(--mint)}
+.btn{background:rgba(0,220,180,.10);border:1px solid rgba(0,220,180,.32);color:var(--mint);
+  font-family:var(--mono);font-size:11px;padding:6px 12px;border-radius:6px;cursor:pointer}
+.btn:hover{background:rgba(0,220,180,.20)}
+#progress{position:fixed;top:52px;left:0;height:2px;background:var(--mint);z-index:51;transition:width .3s ease}
+#nav{position:fixed;bottom:0;left:0;right:0;height:56px;display:flex;align-items:center;justify-content:center;
+  gap:20px;z-index:50}
+.navbtn{background:var(--panel);border:1px solid var(--line);color:var(--muted);font-family:var(--mono);
+  font-size:12px;padding:8px 16px;border-radius:8px;cursor:pointer}
+.navbtn:hover{border-color:var(--mint);color:var(--mint)}
+#dots{display:flex;gap:6px;flex-wrap:wrap;max-width:50vw;justify-content:center}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--line);cursor:pointer;transition:.2s}
+.dot.on{background:var(--mint);transform:scale(1.35)}
+
+/* ---------- slides ---------- */
+#deck{position:absolute;top:54px;bottom:56px;left:0;right:0}
+.slide{position:absolute;inset:0;padding:40px 60px;display:none;flex-direction:column;overflow-y:auto;overflow-x:hidden}
+.slide.active{display:flex;animation:slideIn .4s ease both;background:var(--bg);z-index:1}
+@keyframes slideIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+
+.tag{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--mint);margin-bottom:12px}
+h1.sh{font-family:var(--sans);font-size:clamp(26px,3.2vw,40px);font-weight:700;line-height:1.12;margin-bottom:8px}
+h1.sh::after{content:'';display:block;width:56px;height:4px;background:var(--mint);border-radius:2px;margin-top:14px}
+.sub{color:var(--muted);font-size:16px;margin-top:14px;max-width:70ch;line-height:1.6}
+.body{flex:1;display:flex;gap:32px;align-items:center;margin-top:24px;min-height:0}
+.col{flex:1;min-width:0}
+
+/* title slide */
+.title-slide{align-items:center;justify-content:center;text-align:center}
+.title-slide .badge{font-family:var(--mono);font-size:12px;color:var(--mint);border:1px solid rgba(0,220,180,.34);
+  background:rgba(0,220,180,.08);padding:7px 18px;border-radius:20px;margin-bottom:26px}
+.title-slide h1{font-family:var(--sans);font-size:clamp(40px,6vw,72px);font-weight:700;line-height:1.05}
+.title-slide h1 em{font-style:normal;color:var(--mint)}
+.title-slide p{color:var(--muted);font-size:18px;margin-top:20px;max-width:60ch}
+.title-slide .foot{margin-top:38px;font-family:var(--mono);font-size:13px;color:var(--muted)}
+
+/* section divider */
+.divider{align-items:flex-start;justify-content:center}
+.divider .num{font-family:var(--sans);font-size:120px;font-weight:700;color:rgba(0,220,180,.16);line-height:1}
+.divider h1{font-family:var(--sans);font-size:clamp(34px,4.6vw,56px);font-weight:700;margin-top:-18px}
+.divider .items{margin-top:26px;display:flex;flex-direction:column;gap:12px}
+.divider .items div{font-size:17px;color:var(--muted)}
+.divider .items b{color:var(--mint);font-family:var(--mono);font-size:15px;margin-right:12px}
+
+/* cards / lists */
+.cards{display:grid;gap:14px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:18px 20px}
+.card.accent{border-color:rgba(0,220,180,.45);background:var(--panel2)}
+.card h3{font-family:var(--sans);font-size:17px;font-weight:600;margin-bottom:6px}
+.card h3 .k{color:var(--mint);font-family:var(--mono);font-size:14px;margin-right:8px}
+.card p{color:var(--muted);font-size:14.5px;line-height:1.55}
+.grid2{grid-template-columns:1fr 1fr}
+.grid3{grid-template-columns:repeat(3,1fr)}
+
+table.cps{width:100%;border-collapse:collapse;font-size:15px}
+table.cps th{text-align:left;font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--mint);padding:10px 14px;border-bottom:1px solid var(--line)}
+table.cps td{padding:14px;border-bottom:1px solid var(--line);color:var(--text);line-height:1.5;vertical-align:top}
+table.cps td:first-child{color:var(--mint);font-family:var(--mono);font-size:13px;width:150px;white-space:nowrap}
+
+pre.code{background:#0a0e13;border:1px solid var(--line);border-radius:10px;padding:18px 20px;
+  font-family:var(--mono);font-size:14.5px;line-height:1.75;overflow:auto;color:var(--text)}
+pre.code .c{color:var(--muted)}
+pre.code .s{color:var(--mint)}
+pre.code .n{color:var(--blue)}
+pre.code .e{color:var(--coral)}
+.code-head{font-family:var(--mono);font-size:11px;color:var(--muted);background:var(--panel2);
+  border:1px solid var(--line);border-bottom:none;border-radius:10px 10px 0 0;padding:8px 14px}
+.code-head + pre.code{border-radius:0 0 10px 10px}
+
+.pill{display:inline-block;font-family:var(--mono);font-size:11.5px;padding:5px 12px;border-radius:14px;
+  border:1px solid;margin:0 8px 8px 0}
+.pill.mint{color:var(--mint);border-color:rgba(0,220,180,.4);background:rgba(0,220,180,.08)}
+.pill.coral{color:var(--coral);border-color:rgba(255,111,145,.4);background:rgba(255,111,145,.08)}
+.pill.amber{color:var(--amber);border-color:rgba(240,180,41,.4);background:rgba(240,180,41,.08)}
+.pill.blue{color:var(--blue);border-color:rgba(88,166,255,.4);background:rgba(88,166,255,.08)}
+
+.hands-on{border-left:3px solid var(--mint);background:linear-gradient(90deg,rgba(0,220,180,.07),transparent 60%);
+  padding:18px 24px;border-radius:0 10px 10px 0}
+.hands-on .lbl{font-family:var(--mono);font-size:11px;letter-spacing:.14em;color:var(--mint);text-transform:uppercase}
+.hands-on h3{font-family:var(--sans);font-size:20px;margin:8px 0 10px}
+.hands-on p{color:var(--muted);font-size:15px;line-height:1.6}
+.steps{margin-top:14px;display:flex;flex-direction:column;gap:9px}
+.steps div{font-size:14.5px;color:var(--text);display:flex;gap:12px;align-items:flex-start}
+.steps b{color:var(--mint);font-family:var(--mono);font-size:13px;flex-shrink:0}
+
+svg.fig{width:100%;height:100%;min-height:300px;flex:1 1 auto;display:block}
+.figwrap{flex:1.8 1 0;display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:0;min-height:0;max-height:100%;gap:6px}
+.figwrap > .legend,.figwrap > .controls,.figwrap > .gate,.figwrap > .eq{flex:0 0 auto;width:100%}
+.caption{font-size:13.5px;color:var(--muted);font-style:italic;margin-top:14px;text-align:center}
+
+/* ---------- animation primitives (restart on slide entry) ---------- */
+.fx{opacity:0}
+.slide.active .fx{animation:fadeUp .55s ease forwards}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.slide.active .d1{animation-delay:.15s}.slide.active .d2{animation-delay:.35s}
+.slide.active .d3{animation-delay:.55s}.slide.active .d4{animation-delay:.75s}
+.slide.active .d5{animation-delay:.95s}.slide.active .d6{animation-delay:1.15s}
+.slide.active .d7{animation-delay:1.35s}.slide.active .d8{animation-delay:1.55s}
+.slide.active .d9{animation-delay:1.75s}.slide.active .d10{animation-delay:1.95s}
+
+.draw{stroke-dasharray:var(--len,300);stroke-dashoffset:var(--len,300);opacity:1}
+.slide.active .draw{animation:drawIn .6s ease forwards}
+@keyframes drawIn{to{stroke-dashoffset:0}}
+
+.slide.active .pulse{animation:pulse 2.2s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.45}}
+
+.slide.active .travel{animation:travel 4.5s linear infinite}
+@keyframes travel{0%{offset-distance:0%}100%{offset-distance:100%}}
+
+.slide.active .grow{transform-origin:bottom;animation:grow .8s cubic-bezier(.22,1,.36,1) forwards}
+@keyframes grow{from{transform:scaleY(0)}to{transform:scaleY(1)}}
+
+.slide.active .cycle1{animation:hl 6s ease-in-out infinite}
+.slide.active .cycle2{animation:hl 6s ease-in-out infinite 2s}
+.slide.active .cycle3{animation:hl 6s ease-in-out infinite 4s}
+@keyframes hl{0%,8%{opacity:0}14%,28%{opacity:1}36%,100%{opacity:0}}
+
+.slide.active .typing{animation:typing 1.4s steps(18) forwards;white-space:nowrap;overflow:hidden;
+  display:inline-block;width:0}
+@keyframes typing{to{width:100%}}
+
+/* ---------- copiable code ---------- */
+pre.code{position:relative;user-select:text}
+.copybtn{position:absolute;top:7px;right:7px;z-index:3;background:rgba(22,27,34,.94);
+  border:1px solid var(--line);color:var(--muted);font-family:var(--mono);font-size:10.5px;
+  letter-spacing:.06em;padding:4px 9px;border-radius:5px;cursor:pointer;opacity:0;transition:.16s}
+pre.code:hover .copybtn{opacity:1}
+.copybtn:hover{border-color:var(--mint);color:var(--mint)}
+.copybtn.done{border-color:var(--mint);color:var(--mint);opacity:1}
+
+
+/* ---------- figure slides: stacked on tall screens, side-by-side when wide ---------- */
+.cb{display:block}
+.figbody{flex:1;display:flex;gap:32px;align-items:center;margin-top:24px;min-height:0}
+.figbody > .figwrap{flex:1.8 1 0}
+.figbody > .figside{display:flex;flex-direction:column;gap:12px;min-width:0}
+.figbody > .figside > *{margin-bottom:0}
+@media (max-aspect-ratio: 29/20){
+  .figbody{flex-direction:column;align-items:stretch;gap:16px}
+  .figbody > .figwrap{flex:0 1 auto;width:100%;max-width:none;justify-content:flex-start}
+  .figbody > .figwrap > svg.fig{height:auto;min-height:0;flex:0 0 auto;max-height:100%}
+  .figbody > .figside{max-width:none !important;flex:0 0 auto;display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:14px;align-items:start}
+  .figbody > .figside .controls,.figbody > .figside .legend{justify-content:flex-start}
+}
+
+/* ---------- figure furniture ---------- */
+.legend{display:flex;gap:18px;font-family:var(--mono);font-size:12px;color:var(--muted);
+  margin-top:6px;flex-wrap:wrap;justify-content:center}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px;vertical-align:middle}
+.controls{display:flex;gap:10px;align-items:center;margin-top:12px;flex-wrap:wrap;justify-content:center}
+.btn.ghost{background:transparent;border-color:var(--line);color:var(--muted)}
+.btn.ghost:hover{border-color:var(--mint);color:var(--mint)}
+.gate{margin-bottom:12px}
+.gate label{display:flex;justify-content:space-between;align-items:center;font-family:var(--mono);
+  font-size:12.5px;margin-bottom:6px;gap:12px}
+input[type=range]{width:100%;height:5px;border-radius:3px;appearance:none;background:var(--line);outline:none}
+input[type=range]::-webkit-slider-thumb{appearance:none;width:15px;height:15px;border-radius:50%;
+  background:var(--mint);cursor:pointer;border:2px solid #0d1117}
+.eq{font-family:var(--mono);font-size:12.5px;color:var(--muted);line-height:1.9;background:#0a0e13;
+  border:1px solid var(--line);border-radius:9px;padding:11px 13px}
+.eq b{color:var(--text);font-weight:400}
+.def{border-left:3px solid var(--blue);background:linear-gradient(90deg,rgba(88,166,255,.09),transparent 65%);
+  padding:14px 18px;border-radius:0 9px 9px 0;margin-bottom:12px}
+.def .lbl{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;color:var(--blue);text-transform:uppercase}
+.def h4{font-family:var(--sans);font-size:17px;margin:5px 0 6px}
+.def p{color:var(--muted);font-size:14px;line-height:1.6}
+.def p b{color:var(--text);font-weight:600}
+.theory{border-left:3px solid var(--amber);background:linear-gradient(90deg,rgba(240,180,41,.08),transparent 65%);
+  padding:14px 18px;border-radius:0 9px 9px 0;margin-bottom:12px}
+.theory .lbl{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;color:var(--amber);text-transform:uppercase}
+.theory p{color:var(--muted);font-size:14px;line-height:1.6;margin-top:6px}
+.theory p b{color:var(--text);font-weight:600}
+.formula{background:#0a0e13;border:1px solid var(--line);border-radius:10px;padding:16px 20px;
+  font-family:var(--mono);font-size:19px;color:var(--mint);text-align:center;margin:10px 0}
+.formula small{display:block;font-size:12px;color:var(--muted);margin-top:8px}
+table.t{width:100%;border-collapse:collapse;font-size:13.5px}
+table.t th{text-align:left;font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--mint);padding:9px 12px;border-bottom:1px solid var(--line)}
+table.t td{padding:10px 12px;border-bottom:1px solid var(--line);color:var(--muted);line-height:1.5;vertical-align:top}
+table.t td:first-child{color:var(--text);font-family:var(--mono);font-size:12.5px}
+table.cps td:first-child{color:var(--mint);font-family:var(--mono);font-size:13px;width:140px}
+pre.code.sm{font-size:12.3px;line-height:1.6}
+.card.warn{border-color:rgba(255,111,145,.42)}
+.divider .num{font-family:var(--sans);font-size:112px;font-weight:700;color:rgba(0,220,180,.16);line-height:1}
+
+pre.code.sm{font-size:clamp(12px,0.74vw,14.5px);line-height:1.6;padding:14px 16px}
+pre.code .k{color:var(--blue)}
+pre.code .n{color:var(--amber)}
+pre.code .cmd{color:var(--mint)}
+pre.code.out{color:#c9d4dc}
+.card ul.rules{margin:6px 0 0 18px;color:var(--muted);font-size:14px;line-height:1.6}
+.card ul.rules li{margin-bottom:3px}
+.card ul.rules b{color:var(--text);font-weight:600}
+.stepbar{display:flex;gap:6px;margin:-2px 0 6px;font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase}
+.stepbar span{padding:3px 9px;border-radius:10px;border:1px solid var(--line);color:var(--muted)}
+.stepbar span.on{color:var(--bg);background:var(--mint);border-color:var(--mint)}
+img.result{max-width:100%;max-height:230px;object-fit:contain;border-radius:8px;border:1px solid var(--line);background:#fff;align-self:center}
+.code-head{display:flex;align-items:center;gap:10px}
+.code-head .xbtn{margin-left:auto;background:rgba(0,220,180,.10);border:1px solid rgba(0,220,180,.32);color:var(--mint);
+  font-family:var(--mono);font-size:10.5px;letter-spacing:.06em;padding:3px 9px;border-radius:5px;cursor:pointer}
+.code-head .xbtn:hover{background:rgba(0,220,180,.22)}
+#xmodal{position:fixed;inset:0;z-index:200;background:rgba(5,8,12,.86);backdrop-filter:blur(4px);display:none;
+  align-items:center;justify-content:center;padding:40px}
+#xmodal.on{display:flex}
+#xmodal .box{width:min(1300px,100%);height:100%;display:flex;flex-direction:column;background:#0a0e13;
+  border:1px solid var(--mint);border-radius:12px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.6)}
+#xmodal .bar{display:flex;align-items:center;gap:12px;padding:10px 16px;background:var(--panel2);border-bottom:1px solid var(--line);
+  font-family:var(--mono);font-size:13px;color:var(--muted)}
+#xmodal #xcopy{margin-left:auto}
+#xmodal pre.code{flex:1;margin:0;border:none;border-radius:0;font-size:clamp(14px,1.05vw,19px);line-height:1.65;overflow:auto;padding:22px 26px}
+@keyframes barx{from{opacity:0;transform:scaleX(0)}to{opacity:1;transform:scaleX(1)}}
+</style>
+</head>
+<body>
+
+<div id="topbar">
+  <img class="wordmark" src="data:image/png;base64,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" alt="codencode.my">
+  <div id="sesslabel">CLASS 03</div>
+  <div id="titlebar"></div>
+  <div id="counter"></div>
+  <button class="btn" onclick="fs()">FULLSCREEN</button>
+</div>
+<div id="progress"></div>
+
+<div id="deck">
+
+<section class="slide title-slide" data-title="Main Title">
+  <div class="badge fx">CLASS 03 OF 07 · PYTHON INTERMEDIATE</div>
+  <h1 class="fx d1">OOP <em>Fundamentals</em></h1>
+  <p class="fx d2">Level 2 starts here. Stop passing loose variables between functions — bundle data and behaviour into objects that model the real world.</p>
+  <div class="foot fx d3">codencode Academy · Level 2 · Think in objects · 2 hours</div>
+</section>
+<section class="slide" data-title="Session Plan">
+  <div class="tag fx">Session Plan</div>
+  <h1 class="sh fx d1">What we're doing today</h1>
+  <div class="body">
+    <div class="col cards grid3">
+      <div class="card accent fx d2"><h3><span class="k">M1</span>Classes &amp; Objects</h3><p>Classes, <span style="font-family:var(--mono)">__init__</span> and <span style="font-family:var(--mono)">self</span>, instance vs class attributes, methods.</p><div style="margin-top:12px"><span class="pill mint">30 min</span></div></div>
+      <div class="card accent fx d3"><h3><span class="k">M2</span>Pythonic Classes</h3><p><span style="font-family:var(--mono)">@property</span>, dunder methods, and dataclasses.</p><div style="margin-top:12px"><span class="pill mint">30 min</span></div></div>
+      <div class="card accent fx d4"><h3><span class="k">M3</span>Designing with Objects</h3><p>OOP vs functions, simple UML, and turning a brief into classes.</p><div style="margin-top:12px"><span class="pill mint">35 min</span></div></div>
+    </div>
+  </div>
+  <div class="cards grid3 fx d5" style="margin-top:4px">
+    <div class="card"><p><b style="color:var(--text)">Revise 10 min + Recap 15 min</b> — fix-the-code warm-up, outcomes review</p></div>
+    <div class="card"><p><b style="color:var(--text)">Homework 3</b> — Library system classes, pushed to <span style="font-family:var(--mono)">class03/</span></p></div>
+    <div class="card"><p><b style="color:var(--text)">Bring</b> — your repo, venv activated, Class 2 utils package</p></div>
+  </div>
+</section>
+<section class="slide" data-title="Revised Last Week">
+  <div class="tag fx">Revised Last Week · 10 minutes</div>
+  <h1 class="sh fx d1">Fix-the-code warm-up</h1>
+  <p class="sub fx d2">This script crashes on bad data and leaves the file open. Fix it using only what you learned in Class 2.</p>
+  <div class="body">
+    <div class="col fx d3">
+      <div class="cb"><div class="code-head">before — 3 problems</div><pre class="code">f = open(<span class="s">"marks.csv"</span>)
+for line in f.readlines()[<span class="n">1</span>:]:
+    name, mark = line.split(<span class="s">","</span>)
+    print(name, int(mark) + <span class="n">5</span>)
+<span class="c"># no close · crashes on "forty" · print not log</span></pre></div>
+    </div>
+    <div class="col fx d4">
+      <div class="cb"><div class="code-head">after</div><pre class="code">import csv, logging
+from pathlib import Path
+log = logging.getLogger(__name__)
+
+with Path(<span class="s">"marks.csv"</span>).open(newline=<span class="s">""</span>) as f:
+    for row in csv.DictReader(f):
+        try:
+            mark = int(row[<span class="s">"mark"</span>])
+        except ValueError:
+            log.warning(<span class="s">"bad mark: %s"</span>, row)
+            continue
+        print(row[<span class="s">"name"</span>], mark + <span class="n">5</span>)</pre></div>
+      <div style="margin-top:14px"><span class="pill mint">with</span><span class="pill mint">DictReader</span><span class="pill mint">specific except</span><span class="pill mint">logging</span></div>
+    </div>
+  </div>
+</section>
+<section class="slide" data-title="Learning Outcomes">
+  <div class="tag fx">Learning Outcomes</div>
+  <h1 class="sh fx d1">By the end of today you will be able to…</h1>
+  <div class="body">
+    <div class="col fx d2">
+      <table class="cps">
+        <tr><th>Component</th><th>Statement</th></tr>
+        <tr><td>Condition</td><td>Given a written brief for a kopitiam ordering system,</td></tr>
+        <tr><td>Performance</td><td>you will design and code classes with attributes, methods, validated properties and dunder methods, using a dataclass where it fits,</td></tr>
+        <tr><td>Standard</td><td>so that a sample order of 3 items prints a correct total with SST, rejects a negative price with a clear error, and is pushed to <span style="font-family:var(--mono);color:var(--mint)">python-intermediate/class03/</span>.</td></tr>
+      </table>
+      <div style="margin-top:22px">
+        <span class="pill mint">LO1 · Classes &amp; objects</span>
+        <span class="pill mint">LO2 · Properties &amp; dunders</span>
+        <span class="pill mint">LO3 · Dataclasses</span>
+        <span class="pill mint">LO4 · Design from a brief</span>
+      </div>
+    </div>
+  </div>
+</section>
+<section class="slide" data-title="Content Mapping">
+  <div class="tag fx">Content Mapping</div>
+  <h1 class="sh fx d1">How today maps to your outcomes</h1>
+  <div class="body">
+    <div class="col fx d2">
+      <table class="cps">
+        <tr><th>Module</th><th>Topics</th><th style="width:120px">Outcome</th><th style="width:170px">Assessed by</th></tr>
+        <tr><td>Module 1</td><td>1.1 Classes &amp; objects · 1.2 Instance vs class attributes · 1.3 Methods &amp; @classmethod</td><td style="color:var(--mint);font-family:var(--mono);font-size:13px">LO1</td><td style="color:var(--muted);font-size:13.5px">BankAccount class</td></tr>
+        <tr><td>Module 2</td><td>2.1 @property · 2.2 Dunder methods · 2.3 dataclasses</td><td style="color:var(--mint);font-family:var(--mono);font-size:13px">LO2, LO3</td><td style="color:var(--muted);font-size:13.5px">Product &amp; Inventory</td></tr>
+        <tr><td>Module 3</td><td>3.1 OOP vs functions · 3.2 UML class diagrams · 3.3 From brief to classes</td><td style="color:var(--mint);font-family:var(--mono);font-size:13px">LO4</td><td style="color:var(--muted);font-size:13.5px">Kopitiam order system</td></tr>
+      </table>
+    </div>
+  </div>
+</section>
+<section class="slide" data-title="1.1 Classes and objects">
+  <div class="stepbar fx"><span class="on">Explain</span><span class="on">Theory</span><span class="">Code</span><span class="">Practice</span></div>
+  <div class="tag fx">Module 1 · Classes &amp; Objects · 1.1 · Explanation &amp; theory</div>
+  <h1 class="sh fx d1">What are classes and objects?</h1>
+  <div class="cards grid3 fx d2" style="margin-top:18px;align-items:start"><div class="card accent"><h3><span class="k">what</span>In plain words</h3><p>A <b>class</b> is a blueprint that describes a kind of thing: what it <b>has</b> (attributes) and what it <b>does</b> (methods). An <b>object</b> is one real thing made from that blueprint. <code>__init__</code> sets up each new object; <code>self</code> means "this object".</p></div><div class="card"><h3><span class="k">like</span>Everyday analogy</h3><p>The class is the recipe for teh tarik; each cup you pour is an object. Every cup follows the same recipe, but one is less sweet and one is iced.</p></div><div class="card"><h3><span class="k">rules</span>Theory: the key rules</h3><ul class="rules"><li><b>class Drink:</b> uses PascalCase names</li><li><b>__init__(self, …)</b> runs when you create an object</li><li><b>self.name = name</b> stores data on the object</li><li>Create with <b>Drink("Kopi O", 2.5)</b>, with no <b>new</b> keyword</li></ul></div></div>
+  <div class="body figbody" style="margin-top:12px"><div class="figwrap"><svg class="fig" style="min-height:0" viewBox="0 0 1000 400" aria-label="A Drink class blueprint producing three drink objects">
+        <g class="fx">
+          <rect x="20" y="70" width="320" height="260" rx="12" fill="#0a0e13" stroke="#00dcb4" stroke-width="2" stroke-dasharray="8 6"/>
+          <text x="40" y="60" font-family="JetBrains Mono,monospace" font-size="13" fill="#00dcb4" letter-spacing="2">CLASS · BLUEPRINT</text>
+          <text x="44" y="112" font-family="JetBrains Mono,monospace" font-size="18" fill="#58a6ff">class Drink:</text>
+          <text x="64" y="152" font-family="JetBrains Mono,monospace" font-size="16" fill="#e8eef0">name: str</text>
+          <text x="64" y="184" font-family="JetBrains Mono,monospace" font-size="16" fill="#e8eef0">price: float</text>
+          <text x="64" y="216" font-family="JetBrains Mono,monospace" font-size="16" fill="#e8eef0">iced: bool</text>
+          <line x1="44" y1="236" x2="320" y2="236" stroke="#2a3440"/>
+          <text x="64" y="270" font-family="JetBrains Mono,monospace" font-size="16" fill="#f0b429">price_with_sst()</text>
+          <text x="64" y="302" font-family="JetBrains Mono,monospace" font-size="16" fill="#f0b429">describe()</text>
+        </g>
+        <line x1="345" y1="150" x2="590" y2="75"  stroke="#00dcb4" stroke-width="2" marker-end="url(#b31)" class="draw d2" style="--len:260"/>
+        <line x1="345" y1="200" x2="590" y2="200" stroke="#00dcb4" stroke-width="2" marker-end="url(#b31)" class="draw d4" style="--len:250"/>
+        <line x1="345" y1="250" x2="590" y2="325" stroke="#00dcb4" stroke-width="2" marker-end="url(#b31)" class="draw d6" style="--len:260"/>
+        <text x="460" y="128" font-family="JetBrains Mono,monospace" font-size="13" fill="#8b98a5" class="fx d2">Drink(...)</text>
+        <g class="fx d3" font-family="JetBrains Mono,monospace">
+          <rect x="600" y="30" width="370" height="90" rx="10" fill="#1c2430" stroke="#00dcb4" stroke-width="2"/>
+          <text x="620" y="62" font-size="15" fill="#00dcb4" font-weight="600">kopi = Drink(…)</text>
+          <text x="620" y="96" font-size="16" fill="#e8eef0">"Kopi O" · 2.50 · False</text>
+        </g>
+        <g class="fx d5" font-family="JetBrains Mono,monospace">
+          <rect x="600" y="155" width="370" height="90" rx="10" fill="#1c2430" stroke="#00dcb4" stroke-width="2"/>
+          <text x="620" y="187" font-size="15" fill="#00dcb4" font-weight="600">teh = Drink(…)</text>
+          <text x="620" y="221" font-size="16" fill="#e8eef0">"Teh Tarik" · 3.00 · False</text>
+        </g>
+        <g class="fx d7" font-family="JetBrains Mono,monospace">
+          <rect x="600" y="280" width="370" height="90" rx="10" fill="#1c2430" stroke="#00dcb4" stroke-width="2"/>
+          <text x="620" y="312" font-size="15" fill="#00dcb4" font-weight="600">milo = Drink(…)</text>
+          <text x="620" y="346" font-size="16" fill="#e8eef0">"Milo Ais" · 3.50 · True</text>
+        </g>
+        <defs><marker id="b31" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#00dcb4"/></marker></defs>
+      </svg></div></div>
+</section>
+
+<section class="slide" data-title="1.1 Classes and objects · code">
+  <div class="stepbar fx"><span class="">Explain</span><span class="">Theory</span><span class="on">Code</span><span class="">Practice</span></div>
+  <div class="tag fx">Module 1 · Classes &amp; Objects · 1.1 · Code — copy, paste, run</div>
+  <h1 class="sh fx d1">A Drink class and two drink objects</h1>
+  <div class="body" style="align-items:stretch">
+    <div class="col fx d2" style="flex:1.3;display:flex;flex-direction:column;gap:10px;min-height:0"><div class="cb" style="display:flex;flex-direction:column;min-height:0px;flex:21 1 0"><div class="code-head">drink.py</div><pre class="code sm" style="flex:1;min-height:0;margin:0"><span class="k">class</span> Drink:
+    <span class="s">"""A drink on the kopitiam menu."""</span>
+
+    <span class="k">def</span> __init__(<span class="k">self</span>, name: str, price: float, iced: bool = <span class="k">False</span>):
+        <span class="k">self</span>.name = name          <span class="c"># attributes: what each drink HAS</span>
+        <span class="k">self</span>.price = price
+        <span class="k">self</span>.iced = iced
+
+    <span class="k">def</span> describe(<span class="k">self</span>) -&gt; str:    <span class="c"># method: what each drink DOES</span>
+        style = <span class="s">"ais"</span> <span class="k">if</span> <span class="k">self</span>.iced <span class="k">else</span> <span class="s">"panas"</span>
+        <span class="k">return</span> <span class="s">f"{self.name} ({style}) RM{self.price:.2f}"</span>
+
+
+kopi = Drink(<span class="s">"Kopi O"</span>, <span class="n">2.50</span>)                  <span class="c"># an object (instance)</span>
+milo = Drink(<span class="s">"Milo"</span>, <span class="n">3.50</span>, iced=<span class="k">True</span>)         <span class="c"># another object</span>
+
+print(kopi.describe())
+print(milo.describe())
+print(type(kopi), kopi.price)
+milo.price = <span class="n">3.80</span>                             <span class="c"># each object has its own data</span>
+print(milo.describe(), <span class="s">"|"</span>, kopi.describe())</pre></div></div>
+    <div class="col fx d3" style="display:flex;flex-direction:column;gap:10px;min-height:0"><div class="cb" style="display:flex;flex-direction:column;min-height:0;flex:1 1 0"><div class="code-head">terminal · real output</div><pre class="code sm out" style="flex:1;min-height:0;margin:0"><span class="cmd">$ python drink.py</span>
+Kopi O (panas) RM2.50
+Milo (ais) RM3.50
+&lt;class '__main__.Drink'&gt; 2.5
+Milo (ais) RM3.80 | Kopi O (panas) RM2.50</pre></div><div class="card" style="flex:0 0 auto"><h3><span class="k">try</span>Change it, predict, run</h3><ul class="rules"><li>Add a <code>sugar</code> attribute ("kurang manis", "normal") and show it in describe().</li><li>Create a third drink and print all three in a loop.</li></ul></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="1.2 Instance vs class attributes">
+  <div class="stepbar fx"><span class="on">Explain</span><span class="on">Theory</span><span class="">Code</span><span class="">Practice</span></div>
+  <div class="tag fx">Module 1 · Classes &amp; Objects · 1.2 · Explanation &amp; theory</div>
+  <h1 class="sh fx d1">Instance vs class attributes</h1>
+  <div class="cards grid3 fx d2" style="margin-top:18px;align-items:start"><div class="card accent"><h3><span class="k">what</span>In plain words</h3><p><b>Instance attributes</b> (<code>self.price</code>) belong to one object. <b>Class attributes</b> (<code>SST = 0.06</code>) are written in the class body and <b>shared by every object</b>. Use them for rules, rates and counters that apply to all.</p></div><div class="card"><h3><span class="k">like</span>Everyday analogy</h3><p>Each student has their own name and marks (instance), but everyone in the school shares the same school name and term dates (class).</p></div><div class="card"><h3><span class="k">rules</span>Theory: the key rules</h3><ul class="rules"><li>Instance: set in <b>__init__</b> via <b>self.x</b></li><li>Class: set in the class body, read as <b>Drink.SST</b></li><li>Change a class attribute once and <b>all objects see it</b></li><li>Use UPPER_CASE for constants like rates</li></ul></div></div>
+  <div class="body figbody" style="margin-top:12px"><div class="figwrap"><svg class="fig" style="min-height:0" viewBox="0 0 460 380" style="min-height:280px" aria-label="Class attribute SST shared by two objects that each hold their own name and price">
+        <rect x="120" y="20" width="220" height="80" rx="10" fill="#1c2430" stroke="#f0b429" stroke-width="2" class="fx"/>
+        <text x="230" y="52" font-family="JetBrains Mono,monospace" font-size="14" fill="#f0b429" text-anchor="middle" class="fx">class Drink</text>
+        <text x="230" y="80" font-family="JetBrains Mono,monospace" font-size="15" fill="#e8eef0" text-anchor="middle" class="fx">SST = 0.06 · count = 2</text>
+        <line x1="180" y1="105" x2="110" y2="190" stroke="#f0b429" stroke-width="2" stroke-dasharray="5 4" class="draw d2" style="--len:120"/>
+        <line x1="280" y1="105" x2="350" y2="190" stroke="#f0b429" stroke-width="2" stroke-dasharray="5 4" class="draw d2" style="--len:120"/>
+        <g class="fx d3" font-family="JetBrains Mono,monospace">
+          <rect x="10" y="195" width="200" height="120" rx="10" fill="#0a0e13" stroke="#00dcb4" stroke-width="2"/>
+          <text x="30" y="225" font-size="14" fill="#00dcb4">kopi</text>
+          <text x="30" y="260" font-size="14" fill="#e8eef0">name "Kopi O"</text>
+          <text x="30" y="290" font-size="14" fill="#e8eef0">price 2.50</text>
+        </g>
+        <g class="fx d4" font-family="JetBrains Mono,monospace">
+          <rect x="250" y="195" width="200" height="120" rx="10" fill="#0a0e13" stroke="#00dcb4" stroke-width="2"/>
+          <text x="270" y="225" font-size="14" fill="#00dcb4">teh</text>
+          <text x="270" y="260" font-size="14" fill="#e8eef0">name "Teh Tarik"</text>
+          <text x="270" y="290" font-size="14" fill="#e8eef0">price 3.00</text>
+        </g>
+        <text x="230" y="355" font-family="JetBrains Mono,monospace" font-size="13" fill="#8b98a5" text-anchor="middle" class="fx d5">change SST once → every drink updates</text>
+        <circle r="6" fill="#f0b429" class="travel" style="offset-path:path('M 180 105 L 110 190')"/>
+        <circle r="6" fill="#f0b429" class="travel" style="offset-path:path('M 280 105 L 350 190')"/>
+      </svg></div></div>
+</section>
+
+<section class="slide" data-title="1.2 Instance vs class attributes · code">
+  <div class="stepbar fx"><span class="">Explain</span><span class="">Theory</span><span class="on">Code</span><span class="">Practice</span></div>
+  <div class="tag fx">Module 1 · Classes &amp; Objects · 1.2 · Code — copy, paste, run</div>
+  <h1 class="sh fx d1">One SST rate shared by every drink</h1>
+  <div class="body" style="align-items:stretch">
+    <div class="col fx d2" style="flex:1.3;display:flex;flex-direction:column;gap:10px;min-height:0"><div class="cb" style="display:flex;flex-direction:column;min-height:0px;flex:20 1 0"><div class="code-head">drink_sst.py</div><pre class="code sm" style="flex:1;min-height:0;margin:0"><span class="k">class</span> Drink:
+    SST = <span class="n">0.06</span>            <span class="c"># class attribute: shared by ALL drinks</span>
+    count = <span class="n">0</span>             <span class="c"># how many drinks were created</span>
+
+    <span class="k">def</span> __init__(<span class="k">self</span>, name: str, price: float):
+        <span class="k">self</span>.name = name  <span class="c"># instance attributes: different per drink</span>
+        <span class="k">self</span>.price = price
+        Drink.count += <span class="n">1</span>
+
+    <span class="k">def</span> price_with_sst(<span class="k">self</span>) -&gt; float:
+        <span class="k">return</span> round(<span class="k">self</span>.price * (<span class="n">1</span> + Drink.SST), <span class="n">2</span>)
+
+
+kopi = Drink(<span class="s">"Kopi O"</span>, <span class="n">2.50</span>)
+teh = Drink(<span class="s">"Teh Tarik"</span>, <span class="n">3.00</span>)
+print(kopi.price_with_sst(), teh.price_with_sst())
+print(<span class="s">"drinks created:"</span>, Drink.count)
+
+Drink.SST = <span class="n">0.08</span>          <span class="c"># change once -&gt; every drink sees it</span>
+print(kopi.price_with_sst(), teh.price_with_sst())</pre></div></div>
+    <div class="col fx d3" style="display:flex;flex-direction:column;gap:10px;min-height:0"><div class="cb" style="display:flex;flex-direction:column;min-height:0;flex:1 1 0"><div class="code-head">terminal · real output</div><pre class="code sm out" style="flex:1;min-height:0;margin:0"><span class="cmd">$ python drink_sst.py</span>
+2.65 3.18
+drinks created: 2
+2.7 3.24</pre></div><div class="card" style="flex:0 0 auto"><h3><span class="k">try</span>Change it, predict, run</h3><ul class="rules"><li>Add a class attribute <code>SHOP = "Orkid Kopitiam"</code> and print it from an object.</li><li>What happens if you set <code>kopi.SST = 0</code>? Does teh change?</li></ul></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="1.3 Methods, @classmethod, @staticmethod">
+  <div class="stepbar fx"><span class="on">Explain</span><span class="on">Theory</span><span class="">Code</span><span class="">Practice</span></div>
+  <div class="tag fx">Module 1 · Classes &amp; Objects · 1.3 · Explanation &amp; theory</div>
+  <h1 class="sh fx d1">Three kinds of method</h1>
+  <div class="body" style="align-items:stretch">
+    <div class="col cards fx d2" style="align-content:start"><div class="card accent"><h3><span class="k">what</span>In plain words</h3><p><b>Instance methods</b> use one object's data (<code>self</code>). <b>Class methods</b> (<code>@classmethod</code>, <code>cls</code>) are mostly used as alternative ways to create objects. <b>Static methods</b> are helpers that live in the class but need neither.</p></div><div class="card"><h3><span class="k">like</span>Everyday analogy</h3><p>A barista making your drink (instance), the shop opening a new branch from a template (class method), and the price-check rule printed on the wall (static).</p></div><div class="card"><h3><span class="k">rules</span>Theory: the key rules</h3><ul class="rules"><li>Instance method: <b>def describe(self)</b></li><li><b>@classmethod def from_csv_row(cls, row)</b> returns <b>cls(…)</b></li><li><b>@staticmethod def is_valid_price(p)</b>: no self</li><li>Call class/static methods on the class: <b>Drink.from_csv_row()</b></li></ul></div></div>
+    <div class="col fx d3"><div class="cb"><div class="code-head">syntax at a glance</div><pre class="code"><span class="k">class</span> Drink:
+    <span class="k">def</span> describe(<span class="k">self</span>): ...
+
+    @classmethod
+    <span class="k">def</span> from_csv_row(<span class="k">cls</span>, row):
+        <span class="k">return</span> <span class="k">cls</span>(row[<span class="s">"name"</span>], float(row[<span class="s">"price"</span>]))
+
+    @staticmethod
+    <span class="k">def</span> is_valid_price(p): ...</pre></div><div class="card" style="margin-top:14px;border-color:rgba(255,111,145,.4)"><h3 style="color:var(--coral)">Common mistakes</h3><ul class="rules"><li>Forgetting <code>self</code> as the first parameter: TypeError.</li><li>Calling an instance method on the class: <code>Drink.describe()</code>.</li></ul></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="1.3 Methods, @classmethod, @staticmethod · code">
+  <div class="stepbar fx"><span class="">Explain</span><span class="">Theory</span><span class="on">Code</span><span class="">Practice</span></div>
+  <div class="tag fx">Module 1 · Classes &amp; Objects · 1.3 · Code — copy, paste, run</div>
+  <h1 class="sh fx d1">Build drinks straight from CSV rows</h1>
+  <div class="body" style="align-items:stretch">
+    <div class="col fx d2" style="flex:1.3;display:flex;flex-direction:column;gap:10px;min-height:0"><div class="cb" style="display:flex;flex-direction:column;min-height:0px;flex:23 1 0"><div class="code-head">drink_methods.py</div><pre class="code sm" style="flex:1;min-height:0;margin:0"><span class="k">class</span> Drink:
+    <span class="k">def</span> __init__(<span class="k">self</span>, name: str, price: float):
+        <span class="k">self</span>.name = name
+        <span class="k">self</span>.price = price
+
+    <span class="k">def</span> describe(<span class="k">self</span>) -&gt; str:                         <span class="c"># instance method: uses self</span>
+        <span class="k">return</span> <span class="s">f"{self.name}: RM{self.price:.2f}"</span>
+
+    @classmethod
+    <span class="k">def</span> from_csv_row(<span class="k">cls</span>, row: dict) -&gt; <span class="s">"Drink"</span>:        <span class="c"># class method: builds objects</span>
+        <span class="k">return</span> <span class="k">cls</span>(row[<span class="s">"name"</span>].strip(), float(row[<span class="s">"price"</span>]))
+
+    @staticmethod
+    <span class="k">def</span> is_valid_price(price: float) -&gt; bool:          <span class="c"># static: helper, no self</span>
+        <span class="k">return</span> <span class="n">0</span> &lt; price &lt; <span class="n">100</span>
+
+
+rows = [{<span class="s">"name"</span>: <span class="s">" Teh Tarik "</span>, <span class="s">"price"</span>: <span class="s">"3.00"</span>},
+        {<span class="s">"name"</span>: <span class="s">"Milo Ais"</span>, <span class="s">"price"</span>: <span class="s">"3.50"</span>}]
+menu = [Drink.from_csv_row(r) <span class="k">for</span> r <span class="k">in</span> rows]
+<span class="k">for</span> d <span class="k">in</span> menu:
+    print(d.describe())
+print(Drink.is_valid_price(-<span class="n">1</span>), Drink.is_valid_price(<span class="n">3.5</span>))</pre></div></div>
+    <div class="col fx d3" style="display:flex;flex-direction:column;gap:10px;min-height:0"><div class="cb" style="display:flex;flex-direction:column;min-height:0;flex:1 1 0"><div class="code-head">terminal · real output</div><pre class="code sm out" style="flex:1;min-height:0;margin:0"><span class="cmd">$ python drink_methods.py</span>
+Teh Tarik: RM3.00
+Milo Ais: RM3.50
+False True</pre></div><div class="card" style="flex:0 0 auto"><h3><span class="k">try</span>Change it, predict, run</h3><ul class="rules"><li>Add <code>@classmethod from_string(cls, "Kopi O|2.50")</code>.</li><li>Use is_valid_price inside from_csv_row to reject bad rows.</li></ul></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="Module 1 Practice">
+  <div class="stepbar fx"><span class="">Explain</span><span class="">Theory</span><span class="">Code</span><span class="on">Practice</span></div>
+  <div class="tag fx">Module 1 · Classes &amp; Objects · Practice: real-life app + hands-on</div>
+  <h1 class="sh fx d1">Build: BankAccount class</h1>
+  <div class="body" style="align-items:stretch">
+    <div class="col fx d2" style="flex:1.15;display:flex;flex-direction:column;gap:8px;min-height:0"><div class="card accent" style="flex:0 0 auto;padding:12px 16px"><h3><span class="k">real life</span>Prepaid transit card: balance, top-up, tap in</h3><p>The card in your wallet is a perfect object: it has an owner, a balance and a trip history; it can top up and tap. One class attribute holds the rule shared by every card.</p></div><div class="cb" style="display:flex;flex-direction:column;min-height:130px;flex:42 1 0"><div class="code-head">prepaid_card.py</div><pre class="code sm" style="flex:1;min-height:0;margin:0"><span class="s">"""A prepaid transit card, like the one in your wallet (fares are made up)."""</span>
+
+
+<span class="k">class</span> PrepaidCard:
+    MIN_BALANCE = <span class="n">5.00</span>            <span class="c"># same rule for every card</span>
+    cards_issued = <span class="n">0</span>
+
+    <span class="k">def</span> __init__(<span class="k">self</span>, owner: str, balance: float = <span class="n">0.0</span>):
+        <span class="k">self</span>.owner = owner
+        <span class="k">self</span>.balance = balance
+        <span class="k">self</span>.trips: list[tuple[str, float]] = []
+        PrepaidCard.cards_issued += <span class="n">1</span>
+
+    <span class="k">def</span> top_up(<span class="k">self</span>, amount: float) -&gt; <span class="k">None</span>:
+        <span class="k">if</span> amount &lt;= <span class="n">0</span>:
+            <span class="k">raise</span> ValueError(<span class="s">"top-up must be positive"</span>)
+        <span class="k">self</span>.balance += amount
+        print(<span class="s">f"  + top up RM{amount:.2f} -&gt; RM{self.balance:.2f}"</span>)
+
+    <span class="k">def</span> tap(<span class="k">self</span>, station: str, fare: float) -&gt; bool:
+        <span class="s">"""Pay a fare. Return False (gate stays shut) if balance is too low."""</span>
+        <span class="k">if</span> fare &gt; <span class="k">self</span>.balance:
+            print(<span class="s">f"  x {station}: not enough balance (RM{self.balance:.2f})"</span>)
+            <span class="k">return</span> <span class="k">False</span>
+        <span class="k">self</span>.balance -= fare
+        <span class="k">self</span>.trips.append((station, fare))
+        print(<span class="s">f"  ok {station}: -RM{fare:.2f}, left RM{self.balance:.2f}"</span>)
+        <span class="k">return</span> <span class="k">True</span>
+
+    <span class="k">def</span> needs_top_up(<span class="k">self</span>) -&gt; bool:
+        <span class="k">return</span> <span class="k">self</span>.balance &lt; PrepaidCard.MIN_BALANCE
+
+
+card = PrepaidCard(<span class="s">"Aisyah"</span>, <span class="n">10.00</span>)
+card.tap(<span class="s">"Station A"</span>, <span class="n">3.40</span>)
+card.tap(<span class="s">"Station B"</span>, <span class="n">4.80</span>)
+card.tap(<span class="s">"Station C"</span>, <span class="n">5.00</span>)
+print(<span class="s">"  top up needed?"</span>, card.needs_top_up())
+card.top_up(<span class="n">20</span>)
+card.tap(<span class="s">"Station C"</span>, <span class="n">5.00</span>)
+print(<span class="s">f"{card.owner}: {len(card.trips)} trips, RM{card.balance:.2f} left"</span>)
+print(<span class="s">"cards issued:"</span>, PrepaidCard.cards_issued)</pre></div><div class="cb" style="display:flex;flex-direction:column;min-height:90px;flex:0 1 26%"><div class="code-head">terminal · real output</div><pre class="code sm out" style="flex:1;min-height:0;margin:0"><span class="cmd">$ python prepaid_card.py</span>
+  ok Station A: -RM3.40, left RM6.60
+  ok Station B: -RM4.80, left RM1.80
+  x Station C: not enough balance (RM1.80)
+  top up needed? True
+  + top up RM20.00 -&gt; RM21.80
+  ok Station C: -RM5.00, left RM16.80
+Aisyah: 3 trips, RM16.80 left
+cards issued: 1</pre></div></div>
+    <div class="col fx d3" style="display:flex;flex-direction:column;gap:10px;min-height:0"><div style="flex:0 0 auto"><div class="hands-on">
+        <div class="lbl">12 minutes · solo</div>
+        <h3>Model a simple savings account</h3>
+        <div class="steps">
+          <div><b>01</b><span><span style="font-family:var(--mono)">__init__(owner, balance=0)</span> and a class attribute <span style="font-family:var(--mono)">BANK = "Codencode Bank"</span>.</span></div>
+          <div><b>02</b><span><span style="font-family:var(--mono)">deposit(amount)</span> — reject zero or negative amounts.</span></div>
+          <div><b>03</b><span><span style="font-family:var(--mono)">withdraw(amount)</span> — raise <span style="font-family:var(--mono)">ValueError</span> if funds are short.</span></div>
+          <div><b>04</b><span>Keep a <span style="font-family:var(--mono)">history</span> list of every transaction.</span></div>
+          <div><b>05</b><span>Create two accounts, transfer RM50 between them. Balances right? <b style="color:var(--mint)">Done.</b></span></div>
+        </div>
+      </div></div><div class="cb" style="display:flex;flex-direction:column;min-height:0;flex:1 1 0"><div class="code-head">test drive</div><pre class="code sm" style="flex:1;min-height:0;margin:0">a = BankAccount(<span class="s">"Aisyah"</span>, <span class="n">200</span>)
+b = BankAccount(<span class="s">"Darren"</span>)
+
+a.withdraw(<span class="n">50</span>)
+b.deposit(<span class="n">50</span>)
+
+print(a.balance, b.balance)   <span class="c"># 150 50</span>
+print(a.history)
+<span class="c"># [('withdraw', 50)]</span>
+
+a.withdraw(<span class="n">999</span>)
+<span class="c"># ValueError: insufficient funds</span></pre></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="2.1 @property">
+  <div class="stepbar fx"><span class="on">Explain</span><span class="on">Theory</span><span class="">Code</span><span class="">Practice</span></div>
+  <div class="tag fx">Module 2 · Pythonic Classes · 2.1 · Explanation &amp; theory</div>
+  <h1 class="sh fx d1">@property: guard your data</h1>
+  <div class="cards grid3 fx d2" style="margin-top:18px;align-items:start"><div class="card accent"><h3><span class="k">what</span>In plain words</h3><p>A <b>property</b> looks like a normal attribute (<code>p.price</code>), but runs a method behind the scenes. Use a <b>setter</b> to check every new value, and a read-only property for values you calculate.</p></div><div class="card"><h3><span class="k">like</span>Everyday analogy</h3><p>A bank teller between you and the vault. You still say "withdraw RM50", but the teller checks your balance before handing it over.</p></div><div class="card"><h3><span class="k">rules</span>Theory: the key rules</h3><ul class="rules"><li><b>@property</b> above a method lets you read it like an attribute</li><li><b>@price.setter</b> runs on <b>p.price = …</b></li><li>Store the real value in <b>self._price</b></li><li>No setter means <b>read-only</b> (computed values)</li></ul></div></div>
+  <div class="body figbody" style="margin-top:12px"><div class="figwrap"><svg class="fig" style="min-height:0" viewBox="0 0 1000 360" aria-label="A setter checks each new price: a valid price passes, a negative price is rejected">
+        <g font-family="JetBrains Mono,monospace">
+          <g class="fx">
+            <rect x="20" y="60" width="240" height="70" rx="10" fill="#1c2430" stroke="#00dcb4" stroke-width="2"/>
+            <text x="140" y="102" font-size="17" fill="#e8eef0" text-anchor="middle">p.price = 4.50</text>
+          </g>
+          <g class="fx d4">
+            <rect x="20" y="220" width="240" height="70" rx="10" fill="#1c2430" stroke="#ff6f91" stroke-width="2"/>
+            <text x="140" y="262" font-size="17" fill="#e8eef0" text-anchor="middle">p.price = -2</text>
+          </g>
+          <g class="fx d1">
+            <rect x="380" y="110" width="240" height="140" rx="12" fill="#0a0e13" stroke="#f0b429" stroke-width="2"/>
+            <text x="500" y="148" font-size="14" fill="#f0b429" text-anchor="middle" letter-spacing="2">@price.setter</text>
+            <text x="500" y="190" font-size="16" fill="#e8eef0" text-anchor="middle">if value &lt; 0:</text>
+            <text x="500" y="222" font-size="16" fill="#ff6f91" text-anchor="middle">raise ValueError</text>
+          </g>
+          <line x1="265" y1="95" x2="375" y2="150" stroke="#00dcb4" stroke-width="2" marker-end="url(#b32)" class="draw d2" style="--len:130"/>
+          <line x1="625" y1="150" x2="735" y2="95" stroke="#00dcb4" stroke-width="2" marker-end="url(#b32)" class="draw d3" style="--len:130"/>
+          <g class="fx d3">
+            <rect x="740" y="60" width="240" height="70" rx="10" fill="#1c2430" stroke="#00dcb4" stroke-width="2"/>
+            <text x="860" y="102" font-size="17" fill="#00dcb4" text-anchor="middle">✓ _price = 4.50</text>
+          </g>
+          <line x1="265" y1="255" x2="375" y2="215" stroke="#ff6f91" stroke-width="2" marker-end="url(#b33)" class="draw d5" style="--len:120"/>
+          <line x1="625" y1="215" x2="735" y2="255" stroke="#ff6f91" stroke-width="2" marker-end="url(#b33)" class="draw d6" style="--len:120"/>
+          <g class="fx d6">
+            <rect x="740" y="220" width="240" height="70" rx="10" fill="#1c2430" stroke="#ff6f91" stroke-width="2"/>
+            <text x="860" y="262" font-size="17" fill="#ff6f91" text-anchor="middle">✗ ValueError</text>
+          </g>
+          <circle r="7" fill="#00dcb4" class="travel" style="offset-path:path('M 265 95 L 375 150 L 625 150 L 735 95')"/>
+        </g>
+        <defs>
+          <marker id="b32" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#00dcb4"/></marker>
+          <marker id="b33" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#ff6f91"/></marker>
+        </defs>
+      </svg></div></div>
+</section>
+
+<section class="slide" data-title="2.1 @property · code">
+  <div class="stepbar fx"><span class="">Explain</span><span class="">Theory</span><span class="on">Code</span><span class="">Practice</span></div>
+  <div class="tag fx">Module 2 · Pythonic Classes · 2.1 · Code — copy, paste, run</div>
+  <h1 class="sh fx d1">A price that can never go negative</h1>
+  <div class="body" style="align-items:stretch">
+    <div class="col fx d2" style="flex:1.3;display:flex;flex-direction:column;gap:10px;min-height:0"><div class="cb" style="display:flex;flex-direction:column;min-height:0px;flex:28 1 0"><div class="code-head">product_property.py</div><pre class="code sm" style="flex:1;min-height:0;margin:0"><span class="k">class</span> Product:
+    <span class="k">def</span> __init__(<span class="k">self</span>, name: str, price: float):
+        <span class="k">self</span>.name = name
+        <span class="k">self</span>.price = price            <span class="c"># this line goes through the setter below</span>
+
+    @property
+    <span class="k">def</span> price(<span class="k">self</span>) -&gt; float:         <span class="c"># read:  p.price</span>
+        <span class="k">return</span> <span class="k">self</span>._price
+
+    @price.setter
+    <span class="k">def</span> price(<span class="k">self</span>, value: float) -&gt; <span class="k">None</span>:   <span class="c"># write: p.price = 5</span>
+        <span class="k">if</span> value &lt; <span class="n">0</span>:
+            <span class="k">raise</span> ValueError(<span class="s">"price cannot be negative"</span>)
+        <span class="k">self</span>._price = round(value, <span class="n">2</span>)
+
+    @property
+    <span class="k">def</span> price_with_sst(<span class="k">self</span>) -&gt; float:       <span class="c"># computed, read-only</span>
+        <span class="k">return</span> round(<span class="k">self</span>._price * <span class="n">1.06</span>, <span class="n">2</span>)
+
+
+p = Product(<span class="s">"Kaya Toast"</span>, <span class="n">3.0</span>)
+print(p.price, p.price_with_sst)
+p.price = <span class="n">3.456</span>
+print(p.price)
+<span class="k">try</span>:
+    p.price = -<span class="n">2</span>
+<span class="k">except</span> ValueError <span class="k">as</span> e:
+    print(<span class="s">"rejected:"</span>, e)</pre></div></div>
+    <div class="col fx d3" style="display:flex;flex-direction:column;gap:10px;min-height:0"><div class="cb" style="display:flex;flex-direction:column;min-height:0;flex:1 1 0"><div class="code-head">terminal · real output</div><pre class="code sm out" style="flex:1;min-height:0;margin:0"><span class="cmd">$ python product_property.py</span>
+3.0 3.18
+3.46
+rejected: price cannot be negative</pre></div><div class="card" style="flex:0 0 auto"><h3><span class="k">try</span>Change it, predict, run</h3><ul class="rules"><li>Add a <code>stock</code> property that rejects negative numbers.</li><li>Try <code>p.price_with_sst = 5</code>. Read the error.</li></ul></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="2.2 Dunder methods">
+  <div class="stepbar fx"><span class="on">Explain</span><span class="on">Theory</span><span class="">Code</span><span class="">Practice</span></div>
+  <div class="tag fx">Module 2 · Pythonic Classes · 2.2 · Explanation &amp; theory</div>
+  <h1 class="sh fx d1">Dunder methods: make objects behave like built-ins</h1>
+  <div class="body" style="align-items:stretch">
+    <div class="col cards fx d2" style="align-content:start"><div class="card accent"><h3><span class="k">what</span>In plain words</h3><p><b>Dunder</b> (double-underscore) methods let your objects work with Python's built-in operations: <code>print()</code>, <code>==</code>, <code>&lt;</code>, <code>len()</code>, <code>sorted()</code>. You write them; Python calls them.</p></div><div class="card"><h3><span class="k">like</span>Everyday analogy</h3><p>Teaching a new staff member the shop's manners: how to introduce themselves (__str__), how to compare prices (__lt__), how to count items in a basket (__len__).</p></div><div class="card"><h3><span class="k">rules</span>Theory: the key rules</h3><ul class="rules"><li><b>__str__</b> → print(), friendly text for users</li><li><b>__repr__</b> → lists and debugger, for developers</li><li><b>__eq__</b> → ==, <b>__lt__</b> → &lt; and sorted()</li><li><b>__len__</b> → len()</li></ul></div></div>
+    <div class="col fx d3"><div class="cb"><div class="code-head">syntax at a glance</div><pre class="code"><span class="k">class</span> Product:
+    <span class="k">def</span> __str__(<span class="k">self</span>):  <span class="k">return</span> <span class="s">f"{self.name}"</span>
+    <span class="k">def</span> __repr__(<span class="k">self</span>): <span class="k">return</span> <span class="s">f"Product({self.name!r})"</span>
+    <span class="k">def</span> __eq__(<span class="k">self</span>, other): <span class="k">return</span> <span class="k">self</span>.name == other.name
+    <span class="k">def</span> __lt__(<span class="k">self</span>, other): <span class="k">return</span> <span class="k">self</span>.price &lt; other.price</pre></div><div class="card" style="margin-top:14px;border-color:rgba(255,111,145,.4)"><h3 style="color:var(--coral)">Common mistakes</h3><ul class="rules"><li>Calling <code>p.__str__()</code> yourself. Use <code>str(p)</code> or <code>print(p)</code>.</li><li>Without __repr__, lists show <code>&lt;Product object at 0x…&gt;</code>.</li></ul></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="2.2 Dunder methods · code">
+  <div class="stepbar fx"><span class="">Explain</span><span class="">Theory</span><span class="on">Code</span><span class="">Practice</span></div>
+  <div class="tag fx">Module 2 · Pythonic Classes · 2.2 · Code — copy, paste, run</div>
+  <h1 class="sh fx d1">Products that print, compare, sort and count</h1>
+  <div class="body" style="align-items:stretch">
+    <div class="col fx d2" style="flex:1.3;display:flex;flex-direction:column;gap:10px;min-height:0"><div class="cb" style="display:flex;flex-direction:column;min-height:0px;flex:35 1 0"><div class="code-head">product_dunders.py</div><pre class="code sm" style="flex:1;min-height:0;margin:0"><span class="k">class</span> Product:
+    <span class="k">def</span> __init__(<span class="k">self</span>, name: str, price: float):
+        <span class="k">self</span>.name = name
+        <span class="k">self</span>.price = price
+
+    <span class="k">def</span> __str__(<span class="k">self</span>) -&gt; str:              <span class="c"># print(p) -&gt; for users</span>
+        <span class="k">return</span> <span class="s">f"{self.name} (RM{self.price:.2f})"</span>
+
+    <span class="k">def</span> __repr__(<span class="k">self</span>) -&gt; str:             <span class="c"># debugger / list display -&gt; for devs</span>
+        <span class="k">return</span> <span class="s">f"Product({self.name!r}, {self.price})"</span>
+
+    <span class="k">def</span> __eq__(<span class="k">self</span>, other) -&gt; bool:       <span class="c"># p1 == p2</span>
+        <span class="k">return</span> <span class="k">self</span>.name == other.name
+
+    <span class="k">def</span> __lt__(<span class="k">self</span>, other) -&gt; bool:       <span class="c"># p1 &lt; p2, makes sorted() work</span>
+        <span class="k">return</span> <span class="k">self</span>.price &lt; other.price
+
+
+<span class="k">class</span> Cart:
+    <span class="k">def</span> __init__(<span class="k">self</span>):
+        <span class="k">self</span>.items: list[Product] = []
+
+    <span class="k">def</span> __len__(<span class="k">self</span>) -&gt; int:              <span class="c"># len(cart)</span>
+        <span class="k">return</span> len(<span class="k">self</span>.items)
+
+
+a = Product(<span class="s">"Nasi Lemak"</span>, <span class="n">6.5</span>)
+b = Product(<span class="s">"Roti Canai"</span>, <span class="n">2.5</span>)
+print(a)
+print([a, b])
+print(a == Product(<span class="s">"Nasi Lemak"</span>, <span class="n">7.0</span>))
+print(sorted([a, b]))
+cart = Cart()
+cart.items += [a, b]
+print(len(cart))</pre></div></div>
+    <div class="col fx d3" style="display:flex;flex-direction:column;gap:10px;min-height:0"><div class="cb" style="display:flex;flex-direction:column;min-height:0;flex:1 1 0"><div class="code-head">terminal · real output</div><pre class="code sm out" style="flex:1;min-height:0;margin:0"><span class="cmd">$ python product_dunders.py</span>
+Nasi Lemak (RM6.50)
+[Product('Nasi Lemak', 6.5), Product('Roti Canai', 2.5)]
+True
+[Product('Roti Canai', 2.5), Product('Nasi Lemak', 6.5)]
+2</pre></div><div class="card" style="flex:0 0 auto"><h3><span class="k">try</span>Change it, predict, run</h3><ul class="rules"><li>Add <code>__add__</code> so <code>a + b</code> returns the combined price.</li><li>Sort products by name instead by changing __lt__.</li></ul></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="2.3 dataclasses">
+  <div class="stepbar fx"><span class="on">Explain</span><span class="on">Theory</span><span class="">Code</span><span class="">Practice</span></div>
+  <div class="tag fx">Module 2 · Pythonic Classes · 2.3 · Explanation &amp; theory</div>
+  <h1 class="sh fx d1">@dataclass: less boilerplate for data-holding classes</h1>
+  <div class="cards grid3 fx d2" style="margin-top:18px;align-items:start"><div class="card accent"><h3><span class="k">what</span>In plain words</h3><p>Most classes that hold data need the same __init__, __repr__ and __eq__. <code>@dataclass</code> writes them for you from a list of typed fields. Add methods as normal.</p></div><div class="card"><h3><span class="k">like</span>Everyday analogy</h3><p>A form template: you list the fields (name, price, qty) once, and every copy comes with the boxes already drawn.</p></div><div class="card"><h3><span class="k">rules</span>Theory: the key rules</h3><ul class="rules"><li>List fields with <b>types</b>: <b>name: str</b></li><li>Defaults go <b>after</b> fields without defaults</li><li>Lists need <b>field(default_factory=list)</b></li><li><b>frozen=True</b> makes objects read-only</li></ul></div></div>
+  <div class="body figbody" style="margin-top:12px"><div class="figwrap"><svg class="fig" style="min-height:0" viewBox="0 0 1000 360" aria-label="Fourteen lines of manual class code collapse into five lines with @dataclass">
+        <g class="fx">
+          <rect x="20" y="20" width="420" height="320" rx="10" fill="#0a0e13" stroke="#2a3440" stroke-width="1.5"/>
+          <text x="40" y="12" font-family="JetBrains Mono,monospace" font-size="13" fill="#ff6f91">by hand · 14 lines</text>
+        </g>
+        <g font-family="JetBrains Mono,monospace" font-size="13" fill="#8b98a5">
+          <text x="40" y="50" class="fx d1">class Item:</text>
+          <text x="56" y="72" class="fx d1">def __init__(self, name, price, qty=1):</text>
+          <text x="72" y="94" class="fx d1">self.name = name</text>
+          <text x="72" y="116" class="fx d1">self.price = price</text>
+          <text x="72" y="138" class="fx d1">self.qty = qty</text>
+          <text x="56" y="168" class="fx d2">def __repr__(self):</text>
+          <text x="72" y="190" class="fx d2">return f"Item(name={self.name!r}, …)"</text>
+          <text x="56" y="220" class="fx d3">def __eq__(self, other):</text>
+          <text x="72" y="242" class="fx d3">return (self.name, self.price,</text>
+          <text x="88" y="264" class="fx d3">self.qty) == (other.name,</text>
+          <text x="88" y="286" class="fx d3">other.price, other.qty)</text>
+        </g>
+        <line x1="450" y1="180" x2="560" y2="180" stroke="#00dcb4" stroke-width="3" marker-end="url(#b34)" class="draw d4" style="--len:110"/>
+        <g class="fx d5">
+          <rect x="570" y="80" width="410" height="200" rx="10" fill="#0a0e13" stroke="#00dcb4" stroke-width="2"/>
+          <text x="590" y="72" font-family="JetBrains Mono,monospace" font-size="13" fill="#00dcb4">@dataclass · 5 lines</text>
+          <text x="594" y="120" font-family="JetBrains Mono,monospace" font-size="17" fill="#f0b429">@dataclass</text>
+          <text x="594" y="154" font-family="JetBrains Mono,monospace" font-size="17" fill="#58a6ff">class Item:</text>
+          <text x="618" y="188" font-family="JetBrains Mono,monospace" font-size="17" fill="#e8eef0">name: str</text>
+          <text x="618" y="220" font-family="JetBrains Mono,monospace" font-size="17" fill="#e8eef0">price: float</text>
+          <text x="618" y="252" font-family="JetBrains Mono,monospace" font-size="17" fill="#e8eef0">qty: int = 1</text>
+        </g>
+        <text x="775" y="320" font-family="JetBrains Mono,monospace" font-size="14" fill="#00dcb4" text-anchor="middle" class="pulse fx d6">__init__ · __repr__ · __eq__ generated</text>
+        <defs><marker id="b34" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#00dcb4"/></marker></defs>
+      </svg></div></div>
+</section>
+
+<section class="slide" data-title="2.3 dataclasses · code">
+  <div class="stepbar fx"><span class="">Explain</span><span class="">Theory</span><span class="on">Code</span><span class="">Practice</span></div>
+  <div class="tag fx">Module 2 · Pythonic Classes · 2.3 · Code — copy, paste, run</div>
+  <h1 class="sh fx d1">Items and branches as dataclasses</h1>
+  <div class="body" style="align-items:stretch">
+    <div class="col fx d2" style="flex:1.3;display:flex;flex-direction:column;gap:10px;min-height:0"><div class="cb" style="display:flex;flex-direction:column;min-height:0px;flex:31 1 0"><div class="code-head">items_dataclass.py</div><pre class="code sm" style="flex:1;min-height:0;margin:0"><span class="k">from</span> dataclasses <span class="k">import</span> dataclass, field
+
+
+@dataclass
+<span class="k">class</span> Item:
+    name: str
+    price: float
+    qty: int = <span class="n">1</span>
+    tags: list[str] = field(default_factory=list)   <span class="c"># safe mutable default</span>
+
+    <span class="k">def</span> total(<span class="k">self</span>) -&gt; float:
+        <span class="k">return</span> <span class="k">self</span>.price * <span class="k">self</span>.qty
+
+
+@dataclass(frozen=<span class="k">True</span>)          <span class="c"># read-only: can't be changed after creation</span>
+<span class="k">class</span> Branch:
+    code: str
+    city: str
+
+
+a = Item(<span class="s">"Teh Tarik"</span>, <span class="n">3.0</span>, <span class="n">2</span>)
+b = Item(<span class="s">"Teh Tarik"</span>, <span class="n">3.0</span>, <span class="n">2</span>)
+print(a)                          <span class="c"># __repr__ written for you</span>
+print(a == b)                     <span class="c"># __eq__ written for you</span>
+print(a.total())
+
+jb = Branch(<span class="s">"JB01"</span>, <span class="s">"Johor Bahru"</span>)
+<span class="k">try</span>:
+    jb.city = <span class="s">"KL"</span>
+<span class="k">except</span> Exception <span class="k">as</span> e:
+    print(type(e).__name__, <span class="s">"- frozen dataclass"</span>)</pre></div></div>
+    <div class="col fx d3" style="display:flex;flex-direction:column;gap:10px;min-height:0"><div class="cb" style="display:flex;flex-direction:column;min-height:0;flex:1 1 0"><div class="code-head">terminal · real output</div><pre class="code sm out" style="flex:1;min-height:0;margin:0"><span class="cmd">$ python items_dataclass.py</span>
+Item(name='Teh Tarik', price=3.0, qty=2, tags=[])
+True
+6.0
+FrozenInstanceError - frozen dataclass</pre></div><div class="card" style="flex:0 0 auto"><h3><span class="k">try</span>Change it, predict, run</h3><ul class="rules"><li>Add a <code>__post_init__</code> that rejects qty below 1.</li><li>Add <code>order=True</code> and sort a list of Items.</li></ul></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="Module 2 Practice">
+  <div class="stepbar fx"><span class="">Explain</span><span class="">Theory</span><span class="">Code</span><span class="on">Practice</span></div>
+  <div class="tag fx">Module 2 · Pythonic Classes · Practice: real-life app + hands-on</div>
+  <h1 class="sh fx d1">Build: Product &amp; Inventory</h1>
+  <div class="body" style="align-items:stretch">
+    <div class="col fx d2" style="flex:1.15;display:flex;flex-direction:column;gap:8px;min-height:0"><div class="card accent" style="flex:0 0 auto;padding:12px 16px"><h3><span class="k">real life</span>Online shop catalogue: validation, sale price, sorting</h3><p>A seller lists products with stock and discounts. The dataclass rejects broken listings, a property computes the sale price, and sorting gives "cheapest first", like a marketplace app.</p></div><div class="cb" style="display:flex;flex-direction:column;min-height:130px;flex:46 1 0"><div class="code-head">catalogue.py</div><pre class="code sm" style="flex:1;min-height:0;margin:0"><span class="s">"""Online shop catalogue: dataclass + validation + property + sorting."""</span>
+<span class="k">from</span> dataclasses <span class="k">import</span> dataclass
+
+
+@dataclass
+<span class="k">class</span> Product:
+    name: str
+    price: float
+    stock: int = <span class="n">0</span>
+    discount: float = <span class="n">0.0</span>           <span class="c"># 0.20 means 20% off</span>
+
+    <span class="k">def</span> __post_init__(<span class="k">self</span>) -&gt; <span class="k">None</span>:  <span class="c"># runs right after __init__</span>
+        <span class="k">if</span> <span class="k">self</span>.price &lt; <span class="n">0</span>:
+            <span class="k">raise</span> ValueError(<span class="s">f"{self.name}: price cannot be negative"</span>)
+        <span class="k">if</span> <span class="k">not</span> <span class="n">0</span> &lt;= <span class="k">self</span>.discount &lt; <span class="n">1</span>:
+            <span class="k">raise</span> ValueError(<span class="s">f"{self.name}: discount must be between 0 and 0.99"</span>)
+
+    @property
+    <span class="k">def</span> sale_price(<span class="k">self</span>) -&gt; float:
+        <span class="k">return</span> round(<span class="k">self</span>.price * (<span class="n">1</span> - <span class="k">self</span>.discount), <span class="n">2</span>)
+
+    <span class="k">def</span> __str__(<span class="k">self</span>) -&gt; str:
+        tag = <span class="s">f"-{self.discount:.0%}"</span> <span class="k">if</span> <span class="k">self</span>.discount <span class="k">else</span> <span class="s">""</span>
+        sold = <span class="s">"  SOLD OUT"</span> <span class="k">if</span> <span class="k">self</span>.stock == <span class="n">0</span> <span class="k">else</span> <span class="s">""</span>
+        <span class="k">return</span> <span class="s">f"{self.name:&lt;20} RM{self.sale_price:&gt;6.2f} {tag:&gt;4}{sold}"</span>
+
+
+catalogue = [
+    Product(<span class="s">"Bluetooth Earbuds"</span>, <span class="n">89.00</span>, <span class="n">12</span>, <span class="n">0.20</span>),
+    Product(<span class="s">"Phone Case"</span>, <span class="n">15.90</span>, <span class="n">0</span>),
+    Product(<span class="s">"Power Bank 10000mAh"</span>, <span class="n">59.00</span>, <span class="n">5</span>, <span class="n">0.10</span>),
+    Product(<span class="s">"USB-C Cable"</span>, <span class="n">12.00</span>, <span class="n">40</span>),
+]
+
+print(<span class="s">"Cheapest first:"</span>)
+<span class="k">for</span> p <span class="k">in</span> sorted(catalogue, key=<span class="k">lambda</span> p: p.sale_price):
+    print(<span class="s">" "</span>, p)
+
+on_sale = [p <span class="k">for</span> p <span class="k">in</span> catalogue <span class="k">if</span> p.stock <span class="k">and</span> p.discount]
+print(<span class="s">"\nIn stock and on sale:"</span>, [p.name <span class="k">for</span> p <span class="k">in</span> on_sale])
+print(<span class="s">"Stock value: RM"</span>, round(sum(p.sale_price * p.stock <span class="k">for</span> p <span class="k">in</span> catalogue), <span class="n">2</span>))
+
+<span class="k">try</span>:
+    Product(<span class="s">"Broken listing"</span>, -<span class="n">5</span>)
+<span class="k">except</span> ValueError <span class="k">as</span> e:
+    print(<span class="s">"\nRejected:"</span>, e)</pre></div><div class="cb" style="display:flex;flex-direction:column;min-height:90px;flex:0 1 26%"><div class="code-head">terminal · real output</div><pre class="code sm out" style="flex:1;min-height:0;margin:0"><span class="cmd">$ python catalogue.py</span>
+Cheapest first:
+  USB-C Cable          RM 12.00     
+  Phone Case           RM 15.90       SOLD OUT
+  Power Bank 10000mAh  RM 53.10 -10%
+  Bluetooth Earbuds    RM 71.20 -20%
+
+In stock and on sale: ['Bluetooth Earbuds', 'Power Bank 10000mAh']
+Stock value: RM 1599.9
+
+Rejected: Broken listing: price cannot be negative</pre></div></div>
+    <div class="col fx d3" style="display:flex;flex-direction:column;gap:10px;min-height:0"><div style="flex:0 0 auto"><div class="hands-on">
+        <div class="lbl">15 minutes · pairs</div>
+        <h3>A stock list for a small shop</h3>
+        <div class="steps">
+          <div><b>01</b><span><span style="font-family:var(--mono)">Product</span> as a <b style="color:var(--mint)">dataclass</b>: name, price, stock.</span></div>
+          <div><b>02</b><span><span style="font-family:var(--mono)">Inventory</span> holds a list of products.</span></div>
+          <div><b>03</b><span><span style="font-family:var(--mono)">add()</span>, <span style="font-family:var(--mono)">find(name)</span>, <span style="font-family:var(--mono)">low_stock(limit=5)</span>.</span></div>
+          <div><b>04</b><span><span style="font-family:var(--mono)">__len__</span> and <span style="font-family:var(--mono)">__str__</span> on Inventory.</span></div>
+          <div><b>05</b><span><span style="font-family:var(--mono)">total_value()</span> = Σ price × stock. Matches by hand? <b style="color:var(--mint)">Done.</b></span></div>
+        </div>
+      </div></div><div class="cb" style="display:flex;flex-direction:column;min-height:0;flex:1 1 0"><div class="code-head">expected</div><pre class="code sm" style="flex:1;min-height:0;margin:0">inv = Inventory()
+inv.add(Product(<span class="s">"Kaya Toast"</span>, <span class="n">3.0</span>, <span class="n">20</span>))
+inv.add(Product(<span class="s">"Half-boiled Eggs"</span>, <span class="n">2.5</span>, <span class="n">4</span>))
+
+print(len(inv))           <span class="c"># 2</span>
+print(inv.low_stock())    <span class="c"># [Product(name='Half-boiled Eggs', …)]</span>
+print(inv.total_value())  <span class="c"># 70.0</span>
+print(inv)
+<span class="c"># Inventory: 2 products, RM70.00</span></pre></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="3.1 OOP vs functions">
+  <div class="stepbar fx"><span class="on">Explain</span><span class="on">Theory</span><span class="">Code</span><span class="">Practice</span></div>
+  <div class="tag fx">Module 3 · Designing with Objects · 3.1 · Explanation &amp; theory</div>
+  <h1 class="sh fx d1">OOP or functions? Pick the right tool</h1>
+  <div class="body" style="align-items:stretch">
+    <div class="col cards fx d2" style="align-content:start"><div class="card accent"><h3><span class="k">what</span>In plain words</h3><p>Use a <b>function</b> when data goes in, an answer comes out, and nothing needs remembering. Use a <b>class</b> when some data <b>changes over time</b> and several actions work on it.</p></div><div class="card"><h3><span class="k">like</span>Everyday analogy</h3><p>A calculator (function): type, get answer, done. A shopping cart (class): it remembers what's inside while you keep adding and removing.</p></div><div class="card"><h3><span class="k">rules</span>Theory: the key rules</h3><ul class="rules"><li>No state to remember → <b>function</b></li><li>State + several actions → <b>class</b></li><li>Mostly data → <b>dataclass</b></li><li>Class with only __init__ + one method → probably a function</li></ul></div></div>
+    <div class="col fx d3"><div class="cb"><div class="code-head">syntax at a glance</div><pre class="code"><span class="k">def</span> myr_to_sgd(amount, rate=<span class="n">0.29</span>):   <span class="c"># function</span>
+    <span class="k">return</span> amount * rate
+
+<span class="k">class</span> Cart:                          <span class="c"># class</span>
+    <span class="k">def</span> __init__(<span class="k">self</span>): <span class="k">self</span>.items = {}
+    <span class="k">def</span> add(<span class="k">self</span>, item, qty=<span class="n">1</span>): ...</pre></div><div class="card" style="margin-top:14px;border-color:rgba(255,111,145,.4)"><h3 style="color:var(--coral)">Common mistakes</h3><ul class="rules"><li>Making everything a class "because OOP".</li><li>Passing the same 6 variables into 10 functions: that's a class waiting to happen.</li></ul></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="3.1 OOP vs functions · code">
+  <div class="stepbar fx"><span class="">Explain</span><span class="">Theory</span><span class="on">Code</span><span class="">Practice</span></div>
+  <div class="tag fx">Module 3 · Designing with Objects · 3.1 · Code — copy, paste, run</div>
+  <h1 class="sh fx d1">Same file, a function and a class, each where it fits</h1>
+  <div class="body" style="align-items:stretch">
+    <div class="col fx d2" style="flex:1.3;display:flex;flex-direction:column;gap:10px;min-height:0"><div class="cb" style="display:flex;flex-direction:column;min-height:0px;flex:29 1 0"><div class="code-head">func_or_class.py</div><pre class="code sm" style="flex:1;min-height:0;margin:0"><span class="c"># FUNCTION: input in, answer out, nothing to remember</span>
+<span class="k">def</span> myr_to_sgd(amount: float, rate: float = <span class="n">0.29</span>) -&gt; float:
+    <span class="k">return</span> round(amount * rate, <span class="n">2</span>)
+
+
+print(myr_to_sgd(<span class="n">100</span>))
+
+
+<span class="c"># CLASS: data that changes over time + actions on it</span>
+<span class="k">class</span> Cart:
+    <span class="k">def</span> __init__(<span class="k">self</span>):
+        <span class="k">self</span>.items: dict[str, int] = {}
+
+    <span class="k">def</span> add(<span class="k">self</span>, item: str, qty: int = <span class="n">1</span>) -&gt; <span class="k">None</span>:
+        <span class="k">self</span>.items[item] = <span class="k">self</span>.items.get(item, <span class="n">0</span>) + qty
+
+    <span class="k">def</span> remove(<span class="k">self</span>, item: str) -&gt; <span class="k">None</span>:
+        <span class="k">self</span>.items.pop(item, <span class="k">None</span>)
+
+    <span class="k">def</span> count(<span class="k">self</span>) -&gt; int:
+        <span class="k">return</span> sum(<span class="k">self</span>.items.values())
+
+
+cart = Cart()
+cart.add(<span class="s">"kopi"</span>, <span class="n">2</span>)
+cart.add(<span class="s">"roti"</span>)
+cart.add(<span class="s">"kopi"</span>)
+cart.remove(<span class="s">"roti"</span>)
+print(cart.items, cart.count())</pre></div></div>
+    <div class="col fx d3" style="display:flex;flex-direction:column;gap:10px;min-height:0"><div class="cb" style="display:flex;flex-direction:column;min-height:0;flex:1 1 0"><div class="code-head">terminal · real output</div><pre class="code sm out" style="flex:1;min-height:0;margin:0"><span class="cmd">$ python func_or_class.py</span>
+29.0
+{'kopi': 3} 3</pre></div><div class="card" style="flex:0 0 auto"><h3><span class="k">try</span>Change it, predict, run</h3><ul class="rules"><li>Add a <code>total(prices)</code> method to Cart. Should it be a function instead?</li><li>Decide: an RM→USD converter, an ATM with PIN lockout, a CSV cleaner.</li></ul></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="3.2 UML to code">
+  <div class="stepbar fx"><span class="on">Explain</span><span class="on">Theory</span><span class="">Code</span><span class="">Practice</span></div>
+  <div class="tag fx">Module 3 · Designing with Objects · 3.2 · Explanation &amp; theory</div>
+  <h1 class="sh fx d1">UML: draw the classes before you code</h1>
+  <div class="cards grid3 fx d2" style="margin-top:18px;align-items:start"><div class="card accent"><h3><span class="k">what</span>In plain words</h3><p>A <b>UML class diagram</b> is a box per class: name on top, attributes in the middle, methods at the bottom. Lines show how classes connect, for example "one Order has many OrderItems".</p></div><div class="card"><h3><span class="k">like</span>Everyday analogy</h3><p>An architect's floor plan. You don't start laying bricks before you know where the kitchen and doors go.</p></div><div class="card"><h3><span class="k">rules</span>Theory: the key rules</h3><ul class="rules"><li>Top: <b>ClassName</b> · middle: <b>attributes</b> · bottom: <b>methods</b></li><li><b>-</b> private, <b>+</b> public</li><li><b>1..*</b> means one or more</li><li>Each box becomes a class; each line becomes an attribute</li></ul></div></div>
+  <div class="body figbody" style="margin-top:12px"><div class="figwrap"><svg class="fig" style="min-height:0" viewBox="0 0 1000 380" aria-label="UML class diagram: Order has many OrderItems, each OrderItem refers to one MenuItem">
+        <g font-family="JetBrains Mono,monospace">
+          <g class="fx">
+            <rect x="20" y="40" width="280" height="300" rx="8" fill="#0a0e13" stroke="#00dcb4" stroke-width="2"/>
+            <rect x="20" y="40" width="280" height="50" rx="8" fill="#1c2430" stroke="#00dcb4" stroke-width="2"/>
+            <text x="160" y="72" font-size="18" fill="#00dcb4" text-anchor="middle" font-weight="600">Order</text>
+            <text x="40" y="125" font-size="15" fill="#e8eef0">- table: int</text>
+            <text x="40" y="153" font-size="15" fill="#e8eef0">- items: list</text>
+            <text x="40" y="181" font-size="15" fill="#e8eef0">- paid: bool</text>
+            <line x1="20" y1="200" x2="300" y2="200" stroke="#2a3440"/>
+            <text x="40" y="232" font-size="15" fill="#f0b429">+ add(item, qty)</text>
+            <text x="40" y="260" font-size="15" fill="#f0b429">+ subtotal()</text>
+            <text x="40" y="288" font-size="15" fill="#f0b429">+ total_with_sst()</text>
+            <text x="40" y="316" font-size="15" fill="#f0b429">+ pay()</text>
+          </g>
+          <line x1="305" y1="190" x2="395" y2="190" stroke="#8b98a5" stroke-width="2" class="draw d2" style="--len:90"/>
+          <polygon points="305,190 318,182 331,190 318,198" fill="#8b98a5" class="fx d2"/>
+          <text x="370" y="180" font-size="14" fill="#8b98a5" class="fx d2">1..*</text>
+          <g class="fx d3">
+            <rect x="400" y="100" width="250" height="180" rx="8" fill="#0a0e13" stroke="#58a6ff" stroke-width="2"/>
+            <rect x="400" y="100" width="250" height="50" rx="8" fill="#1c2430" stroke="#58a6ff" stroke-width="2"/>
+            <text x="525" y="132" font-size="18" fill="#58a6ff" text-anchor="middle" font-weight="600">OrderItem</text>
+            <text x="420" y="185" font-size="15" fill="#e8eef0">- menu_item</text>
+            <text x="420" y="213" font-size="15" fill="#e8eef0">- qty: int</text>
+            <line x1="400" y1="228" x2="650" y2="228" stroke="#2a3440"/>
+            <text x="420" y="260" font-size="15" fill="#f0b429">+ line_total()</text>
+          </g>
+          <line x1="655" y1="190" x2="725" y2="190" stroke="#8b98a5" stroke-width="2" marker-end="url(#b35)" class="draw d4" style="--len:70"/>
+          <text x="690" y="180" font-size="14" fill="#8b98a5" text-anchor="middle" class="fx d4">1</text>
+          <g class="fx d5">
+            <rect x="730" y="100" width="250" height="180" rx="8" fill="#0a0e13" stroke="#f0b429" stroke-width="2"/>
+            <rect x="730" y="100" width="250" height="50" rx="8" fill="#1c2430" stroke="#f0b429" stroke-width="2"/>
+            <text x="855" y="132" font-size="18" fill="#f0b429" text-anchor="middle" font-weight="600">MenuItem</text>
+            <text x="750" y="185" font-size="15" fill="#e8eef0">- name: str</text>
+            <text x="750" y="213" font-size="15" fill="#e8eef0">- price: float</text>
+            <text x="750" y="241" font-size="15" fill="#e8eef0">- category: str</text>
+          </g>
+        </g>
+        <defs><marker id="b35" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#8b98a5"/></marker></defs>
+      </svg></div></div>
+</section>
+
+<section class="slide" data-title="3.2 UML to code · code">
+  <div class="stepbar fx"><span class="">Explain</span><span class="">Theory</span><span class="on">Code</span><span class="">Practice</span></div>
+  <div class="tag fx">Module 3 · Designing with Objects · 3.2 · Code — copy, paste, run</div>
+  <h1 class="sh fx d1">The kopitiam UML, box by box, in code</h1>
+  <div class="body" style="align-items:stretch">
+    <div class="col fx d2" style="flex:1.3;display:flex;flex-direction:column;gap:10px;min-height:0"><div class="cb" style="display:flex;flex-direction:column;min-height:0px;flex:37 1 0"><div class="code-head">order_uml.py</div><pre class="code sm" style="flex:1;min-height:0;margin:0"><span class="k">from</span> dataclasses <span class="k">import</span> dataclass, field
+
+
+@dataclass
+<span class="k">class</span> MenuItem:                     <span class="c"># MenuItem: name, price, category</span>
+    name: str
+    price: float
+    category: str = <span class="s">"food"</span>
+
+
+@dataclass
+<span class="k">class</span> OrderItem:                    <span class="c"># OrderItem: menu_item, qty, line_total()</span>
+    menu_item: MenuItem
+    qty: int
+
+    <span class="k">def</span> line_total(<span class="k">self</span>) -&gt; float:
+        <span class="k">return</span> <span class="k">self</span>.menu_item.price * <span class="k">self</span>.qty
+
+
+@dataclass
+<span class="k">class</span> Order:                        <span class="c"># Order: table, items(1..*), subtotal()</span>
+    table: int
+    items: list[OrderItem] = field(default_factory=list)
+
+    <span class="k">def</span> add(<span class="k">self</span>, item: MenuItem, qty: int = <span class="n">1</span>) -&gt; <span class="k">None</span>:
+        <span class="k">self</span>.items.append(OrderItem(item, qty))
+
+    <span class="k">def</span> subtotal(<span class="k">self</span>) -&gt; float:
+        <span class="k">return</span> sum(i.line_total() <span class="k">for</span> i <span class="k">in</span> <span class="k">self</span>.items)
+
+
+teh = MenuItem(<span class="s">"Teh Tarik"</span>, <span class="n">3.0</span>, <span class="s">"drink"</span>)
+nasi = MenuItem(<span class="s">"Nasi Lemak"</span>, <span class="n">6.5</span>)
+order = Order(table=<span class="n">4</span>)
+order.add(teh, <span class="n">2</span>)
+order.add(nasi)
+print(<span class="s">f"Table {order.table}: {len(order.items)} lines, RM{order.subtotal():.2f}"</span>)</pre></div></div>
+    <div class="col fx d3" style="display:flex;flex-direction:column;gap:10px;min-height:0"><div class="cb" style="display:flex;flex-direction:column;min-height:0;flex:1 1 0"><div class="code-head">terminal · real output</div><pre class="code sm out" style="flex:1;min-height:0;margin:0"><span class="cmd">$ python order_uml.py</span>
+Table 4: 2 lines, RM12.50</pre></div><div class="card" style="flex:0 0 auto"><h3><span class="k">try</span>Change it, predict, run</h3><ul class="rules"><li>Add <code>total_with_sst()</code> to Order.</li><li>Add a Customer class with a list of past Orders.</li></ul></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="3.3 From brief to classes">
+  <div class="stepbar fx"><span class="on">Explain</span><span class="on">Theory</span><span class="">Code</span><span class="">Practice</span></div>
+  <div class="tag fx">Module 3 · Designing with Objects · 3.3 · Explanation &amp; theory</div>
+  <h1 class="sh fx d1">From a written brief to classes: nouns, verbs, numbers</h1>
+  <div class="body" style="align-items:stretch">
+    <div class="col cards fx d2" style="align-content:start"><div class="card accent"><h3><span class="k">what</span>In plain words</h3><p>Read the client's brief and mark it up: <b>nouns</b> become classes or attributes, <b>verbs</b> become methods, <b>numbers</b> become constants. Then draw the UML, then code.</p></div><div class="card"><h3><span class="k">like</span>Everyday analogy</h3><p>Reading a recipe: ingredients are the nouns, steps are the verbs, quantities are the numbers. You plan before you cook.</p></div><div class="card"><h3><span class="k">rules</span>Theory: the key rules</h3><ul class="rules"><li>Circle <b>nouns</b> → classes / attributes</li><li>Underline <b>verbs</b> → methods</li><li>Box <b>numbers</b> → class constants</li><li>Ask: does this noun need its own class, or is it just a value?</li></ul></div></div>
+    <div class="col fx d3"><div class="cb"><div class="code-head">syntax at a glance</div><pre class="code"><span class="c"># "A car park has 3 bays. Cars enter and leave.</span>
+<span class="c">#  RM2 first hour, RM1 each hour after."</span>
+<span class="k">class</span> CarPark:
+    FIRST_HOUR = <span class="n">2.0</span>
+    NEXT_HOUR = <span class="n">1.0</span>
+    <span class="k">def</span> enter(<span class="k">self</span>, plate, hour): ...
+    <span class="k">def</span> leave(<span class="k">self</span>, plate, hour): ...</pre></div><div class="card" style="margin-top:14px;border-color:rgba(255,111,145,.4)"><h3 style="color:var(--coral)">Common mistakes</h3><ul class="rules"><li>Making a class for every noun ("Hour", "Bay").</li><li>Hiding numbers like 2.0 inside methods.</li></ul></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="3.3 From brief to classes · code">
+  <div class="stepbar fx"><span class="">Explain</span><span class="">Theory</span><span class="on">Code</span><span class="">Practice</span></div>
+  <div class="tag fx">Module 3 · Designing with Objects · 3.3 · Code — copy, paste, run</div>
+  <h1 class="sh fx d1">Brief → CarPark class in 25 lines</h1>
+  <div class="body" style="align-items:stretch">
+    <div class="col fx d2" style="flex:1.3;display:flex;flex-direction:column;gap:10px;min-height:0"><div class="cb" style="display:flex;flex-direction:column;min-height:0px;flex:35 1 0"><div class="code-head">car_park.py</div><pre class="code sm" style="flex:1;min-height:0;margin:0"><span class="c"># BRIEF: "A car park has 3 bays. Cars enter and leave. Parking costs</span>
+<span class="c">#         RM2 for the first hour and RM1 for each hour after. Show free bays."</span>
+<span class="c"># nouns -&gt; CarPark, Car (just a plate string)   verbs -&gt; enter, leave, fee</span>
+<span class="c"># numbers -&gt; FIRST_HOUR = 2, NEXT_HOUR = 1, bays = 3</span>
+<span class="k">import</span> math
+
+
+<span class="k">class</span> CarPark:
+    FIRST_HOUR = <span class="n">2.0</span>
+    NEXT_HOUR = <span class="n">1.0</span>
+
+    <span class="k">def</span> __init__(<span class="k">self</span>, bays: int):
+        <span class="k">self</span>.bays = bays
+        <span class="k">self</span>.parked: dict[str, float] = {}       <span class="c"># plate -&gt; entry hour</span>
+
+    <span class="k">def</span> free_bays(<span class="k">self</span>) -&gt; int:
+        <span class="k">return</span> <span class="k">self</span>.bays - len(<span class="k">self</span>.parked)
+
+    <span class="k">def</span> enter(<span class="k">self</span>, plate: str, hour: float) -&gt; bool:
+        <span class="k">if</span> <span class="k">self</span>.free_bays() == <span class="n">0</span>:
+            <span class="k">return</span> <span class="k">False</span>
+        <span class="k">self</span>.parked[plate] = hour
+        <span class="k">return</span> <span class="k">True</span>
+
+    <span class="k">def</span> leave(<span class="k">self</span>, plate: str, hour: float) -&gt; float:
+        hours = math.ceil(hour - <span class="k">self</span>.parked.pop(plate))
+        <span class="k">return</span> <span class="k">self</span>.FIRST_HOUR + max(hours - <span class="n">1</span>, <span class="n">0</span>) * <span class="k">self</span>.NEXT_HOUR
+
+
+park = CarPark(bays=<span class="n">3</span>)
+<span class="k">for</span> plate <span class="k">in</span> [<span class="s">"JQA 1234"</span>, <span class="s">"WXY 88"</span>, <span class="s">"JHB 7"</span>]:
+    park.enter(plate, hour=<span class="n">9</span>)
+print(<span class="s">"free:"</span>, park.free_bays(), <span class="s">"| 4th car allowed?"</span>, park.enter(<span class="s">"BMW 1"</span>, <span class="n">9</span>))
+print(<span class="s">"JQA 1234 pays RM"</span>, park.leave(<span class="s">"JQA 1234"</span>, hour=<span class="n">12.5</span>))
+print(<span class="s">"free:"</span>, park.free_bays())</pre></div></div>
+    <div class="col fx d3" style="display:flex;flex-direction:column;gap:10px;min-height:0"><div class="cb" style="display:flex;flex-direction:column;min-height:0;flex:1 1 0"><div class="code-head">terminal · real output</div><pre class="code sm out" style="flex:1;min-height:0;margin:0"><span class="cmd">$ python car_park.py</span>
+free: 0 | 4th car allowed? False
+JQA 1234 pays RM 5.0
+free: 1</pre></div><div class="card" style="flex:0 0 auto"><h3><span class="k">try</span>Change it, predict, run</h3><ul class="rules"><li>Add a daily maximum of RM10.</li><li>Add a <code>report()</code> listing parked cars.</li></ul></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="Module 3 Practice">
+  <div class="stepbar fx"><span class="">Explain</span><span class="">Theory</span><span class="">Code</span><span class="on">Practice</span></div>
+  <div class="tag fx">Module 3 · Designing with Objects · Practice: real-life app + hands-on</div>
+  <h1 class="sh fx d1">Build: kopitiam ordering system</h1>
+  <div class="body" style="align-items:stretch">
+    <div class="col fx d2" style="flex:1.15;display:flex;flex-direction:column;gap:8px;min-height:0"><div class="card accent" style="flex:0 0 auto;padding:12px 16px"><h3><span class="k">real life</span>Tuition centre: courses, seats, enrolment and revenue</h3><p>A training centre runs courses with limited seats. Students enrol, full courses reject new students, duplicates are blocked, and the manager gets a revenue report. Three classes, each with one job.</p></div><div class="cb" style="display:flex;flex-direction:column;min-height:130px;flex:67 1 0"><div class="code-head">tuition_centre.py</div><pre class="code sm" style="flex:1;min-height:0;margin:0"><span class="s">"""Tuition centre: courses with limited seats, students enrol, revenue report."""</span>
+<span class="k">from</span> dataclasses <span class="k">import</span> dataclass, field
+
+
+@dataclass
+<span class="k">class</span> Student:
+    name: str
+    phone: str
+
+
+@dataclass
+<span class="k">class</span> Course:
+    code: str
+    title: str
+    fee: float
+    seats: int
+    enrolled: list[Student] = field(default_factory=list)
+
+    @property
+    <span class="k">def</span> seats_left(<span class="k">self</span>) -&gt; int:
+        <span class="k">return</span> <span class="k">self</span>.seats - len(<span class="k">self</span>.enrolled)
+
+    <span class="k">def</span> enrol(<span class="k">self</span>, student: Student) -&gt; bool:
+        <span class="k">if</span> student <span class="k">in</span> <span class="k">self</span>.enrolled:
+            print(<span class="s">f"  {student.name} is already in {self.code}"</span>)
+            <span class="k">return</span> <span class="k">False</span>
+        <span class="k">if</span> <span class="k">self</span>.seats_left == <span class="n">0</span>:
+            print(<span class="s">f"  x {self.code} is full, {student.name} not enrolled"</span>)
+            <span class="k">return</span> <span class="k">False</span>
+        <span class="k">self</span>.enrolled.append(student)
+        print(<span class="s">f"  ok {student.name} -&gt; {self.code} ({self.seats_left} seats left)"</span>)
+        <span class="k">return</span> <span class="k">True</span>
+
+
+<span class="k">class</span> Centre:
+    <span class="k">def</span> __init__(<span class="k">self</span>, name: str):
+        <span class="k">self</span>.name = name
+        <span class="k">self</span>.courses: dict[str, Course] = {}
+
+    <span class="k">def</span> add_course(<span class="k">self</span>, course: Course) -&gt; <span class="k">None</span>:
+        <span class="k">self</span>.courses[course.code] = course
+
+    <span class="k">def</span> revenue(<span class="k">self</span>) -&gt; float:
+        <span class="k">return</span> sum(c.fee * len(c.enrolled) <span class="k">for</span> c <span class="k">in</span> <span class="k">self</span>.courses.values())
+
+    <span class="k">def</span> report(<span class="k">self</span>) -&gt; <span class="k">None</span>:
+        print(<span class="s">f"\n{self.name}"</span>)
+        <span class="k">for</span> c <span class="k">in</span> <span class="k">self</span>.courses.values():
+            names = <span class="s">", "</span>.join(s.name <span class="k">for</span> s <span class="k">in</span> c.enrolled) <span class="k">or</span> <span class="s">"-"</span>
+            print(<span class="s">f"  {c.code} {c.title:&lt;18} {len(c.enrolled)}/{c.seats}  {names}"</span>)
+        print(<span class="s">f"  Revenue: RM{self.revenue():,.2f}"</span>)
+
+
+centre = Centre(<span class="s">"Codencode Academy JB"</span>)
+centre.add_course(Course(<span class="s">"PY201"</span>, <span class="s">"Python Intermediate"</span>, <span class="n">890.0</span>, seats=<span class="n">2</span>))
+centre.add_course(Course(<span class="s">"ML101"</span>, <span class="s">"Machine Learning"</span>, <span class="n">1290.0</span>, seats=<span class="n">3</span>))
+
+aisyah = Student(<span class="s">"Aisyah"</span>, <span class="s">"012-0000001"</span>)
+darren = Student(<span class="s">"Darren"</span>, <span class="s">"012-0000002"</span>)
+nurin = Student(<span class="s">"Nurin"</span>, <span class="s">"012-0000003"</span>)
+py = centre.courses[<span class="s">"PY201"</span>]
+py.enrol(aisyah)
+py.enrol(darren)
+py.enrol(nurin)          <span class="c"># full</span>
+py.enrol(aisyah)         <span class="c"># duplicate</span>
+centre.courses[<span class="s">"ML101"</span>].enrol(nurin)
+centre.report()</pre></div><div class="cb" style="display:flex;flex-direction:column;min-height:90px;flex:0 1 26%"><div class="code-head">terminal · real output</div><pre class="code sm out" style="flex:1;min-height:0;margin:0"><span class="cmd">$ python tuition_centre.py</span>
+  ok Aisyah -&gt; PY201 (1 seats left)
+  ok Darren -&gt; PY201 (0 seats left)
+  x PY201 is full, Nurin not enrolled
+  Aisyah is already in PY201
+  ok Nurin -&gt; ML101 (2 seats left)
+
+Codencode Academy JB
+  PY201 Python Intermediate 2/2  Aisyah, Darren
+  ML101 Machine Learning   1/3  Nurin
+  Revenue: RM3,070.00</pre></div></div>
+    <div class="col fx d3" style="display:flex;flex-direction:column;gap:10px;min-height:0"><div style="flex:0 0 auto"><div class="hands-on">
+        <div class="lbl">20 minutes · pairs · draw first, then code</div>
+        <h3>Code the UML from 3.2</h3>
+        <div class="steps">
+          <div><b>01</b><span><span style="font-family:var(--mono)">MenuItem</span> dataclass with a price <b style="color:var(--mint)">property</b> that rejects negatives.</span></div>
+          <div><b>02</b><span><span style="font-family:var(--mono)">OrderItem</span> with <span style="font-family:var(--mono)">line_total()</span>.</span></div>
+          <div><b>03</b><span><span style="font-family:var(--mono)">Order</span>: <span style="font-family:var(--mono)">add()</span>, <span style="font-family:var(--mono)">subtotal()</span>, <span style="font-family:var(--mono)">total_with_sst()</span>, <span style="font-family:var(--mono)">pay()</span>.</span></div>
+          <div><b>04</b><span><span style="font-family:var(--mono)">__str__</span> on Order prints a receipt.</span></div>
+          <div><b>05</b><span>Paying twice raises an error. Receipt correct? <b style="color:var(--mint)">Done.</b> Push it.</span></div>
+        </div>
+      </div></div><div class="cb" style="display:flex;flex-direction:column;min-height:0;flex:1 1 0"><div class="code-head">print(order)</div><pre class="code sm" style="flex:1;min-height:0;margin:0">────── ORKID KOPITIAM ──────
+Table 4
+2 × Teh Tarik       RM  6.00
+1 × Nasi Lemak      RM  6.50
+────────────────────────────
+Subtotal            RM 12.50
+SST 6%              RM  0.75
+<span class="s">TOTAL               RM 13.25</span>
+Paid: e-wallet</pre></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="Recap &amp; Summary">
+  <div class="tag fx">Recap &amp; Summary</div>
+  <h1 class="sh fx d1">You now think in nouns and verbs</h1>
+  <div class="body">
+    <div class="col cards grid3 fx d2">
+      <div class="card accent"><h3><span class="k">M1</span>Classes &amp; Objects</h3><p>Blueprint vs object, <span style="font-family:var(--mono)">self</span>, instance vs class attributes, and @classmethod constructors.</p></div>
+      <div class="card accent"><h3><span class="k">M2</span>Pythonic Classes</h3><p>@property guards, dunder methods for printing and comparing, @dataclass for data-holders.</p></div>
+      <div class="card accent"><h3><span class="k">M3</span>Design</h3><p>Classes for stateful things, functions for transforms; nouns → classes, verbs → methods, UML before code.</p></div>
+    </div>
+  </div>
+  <div class="body" style="flex:0 0 auto;margin-top:0">
+    <div class="col fx d3"><div class="card"><h3>Homework 3 — Library system</h3><p>Brief: members borrow and return books, max 3 at a time, RM0.50/day late fee. Draw the UML, code <span style="font-family:var(--mono)">Book</span>, <span style="font-family:var(--mono)">Member</span>, <span style="font-family:var(--mono)">Library</span>. Push to <span style="font-family:var(--mono);color:var(--mint)">class03/</span>.</p></div></div>
+    <div class="col fx d4"><div class="card"><h3>Next class — OOP Design &amp; Persistence</h3><p>Inheritance and composition, then saving your objects into a real SQLite database so orders survive a restart.</p></div></div>
+  </div>
+</section>
+<section class="slide" data-title="Review Learning Outcomes">
+  <div class="tag fx">Review Learning Outcomes</div>
+  <h1 class="sh fx d1">Did we get there?</h1>
+  <p class="sub fx d2">Rate yourself honestly — 1 to 5. Anything at 2 or below, tell me before you leave.</p>
+  <div class="body">
+    <div class="col cards fx d3">
+      <div class="card"><h3><span class="k">LO1</span>I can write a class with __init__, attributes and methods</h3><p style="font-family:var(--mono);color:var(--mint)">1 — 2 — 3 — 4 — 5</p></div>
+      <div class="card"><h3><span class="k">LO2</span>I can protect data with @property and add __str__ / __eq__</h3><p style="font-family:var(--mono);color:var(--mint)">1 — 2 — 3 — 4 — 5</p></div>
+      <div class="card"><h3><span class="k">LO3</span>I know when to use @dataclass</h3><p style="font-family:var(--mono);color:var(--mint)">1 — 2 — 3 — 4 — 5</p></div>
+      <div class="card accent"><h3><span class="k">LO4</span>My kopitiam system prints a correct receipt and is on GitHub</h3><p style="font-family:var(--mono);color:var(--mint)">Yes — Not yet</p></div>
+    </div>
+  </div>
+  <p class="caption fx d4">codencode.my · Class 03 complete</p>
+</section>
+</div>
+
+<div id="nav">
+  <button class="navbtn" onclick="go(-1)">PREV</button>
+  <div id="dots"></div>
+  <button class="navbtn" onclick="go(1)">NEXT</button>
+</div>
+
+<script>
+const slides=[...document.querySelectorAll('.slide')];
+let i=0;
+const dots=document.getElementById('dots');
+slides.forEach((s,n)=>{const d=document.createElement('div');d.className='dot';
+  d.onclick=()=>show(n);dots.appendChild(d);});
+function show(n){
+  if(n<0||n>=slides.length)return;
+  slides[i].classList.remove('active');
+  i=n;
+  // force reflow so entry animations restart cleanly
+  void slides[i].offsetWidth;
+  slides[i].classList.add('active');
+  document.getElementById('counter').textContent=String(i+1).padStart(2,'0')+' / '+slides.length;
+  document.getElementById('titlebar').textContent=slides[i].dataset.title||'';
+  document.getElementById('progress').style.width=((i+1)/slides.length*100)+'%';
+  [...dots.children].forEach((d,n2)=>d.classList.toggle('on',n2===i));
+}
+function go(d){show(i+d);}
+function fs(){document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen();}
+addEventListener('keydown',e=>{
+  if(['ArrowRight',' ','PageDown'].includes(e.key)){e.preventDefault();go(1);}
+  if(['ArrowLeft','PageUp'].includes(e.key)){e.preventDefault();go(-1);}
+  if(e.key==='Home')show(0);
+  if(e.key==='End')show(slides.length-1);
+  if(e.key==='f')fs();
+});
+
+/* ---------- copy-to-clipboard on every code block ---------- */
+(function(){
+  document.querySelectorAll('pre.code').forEach(pre=>{
+    const source = pre.textContent;               // capture BEFORE adding the button
+    const btn = document.createElement('button');
+    btn.className = 'copybtn';
+    btn.type = 'button';
+    btn.textContent = 'COPY';
+    btn.addEventListener('click', async e=>{
+      e.stopPropagation();
+      try{
+        await navigator.clipboard.writeText(source);
+      }catch(err){                                 // file:// fallback
+        const ta=document.createElement('textarea');
+        ta.value=source; ta.style.position='fixed'; ta.style.opacity='0';
+        document.body.appendChild(ta); ta.select();
+        try{document.execCommand('copy');}catch(_){}
+        document.body.removeChild(ta);
+      }
+      btn.textContent='COPIED'; btn.classList.add('done');
+      setTimeout(()=>{btn.textContent='COPY'; btn.classList.remove('done');},1400);
+    });
+    pre.appendChild(btn);
+  });
+})();
+
+show(0);
+</script>
+
+<div id="xmodal" role="dialog" aria-modal="true"><div class="box">
+  <div class="bar"><span id="xtitle"></span><button class="btn" id="xcopy">COPY</button><button class="btn ghost" id="xclose">CLOSE ✕ (Esc)</button></div>
+  <pre class="code" id="xpre"></pre></div></div>
+<script>
+(function(){
+  const modal=document.getElementById('xmodal'), xpre=document.getElementById('xpre'),
+        xtitle=document.getElementById('xtitle'), xcopy=document.getElementById('xcopy');
+  let src='';
+  function open(head, pre){
+    const clone=pre.cloneNode(true);
+    clone.querySelectorAll('.copybtn').forEach(b=>b.remove());
+    src=clone.textContent; xpre.innerHTML=clone.innerHTML;
+    xtitle.textContent=head.childNodes[0].textContent.trim();
+    xcopy.textContent='COPY'; modal.classList.add('on'); xpre.scrollTop=0;
+  }
+  function close(){modal.classList.remove('on');}
+  document.querySelectorAll('.cb').forEach(cb=>{
+    const head=cb.querySelector('.code-head'), pre=cb.querySelector('pre.code');
+    if(!head||!pre)return;
+    const b=document.createElement('button'); b.className='xbtn'; b.type='button'; b.textContent='EXPAND ⤢';
+    b.addEventListener('click',e=>{e.stopPropagation();open(head,pre);});
+    head.appendChild(b);
+    head.style.cursor='zoom-in'; head.addEventListener('dblclick',()=>open(head,pre));
+  });
+  document.getElementById('xclose').onclick=close;
+  modal.addEventListener('click',e=>{if(e.target===modal)close();});
+  xcopy.onclick=async()=>{try{await navigator.clipboard.writeText(src);}catch(_){
+      const t=document.createElement('textarea');t.value=src;document.body.appendChild(t);t.select();
+      try{document.execCommand('copy');}catch(__){} t.remove();}
+    xcopy.textContent='COPIED';};
+  window.addEventListener('keydown',e=>{
+    if(!modal.classList.contains('on'))return;
+    if(e.key==='Escape')close();
+    e.stopImmediatePropagation();
+  },true);
+})();
+</script>
+</body>
+</html>

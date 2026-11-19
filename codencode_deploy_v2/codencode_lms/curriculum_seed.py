@@ -20,6 +20,16 @@ PYTHON_SESSIONS = [
     (7, 'Session 07: Building Your Own Software', 'pf-session-07.html'),
 ]
 
+PYTHON_INTERMEDIATE_SESSIONS = [
+    (1, 'Session 01: Functions & Pythonic Foundations', 'pi-session-01.html'),
+    (2, 'Session 02: Files, Modules & Errors', 'pi-session-02.html'),
+    (3, 'Session 03: OOP Fundamentals', 'pi-session-03.html'),
+    (4, 'Session 04: OOP Design & Persistence', 'pi-session-04.html'),
+    (5, 'Session 05: APIs & Data Analysis', 'pi-session-05.html'),
+    (6, 'Session 06: Advanced Python & Testing', 'pi-session-06.html'),
+    (7, 'Session 07: Project Completion with Claude', 'pi-session-07.html'),
+]
+
 ML_SESSIONS = [
     (1, 'ML Session 01: Feature Engineering', 'ml-session-01.html'),
     (2, 'ML Session 02: Intro to Machine Learning', 'ml-session-02.html'),
@@ -41,6 +51,11 @@ CURRICULUM = [
         'include': ['python fundamentals'],
         'exclude': [],
         'sessions': PYTHON_SESSIONS,
+    },
+    {
+        'include': ['python intermediate'],
+        'exclude': [],
+        'sessions': PYTHON_INTERMEDIATE_SESSIONS,
     },
     {
         'include': ['machine learning'],
