@@ -592,19 +592,37 @@ class Certificate(db.Model):
     issued_at  = db.Column(db.DateTime, default=datetime.utcnow)
     issued_by  = db.Column(db.Integer, db.ForeignKey('users.id'))  # admin who issued
     cert_number = db.Column(db.String(50), unique=True)  # e.g. CC-2026-100
+    # Date printed on the certificate (e.g. graduation day). NULL = use issued_at.
+    certificate_date = db.Column(db.Date, nullable=True)
 
     student = db.relationship('User', foreign_keys=[student_id])
     course  = db.relationship('Course')
     issuer  = db.relationship('User', foreign_keys=[issued_by])
+
+    @property
+    def display_date(self):
+        """The date shown on the certificate: the chosen certificate date, else the issue date."""
+        if self.certificate_date:
+            return self.certificate_date
+        return self.issued_at.date() if self.issued_at else datetime.utcnow().date()
+
+    @property
+    def is_released(self):
+        """Students only see a certificate once its certificate date has arrived."""
+        return self.display_date <= datetime.utcnow().date()
 
     def to_dict(self):
         return {
             'id': self.id,
             'student_id': self.student_id,
             'student_name': self.student.name if self.student else '',
+            'student_email': self.student.email if self.student else '',
             'course_id': self.course_id,
             'course_title': self.course.title if self.course else '',
             'issued_at': self.issued_at.strftime('%b %d, %Y'),
+            'certificate_date': self.display_date.isoformat(),
+            'certificate_date_label': self.display_date.strftime('%d %b %Y'),
+            'is_released': self.is_released,
             'issued_by': self.issued_by,
             'issuer_name': self.issuer.name if self.issuer else 'System',
             'cert_number': self.cert_number or ''

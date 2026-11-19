@@ -573,7 +573,7 @@ def send_certificate_email(cert):
     )
 
 
-def issue_certificate_for(student_id, course_id, send_email_now=True):
+def issue_certificate_for(student_id, course_id, send_email_now=True, certificate_date=None):
     """Create and email a certificate for an enrolled student/course."""
     student = User.query.get(student_id)
     course = Course.query.get(course_id)
@@ -593,6 +593,7 @@ def issue_certificate_for(student_id, course_id, send_email_now=True):
             student_id=student_id,
             course_id=course_id,
             issued_by=current_user.id,
+            certificate_date=certificate_date,
             cert_number=f'CC-{doc_num:03d}'
         )
         db.session.add(cert)
@@ -613,7 +614,7 @@ def issue_certificate_for(student_id, course_id, send_email_now=True):
     return cert, None
 
 
-def issue_blank_name_certificate_for(course_id):
+def issue_blank_name_certificate_for(course_id, certificate_date=None):
     """Create a course certificate without a named student, for workshops."""
     course = Course.query.get(course_id)
     if not course:
@@ -625,6 +626,7 @@ def issue_blank_name_certificate_for(course_id):
             student_id=None,
             course_id=course_id,
             issued_by=current_user.id,
+            certificate_date=certificate_date,
             cert_number=f'CC-{next_document_number():03d}'
         )
         db.session.add(cert)
@@ -669,7 +671,7 @@ def certificate_course_for_workshop(workshop):
     return course
 
 
-def issue_workshop_certificate_for(student_id, workshop_id, send_email_now=True):
+def issue_workshop_certificate_for(student_id, workshop_id, send_email_now=True, certificate_date=None):
     student = User.query.get(student_id)
     workshop = Workshop.query.get(workshop_id)
     if not student or student.role != 'student' or not workshop:
@@ -704,6 +706,7 @@ def issue_workshop_certificate_for(student_id, workshop_id, send_email_now=True)
             student_id=student.id,
             course_id=course.id,
             issued_by=current_user.id,
+            certificate_date=certificate_date,
             cert_number=f'CC-{doc_num:03d}'
         )
         db.session.add(cert)
@@ -3877,22 +3880,27 @@ def admin_certificates():
         certs = query.order_by(Certificate.issued_at.desc()).all()
         return jsonify([c.to_dict() for c in certs])
     # POST
-    data       = request.get_json()
-    student_id = data.get('student_id')
+    data       = request.get_json() or {}
+    student_ids = _certificate_student_ids(data)
     course_id  = data.get('course_id')
     workshop_id = data.get('workshop_id')
     target_type = data.get('target_type') or ('workshop' if workshop_id else 'course')
     blank_name = bool(data.get('blank_name'))
     send_email_now = bool(data.get('send_email', True))
+    certificate_date, date_err = _parse_certificate_date(data)
+    if date_err:
+        return jsonify({'error': date_err}), 400
+    if certificate_date and certificate_date > datetime.utcnow().date():
+        send_email_now = False  # issued ahead of graduation: email once the date arrives
     if target_type == 'workshop':
-        if not workshop_id or (not blank_name and not student_id):
+        if not workshop_id or (not blank_name and not student_ids):
             return jsonify({'error': 'workshop_id required; student_id required unless blank_name is true'}), 400
         if not teacher_can_manage_workshop(workshop_id):
             return jsonify({'error': 'Forbidden'}), 403
         workshop = Workshop.query.get_or_404(workshop_id)
         course_id = certificate_course_for_workshop(workshop).id
     else:
-        if not course_id or (not blank_name and not student_id):
+        if not course_id or (not blank_name and not student_ids):
             return jsonify({'error': 'course_id required; student_id required unless blank_name is true'}), 400
         if not teacher_can_manage_course(course_id):
             return jsonify({'error': 'Forbidden'}), 403
@@ -3903,7 +3911,7 @@ def admin_certificates():
             return jsonify({'error': msg}), status
         certs = []
         for _ in range(qty):
-            cert, err = issue_blank_name_certificate_for(course_id)
+            cert, err = issue_blank_name_certificate_for(course_id, certificate_date=certificate_date)
             if err:
                 msg, status = err
                 return jsonify({'error': msg, 'certificates': [c.to_dict() for c in certs]}), status
@@ -3914,14 +3922,102 @@ def admin_certificates():
             'count': len(certs)
         }), 201
 
-    if target_type == 'workshop':
-        cert, err = issue_workshop_certificate_for(student_id, workshop_id, send_email_now=send_email_now)
-    else:
-        cert, err = issue_certificate_for(student_id, course_id, send_email_now=send_email_now)
-    if err:
-        msg, status = err
-        return jsonify({'error': msg}), status
-    return jsonify({'certificate': cert.to_dict()}), 201
+    # Named certificates: one or many students. A student who already has a
+    # certificate for this course is skipped (their existing certificate is kept as-is).
+    if len(student_ids) > 200:
+        return jsonify({'error': 'You can issue at most 200 certificates at a time'}), 400
+    issued, skipped, failed = [], [], []
+    for sid in student_ids:
+        existing = Certificate.query.filter_by(student_id=sid, course_id=course_id).first()
+        if existing:
+            skipped.append(existing)
+            continue
+        if target_type == 'workshop':
+            cert, err = issue_workshop_certificate_for(sid, workshop_id, send_email_now=send_email_now,
+                                                       certificate_date=certificate_date)
+        else:
+            cert, err = issue_certificate_for(sid, course_id, send_email_now=send_email_now,
+                                              certificate_date=certificate_date)
+        if err:
+            student = User.query.get(sid)
+            failed.append({'student_id': sid, 'student_name': student.name if student else '', 'error': err[0]})
+        else:
+            issued.append(cert)
+    if not issued and not skipped and failed:
+        return jsonify({'error': failed[0]['error'], 'failed': failed}), 400
+    all_certs = issued + skipped
+    return jsonify({
+        'certificate': all_certs[0].to_dict() if all_certs else None,
+        'certificates': [c.to_dict() for c in issued],
+        'skipped': [c.to_dict() for c in skipped],
+        'failed': failed,
+        'count': len(issued)
+    }), 201
+
+
+def _certificate_student_ids(data):
+    """Accept either `student_ids` (list) or a single `student_id`; returns unique ints in order."""
+    raw = data.get('student_ids')
+    if not isinstance(raw, list):
+        raw = [data.get('student_id')] if data.get('student_id') else []
+    ids = []
+    for value in raw:
+        try:
+            sid = int(value)
+        except (TypeError, ValueError):
+            continue
+        if sid not in ids:
+            ids.append(sid)
+    return ids
+
+
+def _parse_certificate_date(data):
+    """Optional `certificate_date` (YYYY-MM-DD): the date printed on the certificate."""
+    raw = data.get('certificate_date')
+    raw = raw.strip() if isinstance(raw, str) else ''
+    if not raw:
+        return None, None
+    try:
+        return datetime.strptime(raw, '%Y-%m-%d').date(), None
+    except ValueError:
+        return None, 'certificate_date must be in YYYY-MM-DD format'
+
+
+@app.route('/api/admin/certificates/send', methods=['POST'])
+@teacher_required
+def admin_send_certificate_emails_bulk():
+    """Email several certificates at once (e.g. on graduation day)."""
+    data = request.get_json(silent=True) or {}
+    ids = []
+    for raw_id in data.get('ids') or []:
+        try:
+            cert_id = int(raw_id)
+        except (TypeError, ValueError):
+            continue
+        if cert_id not in ids:
+            ids.append(cert_id)
+    if not ids:
+        return jsonify({'error': 'Select at least one certificate'}), 400
+    if len(ids) > 200:
+        return jsonify({'error': 'You can email at most 200 certificates at a time'}), 400
+    certs = Certificate.query.filter(Certificate.id.in_(ids)).all()
+    for cert in certs:
+        if not teacher_can_manage_course(cert.course_id):
+            return jsonify({'error': 'Forbidden'}), 403
+    sent, skipped = [], []
+    for cert in certs:
+        if not cert.student:
+            skipped.append({'id': cert.id, 'cert_number': cert.cert_number, 'reason': 'No name on certificate'})
+        elif not cert.student.email:
+            skipped.append({'id': cert.id, 'cert_number': cert.cert_number, 'reason': 'Student has no email address'})
+        elif not cert.is_released:
+            skipped.append({'id': cert.id, 'cert_number': cert.cert_number,
+                            'reason': f'Certificate date is {cert.display_date.strftime("%d %b %Y")}'})
+        elif not send_certificate_email(cert):
+            skipped.append({'id': cert.id, 'cert_number': cert.cert_number, 'reason': 'Email could not be sent'})
+        else:
+            sent.append(cert.id)
+    return jsonify({'sent': len(sent), 'sent_ids': sent, 'skipped': skipped})
 
 
 @app.route('/api/admin/certificates/<int:cert_id>', methods=['DELETE'])
@@ -4009,8 +4105,8 @@ def _certificate_pdf_bytes(cert, verify_url, cert_data=None):
     if not course_title and getattr(cert, 'course', None):
         course_title = cert.course.title or ''
     issued_label = ''
-    if getattr(cert, 'issued_at', None):
-        issued_label = cert.issued_at.strftime('%d %B %Y')
+    if getattr(cert, 'display_date', None):
+        issued_label = cert.display_date.strftime('%d %B %Y')
     elif cert_data.get('issued_at'):
         issued_label = str(cert_data['issued_at'])
 
@@ -4396,6 +4492,11 @@ def teacher_issue_certificate():
     course_id = data.get('course_id')
     blank_name = bool(data.get('blank_name'))
     send_email_now = bool(data.get('send_email', True))
+    certificate_date, date_err = _parse_certificate_date(data)
+    if date_err:
+        return jsonify({'error': date_err}), 400
+    if certificate_date and certificate_date > datetime.utcnow().date():
+        send_email_now = False  # issued ahead of graduation: email once the date arrives
     if not course_id or (not blank_name and not student_id):
         return jsonify({'error': 'course_id required; student_id required unless blank_name is true'}), 400
     if not teacher_can_manage_course(course_id):
@@ -4407,7 +4508,7 @@ def teacher_issue_certificate():
             return jsonify({'error': msg}), status
         certs = []
         for _ in range(qty):
-            cert, err = issue_blank_name_certificate_for(course_id)
+            cert, err = issue_blank_name_certificate_for(course_id, certificate_date=certificate_date)
             if err:
                 msg, status = err
                 return jsonify({'error': msg, 'certificates': [c.to_dict() for c in certs]}), status
@@ -4418,7 +4519,8 @@ def teacher_issue_certificate():
             'count': len(certs)
         }), 201
 
-    cert, err = issue_certificate_for(student_id, course_id, send_email_now=send_email_now)
+    cert, err = issue_certificate_for(student_id, course_id, send_email_now=send_email_now,
+                                      certificate_date=certificate_date)
     if err:
         msg, status = err
         return jsonify({'error': msg}), status
@@ -4430,7 +4532,8 @@ def teacher_issue_certificate():
 def my_certificates():
     certs = Certificate.query.filter_by(student_id=current_user.id)\
         .order_by(Certificate.issued_at.desc()).all()
-    return jsonify([c.to_dict() for c in certs])
+    # Certificates issued ahead of graduation stay hidden until their certificate date.
+    return jsonify([c.to_dict() for c in certs if c.is_released])
 
 
 @app.route('/api/certificates/<int:cert_id>/download')
@@ -4440,6 +4543,8 @@ def download_certificate(cert_id):
     cert = Certificate.query.get_or_404(cert_id)
     if current_user.role == 'student' and cert.student_id != current_user.id:
         return jsonify({'error': 'Forbidden'}), 403
+    if current_user.role == 'student' and not cert.is_released:
+        return jsonify({'error': 'This certificate is not available yet'}), 403
     if current_user.role == 'teacher' and not teacher_can_manage_course(cert.course_id):
         return jsonify({'error': 'Forbidden'}), 403
 
@@ -6755,6 +6860,7 @@ with app.app_context():
                           ('keypoints', 'TEXT')],
             'quizzes':   [('is_required', f'BOOLEAN DEFAULT {_bool_false}'),
                           ('gates_material_id', 'INTEGER')],
+            'certificates': [('certificate_date', 'DATE')],
         }
         with db.engine.connect() as conn:
             for table, cols in learn_cols.items():
