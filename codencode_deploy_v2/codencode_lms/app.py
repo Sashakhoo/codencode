@@ -6254,12 +6254,14 @@ def enforce_python_fundamentals_curriculum_materials():
     range and is never touched. Runs on every start; a no-op once only
     our own files remain. Never blocks startup."""
     try:
-        from curriculum_seed import PYTHON_SESSIONS
+        from curriculum_seed import PYTHON_SESSIONS, PYTHON_SESSION_EXTRAS
     except Exception as exc:
         app.logger.warning('Python Fundamentals material policy skipped (import): %s', exc)
         return
     max_session = len(PYTHON_SESSIONS)
-    own_filenames = {fn for _, _, fn in PYTHON_SESSIONS}
+    # Our own decks plus our own per-session extras (practice-file bundles).
+    own_filenames = ({fn for _, _, fn in PYTHON_SESSIONS}
+                     | {fn for _, _, fn, _ in PYTHON_SESSION_EXTRAS})
     for course in _python_target_courses():
         try:
             removed = 0
@@ -6453,7 +6455,11 @@ def seed_course_curriculum_materials():
                     if wrong:
                         db.session.flush()
 
-                own_filenames = {fn for _, _, fn in spec['sessions']}
+                extras = spec.get('extras', [])
+                # Extras count as our own too, so a practice-file bundle never
+                # looks like "other material" that would displace the deck.
+                own_filenames = ({fn for _, _, fn in spec['sessions']}
+                                 | {fn for _, _, fn, _ in extras})
                 existing_materials = Material.query.filter_by(course_id=course.id).all()
                 existing_filenames = {m.filename for m in existing_materials}
 
@@ -6505,6 +6511,25 @@ def seed_course_curriculum_materials():
                         description='Session slides', filename=filename,
                         file_type='html', file_size=human_size(fpath),
                         is_published=True, order_index=session_num,
+                    ))
+                    added += 1
+                # Per-session extras (e.g. practice data zips), listed after the
+                # session's deck. Same add-if-missing rule as the decks.
+                for session_num, title, filename, description in extras:
+                    if filename in existing_filenames:
+                        continue
+                    fpath = os.path.join(materials_dir, filename)
+                    if not os.path.exists(fpath):
+                        app.logger.warning(
+                            'Course curriculum material seed: extra %s missing on disk for course %s (%r)',
+                            filename, course.id, course.title)
+                        continue
+                    db.session.add(Material(
+                        course_id=course.id, session=session_num, title=title,
+                        description=description, filename=filename,
+                        file_type=filename.rsplit('.', 1)[-1].lower(),
+                        file_size=human_size(fpath),
+                        is_published=True, order_index=session_num + 1,
                     ))
                     added += 1
                 db.session.commit()

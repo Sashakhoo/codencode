@@ -20,6 +20,20 @@ PYTHON_SESSIONS = [
     (7, 'Session 07: Building Your Own Software', 'pf-session-07.html'),
 ]
 
+# Extra downloads that sit alongside a session's deck (practice data, starter
+# files). Shipped from bundled_materials/ like the decks, seeded after the deck
+# in the same session, and treated as course-owned by the restart policies, so
+# they are never mistaken for a stale upload (or for a teacher's replacement
+# deck). (session, title, filename, description)
+PYTHON_SESSION_EXTRAS = [
+    (6, 'Session 06: Practice Files (download & unzip before coding)',
+     'pf-session-06-practice-files.zip',
+     'Mock data files for the hands-on: notes.txt, expenses.csv, expenses.json, '
+     'expenses_corrupt.json, weather_log.csv and data/sample_open_meteo_response.json. '
+     'Unzip into the same folder as your .py file. See README.md inside for which '
+     'file is used in each exercise.'),
+]
+
 PYTHON_INTERMEDIATE_SESSIONS = [
     (1, 'Session 01: Functions & Pythonic Foundations', 'pi-session-01.html'),
     (2, 'Session 02: Files, Modules & Errors', 'pi-session-02.html'),
@@ -51,6 +65,7 @@ CURRICULUM = [
         'include': ['python fundamentals'],
         'exclude': [],
         'sessions': PYTHON_SESSIONS,
+        'extras': PYTHON_SESSION_EXTRAS,
     },
     {
         'include': ['python intermediate'],
@@ -70,6 +85,7 @@ CURRICULUM = [
         'include': ['python', 'machine learning'],
         'exclude': [],
         'sessions': PYTHON_SESSIONS + _offset(ML_SESSIONS, len(PYTHON_SESSIONS)),
+        'extras': PYTHON_SESSION_EXTRAS,  # Python sits unshifted at 1-7 here
         'fixup_ml_cutoff': len(PYTHON_SESSIONS),
     },
 ]
