@@ -3615,15 +3615,25 @@ async function loadTeacherMaterials() {
   if (!list) return;
   list.innerHTML = mats.length === 0
     ? `<div style="padding:16px 20px;color:var(--muted);font-family:var(--font-m);font-size:11px">${T('x.noMaterials')}</div>`
-    : mats.map(m => `
+    : mats.map(m => {
+        // Decks (HTML slide apps) and PDFs open in their own tab for presenting in class;
+        // the decks carry their own slide nav + fullscreen. Anything else is a download.
+        const url = `/uploads/materials/${encodeURIComponent(m.filename)}`;
+        const presentable = ['html', 'htm', 'pdf'].includes(String(m.file_type || '').toLowerCase());
+        const openBtn = presentable
+          ? `<a class="btn-action" href="${url}" target="_blank" rel="noopener" title="Open full screen to present in class" style="margin-right:6px;text-decoration:none"><i class="fas fa-desktop"></i> Present</a>`
+          : `<a class="btn-action ghost" href="${url}?download=1" title="Download" style="margin-right:6px;text-decoration:none"><i class="fas fa-download"></i> Download</a>`;
+        return `
         <div class="file-row" id="mat-row-${m.id}">
           ${fileIcon(m.file_type)}
           <div style="flex:1">
             <div class="file-name" style="font-size:12px">${m.orig_name||m.title}</div>
             <div class="file-sub">${m.session===0?'General':'Session '+m.session} · ${m.file_size||''}</div>
           </div>
+          ${openBtn}
           <button class="btn-action red" onclick="deleteMaterial(${m.id})"><i class="fas fa-trash"></i></button>
-        </div>`).join('');
+        </div>`;
+      }).join('');
 }
 
 async function loadTeacherAssignments() {
