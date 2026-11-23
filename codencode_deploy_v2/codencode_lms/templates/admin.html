@@ -6024,6 +6024,14 @@ function renderStudentDetail(s) {
                 <a href="#" onclick="editEnrollmentDate(${e.id},'${e.enrolled_at_iso}',${s.id});return false;" title="${e.enrolled_at ? 'Correct enrollment date' : 'Set enrollment date'}"><i class="fas fa-pencil" style="margin-left:4px;font-size:9px"></i></a>
                 ${e.cohort_name ? ` · <span style="color:var(--gold)">` + e.cohort_name + `</span>` : ''}</small>
               ${e.class_timing ? `<small style="color:var(--cyan)"><i class="fas fa-clock" style="margin-right:3px"></i>${e.class_timing}</small>` : ''}
+              <label style="display:flex;align-items:center;gap:6px;margin-top:6px;font-size:11px;color:var(--text-muted)">
+                <i class="fas fa-chalkboard-teacher"></i> Teacher
+                <select class="form-input" style="padding:3px 8px;font-size:12px;height:auto;width:auto;max-width:240px"
+                        onchange="setEnrollmentTeacher(${e.id},this.value,${s.id},this)">
+                  <option value="">— Class / course teacher —</option>
+                  ${(S.teachers || []).map(t => `<option value="${t.id}" ${t.id === e.teacher_id ? 'selected' : ''}>${escHtml(t.name)}</option>`).join('')}
+                </select>
+              </label>
             </div>
             <button class="btn btn-danger btn-sm btn-icon" onclick="unenroll(${e.id},${s.id})" title="Unenroll">
               <i class="fas fa-times"></i>
@@ -6394,6 +6402,23 @@ async function enrollStudent() {
     await loadStudents();
     selectStudent(uid);
   } catch(e) { toast(e.message, true); }
+}
+
+async function setEnrollmentTeacher(eid, teacherId, uid, sel) {
+  if (sel) sel.disabled = true;
+  try {
+    const r = await PUT(`/api/admin/enrollments/${eid}`, { teacher_id: teacherId ? parseInt(teacherId) : null });
+    const e = r.enrollment || {};
+    toast(e.teacher_name ? `${e.course_title}: teacher set to ${e.teacher_name}` : `${e.course_title}: uses the class / course teacher`);
+    await loadStudents();
+    selectStudent(uid);
+    // Stay on the Courses tab rather than jumping back to Profile.
+    const tab = document.querySelectorAll('#student-detail .detail-tab')[1];
+    if (tab) tab.click();
+  } catch(err) {
+    toast(err.message, true);
+    if (sel) sel.disabled = false;
+  }
 }
 
 async function unenroll(eid, uid) {

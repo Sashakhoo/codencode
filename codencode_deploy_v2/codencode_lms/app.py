@@ -1812,10 +1812,31 @@ def finance_enroll():
     return jsonify({'matched': matched, 'unmatched': unmatched, 'account_created': account_created})
 
 
-@app.route('/api/admin/enrollments/<int:eid>', methods=['DELETE'])
+@app.route('/api/admin/enrollments/<int:eid>', methods=['PUT', 'DELETE'])
 @admin_required
 def admin_unenroll(eid):
     e = Enrollment.query.get_or_404(eid)
+    if request.method == 'PUT':
+        # Change the directly-assigned teacher on an existing enrolment (it could
+        # previously only be set when the student was first enrolled). null =
+        # no direct teacher, i.e. fall back to the class/course teacher.
+        data = request.get_json(silent=True) or {}
+        if 'teacher_id' not in data:
+            return jsonify({'error': 'teacher_id required (use null to clear)'}), 400
+        tid = data['teacher_id']
+        if tid in (None, ''):
+            e.teacher_id = None
+        else:
+            try:
+                tid = int(tid)
+            except (TypeError, ValueError):
+                return jsonify({'error': 'teacher_id must be a number or null'}), 400
+            teacher = User.query.get(tid)
+            if not teacher or teacher.role not in ('teacher', 'admin'):
+                return jsonify({'error': 'Teacher not found'}), 404
+            e.teacher_id = teacher.id
+        db.session.commit()
+        return jsonify({'enrollment': e.to_dict()})
     db.session.delete(e)
     db.session.commit()
     return jsonify({'ok': True})
