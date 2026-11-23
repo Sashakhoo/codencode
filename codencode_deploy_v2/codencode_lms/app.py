@@ -6461,6 +6461,28 @@ def seed_course_curriculum_materials():
                 own_filenames = ({fn for _, _, fn in spec['sessions']}
                                  | {fn for _, _, fn, _ in extras})
                 existing_materials = Material.query.filter_by(course_id=course.id).all()
+
+                # gunicorn runs this startup in every worker at once, so two
+                # workers can both see a file as missing and both add it. Keep
+                # the oldest row per own filename and drop the rest (only our
+                # own files - never a teacher's upload).
+                kept, dupes = {}, []
+                for m in sorted(existing_materials, key=lambda m: m.id):
+                    if m.filename not in own_filenames:
+                        continue
+                    if m.filename in kept:
+                        dupes.append(m)
+                    else:
+                        kept[m.filename] = m
+                for m in dupes:
+                    MaterialProgress.query.filter_by(material_id=m.id).delete()
+                    LastLesson.query.filter_by(material_id=m.id).delete()
+                    Quiz.query.filter_by(gates_material_id=m.id).update({'gates_material_id': None})
+                    db.session.delete(m)
+                if dupes:
+                    db.session.flush()
+                    dupe_ids = {m.id for m in dupes}
+                    existing_materials = [m for m in existing_materials if m.id not in dupe_ids]
                 existing_filenames = {m.filename for m in existing_materials}
 
                 # Keep the title in sync for our own known files if a session's
