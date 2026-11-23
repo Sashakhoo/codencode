@@ -52,7 +52,9 @@ h1.sh{font-family:var(--sans);font-size:clamp(26px,3.2vw,40px);font-weight:700;l
 h1.sh::after{content:'';display:block;width:56px;height:4px;background:var(--mint);border-radius:2px;margin-top:14px}
 .sub{color:var(--muted);font-size:16px;margin-top:14px;max-width:70ch;line-height:1.6}
 .body{flex:1;display:flex;gap:32px;align-items:center;margin-top:24px;min-height:0}
-.col{flex:1;min-width:0}
+.col{flex:1;min-width:0;max-height:100%;overflow-y:auto;scrollbar-width:thin}
+.body{align-items:flex-start}
+.slide.title-slide .body,.figbody{align-items:center}
 
 /* title slide */
 .title-slide{align-items:center;justify-content:center;text-align:center}
@@ -93,6 +95,12 @@ pre.code .c{color:var(--muted)}
 pre.code .s{color:var(--mint)}
 pre.code .n{color:var(--blue)}
 pre.code .e{color:var(--coral)}
+pre.code .k{color:var(--blue)}
+#s13 pre.code.sm{line-height:1.32;padding:12px 16px;font-size:11.6px}
+#s13 .body{margin-top:8px}
+#s13 .card{padding:12px 16px}
+#s13 .card h3{font-size:15px;margin-bottom:3px}
+#s13 .card p{font-size:13.5px}
 .code-head{font-family:var(--mono);font-size:11px;color:var(--muted);background:var(--panel2);
   border:1px solid var(--line);border-bottom:none;border-radius:10px 10px 0 0;padding:8px 14px}
 .code-head + pre.code{border-radius:0 0 10px 10px}
@@ -214,6 +222,42 @@ table.cps td:first-child{color:var(--mint);font-family:var(--mono);font-size:13p
 pre.code.sm{font-size:12.3px;line-height:1.6}
 .card.warn{border-color:rgba(255,111,145,.42)}
 .divider .num{font-family:var(--sans);font-size:112px;font-weight:700;color:rgba(0,220,180,.16);line-height:1}
+
+/* ---------- hover explanations ---------- */
+.tip{border:1px dashed rgba(0,220,180,.55);border-radius:4px;padding:0 3px;margin:0 -4px;cursor:help;transition:.15s}
+.tip:hover{background:rgba(0,220,180,.12);border-style:solid;border-color:var(--mint)}
+#tipbox{position:fixed;z-index:999;max-width:340px;background:#161b22;border:1.5px solid var(--mint);
+  border-radius:9px;padding:11px 14px;font-family:var(--body);font-size:13.5px;line-height:1.5;color:var(--text);
+  box-shadow:0 10px 30px rgba(0,0,0,.55),0 0 0 4px rgba(0,220,180,.08);pointer-events:none;
+  opacity:0;transform:translateY(6px) scale(.97);transition:opacity .16s,transform .16s;white-space:normal}
+#tipbox.show{opacity:1;transform:none}
+#tipbox{max-width:520px}
+#tipbox .ttab th code{text-transform:none;letter-spacing:0}
+#tipbox .tsum{font-weight:600;margin-bottom:8px}
+#tipbox .ttab{border-collapse:collapse;width:100%;font-size:13px}
+#tipbox .ttab th{text-align:left;font-family:var(--mono);font-size:10px;letter-spacing:.1em;color:var(--muted);text-transform:uppercase;padding:4px 8px 6px 0;border-bottom:1px solid var(--line)}
+#tipbox .ttab td{padding:6px 8px 6px 0;border-bottom:1px solid var(--line);vertical-align:top;color:var(--muted)}
+#tipbox .ttab tr:last-child td{border-bottom:none}
+#tipbox .ttab code{font-family:var(--mono);font-size:12px;color:var(--mint);background:rgba(0,220,180,.08);border-radius:4px;padding:2px 6px;white-space:nowrap}
+#tipbox b{color:var(--mint);font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;display:block;margin-bottom:4px}
+/* narrow / minimized windows: stack figure slides and let the slide scroll instead of squashing */
+@media (max-aspect-ratio: 29/20){
+  .slide{overflow-y:auto}
+  .figbody{flex:0 0 auto;min-height:auto}
+  .figbody > .figwrap{flex:0 0 auto}
+  .figbody > .figwrap > svg.fig{width:100%;height:auto;min-height:0;max-height:none;aspect-ratio:1000/370}
+  #scopeSvg{aspect-ratio:1000/450 !important}
+  .figbody > .figside{max-height:none;overflow:visible}
+  .figbody > .figside > *{min-width:0}
+  .legend{margin-top:4px}
+}
+@media (max-width: 900px){
+  .slide{padding:24px 22px}
+  .body{flex-direction:column;align-items:stretch;flex:0 0 auto}
+  .col{max-height:none;overflow:visible}
+  .grid2,.grid3{grid-template-columns:1fr}
+  #titlebar{display:none}
+}
 </style>
 </head>
 <body>
@@ -358,38 +402,42 @@ f.close()
   </div>
 </section>
 
-<section class="slide" data-title="1.3 CSV &amp; JSON">
+<section class="slide" data-title="1.3 CSV &amp; JSON" id="s13">
   <div class="tag fx">1.3 · CSV &amp; JSON</div>
   <h1 class="sh fx d1">Teacher Demo — the expense log</h1>
   <div class="body">
     <div class="col fx d2"><div class="cb"><div class="code-head">CSV — rows and columns, readable in Excel</div><pre class="code sm"><span class="s">import</span> csv
 
+<span class="c"># first time only: write the header row</span>
+<span class="s">with</span> <span class="k">open</span>(<span class="s">"expenses.csv"</span>, <span class="s">"w"</span>, newline=<span class="s">""</span>) <span class="s">as</span> f:
+    <span class="tip" data-tip="Writes the header row (only once).||writerow([...])~~writes one row to the CSV||&quot;date&quot;,&quot;item&quot;,&quot;amount&quot;~~column names; DictReader uses them as keys">csv.writer(f).writerow([<span class="s">"date"</span>, <span class="s">"item"</span>, <span class="s">"amount"</span>])</span>
+
 <span class="c"># append one row (newline="" avoids blank lines)</span>
-<span class="s">with</span> <span class="k">open</span>(<span class="s">"expenses.csv"</span>, <span class="s">"a"</span>, newline=<span class="s">""</span>) <span class="s">as</span> f:
+<span class="s">with</span> <span class="k">open</span>(<span class="s">"expenses.csv"</span>, <span class="tip" data-tip="Open mode: append.||&quot;a&quot;~~add to the END of the file, keep old rows||&quot;w&quot;~~would WIPE the file and start over"><span class="s">"a"</span></span>, newline=<span class="s">""</span>) <span class="s">as</span> f:
     csv.writer(f).writerow([<span class="s">"2026-09-23"</span>, <span class="s">"Lunch"</span>, <span class="n">12.50</span>])
 
 <span class="c"># read it back as dictionaries — much nicer</span>
 <span class="s">with</span> <span class="k">open</span>(<span class="s">"expenses.csv"</span>, newline=<span class="s">""</span>) <span class="s">as</span> f:
-    <span class="k">for</span> row <span class="s">in</span> csv.DictReader(f):
+    <span class="k">for</span> row <span class="s">in</span> <span class="tip" data-tip="Reads each row as a dictionary.||csv.DictReader(f)~~row → dict, header row = keys||row[&quot;item&quot;]~~get a value by column name||values~~always come back as STRINGS">csv.DictReader(f)</span>:
         <span class="k">print</span>(row[<span class="s">"item"</span>], row[<span class="s">"amount"</span>])
-<span class="e"># note: every value arrives as a STRING</span></pre></div></div>
+<span class="e"># note: every value arrives as a STRING</span></pre></div><div class="card warn" style="margin-top:10px"><p><b>FileNotFoundError</b> = first run, start empty · <b>JSONDecodeError</b> = file damaged, warn the user · <span style="font-family:var(--mono)">json.dump</span> can't save objects, use <span style="font-family:var(--mono)">to_dict()</span></p></div></div>
     <div class="col fx d3"><div class="cb"><div class="code-head">JSON — nested structure, straight from your objects</div><pre class="code sm"><span class="s">import</span> json
 
 <span class="s">def</span> save(items, path=<span class="s">"expenses.json"</span>):
     <span class="s">"""Write every expense to disk."""</span>
-    <span class="s">with</span> <span class="k">open</span>(path, <span class="s">"w"</span>) <span class="s">as</span> f:
-        json.dump(items, f, indent=<span class="n">2</span>)
+    <span class="s">with</span> <span class="tip" data-tip="Open the file for writing.||path~~which file||&quot;w&quot;~~write mode: REPLACES everything||result~~each save() writes the full list again"><span class="k">open</span>(path, <span class="s">"w"</span>)</span> <span class="s">as</span> f:
+        <span class="tip" data-tip="Python data → JSON text in the file.||json.dump~~convert Python data to JSON and write it||items~~WHAT to save: your list of expenses||f~~WHERE to save it: the file from open(path, &quot;w&quot;)||indent=2~~neat formatting, 2 spaces per level">json.dump(items, f, indent=<span class="n">2</span>)</span>
 
 <span class="s">def</span> load(path=<span class="s">"expenses.json"</span>):
     <span class="s">"""Read expenses, or start empty on the first run."""</span>
     <span class="s">try</span>:
         <span class="s">with</span> <span class="k">open</span>(path) <span class="s">as</span> f:
-            <span class="s">return</span> json.load(f)
-    <span class="s">except</span> FileNotFoundError:
+            <span class="tip" data-tip="JSON text in the file → Python data.||json.load(f)~~read the file, return a list of dicts||return~~send that list back to whoever called load()||note~~this is json.load, NOT your load() function"><span class="s">return</span> json.load(f)</span>
+    <span class="tip" data-tip="Catches a missing file.||when~~first ever run, file not created yet||action~~normal: return [] and start empty"><span class="s">except</span> FileNotFoundError:</span>
         <span class="s">return</span> []
-    <span class="s">except</span> json.JSONDecodeError:
+    <span class="tip" data-tip="Catches a broken file.||when~~file exists but is damaged (expenses_corrupt.json)||action~~warn the user, then return []"><span class="s">except</span> json.JSONDecodeError:</span>
         <span class="k">print</span>(<span class="s">"File is corrupt — starting fresh."</span>)
-        <span class="s">return</span> []</pre></div><div class="card warn"><h3>Two excepts, two different disasters</h3><p><b>FileNotFoundError</b> is the first ever run — normal, start empty. <b>JSONDecodeError</b> means the file exists but is damaged — worth telling the user about rather than silently wiping it.</p></div><div class="theory"><div class="lbl">Saving an object is not automatic</div><p><span style="font-family:var(--mono)">json.dump</span> handles dicts, lists, strings and numbers — not your objects. Give each class a <span style="font-family:var(--mono)">to_dict()</span> method.</p></div></div>
+        <span class="s">return</span> []</pre></div></div>
   </div>
 </section>
 
@@ -409,17 +457,17 @@ f.close()
     <span class="s">def</span> __init__(self, item, amount, date):
         self.item, self.amount, self.date = item, amount, date
 
-    <span class="s">def</span> to_dict(self):
+    <span class="tip" data-tip="to_dict() vs from_dict(): opposite jobs.||^~~to_dict()~~from_dict()||Direction~~object → dict~~dict → object||When used~~saving~~loading||Type~~normal method (self)~~@classmethod (cls)||Called like~~e.to_dict()~~Expense.from_dict(d)||Why that type~~the object already exists~~no object yet, so the class builds one"><span class="s">def</span> to_dict(self):</span>
         <span class="s">return</span> {<span class="s">"item"</span>: self.item,
                 <span class="s">"amount"</span>: self.amount,
                 <span class="s">"date"</span>: self.date}
 
-    @classmethod
-    <span class="s">def</span> from_dict(cls, d):
+    <span class="tip" data-tip="to_dict() vs from_dict(): opposite jobs.||^~~to_dict()~~from_dict()||Direction~~object → dict~~dict → object||When used~~saving~~loading||Type~~normal method (self)~~@classmethod (cls)||Called like~~e.to_dict()~~Expense.from_dict(d)||Why that type~~the object already exists~~no object yet, so the class builds one">@classmethod
+    <span class="s">def</span> from_dict(cls, d):</span>
         <span class="s">return</span> cls(d[<span class="s">"item"</span>], d[<span class="s">"amount"</span>], d[<span class="s">"date"</span>])
 
-save([e.to_dict() <span class="s">for</span> e <span class="s">in</span> items])
-items = [Expense.from_dict(d) <span class="s">for</span> d <span class="s">in</span> load()]</pre></div><div class="card accent"><h3>Those three tests are the whole exercise</h3><p>Works · file missing · file corrupt. Any program that reads a file must survive all three, and almost every beginner project only handles the first.</p></div></div>
+<span class="tip" data-tip="Load and rebuild your objects.||load()~~YOUR function: returns a list of dicts||for d in ...~~go through each dict||Expense.from_dict(d)~~turn each dict back into an Expense">save([e.to_dict() <span class="s">for</span> e <span class="s">in</span> items])</span>
+<span class="tip" data-tip="Save your objects.||e.to_dict()~~turn each object into a plain dict||[... for e in items]~~do it for every item||save(...)~~write the list to the JSON file">items = [Expense.from_dict(d) <span class="s">for</span> d <span class="s">in</span> load()]</span></pre></div><div class="card accent"><h3>Those three tests are the whole exercise</h3><p>Works · file missing · file corrupt. Any program that reads a file must survive all three, and almost every beginner project only handles the first.</p></div></div>
   </div>
 </section>
 
@@ -459,10 +507,10 @@ params = {
     <span class="s">"current"</span>: <span class="s">"temperature_2m,relative_humidity_2m"</span>,
 }
 
-r = requests.get(URL, params=params, timeout=<span class="n">10</span>)
-<span class="k">print</span>(r.status_code)     <span class="c"># 200</span>
+r = requests.get(URL, params=params, <span class="tip" data-tip="Stop waiting after 10 seconds.||timeout=10~~give up after 10 s||without it~~the program can hang forever">timeout=<span class="n">10</span>)
+<span class="k">print</span></span>(r.status_code)     <span class="c"># 200</span>
 
-data = r.json()            <span class="c"># dict — Session 3 shapes</span>
+<span class="tip" data-tip="Response → Python dict.||r.json()~~convert the JSON response to a dict||data~~store it to use later||safe when~~status_code is 200 (check first)">data = r.json()</span>            <span class="c"># dict — Session 3 shapes</span>
 now  = data[<span class="s">"current"</span>]
 <span class="k">print</span>(<span class="s">f"JB is {now['temperature_2m']} degC"</span>)</pre></div><div class="theory"><div class="lbl">Everything you need you already know</div><p>The response is a <b>dictionary of dictionaries and lists</b> — exactly Session 3. The only new idea is that it arrived over a network instead of from a file, and that the network can fail.</p></div></div>
     <div class="col fx d3"><div class="card accent"><h3>Explore before you code</h3><p>Paste the URL into a browser first and look at the JSON. Then <span style="font-family:var(--mono)">print(data.keys())</span> in Python. Two minutes of looking saves twenty minutes of guessing key names.</p></div></div>
@@ -478,7 +526,9 @@ now  = data[<span class="s">"current"</span>]
 <span class="s">def</span> get_weather(lat, lon):
     <span class="s">"""Current temperature, or None if it could not be fetched."""</span>
     <span class="s">try</span>:
-        r = requests.get(URL, params={...}, timeout=<span class="n">10</span>)
+        r = requests.get(URL, timeout=<span class="n">10</span>, params={
+            <span class="s">"latitude"</span>: lat, <span class="s">"longitude"</span>: lon,
+            <span class="s">"current"</span>: <span class="s">"temperature_2m"</span>})
     <span class="s">except</span> requests.Timeout:
         <span class="k">print</span>(<span class="s">"The server took too long."</span>)
         <span class="s">return</span> <span class="k">None</span>
@@ -504,7 +554,7 @@ now  = data[<span class="s">"current"</span>]
         <div class="lbl">22 minutes · solo</div>
         <h3>Your Turn — live weather, handled properly</h3>
         
-        <div class="steps"><div><b>01</b><span>Call the Open-Meteo forecast endpoint for Johor Bahru and print the current temperature.</span></div><div><b>02</b><span>Add the full try/except/status-code wrapper from 2.3.</span></div><div><b>03</b><span>Test the failure paths: turn off wi-fi, then break the URL on purpose. Neither may crash.</span></div><div><b>04</b><span>Append every reading to <span style="font-family:var(--mono)">weather_log.csv</span> with a timestamp.</span></div><div><b>05</b><span>Read the log back and print the highest and lowest temperature you have recorded.</span></div><div><b>06</b><span>Stretch: ask the user for a city and look up its coordinates with the geocoding endpoint.</span></div></div>
+        <div class="steps"><div><b>01</b><span>Call the Open-Meteo forecast endpoint for Johor Bahru and print the current temperature.</span></div><div><b>02</b><span>Add the full try/except/status-code wrapper from 2.3.</span></div><div><b>03</b><span>Test the failure paths: turn off wi-fi, then break the URL on purpose. Neither may crash.</span></div><div><b>04</b><span>Append every reading to <span style="font-family:var(--mono)">weather_log.csv</span> with a timestamp.</span></div><div><b>05</b><span>Read the log back and print the highest and lowest temperature you have recorded. Convert with <span style="font-family:var(--mono)">float()</span> first: CSV gives you strings.</span></div><div><b>06</b><span>Stretch: ask the user for a city and look up its coordinates with the geocoding endpoint.</span></div></div>
       </div>
     </div>
     <div class="col fx d3"><div class="cb"><div class="code-head">joining today's two halves together</div><pre class="code sm"><span class="s">import</span> csv, datetime
@@ -739,7 +789,7 @@ addEventListener('keydown',e=>{
       s+=`<text x="500" y="330" text-anchor="middle" font-family="Space Grotesk,sans-serif" font-size="18" font-weight="700"
            fill="${safe?on:co}">${safe?'with-block exited — handle closed automatically'
                                      :'manual open() — the handle is STILL OPEN, leaked'}</text>`;
-    } else {
+    } else if(step!==3){
       s+=`<text x="500" y="330" text-anchor="middle" font-family="Space Grotesk,sans-serif"
            font-size="18" font-weight="700" fill="${step===0?dim:on}">${STEPS[step]}</text>`;
     }
@@ -861,6 +911,27 @@ addEventListener('keydown',e=>{
   }
   window.scopeToggle=function(i){ inMvp[i]=inMvp[i]?0:1; draw(); };
   draw();
+})();
+
+/* ---------- hover explanations ---------- */
+(function(){
+  const box=document.createElement('div');box.id='tipbox';document.body.appendChild(box);
+  document.querySelectorAll('.tip').forEach(el=>{
+    el.addEventListener('mouseenter',()=>{
+      const esc=t=>t.replace(/&/g,'&amp;').replace(/</g,'&lt;');
+      const [sum,...rows]=el.dataset.tip.split('||');
+      let head='<tr><th>Part</th><th>Meaning</th></tr>';
+      if(rows.length&&rows[0].startsWith('^')){const c=rows.shift().split('~~');c[0]='';head='<tr>'+c.map(x=>'<th>'+(x?'<code>'+esc(x)+'</code>':'')+'</th>').join('')+'</tr>';}
+      box.innerHTML='<b>WHAT THIS DOES</b><div class="tsum">'+esc(sum)+'</div><table class="ttab">'+head+
+        rows.map(r=>{const c=r.split('~~');return '<tr><td><code>'+esc(c[0])+'</code></td>'+c.slice(1).map(x=>'<td>'+esc(x)+'</td>').join('')+'</tr>'}).join('')+'</table>';
+      const r=el.getBoundingClientRect();box.classList.add('show');
+      const bw=box.offsetWidth,bh=box.offsetHeight;
+      let x=Math.min(Math.max(10,r.left),innerWidth-bw-10);
+      let y=r.top-bh-10; if(y<60) y=r.bottom+10;
+      box.style.left=x+'px';box.style.top=y+'px';
+    });
+    el.addEventListener('mouseleave',()=>box.classList.remove('show'));
+  });
 })();
 
 show(0);
