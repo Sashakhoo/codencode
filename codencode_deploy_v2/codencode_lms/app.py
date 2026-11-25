@@ -47,7 +47,7 @@ from models import (db, User, Course, Enrollment, Recording,
                     LoginLog, Certificate,
                     Quiz, QuizQuestion, QuizChoice, QuizAttempt, QuizAnswer,
                     DiscussionPost, DiscussionReply, PostUpvote,
-                    LastLesson, Cohort, Registration,
+                    LastLesson, Cohort, Registration, CorporateEnquiry, CourseFeedback,
                     Workshop, WorkshopRun, WorkshopAttendee, WorkshopFeedback,
                     LessonSlide, MaterialProgress)
 
@@ -747,6 +747,9 @@ def _certificate_quantity(data):
 @app.route('/login')
 @app.route('/reset-password')
 def serve_frontend():
+    # form.codencode.my points at this same app; its home page is the form portal.
+    if request.path == '/' and request.host.split(':')[0].lower().startswith('form.'):
+        return send_from_directory('templates', 'portal.html')
     return send_from_directory('templates', 'lms.html')
 
 
@@ -769,10 +772,18 @@ def serve_register():
 @app.route('/register', methods=['POST'])
 def public_register():
     data = request.get_json(silent=True) or {}
-    required = ('full_name', 'whatsapp', 'email', 'learning_goals')
+    # Honeypot: real visitors never see or fill this field.
+    if str(data.get('website', '')).strip():
+        return jsonify({'ok': True}), 200
+    # The short portal form (form.codencode.my) asks only name, email, phone,
+    # course and location; the full /register page also requires learning goals.
+    source = 'portal' if data.get('source') == 'portal' else 'register'
+    required = ('full_name', 'whatsapp', 'email', 'course') + (('learning_goals',) if source == 'register' else ())
     missing = [f for f in required if not str(data.get(f, '')).strip()]
     if missing:
         return jsonify({'detail': f'Missing required fields: {", ".join(missing)}'}), 400
+    if not re.fullmatch(r'[^@\s]+@[^@\s]+\.[^@\s]+', str(data['email']).strip()):
+        return jsonify({'detail': 'Please enter a valid email address.'}), 400
 
     reg = Registration(
         full_name          = data['full_name'].strip(),
@@ -790,20 +801,27 @@ def public_register():
         instalment_week1   = data.get('instalment_week1', ''),
         instalment_week3   = data.get('instalment_week3', ''),
         timing             = data.get('timing', ''),
+        location           = str(data.get('location', '') or '').strip()[:100],
+        source             = source,
     )
     db.session.add(reg)
     db.session.commit()
 
+    e = {k: html_escape(str(v or '')) for k, v in reg.to_dict().items()}
+    detail_lines = ''.join(
+        f'<strong>{label}:</strong> {e[key]}<br>'
+        for label, key in (('Format', 'class_format'), ('Timing', 'timing'), ('Location', 'location'))
+        if e[key]
+    )
     try:
         send_email(
             reg.email,
             'Registration Received — codencode.my',
             _email_wrapper('We got your registration! 🎉', f'''
-                <p>Hi {reg.full_name},</p>
-                <p>Thanks for registering with <strong>codencode.my</strong>! We've received your details and will WhatsApp you at <strong>{reg.whatsapp}</strong> within 24 hours to confirm your slot.</p>
-                <p><strong>Course:</strong> {reg.course or 'Python / ML'}<br>
-                <strong>Format:</strong> {reg.class_format}<br>
-                <strong>Timing:</strong> {reg.timing}</p>
+                <p>Hi {e["full_name"]},</p>
+                <p>Thanks for registering with <strong>codencode.my</strong>! We've received your details and will WhatsApp you at <strong>{e["whatsapp"]}</strong> within 24 hours to confirm your slot.</p>
+                <p><strong>Course:</strong> {e["course"] or 'Python / ML'}<br>
+                {detail_lines}</p>
                 <p>Questions? Just reply to this email or WhatsApp us at +60196811628.</p>
             ''')
         )
@@ -820,6 +838,142 @@ def api_admin_registrations():
         return jsonify({'error': 'Forbidden'}), 403
     regs = Registration.query.order_by(Registration.submitted_at.desc()).all()
     return jsonify([r.to_dict() for r in regs])
+
+
+# ─────────────────────────────────────────────
+# Form portal (form.codencode.my) — corporate training enquiries
+# ─────────────────────────────────────────────
+_CORP_STATUSES = ('new', 'contacted', 'won', 'lost')
+
+
+@app.route('/portal')
+def serve_portal():
+    return send_from_directory('templates', 'portal.html')
+
+
+@app.route('/api/public/corporate-enquiry', methods=['POST'])
+def public_corporate_enquiry():
+    data = request.get_json(silent=True) or {}
+    # Honeypot: real visitors never see or fill this field.
+    if str(data.get('website', '')).strip():
+        return jsonify({'ok': True}), 200
+
+    def field(name, limit):
+        return str(data.get(name, '') or '').strip()[:limit]
+
+    contact_name = field('contact_name', 100)
+    company      = field('company', 200)
+    email        = field('email', 150).lower()
+    phone        = field('phone', 30)
+    missing = [n for n, v in (('contact_name', contact_name), ('company', company),
+                              ('email', email), ('phone', phone)) if not v]
+    if missing:
+        return jsonify({'detail': f'Missing required fields: {", ".join(missing)}'}), 400
+    if not re.fullmatch(r'[^@\s]+@[^@\s]+\.[^@\s]+', email):
+        return jsonify({'detail': 'Please enter a valid email address.'}), 400
+
+    try:
+        pax = int(data.get('pax') or 0) or None
+    except (TypeError, ValueError):
+        pax = None
+    if pax is not None and not (1 <= pax <= 10000):
+        return jsonify({'detail': 'Number of participants must be between 1 and 10000.'}), 400
+
+    topics = data.get('topics') or []
+    if isinstance(topics, str):
+        topics = [topics]
+    topics = ', '.join(str(t).strip() for t in topics if str(t).strip())[:300]
+
+    enq = CorporateEnquiry(
+        contact_name=contact_name, company=company, email=email, phone=phone,
+        pax=pax, hrd_claim=field('hrd_claim', 20), topics=topics,
+        location=field('location', 100), requirements=field('requirements', 4000),
+    )
+    db.session.add(enq)
+    db.session.commit()
+
+    e = {k: html_escape(str(v or '—')) for k, v in enq.to_dict().items()}
+    try:
+        send_email(
+            _BUSINESS_EMAIL,
+            f'New corporate enquiry — {enq.company}',
+            _email_wrapper('New corporate training enquiry', f'''
+                <p><strong>{e["company"]}</strong> · {e["contact_name"]}</p>
+                <p>Email: {e["email"]}<br>Phone: {e["phone"]}<br>
+                Participants: {e["pax"]}<br>HRD Corp claim: {e["hrd_claim"]}<br>
+                Topics: {e["topics"]}<br>Location: {e["location"]}</p>
+                <p>{e["requirements"]}</p>
+            ''')
+        )
+        send_email(
+            enq.email,
+            'We received your training enquiry — codencode.my',
+            _email_wrapper('Thanks for your enquiry', f'''
+                <p>Hi {e["contact_name"]},</p>
+                <p>Thanks for your interest in training for <strong>{e["company"]}</strong>.
+                Our team will contact you within 1 working day with a proposal.</p>
+                <p>Questions? Reply to this email or WhatsApp us at +60196811628.</p>
+            ''')
+        )
+    except Exception as exc:
+        app.logger.warning('Corporate enquiry email failed: %s', exc)
+
+    return jsonify({'ok': True, 'id': enq.id}), 200
+
+
+@app.route('/api/public/course-feedback', methods=['POST'])
+def public_course_feedback():
+    data = request.get_json(silent=True) or {}
+    if str(data.get('website', '')).strip():   # honeypot
+        return jsonify({'ok': True}), 200
+    full_name = str(data.get('full_name', '') or '').strip()[:100]
+    course    = str(data.get('course', '') or '').strip()[:200]
+    try:
+        rating = int(data.get('rating'))
+    except (TypeError, ValueError):
+        rating = 0
+    missing = [n for n, v in (('full_name', full_name), ('course', course)) if not v]
+    if missing:
+        return jsonify({'detail': f'Missing required fields: {", ".join(missing)}'}), 400
+    if not 1 <= rating <= 5:
+        return jsonify({'detail': 'Please choose a rating from 1 to 5.'}), 400
+    fb = CourseFeedback(full_name=full_name, course=course, rating=rating,
+                        comments=str(data.get('comments', '') or '').strip()[:4000])
+    db.session.add(fb)
+    db.session.commit()
+    return jsonify({'ok': True, 'id': fb.id}), 200
+
+
+@app.route('/api/admin/course-feedback', methods=['GET'])
+@login_required
+def api_admin_course_feedback():
+    if current_user.role != 'admin':
+        return jsonify({'error': 'Forbidden'}), 403
+    rows = CourseFeedback.query.order_by(CourseFeedback.submitted_at.desc()).all()
+    return jsonify([r.to_dict() for r in rows])
+
+
+@app.route('/api/admin/corporate-enquiries', methods=['GET'])
+@login_required
+def api_admin_corporate_enquiries():
+    if current_user.role != 'admin':
+        return jsonify({'error': 'Forbidden'}), 403
+    rows = CorporateEnquiry.query.order_by(CorporateEnquiry.submitted_at.desc()).all()
+    return jsonify([r.to_dict() for r in rows])
+
+
+@app.route('/api/admin/corporate-enquiries/<int:eid>', methods=['PUT'])
+@login_required
+def api_admin_update_corporate_enquiry(eid):
+    if current_user.role != 'admin':
+        return jsonify({'error': 'Forbidden'}), 403
+    enq = CorporateEnquiry.query.get_or_404(eid)
+    status = (request.get_json(silent=True) or {}).get('status')
+    if status not in _CORP_STATUSES:
+        return jsonify({'error': f'status must be one of {", ".join(_CORP_STATUSES)}'}), 400
+    enq.status = status
+    db.session.commit()
+    return jsonify(enq.to_dict())
 
 
 # ─────────────────────────────────────────────
@@ -6694,6 +6848,19 @@ with app.app_context():
                 conn.commit()
             if 'order_index' not in mat_cols:
                 conn.execute(text('ALTER TABLE materials ADD COLUMN order_index INTEGER DEFAULT 0'))
+                conn.commit()
+    except Exception:
+        pass
+
+    # Registration: preferred location (from the form.codencode.my portal)
+    try:
+        reg_cols = {c['name'] for c in sa_inspect(db.engine).get_columns('registrations')}
+        with db.engine.connect() as conn:
+            if 'location' not in reg_cols:
+                conn.execute(text('ALTER TABLE registrations ADD COLUMN location VARCHAR(100)'))
+                conn.commit()
+            if 'source' not in reg_cols:
+                conn.execute(text('ALTER TABLE registrations ADD COLUMN source VARCHAR(20)'))
                 conn.commit()
     except Exception:
         pass
