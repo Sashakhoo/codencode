@@ -837,7 +837,111 @@ def api_admin_registrations():
     if current_user.role != 'admin':
         return jsonify({'error': 'Forbidden'}), 403
     regs = Registration.query.order_by(Registration.submitted_at.desc()).all()
-    return jsonify([r.to_dict() for r in regs])
+    # Flag sign-ups whose email already has a student login, so the approve
+    # panel can say "existing account" instead of promising a new password.
+    emails = {r.email for r in regs}
+    existing = {u.email: u.id for u in User.query.filter(User.email.in_(emails)).all()} if emails else {}
+    out = []
+    for r in regs:
+        d = r.to_dict()
+        d['existing_user_id'] = existing.get(r.email)
+        out.append(d)
+    return jsonify(out)
+
+
+@app.route('/api/admin/registrations/<int:rid>', methods=['PUT'])
+@admin_required
+def api_admin_update_registration(rid):
+    reg = Registration.query.get_or_404(rid)
+    status = (request.get_json(silent=True) or {}).get('status')
+    if status not in ('new', 'cancelled'):
+        return jsonify({'error': 'status must be new or cancelled (use Approve to enrol)'}), 400
+    if reg.status == 'enrolled':
+        return jsonify({'error': 'This registration is already enrolled; manage it from the student profile.'}), 409
+    reg.status = status
+    db.session.commit()
+    return jsonify(reg.to_dict())
+
+
+@app.route('/api/admin/registrations/<int:rid>/approve', methods=['POST'])
+@admin_required
+def api_admin_approve_registration(rid):
+    """Turn a sign-up into a student: create the login (or reuse the existing
+    one for this email), enrol them in the chosen LMS course, optionally send
+    the welcome email, and mark the registration Enrolled."""
+    reg = Registration.query.get_or_404(rid)
+    data = request.get_json(silent=True) or {}
+
+    course = Course.query.get(data.get('course_id') or 0)
+    if not course:
+        return jsonify({'error': 'Choose an LMS course to enrol them in.'}), 400
+    cohort_id = data.get('cohort_id') or None
+    if cohort_id:
+        cohort = Cohort.query.get(cohort_id)
+        if not cohort or cohort.course_id != course.id:
+            return jsonify({'error': 'That class does not belong to the chosen course.'}), 400
+    teacher_id = data.get('teacher_id') or None
+    if teacher_id:
+        t = User.query.get(teacher_id)
+        if not t or t.role not in ('teacher', 'admin'):
+            return jsonify({'error': 'Unknown teacher.'}), 400
+    payment_status = data.get('payment_status') if data.get('payment_status') in ('paid', 'pending') else 'pending'
+    enrolled_at = datetime.utcnow()
+    if data.get('enrolled_at'):
+        try:
+            enrolled_at = datetime.strptime(data['enrolled_at'], '%Y-%m-%d')
+        except ValueError:
+            return jsonify({'error': 'Start date must be YYYY-MM-DD'}), 400
+
+    user = User.query.filter_by(email=reg.email).first()
+    if user and user.role != 'student':
+        return jsonify({'error': f'{reg.email} belongs to a {user.role} account, not a student.'}), 409
+    if user and Enrollment.query.filter_by(student_id=user.id, course_id=course.id).first():
+        return jsonify({'error': f'{user.name} is already enrolled in {course.title}.'}), 409
+
+    plain_pw = None
+    if not user:
+        plain_pw = secrets.token_urlsafe(9)
+        user = User(name=reg.full_name, email=reg.email, role='student',
+                    phone=reg.whatsapp or '', language_pref='en')
+        user.set_password(plain_pw)
+        user.temp_password = plain_pw
+        db.session.add(user)
+        db.session.flush()
+    elif reg.whatsapp and not user.phone:
+        user.phone = reg.whatsapp
+
+    enr = Enrollment(
+        student_id=user.id, course_id=course.id, enrolled_at=enrolled_at,
+        payment_status=payment_status,
+        payment_remarks=str(data.get('remarks', '') or '').strip()[:500],
+        class_timing=str(data.get('class_timing', '') or '').strip()[:300],
+        class_format=str(data.get('class_format', '') or '')[:20],
+        cohort_id=cohort_id, teacher_id=teacher_id,
+    )
+    db.session.add(enr)
+    reg.status = 'enrolled'
+    reg.user_id = user.id
+    db.session.commit()
+
+    welcome_sent = False
+    if plain_pw and data.get('send_welcome', True):
+        try:
+            email_welcome(user.name, user.email, course.title, plain_pw)
+            welcome_sent = True
+        except Exception as exc:
+            app.logger.warning('Welcome email failed for registration %s: %s', reg.id, exc)
+    _send_cohort_schedule(enr)
+
+    return jsonify({
+        'registration': reg.to_dict(),
+        'student_id': user.id,
+        'account_created': plain_pw is not None,
+        'temp_password': plain_pw,
+        'welcome_sent': welcome_sent,
+        'course_title': course.title,
+        'login_url': (request.host_url.rstrip('/').replace('://form.', '://learn.')) + '/login',
+    })
 
 
 # ─────────────────────────────────────────────
@@ -1846,23 +1950,25 @@ def admin_enroll_student(uid):
     )
     db.session.add(e)
     db.session.commit()
-
-    # Assigning a course here is the real "enrolment confirmed" moment in
-    # this system (the UI doesn't currently expose a separate payment_status
-    # toggle) - once a Class/cohort is picked, generate its recurring Zoom
-    # link (idempotent, first student to be assigned creates it) and email
-    # the student their full class-by-class schedule.
-    if e.cohort_id:
-        cohort = Cohort.query.get(e.cohort_id)
-        student = User.query.get(uid)
-        if cohort and student:
-            try:
-                zoom_link = ensure_cohort_zoom_link(cohort, cohort.course)
-                email_class_schedule(student, cohort.course, cohort, zoom_link)
-            except Exception as exc:
-                app.logger.warning('Class schedule email failed for enrollment %s: %s', e.id, exc)
-
+    _send_cohort_schedule(e)
     return jsonify({'enrollment': e.to_dict()}), 201
+
+
+def _send_cohort_schedule(e):
+    """Assigning a course is the real "enrolment confirmed" moment in this
+    system - once a Class/cohort is picked, generate its recurring Zoom link
+    (idempotent, first student to be assigned creates it) and email the
+    student their full class-by-class schedule."""
+    if not e.cohort_id:
+        return
+    cohort = Cohort.query.get(e.cohort_id)
+    student = User.query.get(e.student_id)
+    if cohort and student:
+        try:
+            zoom_link = ensure_cohort_zoom_link(cohort, cohort.course)
+            email_class_schedule(student, cohort.course, cohort, zoom_link)
+        except Exception as exc:
+            app.logger.warning('Class schedule email failed for enrollment %s: %s', e.id, exc)
 
 
 @app.route('/api/enrollments/<int:eid>/enrolled-date', methods=['PUT'])
@@ -6861,6 +6967,12 @@ with app.app_context():
                 conn.commit()
             if 'source' not in reg_cols:
                 conn.execute(text('ALTER TABLE registrations ADD COLUMN source VARCHAR(20)'))
+                conn.commit()
+            if 'status' not in reg_cols:
+                conn.execute(text("ALTER TABLE registrations ADD COLUMN status VARCHAR(20) DEFAULT 'new'"))
+                conn.commit()
+            if 'user_id' not in reg_cols:
+                conn.execute(text('ALTER TABLE registrations ADD COLUMN user_id INTEGER'))
                 conn.commit()
     except Exception:
         pass
