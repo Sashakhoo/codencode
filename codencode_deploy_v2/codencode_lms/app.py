@@ -24,6 +24,7 @@ import json as _json_mod
 from html import escape as html_escape
 from datetime import datetime, timedelta
 from functools import wraps
+from contextlib import contextmanager
 
 from dotenv import load_dotenv
 load_dotenv()
@@ -6677,6 +6678,41 @@ def api_resync_curriculum_materials():
     return jsonify({'ok': True})
 
 
+_STARTUP_SEED_LOCK_KEY = 72510001  # any fixed number, shared by all workers
+
+
+@contextmanager
+def _startup_seed_lock():
+    """Postgres advisory lock so only one gunicorn worker runs the startup
+    seeders at a time. Held on its own connection (the seeders use the normal
+    session), released at the end. If the lock can't be taken within 25s, or
+    the database isn't Postgres (local SQLite), seeding just runs unlocked as
+    before - the existing dedupe steps still clean up after a race."""
+    conn = None
+    if db.engine.dialect.name == 'postgresql':
+        try:
+            conn = db.engine.connect()
+            conn.execute(text("SET lock_timeout = '25s'"))
+            conn.execute(text('SELECT pg_advisory_lock(:k)'), {'k': _STARTUP_SEED_LOCK_KEY})
+        except Exception as exc:
+            app.logger.warning('Startup seed lock not taken, seeding unlocked: %s', exc)
+            if conn is not None:
+                conn.invalidate()
+                conn.close()
+            conn = None
+    try:
+        yield
+    finally:
+        if conn is not None:
+            try:
+                conn.execute(text('SELECT pg_advisory_unlock(:k)'), {'k': _STARTUP_SEED_LOCK_KEY})
+                conn.commit()
+            except Exception:
+                conn.invalidate()  # drop the connection so the lock can't linger in the pool
+            finally:
+                conn.close()
+
+
 def _looks_like_session_deck(material):
     """True if a material reads as a session's slide deck (something a teacher
     might upload to replace our bundled deck), not homework or another extra."""
@@ -7248,18 +7284,23 @@ with app.app_context():
     except Exception:
         db.session.rollback()
 
-    seed_demo()
-    seed_predefined_workshops()
-    seed_python_fundamentals_quizzes()
-    seed_python_homework()
-    _sync_bundled_materials()
-    enforce_python_fundamentals_curriculum_materials()
-    enforce_python_intermediate_curriculum_materials()
-    seed_course_curriculum_materials()
-    seed_ml_quizzes()
-    seed_ml_homework_and_assignment()
-    _dedupe_quizzes_by_title()
-    _dedupe_assignments_by_title()
+    # gunicorn starts 2 workers and each runs this block at the same moment,
+    # so both could see a deck/quiz as missing and both add it (that's how
+    # Python Intermediate got every session deck twice). Run the seeders
+    # one worker at a time; the second then finds everything in place.
+    with _startup_seed_lock():
+        seed_demo()
+        seed_predefined_workshops()
+        seed_python_fundamentals_quizzes()
+        seed_python_homework()
+        _sync_bundled_materials()
+        enforce_python_fundamentals_curriculum_materials()
+        enforce_python_intermediate_curriculum_materials()
+        seed_course_curriculum_materials()
+        seed_ml_quizzes()
+        seed_ml_homework_and_assignment()
+        _dedupe_quizzes_by_title()
+        _dedupe_assignments_by_title()
     _start_scheduler()
 
 if __name__ == '__main__':
