@@ -882,6 +882,9 @@ class Registration(db.Model):
     source             = db.Column(db.String(20))   # 'register' page or 'portal'
     status             = db.Column(db.String(20), default='new')  # new (shown as Pending) / enrolled / cancelled
     user_id            = db.Column(db.Integer)      # student account created/used on approval
+    # CNC Finance invoice raised for this sign-up (see app.py _finance_call)
+    finance_invoice_number = db.Column(db.String(40))
+    finance_note       = db.Column(db.String(300))  # last sync result, e.g. an error to show admins
     submitted_at       = db.Column(db.DateTime, default=datetime.utcnow)
 
     def to_dict(self):
@@ -906,6 +909,8 @@ class Registration(db.Model):
             'source': self.source or 'register',
             'status': self.status or 'new',
             'user_id': self.user_id,
+            'finance_invoice_number': self.finance_invoice_number or '',
+            'finance_note': self.finance_note or '',
             'submitted_at': self.submitted_at.strftime('%b %d, %Y · %I:%M %p'),
         }
 

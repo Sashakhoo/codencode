@@ -17,6 +17,7 @@ import hmac
 import hashlib
 import base64
 import time
+import threading
 import urllib.request
 import urllib.error
 import urllib.parse
@@ -128,6 +129,10 @@ _BUSINESS_EMAIL = os.environ.get('BUSINESS_EMAIL', 'codencodemy@gmail.com')
 # sync (see that repo's backend/lms_sync.py). Must match FINANCE_SYNC_SECRET
 # used there as the X-Finance-Secret header.
 _FINANCE_SYNC_SECRET = os.environ.get('FINANCE_SYNC_SECRET', '')
+# The reverse direction: registrations raise invoices in CNC Finance
+# (that repo's backend/lms_invoices.py). Same shared secret, sent back as
+# x-lms-secret. Leave FINANCE_URL unset to switch the feature off.
+_FINANCE_URL = os.environ.get('FINANCE_URL', '').rstrip('/')
 _BUSINESS_WEBSITE = os.environ.get('BUSINESS_WEBSITE', 'codencode.my')
 _INVOICE_DUE_DAYS = int(os.environ.get('INVOICE_DUE_DAYS', '14'))
 _BANK_NAME = os.environ.get('BANK_NAME', 'MAYBANK')
@@ -829,7 +834,65 @@ def public_register():
     except Exception as exc:
         app.logger.warning('Registration confirmation email failed: %s', exc)
 
+    # Raise the RM0 Pending invoice in CNC Finance in the background, so a slow
+    # or offline Finance never holds up the student's form.
+    if _FINANCE_URL:
+        threading.Thread(target=_raise_finance_invoice_bg, args=(reg.id,), daemon=True).start()
+
     return jsonify({'ok': True, 'id': reg.id}), 200
+
+
+# ── CNC Finance invoices for registrations ──────────────────
+def _finance_call(path, payload=None):
+    """POST to CNC Finance's LMS integration. Returns (ok, data_or_message);
+    never raises, so a Finance problem can't break the LMS."""
+    if not _FINANCE_URL or not _FINANCE_SYNC_SECRET:
+        return False, 'Finance link not configured'
+    req = urllib.request.Request(
+        f'{_FINANCE_URL}/api/integrations/lms{path}',
+        data=_json_mod.dumps(payload or {}).encode(),
+        headers={'Content-Type': 'application/json', 'x-lms-secret': _FINANCE_SYNC_SECRET},
+        method='POST')
+    try:
+        with urllib.request.urlopen(req, timeout=10) as resp:
+            return True, _json_mod.loads(resp.read().decode() or '{}')
+    except urllib.error.HTTPError as exc:
+        try:
+            detail = _json_mod.loads(exc.read().decode()).get('detail')
+        except Exception:
+            detail = None
+        return False, f'Finance error {exc.code}: {detail or exc.reason}'
+    except Exception as exc:
+        return False, f'Finance unreachable: {exc}'
+
+
+def _finance_ref(reg):
+    return f'lms-reg-{reg.id}'
+
+
+def _raise_finance_invoice(reg):
+    """Create (or fetch, it's idempotent) the Finance invoice for a
+    registration and remember its number. Returns True on success."""
+    ok, out = _finance_call('/registration', {
+        'external_ref': _finance_ref(reg), 'name': reg.full_name, 'email': reg.email,
+        'phone': reg.whatsapp or '', 'course': reg.course or 'Course',
+        'location': reg.location or '', 'timing': reg.timing or '',
+    })
+    if ok:
+        reg.finance_invoice_number = out.get('invoice_number')
+        reg.finance_note = ''
+    else:
+        reg.finance_note = str(out)[:300]
+        app.logger.warning('Finance invoice for registration %s failed: %s', reg.id, out)
+    db.session.commit()
+    return ok
+
+
+def _raise_finance_invoice_bg(reg_id):
+    with app.app_context():
+        reg = Registration.query.get(reg_id)
+        if reg:
+            _raise_finance_invoice(reg)
 
 
 @app.route('/api/admin/registrations', methods=['GET'])
@@ -860,8 +923,21 @@ def api_admin_update_registration(rid):
     if reg.status == 'enrolled':
         return jsonify({'error': 'This registration is already enrolled; manage it from the student profile.'}), 409
     reg.status = status
+    finance = None
+    if status == 'cancelled' and reg.finance_invoice_number:
+        # Finance only deletes it while it's still Pending with no deposit.
+        ok, out = _finance_call(f'/registration/{_finance_ref(reg)}/cancel')
+        if ok and out.get('deleted'):
+            finance = f'Invoice {reg.finance_invoice_number} removed from Finance'
+            reg.finance_invoice_number = None
+            reg.finance_note = ''
+        else:
+            finance = (out.get('reason') if ok else out) or 'Invoice left in Finance'
+            reg.finance_note = str(finance)[:300]
+    elif status == 'new' and not reg.finance_invoice_number and _FINANCE_URL:
+        _raise_finance_invoice(reg)   # moved back to pending: raise a fresh RM0 invoice
     db.session.commit()
-    return jsonify(reg.to_dict())
+    return jsonify({**reg.to_dict(), 'finance': finance})
 
 
 @app.route('/api/admin/registrations/<int:rid>/approve', methods=['POST'])
@@ -934,8 +1010,33 @@ def api_admin_approve_registration(rid):
             app.logger.warning('Welcome email failed for registration %s: %s', reg.id, exc)
     _send_cohort_schedule(enr)
 
+    # Put the fee on the registration's Finance invoice, renaming its line to
+    # the exact LMS course title: when the invoice is later marked Paid,
+    # Finance's paid -> enrol sync matches courses by that title.
+    invoice = None
+    amount = data.get('amount')
+    if _FINANCE_URL and amount not in (None, ''):
+        try:
+            amount = round(float(amount), 2)
+        except (TypeError, ValueError):
+            amount = None
+        if amount is not None and amount >= 0:
+            if not reg.finance_invoice_number:
+                _raise_finance_invoice(reg)
+            ok, out = _finance_call(f'/registration/{_finance_ref(reg)}/amount',
+                                    {'amount': amount, 'course_title': course.title})
+            if ok:
+                reg.finance_invoice_number = out.get('invoice_number') or reg.finance_invoice_number
+                reg.finance_note = ''
+                invoice = {'ok': True, 'number': reg.finance_invoice_number, 'amount': out.get('amount')}
+            else:
+                reg.finance_note = str(out)[:300]
+                invoice = {'ok': False, 'message': str(out), 'number': reg.finance_invoice_number}
+            db.session.commit()
+
     return jsonify({
         'registration': reg.to_dict(),
+        'invoice': invoice,
         'student_id': user.id,
         'account_created': plain_pw is not None,
         'temp_password': plain_pw,
@@ -949,6 +1050,14 @@ def api_admin_approve_registration(rid):
 # Form portal (form.codencode.my) — corporate training enquiries
 # ─────────────────────────────────────────────
 _CORP_STATUSES = ('new', 'contacted', 'won', 'lost')
+
+
+@app.route('/favicon.ico')
+def serve_favicon():
+    # Square codencode mark (16-256px). Browsers ask for /favicon.ico even
+    # on pages without an icon tag, e.g. certificate and feedback pages.
+    return send_from_directory(os.path.join(app.static_folder, 'img'), 'favicon.ico',
+                               mimetype='image/vnd.microsoft.icon', max_age=86400)
 
 
 @app.route('/portal')
@@ -2069,6 +2178,13 @@ def finance_enroll():
 
     if account_created:
         email_welcome(user.name, user.email, matched[0]['title'] if matched else 'codencode.my', plain_pw)
+
+    # A paid invoice that came from a registration closes that registration too.
+    if matched:
+        for reg in Registration.query.filter_by(email=email, status='new').all():
+            reg.status = 'enrolled'
+            reg.user_id = user.id
+        db.session.commit()
 
     return jsonify({'matched': matched, 'unmatched': unmatched, 'account_created': account_created})
 
@@ -7024,6 +7140,12 @@ with app.app_context():
                 conn.commit()
             if 'user_id' not in reg_cols:
                 conn.execute(text('ALTER TABLE registrations ADD COLUMN user_id INTEGER'))
+                conn.commit()
+            if 'finance_invoice_number' not in reg_cols:
+                conn.execute(text('ALTER TABLE registrations ADD COLUMN finance_invoice_number VARCHAR(40)'))
+                conn.commit()
+            if 'finance_note' not in reg_cols:
+                conn.execute(text('ALTER TABLE registrations ADD COLUMN finance_note VARCHAR(300)'))
                 conn.commit()
     except Exception:
         pass

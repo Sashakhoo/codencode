@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>codencode.my — Admin</title>
+  <link rel="icon" href="/favicon.ico" sizes="any" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@300;400;500;600;700&family=Lato:ital,wght@0,300;0,400;0,700;1,400&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
@@ -3470,7 +3471,7 @@
         <div class="card">
           <div class="table-wrap">
             <table>
-              <thead><tr><th>Submitted</th><th>Student</th><th>Course / location</th><th>Fee / payment</th><th>Status</th><th style="text-align:right">Actions</th></tr></thead>
+              <thead><tr><th>Submitted</th><th>Student</th><th>Course / location</th><th>Fee / invoice</th><th>Status</th><th style="text-align:right">Actions</th></tr></thead>
               <tbody id="registrations-tbody"><tr><td colspan="6" style="color:var(--text-muted);text-align:center;padding:24px">Loading...</td></tr></tbody>
             </table>
           </div>
@@ -3906,8 +3907,13 @@
       <div id="ar-existing" style="display:none;background:var(--gold-dim);color:var(--text);border-radius:12px;padding:10px 14px;margin-bottom:14px;font-size:13px"></div>
       <div class="form-group" style="margin-bottom:14px">
         <label class="form-label">LMS course *</label>
-        <select class="form-select" id="ar-course" onchange="loadApproveCohorts()"></select>
+        <select class="form-select" id="ar-course" onchange="loadApproveCohorts();fillApproveAmount()"></select>
         <div id="ar-course-hint" style="font-size:11px;color:var(--text-dim);margin-top:4px"></div>
+      </div>
+      <div class="form-group" style="margin-bottom:14px">
+        <label class="form-label">Invoice amount (RM)</label>
+        <input class="form-input" type="number" id="ar-amount" min="0" step="0.01" inputmode="decimal" placeholder="Leave blank to set it later in Finance" oninput="this.dataset.touched='1'" />
+        <div id="ar-amount-hint" style="font-size:11px;color:var(--text-dim);margin-top:4px"></div>
       </div>
       <div class="form-group" style="margin-bottom:14px">
         <label class="form-label">Payment</label>
@@ -3918,7 +3924,7 @@
       </div>
       <div class="form-group" style="margin-bottom:14px">
         <label class="form-label">Class format</label>
-        <select class="form-select" id="ar-format" onchange="toggleApproveFormat()">
+        <select class="form-select" id="ar-format" onchange="toggleApproveFormat();fillApproveAmount()">
           <option value="">— select format —</option>
           <option value="1v1">1 vs 1 (Private)</option>
           <option value="2v1">2 vs 1 (Pair)</option>
@@ -6044,7 +6050,9 @@ function renderRegistrations() {
           ${r.existing_user_id && st !== 'enrolled' ? `<div style="font-size:11px;color:var(--gold);margin-top:2px"><i class="fas fa-exclamation-circle"></i> Already has a login</div>` : ''}</td>
         <td>${e(r.course || '—')}${sub(r.location)}${sub(r.timing)}${sub(r.class_format)}
           ${r.learning_goals ? `<div style="font-size:12px;color:var(--text-muted);max-width:260px;margin-top:2px">“${e(r.learning_goals)}”</div>` : ''}</td>
-        <td>${e(r.total_fee || '—')}${sub(r.payment_preference)}</td>
+        <td>${e(r.total_fee || '—')}${sub(r.payment_preference)}
+          ${r.finance_invoice_number ? `<div style="font-size:12px;margin-top:2px"><i class="fas fa-file-invoice" style="color:var(--green)"></i> ${e(r.finance_invoice_number)}</div>` : ''}
+          ${r.finance_note ? `<div style="font-size:11px;color:var(--red);margin-top:2px;max-width:200px" title="${e(r.finance_note)}"><i class="fas fa-exclamation-triangle"></i> ${e(r.finance_note.length > 60 ? r.finance_note.slice(0, 60) + '…' : r.finance_note)}</div>` : ''}</td>
         <td><span class="badge" style="background:${bg};color:${fg};border:0">${label}</span></td>
         <td style="text-align:right;white-space:nowrap">${actions}</td>
       </tr>`;
@@ -6053,8 +6061,8 @@ function renderRegistrations() {
 
 async function setRegistrationStatus(id, status) {
   try {
-    await PUT(`/api/admin/registrations/${id}`, {status});
-    toast(status === 'cancelled' ? 'Registration cancelled' : 'Moved back to pending');
+    const res = await PUT(`/api/admin/registrations/${id}`, {status});
+    toast((status === 'cancelled' ? 'Registration cancelled' : 'Moved back to pending') + (res.finance ? ' · ' + res.finance : ''));
     await loadRegistrations();
   } catch (err) { toast(err.message, true); }
 }
@@ -6115,12 +6123,42 @@ async function openApproveRegistration(id) {
   document.getElementById('ar-start').value = new Date().toISOString().slice(0, 10);
   document.getElementById('ar-timing').value = r.timing || '';
   document.getElementById('ar-remarks').value = '';
+  const amt = document.getElementById('ar-amount');
+  amt.value = ''; delete amt.dataset.touched;
+  fillApproveAmount();
   document.getElementById('ar-form').style.display = 'block';
   document.getElementById('ar-result').style.display = 'none';
   document.getElementById('ar-submit').disabled = false;
   toggleApproveFormat();
   await loadApproveCohorts();
   openModal('modal-approve-reg');
+}
+
+// Default invoice amounts (RM). Half-day courses have none: type it in.
+function defaultCourseFee(title, format) {
+  const t = (title || '').toLowerCase();
+  const isPython = t.includes('python');
+  const isML = t.includes('machine learning') || /\bml\b/.test(t);
+  if (isPython && isML) return [2500, 'Python + ML bundle'];
+  if (isPython && format === '5v1') return [250, 'Python 5 vs 1 class, first month (RM875 if paying one-time)'];
+  if (t.includes('python intermediate')) return [1128, 'Python Intermediate'];
+  if (isPython) return [1128, 'Python'];
+  if (t.includes('cyber')) return [1128, 'Cybersecurity'];
+  if (t.includes('vibe')) return [1128, 'Vibe Coding'];
+  if (isML) return [1500, 'Machine Learning'];
+  return [null, ''];
+}
+
+function fillApproveAmount() {
+  const amt = document.getElementById('ar-amount');
+  const hint = document.getElementById('ar-amount-hint');
+  const sel = document.getElementById('ar-course');
+  const title = sel.selectedOptions[0] && sel.value ? sel.selectedOptions[0].text : '';
+  const [fee, label] = defaultCourseFee(title, document.getElementById('ar-format').value);
+  if (!amt.dataset.touched) amt.value = fee == null ? '' : fee;
+  hint.textContent = fee == null
+    ? 'No standard price for this course. Type the amount, or leave blank to set it in Finance.'
+    : `Standard price for ${label}. Change it if this student pays differently.`;
 }
 
 function toggleApproveFormat() {
@@ -6167,6 +6205,7 @@ async function submitApproveRegistration() {
     class_timing:   document.getElementById('ar-timing').value.trim(),
     remarks:        document.getElementById('ar-remarks').value.trim(),
     send_welcome:   document.getElementById('ar-welcome').checked,
+    amount:         document.getElementById('ar-amount').value === '' ? null : parseFloat(document.getElementById('ar-amount').value),
   };
   if (!body.course_id) { toast('Choose an LMS course first.', true); document.getElementById('ar-course').focus(); return; }
   const btn = document.getElementById('ar-submit');
@@ -6187,7 +6226,9 @@ async function submitApproveRegistration() {
         <li>Enrolled in <strong>${e(res.course_title)}</strong>${body.payment_status === 'paid' ? ' (paid)' : ' (payment pending)'}</li>
         ${res.welcome_sent ? '<li>Welcome email sent with login details</li>' : ''}
         ${body.cohort_id ? '<li>Class schedule &amp; Zoom link emailed</li>' : ''}
+        ${res.invoice && res.invoice.ok ? `<li>Invoice <strong>${e(res.invoice.number)}</strong> updated in Finance: RM${Number(res.invoice.amount).toLocaleString('en-MY', {minimumFractionDigits: 2})}</li>` : ''}
       </ul>
+      ${res.invoice && !res.invoice.ok ? `<div style="background:var(--red-dim);color:var(--red);border-radius:12px;padding:10px 14px;margin-bottom:14px;font-size:13px"><i class="fas fa-exclamation-triangle"></i> Student is enrolled, but the Finance invoice wasn't updated: ${e(res.invoice.message)}. Set the amount in Finance${res.invoice.number ? ' on ' + e(res.invoice.number) : ''}.</div>` : ''}
       ${res.temp_password ? `
         <label class="form-label">Message to send on WhatsApp</label>
         <textarea class="form-textarea" id="ar-wa-text" readonly style="font-family:'JetBrains Mono',monospace;font-size:12px;min-height:96px">${e(waText)}</textarea>
