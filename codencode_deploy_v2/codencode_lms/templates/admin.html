@@ -6267,9 +6267,11 @@ async function loadCorporateEnquiries() {
     tbody.innerHTML = rows.map(r => `
       <tr>
         <td style="font-size:12px;color:var(--text-muted);white-space:nowrap">${e(r.submitted_at)}</td>
-        <td><div style="font-weight:600">${e(r.company)}</div>${sub(r.location)}</td>
-        <td><div>${e(r.contact_name)}</div>${sub(r.email)}${sub(r.phone)}</td>
-        <td>${r.pax ? e(r.pax) + ' pax' : '—'}${sub(r.hrd_claim && 'HRD Corp: ' + r.hrd_claim)}</td>
+        <td><div style="font-weight:600">${e(r.company)}</div>${sub(r.ssm && 'SSM ' + r.ssm)}${sub([r.mode, r.location].filter(Boolean).join(' · '))}
+          ${sub((r.preferred_dates || []).join(', ') + (r.start_time ? ` (${r.start_time}–${r.end_time})` : ''))}</td>
+        <td><div>${e(r.contact_name)}${r.contact_role ? ` <span style="color:var(--text-muted)">(${e(r.contact_role)})</span>` : ''}</div>${sub(r.email)}${sub(r.phone)}</td>
+        <td>${r.pax ? e(r.pax) + ' pax' : '—'}${sub(r.hrd_claim && 'HRD Corp: ' + r.hrd_claim)}${sub(r.mycoid && 'MyCoID ' + r.mycoid)}
+          ${(r.participants || []).length ? `<div style="font-size:12px;color:var(--text-muted);margin-top:2px">${r.participants.map(p => e(p.name) + (p.department || p.level ? ` (${e([p.department, p.level].filter(Boolean).join(', '))})` : '')).join('<br>')}</div>` : ''}</td>
         <td style="max-width:320px">${e(r.topics || '—')}${sub(r.requirements)}
           ${r.finance_quote_number ? `<div style="font-size:12px;margin-top:4px"><i class="fas fa-file-signature" style="color:var(--green)"></i> Quotation ${e(r.finance_quote_number)} (Draft in Finance)</div>` : ''}
           ${r.finance_note ? `<div style="font-size:11px;color:var(--red);margin-top:2px" title="${e(r.finance_note)}"><i class="fas fa-exclamation-triangle"></i> ${e(r.finance_note.length > 70 ? r.finance_note.slice(0, 70) + '…' : r.finance_note)}</div>` : ''}</td>
