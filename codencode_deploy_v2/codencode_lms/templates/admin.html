@@ -3086,6 +3086,19 @@
       </div>
     </div>
 
+    <div class="sidebar-section admin-only">
+      <div class="sidebar-section-label">Form Portal</div>
+      <div class="nav-item" onclick="showView('registrations')">
+        <i class="fas fa-user-clock"></i> <span>Registrations</span>
+      </div>
+      <div class="nav-item" onclick="showView('corporate')">
+        <i class="fas fa-building"></i> <span>Corporate Enquiries</span>
+      </div>
+      <div class="nav-item" onclick="showView('course-feedback')">
+        <i class="fas fa-star"></i> <span>Course Feedback</span>
+      </div>
+    </div>
+
     <div class="sidebar-section">
       <div class="sidebar-section-label" data-i18n="sec.courses">Courses</div>
       <div class="nav-item" onclick="showView('courses')">
@@ -3440,6 +3453,49 @@
       </div>
 
       <!-- ── CERTIFICATES ──────────────────────── -->
+      <div id="view-registrations" class="view">
+        <div class="section-header" style="margin-bottom:20px">
+          <div class="section-title">Registrations</div>
+        </div>
+        <div class="card">
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Submitted</th><th>Student</th><th>Contact</th><th>Course</th><th>Location / timing</th><th>Fee / payment</th><th>From</th></tr></thead>
+              <tbody id="registrations-tbody"><tr><td colspan="7" style="color:var(--text-muted);text-align:center;padding:24px">Loading...</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div id="view-corporate" class="view">
+        <div class="section-header" style="margin-bottom:20px">
+          <div class="section-title">Corporate Enquiries</div>
+        </div>
+        <div class="card">
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Submitted</th><th>Company</th><th>Contact</th><th>Pax / HRD</th><th>Topics &amp; needs</th><th>Status</th></tr></thead>
+              <tbody id="corporate-tbody"><tr><td colspan="6" style="color:var(--text-muted);text-align:center;padding:24px">Loading...</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div id="view-course-feedback" class="view">
+        <div class="section-header" style="margin-bottom:20px">
+          <div class="section-title">Course Feedback</div>
+          <div id="course-feedback-summary" style="color:var(--text-muted);font-size:13px"></div>
+        </div>
+        <div class="card">
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Submitted</th><th>Student</th><th>Course</th><th>Rating</th><th>Feedback</th></tr></thead>
+              <tbody id="course-feedback-tbody"><tr><td colspan="5" style="color:var(--text-muted);text-align:center;padding:24px">Loading...</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
       <div id="view-certificates" class="view">
         <div class="section-header" style="margin-bottom:20px">
           <div class="section-title">Certificates</div>
@@ -5729,6 +5785,9 @@ const VIEW_TITLES = {
   'workshop-run-detail': ['Run Detail',  'Attendees & feedback'],
   announcements: ['Announcements',    'Send announcements to students'],
   sessions:      ['Sessions',         'View all scheduled sessions'],
+  registrations: ['Registrations',    'Sign-ups from /register and form.codencode.my'],
+  corporate:     ['Corporate Enquiries', 'Company training requests from form.codencode.my'],
+  'course-feedback': ['Course Feedback', 'Ratings and comments from form.codencode.my'],
   certificates:  ['Certificates',     'Issue & manage student certificates'],
   analytics:     ['Analytics',        'Export data & view login activity'],
 };
@@ -5821,6 +5880,92 @@ function showView(name) {
   if (name === 'analytics')     loadAdminAnalytics();
   if (name === 'workshops')     loadWorkshopCatalogue();
   if (name === 'workshop-runs') loadUpcomingRuns();
+  if (name === 'registrations') loadRegistrations();
+  if (name === 'corporate')     loadCorporateEnquiries();
+  if (name === 'course-feedback') loadCourseFeedback();
+}
+
+async function loadCourseFeedback() {
+  const tbody = document.getElementById('course-feedback-tbody');
+  const summary = document.getElementById('course-feedback-summary');
+  try {
+    const rows = await GET('/api/admin/course-feedback');
+    if (!rows.length) {
+      summary.textContent = '';
+      tbody.innerHTML = `<tr><td colspan="5" style="color:var(--text-muted);text-align:center;padding:24px">No feedback yet.</td></tr>`;
+      return;
+    }
+    const avg = rows.reduce((s, r) => s + r.rating, 0) / rows.length;
+    summary.textContent = `${rows.length} response${rows.length === 1 ? '' : 's'} · average ${avg.toFixed(1)} / 5`;
+    const e = escHtml;
+    tbody.innerHTML = rows.map(r => `
+      <tr>
+        <td style="font-size:12px;color:var(--text-muted);white-space:nowrap">${e(r.submitted_at)}</td>
+        <td style="font-weight:600">${e(r.full_name)}</td>
+        <td>${e(r.course)}</td>
+        <td style="white-space:nowrap;color:var(--gold)" title="${r.rating} / 5">${'★'.repeat(r.rating)}<span style="color:var(--text-faint)">${'★'.repeat(5 - r.rating)}</span></td>
+        <td style="max-width:420px;color:var(--text-muted)">${e(r.comments || '—')}</td>
+      </tr>`).join('');
+  } catch (err) {
+    tbody.innerHTML = `<tr><td colspan="5" style="color:var(--red);text-align:center;padding:24px">${escHtml(err.message)}</td></tr>`;
+  }
+}
+
+// ── Sign-ups: registrations & corporate enquiries ─────
+async function loadRegistrations() {
+  const tbody = document.getElementById('registrations-tbody');
+  try {
+    const rows = await GET('/api/admin/registrations');
+    if (!rows.length) {
+      tbody.innerHTML = `<tr><td colspan="7" style="color:var(--text-muted);text-align:center;padding:24px">No registrations yet.</td></tr>`;
+      return;
+    }
+    const e = escHtml, sub = v => v ? `<div style="font-size:12px;color:var(--text-muted)">${e(v)}</div>` : '';
+    tbody.innerHTML = rows.map(r => `
+      <tr>
+        <td style="font-size:12px;color:var(--text-muted);white-space:nowrap">${e(r.submitted_at)}</td>
+        <td><div style="font-weight:600">${e(r.full_name)}</div>${sub(r.occupation)}${sub(r.experience_level)}</td>
+        <td><div>${e(r.email)}</div>${sub(r.whatsapp)}</td>
+        <td>${e(r.course || '—')}${r.learning_goals ? `<div style="font-size:12px;color:var(--text-muted);max-width:260px">${e(r.learning_goals)}</div>` : ''}</td>
+        <td>${e(r.location || '')}${sub(r.timing)}${sub(r.class_format)}</td>
+        <td>${e(r.total_fee || '—')}${sub(r.payment_preference)}</td>
+        <td><span class="badge" style="background:var(--surface);border:1px solid var(--border)">${r.source === 'portal' ? 'Portal' : '/register'}</span></td>
+      </tr>`).join('');
+  } catch (err) {
+    tbody.innerHTML = `<tr><td colspan="7" style="color:var(--red);text-align:center;padding:24px">${escHtml(err.message)}</td></tr>`;
+  }
+}
+
+async function loadCorporateEnquiries() {
+  const tbody = document.getElementById('corporate-tbody');
+  try {
+    const rows = await GET('/api/admin/corporate-enquiries');
+    if (!rows.length) {
+      tbody.innerHTML = `<tr><td colspan="6" style="color:var(--text-muted);text-align:center;padding:24px">No corporate enquiries yet.</td></tr>`;
+      return;
+    }
+    const e = escHtml, sub = v => v ? `<div style="font-size:12px;color:var(--text-muted)">${e(v)}</div>` : '';
+    tbody.innerHTML = rows.map(r => `
+      <tr>
+        <td style="font-size:12px;color:var(--text-muted);white-space:nowrap">${e(r.submitted_at)}</td>
+        <td><div style="font-weight:600">${e(r.company)}</div>${sub(r.location)}</td>
+        <td><div>${e(r.contact_name)}</div>${sub(r.email)}${sub(r.phone)}</td>
+        <td>${r.pax ? e(r.pax) + ' pax' : '—'}${sub(r.hrd_claim && 'HRD Corp: ' + r.hrd_claim)}</td>
+        <td style="max-width:320px">${e(r.topics || '—')}${sub(r.requirements)}</td>
+        <td>
+          <select class="form-select" style="min-width:120px" onchange="setCorporateStatus(${r.id}, this.value)">
+            ${['new','contacted','won','lost'].map(s => `<option value="${s}" ${s === r.status ? 'selected' : ''}>${s[0].toUpperCase() + s.slice(1)}</option>`).join('')}
+          </select>
+        </td>
+      </tr>`).join('');
+  } catch (err) {
+    tbody.innerHTML = `<tr><td colspan="6" style="color:var(--red);text-align:center;padding:24px">${escHtml(err.message)}</td></tr>`;
+  }
+}
+
+async function setCorporateStatus(id, status) {
+  try { await PUT(`/api/admin/corporate-enquiries/${id}`, {status}); toast('Status updated'); }
+  catch (err) { toast(err.message, true); loadCorporateEnquiries(); }
 }
 
 // ═══════════════════════════════════════════════════════

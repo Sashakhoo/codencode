@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Form Portal | codencode.my</title>
+<link rel="icon" href="/static/img/logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">
+<style>
+/* Same tokens as static/css/lms-skin.css so the portal looks like learn.codencode.my */
+:root{
+  --bg:#F0F1F3;--surface:#fff;--surface2:#FAFCFB;
+  --border:#ECEDEF;--border2:#DDE9E3;
+  --text:#14181B;--text-muted:#8A8F98;--text-dim:#B7BBC2;
+  --green:#0F9D58;--green3:#0B7A43;--green-dim:#E6F6EC;
+  --red:#C0392B;--red-dim:#FBEAE8;--gold:#B9660B;
+  --radius:18px;
+  --font:'Inter','Lato',sans-serif;--mono:'JetBrains Mono',monospace;
+}
+*{box-sizing:border-box}
+body{margin:0;font:15px/1.55 var(--font);color:var(--text);min-height:100vh;
+  background:radial-gradient(circle at 10% -5%,rgba(15,157,88,.14),transparent 34%),linear-gradient(135deg,#F0F1F3 0%,#F7FAF8 48%,#FFFFFF 100%)}
+.wrap{max-width:1040px;margin:0 auto;padding-left:max(20px,env(safe-area-inset-left));padding-right:max(20px,env(safe-area-inset-right))}
+header{background:rgba(255,255,255,.85);backdrop-filter:blur(10px);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:5}
+header .wrap{display:flex;justify-content:space-between;align-items:center;gap:12px;height:68px}
+.brand img{height:30px;width:auto;display:block}
+.head-right{display:flex;gap:10px;align-items:center}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;font:inherit;font-weight:700;font-size:14px;border-radius:12px;padding:12px 20px;cursor:pointer;text-decoration:none;border:1px solid transparent;transition:background .15s}
+.btn-primary{background:var(--green);color:#fff;box-shadow:0 12px 22px rgba(15,157,88,.18)}
+.btn-primary:hover{background:var(--green3)}
+.btn-primary[disabled]{opacity:.6;cursor:wait}
+.btn-secondary{background:#f5fbf8;border-color:var(--border2);color:var(--text)}
+.btn-secondary:hover{background:var(--green-dim)}
+.btn-sm{padding:8px 14px;font-size:13px;border-radius:10px;box-shadow:none}
+.btn:focus-visible,.tile:focus-visible,.back:focus-visible{outline:3px solid rgba(15,157,88,.35);outline-offset:2px}
+.form-input,.form-select,.form-textarea{width:100%;font:inherit;font-size:14px;background:#f8fcfa;border:1px solid var(--border2);border-radius:12px;color:var(--text);padding:12px 14px;outline:none}
+.form-textarea{resize:vertical;min-height:110px}
+.form-input:focus,.form-select:focus,.form-textarea:focus{border-color:var(--green);box-shadow:0 0 0 4px rgba(15,157,88,.12)}
+.form-select.small{width:auto;padding:7px 10px;font-size:13px;border-radius:10px}
+.form-label{display:block;font-family:var(--mono);color:var(--text-muted);font-size:10px;letter-spacing:1.3px;text-transform:uppercase;margin:0 0 6px}
+.field{margin:0 0 16px}
+.intro{padding-block:40px 8px}
+.eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:1.6px;text-transform:uppercase;color:var(--green)}
+h1{font-size:clamp(28px,5vw,40px);font-weight:800;letter-spacing:-.02em;line-height:1.1;margin:10px 0 8px;text-wrap:balance}
+h2{font-size:22px;font-weight:800;margin:0 0 4px}
+.muted{color:var(--text-muted);margin:0}
+main .wrap{padding-block:24px 48px}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin:0 0 20px}
+.tile{display:flex;flex-direction:column;gap:6px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:22px;text-align:left;cursor:pointer;color:inherit;font:inherit;box-shadow:0 2px 10px rgba(20,24,27,.03);transition:border-color .15s,box-shadow .15s,transform .15s}
+.tile:hover{border-color:var(--green);box-shadow:0 12px 26px rgba(15,157,88,.10);transform:translateY(-1px)}
+.icon{display:grid;place-items:center;width:42px;height:42px;border-radius:12px;background:var(--green-dim);color:var(--green);font-size:17px;margin-bottom:8px}
+.tile strong{font-size:16px;font-weight:700}
+.tile p{font-size:13.5px;color:var(--text-muted);margin:0;flex:1}
+.go{color:var(--green);font-weight:700;font-size:13px;margin-top:10px}
+.help{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px 22px;display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap}
+.help strong{display:block}
+.panel{position:relative;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:28px;max-width:620px;margin:0 auto;box-shadow:0 18px 40px rgba(20,24,27,.06);overflow:hidden}
+.panel::before{content:"";position:absolute;top:0;left:15%;right:15%;height:2px;background:linear-gradient(90deg,transparent,var(--green),transparent)}
+.back{border:0;background:none;color:var(--green);cursor:pointer;padding:0;font:inherit;font-weight:600;font-size:14px;margin-bottom:16px}
+.panel-head{margin-bottom:22px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:0 14px}
+@media (max-width:560px){.row{grid-template-columns:1fr}.panel{padding:22px}}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chips label{display:flex;align-items:center;gap:6px;font-size:13px;border:1px solid var(--border2);background:#f8fcfa;border-radius:999px;padding:6px 12px;cursor:pointer}
+.chips input{accent-color:var(--green);margin:0}
+.stars{display:flex;gap:6px;flex-wrap:wrap}
+.stars input{position:absolute;opacity:0;pointer-events:none}
+.stars label{display:flex;flex-direction:column;align-items:center;gap:2px;min-width:58px;padding:10px 8px;border:1px solid var(--border2);background:#f8fcfa;border-radius:12px;cursor:pointer;font-size:12px;color:var(--text-muted)}
+.stars label i{font-size:18px;color:var(--text-dim)}
+.stars input:checked + label{border-color:var(--green);background:var(--green-dim);color:var(--green3);font-weight:600}
+.stars input:checked + label i{color:var(--gold)}
+.stars input:focus-visible + label{outline:3px solid rgba(15,157,88,.35);outline-offset:2px}
+.hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
+.notice{padding:14px 16px;border-radius:12px;margin-top:14px;font-size:14px}
+.notice.ok{background:var(--green-dim);color:var(--green3);margin-top:0}
+.notice.err{background:var(--red-dim);color:var(--red)}
+.hint{font-size:13px;color:var(--text-muted);margin:-8px 0 16px}
+footer{text-align:center;color:var(--text-muted);font-size:12px;padding:8px 20px 28px}
+</style>
+</head>
+<body>
+<header><div class="wrap">
+  <a class="brand" href="/" aria-label="codencode.my home"><img src="/static/img/logo_full.png" alt="codencode.my"></a>
+  <div class="head-right">
+    <a class="btn btn-secondary btn-sm" id="loginLink" href="/login"><i class="fas fa-sign-in-alt"></i> <span id="loginText"></span></a>
+    <select id="lang" class="form-select small" aria-label="Language"><option value="0">EN</option><option value="1">中文</option><option value="2">BM</option></select>
+  </div>
+</div></header>
+
+<section class="intro"><div class="wrap">
+  <div class="eyebrow">Form Portal</div>
+  <h1 id="headline"></h1>
+  <p class="muted" id="sub"></p>
+</div></section>
+
+<main><div class="wrap">
+  <div id="home">
+    <div class="cards" id="cards"></div>
+    <div class="help">
+      <div><strong id="help"></strong><span class="muted" id="helpsub"></span></div>
+      <a class="btn btn-primary btn-sm" href="https://wa.me/60196811628" target="_blank" rel="noopener"><i class="fab fa-whatsapp"></i> +60 19-681 1628</a>
+    </div>
+  </div>
+  <div id="view" hidden></div>
+</div></main>
+
+<footer>© 2026 codencode.my · Code N Code Solution</footer>
+
+<script>
+// On form.codencode.my, login and certificate pages live on learn.codencode.my.
+const host = location.hostname;
+const LMS = host.startsWith('form.') ? 'https://learn.' + host.slice(5) : '';
+
+const T = {
+  headline:['How can we help you?','请选择所需服务','Bagaimana kami boleh membantu?'],
+  sub:['Choose a service below to get started.','选择以下服务开始。','Pilih perkhidmatan di bawah untuk bermula.'],
+  help:['Need a hand?','需要帮助？','Perlukan bantuan?'],
+  helpsub:['WhatsApp our team and we\'ll sort it out.','WhatsApp 我们的团队，我们会为您处理。','WhatsApp pasukan kami, kami akan bantu.'],
+  login:['Student login','学员登录','Log masuk pelajar'],
+  back:['All services','返回服务','Semua perkhidmatan'],
+  start:['Get started','立即开始','Mula'],
+  select:['Please select','请选择','Sila pilih'],
+  sending:['Sending…','提交中…','Menghantar…'],
+  cont:['Continue','继续','Teruskan'],
+  orWa:['You can also WhatsApp us at +60 19-681 1628.','您也可以 WhatsApp +60 19-681 1628 联系我们。','Anda juga boleh WhatsApp +60 19-681 1628.'],
+};
+let lang = 0, active = null;
+try { lang = Number(localStorage.getItem('portal_lang')) || 0; } catch (e) {}
+const tr = k => (Array.isArray(k) ? k : T[k])[lang];
+const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+const COURSES = ['AI for Workplace Productivity','AI for Marketing','AI for Video Creation','AI Agents & Vibe Coding','Python Fundamentals','Cybersecurity','Machine Learning'];
+const LOCATIONS = ['Johor Bahru','Kuala Lumpur','Penang','Ipoh','Online'];
+const RATINGS = [[5,['Excellent','非常好','Cemerlang']],[4,['Good','好','Baik']],[3,['Average','一般','Sederhana']],[2,['Fair','较差','Kurang']],[1,['Poor','差','Lemah']]];
+const options = arr => `<option value="">${tr('select')}</option>` + arr.map(v => `<option>${esc(v)}</option>`).join('');
+const field = (label, control) => `<div class="field"><label class="form-label">${tr(label)}</label>${control}</div>`;
+const honeypot = `<div class="hp" aria-hidden="true"><input name="website" tabindex="-1" autocomplete="off"></div>`;
+
+const services = [
+  {key:'register', icon:'fa-user-graduate',
+   title:['Student registration','学生报名','Pendaftaran pelajar'],
+   desc:['Begin your AI and coding learning journey.','开启您的 AI 与编程学习之旅。','Mulakan pembelajaran AI dan pengaturcaraan.']},
+  {key:'corporate', icon:'fa-building',
+   title:['Corporate training','企业培训咨询','Latihan korporat'],
+   desc:['Customised training for your organisation, with HRD Corp claim support.','为您的企业定制培训，支持 HRD Corp 申报。','Latihan khas untuk organisasi anda, dengan sokongan HRD Corp.']},
+  {key:'feedback', icon:'fa-star',
+   title:['Course feedback','课程反馈','Maklum balas kursus'],
+   desc:['Share your learning experience.','分享您的学习体验。','Kongsi pengalaman pembelajaran anda.']},
+  {key:'verify', icon:'fa-certificate',
+   title:['Certificate verification','证书验证','Pengesahan sijil'],
+   desc:['Check that a codencode.my certificate is genuine.','查询 codencode.my 证书的真实性。','Semak kesahihan sijil codencode.my.']},
+];
+
+const VIEWS = {
+  register: () => `<form id="f" novalidate>
+      ${field(['Full name','姓名','Nama penuh'], `<input class="form-input" name="full_name" required maxlength="100" autocomplete="name">`)}
+      ${field(['Email address','电子邮箱','E-mel'], `<input class="form-input" name="email" type="email" required maxlength="150" autocomplete="email">`)}
+      ${field(['Contact number','联系电话','Nombor telefon'], `<input class="form-input" name="whatsapp" type="tel" required maxlength="30" autocomplete="tel" placeholder="+60 12-345 6789">`)}
+      ${field(['Select course','选择课程','Pilih kursus'], `<select class="form-select" name="course" required>${options(COURSES)}</select>`)}
+      ${field(['Preferred location','上课地点','Lokasi pilihan'], `<select class="form-select" name="location" required>${options(LOCATIONS)}</select>`)}
+      ${honeypot}
+      <button class="btn btn-primary" id="fBtn">${tr('cont')} <i class="fas fa-arrow-right"></i></button>
+      <div id="fMsg" role="status"></div></form>`,
+
+  corporate: () => `<form id="f" novalidate>
+      <div class="row">
+        ${field(['Your name','您的姓名','Nama anda'], `<input class="form-input" name="contact_name" required maxlength="100" autocomplete="name">`)}
+        ${field(['Company name','公司名称','Nama syarikat'], `<input class="form-input" name="company" required maxlength="200" autocomplete="organization">`)}
+        ${field(['Work email','工作邮箱','E-mel kerja'], `<input class="form-input" name="email" type="email" required maxlength="150" autocomplete="email">`)}
+        ${field(['Phone / WhatsApp','电话 / WhatsApp','Telefon / WhatsApp'], `<input class="form-input" name="phone" type="tel" required maxlength="30" autocomplete="tel">`)}
+        ${field(['Number of participants','培训人数','Bilangan peserta'], `<input class="form-input" name="pax" type="number" min="1" max="10000" inputmode="numeric">`)}
+        ${field(['HRD Corp claim?','需要 HRD Corp 申报？','Tuntutan HRD Corp?'], `<select class="form-select" name="hrd_claim">${options(['Yes','No','Not sure'])}</select>`)}
+      </div>
+      ${field(['Topics','培训主题','Topik'], `<div class="chips">${COURSES.map(t => `<label><input type="checkbox" name="topics" value="${esc(t)}">${esc(t)}</label>`).join('')}</div>`)}
+      ${field(['Preferred location','上课地点','Lokasi pilihan'], `<select class="form-select" name="location">${options([...LOCATIONS.slice(0, 4), 'At our office', 'Online'])}</select>`)}
+      ${field(['Training requirements','培训需求','Keperluan latihan'], `<textarea class="form-textarea" name="requirements" maxlength="4000"></textarea>`)}
+      ${honeypot}
+      <button class="btn btn-primary" id="fBtn">${tr(['Send enquiry','提交咨询','Hantar pertanyaan'])} <i class="fas fa-arrow-right"></i></button>
+      <div id="fMsg" role="status"></div></form>`,
+
+  feedback: () => `<form id="f" novalidate>
+      ${field(['Full name','姓名','Nama penuh'], `<input class="form-input" name="full_name" required maxlength="100" autocomplete="name">`)}
+      ${field(['Select course','选择课程','Pilih kursus'], `<select class="form-select" name="course" required>${options(COURSES)}</select>`)}
+      <fieldset class="field" style="border:0;padding:0;margin:0 0 16px">
+        <legend class="form-label">${tr(['Overall rating','整体评分','Penilaian keseluruhan'])}</legend>
+        <div class="stars">${RATINGS.map(([n, l]) => `<input type="radio" name="rating" id="r${n}" value="${n}" required><label for="r${n}"><i class="fas fa-star"></i>${n} · ${tr(l)}</label>`).join('')}</div>
+      </fieldset>
+      ${field(['Your feedback','您的反馈','Maklum balas anda'], `<textarea class="form-textarea" name="comments" maxlength="4000"></textarea>`)}
+      ${honeypot}
+      <button class="btn btn-primary" id="fBtn">${tr(['Submit feedback','提交反馈','Hantar maklum balas'])} <i class="fas fa-arrow-right"></i></button>
+      <div id="fMsg" role="status"></div></form>`,
+
+  verify: () => `<form id="f">
+      ${field(['Certificate number','证书编号','Nombor sijil'], `<input class="form-input" id="certNo" required placeholder="CC-001" autocapitalize="characters" spellcheck="false">`)}
+      <p class="hint">${tr(['It\'s printed at the bottom of the certificate. You can also scan its QR code.','编号印在证书底部，也可直接扫描证书上的二维码。','Nombor tertera di bahagian bawah sijil. Anda juga boleh imbas kod QR sijil.'])}</p>
+      <button class="btn btn-primary">${tr(['Check certificate','查询证书','Semak sijil'])} <i class="fas fa-search"></i></button></form>`,
+};
+
+// How each form is sent: endpoint, body builder, thank-you text.
+const SUBMIT = {
+  register: ['/register', fd => ({...Object.fromEntries(fd), source:'portal'}),
+    ['Thanks for registering! Check your email for a confirmation. We\'ll WhatsApp you within 24 hours to confirm your class slot.','感谢报名！请查看确认邮件，我们将在 24 小时内通过 WhatsApp 与您确认上课时间。','Terima kasih kerana mendaftar! Semak e-mel pengesahan anda. Kami akan WhatsApp anda dalam 24 jam untuk sahkan slot kelas.']],
+  corporate: ['/api/public/corporate-enquiry', fd => { const b = Object.fromEntries([...fd].filter(([k]) => k !== 'topics')); b.topics = fd.getAll('topics'); return b; },
+    ['Thanks! We\'ve emailed you a copy and will contact you within 1 working day.','谢谢！我们已发送确认邮件，并将在 1 个工作日内联系您。','Terima kasih! Kami telah hantar e-mel pengesahan dan akan hubungi anda dalam 1 hari bekerja.']],
+  feedback: ['/api/public/course-feedback', fd => Object.fromEntries(fd),
+    ['Thank you for your feedback! It helps us make every class better.','感谢您的反馈！这能帮助我们把课程做得更好。','Terima kasih atas maklum balas anda! Ia membantu kami menambah baik setiap kelas.']],
+};
+
+function renderHome() {
+  $('headline').textContent = tr('headline');
+  ['sub','help','helpsub'].forEach(k => $(k).textContent = tr(k));
+  $('loginText').textContent = tr('login');
+  $('loginLink').href = LMS + '/login';
+  $('cards').replaceChildren(...services.map(s => {
+    const b = document.createElement('button');
+    b.type = 'button'; b.className = 'tile'; b.onclick = () => open(s.key);
+    b.innerHTML = `<span class="icon"><i class="fas ${s.icon}"></i></span><strong>${tr(s.title)}</strong><p>${tr(s.desc)}</p><span class="go">${tr('start')} <i class="fas fa-arrow-right"></i></span>`;
+    return b;
+  }));
+}
+
+function open(key) {
+  active = key;
+  const s = services.find(x => x.key === key);
+  $('home').hidden = true; $('view').hidden = false;
+  $('view').innerHTML = `<div class="panel">
+    <button class="back" type="button" id="back"><i class="fas fa-arrow-left"></i> ${tr('back')}</button>
+    <div class="panel-head"><h2>${tr(s.title)}</h2><p class="muted">${tr(s.desc)}</p></div>${VIEWS[key]()}</div>`;
+  $('back').onclick = () => { active = null; $('home').hidden = false; $('view').hidden = true; };
+  const f = $('f');
+  if (key === 'verify') {
+    f.onsubmit = e => { e.preventDefault(); const id = $('certNo').value.trim().toUpperCase(); if (id) location.href = LMS + '/verify/' + encodeURIComponent(id); };
+  } else {
+    const [url, toBody, okText] = SUBMIT[key];
+    const btn = $('fBtn'), msg = $('fMsg'), label = btn.innerHTML;
+    f.onsubmit = async e => {
+      e.preventDefault();
+      if (!f.checkValidity()) { f.reportValidity(); return; }
+      btn.disabled = true; btn.textContent = tr('sending');
+      try {
+        const r = await fetch(url, {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(toBody(new FormData(f)))});
+        const j = await r.json().catch(() => ({}));
+        if (!r.ok) throw new Error(j.detail || 'Something went wrong.');
+        f.innerHTML = `<div class="notice ok"><i class="fas fa-check-circle"></i> ${tr(okText)}</div>`;
+      } catch (err) {
+        msg.className = 'notice err'; msg.textContent = err.message + ' ' + tr('orWa');
+        btn.disabled = false; btn.innerHTML = label;
+      }
+    };
+  }
+  window.scrollTo(0, 0);
+}
+
+$('lang').value = String(lang);
+$('lang').onchange = e => {
+  lang = Number(e.target.value);
+  try { localStorage.setItem('portal_lang', lang); } catch (err) {}
+  document.documentElement.lang = ['en','zh','ms'][lang];
+  renderHome();
+  if (active) open(active);
+};
+document.documentElement.lang = ['en','zh','ms'][lang];
+renderHome();
+</script>
+</body>
+</html>

@@ -878,6 +878,8 @@ class Registration(db.Model):
     instalment_week1   = db.Column(db.String(50))
     instalment_week3   = db.Column(db.String(50))
     timing             = db.Column(db.String(200))
+    location           = db.Column(db.String(100))
+    source             = db.Column(db.String(20))   # 'register' page or 'portal'
     submitted_at       = db.Column(db.DateTime, default=datetime.utcnow)
 
     def to_dict(self):
@@ -898,6 +900,62 @@ class Registration(db.Model):
             'instalment_week1': self.instalment_week1 or '',
             'instalment_week3': self.instalment_week3 or '',
             'timing': self.timing or '',
+            'location': self.location or '',
+            'source': self.source or 'register',
+            'submitted_at': self.submitted_at.strftime('%b %d, %Y · %I:%M %p'),
+        }
+
+
+class CourseFeedback(db.Model):
+    """Course feedback from the public form portal (form.codencode.my)."""
+    __tablename__ = 'course_feedback'
+    id           = db.Column(db.Integer, primary_key=True)
+    full_name    = db.Column(db.String(100), nullable=False)
+    course       = db.Column(db.String(200), nullable=False)
+    rating       = db.Column(db.Integer, nullable=False)   # 1-5
+    comments     = db.Column(db.Text)
+    submitted_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'full_name': self.full_name,
+            'course': self.course,
+            'rating': self.rating,
+            'comments': self.comments or '',
+            'submitted_at': self.submitted_at.strftime('%b %d, %Y · %I:%M %p'),
+        }
+
+
+class CorporateEnquiry(db.Model):
+    """Company training enquiry from the public form portal (form.codencode.my)."""
+    __tablename__ = 'corporate_enquiries'
+    id            = db.Column(db.Integer, primary_key=True)
+    contact_name  = db.Column(db.String(100), nullable=False)
+    company       = db.Column(db.String(200), nullable=False)
+    email         = db.Column(db.String(150), nullable=False)
+    phone         = db.Column(db.String(30), nullable=False)
+    pax           = db.Column(db.Integer)
+    hrd_claim     = db.Column(db.String(20))   # 'Yes' / 'No' / 'Not sure'
+    topics        = db.Column(db.String(300))  # comma-separated topic names
+    location      = db.Column(db.String(100))
+    requirements  = db.Column(db.Text)
+    status        = db.Column(db.String(20), default='new')  # new / contacted / won / lost
+    submitted_at  = db.Column(db.DateTime, default=datetime.utcnow)
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'contact_name': self.contact_name,
+            'company': self.company,
+            'email': self.email,
+            'phone': self.phone,
+            'pax': self.pax,
+            'hrd_claim': self.hrd_claim or '',
+            'topics': self.topics or '',
+            'location': self.location or '',
+            'requirements': self.requirements or '',
+            'status': self.status or 'new',
             'submitted_at': self.submitted_at.strftime('%b %d, %Y · %I:%M %p'),
         }
 
