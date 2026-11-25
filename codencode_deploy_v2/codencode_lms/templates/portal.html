@@ -67,7 +67,10 @@ main .wrap{padding-block:24px 48px}
 .hrdc-note{display:flex;align-items:center;gap:12px;margin-top:14px;padding:10px 12px;background:#f8fcfa;border:1px solid var(--border2);border-radius:12px;font-size:13px;color:var(--text-muted)}
 .hrdc-note .hrdc-badges img{width:56px;height:56px}
 .row{display:grid;grid-template-columns:1fr 1fr;gap:0 14px}
-@media (max-width:560px){.row{grid-template-columns:1fr}.panel{padding:22px}}
+.row3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.person{display:grid;grid-template-columns:1.4fr 1fr 0.9fr auto;gap:8px;margin-bottom:8px;align-items:center}
+.person .rm{border:0;background:none;color:var(--text-muted);cursor:pointer;font-size:16px;padding:6px}
+@media (max-width:560px){.row,.row3{grid-template-columns:1fr}.person{grid-template-columns:1fr 1fr}.panel{padding:22px}}
 .chips{display:flex;flex-wrap:wrap;gap:8px}
 .chips label{display:flex;align-items:center;gap:6px;font-size:13px;border:1px solid var(--border2);background:#f8fcfa;border-radius:999px;padding:6px 12px;cursor:pointer}
 .chips input{accent-color:var(--green);margin:0}
@@ -176,15 +179,33 @@ const VIEWS = {
 
   corporate: () => `<form id="f" novalidate>
       <div class="row">
-        ${field(['Your name','您的姓名','Nama anda'], `<input class="form-input" name="contact_name" required maxlength="100" autocomplete="name">`)}
         ${field(['Company name','公司名称','Nama syarikat'], `<input class="form-input" name="company" required maxlength="200" autocomplete="organization">`)}
+        ${field(['SSM registration no.','SSM 注册号','No. pendaftaran SSM'], `<input class="form-input" name="ssm" maxlength="40" placeholder="e.g. 133057U">`)}
+        ${field(['Your name','您的姓名','Nama anda'], `<input class="form-input" name="contact_name" required maxlength="100" autocomplete="name">`)}
+        ${field(['Department / position','部门 / 职位','Jabatan / jawatan'], `<input class="form-input" name="contact_role" maxlength="80" placeholder="e.g. HR">`)}
         ${field(['Work email','工作邮箱','E-mel kerja'], `<input class="form-input" name="email" type="email" required maxlength="150" autocomplete="email">`)}
         ${field(['Phone / WhatsApp','电话 / WhatsApp','Telefon / WhatsApp'], `<input class="form-input" name="phone" type="tel" required maxlength="30" autocomplete="tel">`)}
         ${field(['Number of participants','培训人数','Bilangan peserta'], `<input class="form-input" name="pax" type="number" min="1" max="10000" inputmode="numeric">`)}
-        ${field(['HRD Corp claim?','需要 HRD Corp 申报？','Tuntutan HRD Corp?'], `<select class="form-select" name="hrd_claim">${options(['Yes','No','Not sure'])}</select>`)}
+        ${field(['HRD Corp claim?','需要 HRD Corp 申报？','Tuntutan HRD Corp?'], `<select class="form-select" name="hrd_claim" id="hrdClaim">${options(['Yes','No','Not sure'])}</select>`)}
+      </div>
+      <div id="mycoidRow" hidden>
+        ${field(['HRD Corp Employer No. (MyCoID)','HRD Corp 雇主编号 (MyCoID)','No. Majikan HRD Corp (MyCoID)'], `<input class="form-input" name="mycoid" maxlength="40" placeholder="Usually the same as your SSM no.">`)}
       </div>
       ${field(['Topics','培训主题','Topik'], `<div class="chips">${COURSES.map(t => `<label><input type="checkbox" name="topics" value="${esc(t)}">${esc(t)}</label>`).join('')}</div>`)}
-      ${field(['Preferred location','上课地点','Lokasi pilihan'], `<select class="form-select" name="location">${options([...LOCATIONS.slice(0, 4), 'At our office', 'Online'])}</select>`)}
+      <div class="row">
+        ${field(['Delivery','上课方式','Kaedah'], `<select class="form-select" name="mode">${options(['Online (Zoom, live)', 'At our office', 'At Codencode, Johor Bahru'])}</select>`)}
+        ${field(['Location (if physical)','上课地点（实体课）','Lokasi (jika fizikal)'], `<select class="form-select" name="location">${options(LOCATIONS.slice(0, 4))}</select>`)}
+      </div>
+      ${field(['Preferred training dates','希望的培训日期','Tarikh latihan pilihan'], `<div class="row3">
+          <input class="form-input" type="date" name="date1" aria-label="Date 1">
+          <input class="form-input" type="date" name="date2" aria-label="Date 2">
+          <input class="form-input" type="date" name="date3" aria-label="Date 3"></div>`)}
+      <div class="row">
+        ${field(['Start time','开始时间','Masa mula'], `<input class="form-input" type="time" name="start_time" value="09:00">`)}
+        ${field(['End time','结束时间','Masa tamat'], `<input class="form-input" type="time" name="end_time" value="17:00">`)}
+      </div>
+      ${field(['Participants (optional)','参加者（可选）','Peserta (pilihan)'], `<div id="people"></div>
+          <button type="button" class="btn btn-secondary btn-sm" id="addPerson"><i class="fas fa-plus"></i> ${tr(['Add participant','添加参加者','Tambah peserta'])}</button>`)}
       ${field(['Training requirements','培训需求','Keperluan latihan'], `<textarea class="form-textarea" name="requirements" maxlength="4000"></textarea>`)}
       ${honeypot}
       <button class="btn btn-primary" id="fBtn">${tr(['Send enquiry','提交咨询','Hantar pertanyaan'])} <i class="fas fa-arrow-right"></i></button>
@@ -212,7 +233,15 @@ const VIEWS = {
 const SUBMIT = {
   register: ['/register', fd => ({...Object.fromEntries(fd), source:'portal'}),
     ['Thanks for registering! Check your email for a confirmation. We\'ll WhatsApp you within 24 hours to confirm your class slot.','感谢报名！请查看确认邮件，我们将在 24 小时内通过 WhatsApp 与您确认上课时间。','Terima kasih kerana mendaftar! Semak e-mel pengesahan anda. Kami akan WhatsApp anda dalam 24 jam untuk sahkan slot kelas.']],
-  corporate: ['/api/public/corporate-enquiry', fd => { const b = Object.fromEntries([...fd].filter(([k]) => k !== 'topics')); b.topics = fd.getAll('topics'); return b; },
+  corporate: ['/api/public/corporate-enquiry', fd => {
+      const skip = new Set(['topics', 'date1', 'date2', 'date3', 'p_name', 'p_dept', 'p_level']);
+      const b = Object.fromEntries([...fd].filter(([k]) => !skip.has(k)));
+      b.topics = fd.getAll('topics');
+      b.dates = ['date1', 'date2', 'date3'].map(k => fd.get(k)).filter(Boolean);
+      const names = fd.getAll('p_name'), depts = fd.getAll('p_dept'), levels = fd.getAll('p_level');
+      b.participants = names.map((n, i) => ({name: n.trim(), department: (depts[i] || '').trim(), level: levels[i] || ''})).filter(p => p.name);
+      if (!b.pax && b.participants.length) b.pax = b.participants.length;
+      return b; },
     ['Thanks! We\'ve emailed you a copy and will contact you within 1 working day.','谢谢！我们已发送确认邮件，并将在 1 个工作日内联系您。','Terima kasih! Kami telah hantar e-mel pengesahan dan akan hubungi anda dalam 1 hari bekerja.']],
   feedback: ['/api/public/course-feedback', fd => Object.fromEntries(fd),
     ['Thank you for your feedback! It helps us make every class better.','感谢您的反馈！这能帮助我们把课程做得更好。','Terima kasih atas maklum balas anda! Ia membantu kami menambah baik setiap kelas.']],
@@ -241,6 +270,22 @@ function open(key) {
       ${s.hrdc ? `<div class="hrdc-note">${HRDC_BADGES}<span>${tr(['HRD Corp registered training provider. Our programmes are HRD Corp claimable, subject to grant approval.','HRD Corp 注册培训机构，课程可申请 HRD Corp 津贴（须经批准）。','Penyedia latihan berdaftar HRD Corp. Program kami boleh dituntut HRD Corp, tertakluk kepada kelulusan geran.'])}</span></div>` : ''}</div>${VIEWS[key]()}</div>`;
   $('back').onclick = () => { active = null; $('home').hidden = false; $('view').hidden = true; };
   const f = $('f');
+  if (key === 'corporate') {
+    // HRD Corp Employer No. only matters when they may claim.
+    const claim = $('hrdClaim'), row = $('mycoidRow');
+    claim.onchange = () => { row.hidden = !['Yes', 'Not sure'].includes(claim.value); };
+    const addPerson = () => {
+      const d = document.createElement('div');
+      d.className = 'person';
+      d.innerHTML = `<input class="form-input" name="p_name" maxlength="120" placeholder="${tr(['Full name','姓名','Nama penuh'])}">
+        <input class="form-input" name="p_dept" maxlength="80" placeholder="${tr(['Department','部门','Jabatan'])}">
+        <select class="form-select" name="p_level">${['Beginner','Intermediate','Advanced'].map(l => `<option>${l}</option>`).join('')}</select>
+        <button type="button" class="rm" aria-label="Remove participant">&times;</button>`;
+      d.querySelector('.rm').onclick = () => d.remove();
+      $('people').appendChild(d);
+    };
+    $('addPerson').onclick = addPerson;
+  }
   if (key === 'verify') {
     f.onsubmit = e => { e.preventDefault(); const id = $('certNo').value.trim().toUpperCase(); if (id) location.href = LMS + '/verify/' + encodeURIComponent(id); };
   } else {

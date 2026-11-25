@@ -925,6 +925,10 @@ def _raise_finance_quote(enq):
         'hrd_claim': enq.hrd_claim or '', 'location': enq.location or '',
         'topics': [t.strip() for t in (enq.topics or '').split(',') if t.strip()],
         'requirements': enq.requirements or '',
+        'ssm': enq.ssm or '', 'mycoid': enq.mycoid or '', 'contact_role': enq.contact_role or '',
+        'mode': enq.mode or '', 'dates': [d for d in (enq.preferred_dates or '').split(',') if d],
+        'start_time': enq.start_time or '', 'end_time': enq.end_time or '',
+        'participants': enq.participant_list(),
     })
     if ok:
         enq.finance_quote_number = out.get('quote_number')
@@ -1154,10 +1158,29 @@ def public_corporate_enquiry():
         topics = [topics]
     topics = ', '.join(str(t).strip() for t in topics if str(t).strip())[:300]
 
+    dates = data.get('dates') or []
+    if isinstance(dates, str):
+        dates = [dates]
+    dates = [str(d)[:10] for d in dates if re.fullmatch(r'\d{4}-\d{2}-\d{2}', str(d or ''))][:3]
+    people = []
+    for p in (data.get('participants') or [])[:50]:
+        if isinstance(p, dict) and str(p.get('name') or '').strip():
+            people.append({'name': str(p['name']).strip()[:120],
+                           'department': str(p.get('department') or '').strip()[:80],
+                           'level': str(p.get('level') or '').strip()[:20]})
+    if pax is None and people:
+        pax = len(people)
+    time_re = r'\d{2}:\d{2}'
+
     enq = CorporateEnquiry(
         contact_name=contact_name, company=company, email=email, phone=phone,
         pax=pax, hrd_claim=field('hrd_claim', 20), topics=topics,
         location=field('location', 100), requirements=field('requirements', 4000),
+        ssm=field('ssm', 40), mycoid=field('mycoid', 40), contact_role=field('contact_role', 80),
+        mode=field('mode', 40), preferred_dates=','.join(dates),
+        start_time=field('start_time', 5) if re.fullmatch(time_re, field('start_time', 5)) else '',
+        end_time=field('end_time', 5) if re.fullmatch(time_re, field('end_time', 5)) else '',
+        participants=_json_mod.dumps(people) if people else None,
     )
     db.session.add(enq)
     db.session.commit()
@@ -1168,10 +1191,13 @@ def public_corporate_enquiry():
             _BUSINESS_EMAIL,
             f'New corporate enquiry — {enq.company}',
             _email_wrapper('New corporate training enquiry', f'''
-                <p><strong>{e["company"]}</strong> · {e["contact_name"]}</p>
+                <p><strong>{e["company"]}</strong> (SSM {e["ssm"]}) · {e["contact_name"]} ({e["contact_role"]})</p>
                 <p>Email: {e["email"]}<br>Phone: {e["phone"]}<br>
-                Participants: {e["pax"]}<br>HRD Corp claim: {e["hrd_claim"]}<br>
-                Topics: {e["topics"]}<br>Location: {e["location"]}</p>
+                Participants: {e["pax"]}<br>HRD Corp claim: {e["hrd_claim"]} · MyCoID: {e["mycoid"]}<br>
+                Topics: {e["topics"]}<br>Delivery: {e["mode"]} · Location: {e["location"]}<br>
+                Dates: {html_escape(", ".join(enq.to_dict()["preferred_dates"]) or "—")}
+                ({e["start_time"]}–{e["end_time"]})<br>
+                People: {html_escape("; ".join(f"{p['name']} ({p['department']}, {p['level']})" for p in enq.participant_list()) or "—")}</p>
                 <p>{e["requirements"]}</p>
             ''')
         )
@@ -7213,6 +7239,12 @@ with app.app_context():
             if 'finance_quote_number' not in corp_cols:
                 conn.execute(text('ALTER TABLE corporate_enquiries ADD COLUMN finance_quote_number VARCHAR(40)'))
                 conn.commit()
+            for col, ddl in (('ssm', 'VARCHAR(40)'), ('mycoid', 'VARCHAR(40)'), ('contact_role', 'VARCHAR(80)'),
+                             ('mode', 'VARCHAR(40)'), ('preferred_dates', 'VARCHAR(100)'),
+                             ('start_time', 'VARCHAR(10)'), ('end_time', 'VARCHAR(10)'), ('participants', 'TEXT')):
+                if col not in corp_cols:
+                    conn.execute(text(f'ALTER TABLE corporate_enquiries ADD COLUMN {col} {ddl}'))
+                    conn.commit()
             if 'finance_note' not in corp_cols:
                 conn.execute(text('ALTER TABLE corporate_enquiries ADD COLUMN finance_note VARCHAR(300)'))
                 conn.commit()

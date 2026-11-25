@@ -1,3 +1,4 @@
+import json
 from datetime import datetime
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin
@@ -952,13 +953,37 @@ class CorporateEnquiry(db.Model):
     status        = db.Column(db.String(20), default='new')  # new / contacted / won / lost
     finance_quote_number = db.Column(db.String(40))  # Draft quotation raised in CNC Finance
     finance_note  = db.Column(db.String(300))         # last sync error to show admins
+    # Details an HRD Corp claimable quotation needs (see Finance's HRDC quote)
+    ssm           = db.Column(db.String(40))
+    mycoid        = db.Column(db.String(40))    # HRD Corp Employer No.
+    contact_role  = db.Column(db.String(80))    # e.g. "HR"
+    mode          = db.Column(db.String(40))    # Online (Zoom, live) / At our office / At Codencode
+    preferred_dates = db.Column(db.String(100)) # comma-separated YYYY-MM-DD, up to 3
+    start_time    = db.Column(db.String(10))
+    end_time      = db.Column(db.String(10))
+    participants  = db.Column(db.Text)          # JSON [{name, department, level}]
     submitted_at  = db.Column(db.DateTime, default=datetime.utcnow)
+
+    def participant_list(self):
+        try:
+            people = json.loads(self.participants or '[]')
+            return people if isinstance(people, list) else []
+        except ValueError:
+            return []
 
     def to_dict(self):
         return {
             'id': self.id,
             'finance_quote_number': self.finance_quote_number or '',
             'finance_note': self.finance_note or '',
+            'ssm': self.ssm or '',
+            'mycoid': self.mycoid or '',
+            'contact_role': self.contact_role or '',
+            'mode': self.mode or '',
+            'preferred_dates': [d for d in (self.preferred_dates or '').split(',') if d],
+            'start_time': self.start_time or '',
+            'end_time': self.end_time or '',
+            'participants': self.participant_list(),
             'contact_name': self.contact_name,
             'company': self.company,
             'email': self.email,
