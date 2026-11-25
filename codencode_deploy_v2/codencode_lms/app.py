@@ -6571,6 +6571,15 @@ def api_resync_curriculum_materials():
     return jsonify({'ok': True})
 
 
+def _looks_like_session_deck(material):
+    """True if a material reads as a session's slide deck (something a teacher
+    might upload to replace our bundled deck), not homework or another extra."""
+    title = (material.title or '').strip().lower()
+    if title.startswith(('homework', 'practice', 'exercise', 'assignment', 'quiz', 'project brief')):
+        return False
+    return True
+
+
 def seed_course_curriculum_materials():
     """Real per-session lesson decks (curriculum_seed.py) for Python
     Fundamentals and Machine Learning. Each session file already has its own
@@ -6674,9 +6683,15 @@ def seed_course_curriculum_materials():
                 # Cleanup: remove any of OUR OWN files that duplicate a session
                 # which already has a different-filename material (teacher content,
                 # or content from before this per-session check existed).
+                # Homework, practice files and other non-deck uploads sit
+                # alongside a session's slides rather than replacing them, so
+                # only another *slide deck* counts as the teacher's version.
+                # (Python Intermediate has Homework 1-7 in sessions 1-7; counting
+                # those made every session look "taken" and no slides were added.)
                 sessions_with_other_material = {
                     m.session for m in existing_materials
                     if m.filename not in own_filenames and m.session
+                    and _looks_like_session_deck(m)
                 }
                 for m in existing_materials:
                     if m.filename in own_filenames and m.session in sessions_with_other_material:
