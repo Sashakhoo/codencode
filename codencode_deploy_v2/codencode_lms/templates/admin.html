@@ -3454,14 +3454,24 @@
 
       <!-- ── CERTIFICATES ──────────────────────── -->
       <div id="view-registrations" class="view">
-        <div class="section-header" style="margin-bottom:20px">
+        <div class="stats-grid" id="reg-stats"></div>
+        <div class="section-header" style="margin-bottom:14px;gap:10px;flex-wrap:wrap">
           <div class="section-title">Registrations</div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <input class="form-input" id="reg-search" placeholder="Search name, email or course" oninput="renderRegistrations()" style="min-width:220px" />
+            <select class="form-select" id="reg-filter" onchange="renderRegistrations()" style="width:auto">
+              <option value="new">Pending</option>
+              <option value="enrolled">Enrolled</option>
+              <option value="cancelled">Cancelled</option>
+              <option value="all">All</option>
+            </select>
+          </div>
         </div>
         <div class="card">
           <div class="table-wrap">
             <table>
-              <thead><tr><th>Submitted</th><th>Student</th><th>Contact</th><th>Course</th><th>Location / timing</th><th>Fee / payment</th><th>From</th></tr></thead>
-              <tbody id="registrations-tbody"><tr><td colspan="7" style="color:var(--text-muted);text-align:center;padding:24px">Loading...</td></tr></tbody>
+              <thead><tr><th>Submitted</th><th>Student</th><th>Course / location</th><th>Fee / payment</th><th>Status</th><th style="text-align:right">Actions</th></tr></thead>
+              <tbody id="registrations-tbody"><tr><td colspan="6" style="color:var(--text-muted);text-align:center;padding:24px">Loading...</td></tr></tbody>
             </table>
           </div>
         </div>
@@ -3883,6 +3893,69 @@
       <button class="btn btn-secondary" onclick="closeModal('modal-enroll')"><span data-i18n="btn.cancel">Cancel</span></button>
       <button class="btn btn-primary" onclick="enrollStudent()"><i class="fas fa-plus"></i> <span data-i18n="btn.enroll">Enroll</span></button>
     </div>
+  </div>
+</div>
+
+<!-- Approve & enrol a registration -->
+<div class="modal-overlay" id="modal-approve-reg" onclick="if(event.target===this)closeModal('modal-approve-reg')">
+  <div class="modal-box" style="max-height:92vh;overflow-y:auto">
+    <div class="modal-title" id="ar-title">Approve &amp; enrol</div>
+    <input type="hidden" id="ar-id" value="" />
+    <div id="ar-form">
+      <div id="ar-summary" style="background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:12px 14px;margin-bottom:14px;font-size:13px;line-height:1.6"></div>
+      <div id="ar-existing" style="display:none;background:var(--gold-dim);color:var(--text);border-radius:12px;padding:10px 14px;margin-bottom:14px;font-size:13px"></div>
+      <div class="form-group" style="margin-bottom:14px">
+        <label class="form-label">LMS course *</label>
+        <select class="form-select" id="ar-course" onchange="loadApproveCohorts()"></select>
+        <div id="ar-course-hint" style="font-size:11px;color:var(--text-dim);margin-top:4px"></div>
+      </div>
+      <div class="form-group" style="margin-bottom:14px">
+        <label class="form-label">Payment</label>
+        <select class="form-select" id="ar-payment">
+          <option value="paid">Paid / verified</option>
+          <option value="pending">Not paid yet</option>
+        </select>
+      </div>
+      <div class="form-group" style="margin-bottom:14px">
+        <label class="form-label">Class format</label>
+        <select class="form-select" id="ar-format" onchange="toggleApproveFormat()">
+          <option value="">— select format —</option>
+          <option value="1v1">1 vs 1 (Private)</option>
+          <option value="2v1">2 vs 1 (Pair)</option>
+          <option value="5v1">5 vs 1 (Small group)</option>
+          <option value="cohort">Cohort (Full class)</option>
+        </select>
+      </div>
+      <div class="form-group" style="margin-bottom:14px" id="ar-cohort-group">
+        <label class="form-label">Class / cohort <span style="color:var(--text-dim);font-size:10px">(picking one emails the student the Zoom link &amp; schedule)</span></label>
+        <select class="form-select" id="ar-cohort" onchange="applyApproveCohort()"></select>
+      </div>
+      <div class="form-group" style="margin-bottom:14px" id="ar-teacher-group">
+        <label class="form-label">Trainer</label>
+        <select class="form-select" id="ar-teacher"></select>
+      </div>
+      <div class="form-group" style="margin-bottom:14px">
+        <label class="form-label">First lesson / start date</label>
+        <input class="form-input" type="date" id="ar-start" />
+      </div>
+      <div class="form-group" style="margin-bottom:14px">
+        <label class="form-label">Class timing</label>
+        <input class="form-input" id="ar-timing" placeholder="e.g. Saturday 9:00 AM - 11:00 AM" />
+      </div>
+      <div class="form-group" style="margin-bottom:14px">
+        <label class="form-label">Remarks</label>
+        <textarea class="form-textarea" id="ar-remarks" placeholder="e.g. paid RM1,350 by bank transfer 3 Dec"></textarea>
+      </div>
+      <label id="ar-welcome-row" style="display:flex;gap:10px;align-items:flex-start;font-size:13px;margin-bottom:6px;cursor:pointer">
+        <input type="checkbox" id="ar-welcome" checked style="margin-top:3px" />
+        <span>Email them their login details<br><span style="color:var(--text-muted);font-size:12px">Sends the welcome email with a temporary password.</span></span>
+      </label>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeModal('modal-approve-reg')">Cancel</button>
+        <button class="btn btn-primary" id="ar-submit" onclick="submitApproveRegistration()"><i class="fas fa-user-check"></i> Create account &amp; enrol</button>
+      </div>
+    </div>
+    <div id="ar-result" style="display:none"></div>
   </div>
 </div>
 
@@ -5912,28 +5985,231 @@ async function loadCourseFeedback() {
 }
 
 // ── Sign-ups: registrations & corporate enquiries ─────
+const REG_STATUS = {
+  new:       ['Pending',   'var(--gold-dim)',  'var(--gold)'],
+  enrolled:  ['Enrolled',  'var(--green-dim)', 'var(--green)'],
+  cancelled: ['Cancelled', 'var(--red-dim)',   'var(--red)'],
+};
+
 async function loadRegistrations() {
   const tbody = document.getElementById('registrations-tbody');
   try {
-    const rows = await GET('/api/admin/registrations');
-    if (!rows.length) {
-      tbody.innerHTML = `<tr><td colspan="7" style="color:var(--text-muted);text-align:center;padding:24px">No registrations yet.</td></tr>`;
-      return;
-    }
-    const e = escHtml, sub = v => v ? `<div style="font-size:12px;color:var(--text-muted)">${e(v)}</div>` : '';
-    tbody.innerHTML = rows.map(r => `
-      <tr>
-        <td style="font-size:12px;color:var(--text-muted);white-space:nowrap">${e(r.submitted_at)}</td>
-        <td><div style="font-weight:600">${e(r.full_name)}</div>${sub(r.occupation)}${sub(r.experience_level)}</td>
-        <td><div>${e(r.email)}</div>${sub(r.whatsapp)}</td>
-        <td>${e(r.course || '—')}${r.learning_goals ? `<div style="font-size:12px;color:var(--text-muted);max-width:260px">${e(r.learning_goals)}</div>` : ''}</td>
-        <td>${e(r.location || '')}${sub(r.timing)}${sub(r.class_format)}</td>
-        <td>${e(r.total_fee || '—')}${sub(r.payment_preference)}</td>
-        <td><span class="badge" style="background:var(--surface);border:1px solid var(--border)">${r.source === 'portal' ? 'Portal' : '/register'}</span></td>
-      </tr>`).join('');
+    S.registrations = await GET('/api/admin/registrations');
+    renderRegistrations();
   } catch (err) {
-    tbody.innerHTML = `<tr><td colspan="7" style="color:var(--red);text-align:center;padding:24px">${escHtml(err.message)}</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="6" style="color:var(--red);text-align:center;padding:24px">${escHtml(err.message)}</td></tr>`;
   }
+}
+
+function renderRegistrations() {
+  const rows = S.registrations || [];
+  const count = st => rows.filter(r => (r.status || 'new') === st).length;
+  const card = (label, value, icon, hint, color) => `
+    <div class="stat-card"><div class="stat-head"><div>
+      <div class="stat-label">${label}</div>
+      <div class="stat-value" style="color:${color || 'var(--text)'}">${value}</div>
+    </div><div class="stat-icon"><i class="fas ${icon}"></i></div></div>
+    <div class="stat-hint">${hint}</div></div>`;
+  document.getElementById('reg-stats').innerHTML =
+    card('Total registrations', rows.length, 'fa-inbox', 'From /register and form.codencode.my') +
+    card('Pending', count('new'), 'fa-hourglass-half', 'Waiting for you to approve', 'var(--gold)') +
+    card('Enrolled', count('enrolled'), 'fa-user-check', 'Account created & enrolled', 'var(--green)') +
+    card('Cancelled', count('cancelled'), 'fa-ban', 'Not going ahead');
+
+  const filter = document.getElementById('reg-filter').value;
+  const q = document.getElementById('reg-search').value.trim().toLowerCase();
+  const list = rows.filter(r =>
+    (filter === 'all' || (r.status || 'new') === filter) &&
+    (!q || [r.full_name, r.email, r.course].some(v => (v || '').toLowerCase().includes(q))));
+
+  const tbody = document.getElementById('registrations-tbody');
+  if (!list.length) {
+    tbody.innerHTML = `<tr><td colspan="6" style="color:var(--text-muted);text-align:center;padding:24px">${rows.length ? 'Nothing matches this filter.' : 'No registrations yet. Sign-ups from the form portal will appear here.'}</td></tr>`;
+    return;
+  }
+  const e = escHtml, sub = v => v ? `<div style="font-size:12px;color:var(--text-muted)">${e(v)}</div>` : '';
+  tbody.innerHTML = list.map(r => {
+    const st = r.status || 'new';
+    const [label, bg, fg] = REG_STATUS[st] || REG_STATUS.new;
+    const actions = st === 'new'
+      ? `<button class="btn btn-primary btn-sm" onclick="openApproveRegistration(${r.id})"><i class="fas fa-user-check"></i> Approve &amp; enrol</button>
+         <button class="btn btn-secondary btn-sm" onclick="setRegistrationStatus(${r.id}, 'cancelled')">Cancel</button>`
+      : st === 'cancelled'
+      ? `<button class="btn btn-secondary btn-sm" onclick="setRegistrationStatus(${r.id}, 'new')">Move to pending</button>`
+      : (r.user_id ? `<button class="btn btn-secondary btn-sm" onclick="openRegistrationStudent(${r.user_id})"><i class="fas fa-user"></i> View student</button>` : '');
+    return `
+      <tr>
+        <td style="font-size:12px;color:var(--text-muted);white-space:nowrap">${e(r.submitted_at)}<div style="font-size:10px">${r.source === 'portal' ? 'Portal' : '/register'}</div></td>
+        <td><div style="font-weight:600">${e(r.full_name)}</div>${sub(r.email)}${sub(r.whatsapp)}
+          ${r.existing_user_id && st !== 'enrolled' ? `<div style="font-size:11px;color:var(--gold);margin-top:2px"><i class="fas fa-exclamation-circle"></i> Already has a login</div>` : ''}</td>
+        <td>${e(r.course || '—')}${sub(r.location)}${sub(r.timing)}${sub(r.class_format)}
+          ${r.learning_goals ? `<div style="font-size:12px;color:var(--text-muted);max-width:260px;margin-top:2px">“${e(r.learning_goals)}”</div>` : ''}</td>
+        <td>${e(r.total_fee || '—')}${sub(r.payment_preference)}</td>
+        <td><span class="badge" style="background:${bg};color:${fg};border:0">${label}</span></td>
+        <td style="text-align:right;white-space:nowrap">${actions}</td>
+      </tr>`;
+  }).join('');
+}
+
+async function setRegistrationStatus(id, status) {
+  try {
+    await PUT(`/api/admin/registrations/${id}`, {status});
+    toast(status === 'cancelled' ? 'Registration cancelled' : 'Moved back to pending');
+    await loadRegistrations();
+  } catch (err) { toast(err.message, true); }
+}
+
+async function openRegistrationStudent(uid) {
+  await loadStudents();
+  showView('students');
+  renderStudentList();
+  selectStudent(uid);
+}
+
+// Best guess at the LMS course from what they picked on the form.
+function guessCourseId(picked) {
+  const p = (picked || '').toLowerCase().replace(/[^a-z0-9 ]/g, ' ');
+  if (!p.trim()) return '';
+  const words = p.split(/\s+/).filter(w => w.length > 2 && !['for', 'and', 'the'].includes(w));
+  let best = null, bestScore = 0;
+  (S.courses || []).forEach(c => {
+    const t = c.title.toLowerCase();
+    const score = t === p.trim() ? 100 : words.filter(w => t.includes(w)).length;
+    if (score > bestScore) { best = c; bestScore = score; }
+  });
+  return best ? String(best.id) : '';
+}
+
+async function openApproveRegistration(id) {
+  const r = (S.registrations || []).find(x => x.id === id);
+  if (!r) return;
+  if (!S.courses || !S.courses.length) await loadCourses();
+  if (!S.teachers) S.teachers = await GET('/api/admin/teachers');
+  const e = escHtml;
+  document.getElementById('ar-id').value = id;
+  document.getElementById('ar-title').textContent = `Approve ${r.full_name}`;
+  document.getElementById('ar-summary').innerHTML = `
+    <div style="font-weight:600">${e(r.full_name)}</div>
+    <div>${e(r.email)} · ${e(r.whatsapp)}</div>
+    <div style="color:var(--text-muted)">Picked: <strong style="color:var(--text)">${e(r.course || '—')}</strong>${r.location ? ' · ' + e(r.location) : ''}${r.timing ? ' · ' + e(r.timing) : ''}${r.total_fee ? ' · ' + e(r.total_fee) : ''}</div>`;
+  const existing = document.getElementById('ar-existing');
+  existing.style.display = r.existing_user_id ? 'block' : 'none';
+  existing.innerHTML = r.existing_user_id
+    ? `<strong>Existing account.</strong> ${e(r.email)} already has a login, so the course is added to that account and no new password is sent.` : '';
+  document.getElementById('ar-welcome-row').style.display = r.existing_user_id ? 'none' : 'flex';
+  document.getElementById('ar-welcome').checked = true;
+
+  const guess = guessCourseId(r.course);
+  document.getElementById('ar-course').innerHTML = `<option value="">— choose LMS course —</option>` +
+    S.courses.map(c => `<option value="${c.id}" ${String(c.id) === guess ? 'selected' : ''}>${e(c.title)}</option>`).join('');
+  document.getElementById('ar-course-hint').textContent = guess
+    ? `Matched from “${r.course}”. Change it if that's wrong.`
+    : (r.course ? `“${r.course}” isn't an LMS course name. Pick the closest one.` : '');
+  if (/bundle/i.test(r.course || '')) document.getElementById('ar-course-hint').textContent +=
+    ' Bundle: enrol in the first course here, then add the second from the student profile (Assign Course).';
+
+  document.getElementById('ar-teacher').innerHTML = `<option value="">— course / class teacher —</option>` +
+    S.teachers.map(t => `<option value="${t.id}">${e(t.name)}</option>`).join('');
+  document.getElementById('ar-payment').value = 'paid';
+  document.getElementById('ar-format').value = ['1v1','2v1','5v1','cohort'].includes(r.class_format) ? r.class_format : '';
+  document.getElementById('ar-start').value = new Date().toISOString().slice(0, 10);
+  document.getElementById('ar-timing').value = r.timing || '';
+  document.getElementById('ar-remarks').value = '';
+  document.getElementById('ar-form').style.display = 'block';
+  document.getElementById('ar-result').style.display = 'none';
+  document.getElementById('ar-submit').disabled = false;
+  toggleApproveFormat();
+  await loadApproveCohorts();
+  openModal('modal-approve-reg');
+}
+
+function toggleApproveFormat() {
+  const fmt = document.getElementById('ar-format').value;
+  document.getElementById('ar-cohort-group').style.display = ['cohort', '2v1', '5v1'].includes(fmt) ? 'block' : 'none';
+  document.getElementById('ar-teacher-group').style.display = fmt === 'cohort' ? 'none' : 'block';
+}
+
+async function loadApproveCohorts() {
+  const cid = document.getElementById('ar-course').value;
+  const sel = document.getElementById('ar-cohort');
+  sel.innerHTML = `<option value="">— no class assigned —</option>`;
+  if (!cid) return;
+  try {
+    const cohorts = await GET(`/api/courses/${cid}/cohorts`);
+    cohorts.forEach(c => {
+      const opt = document.createElement('option');
+      opt.value = c.id;
+      opt.textContent = cohortOptionLabel(c);
+      opt.dataset.cohort = JSON.stringify(c);
+      sel.appendChild(opt);
+    });
+  } catch (err) { /* course has no classes yet */ }
+}
+
+function applyApproveCohort() {
+  const opt = document.getElementById('ar-cohort').selectedOptions[0];
+  if (!opt || !opt.dataset.cohort) return;
+  const c = JSON.parse(opt.dataset.cohort);
+  if (c.schedule) document.getElementById('ar-timing').value = formatCohortSchedule(c.schedule);
+  if (c.teacher_id) document.getElementById('ar-teacher').value = String(c.teacher_id);
+}
+
+async function submitApproveRegistration() {
+  const id = parseInt(document.getElementById('ar-id').value);
+  const fmt = document.getElementById('ar-format').value;
+  const body = {
+    course_id:      parseInt(document.getElementById('ar-course').value) || null,
+    payment_status: document.getElementById('ar-payment').value,
+    class_format:   fmt,
+    cohort_id:      ['cohort', '2v1', '5v1'].includes(fmt) ? (parseInt(document.getElementById('ar-cohort').value) || null) : null,
+    teacher_id:     fmt === 'cohort' ? null : (parseInt(document.getElementById('ar-teacher').value) || null),
+    enrolled_at:    document.getElementById('ar-start').value || null,
+    class_timing:   document.getElementById('ar-timing').value.trim(),
+    remarks:        document.getElementById('ar-remarks').value.trim(),
+    send_welcome:   document.getElementById('ar-welcome').checked,
+  };
+  if (!body.course_id) { toast('Choose an LMS course first.', true); document.getElementById('ar-course').focus(); return; }
+  const btn = document.getElementById('ar-submit');
+  btn.disabled = true;
+  try {
+    const res = await POST(`/api/admin/registrations/${id}/approve`, body);
+    const r = res.registration, e = escHtml;
+    const waText = res.temp_password
+      ? `Hi ${r.full_name}! Welcome to codencode.my 🎉\nLogin: ${res.login_url}\nEmail: ${r.email}\nTemporary password: ${res.temp_password}`
+      : '';
+    document.getElementById('ar-form').style.display = 'none';
+    const out = document.getElementById('ar-result');
+    out.style.display = 'block';
+    out.innerHTML = `
+      <div style="background:var(--green-dim);color:var(--green);border-radius:12px;padding:12px 14px;margin-bottom:14px;font-weight:600"><i class="fas fa-check-circle"></i> ${e(r.full_name)} is enrolled</div>
+      <ul style="margin:0 0 14px;padding-left:18px;line-height:1.8;font-size:13px">
+        <li>${res.account_created ? 'Created student account' : 'Used their existing account'} · ${e(r.email)}</li>
+        <li>Enrolled in <strong>${e(res.course_title)}</strong>${body.payment_status === 'paid' ? ' (paid)' : ' (payment pending)'}</li>
+        ${res.welcome_sent ? '<li>Welcome email sent with login details</li>' : ''}
+        ${body.cohort_id ? '<li>Class schedule &amp; Zoom link emailed</li>' : ''}
+      </ul>
+      ${res.temp_password ? `
+        <label class="form-label">Message to send on WhatsApp</label>
+        <textarea class="form-textarea" id="ar-wa-text" readonly style="font-family:'JetBrains Mono',monospace;font-size:12px;min-height:96px">${e(waText)}</textarea>
+        <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap">
+          <button class="btn btn-secondary btn-sm" onclick="copyApproveWhatsApp()"><i class="fas fa-copy"></i> Copy</button>
+          <a class="btn btn-secondary btn-sm" target="_blank" rel="noopener" href="https://wa.me/${(r.whatsapp || '').replace(/[^0-9]/g, '').replace(/^0/, '60')}?text=${encodeURIComponent(waText)}"><i class="fab fa-whatsapp"></i> Open WhatsApp</a>
+        </div>
+        <div style="font-size:11px;color:var(--text-muted);margin-top:6px">They can change the password after logging in.</div>` : ''}
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeModal('modal-approve-reg');openRegistrationStudent(${res.student_id})">View student</button>
+        <button class="btn btn-primary" onclick="closeModal('modal-approve-reg')">Done</button>
+      </div>`;
+    await loadRegistrations();
+  } catch (err) {
+    toast(err.message, true);
+    btn.disabled = false;
+  }
+}
+
+function copyApproveWhatsApp() {
+  const ta = document.getElementById('ar-wa-text');
+  navigator.clipboard.writeText(ta.value).then(() => toast('Copied'), () => { ta.select(); toast('Press Ctrl+C to copy'); });
 }
 
 async function loadCorporateEnquiries() {

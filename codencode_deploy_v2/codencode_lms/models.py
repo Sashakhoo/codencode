@@ -880,6 +880,8 @@ class Registration(db.Model):
     timing             = db.Column(db.String(200))
     location           = db.Column(db.String(100))
     source             = db.Column(db.String(20))   # 'register' page or 'portal'
+    status             = db.Column(db.String(20), default='new')  # new (shown as Pending) / enrolled / cancelled
+    user_id            = db.Column(db.Integer)      # student account created/used on approval
     submitted_at       = db.Column(db.DateTime, default=datetime.utcnow)
 
     def to_dict(self):
@@ -902,6 +904,8 @@ class Registration(db.Model):
             'timing': self.timing or '',
             'location': self.location or '',
             'source': self.source or 'register',
+            'status': self.status or 'new',
+            'user_id': self.user_id,
             'submitted_at': self.submitted_at.strftime('%b %d, %Y · %I:%M %p'),
         }
 
