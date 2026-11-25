@@ -5858,9 +5858,9 @@ const VIEW_TITLES = {
   'workshop-run-detail': ['Run Detail',  'Attendees & feedback'],
   announcements: ['Announcements',    'Send announcements to students'],
   sessions:      ['Sessions',         'View all scheduled sessions'],
-  registrations: ['Registrations',    'Sign-ups from /register and form.codencode.my'],
-  corporate:     ['Corporate Enquiries', 'Company training requests from form.codencode.my'],
-  'course-feedback': ['Course Feedback', 'Ratings and comments from form.codencode.my'],
+  registrations: ['Registrations',    'Sign-ups from /register and the Form Portal'],
+  corporate:     ['Corporate Enquiries', 'Company training requests from the Form Portal'],
+  'course-feedback': ['Course Feedback', 'Ratings and comments from the Form Portal'],
   certificates:  ['Certificates',     'Issue & manage student certificates'],
   analytics:     ['Analytics',        'Export data & view login activity'],
 };
@@ -6011,7 +6011,7 @@ function renderRegistrations() {
     </div><div class="stat-icon"><i class="fas ${icon}"></i></div></div>
     <div class="stat-hint">${hint}</div></div>`;
   document.getElementById('reg-stats').innerHTML =
-    card('Total registrations', rows.length, 'fa-inbox', 'From /register and form.codencode.my') +
+    card('Total registrations', rows.length, 'fa-inbox', 'From /register and the Form Portal') +
     card('Pending', count('new'), 'fa-hourglass-half', 'Waiting for you to approve', 'var(--gold)') +
     card('Enrolled', count('enrolled'), 'fa-user-check', 'Account created & enrolled', 'var(--green)') +
     card('Cancelled', count('cancelled'), 'fa-ban', 'Not going ahead');
