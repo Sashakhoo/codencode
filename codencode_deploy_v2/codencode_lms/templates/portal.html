@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Form Portal | codencode.my</title>
-<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" href="/favicon.ico?v=co" sizes="any"><link rel="apple-touch-icon" href="/static/img/favicon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -61,6 +61,11 @@ main .wrap{padding-block:24px 48px}
 .panel::before{content:"";position:absolute;top:0;left:15%;right:15%;height:2px;background:linear-gradient(90deg,transparent,var(--green),transparent)}
 .back{border:0;background:none;color:var(--green);cursor:pointer;padding:0;font:inherit;font-weight:600;font-size:14px;margin-bottom:16px}
 .panel-head{margin-bottom:22px}
+.tile-top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+.hrdc-badges{display:flex;gap:6px;flex-shrink:0}
+.hrdc-badges img{width:52px;height:52px;display:block}
+.hrdc-note{display:flex;align-items:center;gap:12px;margin-top:14px;padding:10px 12px;background:#f8fcfa;border:1px solid var(--border2);border-radius:12px;font-size:13px;color:var(--text-muted)}
+.hrdc-note .hrdc-badges img{width:56px;height:56px}
 .row{display:grid;grid-template-columns:1fr 1fr;gap:0 14px}
 @media (max-width:560px){.row{grid-template-columns:1fr}.panel{padding:22px}}
 .chips{display:flex;flex-wrap:wrap;gap:8px}
@@ -134,6 +139,9 @@ const $ = id => document.getElementById(id);
 const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 
 const COURSES = ['AI for Workplace Productivity','AI for Marketing','AI for Video Creation','AI Agents & Vibe Coding','Python Fundamentals','Cybersecurity','Machine Learning'];
+const HRDC_BADGES = `<span class="hrdc-badges">
+  <img src="/static/img/hrdcorp-registered-provider.webp" alt="HRD Corp registered training provider" width="52" height="52">
+  <img src="/static/img/hrdcorp-claimable.webp" alt="HRD Corp claimable" width="52" height="52"></span>`;
 const LOCATIONS = ['Johor Bahru','Kuala Lumpur','Penang','Ipoh','Online'];
 const RATINGS = [[5,['Excellent','非常好','Cemerlang']],[4,['Good','好','Baik']],[3,['Average','一般','Sederhana']],[2,['Fair','较差','Kurang']],[1,['Poor','差','Lemah']]];
 const options = arr => `<option value="">${tr('select')}</option>` + arr.map(v => `<option>${esc(v)}</option>`).join('');
@@ -144,7 +152,7 @@ const services = [
   {key:'register', icon:'fa-user-graduate',
    title:['Student registration','学生报名','Pendaftaran pelajar'],
    desc:['Begin your AI and coding learning journey.','开启您的 AI 与编程学习之旅。','Mulakan pembelajaran AI dan pengaturcaraan.']},
-  {key:'corporate', icon:'fa-building',
+  {key:'corporate', icon:'fa-building', hrdc:true,
    title:['Corporate training','企业培训咨询','Latihan korporat'],
    desc:['Customised training for your organisation, with HRD Corp claim support.','为您的企业定制培训，支持 HRD Corp 申报。','Latihan khas untuk organisasi anda, dengan sokongan HRD Corp.']},
   {key:'feedback', icon:'fa-star',
@@ -218,7 +226,7 @@ function renderHome() {
   $('cards').replaceChildren(...services.map(s => {
     const b = document.createElement('button');
     b.type = 'button'; b.className = 'tile'; b.onclick = () => open(s.key);
-    b.innerHTML = `<span class="icon"><i class="fas ${s.icon}"></i></span><strong>${tr(s.title)}</strong><p>${tr(s.desc)}</p><span class="go">${tr('start')} <i class="fas fa-arrow-right"></i></span>`;
+    b.innerHTML = `<span class="tile-top"><span class="icon"><i class="fas ${s.icon}"></i></span>${s.hrdc ? HRDC_BADGES : ''}</span><strong>${tr(s.title)}</strong><p>${tr(s.desc)}</p><span class="go">${tr('start')} <i class="fas fa-arrow-right"></i></span>`;
     return b;
   }));
 }
@@ -229,7 +237,8 @@ function open(key) {
   $('home').hidden = true; $('view').hidden = false;
   $('view').innerHTML = `<div class="panel">
     <button class="back" type="button" id="back"><i class="fas fa-arrow-left"></i> ${tr('back')}</button>
-    <div class="panel-head"><h2>${tr(s.title)}</h2><p class="muted">${tr(s.desc)}</p></div>${VIEWS[key]()}</div>`;
+    <div class="panel-head"><h2>${tr(s.title)}</h2><p class="muted">${tr(s.desc)}</p>
+      ${s.hrdc ? `<div class="hrdc-note">${HRDC_BADGES}<span>${tr(['HRD Corp registered training provider. Our programmes are HRD Corp claimable, subject to grant approval.','HRD Corp 注册培训机构，课程可申请 HRD Corp 津贴（须经批准）。','Penyedia latihan berdaftar HRD Corp. Program kami boleh dituntut HRD Corp, tertakluk kepada kelulusan geran.'])}</span></div>` : ''}</div>${VIEWS[key]()}</div>`;
   $('back').onclick = () => { active = null; $('home').hidden = false; $('view').hidden = true; };
   const f = $('f');
   if (key === 'verify') {
