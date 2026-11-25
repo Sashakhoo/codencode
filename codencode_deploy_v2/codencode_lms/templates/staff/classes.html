@@ -1,0 +1,27 @@
+{% extends 'staff/base.html' %}
+{% block title %}My classes{% endblock %}
+{% block main %}
+<section class="card">
+  <div class="card-h"><h2>{{ 'All classes and shifts' if is_admin else 'My classes and shifts' }}</h2><span class="pill f-wait">Today · {{ DAY_SHORT[today.weekday()] }} {{ today.day }} {{ today.strftime('%b') }}</span></div>
+  <div style="display:grid;gap:10px">
+  {% for o in items %}
+    <div class="cls">
+      <div class="when">{{ DAY_SHORT[o.date.weekday()] }} {{ o.start }}–{{ o.end }}{% if o.every_n_weeks and o.every_n_weeks > 1 %}<br>every {{ o.every_n_weeks }} wks{% endif %}</div>
+      <div style="min-width:0"><div class="t">{{ o.title }}{% if is_admin and not o.mine %} · {{ o.teacher }}{% endif %}</div>
+        <div class="note m">{% if o.kind == 'zoom' %}Zoom · Meeting ID {{ o.zoom_meeting_id or 'not set' }}{% else %}Office shift · {{ office_name }}{% endif %}</div></div>
+      {% if o.live and o.mine and o.kind == 'zoom' %}
+        {% if open_ws %}<span class="pill f-ok">Clocked in</span>
+        {% else %}<button class="btn" data-start-class="{{ o.cohort_id }}">Start class</button>{% endif %}
+      {% elif o.live and o.mine and o.kind == 'office' %}
+        <a class="btn" href="/staff/clock">Clock in at office</a>
+      {% else %}
+        <span class="pill f-wait">{{ ('Today ' ~ fmt_hhmm(o.start)) if o.is_today else ('Next: ' ~ o.next_label) }}</span>
+      {% endif %}
+    </div>
+  {% else %}
+    <div class="note">Nothing scheduled in the next three weeks. Add a recurring class or shift on the <a href="/staff/schedule">Schedule</a> page.</div>
+  {% endfor %}
+  </div>
+  <div class="note">Start class opens the Codencode Zoom meeting and clocks you in. It appears from 15 minutes before the start. On the shared account, rename yourself to "Name – Teacher" after joining.</div>
+</section>
+{% endblock %}

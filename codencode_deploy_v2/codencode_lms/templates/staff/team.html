@@ -1,0 +1,18 @@
+{% extends 'staff/base.html' %}
+{% block title %}Team{% endblock %}
+{% block main %}
+<div class="top"><div><h1>Team</h1><div class="sub">Staff profiles for teacher and admin accounts on learn.codencode.my. Add new teachers in the LMS admin first.</div></div></div>
+<section class="card"><div class="tbl"><table>
+  <thead><tr><th>Name</th><th>Type</th><th>Rate (RM/hr)</th><th>Monthly cap (hrs)</th><th>Active</th><th></th></tr></thead>
+  <tbody>
+  {% for u, p in people %}
+    <tr data-team="{{ u.id }}"><td><b>{{ u.name }}</b><div class="note">{{ u.email }} · {{ u.role|capitalize }}</div></td>
+      <td><select name="employment_type" aria-label="Employment type"><option value="part_time"{% if not p or p.employment_type == 'part_time' %} selected{% endif %}>Part-time</option><option value="full_time"{% if p and p.employment_type == 'full_time' %} selected{% endif %}>Full-time</option></select></td>
+      <td><input name="hourly_rate" type="number" min="0" step="0.5" style="width:110px" value="{{ '%g'|format(p.hourly_rate) if p else '' }}" aria-label="Hourly rate"></td>
+      <td><input name="monthly_cap_hours" type="number" min="0" step="1" style="width:110px" value="{{ '%g'|format(p.monthly_cap_hours) if p else '' }}" aria-label="Monthly cap"></td>
+      <td><input name="active" type="checkbox"{% if not p or p.active %} checked{% endif %} aria-label="Active"></td>
+      <td><button class="btn sm" data-save-team>Save</button></td></tr>
+  {% endfor %}
+  </tbody>
+</table></div></section>
+{% endblock %}

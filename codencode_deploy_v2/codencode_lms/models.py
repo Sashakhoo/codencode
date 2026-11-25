@@ -142,6 +142,7 @@ class Cohort(db.Model):
     created_at   = db.Column(db.DateTime, default=datetime.utcnow)
     zoom_link       = db.Column(db.String(500))   # one recurring meeting, reused every week
     zoom_meeting_id = db.Column(db.String(50))    # Zoom's numeric meeting id, for matching recording webhooks
+    every_n_weeks   = db.Column(db.Integer, nullable=True, default=1)  # staff module: 1 = weekly, 2 = fortnightly
 
     course      = db.relationship('Course', back_populates='cohorts')
     enrollments = db.relationship('Enrollment', back_populates='cohort')

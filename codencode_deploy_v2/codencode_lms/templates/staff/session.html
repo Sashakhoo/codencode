@@ -1,0 +1,42 @@
+{% extends 'staff/base.html' %}
+{% block title %}Session #{{ r.id }}{% endblock %}
+{% block main %}
+<div class="top"><div><h1>{{ r.user.name }} · {{ r.short }}</h1><div class="sub">{{ r.dow }} {{ r.day_label }} · {{ 'Zoom class' if r.mode == 'zoom' else 'Office' }}</div></div>
+  <a class="btn ghost" href="/staff/admin/review">Back to review</a></div>
+<div class="grid-2">
+<section class="card">
+  <h2>Details</h2>
+  <dl class="kv">
+    <dt>App clock</dt><dd class="m">{{ r.in }} – {{ r.out or 'still open' }}{{ ' (auto-closed)' if r.auto_closed }}</dd>
+    {% if r.mode == 'zoom' %}<dt>Zoom (teacher)</dt><dd class="m">{{ r.zoom_in ~ ' – ' ~ r.zoom_out if r.zoom_in else '—' }} {{ '· %.2f h'|format(r.zoom_hours) if r.zoom_hours is not none }}</dd>
+    <dt>Meeting ID</dt><dd class="m">{{ r.zoom_meeting_id }}</dd><dt>Students</dt><dd class="m">{{ r.eval.students if r.eval.students is not none else '—' }}</dd>
+    {% else %}<dt>Task</dt><dd>{{ r.task }}</dd><dt>Distance</dt><dd class="m">{{ '%d m'|format(r.distance_m) if r.distance_m is not none else '—' }}</dd>{% endif %}
+    <dt>Paid hours</dt><dd class="m">{{ '%.2f'|format(r.paid_hours) }}</dd>
+    <dt>Status</dt><dd><span class="pill f-{{ r.eval.tone }}">{{ r.eval.label }}</span></dd>
+    <dt>Source</dt><dd>{{ 'Adjusted by admin' if r.source == 'admin_adjusted' else 'Staff app' }}</dd>
+  </dl>
+</section>
+<section class="card">
+  <h2>Decide</h2>
+  <form class="form" id="reviewForm" data-session="{{ r.id }}">
+    <label>Action<select name="action" id="rvAction">
+      <option value="approve">Approve as calculated</option>
+      <option value="override">Override paid hours</option>
+      <option value="adjust">Adjust clock times</option></select></label>
+    <label data-for="override" hidden>Paid hours<input name="paid_hours" type="number" step="0.01" min="0" max="24" value="{{ '%.2f'|format(r.paid_hours) }}"></label>
+    <label data-for="adjust" hidden>Clock in<input name="clock_in" type="datetime-local" value="{{ to_myt(ws.clock_in_at).strftime('%Y-%m-%dT%H:%M') }}"></label>
+    <label data-for="adjust" hidden>Clock out<input name="clock_out" type="datetime-local" value="{{ to_myt(ws.clock_out_at).strftime('%Y-%m-%dT%H:%M') if ws.clock_out_at else '' }}"></label>
+    <label class="wide">Reason (required)<input name="reason" required maxlength="500" placeholder="e.g. Zoom dropped; teacher re-joined from phone"></label>
+    <div class="wide"><button class="btn" type="submit">Save decision</button></div>
+  </form>
+  <div class="note">Times are Malaysia time. Staff cannot edit or delete their own clock records; only admin can, and every change is logged.</div>
+</section>
+</div>
+<section class="card">
+  <h2>History</h2>
+  <div class="tbl"><table><thead><tr><th>When</th><th>Action</th><th>Before</th><th>After</th><th>Reason</th></tr></thead><tbody>
+  {% for a in log %}<tr><td class="m">{{ a.at|staff_dt }}</td><td>{{ a.action }}</td><td class="note m">{{ a.before|tojson if a.before else '' }}</td><td class="note m">{{ a.after|tojson if a.after else '' }}</td><td class="note">{{ a.reason or '' }}</td></tr>
+  {% else %}<tr><td colspan="5" class="note">No changes.</td></tr>{% endfor %}
+  </tbody></table></div>
+</section>
+{% endblock %}

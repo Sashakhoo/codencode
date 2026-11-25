@@ -1,0 +1,19 @@
+{% extends 'staff/base.html' %}
+{% block title %}Office clock-in{% endblock %}
+{% block main %}
+<section class="card" id="clockCard">
+  <h2>Office clock-in · {{ office_name }}</h2>
+  {% if not configured %}
+  <div class="status warn">The office location is not set up yet. Admin needs to set OFFICE_LAT and OFFICE_LNG on the server.</div>
+  {% elif open_ws %}
+  <div class="status ok">You are clocked in. Clock out with the green bar above when you finish.</div>
+  {% else %}
+  <input type="text" id="task" maxlength="500" placeholder="Task, e.g. TikTok Live, content editing, admin" value="{{ occ.title if occ else '' }}">
+  <div class="row"><button class="btn ghost" id="locBtn" type="button">Check my location</button></div>
+  <div id="stat" class="status">Check your location to clock in. You must be within {{ radius_m }} m of the office.</div>
+  <div><button class="btn" id="inBtn" type="button" disabled>Clock in</button></div>
+  {% if occ %}<div class="note">Scheduled shift now: {{ occ.title }}, {{ fmt_hhmm(occ.start) }}–{{ fmt_hhmm(occ.end) }}.</div>{% endif %}
+  <div class="note">Your phone's GPS is checked on the server. Location is stored with the clock-in for payroll verification only.</div>
+  {% endif %}
+</section>
+{% endblock %}
