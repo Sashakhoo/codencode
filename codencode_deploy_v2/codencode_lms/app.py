@@ -141,7 +141,8 @@ _BANK_NAME = os.environ.get('BANK_NAME', 'MAYBANK')
 _BANK_ACCOUNT_NAME = os.environ.get('BANK_ACCOUNT_NAME', 'CODE N CODE SOLUTION')
 _BANK_ACCOUNT_NO = os.environ.get('BANK_ACCOUNT_NO', '5512 7610 6077')
 _DUITNOW_QR_PATH = os.environ.get('DUITNOW_QR_PATH', '/static/img/duitnow-qr.jpg')
-_DEFAULT_STUDENT_PASSWORD = os.environ.get('DEFAULT_STUDENT_PASSWORD', 'codencode123')
+# Login password for new student accounts (they sign in with their email).
+_DEFAULT_STUDENT_PASSWORD = os.environ.get('DEFAULT_STUDENT_PASSWORD', 'CNC1234').strip() or 'CNC1234'
 
 # ─────────────────────────────────────────────
 # WhatsApp notifications disabled for now
@@ -1007,7 +1008,7 @@ def api_admin_approve_registration(rid):
 
     plain_pw = None
     if not user:
-        plain_pw = secrets.token_urlsafe(9)
+        plain_pw = _DEFAULT_STUDENT_PASSWORD
         user = User(name=reg.full_name, email=reg.email, role='student',
                     phone=reg.whatsapp or '', language_pref='en')
         user.set_password(plain_pw)
@@ -2009,7 +2010,7 @@ def admin_students():
         bill_sst_number = data.get('bill_sst_number', '').strip(),
         bill_company_address = data.get('bill_company_address', '').strip(),
     )
-    plain_pw = data.get('password') or 'codencode123'
+    plain_pw = data.get('password') or _DEFAULT_STUDENT_PASSWORD
     u.set_password(plain_pw)
     u.temp_password = plain_pw
     db.session.add(u)
@@ -2154,7 +2155,7 @@ def finance_enroll():
     user = User.query.filter_by(email=email).first()
     account_created = False
     if not user:
-        plain_pw = secrets.token_urlsafe(9)
+        plain_pw = _DEFAULT_STUDENT_PASSWORD
         user = User(
             name=name, email=email, role='student',
             phone=(data.get('phone') or '').strip(),
@@ -2859,7 +2860,7 @@ def _build_welcome_email(student_name: str, course_title: str,
                          days_before: int = 3) -> str:
     timing_display   = class_timing or 'as scheduled'
     fmt_display      = class_format  or 'Private'
-    password_display = login_password or 'codencode123'
+    password_display = login_password or _DEFAULT_STUDENT_PASSWORD
     days_label       = f'{days_before} days' if days_before > 1 else 'tomorrow'
     return f"""
     <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;background:#0a1a12;color:#e0ffe8;padding:32px;border-radius:12px">
@@ -2950,7 +2951,7 @@ def _send_reminders_for_day(days_before: int):
                     _build_welcome_email(
                         student.name, course.title, timing, fmt,
                         login_email=student.email,
-                        login_password=student.temp_password or 'codencode123',
+                        login_password=student.temp_password or _DEFAULT_STUDENT_PASSWORD,
                         days_before=days_before
                     )
                 )
@@ -4871,7 +4872,7 @@ def teacher_add_student():
         if student.role != 'student':
             return jsonify({'error': 'Email belongs to a non-student account'}), 409
     else:
-        plain_pw = data.get('password') or 'codencode123'
+        plain_pw = data.get('password') or _DEFAULT_STUDENT_PASSWORD
         student = User(
             name=name,
             email=email,
