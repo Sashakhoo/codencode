@@ -128,11 +128,13 @@ _BUSINESS_EMAIL = os.environ.get('BUSINESS_EMAIL', 'codencodemy@gmail.com')
 # Shared secret with CNC Finance's one-way "invoice paid -> enroll student"
 # sync (see that repo's backend/lms_sync.py). Must match FINANCE_SYNC_SECRET
 # used there as the X-Finance-Secret header.
-_FINANCE_SYNC_SECRET = os.environ.get('FINANCE_SYNC_SECRET', '')
+# .strip(): a value pasted into Railway can carry an invisible trailing line
+# break (Windows clipboard), which would make it never match Finance's copy.
+_FINANCE_SYNC_SECRET = os.environ.get('FINANCE_SYNC_SECRET', '').strip()
 # The reverse direction: registrations raise invoices in CNC Finance
 # (that repo's backend/lms_invoices.py). Same shared secret, sent back as
 # x-lms-secret. Leave FINANCE_URL unset to switch the feature off.
-_FINANCE_URL = os.environ.get('FINANCE_URL', '').rstrip('/')
+_FINANCE_URL = os.environ.get('FINANCE_URL', '').strip().rstrip('/')
 _BUSINESS_WEBSITE = os.environ.get('BUSINESS_WEBSITE', 'codencode.my')
 _INVOICE_DUE_DAYS = int(os.environ.get('INVOICE_DUE_DAYS', '14'))
 _BANK_NAME = os.environ.get('BANK_NAME', 'MAYBANK')
@@ -2139,7 +2141,8 @@ def finance_enroll():
     Enrollment date/timing/class format are deliberately left blank -
     Finance doesn't know the real class schedule, so those get filled in
     manually here afterwards."""
-    if not _FINANCE_SYNC_SECRET or request.headers.get('X-Finance-Secret') != _FINANCE_SYNC_SECRET:
+    if not _FINANCE_SYNC_SECRET or not hmac.compare_digest(
+            (request.headers.get('X-Finance-Secret') or '').strip(), _FINANCE_SYNC_SECRET):
         return jsonify({'error': 'Forbidden'}), 403
 
     data  = request.get_json() or {}
