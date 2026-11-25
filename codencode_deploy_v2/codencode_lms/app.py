@@ -870,13 +870,39 @@ def _finance_ref(reg):
     return f'lms-reg-{reg.id}'
 
 
+def standard_course_fee(title, class_format=''):
+    """Standard price in RM for a course name, or None (half-day courses and
+    anything unknown: the admin types it). Works on both the name a student
+    picked on a form and an LMS course title. Keep in step with
+    defaultCourseFee() in templates/admin.html, which pre-fills the approve
+    panel from the same rules."""
+    t = (title or '').lower()
+    is_python = 'python' in t
+    is_ml = 'machine learning' in t or re.search(r'\bml\b', t) is not None
+    if is_python and is_ml:
+        return 2500          # Python + ML bundle
+    if is_python and class_format == '5v1':
+        return 250           # 5 vs 1 small group, first month (RM875 one-time)
+    if is_python:
+        return 1128          # Python Fundamentals / Python Intermediate
+    if 'cyber' in t:
+        return 1128
+    if 'vibe' in t:
+        return 1128          # Vibe Coding / AI Agents & Vibe Coding
+    if is_ml:
+        return 1500          # Machine Learning
+    return None
+
+
 def _raise_finance_invoice(reg):
     """Create (or fetch, it's idempotent) the Finance invoice for a
-    registration and remember its number. Returns True on success."""
+    registration, at the course's standard price when there is one, and
+    remember its number. Returns True on success."""
     ok, out = _finance_call('/registration', {
         'external_ref': _finance_ref(reg), 'name': reg.full_name, 'email': reg.email,
         'phone': reg.whatsapp or '', 'course': reg.course or 'Course',
         'location': reg.location or '', 'timing': reg.timing or '',
+        'amount': standard_course_fee(reg.course, reg.class_format) or 0,
     })
     if ok:
         reg.finance_invoice_number = out.get('invoice_number')
@@ -909,6 +935,7 @@ def api_admin_registrations():
     for r in regs:
         d = r.to_dict()
         d['existing_user_id'] = existing.get(r.email)
+        d['standard_fee'] = standard_course_fee(r.course, r.class_format)
         out.append(d)
     return jsonify(out)
 

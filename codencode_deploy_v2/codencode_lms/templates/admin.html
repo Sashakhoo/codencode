@@ -6050,7 +6050,9 @@ function renderRegistrations() {
           ${r.existing_user_id && st !== 'enrolled' ? `<div style="font-size:11px;color:var(--gold);margin-top:2px"><i class="fas fa-exclamation-circle"></i> Already has a login</div>` : ''}</td>
         <td>${e(r.course || '—')}${sub(r.location)}${sub(r.timing)}${sub(r.class_format)}
           ${r.learning_goals ? `<div style="font-size:12px;color:var(--text-muted);max-width:260px;margin-top:2px">“${e(r.learning_goals)}”</div>` : ''}</td>
-        <td>${e(r.total_fee || '—')}${sub(r.payment_preference)}
+        <td>${r.total_fee ? e(r.total_fee)
+              : r.standard_fee != null ? `RM${Number(r.standard_fee).toLocaleString('en-MY')}<div style="font-size:11px;color:var(--text-muted)">standard price</div>`
+              : '—'}${sub(r.payment_preference)}
           ${r.finance_invoice_number ? `<div style="font-size:12px;margin-top:2px"><i class="fas fa-file-invoice" style="color:var(--green)"></i> ${e(r.finance_invoice_number)}</div>` : ''}
           ${r.finance_note ? `<div style="font-size:11px;color:var(--red);margin-top:2px;max-width:200px" title="${e(r.finance_note)}"><i class="fas fa-exclamation-triangle"></i> ${e(r.finance_note.length > 60 ? r.finance_note.slice(0, 60) + '…' : r.finance_note)}</div>` : ''}</td>
         <td><span class="badge" style="background:${bg};color:${fg};border:0">${label}</span></td>
