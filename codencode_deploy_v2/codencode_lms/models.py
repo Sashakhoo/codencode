@@ -950,11 +950,15 @@ class CorporateEnquiry(db.Model):
     location      = db.Column(db.String(100))
     requirements  = db.Column(db.Text)
     status        = db.Column(db.String(20), default='new')  # new / contacted / won / lost
+    finance_quote_number = db.Column(db.String(40))  # Draft quotation raised in CNC Finance
+    finance_note  = db.Column(db.String(300))         # last sync error to show admins
     submitted_at  = db.Column(db.DateTime, default=datetime.utcnow)
 
     def to_dict(self):
         return {
             'id': self.id,
+            'finance_quote_number': self.finance_quote_number or '',
+            'finance_note': self.finance_note or '',
             'contact_name': self.contact_name,
             'company': self.company,
             'email': self.email,

@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>codencode.my — Admin</title>
-  <link rel="icon" href="/favicon.ico" sizes="any" />
+  <link rel="icon" href="/favicon.ico?v=co" sizes="any" /><link rel="apple-touch-icon" href="/static/img/favicon.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@300;400;500;600;700&family=Lato:ital,wght@0,300;0,400;0,700;1,400&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
@@ -6270,7 +6270,9 @@ async function loadCorporateEnquiries() {
         <td><div style="font-weight:600">${e(r.company)}</div>${sub(r.location)}</td>
         <td><div>${e(r.contact_name)}</div>${sub(r.email)}${sub(r.phone)}</td>
         <td>${r.pax ? e(r.pax) + ' pax' : '—'}${sub(r.hrd_claim && 'HRD Corp: ' + r.hrd_claim)}</td>
-        <td style="max-width:320px">${e(r.topics || '—')}${sub(r.requirements)}</td>
+        <td style="max-width:320px">${e(r.topics || '—')}${sub(r.requirements)}
+          ${r.finance_quote_number ? `<div style="font-size:12px;margin-top:4px"><i class="fas fa-file-signature" style="color:var(--green)"></i> Quotation ${e(r.finance_quote_number)} (Draft in Finance)</div>` : ''}
+          ${r.finance_note ? `<div style="font-size:11px;color:var(--red);margin-top:2px" title="${e(r.finance_note)}"><i class="fas fa-exclamation-triangle"></i> ${e(r.finance_note.length > 70 ? r.finance_note.slice(0, 70) + '…' : r.finance_note)}</div>` : ''}</td>
         <td>
           <select class="form-select" style="min-width:120px" onchange="setCorporateStatus(${r.id}, this.value)">
             ${['new','contacted','won','lost'].map(s => `<option value="${s}" ${s === r.status ? 'selected' : ''}>${s[0].toUpperCase() + s.slice(1)}</option>`).join('')}

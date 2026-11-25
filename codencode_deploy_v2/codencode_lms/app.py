@@ -917,6 +917,32 @@ def _raise_finance_invoice(reg):
     return ok
 
 
+def _raise_finance_quote(enq):
+    """Corporate enquiry -> Draft quotation in CNC Finance (idempotent)."""
+    ok, out = _finance_call('/corporate', {
+        'external_ref': f'lms-corp-{enq.id}', 'company': enq.company, 'contact_name': enq.contact_name or '',
+        'email': enq.email or '', 'phone': enq.phone or '', 'pax': enq.pax,
+        'hrd_claim': enq.hrd_claim or '', 'location': enq.location or '',
+        'topics': [t.strip() for t in (enq.topics or '').split(',') if t.strip()],
+        'requirements': enq.requirements or '',
+    })
+    if ok:
+        enq.finance_quote_number = out.get('quote_number')
+        enq.finance_note = ''
+    else:
+        enq.finance_note = str(out)[:300]
+        app.logger.warning('Finance quotation for corporate enquiry %s failed: %s', enq.id, out)
+    db.session.commit()
+    return ok
+
+
+def _raise_finance_quote_bg(enq_id):
+    with app.app_context():
+        enq = CorporateEnquiry.query.get(enq_id)
+        if enq:
+            _raise_finance_quote(enq)
+
+
 def _raise_finance_invoice_bg(reg_id):
     with app.app_context():
         reg = Registration.query.get(reg_id)
@@ -1161,6 +1187,10 @@ def public_corporate_enquiry():
         )
     except Exception as exc:
         app.logger.warning('Corporate enquiry email failed: %s', exc)
+
+    # Raise a Draft quotation in CNC Finance in the background (never blocks the form).
+    if _FINANCE_URL:
+        threading.Thread(target=_raise_finance_quote_bg, args=(enq.id,), daemon=True).start()
 
     return jsonify({'ok': True, 'id': enq.id}), 200
 
@@ -7177,6 +7207,14 @@ with app.app_context():
                 conn.commit()
             if 'finance_note' not in reg_cols:
                 conn.execute(text('ALTER TABLE registrations ADD COLUMN finance_note VARCHAR(300)'))
+                conn.commit()
+        corp_cols = {c['name'] for c in sa_inspect(db.engine).get_columns('corporate_enquiries')}
+        with db.engine.connect() as conn:
+            if 'finance_quote_number' not in corp_cols:
+                conn.execute(text('ALTER TABLE corporate_enquiries ADD COLUMN finance_quote_number VARCHAR(40)'))
+                conn.commit()
+            if 'finance_note' not in corp_cols:
+                conn.execute(text('ALTER TABLE corporate_enquiries ADD COLUMN finance_note VARCHAR(300)'))
                 conn.commit()
     except Exception:
         pass
