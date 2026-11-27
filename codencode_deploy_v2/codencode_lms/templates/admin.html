@@ -3340,6 +3340,10 @@
             <span style="font-size:10px;color:var(--text-dim);margin-top:4px">PDF, PPTX, DOCX, PY, ZIP, CSV, TXT, IPYNB, HTML</span>
             <input type="file" id="mat-file" accept=".pdf,.py,.ipynb,.zip,.csv,.txt,.docx,.pptx,.html" onchange="handleMatFileSelect()" />
           </div>
+          <div class="form-group" style="margin-top:12px">
+            <label class="form-label">…or embed slides (Gamma, Google Slides, Canva)</label>
+            <textarea class="form-input" id="mat-embed" rows="2" placeholder='Paste the &lt;iframe src="https://gamma.app/embed/..."&gt; code or the link'></textarea>
+          </div>
           <div style="margin-top:12px;text-align:right">
             <button class="btn btn-primary" onclick="uploadMaterial()"><i class="fas fa-upload"></i> <span data-i18n="btn.upload">Upload</span></button>
           </div>
@@ -6243,6 +6247,7 @@ async function submitApproveRegistration() {
         <li>Enrolled in <strong>${e(res.course_title)}</strong>${body.payment_status === 'paid' ? ' (paid)' : ' (payment pending)'}</li>
         ${res.welcome_sent ? '<li>Welcome email sent with login details</li>' : ''}
         ${body.cohort_id ? '<li>Class schedule &amp; Zoom link emailed</li>' : ''}
+        ${res.calendar ? '<li>Classes being added to Google Calendar, with the student and teacher invited</li>' : ''}
         ${res.invoice && res.invoice.ok ? `<li>Invoice <strong>${e(res.invoice.number)}</strong> updated in Finance: RM${Number(res.invoice.amount).toLocaleString('en-MY', {minimumFractionDigits: 2})}</li>` : ''}
       </ul>
       ${res.invoice && !res.invoice.ok ? `<div style="background:var(--red-dim);color:var(--red);border-radius:12px;padding:10px 14px;margin-bottom:14px;font-size:13px"><i class="fas fa-exclamation-triangle"></i> Student is enrolled, but the Finance invoice wasn't updated: ${e(res.invoice.message)}. Set the amount in Finance${res.invoice.number ? ' on ' + e(res.invoice.number) : ''}.</div>` : ''}
@@ -7385,12 +7390,13 @@ function handleMatDrop(e) {
 async function uploadMaterial() {
   const cid  = document.getElementById('mat-course-select').value;
   const file = document.getElementById('mat-file').files[0];
+  const embed = document.getElementById('mat-embed').value.trim();
   if (!cid)  { toast(T('at.selectCourse'), true); return; }
-  if (!file) { toast(T('at.selectFile'), true); return; }
+  if (!file && !embed) { toast(T('at.selectFile'), true); return; }
 
   const fd = new FormData();
-  fd.append('file',  file);
-  fd.append('title', document.getElementById('mat-title').value || file.name);
+  if (file) fd.append('file', file); else fd.append('embed', embed);
+  fd.append('title', document.getElementById('mat-title').value || (file ? file.name : 'Slides'));
   fd.append('session',  document.getElementById('mat-session').value);
 
   try {
@@ -7399,6 +7405,7 @@ async function uploadMaterial() {
     document.getElementById('mat-file').value    = '';
     document.getElementById('mat-file-label').textContent = 'Click or drag file here';
     document.getElementById('mat-title').value   = '';
+    document.getElementById('mat-embed').value   = '';
     document.getElementById('mat-session').value    = '1';
     loadMaterialsList();
   } catch(e) { toast(e.message, true); }
@@ -7890,7 +7897,7 @@ function toast(msg, isError=false) {
 }
 
 function fileIcon(ft) {
-  const map = { py:'🐍', pdf:'📄', zip:'📦', ipynb:'📓', csv:'📊', txt:'📝', docx:'📝' };
+  const map = { py:'🐍', pdf:'📄', zip:'📦', ipynb:'📓', csv:'📊', txt:'📝', docx:'📝', embed:'🖥️' };
   return map[ft] || '📎';
 }
 
