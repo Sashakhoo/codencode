@@ -772,6 +772,14 @@ def serve_admin():
     return send_from_directory('templates', 'admin.html')
 
 
+@app.route('/present/<int:mid>')
+@login_required
+def serve_present(mid):
+    """Trainer presenter view for a lesson's slides (reads /api/lms/material/<mid>,
+    which does the access check)."""
+    return send_from_directory('templates', 'present.html')
+
+
 # ─────────────────────────────────────────────
 # Public Registration
 # ─────────────────────────────────────────────
