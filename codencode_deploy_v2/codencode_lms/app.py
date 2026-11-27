@@ -6744,11 +6744,18 @@ def _sync_bundled_materials():
         return
     os.makedirs(dst_dir, exist_ok=True)
     created, updated = 0, 0
-    for filename in os.listdir(src_dir):
-        src = os.path.join(src_dir, filename)
+    # Top-level files, plus learn/ (slide images for LessonSlide rows, served
+    # at /uploads/materials/learn/...).
+    pairs = [(os.path.join(src_dir, fn), os.path.join(dst_dir, fn), fn)
+             for fn in os.listdir(src_dir)]
+    learn_src = os.path.join(src_dir, 'learn')
+    if os.path.isdir(learn_src):
+        os.makedirs(os.path.join(dst_dir, 'learn'), exist_ok=True)
+        pairs += [(os.path.join(learn_src, fn), os.path.join(dst_dir, 'learn', fn), 'learn/' + fn)
+                  for fn in os.listdir(learn_src)]
+    for src, dst, filename in pairs:
         if not os.path.isfile(src):
             continue
-        dst = os.path.join(dst_dir, filename)
         try:
             with open(src, 'rb') as f:
                 src_bytes = f.read()
@@ -6939,9 +6946,39 @@ def api_resync_curriculum_materials():
 # iframe. They live in code, not on the uploads volume, so a lost upload can't
 # blank the lesson.
 EMBED_CURRICULUM = [
+    # 'slides': image renders of the same deck (bundled_materials/learn/<prefix>NN.jpg,
+    # titles in slide_captions/<prefix minus dash>.json). The lesson shows these
+    # first, since they always load; learners can switch to the Gamma version.
     {'include': ['vibe coding'], 'session': 1, 'title': 'SESSION 1 - VIBE CODING',
-     'url': 'https://gamma.app/embed/ey9xbn8sgb5hp43'},
+     'url': 'https://gamma.app/embed/ey9xbn8sgb5hp43',
+     'slides': {'prefix': 'wsai-s1-', 'captions': 'wsai-s1.json'}},
 ]
+
+
+def _sync_embed_slides(material, slides_spec):
+    """Make the material's LessonSlide rows match the bundled slide images."""
+    import json as _json
+    learn_dir = os.path.join(app.config['UPLOAD_FOLDER'], 'materials', 'learn')
+    prefix = slides_spec['prefix']
+    files = sorted(f for f in (os.listdir(learn_dir) if os.path.isdir(learn_dir) else [])
+                   if f.startswith(prefix) and f.lower().endswith(('.jpg', '.png')))
+    if not files:
+        return
+    try:
+        with open(os.path.join(os.path.dirname(__file__), 'slide_captions',
+                               slides_spec['captions']), encoding='utf-8') as fh:
+            captions = _json.load(fh)
+    except Exception:
+        captions = []
+    want = [(f'/uploads/materials/learn/{f}', captions[i] if i < len(captions) else '')
+            for i, f in enumerate(files)]
+    have = [(s.image_url, s.caption or '') for s in material.slides]
+    if have == want:
+        return
+    LessonSlide.query.filter_by(material_id=material.id).delete()
+    for i, (url, cap) in enumerate(want):
+        db.session.add(LessonSlide(material_id=material.id, image_url=url,
+                                   caption=cap, order_index=i))
 
 
 def seed_embed_curriculum_materials():
@@ -6960,13 +6997,18 @@ def seed_embed_curriculum_materials():
                         LastLesson.query.filter_by(material_id=m.id).delete()
                         Quiz.query.filter_by(gates_material_id=m.id).update({'gates_material_id': None})
                         db.session.delete(m)
-                if not Material.query.filter_by(course_id=course.id, filename=spec['url']).first():
-                    db.session.add(Material(
+                mat = Material.query.filter_by(course_id=course.id, filename=spec['url']).first()
+                if not mat:
+                    mat = Material(
                         course_id=course.id, session=spec['session'], title=spec['title'],
                         description='Session slides', filename=spec['url'],
                         file_type='embed', file_size='Embed',
                         is_published=True, order_index=spec['session'],
-                    ))
+                    )
+                    db.session.add(mat)
+                    db.session.flush()
+                if spec.get('slides'):
+                    _sync_embed_slides(mat, spec['slides'])
                 db.session.commit()
             except Exception as exc:
                 db.session.rollback()
