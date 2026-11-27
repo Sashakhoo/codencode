@@ -422,6 +422,13 @@
     tr:last-child td { border-bottom: none; }
     tr:hover td { background: var(--surface2); }
 
+    /* Registrations: the stat tiles double as filters */
+    .reg-tile { font: inherit; color: inherit; text-align: left; width: 100%; cursor: pointer;
+                transition: border-color .15s, box-shadow .15s, transform .15s; }
+    .reg-tile:hover { transform: translateY(-1px); box-shadow: 0 12px 26px rgba(15, 157, 88, .12); }
+    .reg-tile:focus-visible { outline: 3px solid rgba(15, 157, 88, .35); outline-offset: 2px; }
+    .reg-tile.is-active { border: 2px solid var(--green) !important; box-shadow: 0 0 0 4px rgba(15, 157, 88, .12); }
+
     /* ── Badges ─────────────────────────────────────── */
     .badge {
       display: inline-block;
@@ -6010,19 +6017,22 @@ async function loadRegistrations() {
 function renderRegistrations() {
   const rows = S.registrations || [];
   const count = st => rows.filter(r => (r.status || 'new') === st).length;
-  const card = (label, value, icon, hint, color) => `
-    <div class="stat-card"><div class="stat-head"><div>
+  const filter = document.getElementById('reg-filter').value;
+  // Each tile is a filter: click it to show just those registrations.
+  const card = (f, label, value, icon, hint, color) => `
+    <button type="button" class="stat-card reg-tile${filter === f ? ' is-active' : ''}" onclick="setRegistrationFilter('${f}')"
+            aria-pressed="${filter === f}" title="Show ${label.toLowerCase()}">
+    <div class="stat-head"><div>
       <div class="stat-label">${label}</div>
       <div class="stat-value" style="color:${color || 'var(--text)'}">${value}</div>
     </div><div class="stat-icon"><i class="fas ${icon}"></i></div></div>
-    <div class="stat-hint">${hint}</div></div>`;
+    <div class="stat-hint">${hint}</div></button>`;
   document.getElementById('reg-stats').innerHTML =
-    card('Total registrations', rows.length, 'fa-inbox', 'From /register and the Form Portal') +
-    card('Pending', count('new'), 'fa-hourglass-half', 'Waiting for you to approve', 'var(--gold)') +
-    card('Enrolled', count('enrolled'), 'fa-user-check', 'Account created & enrolled', 'var(--green)') +
-    card('Cancelled', count('cancelled'), 'fa-ban', 'Not going ahead');
+    card('all', 'Total registrations', rows.length, 'fa-inbox', 'From /register and the Form Portal') +
+    card('new', 'Pending', count('new'), 'fa-hourglass-half', 'Waiting for you to approve', 'var(--gold)') +
+    card('enrolled', 'Enrolled', count('enrolled'), 'fa-user-check', 'Account created & enrolled', 'var(--green)') +
+    card('cancelled', 'Cancelled', count('cancelled'), 'fa-ban', 'Not going ahead');
 
-  const filter = document.getElementById('reg-filter').value;
   const q = document.getElementById('reg-search').value.trim().toLowerCase();
   const list = rows.filter(r =>
     (filter === 'all' || (r.status || 'new') === filter) &&
@@ -6059,6 +6069,11 @@ function renderRegistrations() {
         <td style="text-align:right;white-space:nowrap">${actions}</td>
       </tr>`;
   }).join('');
+}
+
+function setRegistrationFilter(f) {
+  document.getElementById('reg-filter').value = f;
+  renderRegistrations();
 }
 
 async function setRegistrationStatus(id, status) {
