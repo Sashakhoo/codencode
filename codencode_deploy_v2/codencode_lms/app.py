@@ -51,7 +51,9 @@ from models import (db, User, Course, Enrollment, Recording,
                     DiscussionPost, DiscussionReply, PostUpvote,
                     LastLesson, Cohort, Registration, CorporateEnquiry, CourseFeedback,
                     Workshop, WorkshopRun, WorkshopAttendee, WorkshopFeedback,
-                    LessonSlide, MaterialProgress)
+                    LessonSlide, MaterialProgress, CalendarEvent)
+import models as _models
+import gcal
 
 # ─────────────────────────────────────────────
 # App setup
@@ -1102,6 +1104,7 @@ def api_admin_approve_registration(rid):
         'temp_password': plain_pw,
         'welcome_sent': welcome_sent,
         'course_title': course.title,
+        'calendar': bool(cohort_id and gcal.enabled()),
         'login_url': (request.host_url.rstrip('/').replace('://form.', '://learn.')) + '/login',
     })
 
@@ -1678,6 +1681,10 @@ def serve_material(filename):
         for course in Course.query.all():
             _ensure_slide_materials(course)
         mats = Material.query.filter_by(filename=filename).all()
+    # Homework briefs are saved into materials/ too (api_create_assignment),
+    # but have an Assignment row rather than a Material row.
+    if not mats:
+        mats = Assignment.query.filter_by(brief_file=filename).all()
     if not mats:
         return jsonify({'error': 'Material not found'}), 404
     if current_user.role == 'student':
@@ -2165,6 +2172,18 @@ def _send_cohort_schedule(e):
             email_class_schedule(student, cohort.course, cohort, zoom_link)
         except Exception as exc:
             app.logger.warning('Class schedule email failed for enrollment %s: %s', e.id, exc)
+    # Put the Class's upcoming sessions on Google Calendar with the student and
+    # teacher invited (background: many API calls; never blocks the admin).
+    if gcal.enabled():
+        threading.Thread(target=_sync_calendar_bg, args=(e.id,), daemon=True).start()
+
+
+def _sync_calendar_bg(enrollment_id):
+    with app.app_context():
+        enr = Enrollment.query.get(enrollment_id)
+        if enr:
+            note = gcal.sync_enrollment(enr, db=db, models=_models, build_timetable=_build_timetable)
+            app.logger.info('Enrollment %s %s', enrollment_id, note)
 
 
 @app.route('/api/enrollments/<int:eid>/enrolled-date', methods=['PUT'])
@@ -2633,9 +2652,42 @@ def admin_course_students(cid):
 
 
 # ── Materials upload (admin) ───────────────────
+def _embed_src(raw):
+    """Turn a pasted embed snippet or link (Gamma, Google Slides, Canva...) into
+    an https iframe src. Accepts a full <iframe ...> tag or a bare URL.
+    Gamma share links (/docs/<slug>-<id>) are rewritten to their /embed/<id>
+    form. Returns None if no https URL is found."""
+    raw = (raw or '').strip()
+    m = re.search(r'src\s*=\s*["\']([^"\']+)["\']', raw, re.I)
+    url = (m.group(1) if m else raw).strip()
+    if not re.match(r'^https://[^\s<>"\']+$', url):
+        return None
+    g = re.match(r'^https://gamma\.app/(?:docs|public)/(?:[^/?#]*-)?([a-z0-9]+)(?:[/?#].*)?$', url, re.I)
+    if g:
+        url = f'https://gamma.app/embed/{g.group(1)}'
+    return url[:300]
+
+
 @app.route('/api/admin/courses/<int:cid>/materials', methods=['POST'])
 @admin_required
 def admin_upload_material(cid):
+    embed_raw = request.form.get('embed', '').strip()
+    if embed_raw and not request.files.get('file'):
+        src = _embed_src(embed_raw)
+        if not src:
+            return jsonify({'error': 'Paste an https embed link or the <iframe> code'}), 400
+        mat = Material(
+            course_id   = cid,
+            session     = int(request.form.get('session', 0)),
+            title       = (request.form.get('title') or 'Slides').strip(),
+            description = request.form.get('description', ''),
+            filename    = src,
+            file_type   = 'embed',
+            file_size   = 'Embed',
+        )
+        db.session.add(mat)
+        db.session.commit()
+        return jsonify({'material': mat.to_dict()}), 201
     try:
         stored, original = save_upload(
             request.files.get('file'), 'materials',
@@ -6166,7 +6218,8 @@ def api_lms_material(mid):
     data = m.to_learn_dict(sid)
     data['course'] = {'id': course.id, 'title': course.title,
                       'programme': course.programme or '', 'icon': course.icon or 'fa-book-open'}
-    data['file_url'] = f'/uploads/materials/{m.filename}'
+    data['file_url'] = (m.filename if m.file_type == 'embed'
+                        else f'/uploads/materials/{m.filename}')
 
     ids = [x.id for x in mats]
     if m.id in ids:
@@ -6878,7 +6931,46 @@ def api_resync_curriculum_materials():
     enforce_python_fundamentals_curriculum_materials()
     enforce_python_intermediate_curriculum_materials()
     seed_course_curriculum_materials()
+    seed_embed_curriculum_materials()
     return jsonify({'ok': True})
+
+
+# Slide decks hosted elsewhere (Gamma etc.), shown in the lesson viewer as an
+# iframe. They live in code, not on the uploads volume, so a lost upload can't
+# blank the lesson.
+EMBED_CURRICULUM = [
+    {'include': ['vibe coding'], 'session': 1, 'title': 'SESSION 1 - VIBE CODING',
+     'url': 'https://gamma.app/embed/ey9xbn8sgb5hp43'},
+]
+
+
+def seed_embed_curriculum_materials():
+    """Add each EMBED_CURRICULUM deck to its matching courses if missing, and
+    drop any HTML deck in that same session whose file is gone from disk (it
+    only ever showed 'Not Found'). Idempotent; never blocks startup."""
+    materials_dir = os.path.join(app.config['UPLOAD_FOLDER'], 'materials')
+    for spec in EMBED_CURRICULUM:
+        for course in _courses_matching(spec['include'], spec.get('exclude', ())):
+            try:
+                mats = Material.query.filter_by(course_id=course.id, session=spec['session']).all()
+                for m in mats:
+                    if (m.file_type in ('html', 'htm') and m.filename != spec['url']
+                            and not os.path.exists(os.path.join(materials_dir, m.filename))):
+                        MaterialProgress.query.filter_by(material_id=m.id).delete()
+                        LastLesson.query.filter_by(material_id=m.id).delete()
+                        Quiz.query.filter_by(gates_material_id=m.id).update({'gates_material_id': None})
+                        db.session.delete(m)
+                if not Material.query.filter_by(course_id=course.id, filename=spec['url']).first():
+                    db.session.add(Material(
+                        course_id=course.id, session=spec['session'], title=spec['title'],
+                        description='Session slides', filename=spec['url'],
+                        file_type='embed', file_size='Embed',
+                        is_published=True, order_index=spec['session'],
+                    ))
+                db.session.commit()
+            except Exception as exc:
+                db.session.rollback()
+                app.logger.warning('Embed curriculum seed failed for course %s: %s', course.id, exc)
 
 
 _STARTUP_SEED_LOCK_KEY = 72510001  # any fixed number, shared by all workers
@@ -7520,6 +7612,7 @@ with app.app_context():
         enforce_python_fundamentals_curriculum_materials()
         enforce_python_intermediate_curriculum_materials()
         seed_course_curriculum_materials()
+        seed_embed_curriculum_materials()
         seed_ml_quizzes()
         seed_ml_homework_and_assignment()
         _dedupe_quizzes_by_title()

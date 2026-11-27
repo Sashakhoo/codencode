@@ -3619,8 +3619,9 @@ async function loadTeacherMaterials() {
     : mats.map(m => {
         // Decks (HTML slide apps) and PDFs open in their own tab for presenting in class;
         // the decks carry their own slide nav + fullscreen. Anything else is a download.
-        const url = `/uploads/materials/${encodeURIComponent(m.filename)}`;
-        const presentable = ['html', 'htm', 'pdf'].includes(String(m.file_type || '').toLowerCase());
+        const isEmbed = m.file_type === 'embed';
+        const url = isEmbed ? esc(m.filename) : `/uploads/materials/${encodeURIComponent(m.filename)}`;
+        const presentable = isEmbed || ['html', 'htm', 'pdf'].includes(String(m.file_type || '').toLowerCase());
         const openBtn = presentable
           ? `<a class="btn-action" href="${url}" target="_blank" rel="noopener" title="Open full screen to present in class" style="margin-right:6px;text-decoration:none"><i class="fas fa-desktop"></i> Present</a>`
           : `<a class="btn-action ghost" href="${url}?download=1" title="Download" style="margin-right:6px;text-decoration:none"><i class="fas fa-download"></i> Download</a>`;
@@ -7453,8 +7454,9 @@ function renderMedia(){
     // slide-deck HTML app with its own nav/fullscreen, so it needs real height, not a
     // 16:9 video-style crop.
     el.classList.add('lrn-media-deck');
-    el.innerHTML = `<iframe src="${esc(d.file_url)}" title="${esc(d.title)}"></iframe>
-      <span class="lrn-media-tag">${esc((d.file_type||'deck').toUpperCase())}</span>`;
+    const isEmbed = d.file_type === 'embed';
+    el.innerHTML = `<iframe src="${esc(d.file_url)}" title="${esc(d.title)}" allow="fullscreen" allowfullscreen${isEmbed ? ' referrerpolicy="strict-origin-when-cross-origin"' : ''}></iframe>
+      <span class="lrn-media-tag">${esc(isEmbed ? 'SLIDES' : (d.file_type||'deck').toUpperCase())}</span>`;
   }
 }
 

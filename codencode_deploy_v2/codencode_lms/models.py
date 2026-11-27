@@ -1180,6 +1180,20 @@ class WorkshopFeedback(db.Model):
 #  Learn UI: lesson slides + per-student progress
 # ─────────────────────────────────────────────
 
+class CalendarEvent(db.Model):
+    """One Google Calendar event per class session of a Class (cohort).
+    The first student enrolled creates it; later students are added to the
+    same event as guests (see gcal.py)."""
+    __tablename__ = 'calendar_events'
+    __table_args__ = (db.UniqueConstraint('cohort_id', 'session_date', 'time_start', name='uq_calendar_session'),)
+    id              = db.Column(db.Integer, primary_key=True)
+    cohort_id       = db.Column(db.Integer, db.ForeignKey('cohorts.id'), nullable=False)
+    session_date    = db.Column(db.String(10), nullable=False)   # YYYY-MM-DD
+    time_start      = db.Column(db.String(5), nullable=False)    # HH:MM
+    google_event_id = db.Column(db.String(200), nullable=False)
+    created_at      = db.Column(db.DateTime, default=datetime.utcnow)
+
+
 class LessonSlide(db.Model):
     """One slide of a lesson's deck: an image render plus the key-point caption
     shown in the transcript panel. Ordered within a Material."""
