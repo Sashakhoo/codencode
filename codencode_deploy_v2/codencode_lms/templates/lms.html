@@ -7398,7 +7398,9 @@ async function renderLesson(mid){
       ${slides.length ? `<div class="lrn-slidenav">
         <button id="lrn-sl-prev"><i class="fas fa-chevron-left"></i></button>
         <span class="count" id="lrn-sl-count"></span>
-        <button id="lrn-sl-next"><i class="fas fa-chevron-right"></i></button></div>` : ''}
+        <button id="lrn-sl-next"><i class="fas fa-chevron-right"></i></button></div>
+        ${d.file_type === 'embed' ? `<div class="lrn-slidenav" style="justify-content:flex-end;margin-top:0">
+          <button id="lrn-embed-toggle" onclick="learnToggleEmbed()" style="width:auto;padding:0 12px;font-size:12px"></button></div>` : ''}` : ''}
       <div class="lrn-eyebrow">${esc(d.course.programme||d.course.title)} · ${d.session===0?T('lrn.scopeGeneral'):T('lrn.scopeSession',{n:d.session})} · ${T('lrn.crumbLesson')}</div>
       <div class="lrn-h1">${esc(d.title)}</div>
       <div class="lrn-meta">
@@ -7430,7 +7432,7 @@ async function renderLesson(mid){
     </div>
   </div>`;
 
-  LRN.slides = slides; LRN.kp = kp;
+  LRN.slides = slides; LRN.kp = kp; LRN.showEmbed = false;
   renderMedia();
   learnTab('transcript');
   if (slides.length) {
@@ -7440,10 +7442,21 @@ async function renderLesson(mid){
   }
 }
 
+// Embedded decks (Gamma etc.) that also have bundled slide images show the
+// images by default - they always load - with a switch to the live embed.
+function learnToggleEmbed(){ LRN.showEmbed = !LRN.showEmbed; renderMedia(); }
+
 function renderMedia(){
   const el = document.getElementById('lrn-media');
   const d = LRN.data;
-  if (LRN.slides && LRN.slides.length) {
+  const tg = document.getElementById('lrn-embed-toggle');
+  if (tg) {
+    tg.innerHTML = LRN.showEmbed ? '<i class="fas fa-images"></i> Back to slides'
+                                 : '<i class="fas fa-external-link-alt"></i> Interactive version';
+    ['lrn-sl-prev','lrn-sl-next','lrn-sl-count'].forEach(id => {
+      const b = document.getElementById(id); if (b) b.style.visibility = LRN.showEmbed ? 'hidden' : ''; });
+  }
+  if (LRN.slides && LRN.slides.length && !LRN.showEmbed) {
     el.classList.remove('lrn-media-deck');
     const s = LRN.slides[LRN.slideIdx];
     el.innerHTML = `<img src="${esc(s.image_url)}" alt="slide ${LRN.slideIdx+1}">`;
