@@ -1517,7 +1517,7 @@
     }
   </style>
   <link rel="stylesheet" href="/static/css/lms-skin.css?v=5" />
-  <link rel="stylesheet" href="/static/css/lms-learn.css?v=4" />
+  <link rel="stylesheet" href="/static/css/lms-learn.css?v=5" />
 </head>
 <body>
 
@@ -3167,6 +3167,7 @@ const VIEW_LOADERS = {
 };
 
 async function switchView(id) {
+  if (typeof learnUnmaximize === 'function') learnUnmaximize();
   document.querySelectorAll('.modal-overlay.open').forEach(m => m.classList.remove('open'));
   document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
@@ -3620,7 +3621,8 @@ async function loadTeacherMaterials() {
         // Decks (HTML slide apps) and PDFs open in their own tab for presenting in class;
         // the decks carry their own slide nav + fullscreen. Anything else is a download.
         const isEmbed = m.file_type === 'embed';
-        const url = isEmbed ? esc(m.filename) : `/uploads/materials/${encodeURIComponent(m.filename)}`;
+        // Embedded decks open the presenter page (bundled slides, with a switch to the live embed).
+        const url = isEmbed ? `/present/${m.id}` : `/uploads/materials/${encodeURIComponent(m.filename)}`;
         const presentable = isEmbed || ['html', 'htm', 'pdf'].includes(String(m.file_type || '').toLowerCase());
         const openBtn = presentable
           ? `<a class="btn-action" href="${url}" target="_blank" rel="noopener" title="Open full screen to present in class" style="margin-right:6px;text-decoration:none"><i class="fas fa-desktop"></i> Present</a>`
@@ -7366,6 +7368,7 @@ async function learnOpenLesson(mid){ LRN.curMaterialId = mid; LRN.curDrillId = n
   learnGo('learn'); renderLesson(mid); }
 
 async function renderLesson(mid){
+  document.body.style.overflow = '';   // in case a lesson was left in window-filling mode
   const stage = document.getElementById('lrn-stage');
   stage.innerHTML = `<div class="lrn-empty">${T('lrn.loading')}</div>`;
   let d;
@@ -7398,9 +7401,11 @@ async function renderLesson(mid){
       ${slides.length ? `<div class="lrn-slidenav">
         <button id="lrn-sl-prev"><i class="fas fa-chevron-left"></i></button>
         <span class="count" id="lrn-sl-count"></span>
-        <button id="lrn-sl-next"><i class="fas fa-chevron-right"></i></button></div>
-        ${d.file_type === 'embed' ? `<div class="lrn-slidenav" style="justify-content:flex-end;margin-top:0">
-          <button id="lrn-embed-toggle" onclick="learnToggleEmbed()" style="width:auto;padding:0 12px;font-size:12px"></button></div>` : ''}` : ''}
+        <button id="lrn-sl-next"><i class="fas fa-chevron-right"></i></button></div>` : ''}
+      <div class="lrn-slidenav lrn-mediabar">
+        ${d.file_type === 'embed' && slides.length ? `<button id="lrn-embed-toggle" onclick="learnToggleEmbed()"></button>` : ''}
+        ${STATE.user && STATE.user.role !== 'student' && (slides.length || d.file_type === 'embed') ? `<button onclick="window.open('/present/${mid}','_blank','noopener')" title="Open the presenter view in a new tab"><i class="fas fa-desktop"></i> Present</button>` : ''}
+        <button onclick="learnFullscreen()" title="Full screen (Esc to exit)"><i class="fas fa-expand"></i> Full screen</button></div>
       <div class="lrn-eyebrow">${esc(d.course.programme||d.course.title)} · ${d.session===0?T('lrn.scopeGeneral'):T('lrn.scopeSession',{n:d.session})} · ${T('lrn.crumbLesson')}</div>
       <div class="lrn-h1">${esc(d.title)}</div>
       <div class="lrn-meta">
@@ -7446,6 +7451,73 @@ async function renderLesson(mid){
 // images by default - they always load - with a switch to the live embed.
 function learnToggleEmbed(){ LRN.showEmbed = !LRN.showEmbed; renderMedia(); }
 
+// Full screen for the lesson media (slides or embedded deck). In full screen,
+// slides move with the arrow keys / space, or a click on the right or left half.
+function learnFullscreen(){
+  const el = document.getElementById('lrn-media');
+  if (!el) return;
+  if (document.fullscreenElement) { document.exitFullscreen(); return; }
+  if (el.classList.contains('lrn-media-max')) { learnUnmaximize(); return; }
+  // Browsers that refuse element full screen (iPhone Safari, some in-app
+  // browsers) get the media filling the window instead.
+  const req = el.requestFullscreen || el.webkitRequestFullscreen;
+  let p = null;
+  try { p = req ? req.call(el) : null; } catch (err) { p = Promise.reject(err); }
+  if (!req) { learnMaximize(); return; }
+  if (p && p.catch) p.catch(learnMaximize);
+  // Some embedded browsers neither grant nor refuse - fall back if nothing happened.
+  setTimeout(() => { if (!document.fullscreenElement) learnMaximize(); }, 800);
+}
+function learnMaximize(){
+  const el = document.getElementById('lrn-media');
+  if (!el || el.classList.contains('lrn-media-max')) return;
+  el.classList.add('lrn-media-max');
+  document.body.style.overflow = 'hidden';
+  const x = document.createElement('button');
+  x.className = 'lrn-media-close'; x.title = 'Exit full screen (Esc)';
+  x.innerHTML = '<i class="fas fa-times"></i>';
+  x.onclick = learnUnmaximize;
+  el.appendChild(x);
+}
+function learnUnmaximize(){
+  const el = document.getElementById('lrn-media');
+  document.body.style.overflow = '';
+  if (!el) return;
+  el.classList.remove('lrn-media-max');
+  el.querySelectorAll('.lrn-media-close').forEach(b => b.remove());
+}
+function learnIsFull(){
+  const el = document.getElementById('lrn-media');
+  return !!el && (document.fullscreenElement === el || el.classList.contains('lrn-media-max'));
+}
+function learnSlideStep(dir){
+  if (!LRN.slides || !LRN.slides.length || LRN.showEmbed) return false;
+  const b = document.getElementById(dir > 0 ? 'lrn-sl-next' : 'lrn-sl-prev');
+  if (b) b.click();
+  return !!b;
+}
+document.addEventListener('keydown', e => {
+  const shell = document.getElementById('learn-shell');
+  if (!shell || shell.hidden || !document.getElementById('lrn-media')) return;
+  if (/^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName) || e.target.isContentEditable) return;
+  // Left/Right always; Space, Up/Down and PageUp/PageDown only in full screen,
+  // so they still scroll the page normally.
+  if (e.key === 'Escape' && document.getElementById('lrn-media').classList.contains('lrn-media-max')) {
+    learnUnmaximize(); return;
+  }
+  const keys = learnIsFull()
+    ? { ArrowRight: 1, ArrowDown: 1, PageDown: 1, ' ': 1, ArrowLeft: -1, ArrowUp: -1, PageUp: -1 }
+    : { ArrowRight: 1, ArrowLeft: -1 };
+  const dir = keys[e.key];
+  if (dir && learnSlideStep(dir)) e.preventDefault();
+});
+document.addEventListener('click', e => {
+  const media = document.getElementById('lrn-media');
+  if (!media || !learnIsFull() || e.target.tagName !== 'IMG') return;
+  const r = media.getBoundingClientRect();
+  learnSlideStep(e.clientX - r.left > r.width / 2 ? 1 : -1);
+});
+
 function renderMedia(){
   const el = document.getElementById('lrn-media');
   const d = LRN.data;
@@ -7470,6 +7542,9 @@ function renderMedia(){
     const isEmbed = d.file_type === 'embed';
     el.innerHTML = `<iframe src="${esc(d.file_url)}" title="${esc(d.title)}" allow="fullscreen" allowfullscreen${isEmbed ? ' referrerpolicy="strict-origin-when-cross-origin"' : ''}></iframe>
       <span class="lrn-media-tag">${esc(isEmbed ? 'SLIDES' : (d.file_type||'deck').toUpperCase())}</span>`;
+  }
+  if (el.classList.contains('lrn-media-max')) {   // re-add the close button wiped above
+    el.classList.remove('lrn-media-max'); learnMaximize();
   }
 }
 

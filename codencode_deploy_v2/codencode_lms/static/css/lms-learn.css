@@ -186,6 +186,26 @@
   background: rgba(0,0,0,.55); padding: 3px 8px; border-radius: 6px;
 }
 .lrn-slidenav { display: flex; align-items: center; justify-content: space-between; margin: 14px 0 8px; }
+.lrn-slidenav.lrn-mediabar { justify-content: flex-end; gap: 8px; margin-top: 0; }
+.lrn-slidenav.lrn-mediabar:first-child, .lrn-media + .lrn-mediabar { margin-top: 12px; }
+.lrn-slidenav.lrn-mediabar button { width: auto; padding: 0 12px; font-size: 12px; display: inline-flex; align-items: center; gap: 6px; }
+/* Full screen: the slide or embedded deck fills the screen. */
+.lrn-media:fullscreen { aspect-ratio: unset; width: 100vw; height: 100vh; border: 0; border-radius: 0; background: #000; }
+.lrn-media:fullscreen img, .lrn-media:fullscreen iframe { background: #000; }
+.lrn-media:fullscreen img { cursor: pointer; }
+.lrn-media:-webkit-full-screen { width: 100vw; height: 100vh; border-radius: 0; background: #000; }
+/* Fallback when the browser refuses full screen: fill the window. */
+.lrn-media.lrn-media-max {
+  position: fixed; inset: 0; z-index: 10000; width: auto; height: auto;
+  aspect-ratio: unset; border: 0; border-radius: 0; background: #000;
+}
+.lrn-media.lrn-media-max img, .lrn-media.lrn-media-max iframe { background: #000; }
+.lrn-media.lrn-media-max img { cursor: pointer; }
+.lrn-media-close {
+  position: absolute; top: 14px; right: 14px; z-index: 2; width: 40px; height: 40px;
+  border: 0; border-radius: 50%; cursor: pointer; font-size: 18px;
+  background: rgba(0,0,0,.6); color: #fff;
+}
 .lrn-slidenav button {
   width: 34px; height: 34px; border-radius: 10px; border: 0; cursor: pointer;
   background: var(--lrn-surface-2); color: var(--lrn-text-2); font-size: 15px;
